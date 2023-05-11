@@ -22,15 +22,21 @@ export function List({ items }: { items: any[] }) {
       <Header />
       <tbody>
         {items.map(
-          ({ tokenAddress, amount, tokenNfts: { tokenId, id, type } }) => (
+          ({
+            tokenAddress,
+            amount,
+            tokenType,
+            tokenNfts: { tokenId },
+            token: { name, symbol },
+          }) => (
             <Item
-              key={id}
+              key={tokenId}
               tokenAddress={tokenAddress}
               tokenId={tokenId}
-              tokenType={type}
+              tokenType={tokenType}
               amount={amount}
-              tokenName="NAme"
-              tokenSymbol="SYmbol"
+              tokenName={name}
+              tokenSymbol={symbol}
             />
           )
         )}
