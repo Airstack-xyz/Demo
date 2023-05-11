@@ -1,0 +1,126 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap");
+
+body {
+  font-family: "Inter";
+  font-style: normal;
+  line-height: 1.5;
+  font-size: 16px;
+  color: white;
+  background-color: #0e0e12;
+}
+#root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+h1 {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 18px !important;
+  line-height: 150%;
+  text-align: center;
+  letter-spacing: 0.5px;
+  margin-bottom: 20px;
+}
+
+form {
+  display: flex;
+}
+
+form input {
+  width: 518px;
+  background: #16161d;
+  border-radius: 6px;
+  margin-right: 12px;
+  padding: 12px 20px;
+  border: none;
+  outline: none;
+  color: white;
+}
+
+form button {
+  height: 50px;
+  left: 948px;
+  top: 449.27px;
+  background: #de5c5f;
+  border-radius: 6px;
+  color: white;
+}
+
+main {
+  max-width: 80%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+table {
+  background-color: #16161d;
+  width: 100%;
+  border: 1px solid #303241;
+  border-radius: 6px;
+  table-layout: fixed;
+}
+
+th {
+  background-color: #0e0e12;
+  padding: 10px;
+  text-align: left;
+  border: none;
+}
+
+td {
+  min-width: 150px;
+  padding: 10px;
+  border-top: 1px solid #303241;
+  overflow: hidden;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+footer {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  margin: 30px 0;
+}
+
+footer button {
+  background: #24242d;
+  border: 1px solid #303241;
+  border-radius: 6px;
+  color: white;
+}
+
+footer button:disabled {
+  color: gray;
+  cursor: not-allowed;
+  border: none;
+}
+
+.loader {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  font-weight: 600;
+}
