@@ -33,8 +33,8 @@ function TokenList() {
   /*
     STEP 6: Function to call `getData` and pass parameters
   */
-  const handleSubmit = (query: string) => {
-    getData({ owner: query, limit: 5 });
+  const handleSubmit = (owner: string) => {
+    getData({ owner, limit: 5 });
   };
 
   const tokenList = data?.TokenBalances?.TokenBalance || [];
