@@ -7,7 +7,7 @@ import { query } from "../queries";
 /*
   STEP 3: Import useLazyQueryWithPagination hook from airstack-web-sdk
 */
-import { useLazyQueryWithPagination } from "airstack-web-sdk-test";
+import { useLazyQueryWithPagination } from "@airstack/airstack-react";
 
 function TokenList() {
   /*

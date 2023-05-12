@@ -3,7 +3,7 @@ import TokenList from "./pages/token-list";
 /*
   STEP 1: Import init function from airstack-web-sdk
 */
-import { init } from "airstack-web-sdk-test";
+import { init } from "@airstack/airstack-react";
 
 /*
   STEP 2:
