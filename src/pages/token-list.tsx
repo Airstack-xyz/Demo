@@ -8,6 +8,8 @@ import { query } from "../queries";
   STEP 3: Import useLazyQueryWithPagination hook from airstack-web-sdk
 */
 import { useLazyQueryWithPagination } from "@airstack/airstack-react";
+import { useState } from "react";
+import { POAPs } from "../Components/POAPs";
 
 function TokenList() {
   /*
@@ -29,12 +31,14 @@ function TokenList() {
     STEP 5: Destruct the variables of pagination
   */
   const { hasNextPage, hasPrevPage, getNextPage, getPrevPage } = pagination;
+  const [owner, setOwner] = useState("");
 
   /*
     STEP 6: Function to call `getData` and pass parameters
   */
   const handleSubmit = (owner: string) => {
-    getData({ owner, limit: 5 });
+    getData({ owner, limit: 20 });
+    setOwner(owner);
   };
 
   const tokenList = data?.TokenBalances?.TokenBalance || [];
@@ -53,6 +57,7 @@ function TokenList() {
         {tokenList.length > 0 && (
           <>
             <List items={tokenList} />
+            {owner && <POAPs owner={owner} />}
             <footer>
               {/*
                 STEP 8: On press of `Prev Page` call `getPrevPage` function

@@ -7,7 +7,7 @@ export function Header({
   onSubmit: (query: string) => void;
   disabled: boolean;
 }) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState("vitalik.eth");
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
     onSubmit(query);
