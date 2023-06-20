@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap");
+@import url("./reset.css");
 
 body {
   font-family: "Inter";
@@ -15,12 +16,13 @@ body {
   justify-content: center;
   width: 100%;
 }
+
 header {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-bottom: 30px;
+  margin: 30px 0;
   text-align: center;
 }
 
@@ -32,6 +34,22 @@ h1 {
   text-align: center;
   letter-spacing: 0.5px;
   margin-bottom: 20px;
+}
+
+header .get-sdk-link {
+  position: absolute;
+  right: 60px;
+  top: 30px;
+  font-weight: 700;
+  color: #65aad0;
+  background-color: #16161d;
+  padding: 10px 20px;
+  border-radius: 6px;
+}
+
+.get-sdk-link:hover {
+  background-color: #16161d;
+  color: #65aad0;
 }
 
 form {
@@ -59,7 +77,7 @@ form button {
 }
 
 main {
-  max-width: 80%;
+  width: 80%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -113,14 +131,83 @@ footer button:disabled {
 }
 
 .loader {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(0, 0, 0, 0.5);
   font-weight: 600;
+  margin: 20px 0;
+}
+
+.lists-wrapper {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+}
+.list-title {
+  display: flex;
+  margin-bottom: 10px;
+}
+
+.list-title h2 {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: initial;
+  margin-left: 6px;
+}
+
+.tokens {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.poaps {
+  margin-left: 40px;
+}
+
+.poaps .poap {
+  display: flex;
+  align-items: center;
+  background: #16161d;
+  border: 1px solid #303241;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  width: 300px;
+}
+.poaps .logo {
+  min-width: 115px;
+  height: 115px;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.poaps li img {
+  width: 115px;
+}
+
+.poaps .info {
+  overflow: hidden;
+  padding: 10px;
+  font-weight: 400;
+  font-size: 10px;
+  line-height: 200%;
+  letter-spacing: 0.5px;
+  color: #96999c;
+}
+
+.poaps .info > * {
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.info > h3 {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 21px;
+  color: #ffffff;
 }

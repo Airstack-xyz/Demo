@@ -21,18 +21,24 @@ export const query = `query GetNFTsOwnedByUser($owner: Identity, $limit: Int, $c
   }
 }`;
 
-export const POAPQuery = `query GetPOAPs($owner: Identity, $tokenAddress: Address, $blockchain: TokenBlockchain!, $limit: Int) {
-  TokenBalances(
-    input: {filter: {owner: {_eq: $owner}, tokenType: {_in: [ERC1155, ERC721]}, tokenAddress: {_eq: $tokenAddress}}, blockchain: $blockchain, limit: $limit}
-  ) {
-    TokenBalance {
-      tokenNfts {
-        metaData {
-          name
-          image
+export const POAPQuery = `query GetPOAPs($owner: Identity, $cursor: String) {
+  Poaps(input: {filter: {owner: {_eq: $owner}}, blockchain: ALL, cursor: $cursor}) {
+    Poap {
+      poapEvent {
+        eventName
+        startDate
+        isVirtualEvent
+        eventId
+        logo: contentValue {
+          image {
+            small
+          }
         }
-        lastTransferTimestamp
       }
+    }
+    pageInfo {
+      nextCursor
+      prevCursor
     }
   }
 }`;

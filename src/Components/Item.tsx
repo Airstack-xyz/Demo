@@ -1,6 +1,3 @@
-/*
-  STEP 10: Import NftAsset component from airstack-web-sdk
-*/
 import { Asset } from "@airstack/airstack-react";
 
 type ItemProps = {
@@ -34,7 +31,7 @@ export function Item({
               imgProps (optional): an object of HTML image attributes to pass to the underlying image element.
               preset (optional): a string representing the size of the asset image to display. Can be one of "extraSmall", "small", "medium", "large", or "original". Defaults to "medium".
           */}
-          {/* <Asset address={tokenAddress} tokenId={tokenId} preset="small" /> */}
+          <Asset address={tokenAddress} tokenId={tokenId} preset="small" />
         </div>
       </td>
       <td>{tokenId}</td>
