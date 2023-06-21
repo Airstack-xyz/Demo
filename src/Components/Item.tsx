@@ -20,7 +20,7 @@ export function Item({
   return (
     <tr>
       <td>
-        <div style={{ width: 50, height: 50 }}>
+        <div className="token-img-wrapper">
           {/*
             STEP 11: Add NftAsset component to render the image
               chain (optional): a string representing the blockchain network to use. Defaults to "ethereum".
@@ -34,12 +34,12 @@ export function Item({
           <Asset address={tokenAddress} tokenId={tokenId} preset="small" />
         </div>
       </td>
-      <td>{tokenId}</td>
-      <td>{tokenName}</td>
-      <td>{tokenSymbol}</td>
-      <td>{tokenType}</td>
-      <td>{tokenAddress}</td>
-      <td>{amount}</td>
+      <td>{tokenId || "-"}</td>
+      <td>{tokenName || "-"}</td>
+      <td>{tokenSymbol || "-"}</td>
+      <td>{tokenType || "-"}</td>
+      <td>{tokenAddress || "-"}</td>
+      <td>{amount || "-"}</td>
     </tr>
   );
 }

@@ -10,12 +10,12 @@ function Header() {
     <thead>
       <tr>
         <th>Token Image</th>
-        <th>ID</th>
+        <th style={{ width: 100 }}>ID</th>
         <th>Token Name</th>
         <th>Symbol</th>
         <th>Token Type</th>
         <th>Token Address</th>
-        <th>Amount</th>
+        <th style={{ width: 100 }}>Amount</th>
       </tr>
     </thead>
   );
@@ -55,7 +55,7 @@ export function Tokens({ owner }: { owner: string }) {
 
   return (
     <div className="tokens">
-      <ListTitle title="NFTs held" />
+      <ListTitle title="NFTs held" icon="nft" />
       {tokens.length === 0 && loading && (
         <div className="loader">Loading...</div>
       )}
@@ -67,31 +67,36 @@ export function Tokens({ owner }: { owner: string }) {
           hasMore={pagination.hasNextPage}
           loader={<div className="loader">Loading...</div>}
         >
-          <table>
-            <Header />
-            <tbody>
-              {tokens.map(
-                ({
-                  tokenAddress,
-                  amount,
-                  tokenType,
-                  tokenNfts: { tokenId },
-                  token: { name, symbol },
-                }) => (
-                  <Item
-                    key={tokenId}
-                    tokenAddress={tokenAddress}
-                    tokenId={tokenId}
-                    tokenType={tokenType}
-                    amount={amount}
-                    tokenName={name}
-                    tokenSymbol={symbol}
-                  />
-                )
-              )}
-            </tbody>
-          </table>
+          <div className="tokens-table-wrapper">
+            <table>
+              <Header />
+              <tbody>
+                {tokens.map(
+                  ({
+                    tokenAddress,
+                    amount,
+                    tokenType,
+                    tokenNfts: { tokenId },
+                    token: { name, symbol },
+                  }) => (
+                    <Item
+                      key={tokenId}
+                      tokenAddress={tokenAddress}
+                      tokenId={tokenId}
+                      tokenType={tokenType}
+                      amount={amount}
+                      tokenName={name}
+                      tokenSymbol={symbol}
+                    />
+                  )
+                )}
+              </tbody>
+            </table>
+          </div>
         </InfiniteScroll>
+      )}
+      {error && tokens.length === 0 && (
+        <div style={{ marginTop: 20 }}> Error while fetching data! </div>
       )}
     </div>
   );

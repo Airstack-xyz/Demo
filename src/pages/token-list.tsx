@@ -9,21 +9,20 @@ function TokenList() {
   const [owner, setOwner] = useState("");
 
   const handleSubmit = (owner: string) => {
-    console.log(" owner ", owner);
     setOwner(owner);
   };
 
   return (
     <>
       <Header onSubmit={handleSubmit} disabled={false} />
-      <main>
-        {owner && (
+      {owner && (
+        <main>
           <div className="lists-wrapper">
             <Tokens owner={owner} />
             <POAPs owner={owner} />
           </div>
-        )}
-      </main>
+        </main>
+      )}
     </>
   );
 }

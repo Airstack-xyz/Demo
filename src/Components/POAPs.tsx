@@ -76,9 +76,9 @@ export function POAPs({ owner }: { owner: string }) {
   return (
     <>
       <ul className="poaps">
-        <ListTitle title="POAPs held" />
+        <ListTitle title="POAPs held" icon="poap" />
         {poaps.length === 0 && loading && (
-          <li className="loader">Loading...</li>
+          <li className="loader poaps-loader">Loading...</li>
         )}
         {dataNotFound && <div> No data found! </div>}
         <InfiniteScroll
@@ -91,6 +91,7 @@ export function POAPs({ owner }: { owner: string }) {
             return <POAP {...poapEvent} key={poapEvent.eventId} />;
           })}
         </InfiniteScroll>
+        {error && poaps.length === 0 && <li> Error while fetching data! </li>}
       </ul>
     </>
   );
