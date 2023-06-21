@@ -1,7 +1,7 @@
-export function ListTitle({ title }: { title: string }) {
+export function ListTitle({ title, icon }: { title: string; icon?: string }) {
   return (
     <div className="list-title">
-      <img src="/public/sound-wave-bars.svg" height={15} width={15} />
+      <img src={`/icons/${icon}.svg`} height={20} width={20} />
       <h2>{title}</h2>
     </div>
   );

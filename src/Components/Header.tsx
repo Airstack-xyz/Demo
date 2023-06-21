@@ -7,7 +7,7 @@ export function Header({
   onSubmit: (query: string) => void;
   disabled: boolean;
 }) {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState("vitalik.eth");
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
     event.preventDefault();
     onSubmit(query);
@@ -22,7 +22,7 @@ export function Header({
         Get SDKs
       </a>
       <div className="logo-n-heading-wrapper">
-        <img className="logo" src="/logo.svg" width="190" />
+        <img className="logo" src="/logo.svg" width="192" />
         <h1>Get NFTs owned by any wallet</h1>
       </div>
       <form onSubmit={handleSubmit}>

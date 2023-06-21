@@ -15,6 +15,7 @@ body {
   align-items: center;
   justify-content: center;
   width: 100%;
+  min-height: 100vh;
 }
 
 header {
@@ -26,14 +27,18 @@ header {
   text-align: center;
 }
 
+header .logo {
+  margin-bottom: 30px;
+}
+
 h1 {
   font-style: normal;
-  font-weight: 500;
-  font-size: 18px !important;
+  font-weight: 400;
+  font-size: 24px;
   line-height: 150%;
   text-align: center;
   letter-spacing: 0.5px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
 header .get-sdk-link {
@@ -65,6 +70,10 @@ form input {
   border: none;
   outline: none;
   color: white;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 21px;
+  letter-spacing: 0.5px;
 }
 
 form button {
@@ -81,15 +90,19 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   position: relative;
+  flex: 1;
+}
+
+.tokens-table-wrapper {
+  border: 1px solid #303241;
+  border-radius: 6px;
+  overflow: hidden;
 }
 
 table {
   background-color: #16161d;
   width: 100%;
-  border: 1px solid #303241;
-  border-radius: 6px;
   table-layout: fixed;
 }
 
@@ -108,26 +121,15 @@ td {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  vertical-align: middle;
 }
 
-footer {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  margin: 30px 0;
-}
-
-footer button {
-  background: #24242d;
-  border: 1px solid #303241;
-  border-radius: 6px;
-  color: white;
-}
-
-footer button:disabled {
-  color: gray;
-  cursor: not-allowed;
-  border: none;
+.token-img-wrapper {
+  height: 54px;
+  width: 54px;
+  border-radius: 5px;
+  overflow: hidden;
+  background-color: #0e0e12;
 }
 
 .loader {
@@ -138,14 +140,21 @@ footer button:disabled {
   margin: 20px 0;
 }
 
+.poaps-loader {
+  justify-content: flex-start;
+  margin-left: 5px;
+}
+
 .lists-wrapper {
   width: 100%;
   display: flex;
   flex-direction: row;
+  padding-bottom: 50px;
 }
 .list-title {
   display: flex;
   margin-bottom: 10px;
+  align-items: center;
 }
 
 .list-title h2 {
@@ -163,6 +172,7 @@ footer button:disabled {
 
 .poaps {
   margin-left: 40px;
+  min-width: 302px;
 }
 
 .poaps .poap {
