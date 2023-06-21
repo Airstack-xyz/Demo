@@ -5,6 +5,7 @@ export const query = `query GetNFTOwnedByUser($owner: Identity, $limit: Int) {
     TokenBalance {
       amount
       tokenType
+      blockchain
       tokenAddress
       tokenNfts {
         tokenId
@@ -25,6 +26,7 @@ export const query = `query GetNFTOwnedByUser($owner: Identity, $limit: Int) {
     TokenBalance {
       amount
       tokenType
+      blockchain
       tokenAddress
       tokenNfts {
         tokenId

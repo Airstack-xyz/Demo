@@ -7,6 +7,7 @@ type ItemProps = {
   tokenAddress: string;
   amount: string;
   tokenSymbol: string;
+  blockchain: any;
 };
 
 export function Item({
@@ -16,6 +17,7 @@ export function Item({
   amount,
   tokenAddress,
   tokenSymbol,
+  blockchain,
 }: ItemProps) {
   return (
     <tr>
@@ -37,6 +39,7 @@ export function Item({
             preset="small"
             containerClassName="token-img"
             error={" "} // don't show error text
+            chain={blockchain}
           />
         </div>
       </td>
