@@ -3,6 +3,7 @@ import { POAPQuery } from "../queries";
 import { useCallback, useEffect, useState } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { ListTitle } from "./ListTitle";
+import { formatDate } from "../utils";
 export type POAPQueryReturnType = {
   Poaps: {
     Poap: {
@@ -39,7 +40,7 @@ function POAP({
       <div className="info">
         <h3>{eventName}</h3>
         <p>Event ID #{eventId}</p>
-        <p>{startDate}</p>
+        <p>{formatDate(startDate)}</p>
       </div>
     </li>
   );
