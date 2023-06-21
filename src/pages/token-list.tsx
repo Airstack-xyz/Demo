@@ -14,7 +14,9 @@ function TokenList() {
 
   return (
     <>
-      <Header onSubmit={handleSubmit} disabled={false} />
+      <div style={{ marginTop: owner ? 0 : -100 }}>
+        <Header onSubmit={handleSubmit} disabled={false} />
+      </div>
       {owner && (
         <main>
           <div className="lists-wrapper">
