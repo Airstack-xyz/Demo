@@ -32,7 +32,7 @@ export function Tokens({ owner }: { owner: string }) {
     if (owner) {
       fetch({
         owner,
-        limit: 20,
+        limit: 10,
       });
       setTokens([]);
     }
@@ -40,8 +40,10 @@ export function Tokens({ owner }: { owner: string }) {
 
   useEffect(() => {
     if (data) {
-      const newTokens = data?.TokenBalances?.TokenBalance || [];
-      setTokens((tokens) => [...tokens, ...newTokens]);
+      const { ethereum, polygon } = data;
+      const ethTokens = ethereum?.TokenBalance || [];
+      const maticTokens = polygon?.TokenBalance || [];
+      setTokens((tokens) => [...tokens, ...ethTokens, ...maticTokens]);
     }
   }, [data]);
 
@@ -55,7 +57,7 @@ export function Tokens({ owner }: { owner: string }) {
 
   return (
     <div className="tokens">
-      <ListTitle title="NFTs held" icon="nft" />
+      <ListTitle title="NFTs" icon="nft" />
       {tokens.length === 0 && loading && (
         <div className="loader">Loading...</div>
       )}

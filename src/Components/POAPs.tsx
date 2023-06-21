@@ -77,7 +77,7 @@ export function POAPs({ owner }: { owner: string }) {
   return (
     <>
       <ul className="poaps">
-        <ListTitle title="POAPs held" icon="poap" />
+        <ListTitle title="POAPs" icon="poap" />
         {poaps.length === 0 && loading && (
           <li className="loader poaps-loader">Loading...</li>
         )}
