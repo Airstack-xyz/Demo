@@ -1,6 +1,6 @@
-export const query = `query GetNFTsOwnedByUser($owner: Identity, $limit: Int, $cursor: String) {
-  TokenBalances(
-    input: {filter: {owner: {_eq: $owner}, tokenType: {_in: [ERC1155, ERC721]}}, blockchain: ethereum, limit: $limit, cursor: $cursor}
+export const query = `query GetNFTOwnedByUser($owner: Identity, $limit: Int) {
+  ethereum: TokenBalances(
+    input: {filter: {owner: {_eq: $owner}, tokenType: {_in: [ERC1155, ERC721]}}, blockchain: ethereum, limit: $limit}
   ) {
     TokenBalance {
       amount
@@ -13,7 +13,27 @@ export const query = `query GetNFTsOwnedByUser($owner: Identity, $limit: Int, $c
         name
         symbol
       }
-    } 
+    }
+    pageInfo {
+      nextCursor
+      prevCursor
+    }
+  }
+  polygon: TokenBalances(
+    input: {filter: {owner: {_eq: $owner}, tokenType: {_in: [ERC1155, ERC721]}}, blockchain: polygon, limit: $limit}
+  ) {
+    TokenBalance {
+      amount
+      tokenType
+      tokenAddress
+      tokenNfts {
+        tokenId
+      }
+      token {
+        name
+        symbol
+      }
+    }
     pageInfo {
       nextCursor
       prevCursor
@@ -21,8 +41,8 @@ export const query = `query GetNFTsOwnedByUser($owner: Identity, $limit: Int, $c
   }
 }`;
 
-export const POAPQuery = `query GetPOAPs($owner: Identity, $cursor: String) {
-  Poaps(input: {filter: {owner: {_eq: $owner}}, blockchain: ALL, cursor: $cursor}) {
+export const POAPQuery = `query GetPOAPs($owner: Identity) {
+  Poaps(input: {filter: {owner: {_eq: $owner}}, blockchain: ALL}) {
     Poap {
       poapEvent {
         eventName
