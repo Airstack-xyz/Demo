@@ -14,6 +14,13 @@ export function Header({
   };
   return (
     <header>
+      <a
+        className="get-sdk-link"
+        href="https://docs.airstack.xyz/airstack-docs-and-faqs/quick-start-and-sdks"
+        target="_blank"
+      >
+        Get SDKs
+      </a>
       <div className="logo-n-heading-wrapper">
         <img className="logo" src="/logo.svg" width="190" />
         <h1>Get NFTs owned by any wallet</h1>

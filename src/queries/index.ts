@@ -20,3 +20,25 @@ export const query = `query GetNFTsOwnedByUser($owner: Identity, $limit: Int, $c
     }
   }
 }`;
+
+export const POAPQuery = `query GetPOAPs($owner: Identity, $cursor: String) {
+  Poaps(input: {filter: {owner: {_eq: $owner}}, blockchain: ALL, cursor: $cursor}) {
+    Poap {
+      poapEvent {
+        eventName
+        startDate
+        isVirtualEvent
+        eventId
+        logo: contentValue {
+          image {
+            small
+          }
+        }
+      }
+    }
+    pageInfo {
+      nextCursor
+      prevCursor
+    }
+  }
+}`;

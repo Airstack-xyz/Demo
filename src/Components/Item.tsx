@@ -1,6 +1,3 @@
-/*
-  STEP 10: Import NftAsset component from airstack-web-sdk
-*/
 import { Asset } from "@airstack/airstack-react";
 
 type ItemProps = {
