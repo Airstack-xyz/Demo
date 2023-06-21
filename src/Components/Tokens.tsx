@@ -80,6 +80,7 @@ export function Tokens({ owner }: { owner: string }) {
                     tokenType,
                     tokenNfts: { tokenId },
                     token: { name, symbol },
+                    blockchain,
                   }) => (
                     <Item
                       key={tokenId}
@@ -89,6 +90,7 @@ export function Tokens({ owner }: { owner: string }) {
                       amount={amount}
                       tokenName={name}
                       tokenSymbol={symbol}
+                      blockchain={blockchain}
                     />
                   )
                 )}
