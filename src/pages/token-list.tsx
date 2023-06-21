@@ -1,6 +1,6 @@
 import "../App.css";
 
-import { List } from "../Components/List";
+import { Tokens } from "../Components/Tokens";
 import { Header } from "../Components/Header";
 import { useState } from "react";
 import { POAPs } from "../Components/POAPs";
@@ -19,7 +19,7 @@ function TokenList() {
       <main>
         {owner && (
           <div className="lists-wrapper">
-            <List owner={owner} />
+            <Tokens owner={owner} />
             <POAPs owner={owner} />
           </div>
         )}

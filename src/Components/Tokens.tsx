@@ -21,7 +21,7 @@ function Header() {
   );
 }
 
-export function List({ owner }: { owner: string }) {
+export function Tokens({ owner }: { owner: string }) {
   const [fetch, { data, error, loading, pagination }] =
     useLazyQueryWithPagination(query);
   const { hasNextPage, getNextPage } = pagination;
