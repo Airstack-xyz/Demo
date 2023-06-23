@@ -9,6 +9,11 @@ export const query = `query GetNFTOwnedByUser($owner: Identity, $limit: Int) {
       tokenAddress
       tokenNfts {
         tokenId
+        contentValue {
+          image {
+            small
+          }
+        }
       }
       token {
         name
@@ -30,6 +35,11 @@ export const query = `query GetNFTOwnedByUser($owner: Identity, $limit: Int) {
       tokenAddress
       tokenNfts {
         tokenId
+        contentValue {
+          image {
+            small
+          }
+        }
       }
       token {
         name

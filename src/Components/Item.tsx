@@ -10,6 +10,10 @@ type ItemProps = {
   blockchain: any;
 };
 
+function Placeholder() {
+  return <img src="/images/placeholder.png" />;
+}
+
 export function Item({
   tokenId,
   tokenName,
@@ -38,7 +42,7 @@ export function Item({
             tokenId={tokenId}
             preset="small"
             containerClassName="token-img"
-            error={" "} // don't show error text
+            error={<Placeholder />}
             chain={blockchain}
           />
         </div>

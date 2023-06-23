@@ -41,15 +41,19 @@ h1 {
   margin-bottom: 30px;
 }
 
-header .get-sdk-link {
+header .floating-actions {
   position: absolute;
-  right: 60px;
+  right: 30px;
   top: 30px;
+}
+
+header .get-sdk-link {
   font-weight: 700;
   color: #65aad0;
   background-color: #16161d;
   padding: 10px 20px;
   border-radius: 6px;
+  margin-left: 20px;
 }
 
 .get-sdk-link:hover {
