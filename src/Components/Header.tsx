@@ -14,13 +14,22 @@ export function Header({
   };
   return (
     <header>
-      <a
-        className="get-sdk-link"
-        href="https://docs.airstack.xyz/airstack-docs-and-faqs/quick-start-and-sdks"
-        target="_blank"
-      >
-        Get SDKs
-      </a>
+      <div className="floating-actions">
+        <a
+          className="get-sdk-link"
+          href="https://docs.airstack.xyz/airstack-docs-and-faqs/quick-start-and-sdks"
+          target="_blank"
+        >
+          SDKs
+        </a>
+        <a
+          className="get-sdk-link"
+          href="https://app.airstack.xyz/"
+          target="_blank"
+        >
+          APIs
+        </a>
+      </div>
       <div className="logo-n-heading-wrapper">
         <img className="logo" src="/logo.svg" width="192" />
         <h1>Get NFTs & POAPs owned by any wallet</h1>

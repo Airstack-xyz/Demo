@@ -78,21 +78,25 @@ export function Tokens({ owner }: { owner: string }) {
                     tokenAddress,
                     amount,
                     tokenType,
-                    tokenNfts: { tokenId },
-                    token: { name, symbol },
+                    tokenNfts,
+                    token,
                     blockchain,
-                  }) => (
-                    <Item
-                      key={tokenId}
-                      tokenAddress={tokenAddress}
-                      tokenId={tokenId}
-                      tokenType={tokenType}
-                      amount={amount}
-                      tokenName={name}
-                      tokenSymbol={symbol}
-                      blockchain={blockchain}
-                    />
-                  )
+                  }) => {
+                    const { tokenId } = tokenNfts || {};
+                    const { name, symbol } = token || {};
+                    return (
+                      <Item
+                        key={tokenId}
+                        tokenAddress={tokenAddress}
+                        tokenId={tokenId}
+                        tokenType={tokenType}
+                        amount={amount}
+                        tokenName={name}
+                        tokenSymbol={symbol}
+                        blockchain={blockchain}
+                      />
+                    );
+                  }
                 )}
               </tbody>
             </table>
