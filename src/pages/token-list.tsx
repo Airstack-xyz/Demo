@@ -1,12 +1,12 @@
-import "../App.css";
+import '../App.css';
 
-import { Tokens } from "../Components/Tokens";
-import { Header } from "../Components/Header";
-import { useState } from "react";
-import { POAPs } from "../Components/POAPs";
+import { Tokens } from '../Components/Tokens';
+import { Header } from '../Components/Header';
+import { useState } from 'react';
+import { POAPs } from '../Components/POAPs';
 
 function TokenList() {
-  const [owner, setOwner] = useState("");
+  const [owner, setOwner] = useState('');
 
   const handleSubmit = (owner: string) => {
     setOwner(owner);

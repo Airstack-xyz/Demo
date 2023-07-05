@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useState } from 'react';
 
 export function Header({
   onSubmit,
-  disabled,
+  disabled
 }: {
   onSubmit: (query: string) => void;
   disabled: boolean;
 }) {
-  const [query, setQuery] = useState("");
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
+  const [query, setQuery] = useState('');
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = event => {
     event.preventDefault();
     onSubmit(query);
   };
@@ -41,7 +41,7 @@ export function Header({
           required
           minLength={3}
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={e => setQuery(e.target.value)}
           disabled={disabled}
         />
         <button disabled={disabled}>Go</button>

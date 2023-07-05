@@ -1,9 +1,9 @@
-import InfiniteScroll from "react-infinite-scroll-component";
-import { Item } from "./Item";
-import { useLazyQueryWithPagination } from "@airstack/airstack-react";
-import { query } from "../queries";
-import { useCallback, useEffect, useState } from "react";
-import { ListTitle } from "./ListTitle";
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { Item } from './Item';
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { query } from '../queries';
+import { useCallback, useEffect, useState } from 'react';
+import { ListTitle } from './ListTitle';
 
 function Header() {
   return (
@@ -26,13 +26,14 @@ export function Tokens({ owner }: { owner: string }) {
     useLazyQueryWithPagination(query);
   const { hasNextPage, getNextPage } = pagination;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [tokens, setTokens] = useState<any[]>([]);
 
   useEffect(() => {
     if (owner) {
       fetch({
         owner,
-        limit: 10,
+        limit: 10
       });
       setTokens([]);
     }
@@ -43,7 +44,7 @@ export function Tokens({ owner }: { owner: string }) {
       const { ethereum, polygon } = data;
       const ethTokens = ethereum?.TokenBalance || [];
       const maticTokens = polygon?.TokenBalance || [];
-      setTokens((tokens) => [...tokens, ...ethTokens, ...maticTokens]);
+      setTokens(tokens => [...tokens, ...ethTokens, ...maticTokens]);
     }
   }, [data]);
 
@@ -80,7 +81,7 @@ export function Tokens({ owner }: { owner: string }) {
                     tokenType,
                     tokenNfts,
                     token,
-                    blockchain,
+                    blockchain
                   }) => {
                     const { tokenId } = tokenNfts || {};
                     const { name, symbol } = token || {};
