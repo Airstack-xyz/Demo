@@ -1,13 +1,16 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Router as ReachRouter, RouteComponentProps } from '@reach/router';
-import TokenList from '../pages/token-list';
+import { Home as HomePage } from '../pages/home';
+import { TokenBalance as TokenBalancePage } from '../pages/TokenBalances';
 
-// eslint-disable-next-line
-const Home = (_: RouteComponentProps) => <TokenList />;
+const Home = (_: RouteComponentProps) => <HomePage />;
+const TokenBalance = (_: RouteComponentProps) => <TokenBalancePage />;
 
 export function Router() {
   return (
     <ReachRouter>
       <Home path="/" />
+      <TokenBalance path="/token-balances" />
     </ReachRouter>
   );
 }

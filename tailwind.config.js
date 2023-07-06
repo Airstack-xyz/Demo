@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+// eslint-disable-next-line no-undef
 module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
@@ -38,5 +39,16 @@ module.exports = {
       xl: '1600px'
     }
   },
-  plugins: []
+  plugins: [
+    function ({ addUtilities }) {
+      addUtilities({
+        '.flex-row-center': {
+          '@apply flex items-center justify-center': {}
+        },
+        '.flex-col-center': {
+          '@apply flex flex-col items-center justify-center': {}
+        }
+      });
+    }
+  ]
 };

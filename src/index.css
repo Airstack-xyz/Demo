@@ -2,6 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+  .flex-row-center {
+    @apply flex items-center justify-center;
+  }
+  .flex-col-center {
+    @apply flex items-center justify-center;
+  }
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
