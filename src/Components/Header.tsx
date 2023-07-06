@@ -1,51 +1,25 @@
-import { useState } from 'react';
-
-export function Header({
-  onSubmit,
-  disabled
-}: {
-  onSubmit: (query: string) => void;
-  disabled: boolean;
-}) {
-  const [query, setQuery] = useState('');
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = event => {
-    event.preventDefault();
-    onSubmit(query);
-  };
+export function Header() {
   return (
-    <header>
-      <div className="floating-actions">
-        <a
-          className="get-sdk-link"
-          href="https://docs.airstack.xyz/airstack-docs-and-faqs/quick-start-and-sdks"
-          target="_blank"
-        >
-          SDKs
-        </a>
-        <a
-          className="get-sdk-link"
-          href="https://app.airstack.xyz/"
-          target="_blank"
-        >
-          APIs
-        </a>
+    <header className="fixed bg-secondary py-4 w-full z-10 flex justify-center top-0">
+      <div className="max-w-[1440px] w-full flex items-center justify-between px-8">
+        <img src="/logo.svg" className="h-[33px]" />
+        <div className="flex-row-center">
+          <a
+            className="text-text-button font-bold hover:bg-primary px-7 py-2 rounded-md  mr-2"
+            href="https://app.airstack.xyz/"
+            target="_blank"
+          >
+            API
+          </a>
+          <a
+            className="text-text-button font-bold hover:bg-primary px-7 py-2 rounded-md"
+            href="https://docs.airstack.xyz/airstack-docs-and-faqs/quick-start-and-sdks"
+            target="_blank"
+          >
+            SDK
+          </a>
+        </div>
       </div>
-      <div className="logo-n-heading-wrapper">
-        <img className="logo" src="/logo.svg" width="192" />
-        <h1>Get NFTs & POAPs owned by any wallet</h1>
-      </div>
-      <form onSubmit={handleSubmit}>
-        <input
-          placeholder="Enter 0x, name.eth, fc_fname:name, or name.lens"
-          type="text"
-          required
-          minLength={3}
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          disabled={disabled}
-        />
-        <button disabled={disabled}>Go</button>
-      </form>
     </header>
   );
 }

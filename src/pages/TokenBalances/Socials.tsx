@@ -1,3 +1,5 @@
+import { SectionHeader } from './SectionHeader';
+
 function Social() {
   return (
     <div className="flex items-center text-sm mb-7">
@@ -13,7 +15,7 @@ function Social() {
 export function Socials() {
   return (
     <div>
-      <div>Socials</div>
+      <SectionHeader iconName="socials-flat" heading="Socials" />
       <div className="bg-secondary rounded-lg p-5 border border-solid border-stroke-color mt-3.5">
         <Social />
         <Social />

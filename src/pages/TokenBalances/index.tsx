@@ -1,12 +1,13 @@
 import { Search } from '../../Components/Search';
+import { Layout } from '../../Components/layout';
 import { Poaps } from './Poaps';
 import { Socials } from './Socials';
 import { Tokens } from './Tokens';
 
 export function TokenBalance() {
   return (
-    <div className="min-h-screen w-full flex justify-center">
-      <div className="flex flex-col p-16 max-w-[1440px]">
+    <Layout>
+      <div className="flex flex-col px-14 pt-5 max-w-[1440px]">
         <div className="flex flex-col items-center">
           <Search />
         </div>
@@ -24,6 +25,6 @@ export function TokenBalance() {
           </aside>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 }
