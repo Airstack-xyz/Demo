@@ -20,5 +20,14 @@ body {
     rgba(255, 255, 255, 0.04) 0.55%,
     rgba(255, 255, 255, 0) 100%
   );
-  backdrop-filter: blur(48.322147369384766px);
+  backdrop-filter: blur(50px);
+}
+
+.modal-overlay {
+  background-color: rgb(14 14 18 / 90%) !important;
+  z-index: 20;
+}
+
+.code {
+  background: rgb(14 14 18 / 90%);
 }

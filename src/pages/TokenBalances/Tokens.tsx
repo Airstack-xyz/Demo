@@ -1,4 +1,4 @@
-import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { Asset, useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useState, useEffect } from 'react';
 import { query } from '../../queries';
 import { SectionHeader } from './SectionHeader';
@@ -10,10 +10,12 @@ type TokenProps = {
   id: string;
   address: string;
   symbol: string;
+  blockchain: 'ethereum' | 'polygon';
 };
-function Token({ type, name, symbol }: TokenProps) {
+function Token({ type, name, symbol, address, id, blockchain }: TokenProps) {
   return (
     <div className="h-72 w-72 rounded-xl bg-secondary p-2.5 flex flex-col justify-between bg-[url('/images/temp.png')]">
+      <Asset address={address} tokenId={id} chain={blockchain} />
       <div className="flex justify-end">
         <div className="rounded-full h-9 w-9 border-solid border-stroke-color border glass-effect"></div>
         <div className="h-9 rounded-3xl ml-2.5 border border-solid border-stroke-color flex justify-center items-center px-2 glass-effect">
@@ -79,6 +81,7 @@ export function Tokens({ owner = 'vitalik.eth' }: { owner?: string }) {
             type={token.tokenType}
             id={token.tokenNfts.tokenId}
             symbol={token.token.symbol}
+            blockchain={token.blockchain}
           />
         ))}
       </div>

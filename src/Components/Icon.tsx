@@ -12,7 +12,8 @@ export type IconType =
   | 'address-wallet'
   | 'poap-flat'
   | 'nft-flat'
-  | 'socials-flat';
+  | 'socials-flat'
+  | 'close';
 
 export type IconProps = {
   name: IconType;

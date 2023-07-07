@@ -1,7 +1,7 @@
 export interface TokenType {
   amount: string;
   tokenType: string;
-  blockchain: string;
+  blockchain: 'ethereum' | 'polygon';
   tokenAddress: string;
   tokenNfts: TokenNfts;
   token: Token;
@@ -46,3 +46,26 @@ export type PoapType = {
     };
   };
 };
+
+export interface SocialsType {
+  Wallet: Wallet;
+}
+
+export interface Wallet {
+  primaryDomain: PrimaryDomain;
+  domains: Domain[];
+  socials: Social[];
+}
+
+export interface PrimaryDomain {
+  name: string;
+}
+
+export interface Domain {
+  name: string;
+}
+
+export interface Social {
+  dappName: string;
+  profileName: string;
+}

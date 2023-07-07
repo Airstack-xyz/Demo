@@ -74,3 +74,18 @@ export const POAPQuery = `query GetPOAPs($owner: Identity) {
     }
   }
 }`;
+
+export const SocialQuery = `query Social($identity: Identity!, $blockchain: TokenBlockchain!) {
+  Wallet(input: {identity: $identity, blockchain: $blockchain}) {
+    primaryDomain {
+      name
+    }
+    domains {
+      name
+    }
+    socials {
+      dappName
+      profileName
+    }
+  }
+}`;
