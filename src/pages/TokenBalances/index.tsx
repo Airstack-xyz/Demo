@@ -12,7 +12,7 @@ export function TokenBalance() {
 
   return (
     <Layout>
-      <div className="flex flex-col px-14 pt-5 max-w-[1440px]">
+      <div className="flex flex-col px-14 pt-5 w-[1440px] max-w-[100vw]">
         <div className="flex flex-col items-center">
           <Search />
         </div>

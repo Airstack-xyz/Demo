@@ -1,11 +1,8 @@
-import {
-  useLazyQuery,
-  useLazyQueryWithPagination
-} from '@airstack/airstack-react';
+import { useLazyQuery } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { POAPQuery, SocialQuery } from '../../queries';
+import { SocialQuery } from '../../queries';
 import { SectionHeader } from './SectionHeader';
-import { PoapType, SocialsType } from './types';
+import { SocialsType } from './types';
 import { Modal } from '../../Components/Modal';
 
 type SocialType = SocialsType['Wallet'];

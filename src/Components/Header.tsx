@@ -1,7 +1,7 @@
 export function Header() {
   return (
     <header className="fixed bg-secondary py-4 w-full z-10 flex justify-center top-0">
-      <div className="max-w-[1440px] w-full flex items-center justify-between px-8">
+      <div className="w-[1440px] max-w-[100vw] flex items-center justify-between px-8">
         <img src="/logo.svg" className="h-[33px]" />
         <div className="flex-row-center">
           <a
