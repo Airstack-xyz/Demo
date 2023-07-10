@@ -5,6 +5,7 @@ import { SectionHeader } from './SectionHeader';
 import { PoapType } from './types';
 import { formatDate } from '../../utils';
 import classNames from 'classnames';
+import { useSearchInput } from '../../hooks/useSearchInput';
 
 function Poap({
   eventName,
@@ -34,10 +35,11 @@ function Poap({
 
 const loaderData = Array(3).fill({ poapEvent: {} });
 
-export function Poaps({ owner = 'vitalik.eth' }: { owner?: string }) {
+export function Poaps() {
   const [poaps, setPoaps] = useState<PoapType['Poaps']['Poap']>([]);
 
   const [fetch, { data, loading }] = useLazyQueryWithPagination(POAPQuery);
+  const owner = useSearchInput();
 
   useEffect(() => {
     if (owner) {

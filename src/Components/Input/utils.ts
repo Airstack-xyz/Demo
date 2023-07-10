@@ -1,3 +1,4 @@
+import { MentionsQuery } from '../../queries';
 import { ADDRESS_OPTION_ID, POAP_OPTION_ID } from './constants';
 
 export enum MentionType {
@@ -178,4 +179,43 @@ export function debouncePromise<CB extends (...args: any[]) => any>(
     }, timeout);
     return new Promise(r => (resolved = r));
   }) as CB;
+}
+
+export async function fetchMentionOptions(
+  query: string,
+  limit: number
+): Promise<[null | object, null | string]> {
+  try {
+    const res = await fetch('https://bff-prod.airstack.xyz/graphql', {
+      method: 'POST',
+      body: JSON.stringify({
+        operationName: 'SearchAIMentions',
+        query: MentionsQuery,
+        variables: {
+          input: {
+            searchTerm: query,
+            limit
+          }
+        }
+      }),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!res.ok) {
+      return [null, 'Something went wrong'];
+    }
+
+    const { data } = await res.json();
+
+    if (data.errors) {
+      return [null, data.errors[0].message];
+    }
+
+    return [data, null];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    return [null, error?.message || 'Something went wrong'];
+  }
 }

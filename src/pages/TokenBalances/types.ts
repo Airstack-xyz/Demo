@@ -69,3 +69,31 @@ export interface Social {
   dappName: string;
   profileName: string;
 }
+
+// ERC20
+
+export interface ERC20TokensType {
+  ethereum: {
+    TokenBalance: TokenBalance[];
+  };
+  polygon: {
+    TokenBalance: TokenBalance[];
+  };
+}
+
+export interface Ethereum {
+  TokenBalance: TokenBalance[];
+}
+
+export interface TokenBalance {
+  tokenAddress: string;
+  formattedAmount: number;
+  blockchain: string;
+  token: Token;
+  id: string;
+}
+
+export interface Token {
+  symbol: string;
+  name: string;
+}

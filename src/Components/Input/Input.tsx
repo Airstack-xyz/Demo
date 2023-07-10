@@ -19,12 +19,11 @@ import {
   REGEX_LAST_WORD_STARTS_WITH_AT,
   debouncePromise,
   MentionType,
-  SearchAIMentions_SearchAIMentions
+  SearchAIMentions_SearchAIMentions,
+  fetchMentionOptions
 } from './utils';
 import { AddressInput } from './AddressInput';
 import { ADDRESS_OPTION_ID, MENTION_COUNT, POAP_OPTION_ID } from './constants';
-import { MentionsQuery } from '../../queries';
-import { useLazyQuery } from '@airstack/airstack-react/hooks';
 import { Icon } from '../Icon';
 
 type Option = SearchAIMentions_SearchAIMentions & {
@@ -65,10 +64,18 @@ export function InputWithMention({
   const allowSubmitRef = useRef(true);
   const valueRef = useRef(value);
   const lastPositionOfCarretRef = useRef(0);
+  const [loading, setLoading] = useState(false);
 
-  const [getMentions, { loading }] = useLazyQuery(MentionsQuery);
+  // const [getMentions, { loading }] = useLazyQuery(MentionsQuery);
 
   // const placeholder = useAnimateInputPlaceholder(inputRef.current);
+
+  const getMentions = useCallback(async (query: string) => {
+    setLoading(true);
+    const res = await fetchMentionOptions(query, MENTION_COUNT);
+    setLoading(false);
+    return res;
+  }, []);
 
   const handlePaste = useCallback((event: ClipboardEvent) => {
     if (event.target !== inputRef.current) {
@@ -217,15 +224,9 @@ export function InputWithMention({
   );
   const fetchMentions = useCallback(
     async (query: string): Promise<Option[]> => {
-      const { data } = await getMentions({
-        variables: {
-          input: {
-            searchTerm: query,
-            limit: MENTION_COUNT
-          }
-        }
-      }).catch(error => ({ data: null, error }));
-
+      const [response] = await getMentions(query);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data = response as any;
       if (data?.SearchAIMentions) {
         return data.SearchAIMentions.map(
           (mention: SearchAIMentions_SearchAIMentions) => ({

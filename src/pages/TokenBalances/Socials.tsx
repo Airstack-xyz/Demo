@@ -5,6 +5,7 @@ import { SectionHeader } from './SectionHeader';
 import { SocialsType } from './types';
 import { Modal } from '../../Components/Modal';
 import classNames from 'classnames';
+import { useSearchInput } from '../../hooks/useSearchInput';
 
 type SocialType = SocialsType['Wallet'];
 type SocialProps = {
@@ -72,7 +73,7 @@ function Social({ name, values, onShowMore }: SocialProps) {
   );
 }
 
-export function Socials({ owner = 'vitalik.eth' }: { owner?: string }) {
+export function Socials() {
   const [modalValues, setModalValues] = useState<{
     leftValues: string[];
     rightValues: string[];
@@ -82,6 +83,8 @@ export function Socials({ owner = 'vitalik.eth' }: { owner?: string }) {
   });
   const [showModal, setShowModal] = useState(false);
   const [fetch, { data, loading }] = useLazyQuery(SocialQuery);
+  const owner = useSearchInput();
+
   const socialDetails = (data?.Wallet || {}) as SocialType;
 
   useEffect(() => {

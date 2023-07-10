@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { ListTitle } from './ListTitle';
 import { formatDate } from '../utils';
+import { useSearchInput } from '../hooks/useSearchInput';
 export type POAPQueryReturnType = {
   Poaps: {
     Poap: {
@@ -46,11 +47,12 @@ function POAP({
   );
 }
 
-export function POAPs({ owner }: { owner: string }) {
+export function POAPs() {
   const [poaps, setPoaps] = useState<POAPQueryReturnType['Poaps']['Poap']>([]);
 
   const [fetch, { data, loading, error, pagination }] =
     useLazyQueryWithPagination(POAPQuery);
+  const owner = useSearchInput();
 
   useEffect(() => {
     if (owner) {

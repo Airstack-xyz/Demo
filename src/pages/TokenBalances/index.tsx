@@ -3,9 +3,9 @@ import { Modal } from '../../Components/Modal';
 import { Search } from '../../Components/Search';
 import { Layout } from '../../Components/layout';
 import { query } from '../../queries';
-import { Poaps } from './Poaps';
 import { Socials } from './Socials';
 import { Tokens } from './Tokens';
+import { ERC20Tokens } from './ERC20Tokens';
 
 export function TokenBalance() {
   const [showModal, setShowModal] = useState(false);
@@ -30,7 +30,7 @@ export function TokenBalance() {
           <Tokens />
           <aside className="w-80 ml-16">
             <Socials />
-            <Poaps />
+            <ERC20Tokens />
           </aside>
         </div>
       </div>

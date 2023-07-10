@@ -4,6 +4,7 @@ import { query } from '../../queries';
 import { SectionHeader } from './SectionHeader';
 import { TokenType as TokenType } from './types';
 import classNames from 'classnames';
+import { useSearchInput } from '../../hooks/useSearchInput';
 
 type TokenProps = {
   type: string;
@@ -44,11 +45,12 @@ function Token({ type, name, symbol, address, id, blockchain }: TokenProps) {
 
 const loaderData = Array(9).fill({ token: {}, tokenNfts: {} });
 
-export function Tokens({ owner = 'vitalik.eth' }: { owner?: string }) {
+export function Tokens() {
   const [fetch, { data, loading }] = useLazyQueryWithPagination(query);
   // const { hasNextPage, getNextPage } = pagination;
 
   const [tokens, setTokens] = useState<TokenType[]>([]);
+  const owner = useSearchInput();
 
   useEffect(() => {
     if (owner) {

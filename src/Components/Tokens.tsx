@@ -4,6 +4,7 @@ import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { query } from '../queries';
 import { useCallback, useEffect, useState } from 'react';
 import { ListTitle } from './ListTitle';
+import { useSearchInput } from '../hooks/useSearchInput';
 
 function Header() {
   return (
@@ -21,13 +22,14 @@ function Header() {
   );
 }
 
-export function Tokens({ owner }: { owner: string }) {
+export function Tokens() {
   const [fetch, { data, error, loading, pagination }] =
     useLazyQueryWithPagination(query);
   const { hasNextPage, getNextPage } = pagination;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [tokens, setTokens] = useState<any[]>([]);
+  const owner = useSearchInput();
 
   useEffect(() => {
     if (owner) {

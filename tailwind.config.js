@@ -47,6 +47,9 @@ module.exports = {
         },
         '.flex-col-center': {
           '@apply flex flex-col items-center justify-center': {}
+        },
+        '.ellipsis': {
+          '@apply overflow-ellipsis whitespace-nowrap overflow-hidden': {}
         }
       });
     }

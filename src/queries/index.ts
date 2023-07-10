@@ -102,3 +102,34 @@ export const MentionsQuery = `
     }
   }
 `;
+
+export const ERC20TokensQuery = `query ERC20TokensQuery($owner: Identity, $limit: Int) {
+  ethereum: TokenBalances(
+    input: {filter: {owner: {_eq: $owner}, tokenType: {_eq: ERC20}}, blockchain: ethereum, limit: $limit}
+  ) {
+    TokenBalance {
+      tokenAddress
+      formattedAmount
+      blockchain
+      id
+      token {
+        symbol
+        name
+      }
+    }
+  }
+  polygon: TokenBalances(
+    input: {filter: {owner: {_eq: $owner}, tokenType: {_eq: ERC20}}, blockchain: polygon, limit: $limit}
+  ) {
+    TokenBalance {
+      tokenAddress
+      formattedAmount
+      blockchain
+      id
+      token {
+        symbol
+        name
+      }
+    }
+  }
+}`;
