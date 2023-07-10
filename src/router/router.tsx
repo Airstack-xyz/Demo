@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { Home as HomePage } from '../pages/home';
+import { Home } from '../pages/home';
 import { TokenBalance } from '../pages/TokenBalances';
 import { TokenHolders } from '../pages/TokenHolders';
 
@@ -8,7 +7,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <HomePage />
+    element: <Home />
   },
   {
     path: '/token-balances',
