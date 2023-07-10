@@ -89,3 +89,16 @@ export const SocialQuery = `query Social($identity: Identity!, $blockchain: Toke
     }
   }
 }`;
+
+export const MentionsQuery = `
+  query SearchAIMentions($input: SearchAIMentionsInput!) {
+    SearchAIMentions(input: $input) {
+      type
+      name
+      address
+      eventId
+      blockchain
+      thumbnailURL
+    }
+  }
+`;

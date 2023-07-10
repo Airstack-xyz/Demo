@@ -4,10 +4,15 @@ import { Search } from '../../Components/Search';
 import { Layout } from '../../Components/layout';
 import { query } from '../../queries';
 import { Tokens } from './Tokens';
+import classNames from 'classnames';
 
 function HolderCount() {
   return (
-    <div className="px-4 py-5 flex items-center rounded-xl bg-tertiary">
+    <div
+      className="px-4 py-5 flex items-center rounded-xl bg-tertiary"
+      data-loader-type="block"
+      data-loader-height="auto"
+    >
       <img
         src="/images/temp.png"
         alt=""
@@ -23,6 +28,10 @@ function HolderCount() {
 
 export function TokenHolders() {
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  setTimeout(() => {
+    setLoading(false);
+  }, 3000);
 
   return (
     <Layout>
@@ -40,9 +49,17 @@ export function TokenHolders() {
             Get API for this response
           </span>
         </div>
-        <div className="flex flex-col justify-center">
-          <div className="flex w-full glass-effect rounded-lg overflow-hidden">
-            <div className="border border-solid border-stroke-color bg-secondary rounded-lg p-5 m-2.5 flex-1 w-full">
+        <div
+          className={classNames('flex flex-col justify-center', {
+            'skeleton-loader': loading
+          })}
+        >
+          <div className="flex w-full glass-effect rounded-lg overflow-hidden h-[421px]">
+            <div
+              className="border border-solid border-stroke-color bg-secondary rounded-lg p-5 m-2.5 flex-1 w-full"
+              data-loader-type="block"
+              data-loader-height="auto"
+            >
               <h3 className="text-2xl mb-2">673 holders</h3>
               <div className="border-t-2 border-solid border-stroke-color"></div>
               <div className="grid grid-cols-2 gap-2.5 mt-5">
@@ -51,7 +68,7 @@ export function TokenHolders() {
                 <HolderCount />
               </div>
             </div>
-            <div className="h-[421px] w-[421px] flex-1 bg-pink-300"></div>
+            <div className="h-full flex-1" data-loader-type="block"></div>
           </div>
           <div className="mt-10">
             <Tokens />

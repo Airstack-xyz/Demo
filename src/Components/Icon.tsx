@@ -13,7 +13,9 @@ export type IconType =
   | 'poap-flat'
   | 'nft-flat'
   | 'socials-flat'
-  | 'close';
+  | 'close'
+  | 'input-tokens'
+  | 'input-poap';
 
 export type IconProps = {
   name: IconType;

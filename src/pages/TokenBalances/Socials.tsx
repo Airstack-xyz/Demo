@@ -4,6 +4,7 @@ import { SocialQuery } from '../../queries';
 import { SectionHeader } from './SectionHeader';
 import { SocialsType } from './types';
 import { Modal } from '../../Components/Modal';
+import classNames from 'classnames';
 
 type SocialType = SocialsType['Wallet'];
 type SocialProps = {
@@ -80,7 +81,7 @@ export function Socials({ owner = 'vitalik.eth' }: { owner?: string }) {
     rightValues: []
   });
   const [showModal, setShowModal] = useState(false);
-  const [fetch, { data }] = useLazyQuery(SocialQuery);
+  const [fetch, { data, loading }] = useLazyQuery(SocialQuery);
   const socialDetails = (data?.Wallet || {}) as SocialType;
 
   useEffect(() => {
@@ -117,21 +118,34 @@ export function Socials({ owner = 'vitalik.eth' }: { owner?: string }) {
   return (
     <div>
       <SectionHeader iconName="socials-flat" heading="Socials" />
-      <div className="bg-secondary rounded-lg p-5 border border-solid border-stroke-color mt-3.5">
-        <Social
-          name="Primary ENS"
-          values={[socialDetails?.primaryDomain?.name]}
-        />
-        <Social
-          name="ENS names"
-          values={domainsList || []}
-          onShowMore={() => {
-            handleShowMore(domainsList || []);
-          }}
-        />
-        {socialDetails?.socials?.map(({ dappName, profileName }) => (
-          <Social name={dappName} values={[profileName]} />
-        ))}
+      <div
+        className={classNames(
+          'bg-secondary rounded-lg  border border-solid border-stroke-color mt-3.5 min-h-[250px] flex flex-col',
+          {
+            'skeleton-loader': loading
+          }
+        )}
+      >
+        <div
+          data-loader-type="block"
+          data-loader-height="auto"
+          className="h-full p-5 flex-1"
+        >
+          <Social
+            name="Primary ENS"
+            values={[socialDetails?.primaryDomain?.name]}
+          />
+          <Social
+            name="ENS names"
+            values={domainsList || []}
+            onShowMore={() => {
+              handleShowMore(domainsList || []);
+            }}
+          />
+          {socialDetails?.socials?.map(({ dappName, profileName }) => (
+            <Social name={dappName} values={[profileName]} />
+          ))}
+        </div>
       </div>
       <Modal
         heading="All ENS names of vitalik.eth"

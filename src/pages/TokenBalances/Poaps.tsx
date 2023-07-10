@@ -4,13 +4,18 @@ import { POAPQuery } from '../../queries';
 import { SectionHeader } from './SectionHeader';
 import { PoapType } from './types';
 import { formatDate } from '../../utils';
+import classNames from 'classnames';
 
 function Poap({
   eventName,
   startDate
 }: PoapType['Poaps']['Poap'][0]['poapEvent']) {
   return (
-    <div className="flex rounded-lg glass-effect border border-solid border-stroke-color mb-5 overflow-hidden">
+    <div
+      className="flex rounded-lg glass-effect border border-solid border-stroke-color mb-5 overflow-hidden"
+      data-loader-type="block"
+      data-loader-height="auto"
+    >
       <div className="h-36 w-36">
         <img src="images/temp-poap.png" />
       </div>
@@ -27,10 +32,12 @@ function Poap({
   );
 }
 
+const loaderData = Array(3).fill({ poapEvent: {} });
+
 export function Poaps({ owner = 'vitalik.eth' }: { owner?: string }) {
   const [poaps, setPoaps] = useState<PoapType['Poaps']['Poap']>([]);
 
-  const [fetch, { data }] = useLazyQueryWithPagination(POAPQuery);
+  const [fetch, { data, loading }] = useLazyQueryWithPagination(POAPQuery);
 
   useEffect(() => {
     if (owner) {
@@ -54,12 +61,21 @@ export function Poaps({ owner = 'vitalik.eth' }: { owner?: string }) {
 
   // const dataNotFound = !error && !loading && poaps.length === 0;
   // console.log('poaps', poaps);
+
+  const items = loading ? loaderData : poaps;
+
   return (
     <div className="mt-11">
       <SectionHeader iconName="poap-flat" heading="POAPs" />
       <div className="mt-3.5">
-        {poaps.map((poap, index) => (
-          <Poap key={index} {...poap.poapEvent} />
+        {items.map((poap, index) => (
+          <div
+            className={classNames({
+              'skeleton-loader': loading
+            })}
+          >
+            <Poap key={index} {...poap.poapEvent} />
+          </div>
         ))}
       </div>
     </div>

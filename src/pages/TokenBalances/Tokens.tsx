@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { query } from '../../queries';
 import { SectionHeader } from './SectionHeader';
 import { TokenType as TokenType } from './types';
+import classNames from 'classnames';
 
 type TokenProps = {
   type: string;
@@ -14,8 +15,14 @@ type TokenProps = {
 };
 function Token({ type, name, symbol, address, id, blockchain }: TokenProps) {
   return (
-    <div className="h-72 w-72 rounded-xl bg-secondary p-2.5 flex flex-col justify-between bg-[url('/images/temp.png')]">
-      <Asset address={address} tokenId={id} chain={blockchain} />
+    <div
+      className="h-72 w-72 rounded-xl bg-secondary p-2.5 flex flex-col justify-between bg-[url('/images/temp.png')]"
+      data-loader-type="block"
+      data-loader-height="auto"
+    >
+      {address && id && (
+        <Asset address={address} tokenId={id} chain={blockchain} />
+      )}
       <div className="flex justify-end">
         <div className="rounded-full h-9 w-9 border-solid border-stroke-color border glass-effect"></div>
         <div className="h-9 rounded-3xl ml-2.5 border border-solid border-stroke-color flex justify-center items-center px-2 glass-effect">
@@ -35,8 +42,10 @@ function Token({ type, name, symbol, address, id, blockchain }: TokenProps) {
   );
 }
 
+const loaderData = Array(9).fill({ token: {}, tokenNfts: {} });
+
 export function Tokens({ owner = 'vitalik.eth' }: { owner?: string }) {
-  const [fetch, { data }] = useLazyQueryWithPagination(query);
+  const [fetch, { data, loading }] = useLazyQueryWithPagination(query);
   // const { hasNextPage, getNextPage } = pagination;
 
   const [tokens, setTokens] = useState<TokenType[]>([]);
@@ -69,20 +78,28 @@ export function Tokens({ owner = 'vitalik.eth' }: { owner?: string }) {
   // const dataNotFound = !error && !loading && tokens.length === 0;
   // console.log('tokens', tokens);
 
+  const items = loading ? loaderData : tokens;
+
   return (
     <div>
       <SectionHeader iconName="nft-flat" heading="Tokens" />
-      <div className="grid grid-cols-3 gap-11 mt-3.5">
-        {tokens.map((token, index) => (
-          <Token
-            key={index}
-            address={token.tokenAddress}
-            name={token.token.name}
-            type={token.tokenType}
-            id={token.tokenNfts.tokenId}
-            symbol={token.token.symbol}
-            blockchain={token.blockchain}
-          />
+      <div className={classNames('grid grid-cols-3 gap-11 mt-3.5')}>
+        {items.map((token, index) => (
+          <div
+            className={classNames({
+              'skeleton-loader': loading
+            })}
+          >
+            <Token
+              key={index}
+              address={token.tokenAddress}
+              name={token.token.name}
+              type={token.tokenType}
+              id={token.tokenNfts.tokenId}
+              symbol={token.token.symbol}
+              blockchain={token.blockchain}
+            />
+          </div>
         ))}
       </div>
     </div>

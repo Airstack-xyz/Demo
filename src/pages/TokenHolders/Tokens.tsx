@@ -1,3 +1,6 @@
+import classNames from 'classnames';
+import { useState } from 'react';
+
 function Header() {
   return (
     <thead className="glass-effect">
@@ -17,7 +20,7 @@ function Header() {
 
 export function Token() {
   return (
-    <tr className="[&>td]:p-2 [&>td]:align-middle  min-h-[54px] hover:bg-secondary ">
+    <>
       <td>
         <div className="token-img-wrapper">
           {/* <Asset
@@ -48,21 +51,49 @@ export function Token() {
       </td>
       <td>emperor</td>
       <td>@</td>
-    </tr>
+    </>
   );
 }
 
+const loaderData = Array(6).fill({});
+
 export function Tokens() {
+  const [loading, setLoading] = useState(true);
+  setTimeout(() => {
+    setLoading(false);
+  }, 3000);
   return (
     <div className="w-full border border-solid border-stroke-color rounded-lg overflow-hidden pb-5">
       <table className="w-full text-xs">
-        <Header />
+        {!loading && <Header />}
+        <tr
+          className={classNames(
+            '[&>td]:p-2 [&>td]:align-middle  min-h-[54px] hover:bg-secondary',
+            {
+              'skeleton-loader': loading
+            }
+          )}
+          data-loader-type="block"
+          data-loader-margin="10"
+        >
+          <Token />
+        </tr>
         <tbody>
-          <Token />
-          <Token />
-          <Token />
-          <Token />
-          <Token />
+          {loaderData.map((_, index) => (
+            <tr
+              key={index}
+              className={classNames(
+                '[&>td]:p-2 [&>td]:align-middle  min-h-[54px] hover:bg-secondary',
+                {
+                  'skeleton-loader': loading
+                }
+              )}
+              data-loader-type="block"
+              data-loader-margin="10"
+            >
+              <Token />
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
