@@ -119,7 +119,7 @@ export function Socials() {
   }, []);
 
   return (
-    <div>
+    <div className="w-full sm:w-auto">
       <SectionHeader iconName="socials-flat" heading="Socials" />
       <div
         className={classNames(

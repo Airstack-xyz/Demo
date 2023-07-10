@@ -35,7 +35,7 @@ export function TokenHolders() {
 
   return (
     <Layout>
-      <div className="flex flex-col mx-14 pt-5 w-[955px] max-w-[100vw]">
+      <div className="flex flex-col mx-14 px-2 pt-5 w-[955px] max-w-[100vw] sm:pt-14">
         <div className="flex flex-col items-center">
           <Search />
         </div>
@@ -68,7 +68,10 @@ export function TokenHolders() {
                 <HolderCount />
               </div>
             </div>
-            <div className="h-full flex-1" data-loader-type="block"></div>
+            <div
+              className="h-full flex-1 hidden sm:block"
+              data-loader-type="block"
+            ></div>
           </div>
           <div className="mt-10">
             <Tokens />

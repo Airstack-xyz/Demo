@@ -63,7 +63,7 @@ export function Tokens() {
     setLoading(false);
   }, 3000);
   return (
-    <div className="w-full border border-solid border-stroke-color rounded-lg overflow-hidden pb-5">
+    <div className="w-full border border-solid border-stroke-color rounded-lg sm:overflow-hidden pb-5 overflow-y-auto">
       <table className="w-full text-xs">
         {!loading && <Header />}
         <tr

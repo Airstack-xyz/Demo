@@ -82,26 +82,24 @@ export function Tokens() {
   const items = loading ? loaderData : tokens;
 
   return (
-    <div>
-      <div className={classNames('grid grid-cols-3 gap-11 mt-3.5')}>
-        {items.map((token, index) => (
-          <div
-            className={classNames({
-              'skeleton-loader': loading
-            })}
-          >
-            <Token
-              key={index}
-              address={token.tokenAddress}
-              name={token.token.name}
-              type={token.tokenType}
-              id={token.tokenNfts.tokenId}
-              symbol={token.token.symbol}
-              blockchain={token.blockchain}
-            />
-          </div>
-        ))}
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-11 mt-3.5 w-full justify-items-center">
+      {items.map((token, index) => (
+        <div
+          className={classNames({
+            'skeleton-loader': loading
+          })}
+        >
+          <Token
+            key={index}
+            address={token.tokenAddress}
+            name={token.token.name}
+            type={token.tokenType}
+            id={token.tokenNfts.tokenId}
+            symbol={token.token.symbol}
+            blockchain={token.blockchain}
+          />
+        </div>
+      ))}
     </div>
   );
 }

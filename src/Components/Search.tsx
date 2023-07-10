@@ -22,7 +22,7 @@ export function Search() {
   const activeClasss = 'bg-tertiary border border-solid border-stroke-color';
 
   return (
-    <div>
+    <div className="w-full">
       <div className="my-6 flex-col-center">
         <div className="glass-effect bg-secondry border flex p-1 rounded-lg">
           <Link
@@ -43,14 +43,17 @@ export function Search() {
           </Link>
         </div>
       </div>
-      <form className="flex" onSubmit={handleSubmit}>
-        <div className="flex items-center bg-secondary h-[50px] w-[645px] border border-solid border-stroke-color rounded-2xl">
-          <span className="bg-tertiary h-full flex justify-center items-center px-4 mr-3 rounded-l-2xl">
+      <form
+        className="flex flex-col sm:flex-row justify-center"
+        onSubmit={handleSubmit}
+      >
+        <div className="flex flex-col sm:flex-row items-center bg-secondary h-auto sm:h-[50px] w-full sm:w-[645px] border border-solid border-stroke-color rounded-2xl">
+          <span className="bg-tertiary h-full flex justify-center items-center px-4 py-3.5 m-0 sm:mr-3 rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl w-full sm:w-auto">
             {isTokenBalances ? 'Token Balances' : 'Token holders'}
           </span>
           <InputWithMention onChange={setValue} onSubmit={setValue} />
         </div>
-        <button className="bg-button-primary rounded-xl ml-5 px-6 font-bold">
+        <button className="bg-button-primary rounded-xl sm:ml-5 mt-5 sm:mt-0 px-6 py-3.5 font-bold w-[40%] sm:w-auto self-center">
           Go
         </button>
       </form>
