@@ -52,7 +52,7 @@ export function POAPs() {
 
   const [fetch, { data, loading, error, pagination }] =
     useLazyQueryWithPagination(POAPQuery);
-  const owner = useSearchInput();
+  const { query: owner } = useSearchInput();
 
   useEffect(() => {
     if (owner) {

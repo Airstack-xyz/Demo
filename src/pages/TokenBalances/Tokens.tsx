@@ -1,7 +1,6 @@
 import { Asset, useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useState, useEffect } from 'react';
 import { query } from '../../queries';
-import { SectionHeader } from './SectionHeader';
 import { TokenType as TokenType } from './types';
 import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
@@ -50,7 +49,7 @@ export function Tokens() {
   // const { hasNextPage, getNextPage } = pagination;
 
   const [tokens, setTokens] = useState<TokenType[]>([]);
-  const owner = useSearchInput();
+  const { query: owner } = useSearchInput();
 
   useEffect(() => {
     if (owner) {
@@ -84,7 +83,6 @@ export function Tokens() {
 
   return (
     <div>
-      <SectionHeader iconName="nft-flat" heading="Tokens" />
       <div className={classNames('grid grid-cols-3 gap-11 mt-3.5')}>
         {items.map((token, index) => (
           <div

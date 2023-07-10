@@ -2,5 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 
 export function useSearchInput() {
   const [searchParams] = useSearchParams();
-  return searchParams.get('query') || '';
+  const query = searchParams.get('query') || '';
+  const tokeType = searchParams.get('tokeType') || '';
+  return { query, tokeType };
 }

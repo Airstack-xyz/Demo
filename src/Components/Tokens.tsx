@@ -29,7 +29,7 @@ export function Tokens() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [tokens, setTokens] = useState<any[]>([]);
-  const owner = useSearchInput();
+  const { query: owner } = useSearchInput();
 
   useEffect(() => {
     if (owner) {
