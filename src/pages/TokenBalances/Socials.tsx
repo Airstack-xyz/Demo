@@ -120,7 +120,9 @@ export function Socials() {
 
   return (
     <div className="w-full sm:w-auto">
-      <SectionHeader iconName="socials-flat" heading="Socials" />
+      <div className="hidden sm:block">
+        <SectionHeader iconName="socials-flat" heading="Socials" />
+      </div>
       <div
         className={classNames(
           'bg-secondary rounded-lg  border border-solid border-stroke-color mt-3.5 min-h-[250px] flex flex-col',

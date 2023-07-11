@@ -34,7 +34,7 @@ export function TokenBalance() {
         </div>
         {query && (
           <div>
-            <div className="hidden sm:visible">
+            <div className="hidden sm:block">
               <SectionHeader iconName="nft-flat" heading="Tokens" />
             </div>
             {isMobile && (

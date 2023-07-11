@@ -68,7 +68,9 @@ export function Poaps() {
 
   return (
     <div className="mt-11">
-      <SectionHeader iconName="poap-flat" heading="POAPs" />
+      <div className="hidden sm:block">
+        <SectionHeader iconName="poap-flat" heading="POAPs" />
+      </div>
       <div className="mt-3.5">
         {items.map((poap, index) => (
           <div

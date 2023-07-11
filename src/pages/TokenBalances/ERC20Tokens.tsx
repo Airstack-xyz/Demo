@@ -79,7 +79,9 @@ export function ERC20Tokens() {
 
   return (
     <div className="mt-11">
-      <SectionHeader iconName="poap-flat" heading="POAPs" />
+      <div className="hidden sm:block">
+        <SectionHeader iconName="poap-flat" heading="POAPs" />
+      </div>
       <div
         className={classNames(
           'mt-3.5 glass-effect p-5 rounded-lg border border-solid border-stroke-color',
