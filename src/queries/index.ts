@@ -1,6 +1,6 @@
-export const query = `query GetNFTOwnedByUser($owner: Identity, $limit: Int) {
+export const tokensQuery = `query GetUserOwnedTokens($owner: Identity, $tokenType: [TokenType!], $limit: Int) {
   ethereum: TokenBalances(
-    input: {filter: {owner: {_eq: $owner}, tokenType: {_in: [ERC1155, ERC721]}}, blockchain: ethereum, limit: $limit}
+    input: {filter: {owner: {_eq: $owner}, tokenType: {_in: $tokenType}}, blockchain: ethereum, limit: $limit}
   ) {
     TokenBalance {
       amount
@@ -12,6 +12,10 @@ export const query = `query GetNFTOwnedByUser($owner: Identity, $limit: Int) {
         contentValue {
           image {
             small
+            large
+            extraSmall
+            medium
+            original
           }
         }
       }
@@ -26,7 +30,7 @@ export const query = `query GetNFTOwnedByUser($owner: Identity, $limit: Int) {
     }
   }
   polygon: TokenBalances(
-    input: {filter: {owner: {_eq: $owner}, tokenType: {_in: [ERC1155, ERC721]}}, blockchain: polygon, limit: $limit}
+    input: {filter: {owner: {_eq: $owner}, tokenType: {_in: $tokenType}}, blockchain: polygon, limit: $limit}
   ) {
     TokenBalance {
       amount
@@ -38,6 +42,10 @@ export const query = `query GetNFTOwnedByUser($owner: Identity, $limit: Int) {
         contentValue {
           image {
             small
+            large
+            extraSmall
+            medium
+            original
           }
         }
       }
@@ -53,13 +61,16 @@ export const query = `query GetNFTOwnedByUser($owner: Identity, $limit: Int) {
   }
 }`;
 
-export const POAPQuery = `query GetPOAPs($owner: Identity) {
-  Poaps(input: {filter: {owner: {_eq: $owner}}, blockchain: ALL}) {
+export const POAPQuery = `query GetPOAPs($owner: Identity, $limit: Int) {
+  Poaps(input: {filter: {owner: {_eq: $owner}}, blockchain: ALL, limit: $limit}) {
     Poap {
+      id
+      blockchain
+      tokenId
+      tokenAddress
       poapEvent {
         eventName
         startDate
-        isVirtualEvent
         eventId
         logo: contentValue {
           image {
@@ -108,28 +119,62 @@ export const ERC20TokensQuery = `query ERC20TokensQuery($owner: Identity, $limit
     input: {filter: {owner: {_eq: $owner}, tokenType: {_eq: ERC20}}, blockchain: ethereum, limit: $limit}
   ) {
     TokenBalance {
+      amount
+      tokenType
+      blockchain
       tokenAddress
       formattedAmount
-      blockchain
-      id
-      token {
-        symbol
-        name
+      tokenNfts {
+        tokenId
+        contentValue {
+          image {
+            small
+            large
+            extraSmall
+            medium
+            original
+          }
+        }
       }
+      token {
+        name
+        symbol
+      }
+    }
+    pageInfo {
+      nextCursor
+      prevCursor
     }
   }
   polygon: TokenBalances(
     input: {filter: {owner: {_eq: $owner}, tokenType: {_eq: ERC20}}, blockchain: polygon, limit: $limit}
   ) {
     TokenBalance {
+      amount
+      tokenType
+      blockchain
       tokenAddress
       formattedAmount
-      blockchain
-      id
-      token {
-        symbol
-        name
+      tokenNfts {
+        tokenId
+        contentValue {
+          image {
+            small
+            large
+            extraSmall
+            medium
+            original
+          }
+        }
       }
+      token {
+        name
+        symbol
+      }
+    }
+    pageInfo {
+      nextCursor
+      prevCursor
     }
   }
 }`;

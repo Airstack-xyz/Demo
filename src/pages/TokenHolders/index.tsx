@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Modal } from '../../Components/Modal';
 import { Search } from '../../Components/Search';
 import { Layout } from '../../Components/layout';
-import { query } from '../../queries';
+import { tokensQuery } from '../../queries';
 import { Tokens } from './Tokens';
 import classNames from 'classnames';
 
@@ -84,7 +84,7 @@ export function TokenHolders() {
         onRequestClose={() => setShowModal(false)}
       >
         <pre className="w-[600px] max-h-[60vh] h-auto code rounded-xl p-5 overflow-auto">
-          {query}
+          {tokensQuery}
         </pre>
         <button className="bg-button-primary hover:bg-button-primary-hover mt-5 w-full py-4 font-bold rounded-md">
           Copy

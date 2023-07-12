@@ -5,9 +5,8 @@ import { FormEvent, useCallback, useState } from 'react';
 import { Link, useMatch, useSearchParams } from 'react-router-dom';
 
 export function Search() {
-  const [value, setValue] = useState('');
-
   const [searchParams, setSearchParams] = useSearchParams();
+  const [value, setValue] = useState(() => searchParams.get('query') || '');
 
   const handleSubmit = useCallback(
     (e: FormEvent) => {
@@ -48,10 +47,14 @@ export function Search() {
         onSubmit={handleSubmit}
       >
         <div className="flex flex-col sm:flex-row items-center bg-secondary h-auto sm:h-[50px] w-full sm:w-[645px] border border-solid border-stroke-color rounded-2xl">
-          <span className="bg-tertiary h-full flex justify-center items-center px-4 py-3.5 m-0 sm:mr-3 rounded-t-2xl sm:rounded-t-none sm:rounded-l-2xl w-full sm:w-auto">
+          <span className="bg-tertiary h-full flex justify-center items-center px-4 py-3.5 m-0 sm:mr-3 rounded-t-2xl sm:rounded-tr-none sm:rounded-l-2xl w-full sm:w-auto">
             {isTokenBalances ? 'Token Balances' : 'Token holders'}
           </span>
-          <InputWithMention onChange={setValue} onSubmit={setValue} />
+          <InputWithMention
+            defaultValue={value}
+            onChange={setValue}
+            onSubmit={setValue}
+          />
         </div>
         <button className="bg-button-primary rounded-xl sm:ml-5 mt-5 sm:mt-0 px-6 py-3.5 font-bold w-[40%] sm:w-auto self-center">
           Go

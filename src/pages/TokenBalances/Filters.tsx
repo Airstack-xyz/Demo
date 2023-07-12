@@ -1,10 +1,12 @@
 import classNames from 'classnames';
 import { useSearchParams } from 'react-router-dom';
-const tokenTypes = ['ERC721', 'ERC1155', 'POAP'];
+import { useSearchInput } from '../../hooks/useSearchInput';
+import { tokenTypes } from './constants';
 
 export function Filters() {
   const [searchParams, setSearchParams] = useSearchParams();
   const active = searchParams.get('tokenType') || '';
+  const { query, tokenType: existingTokenType = '' } = useSearchInput();
 
   return (
     <div>
@@ -20,7 +22,13 @@ export function Filters() {
             )}
             key={tokenType}
             onClick={() => {
-              setSearchParams({ tokenType });
+              setSearchParams({
+                query,
+                tokenType:
+                  existingTokenType.toLowerCase() === tokenType.toLowerCase()
+                    ? ''
+                    : tokenType
+              });
             }}
           >
             {tokenType}

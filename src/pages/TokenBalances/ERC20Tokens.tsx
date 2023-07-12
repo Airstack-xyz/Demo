@@ -1,23 +1,38 @@
-import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { Asset, useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useState, useEffect, useMemo } from 'react';
 import { ERC20TokensQuery } from '../../queries';
 import { SectionHeader } from './SectionHeader';
-import { ERC20TokensType, TokenBalance } from './types';
+import { TokenType } from './types';
 import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
 function Token({
   amount,
   symbol,
-  type
+  type,
+  address,
+  tokenId,
+  blockchain
 }: {
   type: string;
   symbol: string;
   amount: number;
+  address: string;
+  tokenId: string;
+  blockchain: 'ethereum' | 'polygon';
 }) {
   return (
     <div className="flex mb-5">
-      <div className="h-10 w-10 rounded-full overflow-hidden">
-        <img src="images/temp-poap.png" className="h-full" />
+      <div className="h-10 w-10 rounded-full overflow-hidden border border-solid border-stroke-color">
+        {address && tokenId && (
+          <Asset
+            address={address}
+            tokenId={tokenId}
+            chain={blockchain}
+            error={<></>}
+            loading={<></>}
+            preset="medium"
+          />
+        )}
       </div>
       <div className="flex flex-1 items-center min-w-0 text-sm pl-2.5">
         <span className="ellipsis w-14">{amount}</span>
@@ -32,18 +47,16 @@ const loaderData = Array(3).fill({ poapEvent: {} });
 
 export function ERC20Tokens() {
   const [tokens, setTokens] = useState<{
-    ethereum: TokenBalance[];
-    polygon: TokenBalance[];
+    ethereum: TokenType[];
+    polygon: TokenType[];
   }>({
     ethereum: [],
     polygon: []
   });
 
-  const [fetch, { data: _data, loading }] =
+  const [fetch, { data: data, loading }] =
     useLazyQueryWithPagination(ERC20TokensQuery);
   const { query: owner } = useSearchInput();
-
-  const data = _data as ERC20TokensType;
 
   useEffect(() => {
     if (owner) {
@@ -73,14 +86,14 @@ export function ERC20Tokens() {
 
   // const dataNotFound = !error && !loading && poaps.length === 0;
 
-  const items = useMemo((): TokenBalance[] => {
+  const items = useMemo((): TokenType[] => {
     return loading ? loaderData : [...tokens.ethereum, ...tokens.polygon];
   }, [loading, tokens.ethereum, tokens.polygon]);
 
   return (
     <div className="mt-11">
       <div className="hidden sm:block">
-        <SectionHeader iconName="poap-flat" heading="POAPs" />
+        <SectionHeader iconName="poap-flat" heading="ERC20 tokens" />
       </div>
       <div
         className={classNames(
@@ -99,6 +112,9 @@ export function ERC20Tokens() {
               amount={token?.formattedAmount}
               symbol={token?.token?.symbol}
               type={token?.token?.name}
+              address={token?.tokenAddress}
+              tokenId={token?.tokenNfts?.tokenId}
+              blockchain={token?.blockchain}
             />
           </div>
         ))}

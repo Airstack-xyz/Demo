@@ -1,7 +1,7 @@
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Item } from './Item';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
-import { query } from '../queries';
+import { tokensQuery } from '../queries';
 import { useCallback, useEffect, useState } from 'react';
 import { ListTitle } from './ListTitle';
 import { useSearchInput } from '../hooks/useSearchInput';
@@ -24,7 +24,7 @@ function Header() {
 
 export function Tokens() {
   const [fetch, { data, error, loading, pagination }] =
-    useLazyQueryWithPagination(query);
+    useLazyQueryWithPagination(tokensQuery);
   const { hasNextPage, getNextPage } = pagination;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

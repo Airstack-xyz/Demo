@@ -1,9 +1,11 @@
 import { Asset, useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useState, useEffect } from 'react';
-import { query } from '../../queries';
-import { TokenType as TokenType } from './types';
+import { POAPQuery, tokensQuery } from '../../queries';
+import { PoapType, TokenType as TokenType } from './types';
 import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
+import { formatDate } from '../../utils';
+import { tokenTypes } from './constants';
 
 type TokenProps = {
   type: string;
@@ -12,17 +14,34 @@ type TokenProps = {
   address: string;
   symbol: string;
   blockchain: 'ethereum' | 'polygon';
+  tokenId: string;
 };
-function Token({ type, name, symbol, address, id, blockchain }: TokenProps) {
+function Token({
+  type,
+  name,
+  symbol,
+  address,
+  id,
+  blockchain,
+  tokenId
+}: TokenProps) {
   return (
     <div
-      className="h-72 w-72 rounded-xl bg-secondary p-2.5 flex flex-col justify-between bg-[url('/images/temp.png')]"
+      className="h-72 w-72 rounded-xl bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative glass-effect"
       data-loader-type="block"
-      data-loader-height="auto"
     >
-      {address && id && (
-        <Asset address={address} tokenId={id} chain={blockchain} />
-      )}
+      <div className="absolute inset-0 [&>div]:w-full [&>div]:h-full [&>div>img]:w-full">
+        {address && tokenId && (
+          <Asset
+            address={address}
+            tokenId={tokenId}
+            chain={blockchain}
+            error={<></>}
+            loading={<></>}
+            preset="medium"
+          />
+        )}
+      </div>
       <div className="flex justify-end">
         <div className="rounded-full h-9 w-9 border-solid border-stroke-color border glass-effect"></div>
         <div className="h-9 rounded-3xl ml-2.5 border border-solid border-stroke-color flex justify-center items-center px-2 glass-effect">
@@ -30,12 +49,10 @@ function Token({ type, name, symbol, address, id, blockchain }: TokenProps) {
         </div>
       </div>
       <div className="h-14 rounded-3xl ml-2.5 border border-solid border-stroke-color flex flex-col px-3.5 py-2 text-sm glass-effect">
-        <div className="overflow-ellipsis whitespace-nowrap overflow-hidden">
-          {name}
-        </div>
-        <div className="flex items-center justify-between">
-          <div>#6721</div>
-          <div>{symbol || '--'}</div>
+        <div className="ellipsis text-xs mb-">{name}</div>
+        <div className="flex items-center justify-between font-bold ">
+          <div className="ellipsis flex-1 mr-2">{id}</div>
+          <div>{symbol || ''}</div>
         </div>
       </div>
     </div>
@@ -44,62 +61,100 @@ function Token({ type, name, symbol, address, id, blockchain }: TokenProps) {
 
 const loaderData = Array(9).fill({ token: {}, tokenNfts: {} });
 
+type Poap = PoapType['Poaps']['Poap'][0];
+const variables = {};
+const config = {
+  cache: false
+};
 export function Tokens() {
-  const [fetch, { data, loading }] = useLazyQueryWithPagination(query);
+  const [fetchTokens, { data: tokensData, loading: loadingTokens }] =
+    useLazyQueryWithPagination(tokensQuery, variables, config);
+  const [fetchPoaps, { data: poapsData, loading: loadingPoaps }] =
+    useLazyQueryWithPagination(POAPQuery, variables, config);
   // const { hasNextPage, getNextPage } = pagination;
 
   const [tokens, setTokens] = useState<TokenType[]>([]);
-  const { query: owner } = useSearchInput();
-
+  const [poaps, setPoaps] = useState<Poap[]>([]);
+  const { query: owner, tokenType = '' } = useSearchInput();
   useEffect(() => {
     if (owner) {
-      fetch({
-        owner,
-        limit: 10
-      });
+      if (!tokenType || tokenType !== 'POAP') {
+        fetchTokens({
+          owner,
+          limit: 10,
+          tokenType:
+            tokenType.length > 0
+              ? [tokenType]
+              : tokenTypes.filter(tokenType => tokenType !== 'POAP')
+        });
+      }
+
+      if (!tokenType || tokenType === 'POAP') {
+        fetchPoaps({
+          owner,
+          limit: 20
+        });
+      }
       setTokens([]);
+      setPoaps([]);
     }
-  }, [fetch, owner]);
+  }, [fetchPoaps, fetchTokens, owner, tokenType]);
 
   useEffect(() => {
-    if (data) {
-      const { ethereum, polygon } = data;
+    if (tokensData) {
+      const { ethereum, polygon } = tokensData;
       const ethTokens = ethereum?.TokenBalance || [];
       const maticTokens = polygon?.TokenBalance || [];
       setTokens(tokens => [...tokens, ...ethTokens, ...maticTokens]);
     }
-  }, [data]);
+  }, [tokensData]);
 
-  // const handleNext = useCallback(() => {
-  //   if (hasNextPage) {
-  //     getNextPage();
-  //   }
-  // }, [getNextPage, hasNextPage]);
+  useEffect(() => {
+    if (poapsData) {
+      setPoaps(poaps => [...poaps, ...(poapsData?.Poaps?.Poap || [])]);
+    }
+  }, [poapsData]);
 
-  // const dataNotFound = !error && !loading && tokens.length === 0;
-  // console.log('tokens', tokens);
-
-  const items = loading ? loaderData : tokens;
+  const loading = loadingTokens || loadingPoaps;
+  const items: (TokenType | Poap)[] = loading
+    ? loaderData
+    : [...tokens, ...poaps];
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-11 mt-3.5 w-full justify-items-center">
-      {items.map((token, index) => (
-        <div
-          className={classNames({
-            'skeleton-loader': loading
-          })}
-        >
-          <Token
-            key={index}
-            address={token.tokenAddress}
-            name={token.token.name}
-            type={token.tokenType}
-            id={token.tokenNfts.tokenId}
-            symbol={token.token.symbol}
-            blockchain={token.blockchain}
-          />
-        </div>
-      ))}
+      {items.map((_token, index) => {
+        const token = _token as TokenType;
+        const poap = _token as Poap;
+        const poapEvent = poap.poapEvent || {};
+
+        const address = token.tokenAddress || poap.tokenAddress;
+        const id = token.tokenNfts?.tokenId
+          ? '#' + token.tokenNfts?.tokenId
+          : poapEvent.eventName;
+        const symbol = token?.token?.symbol || '';
+        const type = token.tokenType || 'POAP';
+        const blockchain = token.blockchain || 'ethereum';
+        const name = token?.token?.name || formatDate(poapEvent.startDate);
+        const tokenId = token.tokenNfts?.tokenId || poap.tokenId;
+        return (
+          <div
+            className={classNames({
+              'skeleton-loader': loading
+            })}
+          >
+            <Token
+              key={index}
+              type={type}
+              name={name}
+              id={id}
+              address={address}
+              symbol={symbol}
+              blockchain={blockchain}
+              tokenId={tokenId}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }

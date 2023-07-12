@@ -55,15 +55,13 @@ body {
 
 .skeleton-loader [data-loader-type='block'],
 .skeleton-loader[data-loader-type='block'] {
-  @apply relative overflow-hidden h-auto;
+  @apply relative overflow-hidden;
 }
 
-/*
-.skeleton-loader [data-loader-type='block']:not([data-loader-height='auto']),
-.skeleton-loader[data-loader-type='block']:not([data-loader-height='auto']) {
-  height: 20px;
+.skeleton-loader [data-loader-height='auto'],
+.skeleton-loader[data-loader-height='auto'] {
+  height: auto;
 }
-*/
 
 .skeleton-loader [data-loader-type='block']:after,
 .skeleton-loader[data-loader-type='block']:after {

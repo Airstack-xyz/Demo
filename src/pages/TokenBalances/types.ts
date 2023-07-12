@@ -3,6 +3,7 @@ export interface TokenType {
   tokenType: string;
   blockchain: 'ethereum' | 'polygon';
   tokenAddress: string;
+  formattedAmount: number;
   tokenNfts: TokenNfts;
   token: Token;
 }
@@ -28,10 +29,13 @@ export interface Token {
 export type PoapType = {
   Poaps: {
     Poap: {
+      id: string;
+      blockchain: string;
+      tokenId: string;
+      tokenAddress: string;
       poapEvent: {
         eventName: string;
         startDate: string;
-        isVirtualEvent: boolean;
         eventId: string;
         logo: {
           image: {
