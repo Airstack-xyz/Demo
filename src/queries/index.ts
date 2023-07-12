@@ -178,3 +178,110 @@ export const ERC20TokensQuery = `query ERC20TokensQuery($owner: Identity, $limit
     }
   }
 }`;
+
+export const tokenOwnerQuery = `query MyQuery($tokenAddress: Address, $limit: Int) {
+  ethereum: TokenBalances(
+    input: {filter: {tokenAddress: {_eq: $tokenAddress}}, blockchain: ethereum, limit: $limit}
+  ) {
+    TokenBalance {
+      tokenAddress
+      tokenId
+      blockchain
+      token {
+        name
+      }
+      tokenNfts {
+        contentValue {
+          video
+          image {
+            small
+            original
+            medium
+            large
+            extraSmall
+          }
+        }
+      }
+      owner {
+        identity
+        addresses
+        poaps {
+          owner {
+            addresses
+          }
+          dappName
+          tokenUri
+          tokenAddress
+          tokenId
+        }
+        domains {
+          chainId
+          dappName
+          owner
+          name
+        }
+        socials {
+          blockchain
+          dappSlug
+          profileName
+        }
+      }
+    }
+    pageInfo {
+      nextCursor
+      prevCursor
+    }
+  }
+  polygon: TokenBalances(
+    input: {filter: {tokenAddress: {_eq: $tokenAddress}}, blockchain: ethereum, limit: $limit}
+  ) {
+    TokenBalance {
+      tokenAddress
+      tokenId
+      blockchain
+      token {
+        name
+      }
+      tokenNfts {
+        contentValue {
+          video
+          image {
+            small
+            original
+            medium
+            large
+            extraSmall
+          }
+        }
+      }
+      owner {
+        identity
+        addresses
+        poaps {
+          owner {
+            addresses
+          }
+          dappName
+          tokenUri
+          tokenAddress
+          tokenId
+        }
+        domains {
+          chainId
+          dappName
+          owner
+          name
+        }
+        socials {
+          blockchain
+          dappSlug
+          profileName
+        }
+      }
+    }
+    pageInfo {
+      nextCursor
+      prevCursor
+    }
+  }
+}`;

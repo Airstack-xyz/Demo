@@ -1,5 +1,11 @@
+import { Asset, useLazyQueryWithPagination } from '@airstack/airstack-react';
 import classNames from 'classnames';
-import { useState } from 'react';
+import { useEffect, useMemo } from 'react';
+import { tokenOwnerQuery } from '../../queries';
+import { useSearchInput } from '../../hooks/useSearchInput';
+import { TokenBalance } from '../TokenBalances/types';
+import { getDAppType } from './utils';
+import { Chain } from '@airstack/airstack-react/constants';
 
 function Header() {
   return (
@@ -18,38 +24,77 @@ function Header() {
   );
 }
 
-export function Token() {
+export function Token({ token }: { token: TokenBalance | null }) {
+  const walletAddress = '';
+  const tokenId = token?.tokenId || '';
+  const tokenAddress = token?.tokenAddress || '';
+  const primarEns = token?.owner?.primaryDomain?.name || '';
+  const ens = token?.owner?.domains?.map(domain => domain.name) || [];
+
+  const { lens, farcaster } = useMemo(() => {
+    const social = token?.owner?.socials || [];
+    const result = { lens: [], farcaster: [] };
+    social.forEach(({ dappSlug, profileName }) => {
+      const type = getDAppType(dappSlug);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      const list = result[type];
+      if (list) {
+        list.push(profileName);
+      }
+    });
+    return result;
+  }, [token]);
+
   return (
     <>
       <td>
-        <div className="token-img-wrapper">
-          {/* <Asset
-            address={tokenAddress}
-            tokenId={tokenId}
-            preset="small"
-            containerClassName="token-img"
-            error={<Placeholder />}
-            chain={blockchain}
-          /> */}
+        <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden m-auto [&>div]:w-full [&>div>img]:w-full">
+          {tokenAddress && tokenId && (
+            <Asset
+              address={tokenAddress}
+              tokenId={tokenId}
+              preset="small"
+              containerClassName="token-img"
+              error={<></>}
+              chain={token?.blockchain as Chain}
+            />
+          )}
         </div>
       </td>
-      <td>0xA3...563</td>
-      <td>#5806</td>
-      <td>emperor.eth</td>
+      <td>{walletAddress || '--'}</td>
+      <td>#{tokenId || '--'}</td>
+      <td>{primarEns || '--'}</td>
       <td>
         <ul>
-          <li>emperor.eth</li>
-          <li>emperor.eth</li>
-          <li>see more</li>
+          {ens.map((name, index) => (
+            <li key={index} className="ellipsis mb-1">
+              {name}
+            </li>
+          ))}
+          {ens.length === 0 && <li>--</li>}
         </ul>
       </td>
       <td>
         <ul>
-          <li>emperor.eth</li>
-          <li>emperor.eth</li>
+          {lens.map((name, index) => (
+            <li key={index} className="ellipsis mb-1">
+              {name}
+            </li>
+          ))}
+          {lens.length === 0 && <li>--</li>}
         </ul>
       </td>
-      <td>emperor</td>
+      <td>
+        <ul>
+          {farcaster.map((name, index) => (
+            <li key={index} className="ellipsis mb-1">
+              {name}
+            </li>
+          ))}
+          {farcaster.length === 0 && <li>--</li>}
+        </ul>
+      </td>
       <td>@</td>
     </>
   );
@@ -58,15 +103,35 @@ export function Token() {
 const loaderData = Array(6).fill({});
 
 export function Tokens() {
-  const [loading, setLoading] = useState(true);
-  setTimeout(() => {
-    setLoading(false);
-  }, 3000);
+  const [fetch, { data, loading }] =
+    useLazyQueryWithPagination(tokenOwnerQuery);
+
+  const { query: tokenAddress } = useSearchInput();
+
+  useEffect(() => {
+    if (tokenAddress) {
+      fetch({
+        tokenAddress,
+        limit: 200
+      });
+    }
+  }, [fetch, tokenAddress]);
+
+  const tokens = useMemo(() => {
+    if (!data) return [];
+
+    const ethTokenBalances: TokenBalance[] = data.ethereum?.TokenBalance;
+    const polygonTokenBalances: TokenBalance[] = data.polygon?.TokenBalance;
+    return [...ethTokenBalances, ...polygonTokenBalances];
+  }, [data]);
+
+  const items: TokenBalance[] = loading ? loaderData : tokens;
+
   return (
     <div className="w-full border border-solid border-stroke-color rounded-lg sm:overflow-hidden pb-5 overflow-y-auto">
-      <table className="w-full text-xs">
+      <table className="w-full text-xs table-fixed">
         {!loading && <Header />}
-        <tr
+        {/* <tr
           className={classNames(
             '[&>td]:p-2 [&>td]:align-middle  min-h-[54px] hover:bg-secondary',
             {
@@ -76,10 +141,10 @@ export function Tokens() {
           data-loader-type="block"
           data-loader-margin="10"
         >
-          <Token />
-        </tr>
+          <Token token={null} />
+        </tr> */}
         <tbody>
-          {loaderData.map((_, index) => (
+          {items.map((token, index) => (
             <tr
               key={index}
               className={classNames(
@@ -91,7 +156,7 @@ export function Tokens() {
               data-loader-type="block"
               data-loader-margin="10"
             >
-              <Token />
+              <Token token={token} />
             </tr>
           ))}
         </tbody>

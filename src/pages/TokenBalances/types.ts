@@ -93,11 +93,51 @@ export interface TokenBalance {
   tokenAddress: string;
   formattedAmount: number;
   blockchain: string;
+  tokenId: string;
   token: Token;
+  owner: Owner;
   id: string;
 }
 
 export interface Token {
   symbol: string;
+  name: string;
+}
+
+export interface Root {
+  tokenAddress: string;
+  owner: Owner;
+}
+
+export interface Owner {
+  identity: string;
+  addresses: string[];
+  poaps: Poap[];
+  socials: Social[];
+  primaryDomain: PrimaryDomain;
+  domains: Domain[];
+}
+
+export interface Poap {
+  dappName: string;
+  tokenUri: string;
+  tokenAddress: string;
+  tokenId: string;
+}
+
+export interface Social {
+  blockchain: string;
+  dappSlug: string;
+  profileName: string;
+}
+
+export interface PrimaryDomain {
+  name: string;
+}
+
+export interface Domain {
+  chainId: string;
+  dappName: string;
+  owner: string;
   name: string;
 }
