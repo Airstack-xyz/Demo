@@ -121,7 +121,7 @@ export function Tokens() {
     : [...tokens, ...poaps];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-11 mt-3.5 w-full justify-items-center">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-11 mt-3.5 w-full justify-items-center">
       {items.map((_token, index) => {
         const token = _token as TokenType;
         const poap = _token as Poap;
