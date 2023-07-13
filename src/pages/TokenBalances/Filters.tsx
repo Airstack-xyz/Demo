@@ -5,7 +5,7 @@ import { tokenTypes } from './constants';
 
 export function Filters() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const active = searchParams.get('tokenType') || '';
+  const active = searchParams.get('filterBy') || '';
   const {
     filterBy: existingTokenType = '',
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

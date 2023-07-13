@@ -118,15 +118,17 @@ export function HoldersOverview() {
 
   useEffect(() => {
     if (data) {
-      const ethTokenBalances: TokenBalance[] = data.ethereum.TokenBalance;
-      const polygonTokenBalances: TokenBalance[] = data.polygon.TokenBalance;
+      const ethTokenBalances: TokenBalance[] =
+        data?.ethereum?.TokenBalance || [];
+      const polygonTokenBalances: TokenBalance[] =
+        data?.polygon?.TokenBalance || [];
 
       setTokenDetails(tokenDetails => {
         if (tokenDetails) return tokenDetails;
         return {
-          name: ethTokenBalances[0].token.name,
-          tokenId: ethTokenBalances[0].tokenId,
-          tokenAddress: ethTokenBalances[0].tokenAddress
+          name: ethTokenBalances[0]?.token?.name || '',
+          tokenId: ethTokenBalances[0]?.tokenId || '',
+          tokenAddress: ethTokenBalances[0]?.tokenAddress || ''
         };
       });
 
