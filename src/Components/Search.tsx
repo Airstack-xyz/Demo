@@ -3,16 +3,21 @@ import { Icon } from './Icon';
 import { InputWithMention } from './Input/Input';
 import { FormEvent, useCallback, useState } from 'react';
 import { Link, useMatch, useSearchParams } from 'react-router-dom';
+import { getValuesFromId } from './Input/utils';
 
 export function Search() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [value, setValue] = useState(() => searchParams.get('query') || '');
+  const [value, setValue] = useState(
+    () => searchParams.get('inputValue') || ''
+  );
 
   const handleSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
-      if (searchParams.get('query') === value) return;
-      setSearchParams({ query: value });
+      if (searchParams.get('inputValue') === value) return;
+      const { address, blockchain = 'ethereum' } = getValuesFromId(value) || {};
+      if (!address) return;
+      setSearchParams({ query: address, blockchain, inputValue: value });
     },
     [searchParams, setSearchParams, value]
   );

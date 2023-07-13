@@ -205,19 +205,9 @@ export const tokenOwnerQuery = `query MyQuery($tokenAddress: Address, $limit: In
       owner {
         identity
         addresses
-        poaps {
-          owner {
-            addresses
-          }
-          dappName
-          tokenUri
-          tokenAddress
-          tokenId
-        }
         domains {
           chainId
           dappName
-          owner
           name
         }
         socials {
@@ -257,19 +247,9 @@ export const tokenOwnerQuery = `query MyQuery($tokenAddress: Address, $limit: In
       owner {
         identity
         addresses
-        poaps {
-          owner {
-            addresses
-          }
-          dappName
-          tokenUri
-          tokenAddress
-          tokenId
-        }
         domains {
           chainId
           dappName
-          owner
           name
         }
         socials {

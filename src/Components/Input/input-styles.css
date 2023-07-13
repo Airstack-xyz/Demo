@@ -145,7 +145,7 @@
 }
 
 .addressInput {
-  @apply flex absolute bg-tertiary h-8 pl-2 rounded-lg w-[290px] mt-[14px];
+  @apply flex absolute bg-tertiary h-8 pl-4 rounded-full w-[290px] mt-[14px];
 }
 
 .addressInput input {

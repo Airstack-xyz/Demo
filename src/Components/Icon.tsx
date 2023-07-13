@@ -15,7 +15,9 @@ export type IconType =
   | 'socials-flat'
   | 'close'
   | 'input-tokens'
-  | 'input-poap';
+  | 'input-poap'
+  | 'ethereum'
+  | 'polygon';
 
 export type IconProps = {
   name: IconType;

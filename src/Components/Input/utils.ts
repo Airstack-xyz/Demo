@@ -150,6 +150,21 @@ export function getUsableValues(value: string) {
   };
 }
 
+export function getValuesFromId(id: string) {
+  const match = ID_REGEX.exec(id);
+  if (!match) return { address: id };
+  const [address, token, blockchain, eventId, customInputType] =
+    match[1].split(' ');
+
+  return {
+    address,
+    token,
+    blockchain,
+    eventId,
+    customInputType
+  };
+}
+
 export function needHelp(str: string) {
   // match /help or /help <something>
   const regex = /\/(help|.*?\shelp)/g;

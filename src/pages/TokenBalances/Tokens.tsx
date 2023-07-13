@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { formatDate } from '../../utils';
 import { tokenTypes } from './constants';
+import { Icon } from '../../Components/Icon';
 
 type TokenProps = {
   type: string;
@@ -22,7 +23,7 @@ function Token({
   symbol,
   address,
   id,
-  blockchain,
+  blockchain = 'ethereum',
   tokenId
 }: TokenProps) {
   return (
@@ -43,7 +44,9 @@ function Token({
         )}
       </div>
       <div className="flex justify-end">
-        <div className="rounded-full h-9 w-9 border-solid border-stroke-color border glass-effect"></div>
+        <div className="rounded-full h-9 w-9 glass-effect">
+          <Icon name={blockchain} className="w-full" />
+        </div>
         <div className="h-9 rounded-3xl ml-2.5 border border-solid border-stroke-color flex justify-center items-center px-2 glass-effect">
           {type}
         </div>
@@ -119,6 +122,12 @@ export function Tokens() {
   const items: (TokenType | Poap)[] = loading
     ? loaderData
     : [...tokens, ...poaps];
+
+  if (items.length === 0 && !loading) {
+    return (
+      <div className="flex flex-1 justify-center mt-10">No data found!</div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-11 mt-3.5 w-full justify-items-center">

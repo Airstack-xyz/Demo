@@ -138,11 +138,11 @@ export function Socials() {
         >
           <Social
             name="Primary ENS"
-            values={[socialDetails?.primaryDomain?.name]}
+            values={[socialDetails?.primaryDomain?.name || '--']}
           />
           <Social
             name="ENS names"
-            values={domainsList || []}
+            values={domainsList || ['--']}
             onShowMore={() => {
               handleShowMore(domainsList || []);
             }}

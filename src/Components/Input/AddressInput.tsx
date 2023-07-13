@@ -17,6 +17,8 @@ export function AddressInput({
 }: AddressInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [address, setAddress] = useState('');
+  const addressRef = useRef(address);
+
   useEffect(() => {
     // In safari when focusing on input, using autofocus or programmatically,
     // the carret is not visible in the input even though the input is focused.
@@ -29,14 +31,16 @@ export function AddressInput({
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       // Remove all spaces before saving the address
-      setAddress(e.target.value.replace(/\s+/, ''));
+      const _address = (e.target.value || '').replace(/\s+/, '');
+      setAddress(_address);
+      addressRef.current = _address;
     },
     []
   );
 
   const handleClick = useCallback(() => {
-    onRequestClose(address);
-  }, [address, onRequestClose]);
+    onRequestClose(addressRef.current);
+  }, [onRequestClose]);
 
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
