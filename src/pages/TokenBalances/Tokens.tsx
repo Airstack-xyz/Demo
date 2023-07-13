@@ -7,6 +7,7 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 import { formatDate } from '../../utils';
 import { tokenTypes } from './constants';
 import { Icon } from '../../Components/Icon';
+import { Link } from 'react-router-dom';
 
 type TokenProps = {
   type: string;
@@ -27,9 +28,10 @@ function Token({
   tokenId
 }: TokenProps) {
   return (
-    <div
+    <Link
       className="h-72 w-72 rounded-xl bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative glass-effect"
       data-loader-type="block"
+      to={`/token-holders/?address=${address}&rawInput=${address}`}
     >
       <div className="absolute inset-0 [&>div]:w-full [&>div]:h-full [&>div>img]:w-full">
         {address && tokenId && (
@@ -58,7 +60,7 @@ function Token({
           <div>{symbol || ''}</div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }
 
@@ -78,7 +80,7 @@ export function Tokens() {
 
   const [tokens, setTokens] = useState<TokenType[]>([]);
   const [poaps, setPoaps] = useState<Poap[]>([]);
-  const { query: owner, tokenType = '' } = useSearchInput();
+  const { address: owner, filterBy: tokenType = '' } = useSearchInput();
   useEffect(() => {
     if (owner) {
       if (!tokenType || tokenType !== 'POAP') {

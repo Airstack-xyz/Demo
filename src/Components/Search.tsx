@@ -10,15 +10,21 @@ import {
   useSearchParams
 } from 'react-router-dom';
 import { getValuesFromId } from './Input/utils';
+import { useSearchInput } from '../hooks/useSearchInput';
 
 export function Search() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [value, setValue] = useState(
-    () => searchParams.get('inputValue') || ''
-  );
-
-  const isTokenBalances = useMatch('/token-balances');
+  let isTokenBalances = !!useMatch('/token-balances');
   const isHome = useMatch('/');
+
+  if (isHome) {
+    isTokenBalances = true;
+  }
+
+  const { rawInput, setData } = useSearchInput();
+
+  const [value, setValue] = useState(rawInput);
+
   const navigate = useNavigate();
 
   const handleSubmit = useCallback(
@@ -28,7 +34,11 @@ export function Search() {
       const { address, blockchain = 'ethereum' } = getValuesFromId(value) || {};
       if (!address) return;
 
-      const searchData = { query: address, blockchain, inputValue: value };
+      const searchData = { address, blockchain, rawInput: value };
+
+      setData({
+        ...searchData
+      });
 
       if (isHome) {
         navigate({
@@ -38,11 +48,11 @@ export function Search() {
         return;
       }
 
-      if (searchParams.get('inputValue') === value) return;
+      if (searchParams.get('rawInput') === value) return;
 
       setSearchParams(searchData);
     },
-    [isHome, navigate, searchParams, setSearchParams, value]
+    [isHome, navigate, searchParams, setData, setSearchParams, value]
   );
 
   const activeItem =

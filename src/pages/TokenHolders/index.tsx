@@ -9,7 +9,7 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 
 export function TokenHolders() {
   const [showModal, setShowModal] = useState(false);
-  const { query } = useSearchInput();
+  const { address: query } = useSearchInput();
   return (
     <Layout>
       <div className="flex flex-col mx-14 px-2 pt-5 w-[955px] max-w-[100vw] sm:pt-14">

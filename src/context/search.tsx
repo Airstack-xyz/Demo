@@ -1,0 +1,65 @@
+import { createContext, useCallback, useMemo, useState } from 'react';
+
+export type SearchContextState = {
+  address?: string;
+  blockchain?: string;
+  filterBy?: string;
+  rawInput?: string;
+};
+
+type SearchContext = {
+  tokenBalance: SearchContextState;
+  tokenHolder: SearchContextState;
+  setTokenBalanceData: (data: SearchContextState) => void;
+  setTokenHolderData: (data: SearchContextState) => void;
+};
+
+const defaultData = {
+  address: '',
+  blockchain: '',
+  filterBy: '',
+  rawInput: ''
+};
+
+// eslint-disable-next-line
+const noop = () => {};
+
+const defaultValue: SearchContext = {
+  tokenBalance: defaultData,
+  tokenHolder: defaultData,
+  setTokenBalanceData: noop,
+  setTokenHolderData: noop
+};
+// eslint-disable-next-line react-refresh/only-export-components
+export const searchContext = createContext<SearchContext>(defaultValue);
+
+export function SearchProvider({ children }: { children: React.ReactNode }) {
+  const [tokenBalance, _setTokenBalanceData] = useState<SearchContextState>({
+    ...defaultData
+  });
+
+  const [tokenHolder, _setTokenHolderData] = useState<SearchContextState>({
+    ...defaultData
+  });
+
+  const setTokenBalanceData = useCallback((data: SearchContextState) => {
+    _setTokenBalanceData(prev => ({ ...prev, ...data }));
+  }, []);
+
+  const setTokenHolderData = useCallback((data: SearchContextState) => {
+    _setTokenHolderData(prev => ({ ...prev, ...data }));
+  }, []);
+
+  const value = useMemo(
+    () => ({
+      tokenBalance,
+      tokenHolder,
+      setTokenBalanceData,
+      setTokenHolderData
+    }),
+    [tokenBalance, tokenHolder, setTokenBalanceData, setTokenHolderData]
+  );
+  return (
+    <searchContext.Provider value={value}>{children}</searchContext.Provider>
+  );
+}

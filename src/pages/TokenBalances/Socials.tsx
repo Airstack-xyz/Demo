@@ -83,7 +83,7 @@ export function Socials() {
   });
   const [showModal, setShowModal] = useState(false);
   const [fetch, { data, loading }] = useLazyQuery(SocialQuery);
-  const { query: owner } = useSearchInput();
+  const { address: owner } = useSearchInput();
 
   const socialDetails = (data?.Wallet || {}) as SocialType;
 

@@ -6,7 +6,12 @@ import { tokenTypes } from './constants';
 export function Filters() {
   const [searchParams, setSearchParams] = useSearchParams();
   const active = searchParams.get('tokenType') || '';
-  const { tokenType: existingTokenType = '', ...rest } = useSearchInput();
+  const {
+    filterBy: existingTokenType = '',
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    setData,
+    ...rest
+  } = useSearchInput();
 
   return (
     <div>
@@ -24,7 +29,7 @@ export function Filters() {
             onClick={() => {
               setSearchParams({
                 ...rest,
-                tokenType:
+                filterBy:
                   existingTokenType.toLowerCase() === tokenType.toLowerCase()
                     ? ''
                     : tokenType

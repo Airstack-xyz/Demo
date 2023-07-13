@@ -56,7 +56,7 @@ export function ERC20Tokens() {
 
   const [fetch, { data: data, loading }] =
     useLazyQueryWithPagination(ERC20TokensQuery);
-  const { query: owner } = useSearchInput();
+  const { address: owner } = useSearchInput();
 
   useEffect(() => {
     if (owner) {

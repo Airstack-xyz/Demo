@@ -61,7 +61,7 @@ export function HoldersOverview() {
     tokenAddress: string;
   } | null>(null);
 
-  const { query: tokenAddress } = useSearchInput();
+  const { address: tokenAddress } = useSearchInput();
 
   useEffect(() => {
     if (tokenAddress) {

@@ -64,7 +64,7 @@ export function Token({
       </td>
       <td className="ellipsis">
         <Link
-          to={`/token-balances?query=${walletAddress}&inputValue=${walletAddress}`}
+          to={`/token-balances?address=${walletAddress}&rawInput=${walletAddress}`}
         >
           {walletAddress || '--'}
         </Link>
@@ -100,7 +100,7 @@ export function Tokens() {
   const [fetch, { data, loading }] =
     useLazyQueryWithPagination(tokenOwnerQuery);
 
-  const { query: tokenAddress } = useSearchInput();
+  const { address: tokenAddress } = useSearchInput();
   const [showModal, setShowModal] = useState(false);
   const [modalValues, setModalValues] = useState<{
     leftValues: string[];

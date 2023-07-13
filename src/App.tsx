@@ -4,6 +4,7 @@ import './App.css';
 */
 import { init } from '@airstack/airstack-react';
 import { Router } from './router/router';
+import { SearchProvider } from './context/search';
 
 /*
   STEP 2:
@@ -13,7 +14,11 @@ import { Router } from './router/router';
 init('ef3d1cdeafb642d3a8d6a44664ce566c'); // for demo "ef3d1cdeafb642d3a8d6a44664ce566c"
 
 function App() {
-  return <Router />;
+  return (
+    <SearchProvider>
+      <Router />
+    </SearchProvider>
+  );
 }
 
 export default App;

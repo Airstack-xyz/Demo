@@ -22,7 +22,7 @@ function SocialsAndERC20() {
 
 export function TokenBalance() {
   const [showModal, setShowModal] = useState(false);
-  const { query } = useSearchInput();
+  const { address: query } = useSearchInput();
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
 

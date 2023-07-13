@@ -39,7 +39,7 @@ export function Poaps() {
   const [poaps, setPoaps] = useState<PoapType['Poaps']['Poap']>([]);
 
   const [fetch, { data, loading }] = useLazyQueryWithPagination(POAPQuery);
-  const { query: owner } = useSearchInput();
+  const { address: owner } = useSearchInput();
 
   useEffect(() => {
     if (owner) {
