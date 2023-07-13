@@ -6,7 +6,7 @@ import { tokenTypes } from './constants';
 export function Filters() {
   const [searchParams, setSearchParams] = useSearchParams();
   const active = searchParams.get('tokenType') || '';
-  const { query, tokenType: existingTokenType = '' } = useSearchInput();
+  const { tokenType: existingTokenType = '', ...rest } = useSearchInput();
 
   return (
     <div>
@@ -23,7 +23,7 @@ export function Filters() {
             key={tokenType}
             onClick={() => {
               setSearchParams({
-                query,
+                ...rest,
                 tokenType:
                   existingTokenType.toLowerCase() === tokenType.toLowerCase()
                     ? ''

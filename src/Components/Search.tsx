@@ -2,7 +2,13 @@ import classNames from 'classnames';
 import { Icon } from './Icon';
 import { InputWithMention } from './Input/Input';
 import { FormEvent, useCallback, useState } from 'react';
-import { Link, useMatch, useSearchParams } from 'react-router-dom';
+import {
+  Link,
+  createSearchParams,
+  useMatch,
+  useNavigate,
+  useSearchParams
+} from 'react-router-dom';
 import { getValuesFromId } from './Input/utils';
 
 export function Search() {
@@ -11,18 +17,36 @@ export function Search() {
     () => searchParams.get('inputValue') || ''
   );
 
+  const isTokenBalances = useMatch('/token-balances');
+  const isHome = useMatch('/');
+  const navigate = useNavigate();
+
   const handleSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
-      if (searchParams.get('inputValue') === value) return;
+
       const { address, blockchain = 'ethereum' } = getValuesFromId(value) || {};
       if (!address) return;
-      setSearchParams({ query: address, blockchain, inputValue: value });
+
+      const searchData = { query: address, blockchain, inputValue: value };
+
+      if (isHome) {
+        navigate({
+          pathname: '/token-balances',
+          search: createSearchParams(searchData).toString()
+        });
+        return;
+      }
+
+      if (searchParams.get('inputValue') === value) return;
+
+      setSearchParams(searchData);
     },
-    [searchParams, setSearchParams, value]
+    [isHome, navigate, searchParams, setSearchParams, value]
   );
-  const isTokenBalances = useMatch('/token-balances');
-  const activeItem = isTokenBalances ? 'token-balances' : 'poaps';
+
+  const activeItem =
+    isTokenBalances || isHome ? 'token-balances' : 'token-holders';
   const activeClasss = 'bg-tertiary border border-solid border-stroke-color';
 
   return (
@@ -40,7 +64,7 @@ export function Search() {
           <Link
             to="/token-holders"
             className={classNames('p-2  rounded-lg mr-5', {
-              [activeClasss]: activeItem === 'poaps'
+              [activeClasss]: activeItem === 'token-holders'
             })}
           >
             <Icon name="nft-gray" className="w-[30px]" />
@@ -53,7 +77,7 @@ export function Search() {
       >
         <div className="flex flex-col sm:flex-row items-center bg-secondary h-auto sm:h-[50px] w-full sm:w-[645px] border border-solid border-stroke-color rounded-2xl">
           <span className="bg-tertiary h-full flex justify-center items-center px-4 py-3.5 m-0 sm:mr-3 rounded-t-2xl sm:rounded-tr-none sm:rounded-l-2xl w-full sm:w-auto">
-            {isTokenBalances ? 'Token Balances' : 'Token holders'}
+            {isTokenBalances || isHome ? 'Token Balances' : 'Token holders'}
           </span>
           <InputWithMention
             defaultValue={value}

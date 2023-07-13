@@ -4,5 +4,8 @@ export function useSearchInput() {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('query') || '';
   const tokenType = searchParams.get('tokenType') || '';
-  return { query, tokenType };
+  const blockchain = searchParams.get('blockchain') || '';
+  const inputValue = searchParams.get('inputValue') || '';
+
+  return { query, tokenType, blockchain, inputValue };
 }

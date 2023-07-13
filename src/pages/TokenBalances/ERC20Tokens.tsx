@@ -74,8 +74,14 @@ export function ERC20Tokens() {
   useEffect(() => {
     if (data) {
       setTokens(existingTokens => ({
-        ethereum: [...existingTokens.ethereum, ...data.ethereum.TokenBalance],
-        polygon: [...existingTokens.polygon, ...data.polygon.TokenBalance]
+        ethereum: [
+          ...existingTokens.ethereum,
+          ...(data?.ethereum?.TokenBalance || [])
+        ],
+        polygon: [
+          ...existingTokens.polygon,
+          ...(data?.polygon?.TokenBalance || [])
+        ]
       }));
     }
   }, [data]);
