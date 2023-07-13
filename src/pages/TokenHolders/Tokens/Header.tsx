@@ -9,7 +9,7 @@ export function Header() {
         <th>ENS</th>
         <th>Lens</th>
         <th>Farcaster</th>
-        <th className=" pr-9">XMTP </th>
+        {/* <th className=" pr-9">XMTP </th> */}
       </tr>
     </thead>
   );

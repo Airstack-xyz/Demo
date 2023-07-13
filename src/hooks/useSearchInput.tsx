@@ -1,6 +1,17 @@
 import { useMatch, useSearchParams } from 'react-router-dom';
-import { useSearchData } from './useSearchData';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+
+export type cachedQuery = {
+  address?: string;
+  blockchain?: string;
+  filterBy?: string;
+  rawInput?: string;
+};
+
+const cache = {
+  tokenBalance: {} as cachedQuery,
+  tokenHolder: {} as cachedQuery
+};
 
 export function useSearchInput() {
   let isTokenBalances = !!useMatch('/token-balances');
@@ -9,17 +20,18 @@ export function useSearchInput() {
   if (isHome) {
     isTokenBalances = true;
   }
-  const { tokenBalance, tokenHolder, setTokenBalanceData, setTokenHolderData } =
-    useSearchData();
+  const { tokenBalance, tokenHolder } = cache;
   const [searchParams] = useSearchParams();
-  const query = searchParams.get('address') || '';
-  const tokenType = searchParams.get('filterBy') || '';
-  const blockchain = searchParams.get('blockchain') || '';
-  const rawInput = searchParams.get('rawInput') || '';
 
-  const setData = useMemo(
-    () => (isTokenBalances ? setTokenBalanceData : setTokenHolderData),
-    [isTokenBalances, setTokenBalanceData, setTokenHolderData]
+  const setData = useCallback(
+    (data: cachedQuery) => {
+      if (isTokenBalances) {
+        cache.tokenBalance = { ...cache.tokenBalance, ...data };
+      } else {
+        cache.tokenHolder = { ...cache.tokenHolder, ...data };
+      }
+    },
+    [isTokenBalances]
   );
 
   return useMemo(() => {
@@ -30,21 +42,23 @@ export function useSearchInput() {
       filterBy
     } = isTokenBalances ? tokenBalance : tokenHolder;
 
-    return {
+    const query = searchParams.get('address') || '';
+    const tokenType = searchParams.get('filterBy') || '';
+    const blockchain = searchParams.get('blockchain') || '';
+    const rawInput = searchParams.get('rawInput') || '';
+
+    const data = {
       address: query || address || '',
       filterBy: tokenType || filterBy || '',
       blockchain: blockchain || savedBlockchain || '',
-      rawInput: rawInput || rawQuery || '',
+      rawInput: rawInput || rawQuery || ''
+    };
+
+    setData(data);
+
+    return {
+      ...data,
       setData
     };
-  }, [
-    isTokenBalances,
-    tokenBalance,
-    tokenHolder,
-    query,
-    tokenType,
-    blockchain,
-    rawInput,
-    setData
-  ]);
+  }, [isTokenBalances, tokenBalance, tokenHolder, searchParams, setData]);
 }

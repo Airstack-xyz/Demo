@@ -17,7 +17,8 @@ export type IconType =
   | 'input-tokens'
   | 'input-poap'
   | 'ethereum'
-  | 'polygon';
+  | 'polygon'
+  | 'gnosis';
 
 export type IconProps = {
   name: IconType;

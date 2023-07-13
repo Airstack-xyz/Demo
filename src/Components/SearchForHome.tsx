@@ -2,28 +2,13 @@ import classNames from 'classnames';
 import { Icon } from './Icon';
 import { InputWithMention } from './Input/Input';
 import { FormEvent, useCallback, useState } from 'react';
-import {
-  Link,
-  createSearchParams,
-  useMatch,
-  useNavigate,
-  useSearchParams
-} from 'react-router-dom';
+import { createSearchParams, useNavigate } from 'react-router-dom';
 import { getValuesFromId } from './Input/utils';
-import { useSearchInput } from '../hooks/useSearchInput';
 
-export function Search() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  let isTokenBalances = !!useMatch('/token-balances');
-  const isHome = useMatch('/');
+export function HomeSearch() {
+  const [isTokenBalances, setIsTokenBalances] = useState(true);
 
-  if (isHome) {
-    isTokenBalances = true;
-  }
-
-  const { rawInput, setData } = useSearchInput();
-
-  const [value, setValue] = useState(rawInput);
+  const [value, setValue] = useState('');
 
   const navigate = useNavigate();
 
@@ -36,51 +21,37 @@ export function Search() {
 
       const searchData = { address, blockchain, rawInput: value };
 
-      setData({
-        ...searchData
+      navigate({
+        pathname: isTokenBalances ? '/token-balances' : '/token-holders',
+        search: createSearchParams(searchData).toString()
       });
-
-      if (isHome) {
-        navigate({
-          pathname: '/token-balances',
-          search: createSearchParams(searchData).toString()
-        });
-        return;
-      }
-
-      if (searchParams.get('rawInput') === value) {
-        navigate(0); // reload page if same search, this is to trigger refetch in pages
-      }
-
-      setSearchParams(searchData);
     },
-    [isHome, navigate, searchParams, setData, setSearchParams, value]
+    [isTokenBalances, navigate, value]
   );
 
-  const activeItem =
-    isTokenBalances || isHome ? 'token-balances' : 'token-holders';
+  const activeItem = isTokenBalances ? 'token-balances' : 'token-holders';
   const activeClasss = 'bg-tertiary border border-solid border-stroke-color';
 
   return (
     <div className="w-full">
       <div className="my-6 flex-col-center">
         <div className="glass-effect bg-secondry border flex p-1 rounded-lg">
-          <Link
-            to="/token-balances"
+          <button
             className={classNames('p-2  rounded-lg mr-5', {
               [activeClasss]: activeItem === 'token-balances'
             })}
+            onClick={() => setIsTokenBalances(true)}
           >
             <Icon name="address-wallet" className="w-[30px]" />
-          </Link>
-          <Link
-            to="/token-holders"
+          </button>
+          <button
             className={classNames('p-2  rounded-lg mr-5', {
               [activeClasss]: activeItem === 'token-holders'
             })}
+            onClick={() => setIsTokenBalances(false)}
           >
             <Icon name="nft-gray" className="w-[30px]" />
-          </Link>
+          </button>
         </div>
       </div>
       <form
@@ -89,7 +60,7 @@ export function Search() {
       >
         <div className="flex flex-col sm:flex-row items-center bg-secondary h-auto sm:h-[50px] w-full sm:w-[645px] border border-solid border-stroke-color rounded-2xl">
           <span className="bg-tertiary h-full flex justify-center items-center px-4 py-3.5 m-0 sm:mr-3 rounded-t-2xl sm:rounded-tr-none sm:rounded-l-2xl w-full sm:w-auto">
-            {isTokenBalances || isHome ? 'Token Balances' : 'Token holders'}
+            {isTokenBalances ? 'Token Balances' : 'Token holders'}
           </span>
           <InputWithMention
             defaultValue={value}

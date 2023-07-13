@@ -5,6 +5,9 @@ import { SectionHeader } from './SectionHeader';
 import { TokenType } from './types';
 import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
+import { createTokenHolderUrl } from '../../utils/createTokenHolderUrl';
+import { Link } from 'react-router-dom';
+
 function Token({
   amount,
   symbol,
@@ -21,7 +24,7 @@ function Token({
   blockchain: 'ethereum' | 'polygon';
 }) {
   return (
-    <div className="flex mb-5">
+    <div className="flex mb-5 hover:bg-tertiary px-3 py-1.5 rounded-md overflow-hidden">
       <div className="h-10 w-10 rounded-full overflow-hidden border border-solid border-stroke-color">
         {address && tokenId && (
           <Asset
@@ -103,7 +106,7 @@ export function ERC20Tokens() {
       </div>
       <div
         className={classNames(
-          'mt-3.5 glass-effect p-5 rounded-lg border border-solid border-stroke-color',
+          'mt-3.5 glass-effect py-3 px-2 rounded-lg border border-solid border-stroke-color',
           {
             'skeleton-loader': loading
           }
@@ -112,7 +115,7 @@ export function ERC20Tokens() {
         data-loader-height="auto"
       >
         {items.map((token, index) => (
-          <div>
+          <Link to={createTokenHolderUrl(token?.tokenAddress)}>
             <Token
               key={index}
               amount={token?.formattedAmount}
@@ -122,7 +125,7 @@ export function ERC20Tokens() {
               tokenId={token?.tokenNfts?.tokenId}
               blockchain={token?.blockchain}
             />
-          </div>
+          </Link>
         ))}
       </div>
     </div>

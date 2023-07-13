@@ -8,6 +8,7 @@ import { formatDate } from '../../utils';
 import { tokenTypes } from './constants';
 import { Icon } from '../../Components/Icon';
 import { Link } from 'react-router-dom';
+import { createTokenHolderUrl } from '../../utils/createTokenHolderUrl';
 
 type TokenProps = {
   type: string;
@@ -31,7 +32,7 @@ function Token({
     <Link
       className="h-72 w-72 rounded-xl bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative glass-effect"
       data-loader-type="block"
-      to={`/token-holders/?address=${address}&rawInput=${address}`}
+      to={createTokenHolderUrl(address)}
     >
       <div className="absolute inset-0 [&>div]:w-full [&>div]:h-full [&>div>img]:w-full">
         {address && tokenId && (

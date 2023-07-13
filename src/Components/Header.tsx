@@ -17,7 +17,7 @@ export function Header() {
           </a>
           <a
             className="text-text-button font-bold hover:bg-primary px-7 py-2 rounded-md"
-            href="https://docs.airstack.xyz/airstack-docs-and-faqs/quick-start-and-sdks"
+            href="https://app.airstack.xyz/sdks"
             target="_blank"
           >
             SDK

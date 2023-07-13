@@ -29,7 +29,8 @@ export function ListWithMoreOptions({
       {list?.length > minTokens && (
         <>
           <li
-            onClick={() => {
+            onClick={e => {
+              e.stopPropagation();
               setShowMax(show => !show);
             }}
             className="text-text-button font-bold cursor-pointer"
@@ -38,7 +39,8 @@ export function ListWithMoreOptions({
           </li>
           {showMax && list.length > maxTokens && (
             <li
-              onClick={() => {
+              onClick={e => {
+                e.stopPropagation();
                 if (showMax && list.length > maxTokens) {
                   onShowMore?.();
                   return;

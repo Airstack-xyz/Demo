@@ -9,7 +9,7 @@ import { Modal } from '../../../Components/Modal';
 import { Asset, useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { Header } from './Header';
 import { ListWithMoreOptions } from './ListWithMoreOptions';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 export function Token({
   token,
@@ -63,11 +63,11 @@ export function Token({
         </div>
       </td>
       <td className="ellipsis">
-        <Link
+        {/* <Link
           to={`/token-balances?address=${walletAddress}&rawInput=${walletAddress}`}
-        >
-          {walletAddress || '--'}
-        </Link>
+        > */}
+        {walletAddress || '--'}
+        {/* </Link> */}
       </td>
       <td className="ellipsis">{tokenId ? `#${tokenId}` : '--'}</td>
       <td className="ellipsis">{primarEns || '--'}</td>
@@ -89,7 +89,7 @@ export function Token({
           onShowMore={getShowMoreHandler(farcaster, 'farcaster')}
         />
       </td>
-      <td>@</td>
+      {/* <td>@</td> */}
     </>
   );
 }
@@ -111,6 +111,8 @@ export function Tokens() {
     rightValues: [],
     dataType: ''
   });
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (tokenAddress) {
@@ -159,13 +161,21 @@ export function Tokens() {
             <tr
               key={index}
               className={classNames(
-                '[&>td]:p-2 [&>td]:align-middle  min-h-[54px] hover:bg-secondary',
+                '[&>td]:p-2 [&>td]:align-middle  min-h-[54px] hover:bg-secondary cursor-pointer',
                 {
                   'skeleton-loader': loading
                 }
               )}
               data-loader-type="block"
               data-loader-margin="10"
+              onClick={() => {
+                const address = token?.owner?.addresses || '';
+                if (address) {
+                  navigate(
+                    `/token-balances?address=${address}&rawInput=${address}`
+                  );
+                }
+              }}
             >
               <Token token={token} onShowMore={handleShowMore} />
             </tr>
