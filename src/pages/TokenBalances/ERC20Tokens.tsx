@@ -1,4 +1,4 @@
-import { Asset, useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useState, useEffect, useMemo } from 'react';
 import { ERC20TokensQuery } from '../../queries';
 import { SectionHeader } from './SectionHeader';
@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { createTokenHolderUrl } from '../../utils/createTokenHolderUrl';
 import { Link } from 'react-router-dom';
+import { Asset } from '../../Components/Asset';
 
 function Token({
   amount,
@@ -31,8 +32,6 @@ function Token({
             address={address}
             tokenId={tokenId}
             chain={blockchain}
-            error={<></>}
-            loading={<></>}
             preset="medium"
           />
         )}

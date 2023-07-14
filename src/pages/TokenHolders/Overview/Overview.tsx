@@ -1,4 +1,4 @@
-import { useLazyQueryWithPagination, Asset } from '@airstack/airstack-react';
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import classNames from 'classnames';
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
@@ -6,6 +6,7 @@ import { tokenOwnerQuery } from '../../../queries';
 import { TokenBalance, Social } from '../../TokenBalances/types';
 import { getDAppType } from '../utils';
 import { HolderCount } from './HolderCount';
+import { Asset } from '../../../Components/Asset';
 
 const LIMIT = 200;
 
@@ -176,7 +177,7 @@ export function HoldersOverview() {
   return (
     <div
       className={classNames(
-        'flex w-full glass-effect rounded-lg overflow-hidden h-[421px]',
+        'flex w-full glass-effect rounded-lg overflow-hidden h-auto sm:h-[421px]',
         {
           'skeleton-loader': loading
         }

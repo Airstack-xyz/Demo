@@ -33,7 +33,6 @@ export function HomeSearch() {
     [isTokenBalances, navigate, value]
   );
 
-  const activeItem = isTokenBalances ? 'token-balances' : 'token-holders';
   const activeClasss = 'bg-tertiary border border-solid border-stroke-color';
 
   return (
@@ -42,19 +41,25 @@ export function HomeSearch() {
         <div className="glass-effect bg-secondry border flex p-1 rounded-lg">
           <button
             className={classNames('p-2  rounded-lg mr-5', {
-              [activeClasss]: activeItem === 'token-balances'
+              [activeClasss]: isTokenBalances
             })}
             onClick={() => setIsTokenBalances(true)}
           >
-            <Icon name="address-wallet" className="w-[30px]" />
+            <Icon
+              name={isTokenBalances ? 'token-balances' : 'token-balances-grey'}
+              className="w-[30px]"
+            />
           </button>
           <button
             className={classNames('p-2  rounded-lg mr-5', {
-              [activeClasss]: activeItem === 'token-holders'
+              [activeClasss]: !isTokenBalances
             })}
             onClick={() => setIsTokenBalances(false)}
           >
-            <Icon name="nft-gray" className="w-[30px]" />
+            <Icon
+              name={isTokenBalances ? 'token-holders-grey' : 'token-holders'}
+              className="w-[30px]"
+            />
           </button>
         </div>
       </div>

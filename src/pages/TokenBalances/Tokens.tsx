@@ -1,4 +1,4 @@
-import { Asset, useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useState, useEffect } from 'react';
 import { POAPQuery, tokensQuery } from '../../queries';
 import { PoapType, TokenType as TokenType } from './types';
@@ -9,6 +9,7 @@ import { tokenTypes } from './constants';
 import { Icon } from '../../Components/Icon';
 import { Link } from 'react-router-dom';
 import { createTokenHolderUrl } from '../../utils/createTokenHolderUrl';
+import { Asset } from '../../Components/Asset';
 
 type TokenProps = {
   type: string;
@@ -40,8 +41,6 @@ function Token({
             address={address}
             tokenId={tokenId}
             chain={blockchain}
-            error={<></>}
-            loading={<></>}
             preset="medium"
           />
         )}
@@ -54,7 +53,7 @@ function Token({
           {type}
         </div>
       </div>
-      <div className="h-14 rounded-3xl ml-2.5 border border-solid border-stroke-color flex flex-col px-3.5 py-2 text-sm glass-effect">
+      <div className="h-14 rounded-3xl border border-solid border-stroke-color flex flex-col px-3.5 py-2 text-sm glass-effect">
         <div className="ellipsis text-xs mb-">{name}</div>
         <div className="flex items-center justify-between font-bold ">
           <div className="ellipsis flex-1 mr-2">{id}</div>

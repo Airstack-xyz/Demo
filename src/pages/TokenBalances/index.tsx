@@ -64,7 +64,7 @@ export function TokenBalance() {
         </div>
         {query && (
           <>
-            <div className="flex-col-center my-3">
+            <div className="hidden sm:flex-col-center my-3">
               <button
                 className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium"
                 onClick={() => setShowModal(true)}
@@ -73,17 +73,25 @@ export function TokenBalance() {
               </button>
             </div>
             <div className="flex justify-between">
-              <div>
+              <div className="w-full h-full">
                 <div className="hidden sm:block">
                   <SectionHeader iconName="nft-flat" heading="NFTs & POAPs" />
                 </div>
                 {isMobile && renderMobileTabs()}
-                <div className="mt-3.5 mb-5">
+                <div className="mt-3.5 mb-5 hidden sm:visible">
                   <Filters />
                 </div>
-                <Tokens />
+                {isMobile ? (
+                  showSocials ? (
+                    <SocialsAndERC20 />
+                  ) : (
+                    <Tokens />
+                  )
+                ) : (
+                  <Tokens />
+                )}
               </div>
-              <SocialsAndERC20 />
+              {!isMobile && <SocialsAndERC20 />}
               {/* <div className="flex justify-between">
               {isMobile ? (
                 showSocials ? (

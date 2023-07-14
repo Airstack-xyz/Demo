@@ -265,7 +265,7 @@ export function InputWithMention({
   );
 
   return (
-    <div className="wrapper w-full sm:w-auto sm:p-auto h-[50px] [&>div]:h-50px p-2 sm:p-0">
+    <div className="wrapper w-full sm:w-auto sm:p-auto h-[50px] [&>div]:h-[50px] p-2 sm:p-0">
       {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
       {/* @ts-ignore-next-line */}
       <MentionsInput

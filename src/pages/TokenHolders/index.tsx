@@ -12,15 +12,15 @@ export function TokenHolders() {
   const { address: query } = useSearchInput();
   return (
     <Layout>
-      <div className="flex flex-col mx-14 px-2 pt-5 w-[955px] max-w-[100vw] sm:pt-14">
+      <div className="flex flex-col px-2 pt-5 w-[955px] max-w-[100vw] sm:pt-14">
         <div className="flex flex-col items-center">
           <Search />
         </div>
         {query && (
           <>
-            <div className="flex-col-center my-3">
+            <div className="hidden sm:flex-col-center my-3">
               <button
-                className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium"
+                className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium hidden"
                 onClick={() => setShowModal(true)}
               >
                 Get API

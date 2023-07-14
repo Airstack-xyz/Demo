@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 
 const maxTokens = 7;
-const minTokens = 5;
+const minTokens = 1;
 
 export function ListWithMoreOptions({
   list,

@@ -6,10 +6,11 @@ import { TokenBalance } from '../../TokenBalances/types';
 import { getDAppType } from '../utils';
 import { Chain } from '@airstack/airstack-react/constants';
 import { Modal } from '../../../Components/Modal';
-import { Asset, useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { Header } from './Header';
 import { ListWithMoreOptions } from './ListWithMoreOptions';
 import { useNavigate } from 'react-router-dom';
+import { Asset } from '../../../Components/Asset';
 
 export function Token({
   token,
@@ -48,15 +49,14 @@ export function Token({
 
   return (
     <>
-      <td>
-        <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden m-auto [&>div]:w-full [&>div>img]:w-full">
+      <td className="!pl-9">
+        <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden [&>div]:w-full [&>div>img]:w-full">
           {tokenAddress && tokenId && (
             <Asset
               address={tokenAddress}
               tokenId={tokenId}
               preset="small"
               containerClassName="token-img"
-              error={<></>}
               chain={token?.blockchain as Chain}
             />
           )}
@@ -154,14 +154,14 @@ export function Tokens() {
 
   return (
     <div className="w-full border border-solid border-stroke-color rounded-lg sm:overflow-hidden pb-5 overflow-y-auto">
-      <table className="w-full text-xs table-fixed">
+      <table className="w-auto text-xs table-fixed sm:w-full">
         {!loading && <Header />}
         <tbody>
           {items.map((token, index) => (
             <tr
               key={index}
               className={classNames(
-                '[&>td]:p-2 [&>td]:align-middle  min-h-[54px] hover:bg-secondary cursor-pointer',
+                '[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px] [&>td]:max-w-[200px] hover:bg-secondary cursor-pointer',
                 {
                   'skeleton-loader': loading
                 }

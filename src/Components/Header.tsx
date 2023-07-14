@@ -7,7 +7,14 @@ export function Header() {
         <Link to="/">
           <img src="/logo.svg" className="h-[33px]" />
         </Link>
-        <div className="flex-row-center">
+        <div className="hidden sm:flex-row-center">
+          <a
+            className="text-text-button font-bold hover:bg-primary px-7 py-2 rounded-md  mr-2"
+            href="https://github.com/Airstack-xyz/Demo"
+            target="_blank"
+          >
+            Fork Code
+          </a>
           <a
             className="text-text-button font-bold hover:bg-primary px-7 py-2 rounded-md  mr-2"
             href="https://app.airstack.xyz/"

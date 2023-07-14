@@ -9,7 +9,6 @@ type ImageProps = Omit<
 export type IconType =
   | 'nft'
   | 'nft-gray'
-  | 'address-wallet'
   | 'poap-flat'
   | 'nft-flat'
   | 'socials-flat'
@@ -18,7 +17,11 @@ export type IconType =
   | 'input-poap'
   | 'ethereum'
   | 'polygon'
-  | 'gnosis';
+  | 'gnosis'
+  | 'token-balances'
+  | 'token-balances-grey'
+  | 'token-holders'
+  | 'token-holders-grey';
 
 export type IconProps = {
   name: IconType;
