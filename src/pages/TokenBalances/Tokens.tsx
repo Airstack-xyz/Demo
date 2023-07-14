@@ -34,6 +34,7 @@ function Token({
       className="h-72 w-72 rounded-2xl bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative glass-effect"
       data-loader-type="block"
       to={createTokenHolderUrl(address)}
+      style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
     >
       <div className="absolute inset-0 [&>div]:w-full [&>div]:h-full [&>div>img]:w-full">
         {address && tokenId && (

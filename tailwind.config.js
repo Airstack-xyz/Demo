@@ -23,7 +23,7 @@ module.exports = {
         'text-button-hovered': '#65AAD0',
         'text-button-disabled': '#b2d5e7',
         'text-error': '#F30C0C',
-        'stroke-color': '#303241',
+        'stroke-color': '#3032414d',
         'stroke-highlight-blue': '#4B97F7',
         'stroke-highlight-red': '#DE5C5F',
         'response-light': '#f1f2f4',

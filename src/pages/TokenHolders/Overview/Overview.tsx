@@ -117,6 +117,8 @@ export function HoldersOverview() {
     };
   }, []);
 
+  const { hasNextPage, getNextPage } = pagination;
+
   useEffect(() => {
     if (data) {
       const ethTokenBalances: TokenBalance[] =
@@ -136,15 +138,13 @@ export function HoldersOverview() {
       updateCount(ethTokenBalances);
       updateCount(polygonTokenBalances);
       // load next page if available
-      if (pagination.hasNextPage) {
-        pagination.getNextPage();
+      if (hasNextPage) {
+        getNextPage();
+      } else {
+        setOverViewData(overViewDataRef.current);
       }
     }
-  }, [data, pagination, updateCount]);
-
-  useEffect(() => {
-    setOverViewData(overViewDataRef.current);
-  }, [pagination.hasNextPage]);
+  }, [data, getNextPage, hasNextPage, updateCount]);
 
   const tokenImage = useMemo(() => {
     if (!tokenDetails) return null;

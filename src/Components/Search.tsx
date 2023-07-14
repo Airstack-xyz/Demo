@@ -64,7 +64,7 @@ export function Search() {
   const activeClasss = 'bg-tertiary border border-solid border-stroke-color';
 
   return (
-    <div className="w-full">
+    <div className="w-full z-10">
       <div className="my-6 flex-col-center">
         <div className="glass-effect bg-secondry border flex p-1 rounded-lg">
           <Link
@@ -96,7 +96,7 @@ export function Search() {
         onSubmit={handleSubmit}
       >
         <div className="flex flex-col sm:flex-row items-center h-auto sm:h-[50px] w-full sm:w-[645px] border border-solid border-stroke-color rounded-2xl glass-effect">
-          <span className="bg-tertiary h-full flex justify-center items-center px-4 py-3.5 m-0 sm:mr-3 rounded-t-2xl sm:rounded-tr-none sm:rounded-l-2xl w-full sm:w-auto">
+          <span className="glass-effect h-full flex justify-center items-center px-4 py-3.5 m-0 sm:mr-3 rounded-t-2xl sm:rounded-tr-none sm:rounded-l-2xl w-full sm:w-auto min-w-[152px]">
             {isTokenBalances || isHome ? 'Token Balances' : 'Token holders'}
           </span>
           <InputWithMention

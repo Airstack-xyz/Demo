@@ -68,7 +68,7 @@
 }
 
 #suggestions-overlay {
-  @apply !bg-transparent rounded-b-xl border border-solid border-stroke-color border-t-0;
+  @apply !bg-primary rounded-b-xl border border-solid border-stroke-color border-t-0 overflow-hidden;
   background: linear-gradient(
     137deg,
     rgba(255, 255, 255, 0.04) 0.55%,
@@ -115,7 +115,9 @@
   text-decoration: underline;
   pointer-events: none;
 }
-
+#suggestions-overlay {
+  top: 20px !important;
+}
 #suggestions-overlay .skeleton-loader {
   @apply p-2 pt-0 border border-stroke-color border-t-0 overflow-hidden min-h-full rounded-b-2xl;
 }

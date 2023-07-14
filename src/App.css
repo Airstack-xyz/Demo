@@ -17,10 +17,11 @@ body {
 .glass-effect {
   background: linear-gradient(
     137deg,
-    rgba(255, 255, 255, 0.04) 0.55%,
+    rgba(255, 255, 255, 0.02) 0.55%,
     rgba(255, 255, 255, 0) 100%
   );
-  backdrop-filter: blur(50px);
+  -webkit-backdrop-filter: blur(50px);
+  backdrop-filter: blur(100px);
 }
 
 .modal-overlay {

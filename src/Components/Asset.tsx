@@ -5,8 +5,8 @@ export function Asset(props: ComponentProps<typeof AirstackAsset>) {
   return (
     <AirstackAsset
       preset="medium"
-      error={<img src="images/placeholder.png" />}
-      loading={<img src="images/placeholder.png" />}
+      error={<img src="images/placeholder.svg" />}
+      loading={<img src="images/placeholder.svg" />}
       {...props}
     />
   );
