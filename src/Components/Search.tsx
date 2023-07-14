@@ -12,6 +12,10 @@ import {
 import { getValuesFromId } from './Input/utils';
 import { useSearchInput } from '../hooks/useSearchInput';
 
+const tokenHoldersPlaceholder = 'Use @ mention or enter any contract address';
+const tokenBalancesPlaceholder =
+  'Enter 0x, name.eth, fc_fname:name, or name.lens';
+
 export function Search() {
   const [searchParams, setSearchParams] = useSearchParams();
   let isTokenBalances = !!useMatch('/token-balances');
@@ -75,7 +79,7 @@ export function Search() {
           </Link>
           <Link
             to="/token-holders"
-            className={classNames('p-2  rounded-lg mr-5', {
+            className={classNames('p-2  rounded-lg', {
               [activeClasss]: activeItem === 'token-holders'
             })}
           >
@@ -87,7 +91,7 @@ export function Search() {
         className="flex flex-col sm:flex-row justify-center"
         onSubmit={handleSubmit}
       >
-        <div className="flex flex-col sm:flex-row items-center bg-secondary h-auto sm:h-[50px] w-full sm:w-[645px] border border-solid border-stroke-color rounded-2xl">
+        <div className="flex flex-col sm:flex-row items-cente h-auto sm:h-[50px] w-full sm:w-[645px] border border-solid border-stroke-color rounded-2xl glass-effect">
           <span className="bg-tertiary h-full flex justify-center items-center px-4 py-3.5 m-0 sm:mr-3 rounded-t-2xl sm:rounded-tr-none sm:rounded-l-2xl w-full sm:w-auto">
             {isTokenBalances || isHome ? 'Token Balances' : 'Token holders'}
           </span>
@@ -95,6 +99,11 @@ export function Search() {
             defaultValue={value}
             onChange={setValue}
             onSubmit={setValue}
+            placeholder={
+              isTokenBalances
+                ? tokenBalancesPlaceholder
+                : tokenHoldersPlaceholder
+            }
           />
         </div>
         <button className="bg-button-primary rounded-xl sm:ml-5 mt-5 sm:mt-0 px-6 py-3.5 font-bold w-[40%] sm:w-auto self-center">

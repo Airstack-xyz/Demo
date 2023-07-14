@@ -69,6 +69,7 @@ export const POAPQuery = `query GetPOAPs($owner: Identity, $limit: Int) {
       tokenId
       tokenAddress
       poapEvent {
+        city
         eventName
         startDate
         eventId

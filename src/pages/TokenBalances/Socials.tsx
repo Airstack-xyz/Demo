@@ -11,13 +11,20 @@ type SocialType = SocialsType['Wallet'];
 type SocialProps = {
   name: string;
   values: string[];
+  image: string;
   onShowMore?: () => void;
 };
 
 const maxSocials = 7;
-const minSocials = 5;
+const minSocials = 2;
 
-function Social({ name, values, onShowMore }: SocialProps) {
+const imagesMap: Record<string, string> = {
+  lens: '/images/lens.svg',
+  farcaster: '/images/farcaster.svg',
+  ens: '/images/ens.svg'
+};
+
+function Social({ name, values, image, onShowMore }: SocialProps) {
   const [showMax, setShowMax] = useState(false);
   const items = useMemo(() => {
     if (!showMax) {
@@ -30,8 +37,10 @@ function Social({ name, values, onShowMore }: SocialProps) {
     <div className="flex text-sm mb-7 last:mb-0">
       <div className="flex flex-1 items-start">
         <div className="flex items-center">
-          <div className="rounded-full h-6 w-6 border border-solid border-stroke-color mr-2"></div>
-          {name}
+          <div className="rounded-full h-[25px] w-[25px] border border-solid border-stroke-color mr-2 overflow-hidden flex-row-center">
+            <img src={image} className="w-full" />
+          </div>
+          <span className="first-letter:uppercase">{name}</span>
         </div>
       </div>
       <ul className="text-text-secondary w-1/2 overflow-hidden">
@@ -118,6 +127,11 @@ export function Socials() {
     setShowModal(true);
   }, []);
 
+  const socials = socialDetails?.socials || [
+    { dappName: 'farcaster', profileName: '--' },
+    { dappName: 'lens', profileName: '--' }
+  ];
+
   return (
     <div className="w-full sm:w-auto">
       <div className="hidden sm:block">
@@ -125,7 +139,7 @@ export function Socials() {
       </div>
       <div
         className={classNames(
-          'bg-secondary rounded-lg  border border-solid border-stroke-color mt-3.5 min-h-[250px] flex flex-col',
+          'rounded-lg  border border-solid border-stroke-color mt-3.5 min-h-[250px] flex flex-col glass-effect',
           {
             'skeleton-loader': loading
           }
@@ -139,6 +153,7 @@ export function Socials() {
           <Social
             name="Primary ENS"
             values={[socialDetails?.primaryDomain?.name || '--']}
+            image={imagesMap['ens']}
           />
           <Social
             name="ENS names"
@@ -146,9 +161,14 @@ export function Socials() {
             onShowMore={() => {
               handleShowMore(domainsList || []);
             }}
+            image={imagesMap['ens']}
           />
-          {socialDetails?.socials?.map(({ dappName, profileName }) => (
-            <Social name={dappName} values={[profileName]} />
+          {socials.map(({ dappName, profileName }) => (
+            <Social
+              name={dappName}
+              values={[profileName]}
+              image={imagesMap[dappName?.trim()]}
+            />
           ))}
         </div>
       </div>

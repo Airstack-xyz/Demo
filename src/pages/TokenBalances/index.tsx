@@ -10,6 +10,7 @@ import { SectionHeader } from './SectionHeader';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
 import { isMobileDevice } from '../../utils/isMobileDevice';
+import { tokensQuery } from '../../queries';
 
 function SocialsAndERC20() {
   return (
@@ -62,15 +63,28 @@ export function TokenBalance() {
           <Search />
         </div>
         {query && (
-          <div>
-            <div className="hidden sm:block">
-              <SectionHeader iconName="nft-flat" heading="NFTs & POAPs" />
-            </div>
-            {isMobile && renderMobileTabs()}
-            <div className="my-3.5">
-              <Filters />
+          <>
+            <div className="flex-col-center my-3">
+              <button
+                className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium"
+                onClick={() => setShowModal(true)}
+              >
+                Get API
+              </button>
             </div>
             <div className="flex justify-between">
+              <div>
+                <div className="hidden sm:block">
+                  <SectionHeader iconName="nft-flat" heading="NFTs & POAPs" />
+                </div>
+                {isMobile && renderMobileTabs()}
+                <div className="mt-3.5 mb-5">
+                  <Filters />
+                </div>
+                <Tokens />
+              </div>
+              <SocialsAndERC20 />
+              {/* <div className="flex justify-between">
               {isMobile ? (
                 showSocials ? (
                   <SocialsAndERC20 />
@@ -81,8 +95,9 @@ export function TokenBalance() {
                 <Tokens />
               )}
               {!isMobile && <SocialsAndERC20 />}
+            </div> */}
             </div>
-          </div>
+          </>
         )}
       </div>
       <Modal
@@ -91,7 +106,7 @@ export function TokenBalance() {
         onRequestClose={() => setShowModal(false)}
       >
         <pre className="w-[600px] max-h-[60vh] h-auto code rounded-xl p-5 overflow-auto">
-          {query}
+          {tokensQuery}
         </pre>
         <button className="bg-button-primary hover:bg-button-primary-hover mt-5 w-full py-4 font-bold rounded-md">
           Copy

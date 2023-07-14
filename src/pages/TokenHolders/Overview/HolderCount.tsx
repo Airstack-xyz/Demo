@@ -15,7 +15,7 @@ export function HolderCount({
       data-loader-type="block"
       data-loader-height="auto"
     >
-      <div className="rounded-full w-[47px] h-[47px] overflow-hidden flex-col-center">
+      <div className="rounded-full w-[47px] h-[47px] overflow-hidden flex-row-center">
         {image}
       </div>
       <div className="pl-2.5">

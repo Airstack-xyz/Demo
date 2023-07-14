@@ -36,6 +36,7 @@ type AIInputProps = {
   onChange: (value: string) => void;
   onSubmit: (value: string) => void;
   defaultValue?: string;
+  placeholder: string;
 };
 
 const mentionTypeMap: Record<MentionType, string> = {
@@ -44,12 +45,13 @@ const mentionTypeMap: Record<MentionType, string> = {
   [MentionType.TOKEN]: 'Token',
   [MentionType.POAP]: 'POAP'
 };
-const placeholder = 'Enter 0x, name.eth, fc_fname:name, or name.lens';
+
 export function InputWithMention({
   disabled,
   onChange,
   defaultValue,
-  onSubmit
+  onSubmit,
+  placeholder
 }: AIInputProps) {
   const [showInputFor, setShowInputFor] = useState<
     'ID_ADDRESS' | 'ID_POAP' | null
@@ -263,7 +265,7 @@ export function InputWithMention({
   );
 
   return (
-    <div className="wrapper w-full p-2 sm:w-auto sm:p-auto">
+    <div className="wrapper w-full sm:w-auto sm:p-auto h-[50px] [&>div]:h-50px p-2 sm:p-0">
       {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
       {/* @ts-ignore-next-line */}
       <MentionsInput

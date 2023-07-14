@@ -29,7 +29,7 @@
 }
 
 .mentions {
-  @apply w-full resize-none min-h-[50px] h-[50px] rounded-r-xl relative rounded-lg border-transparent text-sm p-0;
+  @apply w-full h-full resize-none rounded-r-xl relative rounded-lg border-transparent text-sm p-0;
   border-width: 17px 7px 12.5px 14px;
 }
 

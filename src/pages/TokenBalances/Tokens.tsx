@@ -30,7 +30,7 @@ function Token({
 }: TokenProps) {
   return (
     <Link
-      className="h-72 w-72 rounded-xl bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative glass-effect"
+      className="h-72 w-72 rounded-2xl bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative glass-effect"
       data-loader-type="block"
       to={createTokenHolderUrl(address)}
     >
@@ -138,6 +138,7 @@ export function Tokens() {
         const token = _token as TokenType;
         const poap = _token as Poap;
         const poapEvent = poap.poapEvent || {};
+        const city = poapEvent.city || '';
 
         const address = token.tokenAddress || poap.tokenAddress;
         const id = token.tokenNfts?.tokenId
@@ -146,7 +147,9 @@ export function Tokens() {
         const symbol = token?.token?.symbol || '';
         const type = token.tokenType || 'POAP';
         const blockchain = token.blockchain || 'ethereum';
-        const name = token?.token?.name || formatDate(poapEvent.startDate);
+        const name =
+          token?.token?.name ||
+          `${formatDate(poapEvent.startDate)}${city ? ` (${city})` : ''}`;
         const tokenId = token.tokenNfts?.tokenId || poap.tokenId;
         return (
           <div

@@ -34,6 +34,7 @@ export type PoapType = {
       tokenId: string;
       tokenAddress: string;
       poapEvent: {
+        city: string;
         eventName: string;
         startDate: string;
         eventId: string;

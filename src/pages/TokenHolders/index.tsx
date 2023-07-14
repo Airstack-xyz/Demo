@@ -17,12 +17,22 @@ export function TokenHolders() {
           <Search />
         </div>
         {query && (
-          <div className="flex flex-col justify-center mt-7">
-            <HoldersOverview />
-            <div className="mt-10">
-              <Tokens />
+          <>
+            <div className="flex-col-center my-3">
+              <button
+                className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium"
+                onClick={() => setShowModal(true)}
+              >
+                Get API
+              </button>
             </div>
-          </div>
+            <div className="flex flex-col justify-center mt-7">
+              <HoldersOverview />
+              <div className="mt-10">
+                <Tokens />
+              </div>
+            </div>
+          </>
         )}
       </div>
       <Modal
