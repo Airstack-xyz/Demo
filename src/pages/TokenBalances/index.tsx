@@ -14,7 +14,7 @@ import { tokensQuery } from '../../queries';
 
 function SocialsAndERC20() {
   return (
-    <aside className="w-full sm:w-80 sm:ml-16">
+    <aside className="w-full sm:w-[305px] sm:ml-16">
       <Socials />
       <ERC20Tokens />
     </aside>
@@ -72,13 +72,13 @@ export function TokenBalance() {
                 Get API
               </button>
             </div>
-            <div className="flex justify-between">
+            <div className="flex justify-between px-5">
               <div className="w-full h-full">
                 <div className="hidden sm:block">
                   <SectionHeader iconName="nft-flat" heading="NFTs & POAPs" />
                 </div>
                 {isMobile && renderMobileTabs()}
-                <div className="mt-3.5 mb-5 hidden sm:visible">
+                <div className="mt-3.5 mb-5 hidden sm:block">
                   <Filters />
                 </div>
                 {isMobile ? (
@@ -92,18 +92,6 @@ export function TokenBalance() {
                 )}
               </div>
               {!isMobile && <SocialsAndERC20 />}
-              {/* <div className="flex justify-between">
-              {isMobile ? (
-                showSocials ? (
-                  <SocialsAndERC20 />
-                ) : (
-                  <Tokens />
-                )
-              ) : (
-                <Tokens />
-              )}
-              {!isMobile && <SocialsAndERC20 />}
-            </div> */}
             </div>
           </>
         )}

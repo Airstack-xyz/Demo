@@ -153,7 +153,7 @@ export function Tokens() {
   const items: TokenBalance[] = loading ? loaderData : tokens;
 
   return (
-    <div className="w-full border border-solid border-stroke-color rounded-lg sm:overflow-hidden pb-5 overflow-y-auto">
+    <div className="w-full border border-solid border-stroke-color rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
       <table className="w-auto text-xs table-fixed sm:w-full">
         {!loading && <Header />}
         <tbody>

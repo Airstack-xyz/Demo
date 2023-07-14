@@ -67,8 +67,8 @@ export function HomeSearch() {
         className="flex flex-col sm:flex-row justify-center"
         onSubmit={handleSubmit}
       >
-        <div className="flex flex-col sm:flex-row items-center h-auto sm:h-[50px] w-full sm:w-[645px] border border-solid border-stroke-color rounded-2xl glass-effect">
-          <span className="glass-effect h-full flex justify-center items-center px-4 py-3.5 m-0 sm:mr-3 rounded-t-2xl sm:rounded-tr-none sm:rounded-l-2xl w-full sm:w-auto min-w-[152px]">
+        <div className="flex flex-col sm:flex-row items-center h-auto sm:h-[50px] w-full sm:w-[645px] border border-solid border-stroke-color rounded-18 glass-effect">
+          <span className="glass-effect h-full flex justify-center items-center px-4 py-3.5 m-0 sm:mr-3 rounded-t-18 sm:rounded-tr-none sm:rounded-l-18 w-full sm:w-auto min-w-[152px]">
             {isTokenBalances ? 'Token Balances' : 'Token holders'}
           </span>
           <InputWithMention
@@ -82,7 +82,7 @@ export function HomeSearch() {
             }
           />
         </div>
-        <button className="bg-button-primary rounded-xl sm:ml-5 mt-5 sm:mt-0 px-6 py-3.5 font-bold w-[40%] sm:w-auto self-center">
+        <button className="bg-button-primary rounded-18 sm:ml-5 mt-5 sm:mt-0 px-6 py-3.5 font-bold w-[40%] sm:w-auto self-center">
           Go
         </button>
       </form>

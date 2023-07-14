@@ -31,7 +31,7 @@ function Token({
 }: TokenProps) {
   return (
     <Link
-      className="h-72 w-72 rounded-2xl bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative glass-effect"
+      className="h-72 w-72 rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative glass-effect"
       data-loader-type="block"
       to={createTokenHolderUrl(address)}
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
@@ -133,7 +133,7 @@ export function Tokens() {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-11 mt-3.5 w-full justify-items-center">
+    <div className="flex flex-wrap gap-x-[75px] gap-y-[75px] justify-center">
       {items.map((_token, index) => {
         const token = _token as TokenType;
         const poap = _token as Poap;

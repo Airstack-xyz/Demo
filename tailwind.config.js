@@ -28,6 +28,9 @@ module.exports = {
         'stroke-highlight-red': '#DE5C5F',
         'response-light': '#f1f2f4',
         'banner-positive': '#008E41'
+      },
+      borderRadius: {
+        18: '18px'
       }
     },
     screens: {

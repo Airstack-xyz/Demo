@@ -105,7 +105,7 @@ export function ERC20Tokens() {
       </div>
       <div
         className={classNames(
-          'mt-3.5 glass-effect py-3 px-2 rounded-lg border border-solid border-stroke-color',
+          'mt-3.5 glass-effect py-3 px-2 rounded-18 border border-solid border-stroke-color',
           {
             'skeleton-loader': loading
           }
