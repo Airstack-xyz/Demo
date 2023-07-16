@@ -1,8 +1,7 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { POAPQuery, tokensQuery } from '../../queries';
 import { PoapType, TokenType as TokenType } from './types';
-import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { formatDate } from '../../utils';
 import { tokenTypes } from './constants';
@@ -10,6 +9,7 @@ import { Icon } from '../../Components/Icon';
 import { Link } from 'react-router-dom';
 import { createTokenHolderUrl } from '../../utils/createTokenHolderUrl';
 import { Asset } from '../../Components/Asset';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 type TokenProps = {
   type: string;
@@ -67,21 +67,46 @@ function Token({
 
 const loaderData = Array(9).fill({ token: {}, tokenNfts: {} });
 
+function Loader() {
+  return (
+    <>
+      {loaderData.map((_, index) => (
+        <div className="skeleton-loader" key={index}>
+          <Token
+            key={index}
+            type={''}
+            name={''}
+            id={''}
+            address={''}
+            symbol={''}
+            blockchain={'ethereum'}
+            tokenId={''}
+          />
+        </div>
+      ))}
+    </>
+  );
+}
+
 type Poap = PoapType['Poaps']['Poap'][0];
 const variables = {};
 const config = {
   cache: false
 };
 export function Tokens() {
-  const [fetchTokens, { data: tokensData, loading: loadingTokens }] =
-    useLazyQueryWithPagination(tokensQuery, variables, config);
-  const [fetchPoaps, { data: poapsData, loading: loadingPoaps }] =
-    useLazyQueryWithPagination(POAPQuery, variables, config);
-  // const { hasNextPage, getNextPage } = pagination;
+  const [
+    fetchTokens,
+    { data: tokensData, loading: loadingTokens, pagination: paginationTokens }
+  ] = useLazyQueryWithPagination(tokensQuery, variables, config);
+  const [
+    fetchPoaps,
+    { data: poapsData, loading: loadingPoaps, pagination: paginationPoaps }
+  ] = useLazyQueryWithPagination(POAPQuery, variables, config);
 
   const [tokens, setTokens] = useState<TokenType[]>([]);
   const [poaps, setPoaps] = useState<Poap[]>([]);
   const { address: owner, filterBy: tokenType = '' } = useSearchInput();
+
   useEffect(() => {
     if (owner) {
       if (!tokenType || tokenType !== 'POAP') {
@@ -121,10 +146,18 @@ export function Tokens() {
     }
   }, [poapsData]);
 
+  const handleNext = useCallback(() => {
+    if (!loadingTokens && paginationTokens?.hasNextPage) {
+      paginationTokens.getNextPage();
+    }
+
+    if (!loadingPoaps && paginationPoaps?.hasNextPage) {
+      paginationPoaps.getNextPage();
+    }
+  }, [loadingPoaps, loadingTokens, paginationPoaps, paginationTokens]);
+
   const loading = loadingTokens || loadingPoaps;
-  const items: (TokenType | Poap)[] = loading
-    ? loaderData
-    : [...tokens, ...poaps];
+  const items: (TokenType | Poap)[] = [...tokens, ...poaps];
 
   if (items.length === 0 && !loading) {
     return (
@@ -132,8 +165,25 @@ export function Tokens() {
     );
   }
 
+  const hasNextPage =
+    paginationTokens?.hasNextPage || paginationPoaps?.hasNextPage;
+
+  if (items.length === 0 && loading) {
+    return (
+      <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">
+        <Loader />
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center">
+    <InfiniteScroll
+      next={handleNext}
+      dataLength={items.length}
+      hasMore={hasNextPage}
+      loader={<Loader />}
+      className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start"
+    >
       {items.map((_token, index) => {
         const token = _token as TokenType;
         const poap = _token as Poap;
@@ -152,11 +202,7 @@ export function Tokens() {
           `${formatDate(poapEvent.startDate)}${city ? ` (${city})` : ''}`;
         const tokenId = token.tokenNfts?.tokenId || poap.tokenId;
         return (
-          <div
-            className={classNames({
-              'skeleton-loader': loading
-            })}
-          >
+          <div>
             <Token
               key={index}
               type={type}
@@ -170,6 +216,6 @@ export function Tokens() {
           </div>
         );
       })}
-    </div>
+    </InfiniteScroll>
   );
 }

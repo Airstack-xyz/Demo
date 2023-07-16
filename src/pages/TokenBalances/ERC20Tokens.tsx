@@ -1,5 +1,5 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { ERC20TokensQuery } from '../../queries';
 import { SectionHeader } from './SectionHeader';
 import { TokenType } from './types';
@@ -8,6 +8,7 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 import { createTokenHolderUrl } from '../../utils/createTokenHolderUrl';
 import { Link } from 'react-router-dom';
 import { Asset } from '../../Components/Asset';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 function Token({
   amount,
@@ -49,6 +50,26 @@ function Token({
 
 const loaderData = Array(3).fill({ poapEvent: {} });
 
+function Loader() {
+  return (
+    <>
+      {loaderData.map((_, index) => (
+        <div className="skeleton-loader" key={index}>
+          <Token
+            key={''}
+            amount={0}
+            symbol={''}
+            type={''}
+            address={''}
+            tokenId={''}
+            blockchain={'ethereum'}
+          />
+        </div>
+      ))}
+    </>
+  );
+}
+
 export function ERC20Tokens() {
   const [tokens, setTokens] = useState<{
     ethereum: TokenType[];
@@ -58,7 +79,7 @@ export function ERC20Tokens() {
     polygon: []
   });
 
-  const [fetch, { data: data, loading }] =
+  const [fetch, { data: data, loading, pagination }] =
     useLazyQueryWithPagination(ERC20TokensQuery);
   const { address: owner } = useSearchInput();
 
@@ -90,15 +111,19 @@ export function ERC20Tokens() {
     }
   }, [data]);
 
-  // const handleNext = useCallback(() => {
-  //   pagination?.getNextPage();
-  // }, [pagination]);
-
-  // const dataNotFound = !error && !loading && poaps.length === 0;
+  const handleNext = useCallback(() => {
+    pagination?.getNextPage();
+  }, [pagination]);
 
   const items = useMemo((): TokenType[] => {
     return loading ? loaderData : [...tokens.ethereum, ...tokens.polygon];
   }, [loading, tokens.ethereum, tokens.polygon]);
+
+  if (items.length === 0 && !loading) {
+    return (
+      <div className="flex flex-1 justify-center mt-10">No data found!</div>
+    );
+  }
 
   return (
     <div className="mt-11">
@@ -109,25 +134,34 @@ export function ERC20Tokens() {
         className={classNames(
           'mt-3.5 bg-glass py-3 px-2 rounded-18 border-solid-stroke',
           {
-            'skeleton-loader': loading
+            'skeleton-loader': items.length === 0 && loading
           }
         )}
         data-loader-type="block"
         data-loader-height="auto"
       >
-        {items.map((token, index) => (
-          <Link to={createTokenHolderUrl(token?.tokenAddress)}>
-            <Token
-              key={index}
-              amount={token?.formattedAmount}
-              symbol={token?.token?.symbol}
-              type={token?.token?.name}
-              address={token?.tokenAddress}
-              tokenId={token?.tokenNfts?.tokenId}
-              blockchain={token?.blockchain}
-            />
-          </Link>
-        ))}
+        {items.length > 0 && (
+          <InfiniteScroll
+            next={handleNext}
+            dataLength={items.length}
+            hasMore={pagination.hasNextPage}
+            loader={<Loader />}
+          >
+            {items.map((token, index) => (
+              <Link to={createTokenHolderUrl(token?.tokenAddress)}>
+                <Token
+                  key={index}
+                  amount={token?.formattedAmount}
+                  symbol={token?.token?.symbol}
+                  type={token?.token?.name}
+                  address={token?.tokenAddress}
+                  tokenId={token?.tokenNfts?.tokenId}
+                  blockchain={token?.blockchain}
+                />
+              </Link>
+            ))}
+          </InfiniteScroll>
+        )}
       </div>
     </div>
   );
