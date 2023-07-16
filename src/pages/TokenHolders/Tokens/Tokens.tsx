@@ -161,7 +161,7 @@ export function Tokens() {
             <tr
               key={index}
               className={classNames(
-                '[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px] hover:bg-secondary cursor-pointer',
+                '[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer',
                 {
                   'skeleton-loader': loading
                 }

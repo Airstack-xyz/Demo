@@ -1,0 +1,11 @@
+<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="icon-flat-tokens" clip-path="url(#clip0_485_2197)">
+<path id="Vector" d="M12.5 17.5C15.2625 17.5 17.5 15.2625 17.5 12.5C17.5 9.7375 15.2625 7.5 12.5 7.5C9.7375 7.5 7.5 9.7375 7.5 12.5C7.5 15.2625 9.7375 17.5 12.5 17.5Z" fill="#8B8EA0"/>
+<path id="Vector_2" d="M12.1375 5.6375C11.4 3.8 9.6125 2.5 7.5 2.5C4.7375 2.5 2.5 4.7375 2.5 7.5C2.5 9.6 3.8 11.4 5.6375 12.1375C5.825 8.6375 8.625 5.825 12.125 5.65L12.1375 5.6375Z" fill="#8B8EA0"/>
+</g>
+<defs>
+<clipPath id="clip0_485_2197">
+<rect width="20" height="20" fill="white"/>
+</clipPath>
+</defs>
+</svg>

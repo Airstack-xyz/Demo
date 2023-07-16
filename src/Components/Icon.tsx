@@ -21,7 +21,8 @@ export type IconType =
   | 'token-balances'
   | 'token-balances-grey'
   | 'token-holders'
-  | 'token-holders-grey';
+  | 'token-holders-grey'
+  | 'erc20';
 
 export type IconProps = {
   name: IconType;

@@ -25,7 +25,7 @@ function Token({
   blockchain: 'ethereum' | 'polygon';
 }) {
   return (
-    <div className="flex mb-5 hover:bg-tertiary px-3 py-1.5 rounded-md overflow-hidden">
+    <div className="flex mb-5 hover:bg-glass px-3 py-1.5 rounded-md overflow-hidden">
       <div className="h-10 w-10 rounded-full overflow-hidden border-solid-stroke">
         {address && tokenId && (
           <Asset
@@ -37,9 +37,11 @@ function Token({
         )}
       </div>
       <div className="flex flex-1 items-center min-w-0 text-sm pl-2.5">
-        <span className="ellipsis w-14">{amount}</span>
+        <span className="ellipsis max-w-[30%]">{amount}</span>
         <span className="mx-1.5 ellipsis">{symbol}</span>
-        <span className="text-xs text-text-secondary">{type}</span>
+        <span className="text-xs text-text-secondary ellipsis min-w-[30%] lowercase">
+          {type}
+        </span>
       </div>
     </div>
   );
@@ -101,7 +103,7 @@ export function ERC20Tokens() {
   return (
     <div className="mt-11">
       <div className="hidden sm:block">
-        <SectionHeader iconName="poap-flat" heading="ERC20 tokens" />
+        <SectionHeader iconName="erc20" heading="ERC20 tokens" />
       </div>
       <div
         className={classNames(

@@ -52,30 +52,28 @@ function Social({ name, values, image, onShowMore }: SocialProps) {
             {value}
           </li>
         ))}
-        {values?.length > minSocials && (
-          <>
-            <li
-              onClick={() => {
-                setShowMax(show => !show);
-              }}
-              className="text-text-button font-bold cursor-pointer"
-            >
-              see {showMax ? 'less' : 'more'}
-            </li>
-            {showMax && values.length > maxSocials && (
-              <li
-                onClick={() => {
-                  if (showMax && values.length > maxSocials) {
-                    onShowMore?.();
-                    return;
-                  }
-                }}
-                className="text-text-button font-bold cursor-pointer"
-              >
-                see all
-              </li>
-            )}
-          </>
+        {!showMax && values?.length > minSocials && (
+          <li
+            onClick={() => {
+              setShowMax(show => !show);
+            }}
+            className="text-text-button font-bold cursor-pointer"
+          >
+            see more
+          </li>
+        )}
+        {showMax && values.length > maxSocials && (
+          <li
+            onClick={() => {
+              if (showMax && values.length > maxSocials) {
+                onShowMore?.();
+                return;
+              }
+            }}
+            className="text-text-button font-bold cursor-pointer"
+          >
+            see all
+          </li>
         )}
       </ul>
     </div>
