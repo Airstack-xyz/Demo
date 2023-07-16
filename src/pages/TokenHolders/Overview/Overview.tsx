@@ -177,7 +177,7 @@ export function HoldersOverview() {
   return (
     <div
       className={classNames(
-        'flex w-full glass-effect rounded-18 overflow-hidden h-auto sm:h-[421px]',
+        'flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px]',
         {
           'skeleton-loader': loading
         }

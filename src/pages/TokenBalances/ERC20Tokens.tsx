@@ -38,7 +38,7 @@ function Token({
       </div>
       <div className="flex flex-1 items-center min-w-0 text-sm pl-2.5">
         <span className="ellipsis w-14">{amount}</span>
-        <span className="mx-1.5 ellipsis flex-1">{symbol}</span>
+        <span className="mx-1.5 ellipsis">{symbol}</span>
         <span className="text-xs text-text-secondary">{type}</span>
       </div>
     </div>
@@ -105,7 +105,7 @@ export function ERC20Tokens() {
       </div>
       <div
         className={classNames(
-          'mt-3.5 glass-effect py-3 px-2 rounded-18 border border-solid border-stroke-color',
+          'mt-3.5 bg-glass py-3 px-2 rounded-18 border border-solid border-stroke-color',
           {
             'skeleton-loader': loading
           }

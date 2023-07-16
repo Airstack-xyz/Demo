@@ -14,7 +14,7 @@ import { tokensQuery } from '../../queries';
 
 function SocialsAndERC20() {
   return (
-    <aside className="w-full sm:w-[305px] sm:ml-16">
+    <aside className="w-full min-w-full sm:w-[305px] sm:min-w-[305px] sm:ml-16">
       <Socials />
       <ERC20Tokens />
     </aside>
@@ -29,13 +29,14 @@ export function TokenBalance() {
 
   const renderMobileTabs = useCallback(() => {
     return (
-      <div className="mt-5 flex gap-10 mb-10 text-center sm:hidden border-b-4 border-solid border-stroke-color">
+      <div className="mt-5 flex gap-5 mb-5 text-center sm:hidden border-b-4 border-solid border-stroke-color text-sm">
         <div
           onClick={() => setShowSocials(false)}
           className={classNames(
             'pb-2 flex-1 flex justify-center border-b-4 border-solid border-text-secondary -mb-1',
             {
-              '!border-transparent': showSocials
+              '!border-transparent [&>div]:font-normal  text-text-secondary':
+                showSocials
             }
           )}
         >
@@ -46,7 +47,8 @@ export function TokenBalance() {
           className={classNames(
             'pb-2 flex-1 flex justify-center border-b-4 border-solid border-text-secondary -mb-1',
             {
-              '!border-transparent': !showSocials
+              '!border-transparent [&>div]:font-normal text-text-secondary':
+                !showSocials
             }
           )}
         >
@@ -78,7 +80,7 @@ export function TokenBalance() {
                   <SectionHeader iconName="nft-flat" heading="NFTs & POAPs" />
                 </div>
                 {isMobile && renderMobileTabs()}
-                <div className="mt-3.5 mb-5 hidden sm:block">
+                <div className="mt-3.5 mb-5">
                   <Filters />
                 </div>
                 {isMobile ? (

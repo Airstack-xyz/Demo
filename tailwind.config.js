@@ -24,6 +24,7 @@ module.exports = {
         'text-button-disabled': '#b2d5e7',
         'text-error': '#F30C0C',
         'stroke-color': '#3032414d',
+        'stroke-color-light': '#8b8ea033',
         'stroke-highlight-blue': '#4B97F7',
         'stroke-highlight-red': '#DE5C5F',
         'response-light': '#f1f2f4',
@@ -53,6 +54,20 @@ module.exports = {
         },
         '.ellipsis': {
           '@apply overflow-ellipsis whitespace-nowrap overflow-hidden': {}
+        },
+        '.border-solid-stroke': {
+          '@apply border border-solid border-stroke-color': {}
+        },
+        '.border-solid-light': {
+          '@apply border border-solid border-stroke-color-light': {}
+        },
+        '.bg-glass': {
+          background: `linear-gradient(
+            137deg,
+            rgba(255, 255, 255, 0.03) 0.55%,
+            rgba(255, 255, 255, 0) 100%
+          )`,
+          'backdrop-filter': `blur(100px)`
         }
       });
     }

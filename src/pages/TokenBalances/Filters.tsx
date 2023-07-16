@@ -19,7 +19,7 @@ export function Filters() {
         return (
           <button
             className={classNames(
-              'py-1.5 px-3 mr-3.5 rounded-full glass-effect text-text-secondary border border-solid border-transparent text-xs',
+              'py-1.5 px-3 mr-3.5 rounded-full bg-glass-button text-text-secondary border border-solid border-transparent text-xs',
               {
                 '!border-stroke-color bg-secondary font-bold !text-text-primary':
                   active.toLowerCase() === tokenType.toLowerCase()

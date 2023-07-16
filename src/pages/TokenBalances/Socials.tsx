@@ -37,13 +37,13 @@ function Social({ name, values, image, onShowMore }: SocialProps) {
     <div className="flex text-sm mb-7 last:mb-0">
       <div className="flex flex-1 items-start">
         <div className="flex items-center">
-          <div className="rounded-full h-[25px] w-[25px] border border-solid border-stroke-color mr-2 overflow-hidden flex-row-center">
+          <div className="rounded-full h-[25px] w-[25px] border mr-2 overflow-hidden flex-row-center">
             <img src={image} className="w-full" />
           </div>
           <span className="first-letter:uppercase">{name}</span>
         </div>
       </div>
-      <ul className="text-text-secondary w-1/2 overflow-hidden">
+      <ul className="text-text-secondary w-1/2 overflow-hidden flex flex-col justify-center">
         {items?.map((value, index) => (
           <li
             key={index}
@@ -139,7 +139,7 @@ export function Socials() {
       </div>
       <div
         className={classNames(
-          'rounded-18  border border-solid border-stroke-color mt-3.5 min-h-[250px] flex flex-col glass-effect',
+          'rounded-18  border border-solid border-stroke-color mt-3.5 min-h-[250px] flex flex-col bg-glass',
           {
             'skeleton-loader': loading
           }

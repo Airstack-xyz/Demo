@@ -48,7 +48,7 @@ export function Modal({
           </button>
         </div>
       )}
-      <div className="glass-effect p-5 border border-solid border-stroke-color rounded-xl">
+      <div className="bg-glass p-5 border border-solid border-stroke-color rounded-xl">
         {heading && (
           <div>
             <h2 className="text-lg font-bold mb-3"> {heading} </h2>

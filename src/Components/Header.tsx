@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 export function Header() {
   return (
     <header className="fixed bg-secondary py-4 w-full z-20 flex justify-center top-0">
-      <div className="w-[1440px] max-w-[100vw] flex items-center justify-between px-8">
+      <div className="w-[1440px] max-w-[100vw] flex items-center justify-center sm:justify-between px-8">
         <Link to="/">
           <img src="/logo.svg" className="h-[33px]" />
         </Link>

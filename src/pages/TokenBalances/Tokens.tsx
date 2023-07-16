@@ -31,7 +31,7 @@ function Token({
 }: TokenProps) {
   return (
     <Link
-      className="h-72 w-72 rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative glass-effect"
+      className="h-72 w-72 rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token"
       data-loader-type="block"
       to={createTokenHolderUrl(address)}
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
@@ -47,14 +47,14 @@ function Token({
         )}
       </div>
       <div className="flex justify-end">
-        <div className="rounded-full h-9 w-9 glass-effect">
+        <div className="rounded-full h-9 w-9 bg-glass">
           <Icon name={blockchain} className="w-full" />
         </div>
-        <div className="h-9 rounded-3xl ml-2.5 border border-solid border-stroke-color flex justify-center items-center px-2 glass-effect">
+        <div className="h-9 rounded-3xl ml-2.5 border border-solid border-stroke-color-light flex justify-center items-center px-2 bg-glass">
           {type}
         </div>
       </div>
-      <div className="h-14 rounded-3xl border border-solid border-stroke-color flex flex-col px-3.5 py-2 text-sm glass-effect">
+      <div className="h-14 rounded-3xl flex flex-col px-3.5 py-2 text-sm bg-glass border border-solid border-stroke-color-light">
         <div className="ellipsis text-xs mb-">{name}</div>
         <div className="flex items-center justify-between font-bold ">
           <div className="ellipsis flex-1 mr-2">{id}</div>

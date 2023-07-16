@@ -13,14 +13,14 @@ function Poap({
 }: PoapType['Poaps']['Poap'][0]['poapEvent']) {
   return (
     <div
-      className="flex rounded-lg glass-effect border border-solid border-stroke-color mb-5 overflow-hidden"
+      className="flex rounded-lg bg-glass border border-solid border-stroke-color mb-5 overflow-hidden"
       data-loader-type="block"
       data-loader-height="auto"
     >
       <div className="h-36 w-36">
         <img src="images/temp-poap.png" />
       </div>
-      <div className="flex flex-1 flex-col justify-center p-4 glass-effect min-w-0">
+      <div className="flex flex-1 flex-col justify-center p-4 bg-glass min-w-0">
         <div className="font-semibold overflow-ellipsis whitespace-nowrap overflow-hidden">
           {eventName}
         </div>

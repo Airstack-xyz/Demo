@@ -14,13 +14,13 @@ body {
   min-height: 100vh;
 }
 
-.glass-effect {
+.glass-effect-button {
   background: linear-gradient(
     137deg,
-    rgba(255, 255, 255, 0.02) 0.55%,
+    rgba(255, 255, 255, 0.03) 50%,
     rgba(255, 255, 255, 0) 100%
   );
-  -webkit-backdrop-filter: blur(50px);
+  -webkit-backdrop-filter: blur(100px);
   backdrop-filter: blur(100px);
 }
 
@@ -31,6 +31,14 @@ body {
 
 .code {
   background: rgb(14 14 18 / 90%);
+}
+
+.token {
+  border: 1px solid transparent;
+}
+
+.token:hover {
+  border-color: rgb(255 255 255 / 50%);
 }
 
 /* skeleton loader */
@@ -67,7 +75,7 @@ body {
 .skeleton-loader [data-loader-type='block']:after,
 .skeleton-loader[data-loader-type='block']:after {
   content: '';
-  @apply absolute inset-0 bg-tertiary rounded-lg;
+  @apply absolute inset-0 bg-secondary rounded-lg;
   mask: linear-gradient(-60deg, #000 30%, #0005, #000 70%) right/300% 100%;
   background-repeat: no-repeat;
   animation: shimmer 2.5s infinite;

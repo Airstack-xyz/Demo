@@ -20,7 +20,7 @@ export function TokenHolders() {
           <>
             <div className="hidden sm:flex-col-center my-3">
               <button
-                className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium hidden"
+                className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium"
                 onClick={() => setShowModal(true)}
               >
                 Get API
