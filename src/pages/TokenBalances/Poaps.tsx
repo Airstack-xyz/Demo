@@ -13,7 +13,7 @@ function Poap({
 }: PoapType['Poaps']['Poap'][0]['poapEvent']) {
   return (
     <div
-      className="flex rounded-lg bg-glass border border-solid border-stroke-color mb-5 overflow-hidden"
+      className="flex rounded-lg bg-glass border-solid-stroke mb-5 overflow-hidden"
       data-loader-type="block"
       data-loader-height="auto"
     >

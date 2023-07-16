@@ -61,7 +61,7 @@ export function Search() {
     [isHome, navigate, searchParams, setData, setSearchParams, value]
   );
 
-  const activeClasss = 'bg-tertiary border border-solid border-stroke-color';
+  const activeClasss = 'bg-glass border-solid-stroke';
 
   return (
     <div className="w-full z-10">
@@ -69,7 +69,7 @@ export function Search() {
         <div className="bg-glass bg-secondry border flex p-1 rounded-lg">
           <Link
             to="/token-balances"
-            className={classNames('p-2  rounded-lg mr-5', {
+            className={classNames('p-2 rounded-lg mr-5', {
               [activeClasss]: isTokenBalances
             })}
           >
@@ -80,7 +80,7 @@ export function Search() {
           </Link>
           <Link
             to="/token-holders"
-            className={classNames('p-2  rounded-lg', {
+            className={classNames('p-2 rounded-lg', {
               [activeClasss]: !isTokenBalances
             })}
           >
@@ -95,7 +95,7 @@ export function Search() {
         className="flex flex-col sm:flex-row justify-center"
         onSubmit={handleSubmit}
       >
-        <div className="flex flex-col sm:flex-row items-center h-auto sm:h-[50px] w-full sm:w-[645px] border border-solid border-stroke-color rounded-18 bg-glass">
+        <div className="flex flex-col sm:flex-row items-center h-auto sm:h-[50px] w-full sm:w-[645px] border-solid-stroke rounded-18 bg-glass">
           <span className="bg-glass h-full flex justify-center items-center px-4 py-3.5 m-0 sm:mr-3 rounded-t-18 sm:rounded-tr-none sm:rounded-l-18 w-full sm:w-auto min-w-[152px]">
             {isTokenBalances || isHome ? 'Token Balances' : 'Token holders'}
           </span>

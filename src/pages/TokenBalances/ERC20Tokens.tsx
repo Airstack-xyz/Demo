@@ -26,7 +26,7 @@ function Token({
 }) {
   return (
     <div className="flex mb-5 hover:bg-tertiary px-3 py-1.5 rounded-md overflow-hidden">
-      <div className="h-10 w-10 rounded-full overflow-hidden border border-solid border-stroke-color">
+      <div className="h-10 w-10 rounded-full overflow-hidden border-solid-stroke">
         {address && tokenId && (
           <Asset
             address={address}
@@ -105,7 +105,7 @@ export function ERC20Tokens() {
       </div>
       <div
         className={classNames(
-          'mt-3.5 bg-glass py-3 px-2 rounded-18 border border-solid border-stroke-color',
+          'mt-3.5 bg-glass py-3 px-2 rounded-18 border-solid-stroke',
           {
             'skeleton-loader': loading
           }

@@ -184,7 +184,7 @@ export function HoldersOverview() {
       )}
     >
       <div
-        className="border border-solid border-stroke-color bg-secondary rounded-18 p-5 m-2.5 flex-1 w-full"
+        className="border-solid-stroke bg-secondary rounded-18 p-5 m-2.5 flex-1 w-full"
         data-loader-type="block"
         data-loader-height="auto"
       >

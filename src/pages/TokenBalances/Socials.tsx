@@ -139,7 +139,7 @@ export function Socials() {
       </div>
       <div
         className={classNames(
-          'rounded-18  border border-solid border-stroke-color mt-3.5 min-h-[250px] flex flex-col bg-glass',
+          'rounded-18  border-solid-stroke mt-3.5 min-h-[250px] flex flex-col bg-glass',
           {
             'skeleton-loader': loading
           }

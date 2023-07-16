@@ -64,11 +64,11 @@
 }
 
 .mentions__suggestions__list {
-  @apply border border-solid border-stroke-color border-t-0  overflow-hidden min-h-full;
+  @apply border-solid-stroke border-t-0  overflow-hidden min-h-full;
 }
 
 #suggestions-overlay {
-  @apply !bg-primary rounded-b-xl border border-solid border-stroke-color border-t-0 overflow-hidden;
+  @apply !bg-primary rounded-b-xl border-solid-stroke border-t-0 overflow-hidden;
   background: linear-gradient(
     137deg,
     rgba(255, 255, 255, 0.04) 0.55%,
