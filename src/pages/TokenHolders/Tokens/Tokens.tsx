@@ -1,7 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { tokenOwnerQuery } from '../../../queries';
-import { useSearchInput } from '../../../hooks/useSearchInput';
-import { TokenBalance } from '../../TokenBalances/types';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { PoapOwnerQuery, TokenOwnerQuery } from '../../../queries';
+import {
+  useSearchInput,
+  TokenHolderQueryParams
+} from '../../../hooks/useSearchInput';
 import { getDAppType } from '../utils';
 import { Chain } from '@airstack/airstack-react/constants';
 import { Modal } from '../../../Components/Modal';
@@ -11,12 +13,15 @@ import { ListWithMoreOptions } from './ListWithMoreOptions';
 import { useNavigate } from 'react-router-dom';
 import { Asset } from '../../../Components/Asset';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { Poap, Token as TokenType } from './types';
+
+const LIMIT = 20;
 
 export function Token({
   token,
   onShowMore
 }: {
-  token: TokenBalance | null;
+  token: TokenType | Poap | null;
   onShowMore?: (value: string[], dataType: string) => void;
 }) {
   const walletAddress = token?.owner?.addresses || '';
@@ -62,13 +67,7 @@ export function Token({
           )}
         </div>
       </td>
-      <td className="ellipsis">
-        {/* <Link
-          to={`/token-balances?address=${walletAddress}&rawInput=${walletAddress}`}
-        > */}
-        {walletAddress || '--'}
-        {/* </Link> */}
-      </td>
+      <td className="ellipsis">{walletAddress || '--'}</td>
       <td className="ellipsis">{tokenId ? `#${tokenId}` : '--'}</td>
       <td className="ellipsis">{primarEns || '--'}</td>
       <td>
@@ -113,12 +112,21 @@ function Loader() {
   );
 }
 
-export function Tokens() {
-  const [tokens, setTokens] = useState<TokenBalance[]>([]);
-  const [fetch, { data, loading, pagination }] =
-    useLazyQueryWithPagination(tokenOwnerQuery);
+export function TokensComponent() {
+  const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
+  const [
+    fetchTokens,
+    { data: tokensData, loading: loadingTokens, pagination: paginationTokens }
+  ] = useLazyQueryWithPagination(TokenOwnerQuery);
 
-  const { address: tokenAddress } = useSearchInput();
+  const [
+    fetchPoap,
+    { data: poapsData, loading: loadingPoaps, pagination: paginationPoaps }
+  ] = useLazyQueryWithPagination(PoapOwnerQuery);
+
+  const { address: tokenAddress, inputType }: TokenHolderQueryParams =
+    useSearchInput();
+
   const [showModal, setShowModal] = useState(false);
   const [modalValues, setModalValues] = useState<{
     leftValues: string[];
@@ -131,29 +139,45 @@ export function Tokens() {
   });
 
   const navigate = useNavigate();
+  const isPoap = inputType === 'POAP';
 
   useEffect(() => {
     if (tokenAddress) {
-      fetch({
+      if (isPoap) {
+        fetchPoap({
+          eventId: tokenAddress,
+          limit: LIMIT
+        });
+        return;
+      }
+
+      fetchTokens({
         tokenAddress,
-        limit: 20
+        limit: LIMIT
       });
     }
-  }, [fetch, tokenAddress]);
+  }, [fetchPoap, fetchTokens, isPoap, tokenAddress]);
 
   useEffect(() => {
-    if (!data) return;
+    if (!tokensData || isPoap) return;
 
-    const ethTokenBalances: TokenBalance[] = data.ethereum?.TokenBalance || [];
-    const polygonTokenBalances: TokenBalance[] =
-      data.polygon?.TokenBalance || [];
+    const ethTokenBalances: TokenType[] =
+      tokensData.ethereum?.TokenBalance || [];
+    const polygonTokenBalances: TokenType[] =
+      tokensData.polygon?.TokenBalance || [];
 
     setTokens(existingTokens => [
       ...existingTokens,
       ...ethTokenBalances,
       ...polygonTokenBalances
     ]);
-  }, [data]);
+  }, [isPoap, tokensData]);
+
+  useEffect(() => {
+    if (!poapsData) return;
+    const poaps: Poap[] = poapsData.Poaps?.Poap || [];
+    setTokens(existingPoaps => [...existingPoaps, ...poaps]);
+  }, [poapsData]);
 
   const handleShowMore = useCallback((values: string[], dataType: string) => {
     const leftValues: string[] = [];
@@ -173,7 +197,11 @@ export function Tokens() {
     setShowModal(true);
   }, []);
 
-  const { hasNextPage, getNextPage } = pagination;
+  const { hasNextPage, getNextPage } = isPoap
+    ? paginationPoaps
+    : paginationTokens;
+
+  const loading = loadingPoaps || loadingTokens;
 
   const handleNext = useCallback(() => {
     if (!loading && hasNextPage && getNextPage) {
@@ -258,3 +286,5 @@ export function Tokens() {
     </div>
   );
 }
+
+export const Tokens = memo(TokensComponent);

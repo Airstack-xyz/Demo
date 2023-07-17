@@ -163,7 +163,7 @@ export const ERC20TokensQuery = `query ERC20TokensQuery($owner: Identity, $limit
   }
 }`;
 
-export const tokenOwnerQuery = `query MyQuery($tokenAddress: Address, $limit: Int) {
+export const TokenOwnerQuery = `query GetTokenOwners($tokenAddress: Address, $limit: Int) {
   ethereum: TokenBalances(
     input: {filter: {tokenAddress: {_eq: $tokenAddress}}, blockchain: ethereum, limit: $limit}
   ) {
@@ -189,15 +189,18 @@ export const tokenOwnerQuery = `query MyQuery($tokenAddress: Address, $limit: In
       owner {
         identity
         addresses
-        domains {
-          chainId
-          dappName
-          name
-        }
         socials {
           blockchain
           dappSlug
           profileName
+        }
+        primaryDomain {
+          name
+        }
+        domains {
+          chainId
+          dappName
+          name
         }
       }
     }
@@ -231,15 +234,66 @@ export const tokenOwnerQuery = `query MyQuery($tokenAddress: Address, $limit: In
       owner {
         identity
         addresses
+        socials {
+          blockchain
+          dappSlug
+          profileName
+        }
+        primaryDomain {
+          name
+        }
         domains {
           chainId
           dappName
           name
         }
+      }
+    }
+    pageInfo {
+      nextCursor
+      prevCursor
+    }
+  }
+}`;
+
+export const PoapOwnerQuery = `query GetPoapOwners($eventId: [String!], $limit: Int) {
+  Poaps(input: {filter: {eventId: {_in: $eventId}}, blockchain: ALL, limit: $limit}) {
+    Poap {
+      id
+      blockchain
+      tokenId
+      tokenAddress
+      eventId
+      poapEvent {
+        contentValue {
+          image {
+            original
+            medium
+            large
+            extraSmall
+            small
+          }
+          video
+          audio
+        }
+        blockchain
+        eventName
+      }
+      owner {
+        identity
+        addresses
         socials {
           blockchain
           dappSlug
           profileName
+        }
+        primaryDomain {
+          name
+        }
+        domains {
+          chainId
+          dappName
+          name
         }
       }
     }

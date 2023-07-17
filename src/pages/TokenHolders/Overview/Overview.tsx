@@ -1,12 +1,12 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
-import { tokenOwnerQuery } from '../../../queries';
-import { TokenBalance, Social } from '../../TokenBalances/types';
+import { PoapOwnerQuery, TokenOwnerQuery } from '../../../queries';
 import { getDAppType } from '../utils';
 import { HolderCount } from './HolderCount';
 import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
+import { Poap, Token } from '../Tokens/types';
 
 const LIMIT = 200;
 
@@ -38,7 +38,7 @@ const imageAndSubTextMap: Record<
   }
 };
 
-export function HoldersOverview() {
+function Overview() {
   const [showOverview, setShowOverview] = useState(false);
   const [overViewData, setOverViewData] = useState({
     totalOwners: 0,
@@ -55,26 +55,42 @@ export function HoldersOverview() {
     ownerWithLens: 0,
     ownerWithFarcaster: 0
   });
-  const [fetch, { data, loading: loadingTokens, pagination }] =
-    useLazyQueryWithPagination(tokenOwnerQuery);
+  const [
+    fetchTokens,
+    { data: tokensData, loading: loadingTokens, pagination: paginationTokens }
+  ] = useLazyQueryWithPagination(TokenOwnerQuery);
+
+  const [
+    fetchPoap,
+    { data: poapsData, loading: loadingPoaps, pagination: paginationPoaps }
+  ] = useLazyQueryWithPagination(PoapOwnerQuery);
+
   const [tokenDetails, setTokenDetails] = useState<null | {
     name: string;
     tokenId: string;
     tokenAddress: string;
   } | null>(null);
 
-  const { address: tokenAddress } = useSearchInput();
+  const { address: tokenAddress, inputType } = useSearchInput();
+  const isPoap = inputType === 'POAP';
 
   useEffect(() => {
     if (tokenAddress) {
-      fetch({
+      if (isPoap) {
+        fetchPoap({
+          eventId: tokenAddress,
+          limit: LIMIT
+        });
+        return;
+      }
+      fetchTokens({
         tokenAddress,
         limit: LIMIT
       });
     }
-  }, [fetch, tokenAddress]);
+  }, [fetchPoap, fetchTokens, isPoap, tokenAddress]);
 
-  const updateCount = useCallback((tokenBalances: TokenBalance[]) => {
+  const updateCount = useCallback((tokenBalances: (Token | Poap)[]) => {
     let {
       totalOwners,
       ownerWithENS,
@@ -98,7 +114,7 @@ export function HoldersOverview() {
       if (owner.domains && owner.domains.length > 0) {
         ownerWithENS++;
       }
-      owner?.socials?.forEach((social: Social) => {
+      owner?.socials?.forEach(social => {
         const type = getDAppType(social.dappSlug);
         if (type === 'lens') {
           ownerWithLens++;
@@ -118,14 +134,16 @@ export function HoldersOverview() {
     };
   }, []);
 
-  const { hasNextPage, getNextPage } = pagination;
+  const { hasNextPage, getNextPage } = isPoap
+    ? paginationPoaps
+    : paginationTokens;
 
   useEffect(() => {
-    if (data) {
-      const ethTokenBalances: TokenBalance[] =
-        data?.ethereum?.TokenBalance || [];
-      const polygonTokenBalances: TokenBalance[] =
-        data?.polygon?.TokenBalance || [];
+    if (tokensData) {
+      const ethTokenBalances: Token[] =
+        tokensData?.ethereum?.TokenBalance || [];
+      const polygonTokenBalances: Token[] =
+        tokensData?.polygon?.TokenBalance || [];
 
       setTokenDetails(tokenDetails => {
         if (tokenDetails) return tokenDetails;
@@ -145,7 +163,27 @@ export function HoldersOverview() {
         setOverViewData(overViewDataRef.current);
       }
     }
-  }, [data, getNextPage, hasNextPage, updateCount]);
+  }, [tokensData, getNextPage, hasNextPage, updateCount]);
+
+  useEffect(() => {
+    if (!poapsData) return;
+    const poaps: Poap[] = poapsData.Poaps?.Poap || [];
+    setTokenDetails(tokenDetails => {
+      if (tokenDetails) return tokenDetails;
+      return {
+        name: poaps[0]?.poapEvent?.eventName || '',
+        tokenId: poaps[0]?.tokenId || '',
+        tokenAddress: poaps[0]?.tokenAddress || ''
+      };
+    });
+    updateCount(poaps);
+    // load next page if available
+    if (hasNextPage) {
+      getNextPage();
+    } else {
+      setOverViewData(overViewDataRef.current);
+    }
+  }, [getNextPage, hasNextPage, poapsData, updateCount]);
 
   const tokenImage = useMemo(() => {
     if (!tokenDetails) return null;
@@ -153,7 +191,8 @@ export function HoldersOverview() {
     return <Asset address={tokenAddress} tokenId={tokenId} preset="medium" />;
   }, [tokenDetails]);
 
-  const loading = loadingTokens || hasNextPage;
+  const loading = loadingPoaps || loadingTokens || hasNextPage;
+
   const holderCounts = useMemo(() => {
     return Object.keys(overViewData).map(key => {
       const { image, subText: text } = imageAndSubTextMap[key];
@@ -220,3 +259,5 @@ export function HoldersOverview() {
     </div>
   );
 }
+
+export const HoldersOverview = memo(Overview);

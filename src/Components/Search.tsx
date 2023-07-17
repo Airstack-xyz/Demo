@@ -35,10 +35,21 @@ export function Search() {
     (e: FormEvent) => {
       e.preventDefault();
 
-      const { address, blockchain = 'ethereum' } = getValuesFromId(value) || {};
+      const {
+        address,
+        blockchain = 'ethereum',
+        eventId,
+        customInputType
+      } = getValuesFromId(value) || {};
+
       if (!address) return;
 
-      const searchData = { address, blockchain, rawInput: value };
+      const searchData = {
+        address: eventId || address,
+        blockchain,
+        rawInput: value,
+        inputType: customInputType || 'ADDRESS'
+      };
 
       setData({
         ...searchData

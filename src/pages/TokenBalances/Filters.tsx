@@ -28,7 +28,8 @@ export function Filters() {
             key={tokenType}
             onClick={() => {
               setSearchParams({
-                ...rest,
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                ...(rest as any),
                 filterBy:
                   existingTokenType.toLowerCase() === tokenType.toLowerCase()
                     ? ''

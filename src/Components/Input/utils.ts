@@ -151,16 +151,21 @@ export function getUsableValues(value: string) {
 }
 
 export function getValuesFromId(id: string) {
-  const match = ID_REGEX.exec(id);
+  const match = /#\[.+?\]\((.+?)\)\s*/g.exec(id);
   if (!match) return { address: id };
-  const [address, token, blockchain, eventId, customInputType] =
+  const [address, token, blockchain, eventId, customInputId] =
     match[1].split(' ');
+
+  const customInputType =
+    token === MentionType.POAP || customInputId === POAP_OPTION_ID
+      ? 'POAP'
+      : 'ADDRESS';
 
   return {
     address,
     token,
     blockchain,
-    eventId,
+    eventId: eventId === 'null' ? null : eventId,
     customInputType
   };
 }

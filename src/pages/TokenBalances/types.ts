@@ -104,11 +104,6 @@ export interface TokenBalance {
   id: string;
 }
 
-export interface Root {
-  tokenAddress: string;
-  owner: Owner;
-}
-
 export interface Owner {
   identity: string;
   addresses: string[];
