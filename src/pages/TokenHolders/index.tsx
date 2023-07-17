@@ -18,7 +18,7 @@ export function TokenHolders() {
             <div className="hidden sm:flex-col-center my-3">
               <a
                 className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium"
-                href="https://app.airstack.xyz/query/WcNa6kVeXH"
+                href="https://app.airstack.xyz/mMFSXr/y6dG0AYiwR"
                 target="_blank"
               >
                 View graphql query
