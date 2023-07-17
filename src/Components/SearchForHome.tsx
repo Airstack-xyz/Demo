@@ -19,11 +19,21 @@ export function HomeSearch() {
   const handleSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
+      const {
+        address,
+        blockchain = 'ethereum',
+        eventId,
+        customInputType
+      } = getValuesFromId(value) || {};
 
-      const { address, blockchain = 'ethereum' } = getValuesFromId(value) || {};
       if (!address) return;
 
-      const searchData = { address, blockchain, rawInput: value };
+      const searchData = {
+        address: eventId || address,
+        blockchain,
+        rawInput: value,
+        inputType: customInputType || 'ADDRESS'
+      };
 
       navigate({
         pathname: isTokenBalances ? '/token-balances' : '/token-holders',
