@@ -33,33 +33,34 @@ export function HomeSearch() {
     [isTokenBalances, navigate, value]
   );
 
-  const activeClasss = 'bg-glass border-solid-stroke';
+  const activeClasss =
+    'bg-glass !border-stroke-color font-bold text-text-primary';
 
   return (
     <div className="w-full">
       <div className="my-6 flex-col-center">
-        <div className="bg-glass bg-secondry border flex p-1 rounded-lg ">
+        <div className="bg-glass bg-secondry border flex p-1 rounded-full">
           <button
-            className={classNames('p-2 rounded-lg mr-5', {
-              [activeClasss]: isTokenBalances
-            })}
+            className={classNames(
+              'px-2.5 h-[30px] rounded-full mr-5 flex-row-center text-xs text-text-secondary border border-solid border-transparent',
+              {
+                [activeClasss]: isTokenBalances
+              }
+            )}
             onClick={() => setIsTokenBalances(true)}
           >
-            <Icon
-              name={isTokenBalances ? 'token-balances' : 'token-balances-grey'}
-              className="w-[30px]"
-            />
+            <Icon name="token-balances" className="w-4 mr-1" /> Token balances
           </button>
           <button
-            className={classNames('p-2 rounded-lg', {
-              [activeClasss]: !isTokenBalances
-            })}
+            className={classNames(
+              'px-2.5 h-[30px] rounded-full flex-row-center text-xs text-text-secondary border border-solid border-transparent',
+              {
+                [activeClasss]: !isTokenBalances
+              }
+            )}
             onClick={() => setIsTokenBalances(false)}
           >
-            <Icon
-              name={isTokenBalances ? 'token-holders-grey' : 'token-holders'}
-              className="w-[30px]"
-            />
+            <Icon name="token-holders" className="w-4 mr-1" /> Token holders
           </button>
         </div>
       </div>
@@ -67,20 +68,21 @@ export function HomeSearch() {
         className="flex flex-col sm:flex-row justify-center"
         onSubmit={handleSubmit}
       >
-        <div className="flex flex-col sm:flex-row items-center h-auto sm:h-[50px] w-full sm:w-[645px] border-solid-stroke rounded-18 bg-glass">
-          <span className="bg-glass h-full flex justify-center items-center px-4 py-3.5 m-0 sm:mr-3 rounded-t-18 sm:rounded-tr-none sm:rounded-l-18 w-full sm:w-auto min-w-[152px]">
-            {isTokenBalances ? 'Token Balances' : 'Token holders'}
-          </span>
-          <InputWithMention
-            defaultValue={value}
-            onChange={setValue}
-            onSubmit={setValue}
-            placeholder={
-              isTokenBalances
-                ? tokenBalancesPlaceholder
-                : tokenHoldersPlaceholder
-            }
-          />
+        <div className="flex flex-col sm:flex-row items-center h-auto sm:h-[50px] w-full sm:w-[645px] border-solid-stroke rounded-18 bg-glass px-5 py-3">
+          {isTokenBalances ? (
+            <input
+              className="bg-transparent h-full w-full outline-none text-sm"
+              placeholder={tokenBalancesPlaceholder}
+              onChange={({ target }) => setValue(target.value)}
+            />
+          ) : (
+            <InputWithMention
+              defaultValue={value}
+              onChange={setValue}
+              onSubmit={setValue}
+              placeholder={tokenHoldersPlaceholder}
+            />
+          )}
         </div>
         <button className="bg-button-primary rounded-18 sm:ml-5 mt-5 sm:mt-0 px-6 py-3.5 font-bold w-[40%] sm:w-auto self-center">
           Go

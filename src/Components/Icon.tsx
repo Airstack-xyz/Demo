@@ -19,9 +19,7 @@ export type IconType =
   | 'polygon'
   | 'gnosis'
   | 'token-balances'
-  | 'token-balances-grey'
   | 'token-holders'
-  | 'token-holders-grey'
   | 'erc20';
 
 export type IconProps = {
