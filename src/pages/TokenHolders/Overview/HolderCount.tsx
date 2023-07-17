@@ -14,7 +14,7 @@ export function HolderCount({
 }) {
   return (
     <div
-      className="px-3 py-5 flex items-center rounded-18 bg-tertiary"
+      className="px-3 py-5 flex items-center rounded-18 bg-glass"
       data-loader-type="block"
       data-loader-height="auto"
     >

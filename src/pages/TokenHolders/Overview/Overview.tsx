@@ -191,7 +191,7 @@ export function HoldersOverview() {
 
   return (
     <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px]">
-      <div className="border-solid-stroke bg-secondary rounded-18 p-5 m-2.5 flex-1 w-full">
+      <div className="border-solid-stroke bg-glass rounded-18 p-5 m-2.5 flex-1 w-full">
         <h3 className="text-2xl mb-2 flex ">
           {loading ? (
             <div className="h-7 flex items-center mr-2">
