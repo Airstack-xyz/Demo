@@ -1,5 +1,4 @@
 import { memo, useCallback, useState } from 'react';
-import { Modal } from '../../Components/Modal';
 import { Search } from '../../Components/Search';
 import { Layout } from '../../Components/layout';
 import { Socials } from './Socials';
@@ -10,7 +9,6 @@ import { SectionHeader } from './SectionHeader';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
 import { isMobileDevice } from '../../utils/isMobileDevice';
-import { tokensQuery } from '../../queries';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   return (
@@ -22,7 +20,6 @@ const SocialsAndERC20 = memo(function SocialsAndERC20() {
 });
 
 export function TokenBalance() {
-  const [showModal, setShowModal] = useState(false);
   const { address: query } = useSearchInput();
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
@@ -67,12 +64,13 @@ export function TokenBalance() {
         {query && (
           <>
             <div className="hidden sm:flex-col-center my-3">
-              <button
+              <a
                 className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium"
-                onClick={() => setShowModal(true)}
+                href="https://app.airstack.xyz/mMFSXr/y6dG0AYiwR"
+                target="_blank"
               >
                 Get API
-              </button>
+              </a>
             </div>
             <div className="flex justify-between px-5">
               <div className="w-full h-full" key={query}>
@@ -98,18 +96,6 @@ export function TokenBalance() {
           </>
         )}
       </div>
-      <Modal
-        heading="Get API"
-        isOpen={showModal}
-        onRequestClose={() => setShowModal(false)}
-      >
-        <pre className="w-[600px] max-h-[60vh] h-auto code rounded-xl p-5 overflow-auto">
-          {tokensQuery}
-        </pre>
-        <button className="bg-button-primary hover:bg-button-primary-hover mt-5 w-full py-4 font-bold rounded-md">
-          Copy
-        </button>
-      </Modal>
     </Layout>
   );
 }
