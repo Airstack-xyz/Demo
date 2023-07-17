@@ -1,5 +1,5 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, ComponentProps } from 'react';
 import { POAPQuery, tokensQuery } from '../../queries';
 import { PoapType, TokenType as TokenType } from './types';
 import { useSearchInput } from '../../hooks/useSearchInput';
@@ -19,7 +19,17 @@ type TokenProps = {
   symbol: string;
   blockchain: 'ethereum' | 'polygon';
   tokenId: string;
+  image?: string;
 };
+
+function Image(props: ComponentProps<'img'>) {
+  const [error, setError] = useState(false);
+  if (error || !props.src) {
+    return <img {...props} src="images/placeholder.svg" />;
+  }
+  return <img onError={() => setError(true)} {...props} />;
+}
+
 function Token({
   type,
   name,
@@ -27,7 +37,8 @@ function Token({
   address,
   id,
   blockchain = 'ethereum',
-  tokenId
+  tokenId,
+  image
 }: TokenProps) {
   return (
     <Link
@@ -36,8 +47,9 @@ function Token({
       to={createTokenHolderUrl(address)}
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
     >
-      <div className="absolute inset-0 [&>div]:w-full [&>div]:h-full [&>div>img]:w-full">
-        {address && tokenId && (
+      <div className="absolute inset-0 [&>div]:w-full [&>div]:h-full [&>div>img]:w-full flex-col-center">
+        {image && <Image src={image} />}
+        {!image && address && tokenId && (
           <Asset
             address={address}
             tokenId={tokenId}
@@ -187,6 +199,7 @@ export function Tokens() {
       {items.map((_token, index) => {
         const token = _token as TokenType;
         const poap = _token as Poap;
+        const isPoap = Boolean(poap.poapEvent);
         const poapEvent = poap.poapEvent || {};
         const city = poapEvent.city || '';
 
@@ -194,6 +207,7 @@ export function Tokens() {
         const id = token.tokenNfts?.tokenId
           ? '#' + token.tokenNfts?.tokenId
           : poapEvent.eventName;
+
         const symbol = token?.token?.symbol || '';
         const type = token.tokenType || 'POAP';
         const blockchain = token.blockchain || 'ethereum';
@@ -201,6 +215,8 @@ export function Tokens() {
           token?.token?.name ||
           `${formatDate(poapEvent.startDate)}${city ? ` (${city})` : ''}`;
         const tokenId = token.tokenNfts?.tokenId || poap.tokenId;
+        const image = isPoap ? poapEvent?.logo?.image?.medium : '';
+
         return (
           <div>
             <Token
@@ -212,6 +228,7 @@ export function Tokens() {
               symbol={symbol}
               blockchain={blockchain}
               tokenId={tokenId}
+              image={image}
             />
           </div>
         );

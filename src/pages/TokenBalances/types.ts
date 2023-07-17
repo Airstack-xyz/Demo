@@ -44,6 +44,7 @@ export type PoapType = {
         logo: {
           image: {
             small: string;
+            medium: string;
           };
         };
       };

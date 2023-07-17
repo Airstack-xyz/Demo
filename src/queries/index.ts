@@ -76,6 +76,7 @@ export const POAPQuery = `query GetPOAPs($owner: Identity, $limit: Int) {
         logo: contentValue {
           image {
             small
+            medium
           }
         }
       }
