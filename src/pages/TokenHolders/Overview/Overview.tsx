@@ -202,7 +202,13 @@ export function HoldersOverview() {
           )}{' '}
           Holders
         </h3>
-        <div className="border-t-2 border-solid border-stroke-color"></div>
+        <div className="h-[5px] flex rounded-full overflow-hidden">
+          <div className="h-full bg-[#6527A3] w-[55%]"></div>
+          <div className="h-full bg-[#5398FF] w-[20%]"></div>
+          <div className="h-full bg-[#5398FF] w-[10%]"></div>
+          <div className="h-full bg-[#224F24] w-[10%]"></div>
+          <div className="h-full bg-[#835EC7] w-[5%]"></div>
+        </div>
         <div className="grid grid-cols-2 gap-2.5 mt-5">{holderCounts}</div>
       </div>
       <div
