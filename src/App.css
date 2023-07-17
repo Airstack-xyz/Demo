@@ -1,6 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&display=swap');
 @import url('./reset.css');
 
+:root {
+  @apply !bg-primary;
+}
 body {
   font-family: 'Inter';
   font-style: normal;
@@ -9,9 +12,8 @@ body {
   color: white;
   background-color: #0e0e12;
 }
-#root > div {
-  width: 100vw;
-  min-height: 100vh;
+#root {
+  width: 100%;
 }
 
 .glass-effect-button {
