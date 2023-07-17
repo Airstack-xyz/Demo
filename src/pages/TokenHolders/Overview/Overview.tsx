@@ -1,5 +1,4 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
-import classNames from 'classnames';
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { tokenOwnerQuery } from '../../../queries';
@@ -7,6 +6,7 @@ import { TokenBalance, Social } from '../../TokenBalances/types';
 import { getDAppType } from '../utils';
 import { HolderCount } from './HolderCount';
 import { Asset } from '../../../Components/Asset';
+import { Icon } from '../../../Components/Icon';
 
 const LIMIT = 200;
 
@@ -39,6 +39,7 @@ const imageAndSubTextMap: Record<
 };
 
 export function HoldersOverview() {
+  const [showOverview, setShowOverview] = useState(false);
   const [overViewData, setOverViewData] = useState({
     totalOwners: 0,
     ownerWithENS: 0,
@@ -54,7 +55,7 @@ export function HoldersOverview() {
     ownerWithLens: 0,
     ownerWithFarcaster: 0
   });
-  const [fetch, { data, loading, pagination }] =
+  const [fetch, { data, loading: loadingTokens, pagination }] =
     useLazyQueryWithPagination(tokenOwnerQuery);
   const [tokenDetails, setTokenDetails] = useState<null | {
     name: string;
@@ -152,6 +153,7 @@ export function HoldersOverview() {
     return <Asset address={tokenAddress} tokenId={tokenId} preset="medium" />;
   }, [tokenDetails]);
 
+  const loading = loadingTokens || hasNextPage;
   const holderCounts = useMemo(() => {
     return Object.keys(overViewData).map(key => {
       const { image, subText: text } = imageAndSubTextMap[key];
@@ -162,6 +164,7 @@ export function HoldersOverview() {
       return (
         <HolderCount
           key={key}
+          loading={loading}
           count={overViewData[key as keyof typeof overViewData]}
           subText={subText}
           image={
@@ -170,25 +173,35 @@ export function HoldersOverview() {
         />
       );
     });
-  }, [overViewData, tokenDetails, tokenImage]);
+  }, [loading, overViewData, tokenDetails, tokenImage]);
+
+  if (!showOverview) {
+    return (
+      <div
+        onClick={() => setShowOverview(true)}
+        className="flex items-center w-full bg-glass rounded-18 border-solid-stroke overflow-hidden py-4 pl-10 cursor-pointer text-xs font-bold"
+      >
+        Fetch aggregated stats
+        <Icon name="arrow-right-round" className="ml-2.5 w-[19px]" />
+      </div>
+    );
+  }
 
   const totalHolders = overViewData?.totalOwners || 0;
 
   return (
-    <div
-      className={classNames(
-        'flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px]',
-        {
-          'skeleton-loader': loading
-        }
-      )}
-    >
-      <div
-        className="border-solid-stroke bg-secondary rounded-18 p-5 m-2.5 flex-1 w-full"
-        data-loader-type="block"
-        data-loader-height="auto"
-      >
-        <h3 className="text-2xl mb-2"> {totalHolders} holders</h3>
+    <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px]">
+      <div className="border-solid-stroke bg-secondary rounded-18 p-5 m-2.5 flex-1 w-full">
+        <h3 className="text-2xl mb-2 flex ">
+          {loading ? (
+            <div className="h-7 flex items-center mr-2">
+              <Icon name="count-loader" className="h-2.5 w-auto" />
+            </div>
+          ) : (
+            totalHolders
+          )}{' '}
+          Holders
+        </h3>
         <div className="border-t-2 border-solid border-stroke-color"></div>
         <div className="grid grid-cols-2 gap-2.5 mt-5">{holderCounts}</div>
       </div>

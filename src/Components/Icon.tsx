@@ -20,7 +20,9 @@ export type IconType =
   | 'gnosis'
   | 'token-balances'
   | 'token-holders'
-  | 'erc20';
+  | 'erc20'
+  | 'arrow-right-round'
+  | 'count-loader';
 
 export type IconProps = {
   name: IconType;

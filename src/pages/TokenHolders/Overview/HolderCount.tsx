@@ -1,13 +1,16 @@
 import { ReactNode } from 'react';
+import { Icon } from '../../../Components/Icon';
 
 export function HolderCount({
   count,
   subText,
-  image
+  image,
+  loading
 }: {
   count: number;
   subText: string;
   image?: ReactNode;
+  loading: boolean;
 }) {
   return (
     <div
@@ -19,7 +22,15 @@ export function HolderCount({
         {image}
       </div>
       <div className="pl-2.5">
-        <div className="text-xl font-bold">{count}</div>
+        <div className="text-xl font-bold">
+          {loading ? (
+            <div className="h-6 flex items-center">
+              <Icon name="count-loader" className="h-2.5 w-auto" />
+            </div>
+          ) : (
+            count
+          )}
+        </div>
         <div className="text-text-secondary text-xs">{subText}</div>
       </div>
     </div>
