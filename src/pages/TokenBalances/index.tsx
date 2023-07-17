@@ -69,7 +69,7 @@ export function TokenBalance() {
                 href="https://app.airstack.xyz/mMFSXr/y6dG0AYiwR"
                 target="_blank"
               >
-                Get API
+                View graphql query
               </a>
             </div>
             <div className="flex justify-between px-5">

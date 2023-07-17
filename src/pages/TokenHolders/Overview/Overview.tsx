@@ -18,7 +18,7 @@ const imageAndSubTextMap: Record<
   }
 > = {
   totalOwners: {
-    subText: 'owns'
+    subText: 'own'
   },
   ownerWithLens: {
     image: '/images/lens.svg',
@@ -111,9 +111,11 @@ function Overview() {
       if (owner.primaryDomain) {
         ownerWithPrimaryENS++;
       }
+
       if (owner.domains && owner.domains.length > 0) {
         ownerWithENS++;
       }
+
       owner?.socials?.forEach(social => {
         const type = getDAppType(social.dappSlug);
         if (type === 'lens') {
@@ -192,13 +194,16 @@ function Overview() {
   }, [tokenDetails]);
 
   const loading = loadingPoaps || loadingTokens || hasNextPage;
+  const totalHolders = overViewData?.totalOwners || 0;
 
   const holderCounts = useMemo(() => {
     return Object.keys(overViewData).map(key => {
       const { image, subText: text } = imageAndSubTextMap[key];
       let subText = text;
       if (key === 'totalOwners' && tokenDetails) {
-        subText += ` ${tokenDetails.name}`;
+        subText += `${totalHolders <= 1 ? 's' : ''} ${
+          tokenDetails.name || 'this contract'
+        }`;
       }
       return (
         <HolderCount
@@ -212,7 +217,7 @@ function Overview() {
         />
       );
     });
-  }, [loading, overViewData, tokenDetails, tokenImage]);
+  }, [loading, overViewData, tokenDetails, tokenImage, totalHolders]);
 
   if (!showOverview) {
     return (
@@ -226,20 +231,18 @@ function Overview() {
     );
   }
 
-  const totalHolders = overViewData?.totalOwners || 0;
-
   return (
     <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px]">
       <div className="border-solid-stroke bg-glass rounded-18 p-5 m-2.5 flex-1 w-full">
         <h3 className="text-2xl mb-2 flex ">
+          Total supply{' '}
           {loading ? (
-            <div className="h-7 flex items-center mr-2">
+            <div className="h-7 flex items-center ml-2">
               <Icon name="count-loader" className="h-2.5 w-auto" />
             </div>
           ) : (
             totalHolders
-          )}{' '}
-          Holders
+          )}
         </h3>
         <div className="h-[5px] flex rounded-full overflow-hidden">
           <div className="h-full bg-[#6527A3] w-[55%]"></div>

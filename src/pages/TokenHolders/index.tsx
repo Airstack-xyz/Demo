@@ -21,7 +21,7 @@ export function TokenHolders() {
                 href="https://app.airstack.xyz/query/WcNa6kVeXH"
                 target="_blank"
               >
-                Get API
+                View graphql query
               </a>
             </div>
             <div className="flex flex-col justify-center mt-7" key={query}>
