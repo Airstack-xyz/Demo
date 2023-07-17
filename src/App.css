@@ -81,6 +81,11 @@ body {
   animation: shimmer 2.5s infinite;
 }
 
+.skeleton-loader [data-loader-type='block'][data-loader-bg='glass']:after,
+.skeleton-loader[data-loader-type='block'][data-loader-bg='glass']:after {
+  @apply bg-glass;
+}
+
 .skeleton-loader [data-loader-margin='10']:after,
 .skeleton-loader[data-loader-margin='10']:after {
   margin: 10px;

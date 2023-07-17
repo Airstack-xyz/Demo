@@ -125,21 +125,12 @@ export const ERC20TokensQuery = `query ERC20TokensQuery($owner: Identity, $limit
       blockchain
       tokenAddress
       formattedAmount
-      tokenNfts {
-        tokenId
-        contentValue {
-          image {
-            small
-            large
-            extraSmall
-            medium
-            original
-          }
-        }
-      }
       token {
         name
         symbol
+        logo {
+          small
+        }
       }
     }
     pageInfo {
@@ -156,21 +147,12 @@ export const ERC20TokensQuery = `query ERC20TokensQuery($owner: Identity, $limit
       blockchain
       tokenAddress
       formattedAmount
-      tokenNfts {
-        tokenId
-        contentValue {
-          image {
-            small
-            large
-            extraSmall
-            medium
-            original
-          }
-        }
-      }
       token {
         name
         symbol
+        logo {
+          small
+        }
       }
     }
     pageInfo {

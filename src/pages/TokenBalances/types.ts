@@ -24,6 +24,9 @@ export interface Image {
 export interface Token {
   name: string;
   symbol: string;
+  logo: {
+    small: string;
+  };
 }
 
 export type PoapType = {
@@ -98,11 +101,6 @@ export interface TokenBalance {
   token: Token;
   owner: Owner;
   id: string;
-}
-
-export interface Token {
-  symbol: string;
-  name: string;
 }
 
 export interface Root {
