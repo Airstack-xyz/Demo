@@ -44,7 +44,7 @@ export function HomeSearch() {
   );
 
   const activeClasss =
-    'bg-glass !border-stroke-color font-bold text-text-primary';
+    'bg-glass !border-stroke-color font-bold !text-text-primary';
 
   return (
     <div className="w-full">

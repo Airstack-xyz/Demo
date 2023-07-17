@@ -1,5 +1,5 @@
 import { useLazyQuery } from '@airstack/airstack-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { SocialQuery } from '../../queries';
 import { SectionHeader } from './SectionHeader';
 import { SocialsType } from './types';
@@ -80,7 +80,7 @@ function Social({ name, values, image, onShowMore }: SocialProps) {
   );
 }
 
-export function Socials() {
+function SocialsComponent() {
   const [modalValues, setModalValues] = useState<{
     leftValues: string[];
     rightValues: string[];
@@ -201,3 +201,5 @@ export function Socials() {
     </div>
   );
 }
+
+export const Socials = memo(SocialsComponent);

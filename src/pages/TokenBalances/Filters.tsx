@@ -1,17 +1,36 @@
 import classNames from 'classnames';
 import { useSearchParams } from 'react-router-dom';
-import { useSearchInput } from '../../hooks/useSearchInput';
+import {
+  TokenBalanceQueryParams,
+  useSearchInput
+} from '../../hooks/useSearchInput';
 import { tokenTypes } from './constants';
+import { memo, useCallback } from 'react';
 
-export function Filters() {
+export const Filters = memo(function Filters() {
   const [searchParams, setSearchParams] = useSearchParams();
   const active = searchParams.get('filterBy') || '';
   const {
     filterBy: existingTokenType = '',
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setData,
     ...rest
   } = useSearchInput();
+
+  const getFilterHandler = useCallback(
+    (tokenType: string) => () => {
+      const input = {
+        ...rest,
+        filterBy:
+          existingTokenType.toLowerCase() === tokenType.toLowerCase()
+            ? ''
+            : tokenType
+      };
+
+      setData(input);
+      setSearchParams(input as TokenBalanceQueryParams);
+    },
+    [existingTokenType, rest, setData, setSearchParams]
+  );
 
   return (
     <div>
@@ -19,23 +38,14 @@ export function Filters() {
         return (
           <button
             className={classNames(
-              'py-1.5 px-3 mr-3.5 rounded-full bg-glass-button text-text-secondary border border-solid border-transparent text-xs',
+              'py-1.5 px-3 mr-3.5 rounded-full glass-effect-button text-text-secondary border border-solid border-transparent text-xs',
               {
                 '!border-stroke-color bg-secondary font-bold !text-text-primary':
                   active.toLowerCase() === tokenType.toLowerCase()
               }
             )}
             key={tokenType}
-            onClick={() => {
-              setSearchParams({
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                ...(rest as any),
-                filterBy:
-                  existingTokenType.toLowerCase() === tokenType.toLowerCase()
-                    ? ''
-                    : tokenType
-              });
-            }}
+            onClick={getFilterHandler(tokenType)}
           >
             {tokenType}
           </button>
@@ -43,4 +53,4 @@ export function Filters() {
       })}
     </div>
   );
-}
+});

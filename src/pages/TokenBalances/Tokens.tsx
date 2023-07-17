@@ -1,5 +1,5 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
-import { useState, useEffect, useCallback, ComponentProps } from 'react';
+import { useState, useEffect, useCallback, ComponentProps, memo } from 'react';
 import { POAPQuery, tokensQuery } from '../../queries';
 import { PoapType, TokenType as TokenType } from './types';
 import { useSearchInput } from '../../hooks/useSearchInput';
@@ -105,7 +105,8 @@ const variables = {};
 const config = {
   cache: false
 };
-export function Tokens() {
+
+function TokensComponent() {
   const [
     fetchTokens,
     { data: tokensData, loading: loadingTokens, pagination: paginationTokens }
@@ -126,7 +127,7 @@ export function Tokens() {
           owner,
           limit: 10,
           tokenType:
-            tokenType.length > 0
+            tokenType && tokenType.length > 0
               ? [tokenType]
               : tokenTypes.filter(tokenType => tokenType !== 'POAP')
         });
@@ -236,3 +237,5 @@ export function Tokens() {
     </InfiniteScroll>
   );
 }
+
+export const Tokens = memo(TokensComponent);

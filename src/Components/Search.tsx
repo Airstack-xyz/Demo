@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { Icon } from './Icon';
 import { InputWithMention } from './Input/Input';
-import { FormEvent, useCallback, useState } from 'react';
+import { FormEvent, memo, useCallback, useState } from 'react';
 import {
   Link,
   createSearchParams,
@@ -16,7 +16,7 @@ const tokenHoldersPlaceholder = 'Use @ mention or enter any contract address';
 const tokenBalancesPlaceholder =
   'Enter 0x, name.eth, fc_fname:name, or name.lens';
 
-export function Search() {
+export const Search = memo(function Search() {
   const [searchParams, setSearchParams] = useSearchParams();
   let isTokenBalances = !!useMatch('/token-balances');
   const isHome = useMatch('/');
@@ -73,7 +73,7 @@ export function Search() {
   );
 
   const activeClasss =
-    'bg-glass !border-stroke-color font-bold text-text-primary';
+    'bg-glass !border-stroke-color font-bold !text-text-primary';
 
   return (
     <div className="w-full z-10">
@@ -130,4 +130,4 @@ export function Search() {
       </form>
     </div>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { Modal } from '../../Components/Modal';
 import { Search } from '../../Components/Search';
 import { Layout } from '../../Components/layout';
@@ -12,14 +12,14 @@ import classNames from 'classnames';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { tokensQuery } from '../../queries';
 
-function SocialsAndERC20() {
+const SocialsAndERC20 = memo(function SocialsAndERC20() {
   return (
     <aside className="w-full min-w-full sm:w-[305px] sm:min-w-[305px] sm:ml-16">
       <Socials />
       <ERC20Tokens />
     </aside>
   );
-}
+});
 
 export function TokenBalance() {
   const [showModal, setShowModal] = useState(false);
@@ -60,7 +60,7 @@ export function TokenBalance() {
 
   return (
     <Layout>
-      <div className="flex flex-col px-2 pt-5 w-[1440px] max-w-[100vw] sm:pt-14">
+      <div className="flex flex-col px-2 pt-5 w-[1440px] max-w-[100vw] sm:pt-8">
         <div className="flex flex-col items-center">
           <Search />
         </div>
@@ -75,7 +75,7 @@ export function TokenBalance() {
               </button>
             </div>
             <div className="flex justify-between px-5">
-              <div className="w-full h-full">
+              <div className="w-full h-full" key={query}>
                 <div className="hidden sm:block">
                   <SectionHeader iconName="nft-flat" heading="NFTs & POAPs" />
                 </div>

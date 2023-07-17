@@ -12,7 +12,7 @@ export function TokenHolders() {
   const { address: query } = useSearchInput();
   return (
     <Layout>
-      <div className="flex flex-col px-2 pt-5 w-[955px] max-w-[100vw] sm:pt-14">
+      <div className="flex flex-col px-2 pt-5 w-[955px] max-w-[100vw] sm:pt-8">
         <div className="flex flex-col items-center">
           <Search />
         </div>
@@ -26,7 +26,7 @@ export function TokenHolders() {
                 Get API
               </button>
             </div>
-            <div className="flex flex-col justify-center mt-7">
+            <div className="flex flex-col justify-center mt-7" key={query}>
               <HoldersOverview />
               <div className="mt-10">
                 <Tokens />
