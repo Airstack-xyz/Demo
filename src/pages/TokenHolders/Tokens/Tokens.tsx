@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { tokenOwnerQuery } from '../../../queries';
 import { useSearchInput } from '../../../hooks/useSearchInput';
@@ -11,13 +10,14 @@ import { Header } from './Header';
 import { ListWithMoreOptions } from './ListWithMoreOptions';
 import { useNavigate } from 'react-router-dom';
 import { Asset } from '../../../Components/Asset';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 export function Token({
   token,
   onShowMore
 }: {
   token: TokenBalance | null;
-  onShowMore: (value: string[], dataType: string) => void;
+  onShowMore?: (value: string[], dataType: string) => void;
 }) {
   const walletAddress = token?.owner?.addresses || '';
   const tokenId = token?.tokenId || '';
@@ -42,7 +42,7 @@ export function Token({
 
   const getShowMoreHandler = useCallback(
     (items: string[], type: string) => () => {
-      onShowMore(items, type);
+      onShowMore?.(items, type);
     },
     [onShowMore]
   );
@@ -96,8 +96,26 @@ export function Token({
 
 const loaderData = Array(6).fill({});
 
+function Loader() {
+  return (
+    <>
+      {loaderData.map((_, index) => (
+        <tr
+          key={index}
+          className="[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer skeleton-loader"
+          data-loader-type="block"
+          data-loader-margin="10"
+        >
+          <Token token={null} />
+        </tr>
+      ))}
+    </>
+  );
+}
+
 export function Tokens() {
-  const [fetch, { data, loading }] =
+  const [tokens, setTokens] = useState<TokenBalance[]>([]);
+  const [fetch, { data, loading, pagination }] =
     useLazyQueryWithPagination(tokenOwnerQuery);
 
   const { address: tokenAddress } = useSearchInput();
@@ -118,18 +136,23 @@ export function Tokens() {
     if (tokenAddress) {
       fetch({
         tokenAddress,
-        limit: 200
+        limit: 20
       });
     }
   }, [fetch, tokenAddress]);
 
-  const tokens = useMemo(() => {
-    if (!data) return [];
+  useEffect(() => {
+    if (!data) return;
 
     const ethTokenBalances: TokenBalance[] = data.ethereum?.TokenBalance || [];
     const polygonTokenBalances: TokenBalance[] =
       data.polygon?.TokenBalance || [];
-    return [...ethTokenBalances, ...polygonTokenBalances];
+
+    setTokens(existingTokens => [
+      ...existingTokens,
+      ...ethTokenBalances,
+      ...polygonTokenBalances
+    ]);
   }, [data]);
 
   const handleShowMore = useCallback((values: string[], dataType: string) => {
@@ -150,38 +173,59 @@ export function Tokens() {
     setShowModal(true);
   }, []);
 
-  const items: TokenBalance[] = loading ? loaderData : tokens;
+  const { hasNextPage, getNextPage } = pagination;
+
+  const handleNext = useCallback(() => {
+    if (!loading && hasNextPage && getNextPage) {
+      getNextPage();
+    }
+  }, [getNextPage, hasNextPage, loading]);
+
+  if (loading && (!tokens || tokens.length === 0)) {
+    return (
+      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
+        <table className="w-auto text-xs table-fixed sm:w-full">
+          <tbody>
+            <Loader />
+          </tbody>
+        </table>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
-      <table className="w-auto text-xs table-fixed sm:w-full">
-        {!loading && <Header />}
-        <tbody>
-          {items.map((token, index) => (
-            <tr
-              key={index}
-              className={classNames(
-                '[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer',
-                {
-                  'skeleton-loader': loading
-                }
-              )}
-              data-loader-type="block"
-              data-loader-margin="10"
-              onClick={() => {
-                const address = token?.owner?.addresses || '';
-                if (address) {
-                  navigate(
-                    `/token-balances?address=${address}&rawInput=${address}`
-                  );
-                }
-              }}
-            >
-              <Token token={token} onShowMore={handleShowMore} />
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <InfiniteScroll
+        next={handleNext}
+        dataLength={tokens.length}
+        hasMore={hasNextPage}
+        loader={null}
+      >
+        <table className="w-auto text-xs table-fixed sm:w-full">
+          {!loading && <Header />}
+          <tbody>
+            {tokens.map((token, index) => (
+              <tr
+                key={index}
+                className="[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer"
+                data-loader-type="block"
+                data-loader-margin="10"
+                onClick={() => {
+                  const address = token?.owner?.addresses || '';
+                  if (address) {
+                    navigate(
+                      `/token-balances?address=${address}&rawInput=${address}`
+                    );
+                  }
+                }}
+              >
+                <Token token={token} onShowMore={handleShowMore} />
+              </tr>
+            ))}
+            {loading && <Loader />}
+          </tbody>
+        </table>
+      </InfiniteScroll>
       <Modal
         heading={`All ${modalValues.dataType} names of ${tokenAddress}`}
         isOpen={showModal}
