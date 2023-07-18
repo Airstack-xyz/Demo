@@ -1,4 +1,4 @@
-export const tokensQuery = `query GetUserOwnedTokens($owner: Identity, $tokenType: [TokenType!], $limit: Int) {
+export const TokensQuery = `query GetTokens($owner: Identity, $tokenType: [TokenType!], $limit: Int) {
   ethereum: TokenBalances(
     input: {filter: {owner: {_eq: $owner}, tokenType: {_in: $tokenType}}, blockchain: ethereum, limit: $limit}
   ) {
@@ -163,7 +163,7 @@ export const ERC20TokensQuery = `query ERC20TokensQuery($owner: Identity, $limit
   }
 }`;
 
-export const TokenOwnerQuery = `query GetTokenOwners($tokenAddress: Address, $limit: Int) {
+export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $limit: Int) {
   ethereum: TokenBalances(
     input: {filter: {tokenAddress: {_eq: $tokenAddress}}, blockchain: ethereum, limit: $limit}
   ) {

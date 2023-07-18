@@ -1,4 +1,4 @@
-import { memo, useCallback, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { Search } from '../../Components/Search';
 import { Layout } from '../../Components/layout';
 import { Socials } from './Socials';
@@ -9,6 +9,9 @@ import { SectionHeader } from './SectionHeader';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
 import { isMobileDevice } from '../../utils/isMobileDevice';
+import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
+import { TokensQuery } from '../../queries';
+import { tokenTypes } from './constants';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   return (
@@ -23,6 +26,17 @@ export function TokenBalance() {
   const { address: query } = useSearchInput();
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
+
+  const queryUrl = useMemo(() => {
+    const variables = query
+      ? JSON.stringify({
+          owner: query,
+          limit: 10,
+          tokenType: tokenTypes.filter(tokenType => tokenType !== 'POAP')
+        })
+      : '';
+    return createAppUrlWithQuery(TokensQuery, variables);
+  }, [query]);
 
   const renderMobileTabs = useCallback(() => {
     return (
@@ -66,7 +80,7 @@ export function TokenBalance() {
             <div className="hidden sm:flex-col-center my-3">
               <a
                 className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium"
-                href="https://app.airstack.xyz/query/WcNa6kVeXH"
+                href={queryUrl}
                 target="_blank"
               >
                 View graphql query

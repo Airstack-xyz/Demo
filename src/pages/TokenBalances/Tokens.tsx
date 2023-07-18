@@ -1,6 +1,6 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useState, useEffect, useCallback, ComponentProps, memo } from 'react';
-import { POAPQuery, tokensQuery } from '../../queries';
+import { POAPQuery, TokensQuery } from '../../queries';
 import { PoapType, TokenType as TokenType } from './types';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { formatDate } from '../../utils';
@@ -116,7 +116,7 @@ function TokensComponent() {
   const [
     fetchTokens,
     { data: tokensData, loading: loadingTokens, pagination: paginationTokens }
-  ] = useLazyQueryWithPagination(tokensQuery, variables, config);
+  ] = useLazyQueryWithPagination(TokensQuery, variables, config);
   const [
     fetchPoaps,
     { data: poapsData, loading: loadingPoaps, pagination: paginationPoaps }
