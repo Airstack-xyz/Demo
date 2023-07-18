@@ -15,6 +15,12 @@ export type Poap = {
 export type PoapEvent = {
   blockchain: string;
   eventName: string;
+  logo: {
+    image: {
+      small: string;
+      medium: string;
+    };
+  };
 };
 
 export interface Owner {

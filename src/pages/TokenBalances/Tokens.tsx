@@ -1,5 +1,5 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
-import { useState, useEffect, useCallback, ComponentProps, memo } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { POAPQuery, TokensQuery } from '../../queries';
 import { PoapType, TokenType as TokenType } from './types';
 import { useSearchInput } from '../../hooks/useSearchInput';
@@ -22,14 +22,6 @@ type TokenProps = {
   image?: string;
   eventId?: string;
 };
-
-function Image(props: ComponentProps<'img'>) {
-  const [error, setError] = useState(false);
-  if (error || !props.src) {
-    return <img {...props} src="images/placeholder.svg" />;
-  }
-  return <img onError={() => setError(true)} {...props} />;
-}
 
 function Token({
   type,
@@ -54,9 +46,9 @@ function Token({
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
     >
       <div className="absolute inset-0 [&>div]:w-full [&>div]:h-full [&>div>img]:w-full flex-col-center">
-        {image && <Image src={image} />}
-        {!image && address && tokenId && (
+        {(image || (address && tokenId)) && (
           <Asset
+            image={image}
             address={address}
             tokenId={tokenId}
             chain={blockchain}

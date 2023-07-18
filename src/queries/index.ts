@@ -276,6 +276,12 @@ export const PoapOwnerQuery = `query GetPoapOwners($eventId: [String!], $limit: 
           video
           audio
         }
+        logo: contentValue {
+          image {
+            small
+            medium
+          }
+        }
         blockchain
         eventName
       }

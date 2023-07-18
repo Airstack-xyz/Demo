@@ -71,6 +71,7 @@ function Overview() {
     name: string;
     tokenId: string;
     tokenAddress: string;
+    image: string;
   } | null>(null);
 
   const { address: tokenAddress, inputType } = useSearchInput();
@@ -147,17 +148,19 @@ function Overview() {
 
   useEffect(() => {
     if (tokensData) {
-      const ethTokenBalances: Token[] =
-        tokensData?.ethereum?.TokenBalance || [];
-      const polygonTokenBalances: Token[] =
-        tokensData?.polygon?.TokenBalance || [];
+      const ethTokenBalances = tokensData?.ethereum?.TokenBalance || [];
+      const polygonTokenBalances = tokensData?.polygon?.TokenBalance || [];
+
+      const token = (ethTokenBalances[0] || polygonTokenBalances[0]) as Token;
 
       setTokenDetails(tokenDetails => {
         if (tokenDetails) return tokenDetails;
+
         return {
-          name: ethTokenBalances[0]?.token?.name || '',
-          tokenId: ethTokenBalances[0]?.tokenId || '',
-          tokenAddress: ethTokenBalances[0]?.tokenAddress || ''
+          name: token?.token?.name || '',
+          tokenId: token?.tokenId || '',
+          tokenAddress: token?.tokenAddress || '',
+          image: ''
         };
       });
 
@@ -175,12 +178,15 @@ function Overview() {
   useEffect(() => {
     if (!poapsData) return;
     const poaps: Poap[] = poapsData.Poaps?.Poap || [];
+    const poap = poaps[0] as Poap;
+
     setTokenDetails(tokenDetails => {
       if (tokenDetails) return tokenDetails;
       return {
-        name: poaps[0]?.poapEvent?.eventName || '',
-        tokenId: poaps[0]?.tokenId || '',
-        tokenAddress: poaps[0]?.tokenAddress || ''
+        name: poap?.poapEvent?.eventName || '',
+        tokenId: poap?.tokenId || '',
+        tokenAddress: poap?.tokenAddress || '',
+        image: poap?.poapEvent?.logo?.image?.medium || ''
       };
     });
     updateCount(poaps);
@@ -194,8 +200,16 @@ function Overview() {
 
   const tokenImage = useMemo(() => {
     if (!tokenDetails) return null;
-    const { tokenId, tokenAddress } = tokenDetails;
-    return <Asset address={tokenAddress} tokenId={tokenId} preset="medium" />;
+    const { tokenId, tokenAddress, image } = tokenDetails;
+
+    return (
+      <Asset
+        address={tokenAddress}
+        tokenId={tokenId}
+        preset="medium"
+        image={image}
+      />
+    );
   }, [tokenDetails]);
 
   const loading = loadingPoaps || loadingTokens || hasNextPage;
