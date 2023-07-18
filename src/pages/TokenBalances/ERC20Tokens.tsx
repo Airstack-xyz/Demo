@@ -39,7 +39,7 @@ function Token({
   logo: string;
 }) {
   return (
-    <div className="flex mb-5 hover:bg-glass px-3 py-1.5 rounded-md overflow-hidden">
+    <div className="flex mb-5 hover:bg-glass px-3 py-1.5 rounded-18 overflow-hidden">
       <div className="h-10 w-10 rounded-full overflow-hidden border-solid-stroke">
         <Logo logo={logo} className="w-full" />
       </div>

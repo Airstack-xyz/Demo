@@ -10,7 +10,7 @@ import {
   useSearchParams
 } from 'react-router-dom';
 import { getValuesFromId } from './Input/utils';
-import { useSearchInput } from '../hooks/useSearchInput';
+import { UserInputs, useSearchInput } from '../hooks/useSearchInput';
 
 const tokenHoldersPlaceholder = 'Use @ mention or enter any contract address';
 const tokenBalancesPlaceholder =
@@ -48,7 +48,7 @@ export const Search = memo(function Search() {
         address: eventId || address,
         blockchain,
         rawInput: value,
-        inputType: customInputType || 'ADDRESS'
+        inputType: (customInputType as UserInputs['inputType']) || 'ADDRESS'
       };
 
       setData({
@@ -124,7 +124,10 @@ export const Search = memo(function Search() {
             />
           )}
         </div>
-        <button className="bg-button-primary rounded-18 sm:ml-5 mt-5 sm:mt-0 px-6 py-3.5 font-bold w-[40%] sm:w-auto self-center">
+        <button
+          type="submit"
+          className="bg-button-primary rounded-18 sm:ml-5 mt-5 sm:mt-0 px-6 py-3.5 font-bold w-[40%] sm:w-auto self-center"
+        >
           Go
         </button>
       </form>

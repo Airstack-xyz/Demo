@@ -125,10 +125,34 @@ function SocialsComponent() {
     setShowModal(true);
   }, []);
 
-  const socials = socialDetails?.socials || [
-    { dappName: 'farcaster', profileName: '--' },
-    { dappName: 'lens', profileName: '--' }
-  ];
+  const socials = useMemo(() => {
+    let hasFarcaster = false;
+    let hasLens = false;
+
+    const socials = socialDetails?.socials || [];
+
+    socials.forEach(({ dappName }) => {
+      if (dappName === 'farcaster') {
+        hasFarcaster = true;
+      }
+      if (dappName === 'lens') {
+        hasLens = true;
+      }
+    });
+
+    if (!hasFarcaster) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      socials.push({ dappName: 'farcaster', profileName: '--' });
+    }
+
+    if (!hasLens) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      socials.push({ dappName: 'lens', profileName: '--' });
+    }
+    return socials;
+  }, [socialDetails?.socials]);
 
   return (
     <div className="w-full sm:w-auto">

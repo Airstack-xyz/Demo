@@ -94,7 +94,10 @@ export function HomeSearch() {
             />
           )}
         </div>
-        <button className="bg-button-primary rounded-18 sm:ml-5 mt-5 sm:mt-0 px-6 py-3.5 font-bold w-[40%] sm:w-auto self-center">
+        <button
+          type="submit"
+          className="bg-button-primary rounded-18 sm:ml-5 mt-5 sm:mt-0 px-6 py-3.5 font-bold w-[40%] sm:w-auto self-center"
+        >
           Go
         </button>
       </form>

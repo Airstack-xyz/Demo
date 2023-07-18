@@ -1,9 +1,6 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { PoapOwnerQuery, TokenOwnerQuery } from '../../../queries';
-import {
-  useSearchInput,
-  TokenHolderQueryParams
-} from '../../../hooks/useSearchInput';
+import { useSearchInput, UserInputs } from '../../../hooks/useSearchInput';
 import { getDAppType } from '../utils';
 import { Chain } from '@airstack/airstack-react/constants';
 import { Modal } from '../../../Components/Modal';
@@ -124,8 +121,7 @@ export function TokensComponent() {
     { data: poapsData, loading: loadingPoaps, pagination: paginationPoaps }
   ] = useLazyQueryWithPagination(PoapOwnerQuery);
 
-  const { address: tokenAddress, inputType }: TokenHolderQueryParams =
-    useSearchInput();
+  const { address: tokenAddress, inputType }: UserInputs = useSearchInput();
 
   const [showModal, setShowModal] = useState(false);
   const [modalValues, setModalValues] = useState<{

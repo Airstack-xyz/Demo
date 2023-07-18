@@ -1,15 +1,11 @@
 import classNames from 'classnames';
 import { useSearchParams } from 'react-router-dom';
-import {
-  TokenBalanceQueryParams,
-  useSearchInput
-} from '../../hooks/useSearchInput';
+import { useSearchInput } from '../../hooks/useSearchInput';
 import { tokenTypes } from './constants';
 import { memo, useCallback } from 'react';
 
 export const Filters = memo(function Filters() {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const active = searchParams.get('filterBy') || '';
+  const setSearchParams = useSearchParams()[1];
   const {
     filterBy: existingTokenType = '',
     setData,
@@ -31,7 +27,8 @@ export const Filters = memo(function Filters() {
       }
 
       setData(input);
-      setSearchParams(input as TokenBalanceQueryParams);
+      // eslint-disable-next-line
+      setSearchParams(input as any);
     },
     [existingTokenType, rest, setData, setSearchParams]
   );
@@ -48,8 +45,9 @@ export const Filters = memo(function Filters() {
               {
                 '!border-stroke-color bg-secondary font-bold !text-text-primary':
                   tokenType === 'All'
-                    ? !active
-                    : active.toLowerCase() === tokenType.toLowerCase()
+                    ? !existingTokenType
+                    : existingTokenType.toLowerCase() ===
+                      tokenType.toLowerCase()
               }
             )}
             key={tokenType}

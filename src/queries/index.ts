@@ -210,7 +210,7 @@ export const TokenOwnerQuery = `query GetTokenOwners($tokenAddress: Address, $li
     }
   }
   polygon: TokenBalances(
-    input: {filter: {tokenAddress: {_eq: $tokenAddress}}, blockchain: ethereum, limit: $limit}
+    input: {filter: {tokenAddress: {_eq: $tokenAddress}}, blockchain: polygon, limit: $limit}
   ) {
     TokenBalance {
       tokenAddress

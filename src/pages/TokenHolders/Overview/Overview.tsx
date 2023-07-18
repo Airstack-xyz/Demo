@@ -41,6 +41,7 @@ const imageAndSubTextMap: Record<
 function Overview() {
   const [showOverview, setShowOverview] = useState(false);
   const [overViewData, setOverViewData] = useState({
+    totalSupply: 0,
     totalOwners: 0,
     ownerWithENS: 0,
     ownerWithPrimaryENS: 0,
@@ -49,6 +50,7 @@ function Overview() {
   });
   const holdersSetRef = useRef(new Set<string>());
   const overViewDataRef = useRef({
+    totalSupply: 0,
     totalOwners: 0,
     ownerWithENS: 0,
     ownerWithPrimaryENS: 0,
@@ -92,6 +94,7 @@ function Overview() {
 
   const updateCount = useCallback((tokenBalances: (Token | Poap)[]) => {
     let {
+      totalSupply,
       totalOwners,
       ownerWithENS,
       ownerWithPrimaryENS,
@@ -100,6 +103,7 @@ function Overview() {
     } = overViewDataRef.current;
 
     tokenBalances.forEach(({ owner }) => {
+      totalSupply++;
       if (!holdersSetRef.current.has(owner.identity)) {
         totalOwners++;
       } else {
@@ -128,6 +132,7 @@ function Overview() {
     });
 
     overViewDataRef.current = {
+      totalSupply,
       totalOwners,
       ownerWithENS,
       ownerWithPrimaryENS,
@@ -198,6 +203,7 @@ function Overview() {
 
   const holderCounts = useMemo(() => {
     return Object.keys(overViewData).map(key => {
+      if (key === 'totalSupply') return null;
       const { image, subText: text } = imageAndSubTextMap[key];
       let subText = text;
       if (key === 'totalOwners' && tokenDetails) {
@@ -241,7 +247,7 @@ function Overview() {
               <Icon name="count-loader" className="h-2.5 w-auto" />
             </div>
           ) : (
-            totalHolders
+            overViewData?.totalSupply || 0
           )}
         </h3>
         <div className="h-[5px] flex rounded-full overflow-hidden">

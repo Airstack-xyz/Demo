@@ -20,6 +20,7 @@ type TokenProps = {
   blockchain: 'ethereum' | 'polygon';
   tokenId: string;
   image?: string;
+  eventId?: string;
 };
 
 function Image(props: ComponentProps<'img'>) {
@@ -38,13 +39,18 @@ function Token({
   id,
   blockchain = 'ethereum',
   tokenId,
-  image
+  image,
+  eventId
 }: TokenProps) {
+  const isPoap = type.toLowerCase() === 'poap';
   return (
     <Link
       className="h-[300px] w-[300px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token"
       data-loader-type="block"
-      to={createTokenHolderUrl(address)}
+      to={createTokenHolderUrl(
+        isPoap && eventId ? eventId : address,
+        type === 'POAP' ? 'POAP' : 'ADDRESS'
+      )}
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
     >
       <div className="absolute inset-0 [&>div]:w-full [&>div]:h-full [&>div>img]:w-full flex-col-center">
@@ -217,6 +223,7 @@ function TokensComponent() {
           `${formatDate(poapEvent.startDate)}${city ? ` (${city})` : ''}`;
         const tokenId = token.tokenNfts?.tokenId || poap.tokenId;
         const image = isPoap ? poapEvent?.logo?.image?.medium : '';
+        const eventId = poapEvent?.eventId || '';
 
         return (
           <div>
@@ -230,6 +237,7 @@ function TokensComponent() {
               blockchain={blockchain}
               tokenId={tokenId}
               image={image}
+              eventId={eventId}
             />
           </div>
         );

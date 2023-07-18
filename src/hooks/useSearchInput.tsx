@@ -6,16 +6,14 @@ export type cachedQuery = {
   blockchain?: string;
   filterBy?: string;
   rawInput?: string;
+  inputType?: 'POAP' | 'ADDRESS' | null;
 };
 
-export type TokenBalanceQueryParams = cachedQuery;
-export type TokenHolderQueryParams = cachedQuery & {
-  inputType: 'POAP' | 'ADDRESS' | null;
-};
+export type UserInputs = cachedQuery;
 
 export const userInputCache = {
-  tokenBalance: {} as TokenBalanceQueryParams,
-  tokenHolder: {} as TokenHolderQueryParams
+  tokenBalance: {} as UserInputs,
+  tokenHolder: {} as UserInputs
 };
 
 export function useSearchInput() {
@@ -47,7 +45,8 @@ export function useSearchInput() {
       rawInput: rawQuery,
       address,
       blockchain: savedBlockchain,
-      filterBy
+      filterBy,
+      inputType: savedInputType
     } = isTokenBalances ? tokenBalance : tokenHolder;
 
     const query = searchParams.get('address') || '';
@@ -55,15 +54,14 @@ export function useSearchInput() {
     const blockchain = searchParams.get('blockchain') || '';
     const rawInput = searchParams.get('rawInput') || '';
     const inputType =
-      (searchParams.get('inputType') as TokenHolderQueryParams['inputType']) ||
-      null;
+      (searchParams.get('inputType') as UserInputs['inputType']) || null;
 
     const data = {
       address: query || address || '',
       filterBy: tokenType || filterBy || '',
       blockchain: blockchain || savedBlockchain || '',
       rawInput: rawInput || rawQuery || '',
-      inputType: !isTokenBalances ? inputType : null
+      inputType: !isTokenBalances ? inputType || savedInputType : null
     };
 
     setData(data);
