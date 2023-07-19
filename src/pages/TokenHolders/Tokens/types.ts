@@ -46,3 +46,11 @@ export interface Domain {
   dappName: string;
   name: string;
 }
+
+export interface TotalSupply {
+  ethereum: Supply;
+  polygon: Supply;
+}
+export interface Supply {
+  totalSupply: string;
+}

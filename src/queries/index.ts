@@ -310,3 +310,12 @@ export const PoapOwnerQuery = `query GetPoapOwners($eventId: [String!], $limit: 
     }
   }
 }`;
+
+export const TokenTotalSupplyQuery = `query TotalSupply($tokenAddress: Address!) {
+  ethereum: Token(input: {address: $tokenAddress, blockchain: ethereum}) {
+    totalSupply
+  }
+  polygon: Token(input: {address: $tokenAddress, blockchain: polygon}) {
+    totalSupply
+  }
+}`;

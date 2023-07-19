@@ -1,12 +1,16 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
-import { PoapOwnerQuery, TokenOwnerQuery } from '../../../queries';
+import {
+  PoapOwnerQuery,
+  TokenOwnerQuery,
+  TokenTotalSupplyQuery
+} from '../../../queries';
 import { getDAppType } from '../utils';
 import { HolderCount } from './HolderCount';
 import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
-import { Poap, Token } from '../Tokens/types';
+import { Poap, Token, TotalSupply } from '../Tokens/types';
 
 const LIMIT = 200;
 
@@ -57,10 +61,14 @@ function Overview() {
     ownerWithLens: 0,
     ownerWithFarcaster: 0
   });
+
   const [
     fetchTokens,
     { data: tokensData, loading: loadingTokens, pagination: paginationTokens }
   ] = useLazyQueryWithPagination(TokenOwnerQuery);
+
+  const [fetchTotalSupply, { data: totalSupply, loading: loadingSupply }] =
+    useLazyQueryWithPagination(TokenTotalSupplyQuery);
 
   const [
     fetchPoap,
@@ -88,15 +96,21 @@ function Overview() {
         });
         return;
       }
+
       fetchTokens({
         tokenAddress,
         limit: LIMIT
       });
+
+      fetchTotalSupply({
+        tokenAddress
+      });
     }
-  }, [fetchPoap, fetchTokens, isPoap, tokenAddress]);
+  }, [fetchPoap, fetchTokens, fetchTotalSupply, isPoap, tokenAddress]);
 
   const updateCount = useCallback((tokenBalances: (Token | Poap)[]) => {
     let {
+      // eslint-disable-next-line prefer-const
       totalSupply,
       totalOwners,
       ownerWithENS,
@@ -106,7 +120,6 @@ function Overview() {
     } = overViewDataRef.current;
 
     tokenBalances.forEach(({ owner }) => {
-      totalSupply++;
       if (!holdersSetRef.current.has(owner.identity)) {
         totalOwners++;
       } else {
@@ -179,6 +192,28 @@ function Overview() {
       }
     }
   }, [tokensData, getNextPage, hasNextPage, updateCount, isERC20]);
+
+  useEffect(() => {
+    if (totalSupply) {
+      const supply = totalSupply as TotalSupply;
+      let count = 0;
+
+      if (supply?.ethereum?.totalSupply) {
+        count += parseInt(supply.ethereum.totalSupply);
+      }
+
+      if (supply?.polygon?.totalSupply) {
+        count += parseInt(supply.polygon.totalSupply);
+      }
+
+      overViewDataRef.current.totalSupply = count;
+
+      setOverViewData(overViewData => ({
+        ...overViewData,
+        totalSupply: count
+      }));
+    }
+  }, [totalSupply]);
 
   useEffect(() => {
     if (!poapsData) return;
@@ -259,17 +294,20 @@ function Overview() {
     );
   }
 
+  const lodingTotalSupply = isPoap ? false : loadingSupply;
+  const supply = isPoap ? 0 : overViewData?.totalSupply;
+
   return (
     <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px]">
       <div className="border-solid-stroke bg-glass rounded-18 p-5 m-2.5 flex-1 w-full">
-        <h3 className="text-2xl mb-2 flex ">
+        <h3 className="text-2xl mb-2 flex items-center">
           Total supply{' '}
-          {loading ? (
+          {lodingTotalSupply ? (
             <div className="h-7 flex items-center ml-2">
               <Icon name="count-loader" className="h-2.5 w-auto" />
             </div>
           ) : (
-            overViewData?.totalSupply || 0
+            supply || '--'
           )}
         </h3>
         <div className="h-[5px] flex rounded-full overflow-hidden">
