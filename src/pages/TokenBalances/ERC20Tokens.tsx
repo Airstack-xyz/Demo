@@ -129,12 +129,6 @@ export function ERC20Tokens() {
     return [...tokens.ethereum, ...tokens.polygon];
   }, [tokens.ethereum, tokens.polygon]);
 
-  if (items.length === 0 && !loading) {
-    return (
-      <div className="flex flex-1 justify-center mt-10">No data found!</div>
-    );
-  }
-
   return (
     <div className="mt-11">
       <div className="hidden sm:block">
@@ -150,6 +144,12 @@ export function ERC20Tokens() {
         data-loader-type="block"
         data-loader-height="auto"
       >
+        {items.length === 0 && !loading && (
+          <div className="flex flex-1 justify-center text-xs">
+            No data found!
+          </div>
+        )}
+
         <InfiniteScroll
           next={handleNext}
           dataLength={items.length}
