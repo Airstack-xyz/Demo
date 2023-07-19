@@ -117,10 +117,10 @@ function TokensComponent() {
 
   const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
   const { address: owner, tokenType: tokenType = '' } = useSearchInput();
+  const isPoap = tokenType === 'POAP';
 
   useEffect(() => {
     if (owner) {
-      const isPoap = tokenType === 'POAP';
       if (!tokenType || !isPoap) {
         fetchTokens({
           owner,
@@ -140,7 +140,7 @@ function TokensComponent() {
       }
       setTokens([]);
     }
-  }, [fetchPoaps, fetchTokens, owner, tokenType]);
+  }, [fetchPoaps, fetchTokens, isPoap, owner, tokenType]);
 
   useEffect(() => {
     if (tokensData) {
@@ -158,14 +158,14 @@ function TokensComponent() {
   }, [poapsData]);
 
   const handleNext = useCallback(() => {
-    if (!loadingTokens && paginationTokens?.hasNextPage) {
+    if (!loadingTokens && !isPoap && paginationTokens?.hasNextPage) {
       paginationTokens.getNextPage();
     }
 
     if (!loadingPoaps && paginationPoaps?.hasNextPage) {
       paginationPoaps.getNextPage();
     }
-  }, [loadingPoaps, loadingTokens, paginationPoaps, paginationTokens]);
+  }, [isPoap, loadingPoaps, loadingTokens, paginationPoaps, paginationTokens]);
 
   const loading = loadingTokens || loadingPoaps;
 
