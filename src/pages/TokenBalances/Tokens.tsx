@@ -115,8 +115,7 @@ function TokensComponent() {
     { data: poapsData, loading: loadingPoaps, pagination: paginationPoaps }
   ] = useLazyQueryWithPagination(POAPQuery, variables, config);
 
-  const [tokens, setTokens] = useState<TokenType[]>([]);
-  const [poaps, setPoaps] = useState<Poap[]>([]);
+  const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
   const { address: owner, tokenType: tokenType = '' } = useSearchInput();
 
   useEffect(() => {
@@ -139,7 +138,6 @@ function TokensComponent() {
         });
       }
       setTokens([]);
-      setPoaps([]);
     }
   }, [fetchPoaps, fetchTokens, owner, tokenType]);
 
@@ -154,7 +152,7 @@ function TokensComponent() {
 
   useEffect(() => {
     if (poapsData) {
-      setPoaps(poaps => [...poaps, ...(poapsData?.Poaps?.Poap || [])]);
+      setTokens(tokens => [...tokens, ...(poapsData?.Poaps?.Poap || [])]);
     }
   }, [poapsData]);
 
@@ -169,9 +167,8 @@ function TokensComponent() {
   }, [loadingPoaps, loadingTokens, paginationPoaps, paginationTokens]);
 
   const loading = loadingTokens || loadingPoaps;
-  const items: (TokenType | Poap)[] = [...tokens, ...poaps];
 
-  if (items.length === 0 && !loading) {
+  if (tokens.length === 0 && !loading) {
     return (
       <div className="flex flex-1 justify-center mt-10">No data found!</div>
     );
@@ -180,7 +177,7 @@ function TokensComponent() {
   const hasNextPage =
     paginationTokens?.hasNextPage || paginationPoaps?.hasNextPage;
 
-  if (items.length === 0 && loading) {
+  if (tokens.length === 0 && loading) {
     return (
       <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">
         <Loader />
@@ -191,12 +188,12 @@ function TokensComponent() {
   return (
     <InfiniteScroll
       next={handleNext}
-      dataLength={items.length}
+      dataLength={tokens.length}
       hasMore={hasNextPage}
       loader={<Loader />}
-      className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start"
+      className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start mb-10"
     >
-      {items.map((_token, index) => {
+      {tokens.map((_token, index) => {
         const token = _token as TokenType;
         const poap = _token as Poap;
         const isPoap = Boolean(poap.poapEvent);
