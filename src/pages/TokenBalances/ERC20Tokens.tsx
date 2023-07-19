@@ -93,7 +93,7 @@ export function ERC20Tokens() {
     if (owner) {
       fetch({
         owner,
-        limit: 30
+        limit: 20
       });
       setTokens({
         ethereum: [],

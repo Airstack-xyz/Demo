@@ -33,7 +33,7 @@ export function TokenHolders() {
 
     const isPoap = inputType === 'POAP';
 
-    return [
+    const options = [
       isPoap
         ? {
             label: 'POAP holders',
@@ -42,13 +42,17 @@ export function TokenHolders() {
         : {
             label: 'Token holders',
             link: tokenLink
-          },
+          }
+    ];
 
-      {
+    if (!isPoap) {
+      options.push({
         label: 'Token supply',
         link: tokenSupplyLink
-      }
-    ];
+      });
+    }
+
+    return options;
   }, [inputType, query]);
 
   const isERC20 = tokenType === 'ERC20';

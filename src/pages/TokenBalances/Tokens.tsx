@@ -120,7 +120,8 @@ function TokensComponent() {
 
   useEffect(() => {
     if (owner) {
-      if (!tokenType || tokenType !== 'POAP') {
+      const isPoap = tokenType === 'POAP';
+      if (!tokenType || !isPoap) {
         fetchTokens({
           owner,
           limit: 10,
@@ -131,10 +132,10 @@ function TokensComponent() {
         });
       }
 
-      if (!tokenType || tokenType === 'POAP') {
+      if (!tokenType || isPoap) {
         fetchPoaps({
           owner,
-          limit: 20
+          limit: isPoap ? 20 : 10
         });
       }
       setTokens([]);
@@ -176,7 +177,6 @@ function TokensComponent() {
 
   const hasNextPage =
     paginationTokens?.hasNextPage || paginationPoaps?.hasNextPage;
-
   if (tokens.length === 0 && loading) {
     return (
       <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">

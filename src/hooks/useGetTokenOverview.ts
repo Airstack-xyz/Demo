@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { apiKey } from '../constants';
 import { PoapOverviewQuery, TokenOverviewQuery } from '../queries';
 
-const API = 'https://beta.api.airstack.xyz/gql';
+const API = 'https://api.beta.airstack.xyz/gql';
 
 export function useGetTokenOverview(tokenAddress: string, isPoap = false) {
   const [data, setData] = useState(null);

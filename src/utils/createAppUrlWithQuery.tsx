@@ -1,4 +1,4 @@
-const APP_EXPLORER_URL = 'https://app.airstack.xyz/explorer';
+const APP_EXPLORER_URL = 'https://app.airstack.xyz/api-studio';
 
 export function createAppUrlWithQuery(
   query: string,
