@@ -22,7 +22,8 @@ export type IconType =
   | 'token-holders'
   | 'erc20'
   | 'arrow-right-round'
-  | 'count-loader';
+  | 'count-loader'
+  | 'arrow-down';
 
 export type IconProps = {
   name: IconType;

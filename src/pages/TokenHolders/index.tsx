@@ -5,18 +5,47 @@ import { Tokens } from './Tokens/Tokens';
 import { HoldersOverview } from './Overview/Overview';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
-import { TokenOwnerQuery } from '../../queries';
+import {
+  PoapOwnerQuery,
+  TokenOwnerQuery,
+  TokenTotalSupplyQuery
+} from '../../queries';
 import classNames from 'classnames';
+import { Dropdown } from '../../Components/Dropdown';
 
 export function TokenHolders() {
-  const { address: query, tokenType } = useSearchInput();
+  const { address: query, tokenType, inputType } = useSearchInput();
 
-  const queryUrl = useMemo(() => {
-    const variables = query
-      ? JSON.stringify({ tokenAddress: query, limit: 20 })
-      : '';
-    return createAppUrlWithQuery(TokenOwnerQuery, variables);
-  }, [query]);
+  const options = useMemo(() => {
+    const tokenLink = createAppUrlWithQuery(TokenOwnerQuery, {
+      tokenAddress: query,
+      limit: 20
+    });
+
+    const poapLink = createAppUrlWithQuery(PoapOwnerQuery, {
+      eventId: inputType === 'POAP' ? query : '123',
+      limit: 20
+    });
+
+    const tokenSupplyLink = createAppUrlWithQuery(TokenTotalSupplyQuery, {
+      tokenAddress: query
+    });
+
+    return [
+      {
+        label: 'for Token own',
+        link: tokenLink
+      },
+      {
+        label: 'for POAPs',
+        link: poapLink
+      },
+      {
+        label: 'for Token Supply',
+        link: tokenSupplyLink
+      }
+    ];
+  }, [inputType, query]);
 
   const isERC20 = tokenType === 'ERC20';
 
@@ -29,13 +58,7 @@ export function TokenHolders() {
         {query && (
           <>
             <div className="hidden sm:flex-col-center my-3">
-              <a
-                className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium"
-                href={queryUrl}
-                target="_blank"
-              >
-                View graphql query
-              </a>
+              <Dropdown options={options} />
             </div>
             <div className="flex flex-col justify-center mt-7" key={query}>
               {!isERC20 && <HoldersOverview />}

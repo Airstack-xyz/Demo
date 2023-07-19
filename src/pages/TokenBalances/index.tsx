@@ -10,8 +10,9 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
-import { TokensQuery } from '../../queries';
+import { SocialQuery, TokensQuery } from '../../queries';
 import { tokenTypes } from './constants';
+import { Dropdown } from '../../Components/Dropdown';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   return (
@@ -27,15 +28,36 @@ export function TokenBalance() {
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
 
-  const queryUrl = useMemo(() => {
-    const variables = query
-      ? JSON.stringify({
-          owner: query,
-          limit: 10,
-          tokenType: tokenTypes.filter(tokenType => tokenType !== 'POAP')
-        })
-      : '';
-    return createAppUrlWithQuery(TokensQuery, variables);
+  const options = useMemo(() => {
+    const nftLink = createAppUrlWithQuery(TokensQuery, {
+      owner: query,
+      limit: 10,
+      tokenType: tokenTypes.filter(tokenType => tokenType !== 'POAP')
+    });
+
+    const poapLink = createAppUrlWithQuery(TokensQuery, {
+      owner: query,
+      limit: 10
+    });
+
+    const socialLink = createAppUrlWithQuery(SocialQuery, {
+      identity: query
+    });
+
+    return [
+      {
+        label: 'for NFTs',
+        link: nftLink
+      },
+      {
+        label: 'for POAPs',
+        link: poapLink
+      },
+      {
+        label: 'for Socials',
+        link: socialLink
+      }
+    ];
   }, [query]);
 
   const renderMobileTabs = useCallback(() => {
@@ -78,13 +100,7 @@ export function TokenBalance() {
         {query && (
           <>
             <div className="hidden sm:flex-col-center my-3">
-              <a
-                className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium"
-                href={queryUrl}
-                target="_blank"
-              >
-                View graphql query
-              </a>
+              <Dropdown options={options} />
             </div>
             <div className="flex justify-between px-5">
               <div className="w-full h-full" key={query}>

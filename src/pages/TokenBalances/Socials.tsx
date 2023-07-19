@@ -97,8 +97,7 @@ function SocialsComponent() {
   useEffect(() => {
     if (owner) {
       fetch({
-        identity: owner,
-        blockchain: 'ethereum'
+        identity: owner
       });
     }
   }, [fetch, owner]);
