@@ -43,7 +43,6 @@ const imageAndSubTextMap: Record<
 };
 
 function Overview() {
-  const [showOverview, setShowOverview] = useState(false);
   const [overViewData, setOverViewData] = useState({
     totalSupply: 0,
     totalOwners: 0,
@@ -281,18 +280,6 @@ function Overview() {
   }, [loading, overViewData, tokenDetails, tokenImage, totalHolders]);
 
   if (isERC20) return null;
-
-  if (!showOverview) {
-    return (
-      <div
-        onClick={() => setShowOverview(true)}
-        className="flex items-center w-full bg-glass rounded-18 border-solid-stroke overflow-hidden py-4 pl-10 cursor-pointer text-xs font-bold"
-      >
-        Fetch aggregated stats
-        <Icon name="arrow-right-round" className="ml-2.5 w-[19px]" />
-      </div>
-    );
-  }
 
   const lodingTotalSupply = isPoap ? false : loadingSupply;
   const supply = isPoap ? 0 : overViewData?.totalSupply;
