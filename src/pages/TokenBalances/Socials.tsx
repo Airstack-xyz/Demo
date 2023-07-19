@@ -125,32 +125,39 @@ function SocialsComponent() {
   }, []);
 
   const socials = useMemo(() => {
-    let hasFarcaster = false;
-    let hasLens = false;
+    if (!socialDetails?.socials) return [];
 
-    const socials = socialDetails?.socials || [];
+    type Social = SocialType['socials'][0] & {
+      profileNames?: string[];
+    };
 
-    socials.forEach(({ dappName }) => {
-      if (dappName === 'farcaster') {
-        hasFarcaster = true;
-      }
-      if (dappName === 'lens') {
-        hasLens = true;
+    const map: Record<string, Social> = {};
+
+    socialDetails?.socials.forEach(social => {
+      const existing = map[social.dappName];
+      if (existing) {
+        existing.profileNames?.push(social.profileName);
+        return;
+      } else {
+        map[social.dappName] = {
+          ...social,
+          profileNames: [social.profileName]
+        };
       }
     });
 
-    if (!hasFarcaster) {
+    if (!map['farcaster']) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      socials.push({ dappName: 'farcaster', profileName: '--' });
+      map['farcaster'] = { dappName: 'farcaster', profileNames: ['--'] };
     }
 
-    if (!hasLens) {
+    if (!map['lens']) {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      socials.push({ dappName: 'lens', profileName: '--' });
+      map['lens'] = { dappName: 'lens', profileNames: ['--'] };
     }
-    return socials;
+    return Object.values(map);
   }, [socialDetails?.socials]);
 
   return (
@@ -184,10 +191,10 @@ function SocialsComponent() {
             }}
             image={imagesMap['ens']}
           />
-          {socials.map(({ dappName, profileName }) => (
+          {socials.map(({ dappName, profileName, profileNames }) => (
             <Social
               name={dappName}
-              values={[profileName]}
+              values={profileNames || [profileName]}
               image={imagesMap[dappName?.trim()]}
             />
           ))}
