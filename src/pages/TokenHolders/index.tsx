@@ -6,9 +6,10 @@ import { HoldersOverview } from './Overview/Overview';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
 import { TokenOwnerQuery } from '../../queries';
+import classNames from 'classnames';
 
 export function TokenHolders() {
-  const { address: query } = useSearchInput();
+  const { address: query, tokenType } = useSearchInput();
 
   const queryUrl = useMemo(() => {
     const variables = query
@@ -16,6 +17,8 @@ export function TokenHolders() {
       : '';
     return createAppUrlWithQuery(TokenOwnerQuery, variables);
   }, [query]);
+
+  const isERC20 = tokenType === 'ERC20';
 
   return (
     <Layout>
@@ -35,8 +38,12 @@ export function TokenHolders() {
               </a>
             </div>
             <div className="flex flex-col justify-center mt-7" key={query}>
-              <HoldersOverview />
-              <div className="mt-10">
+              {!isERC20 && <HoldersOverview />}
+              <div
+                className={classNames({
+                  'mt-10': !isERC20
+                })}
+              >
                 <Tokens />
               </div>
             </div>

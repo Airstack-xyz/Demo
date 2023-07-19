@@ -101,6 +101,7 @@ export interface TokenBalance {
   tokenId: string;
   token: Token;
   owner: Owner;
+  tokenType: string;
   id: string;
 }
 

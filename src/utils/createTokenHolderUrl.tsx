@@ -1,6 +1,11 @@
-export function createTokenHolderUrl(
-  address: string,
-  inputType: 'ADDRESS' | 'POAP' = 'ADDRESS'
-) {
-  return `/token-holders?address=${address}&rawInput=${address}&inputType=${inputType}`;
+export function createTokenHolderUrl({
+  address,
+  inputType = 'ADDRESS',
+  tokenType = '-'
+}: {
+  address: string;
+  inputType?: 'ADDRESS' | 'POAP';
+  tokenType?: string;
+}) {
+  return `/token-holders?address=${address}&rawInput=${address}&inputType=${inputType}&tokenType=${tokenType}`;
 }

@@ -40,7 +40,10 @@ function Token({
 }) {
   return (
     <div className="flex mb-5 hover:bg-glass px-3 py-1.5 rounded-18 overflow-hidden">
-      <div className="h-10 w-10 rounded-full overflow-hidden border-solid-stroke">
+      <div
+        className="h-10 w-10 rounded-full overflow-hidden border-solid-stroke"
+        data-loader-type="hidden"
+      >
         <Logo logo={logo} className="w-full" />
       </div>
       <div className="flex flex-1 items-center min-w-0 text-sm pl-2.5">
@@ -141,7 +144,7 @@ export function ERC20Tokens() {
         className={classNames(
           'mt-3.5 bg-glass py-3 px-2 rounded-18 border-solid-stroke',
           {
-            'skeleton-loader': items.length === 0 && loading
+            'skeleton-loader min-h-[200px]': items.length === 0 && loading
           }
         )}
         data-loader-type="block"
@@ -154,7 +157,12 @@ export function ERC20Tokens() {
           loader={<Loader />}
         >
           {items.map((token, index) => (
-            <Link to={createTokenHolderUrl(token?.tokenAddress)}>
+            <Link
+              to={createTokenHolderUrl({
+                address: token?.tokenAddress,
+                tokenType: 'ERC20'
+              })}
+            >
               <Token
                 key={index}
                 amount={token?.formattedAmount}

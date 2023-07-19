@@ -3,7 +3,7 @@ import { createContext, useCallback, useMemo, useState } from 'react';
 export type SearchContextState = {
   address?: string;
   blockchain?: string;
-  filterBy?: string;
+  tokenType?: string;
   rawInput?: string;
 };
 
@@ -17,7 +17,7 @@ type SearchContext = {
 const defaultData = {
   address: '',
   blockchain: '',
-  filterBy: '',
+  tokenType: '',
   rawInput: ''
 };
 

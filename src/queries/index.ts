@@ -171,6 +171,7 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
       tokenAddress
       tokenId
       blockchain
+      tokenType
       token {
         name
       }

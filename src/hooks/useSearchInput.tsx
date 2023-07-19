@@ -4,7 +4,7 @@ import { useCallback, useMemo } from 'react';
 export type cachedQuery = {
   address?: string;
   blockchain?: string;
-  filterBy?: string;
+  tokenType?: string;
   rawInput?: string;
   inputType?: 'POAP' | 'ADDRESS' | null;
 };
@@ -45,12 +45,12 @@ export function useSearchInput() {
       rawInput: rawQuery,
       address,
       blockchain: savedBlockchain,
-      filterBy,
+      tokenType: savedTokenType,
       inputType: savedInputType
     } = isTokenBalances ? tokenBalance : tokenHolder;
 
     const query = searchParams.get('address') || '';
-    const tokenType = searchParams.get('filterBy') || '';
+    const tokenType = searchParams.get('tokenType') || '';
     const blockchain = searchParams.get('blockchain') || '';
     const rawInput = searchParams.get('rawInput') || '';
     const inputType =
@@ -58,7 +58,7 @@ export function useSearchInput() {
 
     const data = {
       address: query || address || '',
-      filterBy: tokenType || filterBy || '',
+      tokenType: tokenType || savedTokenType || '',
       blockchain: blockchain || savedBlockchain || '',
       rawInput: rawInput || rawQuery || '',
       inputType: !isTokenBalances ? inputType || savedInputType : null

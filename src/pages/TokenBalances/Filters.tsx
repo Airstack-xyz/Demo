@@ -7,7 +7,7 @@ import { memo, useCallback } from 'react';
 export const Filters = memo(function Filters() {
   const setSearchParams = useSearchParams()[1];
   const {
-    filterBy: existingTokenType = '',
+    tokenType: existingTokenType = '',
     setData,
     ...rest
   } = useSearchInput();
@@ -16,14 +16,14 @@ export const Filters = memo(function Filters() {
     (tokenType: string) => () => {
       const input = {
         ...rest,
-        filterBy:
+        tokenType:
           existingTokenType.toLowerCase() === tokenType.toLowerCase()
             ? ''
             : tokenType
       };
 
-      if (input.filterBy === 'All') {
-        input.filterBy = '';
+      if (input.tokenType === 'All') {
+        input.tokenType = '';
       }
 
       setData(input);

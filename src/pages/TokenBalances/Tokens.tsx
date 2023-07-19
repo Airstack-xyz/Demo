@@ -39,10 +39,11 @@ function Token({
     <Link
       className="h-[300px] w-[300px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token"
       data-loader-type="block"
-      to={createTokenHolderUrl(
-        isPoap && eventId ? eventId : address,
-        type === 'POAP' ? 'POAP' : 'ADDRESS'
-      )}
+      to={createTokenHolderUrl({
+        address: isPoap && eventId ? eventId : address,
+        inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
+        tokenType: type
+      })}
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
     >
       <div className="absolute inset-0 [&>div]:w-full [&>div]:h-full [&>div>img]:w-full flex-col-center">
@@ -116,7 +117,7 @@ function TokensComponent() {
 
   const [tokens, setTokens] = useState<TokenType[]>([]);
   const [poaps, setPoaps] = useState<Poap[]>([]);
-  const { address: owner, filterBy: tokenType = '' } = useSearchInput();
+  const { address: owner, tokenType: tokenType = '' } = useSearchInput();
 
   useEffect(() => {
     if (owner) {

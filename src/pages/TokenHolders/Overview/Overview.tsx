@@ -72,10 +72,12 @@ function Overview() {
     tokenId: string;
     tokenAddress: string;
     image: string;
+    tokenType: string;
   } | null>(null);
 
-  const { address: tokenAddress, inputType } = useSearchInput();
-  const isPoap = inputType === 'POAP';
+  const { address: tokenAddress, inputType, tokenType } = useSearchInput();
+
+  const isPoap = inputType === 'POAP' || tokenType === 'POAP';
 
   useEffect(() => {
     if (tokenAddress) {
@@ -146,8 +148,10 @@ function Overview() {
     ? paginationPoaps
     : paginationTokens;
 
+  const isERC20 = tokenType === 'ERC20' || tokenDetails?.tokenType === 'ERC20';
+
   useEffect(() => {
-    if (tokensData) {
+    if (tokensData && !isERC20) {
       const ethTokenBalances = tokensData?.ethereum?.TokenBalance || [];
       const polygonTokenBalances = tokensData?.polygon?.TokenBalance || [];
 
@@ -160,7 +164,8 @@ function Overview() {
           name: token?.token?.name || '',
           tokenId: token?.tokenId || '',
           tokenAddress: token?.tokenAddress || '',
-          image: ''
+          image: '',
+          tokenType: token?.tokenType
         };
       });
 
@@ -173,7 +178,7 @@ function Overview() {
         setOverViewData(overViewDataRef.current);
       }
     }
-  }, [tokensData, getNextPage, hasNextPage, updateCount]);
+  }, [tokensData, getNextPage, hasNextPage, updateCount, isERC20]);
 
   useEffect(() => {
     if (!poapsData) return;
@@ -186,7 +191,8 @@ function Overview() {
         name: poap?.poapEvent?.eventName || '',
         tokenId: poap?.tokenId || '',
         tokenAddress: poap?.tokenAddress || '',
-        image: poap?.poapEvent?.logo?.image?.medium || ''
+        image: poap?.poapEvent?.logo?.image?.medium || '',
+        tokenType: 'POAP'
       };
     });
     updateCount(poaps);
@@ -238,6 +244,8 @@ function Overview() {
       );
     });
   }, [loading, overViewData, tokenDetails, tokenImage, totalHolders]);
+
+  if (isERC20) return null;
 
   if (!showOverview) {
     return (
