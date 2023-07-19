@@ -1,6 +1,6 @@
 export const TokensQuery = `query GetTokens($owner: Identity, $tokenType: [TokenType!], $limit: Int) {
   ethereum: TokenBalances(
-    input: {filter: {owner: {_eq: $owner}, tokenType: {_in: $tokenType}}, blockchain: ethereum, limit: $limit}
+    input: {filter: {owner: {_eq: $owner}, tokenType: {_in: $tokenType}}, blockchain: ethereum, limit: $limit, order: {lastUpdatedTimestamp: DESC}}
   ) {
     TokenBalance {
       amount
@@ -30,7 +30,7 @@ export const TokensQuery = `query GetTokens($owner: Identity, $tokenType: [Token
     }
   }
   polygon: TokenBalances(
-    input: {filter: {owner: {_eq: $owner}, tokenType: {_in: $tokenType}}, blockchain: polygon, limit: $limit}
+    input: {filter: {owner: {_eq: $owner}, tokenType: {_in: $tokenType}}, blockchain: polygon, limit: $limit, order: {lastUpdatedTimestamp: DESC}}
   ) {
     TokenBalance {
       amount
@@ -118,7 +118,7 @@ export const MentionsQuery = `
 
 export const ERC20TokensQuery = `query ERC20TokensQuery($owner: Identity, $limit: Int) {
   ethereum: TokenBalances(
-    input: {filter: {owner: {_eq: $owner}, tokenType: {_eq: ERC20}}, blockchain: ethereum, limit: $limit}
+    input: {filter: {owner: {_eq: $owner}, tokenType: {_eq: ERC20}}, blockchain: ethereum, limit: $limit, order: {lastUpdatedTimestamp: DESC}}
   ) {
     TokenBalance {
       amount
@@ -143,7 +143,7 @@ export const ERC20TokensQuery = `query ERC20TokensQuery($owner: Identity, $limit
     }
   }
   polygon: TokenBalances(
-    input: {filter: {owner: {_eq: $owner}, tokenType: {_eq: ERC20}}, blockchain: polygon, limit: $limit}
+    input: {filter: {owner: {_eq: $owner}, tokenType: {_eq: ERC20}}, blockchain: polygon, limit: $limit, order: {lastUpdatedTimestamp: DESC}}
   ) {
     TokenBalance {
       amount

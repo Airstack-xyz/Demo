@@ -24,7 +24,7 @@ const SocialsAndERC20 = memo(function SocialsAndERC20() {
 });
 
 export function TokenBalance() {
-  const { address: query } = useSearchInput();
+  const { address: query, tokenType } = useSearchInput();
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
 
@@ -32,7 +32,9 @@ export function TokenBalance() {
     const nftLink = createAppUrlWithQuery(TokensQuery, {
       owner: query,
       limit: 10,
-      tokenType: tokenTypes.filter(tokenType => tokenType !== 'POAP')
+      tokenType: tokenType
+        ? [tokenType]
+        : tokenTypes.filter(tokenType => tokenType !== 'POAP')
     });
 
     const poapLink = createAppUrlWithQuery(POAPQuery, {
@@ -44,21 +46,28 @@ export function TokenBalance() {
       identity: query
     });
 
-    return [
-      {
+    const options = [];
+
+    if (tokenType !== 'POAP') {
+      options.push({
         label: 'Token Balances',
         link: nftLink
-      },
-      {
+      });
+    }
+
+    if (!tokenType || tokenType === 'POAP') {
+      options.push({
         label: 'POAPs',
         link: poapLink
-      },
-      {
-        label: 'Socials & Domains',
-        link: socialLink
-      }
-    ];
-  }, [query]);
+      });
+    }
+
+    options.push({
+      label: 'Socials & Domains',
+      link: socialLink
+    });
+    return options;
+  }, [query, tokenType]);
 
   const renderMobileTabs = useCallback(() => {
     return (

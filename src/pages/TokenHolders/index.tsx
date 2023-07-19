@@ -31,15 +31,19 @@ export function TokenHolders() {
       tokenAddress: query
     });
 
+    const isPoap = inputType === 'POAP';
+
     return [
-      {
-        label: 'Token holders',
-        link: tokenLink
-      },
-      {
-        label: 'POAP holders',
-        link: poapLink
-      },
+      isPoap
+        ? {
+            label: 'POAP holders',
+            link: poapLink
+          }
+        : {
+            label: 'Token holders',
+            link: tokenLink
+          },
+
       {
         label: 'Token supply',
         link: tokenSupplyLink
