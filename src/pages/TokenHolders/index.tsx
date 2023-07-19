@@ -33,15 +33,15 @@ export function TokenHolders() {
 
     return [
       {
-        label: 'for Token own',
+        label: 'Token holders',
         link: tokenLink
       },
       {
-        label: 'for POAPs',
+        label: 'POAP holders',
         link: poapLink
       },
       {
-        label: 'for Token Supply',
+        label: 'Token supply',
         link: tokenSupplyLink
       }
     ];

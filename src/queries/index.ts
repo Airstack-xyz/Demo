@@ -277,7 +277,7 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
   }
 }`;
 
-export const PoapOwnerQuery = `query GetPoapOwners($eventId: [String!], $limit: Int) {
+export const PoapOwnerQuery = `query GetPoapHolders($eventId: [String!], $limit: Int) {
   Poaps(input: {filter: {eventId: {_in: $eventId}}, blockchain: ALL, limit: $limit}) {
     Poap {
       id
@@ -331,7 +331,7 @@ export const PoapOwnerQuery = `query GetPoapOwners($eventId: [String!], $limit: 
   }
 }`;
 
-export const TokenTotalSupplyQuery = `query TotalSupply($tokenAddress: Address!) {
+export const TokenTotalSupplyQuery = `query GetTotalSupply($tokenAddress: Address!) {
   ethereum: Token(input: {address: $tokenAddress, blockchain: ethereum}) {
     totalSupply
   }

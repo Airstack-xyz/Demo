@@ -10,7 +10,7 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
-import { SocialQuery, TokensQuery } from '../../queries';
+import { POAPQuery, SocialQuery, TokensQuery } from '../../queries';
 import { tokenTypes } from './constants';
 import { Dropdown } from '../../Components/Dropdown';
 
@@ -35,7 +35,7 @@ export function TokenBalance() {
       tokenType: tokenTypes.filter(tokenType => tokenType !== 'POAP')
     });
 
-    const poapLink = createAppUrlWithQuery(TokensQuery, {
+    const poapLink = createAppUrlWithQuery(POAPQuery, {
       owner: query,
       limit: 10
     });
@@ -46,15 +46,15 @@ export function TokenBalance() {
 
     return [
       {
-        label: 'for NFTs',
+        label: 'Token Balances',
         link: nftLink
       },
       {
-        label: 'for POAPs',
+        label: 'POAPs',
         link: poapLink
       },
       {
-        label: 'for Socials',
+        label: 'Socials & Domains',
         link: socialLink
       }
     ];

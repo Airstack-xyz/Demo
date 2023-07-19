@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Icon } from './Icon';
 import classNames from 'classnames';
 
@@ -7,15 +7,32 @@ type Options = {
   link: string;
 };
 export function Dropdown({ options }: { options: Options[] }) {
+  const ref = useRef<HTMLDivElement>(null);
   const [show, setShow] = useState(false);
 
+  useEffect(() => {
+    // eslint-disable-next-line
+    const handleClickOutside = (event: any) => {
+      if (ref.current && !ref.current.contains(event.target)) {
+        setShow(false);
+      }
+    };
+    document.addEventListener('click', handleClickOutside, true);
+    return () => {
+      document.removeEventListener('click', handleClickOutside, true);
+    };
+  }, []);
+
   return (
-    <div className="text-xs font-medium relative flex flex-col items-center">
+    <div
+      className="text-xs font-medium relative flex flex-col items-center"
+      ref={ref}
+    >
       <button
-        className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium flex-row-center"
+        className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium flex-row-center outline-none"
         onClick={() => setShow(show => !show)}
       >
-        <span>View graphql query</span>
+        <span>GraphQL APIs</span>
         <Icon
           name="arrow-down"
           height={16}

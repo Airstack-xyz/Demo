@@ -4,8 +4,11 @@ export function Header() {
   return (
     <header className="fixed bg-secondary py-4 w-full z-20 flex justify-center top-0">
       <div className="w-[1440px] max-w-[100vw] flex items-center justify-center sm:justify-between px-8">
-        <Link to="/">
-          <img src="/logo.svg" className="h-[33px]" />
+        <Link to="/" className="text-2xl flex-row-center">
+          <img src="/logo.svg" className="h-[33px] mr-5" />
+          <h1 className="pl-5 py-1 border-l-[3px] border-solid border-stroke-color-light">
+            Explorer
+          </h1>
         </Link>
         <div className="hidden sm:flex-row-center">
           <a
