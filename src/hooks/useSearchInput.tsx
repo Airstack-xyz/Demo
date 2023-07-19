@@ -27,14 +27,17 @@ export function useSearchInput() {
   const [searchParams] = useSearchParams();
 
   const setData = useCallback(
-    (data: cachedQuery) => {
+    (data: cachedQuery, reset = false) => {
       if (isTokenBalances) {
         userInputCache.tokenBalance = {
-          ...userInputCache.tokenBalance,
+          ...(reset ? {} : userInputCache.tokenBalance),
           ...data
         };
       } else {
-        userInputCache.tokenHolder = { ...userInputCache.tokenHolder, ...data };
+        userInputCache.tokenHolder = {
+          ...(reset ? {} : userInputCache.tokenHolder),
+          ...data
+        };
       }
     },
     [isTokenBalances]

@@ -51,9 +51,12 @@ export const Search = memo(function Search() {
         inputType: (customInputType as UserInputs['inputType']) || 'ADDRESS'
       };
 
-      setData({
-        ...searchData
-      });
+      setData(
+        {
+          ...searchData
+        },
+        true
+      );
 
       if (isHome) {
         navigate({

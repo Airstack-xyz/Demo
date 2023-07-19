@@ -2,7 +2,7 @@ import {
   useLazyQuery,
   useLazyQueryWithPagination
 } from '@airstack/airstack-react';
-import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import {
   PoapOwnerQuery,
@@ -51,15 +51,6 @@ const imageAndSubTextMap: Record<
 
 function Overview() {
   const [overViewData, setOverViewData] = useState({
-    totalSupply: 0,
-    totalOwners: 0,
-    ownerWithENS: 0,
-    ownerWithPrimaryENS: 0,
-    ownerWithLens: 0,
-    ownerWithFarcaster: 0
-  });
-
-  const overViewDataRef = useRef({
     totalSupply: 0,
     totalOwners: 0,
     ownerWithENS: 0,
@@ -149,8 +140,6 @@ function Overview() {
       if (supply?.polygon?.totalSupply) {
         count += parseInt(supply.polygon.totalSupply);
       }
-
-      overViewDataRef.current.totalSupply = count;
 
       setOverViewData(overViewData => ({
         ...overViewData,
