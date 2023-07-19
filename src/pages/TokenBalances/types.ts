@@ -27,6 +27,9 @@ export interface Token {
   logo: {
     small: string;
   };
+  projectDetails: {
+    imageUrl: string;
+  };
 }
 
 export type PoapType = {

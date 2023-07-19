@@ -132,6 +132,9 @@ export const ERC20TokensQuery = `query ERC20TokensQuery($owner: Identity, $limit
         logo {
           small
         }
+        projectDetails {
+          imageUrl
+        }
       }
     }
     pageInfo {
@@ -153,6 +156,9 @@ export const ERC20TokensQuery = `query ERC20TokensQuery($owner: Identity, $limit
         symbol
         logo {
           small
+        }
+        projectDetails {
+          imageUrl
         }
       }
     }

@@ -168,7 +168,10 @@ export function ERC20Tokens() {
                 amount={token?.formattedAmount}
                 symbol={token?.token?.symbol}
                 type={token?.token?.name}
-                logo={token?.token?.logo?.small}
+                logo={
+                  token?.token?.logo?.small ||
+                  token?.token?.projectDetails?.imageUrl
+                }
               />
             </Link>
           ))}
