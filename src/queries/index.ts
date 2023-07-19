@@ -182,6 +182,7 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
         name
         symbol
         logo {
+          medium
           small
         }
         projectDetails {
@@ -234,6 +235,7 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
         name
         symbol
         logo {
+          medium
           small
         }
         projectDetails {

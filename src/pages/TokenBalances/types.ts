@@ -26,6 +26,7 @@ export interface Token {
   symbol: string;
   logo: {
     small: string;
+    medium: string;
   };
   projectDetails: {
     imageUrl: string;

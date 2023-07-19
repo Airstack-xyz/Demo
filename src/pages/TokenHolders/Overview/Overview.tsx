@@ -20,6 +20,7 @@ import {
   TotalSupply
 } from '../Tokens/types';
 import { useGetTokenOverview } from '../../../hooks/useGetTokenOverview';
+import { Chain } from '@airstack/airstack-react/constants';
 
 const imageAndSubTextMap: Record<
   string,
@@ -82,6 +83,7 @@ function Overview() {
     tokenAddress: string;
     image: string;
     tokenType: string;
+    blockchain: string;
   } | null>(null);
 
   useEffect(() => {
@@ -163,8 +165,12 @@ function Overview() {
         name: token?.token?.name || '',
         tokenId: token?.tokenId || '',
         tokenAddress: token?.tokenAddress || '',
-        image: '',
-        tokenType: token?.tokenType
+        image:
+          token?.token?.logo?.medium ||
+          token?.token?.projectDetails?.imageUrl ||
+          '',
+        tokenType: token?.tokenType,
+        blockchain: token?.blockchain
       };
     });
   }, [tokensData, isERC20, isPoap]);
@@ -182,14 +188,16 @@ function Overview() {
         tokenId: poap?.tokenId || '',
         tokenAddress: poap?.tokenAddress || '',
         image: poap?.poapEvent?.logo?.image?.medium || '',
-        tokenType: 'POAP'
+        tokenType: 'POAP',
+        blockchain: 'ethereum'
       };
     });
   }, [isPoap, tokensData]);
 
   const tokenImage = useMemo(() => {
     if (!tokenDetails) return null;
-    const { tokenId, tokenAddress, image } = tokenDetails;
+
+    const { tokenId, tokenAddress, image, blockchain } = tokenDetails;
 
     return (
       <Asset
@@ -197,6 +205,7 @@ function Overview() {
         tokenId={tokenId}
         preset="medium"
         image={image}
+        chain={blockchain as Chain}
       />
     );
   }, [tokenDetails]);
