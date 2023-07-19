@@ -107,6 +107,7 @@ export function InputWithMention({
   }, [handlePaste]);
 
   useEffect(() => {
+    inputRef.current?.setAttribute('autocomplete', 'off');
     return highlightMention(inputRef.current);
   }, []);
 
