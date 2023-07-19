@@ -7,7 +7,7 @@ export function HolderCount({
   image,
   loading
 }: {
-  count: number;
+  count: string | number;
   subText: string;
   image?: ReactNode;
   loading: boolean;
@@ -18,10 +18,10 @@ export function HolderCount({
       data-loader-type="block"
       data-loader-height="auto"
     >
-      <div className="rounded-full  min-w-[47px] w-[47px] h-[47px] overflow-hidden flex-row-center">
+      <div className="rounded-full min-w-[47px] w-[47px] h-[47px] overflow-hidden flex-row-center">
         {image}
       </div>
-      <div className="pl-2.5">
+      <div className="pl-2.5 flex-1 overflow-hidden">
         <div className="text-xl font-bold">
           {loading ? (
             <div className="h-6 flex items-center">
@@ -31,7 +31,7 @@ export function HolderCount({
             count
           )}
         </div>
-        <div className="text-text-secondary text-xs">{subText}</div>
+        <div className="text-text-secondary text-xs ellipsis">{subText}</div>
       </div>
     </div>
   );

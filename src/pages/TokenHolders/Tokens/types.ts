@@ -6,6 +6,7 @@ export type Poap = {
   id: string;
   blockchain: string;
   tokenId: string;
+  tokenType: string;
   tokenAddress: string;
   eventId: string;
   poapEvent: PoapEvent;

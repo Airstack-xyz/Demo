@@ -72,8 +72,11 @@ function Overview() {
 
   const isPoap = inputType === 'POAP' || tokenType === 'POAP';
 
-  const { data: tokenOverviewData, loading: loadingTokenOverview } =
-    useGetTokenOverview(tokenAddress, isPoap);
+  const {
+    data: tokenOverviewData,
+    loading: loadingTokenOverview,
+    error: tokenOverviewError
+  } = useGetTokenOverview(tokenAddress, isPoap);
 
   const [fetchTokens, { data: tokensData }] = useLazyQuery(
     isPoap ? PoapOwnerQuery : TokenOwnerQuery
@@ -222,11 +225,16 @@ function Overview() {
           tokenDetails.name || 'this contract'
         }`;
       }
+
       return (
         <HolderCount
           key={key}
           loading={loading}
-          count={overViewData[key as keyof typeof overViewData]}
+          count={
+            tokenOverviewError
+              ? '--'
+              : overViewData[key as keyof typeof overViewData]
+          }
           subText={subText}
           image={
             !image ? tokenImage : <img src={image} alt="" className="w-full" />
@@ -234,7 +242,14 @@ function Overview() {
         />
       );
     });
-  }, [loading, overViewData, tokenDetails, tokenImage, totalHolders]);
+  }, [
+    loading,
+    overViewData,
+    tokenDetails,
+    tokenImage,
+    tokenOverviewError,
+    totalHolders
+  ]);
 
   if (isERC20) return null;
 
@@ -264,7 +279,7 @@ function Overview() {
         <div className="grid grid-cols-2 gap-2.5 mt-5">{holderCounts}</div>
       </div>
       <div
-        className="h-full flex-1 hidden sm:block [&>div]:h-full [&>div]:w-full [&>div>img]:w-full"
+        className="h-full flex-1 hidden [&>div]:h-full [&>div]:w-full [&>div>img]:w-full [&>div>img]:min-w-full sm:flex-col-center max-w-[421px]"
         data-loader-type="block"
       >
         {tokenImage}

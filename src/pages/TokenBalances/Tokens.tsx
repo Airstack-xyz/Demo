@@ -46,7 +46,7 @@ function Token({
       })}
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
     >
-      <div className="absolute inset-0 [&>div]:w-full [&>div]:h-full [&>div>img]:w-full flex-col-center">
+      <div className="absolute inset-0 [&>div]:w-full [&>div]:h-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center">
         {(image || (address && tokenId)) && (
           <Asset
             image={image}

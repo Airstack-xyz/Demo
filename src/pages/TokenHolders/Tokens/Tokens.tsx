@@ -26,6 +26,9 @@ export function Token({
   const tokenAddress = token?.tokenAddress || '';
   const primarEns = token?.owner?.primaryDomain?.name || '';
   const ens = token?.owner?.domains?.map(domain => domain.name) || [];
+  const _token = token as TokenType;
+  const image =
+    _token?.token?.logo?.small || _token?.token?.projectDetails?.imageUrl;
 
   const { lens, farcaster } = useMemo(() => {
     const social = token?.owner?.socials || [];
@@ -52,16 +55,15 @@ export function Token({
   return (
     <>
       <td className="!pl-9">
-        <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden [&>div]:w-full [&>div>img]:w-full">
-          {tokenAddress && tokenId && (
-            <Asset
-              address={tokenAddress}
-              tokenId={tokenId}
-              preset="small"
-              containerClassName="token-img"
-              chain={token?.blockchain as Chain}
-            />
-          )}
+        <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden [&>div]:w-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center">
+          <Asset
+            address={tokenAddress}
+            tokenId={tokenId}
+            preset="small"
+            containerClassName="token-img"
+            chain={token?.blockchain as Chain}
+            image={image}
+          />
         </div>
       </td>
       <td className="ellipsis">{walletAddress || '--'}</td>

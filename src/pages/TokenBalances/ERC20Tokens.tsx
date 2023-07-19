@@ -41,10 +41,10 @@ function Token({
   return (
     <div className="flex mb-5 hover:bg-glass px-3 py-1.5 rounded-18 overflow-hidden">
       <div
-        className="h-10 w-10 rounded-full overflow-hidden border-solid-stroke"
+        className="h-10 w-10 rounded-full overflow-hidden border-solid-stroke flex-col-center"
         data-loader-type="hidden"
       >
-        <Logo logo={logo} className="w-full" />
+        <Logo logo={logo} className="w-full min-w-full" />
       </div>
       <div className="flex flex-1 items-center min-w-0 text-sm pl-2.5">
         <span className="ellipsis max-w-[30%]">{amount}</span>

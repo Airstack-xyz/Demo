@@ -180,6 +180,13 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
       tokenType
       token {
         name
+        symbol
+        logo {
+          small
+        }
+        projectDetails {
+          imageUrl
+        }
       }
       tokenNfts {
         contentValue {
@@ -225,6 +232,13 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
       blockchain
       token {
         name
+        symbol
+        logo {
+          small
+        }
+        projectDetails {
+          imageUrl
+        }
       }
       tokenNfts {
         contentValue {
