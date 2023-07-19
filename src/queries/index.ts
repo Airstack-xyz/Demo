@@ -319,3 +319,39 @@ export const TokenTotalSupplyQuery = `query TotalSupply($tokenAddress: Address!)
     totalSupply
   }
 }`;
+
+export const TokenOverviewQuery = `query TokenOverviewQuery($tokenAddress: Address) {
+  ethereum: TokenHolders(
+    input: {filter: {tokenAddress: {_eq: $tokenAddress}, inputType: {_eq: token}}, blockchain: ethereum}
+  ) {
+    ensUsersCount
+    farcasterProfileCount
+    lensProfileCount
+    primaryEnsUsersCount
+    totalHolders
+    xmtpUsersCount
+  }
+  polygon: TokenHolders(
+    input: {filter: {tokenAddress: {_eq: $tokenAddress}, inputType: {_eq: token}}, blockchain: polygon}
+  ) {
+    ensUsersCount
+    farcasterProfileCount
+    lensProfileCount
+    primaryEnsUsersCount
+    totalHolders
+    xmtpUsersCount
+  }
+}`;
+
+export const PoapOverviewQuery = `query GetPoapOverview($eventId: String) {
+  ethereum: TokenHolders(
+    input: {filter: {eventId: {_eq: $eventId}, inputType: {_eq: poap}}, blockchain: ethereum}
+  ) {
+    ensUsersCount
+    farcasterProfileCount
+    lensProfileCount
+    primaryEnsUsersCount
+    totalHolders
+    xmtpUsersCount
+  }
+}`;

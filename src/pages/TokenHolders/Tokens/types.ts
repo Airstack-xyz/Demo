@@ -54,3 +54,17 @@ export interface TotalSupply {
 export interface Supply {
   totalSupply: string;
 }
+
+export type OverviewData = {
+  ethereum: OverviewBlockchainData;
+  polygon: OverviewBlockchainData;
+};
+
+export type OverviewBlockchainData = {
+  ensUsersCount: number;
+  farcasterProfileCount: number;
+  lensProfileCount: number;
+  primaryEnsUsersCount: number;
+  totalHolders: number;
+  xmtpUsersCount: number;
+};

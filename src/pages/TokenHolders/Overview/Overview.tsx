@@ -1,4 +1,7 @@
-import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import {
+  useLazyQuery,
+  useLazyQueryWithPagination
+} from '@airstack/airstack-react';
 import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import {
@@ -6,13 +9,17 @@ import {
   TokenOwnerQuery,
   TokenTotalSupplyQuery
 } from '../../../queries';
-import { getDAppType } from '../utils';
 import { HolderCount } from './HolderCount';
 import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
-import { Poap, Token, TotalSupply } from '../Tokens/types';
-
-const LIMIT = 200;
+import {
+  OverviewBlockchainData,
+  OverviewData,
+  Poap,
+  Token,
+  TotalSupply
+} from '../Tokens/types';
+import { useGetTokenOverview } from '../../../hooks/useGetTokenOverview';
 
 const imageAndSubTextMap: Record<
   string,
@@ -51,7 +58,7 @@ function Overview() {
     ownerWithLens: 0,
     ownerWithFarcaster: 0
   });
-  const holdersSetRef = useRef(new Set<string>());
+
   const overViewDataRef = useRef({
     totalSupply: 0,
     totalOwners: 0,
@@ -61,18 +68,19 @@ function Overview() {
     ownerWithFarcaster: 0
   });
 
-  const [
-    fetchTokens,
-    { data: tokensData, loading: loadingTokens, pagination: paginationTokens }
-  ] = useLazyQueryWithPagination(TokenOwnerQuery);
+  const { address: tokenAddress, inputType, tokenType } = useSearchInput();
+
+  const isPoap = inputType === 'POAP' || tokenType === 'POAP';
+
+  const { data: tokenOverviewData, loading: loadingTokenOverview } =
+    useGetTokenOverview(tokenAddress, isPoap);
+
+  const [fetchTokens, { data: tokensData }] = useLazyQuery(
+    isPoap ? PoapOwnerQuery : TokenOwnerQuery
+  );
 
   const [fetchTotalSupply, { data: totalSupply, loading: loadingSupply }] =
     useLazyQueryWithPagination(TokenTotalSupplyQuery);
-
-  const [
-    fetchPoap,
-    { data: poapsData, loading: loadingPoaps, pagination: paginationPoaps }
-  ] = useLazyQueryWithPagination(PoapOwnerQuery);
 
   const [tokenDetails, setTokenDetails] = useState<null | {
     name: string;
@@ -82,115 +90,49 @@ function Overview() {
     tokenType: string;
   } | null>(null);
 
-  const { address: tokenAddress, inputType, tokenType } = useSearchInput();
-
-  const isPoap = inputType === 'POAP' || tokenType === 'POAP';
-
   useEffect(() => {
-    if (tokenAddress) {
-      if (isPoap) {
-        fetchPoap({
-          eventId: tokenAddress,
-          limit: LIMIT
-        });
-        return;
-      }
+    if (!tokenAddress) return;
 
-      fetchTokens({
-        tokenAddress,
-        limit: LIMIT
-      });
+    const variables = isPoap ? { eventId: tokenAddress } : { tokenAddress };
+    // just fetch one token to show the details
+    fetchTokens({
+      ...variables,
+      limit: 1
+    });
 
+    if (!isPoap) {
       fetchTotalSupply({
         tokenAddress
       });
     }
-  }, [fetchPoap, fetchTokens, fetchTotalSupply, isPoap, tokenAddress]);
-
-  const updateCount = useCallback((tokenBalances: (Token | Poap)[]) => {
-    let {
-      // eslint-disable-next-line prefer-const
-      totalSupply,
-      totalOwners,
-      ownerWithENS,
-      ownerWithPrimaryENS,
-      ownerWithLens,
-      ownerWithFarcaster
-    } = overViewDataRef.current;
-
-    tokenBalances.forEach(({ owner }) => {
-      if (!holdersSetRef.current.has(owner.identity)) {
-        totalOwners++;
-      } else {
-        return;
-      }
-
-      holdersSetRef.current.add(owner.identity);
-
-      if (owner.primaryDomain) {
-        ownerWithPrimaryENS++;
-      }
-
-      if (owner.domains && owner.domains.length > 0) {
-        ownerWithENS++;
-      }
-
-      owner?.socials?.forEach(social => {
-        const type = getDAppType(social.dappSlug);
-        if (type === 'lens') {
-          ownerWithLens++;
-        }
-        if (type === 'farcaster') {
-          ownerWithFarcaster++;
-        }
-      });
-    });
-
-    overViewDataRef.current = {
-      totalSupply,
-      totalOwners,
-      ownerWithENS,
-      ownerWithPrimaryENS,
-      ownerWithLens,
-      ownerWithFarcaster
-    };
-  }, []);
-
-  const { hasNextPage, getNextPage } = isPoap
-    ? paginationPoaps
-    : paginationTokens;
+  }, [fetchTokens, fetchTotalSupply, isPoap, tokenAddress]);
 
   const isERC20 = tokenType === 'ERC20' || tokenDetails?.tokenType === 'ERC20';
 
+  const updateOverviewData = useCallback((overview: OverviewBlockchainData) => {
+    setOverViewData(_overview => {
+      return {
+        ..._overview,
+        totalOwners: overview?.totalHolders || 0,
+        ownerWithENS: overview?.ensUsersCount || 0,
+        ownerWithPrimaryENS: overview?.primaryEnsUsersCount || 0,
+        ownerWithLens: overview?.lensProfileCount || 0,
+        ownerWithFarcaster: overview?.farcasterProfileCount || 0
+      };
+    });
+  }, []);
+
   useEffect(() => {
-    if (tokensData && !isERC20) {
-      const ethTokenBalances = tokensData?.ethereum?.TokenBalance || [];
-      const polygonTokenBalances = tokensData?.polygon?.TokenBalance || [];
+    if (isERC20 || !tokenOverviewData) return;
 
-      const token = (ethTokenBalances[0] || polygonTokenBalances[0]) as Token;
+    const _overview = tokenOverviewData as OverviewData;
 
-      setTokenDetails(tokenDetails => {
-        if (tokenDetails) return tokenDetails;
-
-        return {
-          name: token?.token?.name || '',
-          tokenId: token?.tokenId || '',
-          tokenAddress: token?.tokenAddress || '',
-          image: '',
-          tokenType: token?.tokenType
-        };
-      });
-
-      updateCount(ethTokenBalances);
-      updateCount(polygonTokenBalances);
-      // load next page if available
-      if (hasNextPage) {
-        getNextPage();
-      } else {
-        setOverViewData(overViewDataRef.current);
-      }
+    if (_overview?.ethereum?.totalHolders) {
+      updateOverviewData(_overview.ethereum);
+    } else if (_overview?.polygon) {
+      updateOverviewData(_overview?.polygon);
     }
-  }, [tokensData, getNextPage, hasNextPage, updateCount, isERC20]);
+  }, [tokenOverviewData, isERC20, updateOverviewData]);
 
   useEffect(() => {
     if (totalSupply) {
@@ -215,9 +157,31 @@ function Overview() {
   }, [totalSupply]);
 
   useEffect(() => {
-    if (!poapsData) return;
-    const poaps: Poap[] = poapsData.Poaps?.Poap || [];
+    if (isPoap || !tokensData || isERC20) return;
+
+    const ethTokenBalances = tokensData?.ethereum?.TokenBalance || [];
+    const polygonTokenBalances = tokensData?.polygon?.TokenBalance || [];
+
+    const token = (ethTokenBalances[0] || polygonTokenBalances[0]) as Token;
+
+    setTokenDetails(tokenDetails => {
+      if (tokenDetails) return tokenDetails;
+
+      return {
+        name: token?.token?.name || '',
+        tokenId: token?.tokenId || '',
+        tokenAddress: token?.tokenAddress || '',
+        image: '',
+        tokenType: token?.tokenType
+      };
+    });
+  }, [tokensData, isERC20, isPoap]);
+
+  useEffect(() => {
+    if (!isPoap || !tokensData) return;
+    const poaps: Poap[] = tokensData?.Poaps?.Poap || [];
     const poap = poaps[0] as Poap;
+    if (!poap) return;
 
     setTokenDetails(tokenDetails => {
       if (tokenDetails) return tokenDetails;
@@ -229,14 +193,7 @@ function Overview() {
         tokenType: 'POAP'
       };
     });
-    updateCount(poaps);
-    // load next page if available
-    if (hasNextPage) {
-      getNextPage();
-    } else {
-      setOverViewData(overViewDataRef.current);
-    }
-  }, [getNextPage, hasNextPage, poapsData, updateCount]);
+  }, [isPoap, tokensData]);
 
   const tokenImage = useMemo(() => {
     if (!tokenDetails) return null;
@@ -252,7 +209,7 @@ function Overview() {
     );
   }, [tokenDetails]);
 
-  const loading = loadingPoaps || loadingTokens || hasNextPage;
+  const loading = loadingTokenOverview;
   const totalHolders = overViewData?.totalOwners || 0;
 
   const holderCounts = useMemo(() => {
