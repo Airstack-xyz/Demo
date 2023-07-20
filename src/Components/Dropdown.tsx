@@ -49,7 +49,7 @@ export function Dropdown({ options }: { options: Options[] }) {
         >
           {options.map(({ label, link }) => (
             <a
-              className="py-2 px-5 text-text-button rounded-full hover:bg-glass mb-1 cursor-pointer text-left"
+              className="py-2 px-5 text-text-button rounded-full hover:bg-glass mb-1 cursor-pointer text-left whitespace-nowrap"
               target="_blank"
               href={link}
               key={label}

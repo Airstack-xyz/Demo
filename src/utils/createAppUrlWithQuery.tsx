@@ -8,7 +8,7 @@ export function createAppUrlWithQuery(
   const compressedQuery = btoa(query);
   const variables = _variables ? JSON.stringify(_variables) : '';
   const compressedVariables = variables ? btoa(variables) : '';
-  return `${APP_EXPLORER_URL}?query=${compressedQuery}${
+  return `${APP_EXPLORER_URL}?autoRun=true&query=${compressedQuery}${
     variables ? `&variables=${compressedVariables}` : ''
   }`;
 }
