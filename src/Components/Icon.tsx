@@ -23,7 +23,8 @@ export type IconType =
   | 'erc20'
   | 'arrow-right-round'
   | 'count-loader'
-  | 'arrow-down';
+  | 'arrow-down'
+  | 'xmtp';
 
 export type IconProps = {
   name: IconType;

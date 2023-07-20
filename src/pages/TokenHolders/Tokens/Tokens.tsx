@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { Asset } from '../../../Components/Asset';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Poap, Token as TokenType } from './types';
+import { Icon } from '../../../Components/Icon';
 
 const LIMIT = 20;
 
@@ -21,17 +22,20 @@ export function Token({
   token: TokenType | Poap | null;
   onShowMore?: (value: string[], dataType: string) => void;
 }) {
-  const walletAddress = token?.owner?.addresses || '';
+  const owner = token?.owner;
+  const walletAddress = owner?.addresses || '';
   const tokenId = token?.tokenId || '';
   const tokenAddress = token?.tokenAddress || '';
-  const primarEns = token?.owner?.primaryDomain?.name || '';
-  const ens = token?.owner?.domains?.map(domain => domain.name) || [];
+  const primarEns = owner?.primaryDomain?.name || '';
+  const ens = owner?.domains?.map(domain => domain.name) || [];
   const _token = token as TokenType;
   const image =
     _token?.token?.logo?.small || _token?.token?.projectDetails?.imageUrl;
 
+  const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
+
   const { lens, farcaster } = useMemo(() => {
-    const social = token?.owner?.socials || [];
+    const social = owner?.socials || [];
     const result = { lens: [], farcaster: [] };
     social.forEach(({ dappSlug, profileName }) => {
       const type = getDAppType(dappSlug);
@@ -43,7 +47,7 @@ export function Token({
       }
     });
     return result;
-  }, [token]);
+  }, [owner?.socials]);
 
   const getShowMoreHandler = useCallback(
     (items: string[], type: string) => () => {
@@ -87,7 +91,9 @@ export function Token({
           onShowMore={getShowMoreHandler(farcaster, 'farcaster')}
         />
       </td>
-      {/* <td>@</td> */}
+      <td>
+        {xmtpEnabled ? <Icon name="xmtp" height={14} width={14} /> : '--'}
+      </td>
     </>
   );
 }
@@ -100,7 +106,7 @@ function Loader() {
       {loaderData.map((_, index) => (
         <tr
           key={index}
-          className="[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer skeleton-loader"
+          className="[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer skeleton-loader [&>td:last-child]:hidden"
           data-loader-type="block"
           data-loader-margin="10"
         >

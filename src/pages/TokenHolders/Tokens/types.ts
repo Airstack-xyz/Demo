@@ -30,6 +30,7 @@ export interface Owner {
   socials: Social[];
   primaryDomain: PrimaryDomain;
   domains: Domain[];
+  xmtp: Xmtp[];
 }
 
 export interface Social {
@@ -46,6 +47,10 @@ export interface Domain {
   chainId: string;
   dappName: string;
   name: string;
+}
+
+export interface Xmtp {
+  isXMTPEnabled: boolean;
 }
 
 export interface TotalSupply {

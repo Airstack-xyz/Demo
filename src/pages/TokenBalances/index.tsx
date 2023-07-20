@@ -63,7 +63,7 @@ export function TokenBalance() {
     }
 
     options.push({
-      label: 'Socials & Domains',
+      label: 'Socials, Domains & XMTP',
       link: socialLink
     });
     return options;

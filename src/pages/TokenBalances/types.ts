@@ -68,6 +68,7 @@ export interface Wallet {
   primaryDomain: PrimaryDomain;
   domains: Domain[];
   socials: Social[];
+  xmtp: Xmtp[];
 }
 
 export interface PrimaryDomain {
@@ -81,6 +82,10 @@ export interface Domain {
 export interface Social {
   dappName: string;
   profileName: string;
+}
+
+export interface Xmtp {
+  isXMTPEnabled: boolean;
 }
 
 // ERC20
@@ -116,6 +121,7 @@ export interface Owner {
   socials: Social[];
   primaryDomain: PrimaryDomain;
   domains: Domain[];
+  xmtp: Xmtp[];
 }
 
 export interface Poap {

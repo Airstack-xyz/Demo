@@ -100,6 +100,9 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
       dappName
       profileName
     }
+    xmtp {
+      isXMTPEnabled
+    }
   }
 }`;
 
@@ -217,6 +220,9 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
           dappName
           name
         }
+        xmtp {
+          isXMTPEnabled
+        }
       }
     }
     pageInfo {
@@ -231,6 +237,7 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
       tokenAddress
       tokenId
       blockchain
+      tokenType
       token {
         name
         symbol
@@ -269,6 +276,9 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
           chainId
           dappName
           name
+        }
+        xmtp {
+          isXMTPEnabled
         }
       }
     }
@@ -323,6 +333,9 @@ export const PoapOwnerQuery = `query GetPoapHolders($eventId: [String!], $limit:
           chainId
           dappName
           name
+        }
+        xmtp {
+          isXMTPEnabled
         }
       }
     }

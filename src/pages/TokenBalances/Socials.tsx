@@ -1,16 +1,24 @@
 import { useLazyQuery } from '@airstack/airstack-react';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ReactNode,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 import { SocialQuery } from '../../queries';
 import { SectionHeader } from './SectionHeader';
 import { SocialsType } from './types';
 import { Modal } from '../../Components/Modal';
 import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
+import { Icon } from '../../Components/Icon';
 
 type SocialType = SocialsType['Wallet'];
 type SocialProps = {
   name: string;
-  values: string[];
+  values: ReactNode[];
   image: string;
   onShowMore?: () => void;
 };
@@ -21,6 +29,7 @@ const minSocials = 2;
 const imagesMap: Record<string, string> = {
   lens: '/images/lens.svg',
   farcaster: '/images/farcaster.svg',
+  xmtp: '/images/xmtp.svg',
   ens: '/images/ens.svg'
 };
 
@@ -105,6 +114,11 @@ function SocialsComponent() {
   const domainsList = useMemo(
     () => socialDetails?.domains?.map(({ name }) => name),
     [socialDetails?.domains]
+  );
+
+  const xmtpEnabled = useMemo(
+    () => socialDetails?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled),
+    [socialDetails?.xmtp]
   );
 
   const handleShowMore = useCallback((values: string[]) => {
@@ -198,6 +212,15 @@ function SocialsComponent() {
               image={imagesMap[dappName?.trim()]}
             />
           ))}
+          <Social
+            name="XMTP"
+            values={
+              xmtpEnabled
+                ? [<Icon name="xmtp" height={14} width={14} />]
+                : ['--']
+            }
+            image={imagesMap['xmtp']}
+          />
         </div>
       </div>
       <Modal

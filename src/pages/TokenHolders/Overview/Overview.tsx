@@ -47,17 +47,24 @@ const imageAndSubTextMap: Record<
   ownerWithPrimaryENS: {
     image: '/images/ens.svg',
     subText: 'have Primary ENS'
+  },
+  ownerWithXmtp: {
+    image: '/images/xmtp.svg',
+    subText: 'have XMTP'
   }
 };
 
 function Overview() {
-  const [overViewData, setOverViewData] = useState({
+  const [overViewData, setOverViewData] = useState<
+    Record<string, string | number>
+  >({
     totalSupply: 0,
     totalOwners: 0,
     ownerWithENS: 0,
     ownerWithPrimaryENS: 0,
     ownerWithLens: 0,
-    ownerWithFarcaster: 0
+    ownerWithFarcaster: 0,
+    ownerWithXmtp: 0
   });
 
   const { address: tokenAddress, inputType, tokenType } = useSearchInput();
@@ -113,7 +120,11 @@ function Overview() {
         ownerWithENS: overview?.ensUsersCount || 0,
         ownerWithPrimaryENS: overview?.primaryEnsUsersCount || 0,
         ownerWithLens: overview?.lensProfileCount || 0,
-        ownerWithFarcaster: overview?.farcasterProfileCount || 0
+        ownerWithFarcaster: overview?.farcasterProfileCount || 0,
+        ownerWithXmtp:
+          overview?.xmtpUsersCount === null
+            ? '--'
+            : overview?.xmtpUsersCount || 0
       };
     });
   }, []);
@@ -211,8 +222,7 @@ function Overview() {
   }, [tokenDetails]);
 
   const loading = loadingTokenOverview;
-  const totalHolders = overViewData?.totalOwners || 0;
-
+  const totalHolders = (overViewData?.totalOwners as number) || 0;
   const holderCounts = useMemo(() => {
     return Object.keys(overViewData).map(key => {
       if (key === 'totalSupply') return null;
