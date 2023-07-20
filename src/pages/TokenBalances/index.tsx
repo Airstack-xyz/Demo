@@ -118,7 +118,7 @@ export function TokenBalance() {
                 </div>
                 {isMobile && renderMobileTabs()}
                 <div className="mt-3.5 mb-5">
-                  <Filters />
+                  {(!isMobile || !showSocials) && <Filters />}
                 </div>
                 {isMobile ? (
                   showSocials ? (

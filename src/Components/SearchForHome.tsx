@@ -78,7 +78,7 @@ export function HomeSearch() {
         className="flex flex-col sm:flex-row justify-center"
         onSubmit={handleSubmit}
       >
-        <div className="flex flex-col sm:flex-row items-center h-auto sm:h-[50px] w-full sm:w-[645px] border-solid-stroke rounded-18 bg-glass px-5 py-3">
+        <div className="flex flex-col sm:flex-row items-center h-[50px] w-full sm:w-[645px] border-solid-stroke rounded-18 bg-glass px-5 py-3">
           {isTokenBalances ? (
             <input
               className="bg-transparent h-full w-full outline-none text-sm"
