@@ -190,7 +190,7 @@ function TokensComponent() {
       next={handleNext}
       dataLength={tokens.length}
       hasMore={hasNextPage}
-      loader={<Loader />}
+      loader={loading ? <Loader /> : null}
       className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start mb-10"
     >
       {tokens.map((_token, index) => {

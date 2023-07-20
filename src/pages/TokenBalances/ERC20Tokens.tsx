@@ -87,20 +87,25 @@ export function ERC20Tokens() {
 
   const [fetch, { data: data, loading, pagination }] =
     useLazyQueryWithPagination(ERC20TokensQuery);
-  const { address: owner } = useSearchInput();
+  const { address: owner, tokenType } = useSearchInput();
 
   useEffect(() => {
     if (owner) {
-      fetch({
-        owner,
-        limit: 20
-      });
       setTokens({
         ethereum: [],
         polygon: []
       });
+      fetch({
+        owner,
+        limit: 20
+      });
     }
-  }, [fetch, owner]);
+    /*
+      Even though ERC20 tokens are not dependant on tokenType, we added tokenType to the dependency array to force a refetch when tokenType changes.
+      Without this, the tokens list would be unable to fetch additional pages since the window scroll height would be too great (too many ERC20 items).
+      InfiniteScroll depends on the window scroll height, if the height is too high, user will have to scroll to the bottom to initiate a pagination call.
+    */
+  }, [fetch, owner, tokenType]);
 
   useEffect(() => {
     if (data) {
