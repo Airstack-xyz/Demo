@@ -14,6 +14,7 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 import { createTokenHolderUrl } from '../../utils/createTokenHolderUrl';
 import { Link } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { formatNumber } from '../../utils/formatNumber';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
@@ -47,7 +48,7 @@ function Token({
         <Logo logo={logo} className="w-full min-w-full" />
       </div>
       <div className="flex flex-1 items-center min-w-0 text-sm pl-2.5">
-        <span className="ellipsis max-w-[30%]">{amount}</span>
+        <span>{formatNumber(amount)}</span>
         <span className="mx-1.5 ellipsis">{symbol}</span>
         <span className="text-xs text-text-secondary ellipsis min-w-[30%] lowercase">
           {type}
@@ -163,6 +164,7 @@ export function ERC20Tokens() {
         >
           {items.map((token, index) => (
             <Link
+              data-address={token?.tokenAddress}
               to={createTokenHolderUrl({
                 address: token?.tokenAddress,
                 tokenType: 'ERC20'

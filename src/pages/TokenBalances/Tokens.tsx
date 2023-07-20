@@ -76,7 +76,7 @@ function Token({
   );
 }
 
-const loaderData = Array(9).fill({ token: {}, tokenNfts: {} });
+const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 
 function Loader() {
   return (
