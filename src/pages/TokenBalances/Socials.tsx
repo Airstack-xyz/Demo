@@ -148,7 +148,7 @@ function SocialsComponent() {
   }, []);
 
   const socials = useMemo(() => {
-    if (!socialDetails?.socials) return [];
+    const _socials = socialDetails?.socials || [];
 
     type Social = SocialType['socials'][0] & {
       profileNames?: string[];
@@ -156,7 +156,7 @@ function SocialsComponent() {
 
     const map: Record<string, Social> = {};
 
-    socialDetails?.socials.forEach(social => {
+    _socials.forEach(social => {
       const existing = map[social.dappName];
       if (existing) {
         existing.profileNames?.push(social.profileName);
@@ -208,7 +208,9 @@ function SocialsComponent() {
           />
           <Social
             name="ENS names"
-            values={domainsList || ['--']}
+            values={
+              domainsList && domainsList.length > 0 ? domainsList : ['--']
+            }
             onShowMore={() => {
               handleShowMore(domainsList || []);
             }}

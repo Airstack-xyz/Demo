@@ -12,7 +12,8 @@ import {
 import { getValuesFromId } from './Input/utils';
 import { UserInputs, useSearchInput } from '../hooks/useSearchInput';
 
-const tokenHoldersPlaceholder = 'Use @ mention or enter any contract address';
+const tokenHoldersPlaceholder =
+  'Use @ mention or enter any token contract address';
 const tokenBalancesPlaceholder =
   'Enter 0x, name.eth, fc_fname:name, or name.lens';
 
