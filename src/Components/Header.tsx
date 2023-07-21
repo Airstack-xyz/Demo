@@ -1,51 +1,43 @@
-import { useState } from "react";
+import { Link } from 'react-router-dom';
 
-export function Header({
-  onSubmit,
-  disabled,
-}: {
-  onSubmit: (query: string) => void;
-  disabled: boolean;
-}) {
-  const [query, setQuery] = useState("");
-  const handleSubmit: React.FormEventHandler<HTMLFormElement> = (event) => {
-    event.preventDefault();
-    onSubmit(query);
-  };
+export function Header() {
   return (
-    <header>
-      <div className="floating-actions">
-        <a
-          className="get-sdk-link"
-          href="https://docs.airstack.xyz/airstack-docs-and-faqs/quick-start-and-sdks"
-          target="_blank"
-        >
-          SDKs
-        </a>
-        <a
-          className="get-sdk-link"
-          href="https://app.airstack.xyz/"
-          target="_blank"
-        >
-          APIs
-        </a>
+    <header className="fixed bg-secondary py-4 w-full z-20 flex justify-center top-0">
+      <div className="w-[1440px] max-w-[100vw] flex items-center justify-center sm:justify-between px-8">
+        <div className="text-2xl flex-row-center">
+          <Link to="https://app.airstack.xyz" className="" target="_blank">
+            <img src="/logo.svg" className="h-[33px] mr-5" />
+          </Link>
+          <Link to="/">
+            <h1 className="pl-5 py-1 border-l-[3px] border-solid border-stroke-color-light">
+              Explorer
+            </h1>
+          </Link>
+        </div>
+        <div className="hidden sm:flex-row-center">
+          <a
+            className="text-text-button font-bold hover:bg-primary px-7 py-2 rounded-md  mr-2"
+            href="https://github.com/Airstack-xyz/Demo"
+            target="_blank"
+          >
+            Fork Code
+          </a>
+          <a
+            className="text-text-button font-bold hover:bg-primary px-7 py-2 rounded-md  mr-2"
+            href="https://app.airstack.xyz/api-studio"
+            target="_blank"
+          >
+            API
+          </a>
+          <a
+            className="text-text-button font-bold hover:bg-primary px-7 py-2 rounded-md"
+            href="https://app.airstack.xyz/sdks"
+            target="_blank"
+          >
+            SDK
+          </a>
+        </div>
       </div>
-      <div className="logo-n-heading-wrapper">
-        <img className="logo" src="/logo.svg" width="192" />
-        <h1>Get NFTs & POAPs owned by any wallet</h1>
-      </div>
-      <form onSubmit={handleSubmit}>
-        <input
-          placeholder="Enter 0x, name.eth, fc_fname:name, or name.lens"
-          type="text"
-          required
-          minLength={3}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          disabled={disabled}
-        />
-        <button disabled={disabled}>Go</button>
-      </form>
     </header>
   );
 }

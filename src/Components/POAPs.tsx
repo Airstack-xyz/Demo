@@ -1,9 +1,11 @@
-import { useLazyQueryWithPagination } from "@airstack/airstack-react";
-import { POAPQuery } from "../queries";
-import { useCallback, useEffect, useState } from "react";
-import InfiniteScroll from "react-infinite-scroll-component";
-import { ListTitle } from "./ListTitle";
-import { formatDate } from "../utils";
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { POAPQuery } from '../queries';
+import { useCallback, useEffect, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { ListTitle } from './ListTitle';
+import { formatDate } from '../utils';
+import { useSearchInput } from '../hooks/useSearchInput';
+
 export type POAPQueryReturnType = {
   Poaps: {
     Poap: {
@@ -30,8 +32,8 @@ function POAP({
   eventName,
   eventId,
   startDate,
-  logo,
-}: POAPQueryReturnType["Poaps"]["Poap"][0]["poapEvent"]) {
+  logo
+}: POAPQueryReturnType['Poaps']['Poap'][0]['poapEvent']) {
   return (
     <li className="poap">
       <div className="logo">
@@ -46,25 +48,26 @@ function POAP({
   );
 }
 
-export function POAPs({ owner }: { owner: string }) {
-  const [poaps, setPoaps] = useState<POAPQueryReturnType["Poaps"]["Poap"]>([]);
+export function POAPs() {
+  const [poaps, setPoaps] = useState<POAPQueryReturnType['Poaps']['Poap']>([]);
 
   const [fetch, { data, loading, error, pagination }] =
     useLazyQueryWithPagination(POAPQuery);
+  const { address: ownerAddress } = useSearchInput();
 
   useEffect(() => {
-    if (owner) {
+    if (ownerAddress) {
       fetch({
-        owner,
-        limit: 20,
+        owner: ownerAddress,
+        limit: 20
       });
       setPoaps([]);
     }
-  }, [fetch, owner]);
+  }, [fetch, ownerAddress]);
 
   useEffect(() => {
     if (data) {
-      setPoaps((poaps) => [...poaps, ...(data?.Poaps?.Poap || [])]);
+      setPoaps(poaps => [...poaps, ...(data?.Poaps?.Poap || [])]);
     }
   }, [data]);
 

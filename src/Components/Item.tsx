@@ -1,4 +1,4 @@
-import { Asset } from "@airstack/airstack-react";
+import { Asset } from '@airstack/airstack-react';
 
 type ItemProps = {
   tokenId: string;
@@ -7,6 +7,7 @@ type ItemProps = {
   tokenAddress: string;
   amount: string;
   tokenSymbol: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   blockchain: any;
 };
 
@@ -21,7 +22,7 @@ export function Item({
   amount,
   tokenAddress,
   tokenSymbol,
-  blockchain,
+  blockchain
 }: ItemProps) {
   return (
     <tr>
@@ -47,12 +48,12 @@ export function Item({
           />
         </div>
       </td>
-      <td>{tokenId || "-"}</td>
-      <td>{tokenName || "-"}</td>
-      <td>{tokenSymbol || "-"}</td>
-      <td>{tokenType || "-"}</td>
-      <td>{tokenAddress || "-"}</td>
-      <td>{amount || "-"}</td>
+      <td>{tokenId || '-'}</td>
+      <td>{tokenName || '-'}</td>
+      <td>{tokenSymbol || '-'}</td>
+      <td>{tokenType || '-'}</td>
+      <td>{tokenAddress || '-'}</td>
+      <td>{amount || '-'}</td>
     </tr>
   );
 }

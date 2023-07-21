@@ -1,0 +1,158 @@
+.mentions #mention-highlight,
+.mentions #mention-highlight + div {
+  position: relative;
+  box-sizing: border-box;
+  height: 100%;
+  width: 100%;
+  color: transparent;
+  overflow: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  border: none !important;
+  text-align: start;
+  overflow-y: auto;
+}
+.mentions__control,
+#mention-highlight {
+  @apply h-full flex items-center;
+}
+
+.mentions #mention-highlight * {
+  @apply !text-text-primary !visible h-auto;
+}
+.wrapper {
+  @apply relative min-w-0 flex-1;
+}
+
+.wrapper #mention-highlight .match-at {
+  @apply !text-stroke-highlight-blue;
+}
+
+.mentions {
+  @apply w-full h-full resize-none rounded-r-xl relative rounded-lg border-transparent text-sm p-0;
+  border-width: 17px 7px 12.5px 14px;
+}
+
+.mentions:focus-within {
+  /* @apply h-28; */
+}
+
+.mentions #mention-highlight + div {
+  @apply invisible !absolute top-0;
+}
+
+.mentions:focus-within > div:first-child {
+  @apply h-full;
+}
+
+.mentions #mention-input {
+  @apply outline-none text-transparent caret-text-primary !overflow-y-auto h-full;
+}
+
+.mention {
+  @apply bg-stroke-highlight-blue;
+}
+
+.suggestion {
+  @apply flex p-2;
+}
+
+.suggestion img {
+  @apply rounded-full mr-2 border border-response-light;
+  height: 18px;
+  width: 18px;
+}
+
+.mentions__suggestions__list {
+  @apply border-solid-stroke border-t-0  overflow-hidden min-h-full;
+}
+
+#suggestions-overlay {
+  @apply !bg-primary rounded-b-xl border-solid-stroke border-t-0 overflow-hidden;
+  background: linear-gradient(
+    137deg,
+    rgba(255, 255, 255, 0.04) 0.55%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  backdrop-filter: blur(50px);
+}
+
+.mentions__suggestions__item {
+  @apply m-2 py-2 px-3  max-w-[500px] rounded-full;
+}
+
+.mentions__suggestions__item.mentions__suggestions__item--focused {
+  background: linear-gradient(
+    137deg,
+    rgba(255, 255, 255, 0.04) 0.55%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  backdrop-filter: blur(50px);
+}
+
+.mentions__suggestions__item--focused {
+  @apply bg-tertiary;
+}
+
+.mentions__suggestions__item .text {
+  @apply flex text-sm items-center;
+}
+
+.mentions__suggestions__item .type {
+  @apply text-text-secondary text-xs italic pl-1.5 leading-5;
+}
+
+.mentions__suggestions__item .type span {
+  @apply px-0.5;
+}
+
+.mentions__mention {
+  position: relative;
+  z-index: 1;
+  color: blue;
+  text-shadow: 1px 1px 1px white, 1px -1px 1px white, -1px 1px 1px white,
+    -1px -1px 1px white;
+  text-decoration: underline;
+  pointer-events: none;
+}
+#suggestions-overlay {
+  top: 20px !important;
+}
+#suggestions-overlay .skeleton-loader {
+  @apply p-2 pt-0 border border-stroke-color border-t-0 overflow-hidden min-h-full rounded-b-2xl;
+}
+
+#suggestions-overlay .skeleton-loader > div {
+  @apply mt-3 max-w-[500px] min-w-[200px] rounded-full !h-8;
+}
+
+#suggestions-overlay .skeleton-loader > div:after {
+  background: linear-gradient(
+    348deg,
+    rgba(255, 255, 255, 0.04) 0.55%,
+    rgba(255, 255, 255, 0) 100%
+  ) !important;
+  backdrop-filter: blur(50px);
+  @apply !rounded-full;
+}
+
+.addressOption {
+  @apply p-2 text-text-button font-medium flex items-center min-w-[190px];
+}
+
+.addressOption img {
+  @apply mr-1 ml-0;
+  height: 18px;
+  width: 18px;
+}
+
+.addressInput {
+  @apply flex absolute bg-tertiary h-8 pl-4 rounded-full w-[290px] mt-[14px];
+}
+
+.addressInput input {
+  @apply w-full bg-transparent h-full p-0 flex-1 outline-none;
+}
+.addressInput button {
+  @apply py-0 px-3 rounded-none text-text-button font-bold;
+}
