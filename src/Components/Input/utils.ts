@@ -37,9 +37,9 @@ const tokenValuePrefixMap: Record<MentionType, string> = {
 
 export function getNameFromMarkup(markup: string) {
   //matches names with [ and ] brackets, also keeps one ] in the end
-  const NEW_NAME_REGEX = /#\[((?:[^\]]+])+\]*)\((?:[^)]+?)\)/g;
+  const NEW_NAME_REGEX = /#\[((?:[^\]]+])+\]*)\((?:[^)]+?)\)/;
   const match = markup.match(NEW_NAME_REGEX);
-  if (!match) return '';
+  if (!match || match[1]) return '';
   // remove the end ] from the string
   return match[1].substring(2, match[1].length - 1);
 }
