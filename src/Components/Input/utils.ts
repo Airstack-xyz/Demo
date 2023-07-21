@@ -35,6 +35,15 @@ const tokenValuePrefixMap: Record<MentionType, string> = {
   [MentionType.POAP]: 'POAP event ID'
 };
 
+export function getNameFromMarkup(markup: string) {
+  //matches names with [ and ] brackets, also keeps one ] in the end
+  const NEW_NAME_REGEX = /#\[((?:[^\]]+])+\]*)\((?:[^)]+?)\)/g;
+  const match = markup.match(NEW_NAME_REGEX);
+  if (!match) return '';
+  // remove the end ] from the string
+  return match[1].substring(2, match[1].length - 1);
+}
+
 function getNode(parent: HTMLElement) {
   let node = parent.querySelector('#mention-highlight');
   if (node) return node;
