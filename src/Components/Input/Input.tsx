@@ -15,12 +15,12 @@ import {
   capitalizeFirstLetter,
   highlightMention,
   ID_REGEX,
-  NAME_REGEX,
   REGEX_LAST_WORD_STARTS_WITH_AT,
   debouncePromise,
   MentionType,
   SearchAIMentions_SearchAIMentions,
-  fetchMentionOptions
+  fetchMentionOptions,
+  getNameFromMarkup
 } from './utils';
 import { AddressInput } from './AddressInput';
 import { ADDRESS_OPTION_ID, MENTION_COUNT, POAP_OPTION_ID } from './constants';
@@ -191,10 +191,8 @@ export function InputWithMention({
       // so we can adjust the carret position accordingly
       // the mention markup is longer than the id because it contains the display name
       mentionMakups?.forEach(mention => {
-        const REGEX_NAME = new RegExp(NAME_REGEX);
-        const match = REGEX_NAME.exec(mention);
-        const id = match?.[1] || '';
-        extraLengthTakenByMention += mention.trimEnd().length - id.length;
+        extraLengthTakenByMention +=
+          mention.trimEnd().length - getNameFromMarkup(mention).length;
       });
 
       const actualCarretPosition =
@@ -297,6 +295,8 @@ export function InputWithMention({
       >
         <Mention
           markup="#[__display__](__id__)"
+          // this also matches a display text which has ] and [ brackets in it
+          regex={/#\[((?<=#\[\s*).+?(?=\]\())([^)]+?)\)/}
           trigger="@"
           appendSpaceOnAdd
           onAdd={onAddSuggestion}
