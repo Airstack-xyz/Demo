@@ -210,7 +210,7 @@ export function InputWithMention({
         .trimEnd()
         .replace(
           REGEX_LAST_WORD_STARTS_WITH_AT,
-          ` #[${address}](${address}    ${showInputFor})`
+          ` #⎱${address}⎱(${address}    ${showInputFor})`
         );
 
       if (startsWithAt) {
@@ -294,9 +294,9 @@ export function InputWithMention({
         }
       >
         <Mention
-          markup="#[__display__](__id__)"
+          markup="#⎱__display__⎱(__id__)"
           // this also matches a display text which has ] and [ brackets in it
-          regex={/#\[((?<=#\[\s*).+?(?=\]\())([^)]+?)\)/}
+          regex={/#⎱([^⎱]+)⎱\(([^)]+?)\)/}
           trigger="@"
           appendSpaceOnAdd
           onAdd={onAddSuggestion}
