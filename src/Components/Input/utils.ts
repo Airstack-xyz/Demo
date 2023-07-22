@@ -23,8 +23,8 @@ export interface SearchAIMentions_SearchAIMentions {
   thumbnailURL: string | null;
 }
 
-export const ID_REGEX = /#\[.+?\]\((.+?)\)\s*/g;
-export const NAME_REGEX = /#\[(.+?)\]\(.+?\)/g;
+export const ID_REGEX = /#⎱.+?⎱\((.+?)\)\s*/g;
+export const NAME_REGEX = /#⎱(.+?)⎱\(.+?\)/g;
 export const REGEX_LAST_WORD_STARTS_WITH_AT = /\s@[^\s-]*$/g;
 const REGEX_FISRT_WORD = /([^\s-]*)/;
 
@@ -37,7 +37,7 @@ const tokenValuePrefixMap: Record<MentionType, string> = {
 
 export function getNameFromMarkup(markup: string) {
   //matches names with [ and ] brackets, also keeps one ] in the end
-  const NEW_NAME_REGEX = /#\[((?:[^\]]+])+\]*)\((?:[^)]+?)\)/;
+  const NEW_NAME_REGEX = /#⎱([^⎱]+)⎱\((?:[^)]+?)\)/;
   const match = markup.match(NEW_NAME_REGEX);
   if (!match || match[1]) return '';
   // remove the end ] from the string
@@ -160,7 +160,7 @@ export function getUsableValues(value: string) {
 }
 
 export function getValuesFromId(id: string) {
-  const match = /#\[.+?\]\((.+?)\)\s*/g.exec(id);
+  const match = /#⎱.+?⎱\((.+?)\)\s*/g.exec(id);
   if (!match) return { address: id };
   const [address, token, blockchain, eventId, customInputId] =
     match[1].split(' ');
