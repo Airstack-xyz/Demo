@@ -191,7 +191,8 @@ export function debouncePromise<CB extends (...args: any[]) => any>(
   callback: CB,
   timeout = 500
 ): CB {
-  let timer: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let timer: any;
   let resolved: ((value: null | Awaited<ReturnType<CB>>) => void) | null = null;
   return ((...args) => {
     clearTimeout(timer);
