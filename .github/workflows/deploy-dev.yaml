@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         node-version: [16.13.2]
-    
+
     steps:
       - uses: actions/checkout@v2
 
@@ -28,7 +28,7 @@ jobs:
       - name: Generate build
         run: |
           npm install
-          npm run build
+          npm run build-dev
         env:
           CI: false
           NODE_OPTIONS: --max_old_space_size=4096
@@ -45,4 +45,3 @@ jobs:
         run: |
           aws s3 sync dist s3://demo.dev.airstack.xyz
           aws cloudfront create-invalidation --distribution-id E2IEVGCJELSKSC --paths /
-            
