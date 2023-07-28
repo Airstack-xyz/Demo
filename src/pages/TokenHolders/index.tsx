@@ -14,12 +14,50 @@ import classNames from 'classnames';
 import { Dropdown } from '../../Components/Dropdown';
 import { Icon } from '../../Components/Icon';
 import { OverviewDetails } from './OverviewDetails/OverviewDetails';
+import { getRequestFilters } from './OverviewDetails/Tokens/filters';
+import {
+  getFilterablePoapsQuery,
+  getFilterableTokensQuery
+} from '../../queries/token-holders';
 
 export function TokenHolders() {
-  const [{ address: query, tokenType, inputType, activeView }] =
+  const [{ address: query, tokenType, inputType, activeView, tokenFilters }] =
     useSearchInput();
 
   const options = useMemo(() => {
+    const isPoap = inputType === 'POAP';
+    if (activeView) {
+      const requestFilters = getRequestFilters(tokenFilters);
+      let combinationsQueryLink = '';
+      if (isPoap) {
+        const combinationsQuery = getFilterablePoapsQuery(
+          Boolean(requestFilters?.socialFilters),
+          requestFilters?.hasPrimaryDomain
+        );
+        combinationsQueryLink = createAppUrlWithQuery(combinationsQuery, {
+          eventId: query,
+          limit: 200,
+          ...requestFilters
+        });
+      } else {
+        const combinationsQuery = getFilterableTokensQuery(
+          Boolean(requestFilters?.socialFilters),
+          requestFilters?.hasPrimaryDomain
+        );
+        combinationsQueryLink = createAppUrlWithQuery(combinationsQuery, {
+          tokenAddress: query,
+          limit: 200,
+          ...requestFilters
+        });
+      }
+      return [
+        {
+          label: 'Combinations',
+          link: combinationsQueryLink
+        }
+      ];
+    }
+
     const tokenLink = createAppUrlWithQuery(TokenOwnerQuery, {
       tokenAddress: query,
       limit: 20
@@ -33,8 +71,6 @@ export function TokenHolders() {
     const tokenSupplyLink = createAppUrlWithQuery(TokenTotalSupplyQuery, {
       tokenAddress: query
     });
-
-    const isPoap = inputType === 'POAP';
 
     const options = [
       isPoap
@@ -56,7 +92,7 @@ export function TokenHolders() {
     }
 
     return options;
-  }, [inputType, query]);
+  }, [activeView, inputType, query, tokenFilters]);
 
   const isERC20 = tokenType === 'ERC20';
 
