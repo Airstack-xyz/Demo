@@ -100,7 +100,7 @@ export function TokensComponent() {
 
   // save data to tokensData and user if further so, if we apply filter we can set this to null,
   // and fetch next data call will not be made
-  let tokensData = data || null;
+  let tokensData = data || poapsData || null;
 
   const [{ address: tokenAddress, inputType }] = useSearchInput();
 
@@ -153,19 +153,25 @@ export function TokensComponent() {
 
   const loading = loadingPoaps || loadingTokens;
   const loaderContext = useLoaderContext();
+
   useEffect(() => {
     loaderContext.setIsLoading(loading);
   }, [loaderContext, loading]);
 
   useEffect(() => {
-    if (!tokensData || isPoap || loading) return;
+    if (!tokensData || loading) return;
 
-    const ethTokenBalances: TokenType[] =
-      tokensData.ethereum?.TokenBalance || [];
-    const polygonTokenBalances: TokenType[] =
-      tokensData.polygon?.TokenBalance || [];
+    let tokens = [];
+    if (isPoap) {
+      tokens = tokensData?.Poaps?.Poap || [];
+    } else {
+      const ethTokenBalances: TokenType[] =
+        tokensData.ethereum?.TokenBalance || [];
+      const polygonTokenBalances: TokenType[] =
+        tokensData.polygon?.TokenBalance || [];
 
-    const tokens = [...ethTokenBalances, ...polygonTokenBalances];
+      tokens = [...ethTokenBalances, ...polygonTokenBalances];
+    }
 
     const filteredTokens = filterTokens(filters, tokens);
 
@@ -183,26 +189,6 @@ export function TokensComponent() {
       setShowStatusLoader(false);
     }
   }, [filters, isPoap, tokensData, loading, hasNextPage, getNextPage]);
-
-  useEffect(() => {
-    if (!poapsData) return;
-    const tokens = poapsData?.Poaps?.Poap || [];
-    const filteredPoaps = filterTokens(filters, tokens);
-
-    tokensRef.current = [...tokensRef.current, ...filteredPoaps];
-
-    setLoaderStats(({ total }) => ({
-      total: total + (tokens.length || 0),
-      matching: tokensRef.current.length
-    }));
-
-    if (tokensRef.current.length < LIMIT && hasNextPage) {
-      getNextPage();
-    } else {
-      setTokens(existingPoaps => [...existingPoaps, ...tokensRef.current]);
-      setShowStatusLoader(false);
-    }
-  }, [filters, getNextPage, hasNextPage, poapsData]);
 
   const handleShowMore = useCallback((values: string[], dataType: string) => {
     const leftValues: string[] = [];
