@@ -12,9 +12,12 @@ import {
 } from '../../queries';
 import classNames from 'classnames';
 import { Dropdown } from '../../Components/Dropdown';
+import { Icon } from '../../Components/Icon';
+import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 
 export function TokenHolders() {
-  const { address: query, tokenType, inputType } = useSearchInput();
+  const [{ address: query, tokenType, inputType, activeView }] =
+    useSearchInput();
 
   const options = useMemo(() => {
     const tokenLink = createAppUrlWithQuery(TokenOwnerQuery, {
@@ -68,16 +71,23 @@ export function TokenHolders() {
             <div className="hidden sm:flex-col-center my-3">
               <Dropdown options={options} />
             </div>
-            <div className="flex flex-col justify-center mt-7" key={query}>
-              {!isERC20 && <HoldersOverview />}
-              <div
-                className={classNames({
-                  'mt-10': !isERC20
-                })}
-              >
-                <Tokens />
+            {activeView && <OverviewDetails />}
+            {!activeView && (
+              <div className="flex flex-col justify-center mt-7" key={query}>
+                {!isERC20 && <HoldersOverview />}
+                <div
+                  className={classNames({
+                    'mt-7': !isERC20
+                  })}
+                >
+                  <div className="flex mb-4">
+                    <Icon name="token-holders" height={20} width={20} />{' '}
+                    <span className="font-bold ml-1.5 text-sm">Holders</span>
+                  </div>
+                  <Tokens />
+                </div>
               </div>
-            </div>
+            )}
           </>
         )}
       </div>

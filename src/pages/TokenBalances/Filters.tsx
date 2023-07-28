@@ -6,11 +6,8 @@ import { memo, useCallback } from 'react';
 
 export const Filters = memo(function Filters() {
   const setSearchParams = useSearchParams()[1];
-  const {
-    tokenType: existingTokenType = '',
-    setData,
-    ...rest
-  } = useSearchInput();
+  const [{ tokenType: existingTokenType = '', ...rest }, setData] =
+    useSearchInput();
 
   const getFilterHandler = useCallback(
     (tokenType: string) => () => {

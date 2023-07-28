@@ -26,9 +26,9 @@ export const Search = memo(function Search() {
     isTokenBalances = true;
   }
 
-  const { rawInput, setData } = useSearchInput();
+  const [{ rawInput }, setData] = useSearchInput();
 
-  const [value, setValue] = useState(rawInput);
+  const [value, setValue] = useState(rawInput || '');
 
   const navigate = useNavigate();
 
@@ -56,7 +56,9 @@ export const Search = memo(function Search() {
         {
           ...searchData
         },
-        true
+        {
+          reset: true
+        }
       );
 
       if (isHome) {

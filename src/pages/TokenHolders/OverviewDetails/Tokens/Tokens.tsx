@@ -1,19 +1,21 @@
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { PoapOwnerQuery, TokenOwnerQuery } from '../../../queries';
-import { useSearchInput } from '../../../hooks/useSearchInput';
-import { getDAppType } from '../utils';
-import { Chain } from '@airstack/airstack-react/constants';
-import { Modal } from '../../../Components/Modal';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchInput } from '../../../../hooks/useSearchInput';
+import { getDAppType } from '../../utils';
+import { Modal } from '../../../../Components/Modal';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { Header } from './Header';
 import { ListWithMoreOptions } from './ListWithMoreOptions';
 import { useNavigate } from 'react-router-dom';
-import { Asset } from '../../../Components/Asset';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { Poap, Token as TokenType } from '../types';
-import { Icon } from '../../../Components/Icon';
+import { Poap, Token as TokenType } from '../../types';
+import { Icon } from '../../../../Components/Icon';
+import { filterTokens } from './filters';
+import {
+  getFilterablePoapsQuery,
+  getFilterableTokensQuery
+} from '../../../../queries/token-holders';
 
-const LIMIT = 20;
+const LIMIT = 50;
 
 export function Token({
   token,
@@ -24,14 +26,8 @@ export function Token({
 }) {
   const owner = token?.owner;
   const walletAddress = owner?.addresses || '';
-  const tokenId = token?.tokenId || '';
-  const tokenAddress = token?.tokenAddress || '';
   const primarEns = owner?.primaryDomain?.name || '';
   const ens = owner?.domains?.map(domain => domain.name) || [];
-  const _token = token as TokenType;
-  const image =
-    _token?.token?.logo?.small || _token?.token?.projectDetails?.imageUrl;
-
   const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
 
   const { lens, farcaster } = useMemo(() => {
@@ -58,27 +54,14 @@ export function Token({
 
   return (
     <>
-      <td className="!pl-9">
-        <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden [&>div]:w-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center">
-          <Asset
-            address={tokenAddress}
-            tokenId={tokenId}
-            preset="small"
-            containerClassName="token-img"
-            chain={token?.blockchain as Chain}
-            image={image}
-          />
-        </div>
-      </td>
-      <td className="ellipsis">{walletAddress || '--'}</td>
-      <td className="ellipsis">{tokenId ? `#${tokenId}` : '--'}</td>
-      <td className="ellipsis">{primarEns || '--'}</td>
       <td>
         <ListWithMoreOptions
           list={ens}
           onShowMore={getShowMoreHandler(ens, 'ens')}
         />
       </td>
+      <td className="ellipsis">{primarEns || '--'}</td>
+      <td className="ellipsis">{walletAddress || '--'}</td>
       <td>
         <ListWithMoreOptions
           list={lens}
@@ -106,7 +89,7 @@ function Loader() {
       {loaderData.map((_, index) => (
         <tr
           key={index}
-          className="[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer skeleton-loader [&>td:last-child]:hidden"
+          className="[&>td]:px-2 [&>td]:py-4 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer skeleton-loader [&>td:last-child]:hidden"
           data-loader-type="block"
           data-loader-margin="10"
         >
@@ -117,17 +100,65 @@ function Loader() {
   );
 }
 
+type RequestFilters = {
+  socialFilters?: string[];
+  hasPrimaryDomain?: boolean;
+};
+
 export function TokensComponent() {
   const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
+  const tokensRef = useRef<(TokenType | Poap)[]>([]);
+  const [loadingData, setLoadingData] = useState(false);
+  const [{ tokenFilters: filters }] = useSearchInput();
+
+  const requestFilters = useMemo(() => {
+    const requestFilters: RequestFilters = {
+      socialFilters: []
+    };
+
+    filters.forEach(filter => {
+      if (filter === 'farcaster' || filter === 'lens') {
+        requestFilters['socialFilters']?.push(filter);
+      }
+      if (filter === 'primaryEns') {
+        requestFilters['hasPrimaryDomain'] = true;
+      }
+    });
+
+    if (requestFilters['socialFilters']?.length === 0) {
+      delete requestFilters['socialFilters'];
+    }
+
+    return requestFilters;
+  }, [filters]);
+
+  const { tokensQuery, poapsQuery } = useMemo(() => {
+    const tokensQuery = getFilterableTokensQuery(
+      Boolean(requestFilters?.socialFilters),
+      requestFilters?.hasPrimaryDomain
+    );
+    const poapsQuery = getFilterablePoapsQuery(
+      Boolean(requestFilters?.socialFilters),
+      requestFilters?.hasPrimaryDomain
+    );
+    return {
+      tokensQuery,
+      poapsQuery
+    };
+  }, [requestFilters?.hasPrimaryDomain, requestFilters?.socialFilters]);
+
   const [
     fetchTokens,
-    { data: tokensData, loading: loadingTokens, pagination: paginationTokens }
-  ] = useLazyQueryWithPagination(TokenOwnerQuery);
-
+    { data, loading: loadingTokens, pagination: paginationTokens }
+  ] = useLazyQueryWithPagination(tokensQuery);
   const [
     fetchPoap,
     { data: poapsData, loading: loadingPoaps, pagination: paginationPoaps }
-  ] = useLazyQueryWithPagination(PoapOwnerQuery);
+  ] = useLazyQueryWithPagination(poapsQuery);
+
+  // save data to tokensData and user if further so, if we apply filter we can set this to null,
+  // and fetch next data call will not be made
+  let tokensData = data || null;
 
   const [{ address: tokenAddress, inputType }] = useSearchInput();
 
@@ -147,41 +178,64 @@ export function TokensComponent() {
 
   useEffect(() => {
     if (tokenAddress) {
+      // eslint-disable-next-line
+      tokensData = null;
+      tokensRef.current = [];
+      setTokens([]);
+
       if (isPoap) {
         fetchPoap({
           eventId: tokenAddress,
-          limit: LIMIT
+          limit: LIMIT,
+          ...requestFilters
         });
         return;
       }
 
       fetchTokens({
         tokenAddress,
-        limit: LIMIT
+        limit: LIMIT,
+        ...requestFilters
       });
     }
-  }, [fetchPoap, fetchTokens, isPoap, tokenAddress]);
+  }, [fetchPoap, fetchTokens, filters, isPoap, requestFilters, tokenAddress]);
+
+  const { hasNextPage, getNextPage } = isPoap
+    ? paginationPoaps
+    : paginationTokens;
+
+  const loading = loadingPoaps || loadingTokens;
 
   useEffect(() => {
-    if (!tokensData || isPoap) return;
+    if (!tokensData || isPoap || loading) return;
 
     const ethTokenBalances: TokenType[] =
       tokensData.ethereum?.TokenBalance || [];
     const polygonTokenBalances: TokenType[] =
       tokensData.polygon?.TokenBalance || [];
 
-    setTokens(existingTokens => [
-      ...existingTokens,
+    const filteredTokens = filterTokens(filters, [
       ...ethTokenBalances,
       ...polygonTokenBalances
     ]);
-  }, [isPoap, tokensData]);
+
+    tokensRef.current = [...tokensRef.current, ...filteredTokens];
+
+    if (tokensRef.current.length < LIMIT && hasNextPage) {
+      getNextPage();
+    } else {
+      setTokens(existingTokens => [...existingTokens, ...tokensRef.current]);
+      setLoadingData(false);
+    }
+  }, [filters, isPoap, tokensData, loading, hasNextPage, getNextPage]);
 
   useEffect(() => {
     if (!poapsData) return;
-    const poaps: Poap[] = poapsData.Poaps?.Poap || [];
-    setTokens(existingPoaps => [...existingPoaps, ...poaps]);
-  }, [poapsData]);
+
+    const filteredPoaps = filterTokens(filters, poapsData?.Poaps?.Poap || []);
+
+    setTokens(existingPoaps => [...existingPoaps, ...filteredPoaps]);
+  }, [filters, poapsData]);
 
   const handleShowMore = useCallback((values: string[], dataType: string) => {
     const leftValues: string[] = [];
@@ -201,12 +255,6 @@ export function TokensComponent() {
     setShowModal(true);
   }, []);
 
-  const { hasNextPage, getNextPage } = isPoap
-    ? paginationPoaps
-    : paginationTokens;
-
-  const loading = loadingPoaps || loadingTokens;
-
   const handleNext = useCallback(() => {
     if (!loading && hasNextPage && getNextPage) {
       getNextPage();
@@ -225,6 +273,8 @@ export function TokensComponent() {
     );
   }
 
+  const showLoader = loading || loadingData;
+
   return (
     <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
       <InfiniteScroll
@@ -239,7 +289,7 @@ export function TokensComponent() {
             {tokens.map((token, index) => (
               <tr
                 key={index}
-                className="[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer"
+                className="[&>td]:px-2 [&>td]:py-4 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer"
                 data-loader-type="block"
                 data-loader-margin="10"
                 onClick={() => {
@@ -254,7 +304,7 @@ export function TokensComponent() {
                 <Token token={token} onShowMore={handleShowMore} />
               </tr>
             ))}
-            {loading && <Loader />}
+            {showLoader && <Loader />}
           </tbody>
         </table>
       </InfiniteScroll>
@@ -291,4 +341,4 @@ export function TokensComponent() {
   );
 }
 
-export const Tokens = memo(TokensComponent);
+export const OverviewDetailsTokens = memo(TokensComponent);

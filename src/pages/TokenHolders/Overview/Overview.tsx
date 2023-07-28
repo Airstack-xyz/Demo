@@ -1,7 +1,4 @@
-import {
-  useLazyQuery,
-  useLazyQueryWithPagination
-} from '@airstack/airstack-react';
+import { useLazyQuery } from '@airstack/airstack-react';
 import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import {
@@ -17,57 +14,28 @@ import {
   OverviewData,
   Poap,
   Token,
+  TotalPoapsSupply,
   TotalSupply
-} from '../Tokens/types';
+} from '../types';
 import { useGetTokenOverview } from '../../../hooks/useGetTokenOverview';
 import { Chain } from '@airstack/airstack-react/constants';
-
-const imageAndSubTextMap: Record<
-  string,
-  {
-    image?: string;
-    subText: string;
-  }
-> = {
-  totalOwners: {
-    subText: 'own'
-  },
-  ownerWithLens: {
-    image: '/images/lens.svg',
-    subText: 'have Lens profiles'
-  },
-  ownerWithFarcaster: {
-    image: '/images/farcaster.svg',
-    subText: 'have Farcaster profiles'
-  },
-  ownerWithENS: {
-    image: '/images/ens.svg',
-    subText: 'have ENS names'
-  },
-  ownerWithPrimaryENS: {
-    image: '/images/ens.svg',
-    subText: 'have Primary ENS'
-  },
-  ownerWithXmtp: {
-    image: '/images/xmtp.svg',
-    subText: 'have XMTP'
-  }
-};
+import { POAPSupplyQuery } from '../../../queries/token-holders';
+import { imageAndSubTextMap } from './imageAndSubTextMap';
 
 function Overview() {
   const [overViewData, setOverViewData] = useState<
     Record<string, string | number>
   >({
     totalSupply: 0,
-    totalOwners: 0,
-    ownerWithENS: 0,
-    ownerWithPrimaryENS: 0,
-    ownerWithLens: 0,
-    ownerWithFarcaster: 0,
-    ownerWithXmtp: 0
+    owners: 0,
+    ens: 0,
+    primaryEns: 0,
+    lens: 0,
+    farcaster: 0,
+    xmtp: 0
   });
 
-  const { address: tokenAddress, inputType, tokenType } = useSearchInput();
+  const [{ address: tokenAddress, inputType, tokenType }] = useSearchInput();
 
   const isPoap = inputType === 'POAP' || tokenType === 'POAP';
 
@@ -82,7 +50,12 @@ function Overview() {
   );
 
   const [fetchTotalSupply, { data: totalSupply, loading: loadingSupply }] =
-    useLazyQueryWithPagination(TokenTotalSupplyQuery);
+    useLazyQuery(TokenTotalSupplyQuery);
+
+  const [
+    fetchPoapsTotalSupply,
+    { data: totalPoapsSupply, loading: loadingPoapsSupply }
+  ] = useLazyQuery(POAPSupplyQuery);
 
   const [tokenDetails, setTokenDetails] = useState<null | {
     name: string;
@@ -103,12 +76,23 @@ function Overview() {
       limit: 1
     });
 
-    if (!isPoap) {
-      fetchTotalSupply({
-        tokenAddress
+    if (isPoap) {
+      fetchPoapsTotalSupply({
+        eventId: tokenAddress
       });
+      return;
     }
-  }, [fetchTokens, fetchTotalSupply, isPoap, tokenAddress]);
+
+    fetchTotalSupply({
+      tokenAddress
+    });
+  }, [
+    fetchPoapsTotalSupply,
+    fetchTokens,
+    fetchTotalSupply,
+    isPoap,
+    tokenAddress
+  ]);
 
   const isERC20 = tokenType === 'ERC20' || tokenDetails?.tokenType === 'ERC20';
 
@@ -116,12 +100,12 @@ function Overview() {
     setOverViewData(_overview => {
       return {
         ..._overview,
-        totalOwners: overview?.totalHolders || 0,
-        ownerWithENS: overview?.ensUsersCount || 0,
-        ownerWithPrimaryENS: overview?.primaryEnsUsersCount || 0,
-        ownerWithLens: overview?.lensProfileCount || 0,
-        ownerWithFarcaster: overview?.farcasterProfileCount || 0,
-        ownerWithXmtp:
+        owners: overview?.totalHolders || 0,
+        ens: overview?.ensUsersCount || 0,
+        primaryEns: overview?.primaryEnsUsersCount || 0,
+        lens: overview?.lensProfileCount || 0,
+        farcaster: overview?.farcasterProfileCount || 0,
+        xmtp:
           overview?.xmtpUsersCount === null
             ? '--'
             : overview?.xmtpUsersCount || 0
@@ -160,6 +144,18 @@ function Overview() {
       }));
     }
   }, [totalSupply]);
+
+  useEffect(() => {
+    const data: TotalPoapsSupply = totalPoapsSupply;
+    const totalSupply = data?.PoapEvents?.PoapEvent[0]?.tokenMints;
+
+    if (totalSupply) {
+      setOverViewData(overViewData => ({
+        ...overViewData,
+        totalSupply
+      }));
+    }
+  }, [totalPoapsSupply]);
 
   useEffect(() => {
     if (isPoap || !tokensData || isERC20) return;
@@ -222,27 +218,29 @@ function Overview() {
   }, [tokenDetails]);
 
   const loading = loadingTokenOverview;
-  const totalHolders = (overViewData?.totalOwners as number) || 0;
+  const totalHolders = (overViewData?.owners as number) || 0;
   const holderCounts = useMemo(() => {
     return Object.keys(overViewData).map(key => {
       if (key === 'totalSupply') return null;
       const { image, subText: text } = imageAndSubTextMap[key];
       let subText = text;
-      if (key === 'totalOwners' && tokenDetails) {
+      if (key === 'owners' && tokenDetails) {
         subText += `${totalHolders <= 1 ? 's' : ''} ${
           tokenDetails.name || 'this contract'
         }`;
       }
 
+      const count = tokenOverviewError
+        ? '--'
+        : overViewData[key as keyof typeof overViewData];
+
       return (
         <HolderCount
           key={key}
+          name={key}
+          tokenName={tokenDetails?.name || ''}
           loading={loading}
-          count={
-            tokenOverviewError
-              ? '--'
-              : overViewData[key as keyof typeof overViewData]
-          }
+          count={count}
           subText={subText}
           image={
             !image ? tokenImage : <img src={image} alt="" className="w-full" />
@@ -261,8 +259,8 @@ function Overview() {
 
   if (isERC20) return null;
 
-  const lodingTotalSupply = isPoap ? false : loadingSupply;
-  const supply = isPoap ? 0 : overViewData?.totalSupply;
+  const lodingTotalSupply = loadingPoapsSupply || loadingSupply;
+  const supply = overViewData?.totalSupply;
 
   return (
     <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px]">

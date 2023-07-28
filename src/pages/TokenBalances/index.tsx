@@ -24,7 +24,7 @@ const SocialsAndERC20 = memo(function SocialsAndERC20() {
 });
 
 export function TokenBalance() {
-  const { address: query, tokenType } = useSearchInput();
+  const [{ address: query, tokenType }] = useSearchInput();
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
 

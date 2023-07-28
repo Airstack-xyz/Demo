@@ -108,7 +108,7 @@ function SocialsComponent() {
   });
   const [showModal, setShowModal] = useState(false);
   const [fetch, { data, loading }] = useLazyQuery(SocialQuery);
-  const { address: owner } = useSearchInput();
+  const [{ address: owner }] = useSearchInput();
 
   const socialDetails = (data?.Wallet || {}) as SocialType;
 

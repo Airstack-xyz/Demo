@@ -116,7 +116,7 @@ function TokensComponent() {
   ] = useLazyQueryWithPagination(POAPQuery, variables, config);
 
   const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
-  const { address: owner, tokenType: tokenType = '' } = useSearchInput();
+  const [{ address: owner, tokenType: tokenType = '' }] = useSearchInput();
   const isPoap = tokenType === 'POAP';
 
   useEffect(() => {

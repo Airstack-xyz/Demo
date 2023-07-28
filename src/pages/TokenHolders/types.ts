@@ -1,4 +1,4 @@
-import { TokenBalance } from '../../TokenBalances/types';
+import { TokenBalance } from '../TokenBalances/types';
 
 export type Token = TokenBalance;
 
@@ -74,3 +74,15 @@ export type OverviewBlockchainData = {
   totalHolders: number;
   xmtpUsersCount: number;
 };
+
+export interface TotalPoapsSupply {
+  PoapEvents: PoapEvents;
+}
+
+export interface PoapEvents {
+  PoapEvent: [
+    {
+      tokenMints: number;
+    }
+  ];
+}

@@ -24,7 +24,8 @@ export type IconType =
   | 'arrow-right-round'
   | 'count-loader'
   | 'arrow-down'
-  | 'xmtp';
+  | 'xmtp'
+  | 'table-view';
 
 export type IconProps = {
   name: IconType;
