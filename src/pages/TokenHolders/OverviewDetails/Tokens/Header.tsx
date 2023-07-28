@@ -1,7 +1,7 @@
 export function Header() {
   return (
     <thead className="bg-glass rounded-2xl">
-      <tr className="[&>th]:text-xs [&>th]:font-bold [&>th]:text-left [&>th]:py-5 [&>th]:px-2 [&>th]:whitespace-nowrap">
+      <tr className="[&>th]:text-xs [&>th]:font-bold [&>th]:text-left [&>th]:py-5 [&>th]:px-8 [&>th]:whitespace-nowrap">
         <th>ENS</th>
         <th>Primary ENS</th>
         <th>Wallet address</th>

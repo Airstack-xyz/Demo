@@ -1,100 +1,58 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  ComponentProps,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { useSearchInput } from '../../../../hooks/useSearchInput';
-import { getDAppType } from '../../utils';
 import { Modal } from '../../../../Components/Modal';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { Header } from './Header';
-import { ListWithMoreOptions } from './ListWithMoreOptions';
 import { useNavigate } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Poap, Token as TokenType } from '../../types';
-import { Icon } from '../../../../Components/Icon';
 import { filterTokens } from './filters';
 import {
   getFilterablePoapsQuery,
   getFilterableTokensQuery
 } from '../../../../queries/token-holders';
+import { Token } from './Token';
+import classNames from 'classnames';
 
 const LIMIT = 50;
 
-export function Token({
-  token,
-  onShowMore
-}: {
-  token: TokenType | Poap | null;
-  onShowMore?: (value: string[], dataType: string) => void;
-}) {
-  const owner = token?.owner;
-  const walletAddress = owner?.addresses || '';
-  const primarEns = owner?.primaryDomain?.name || '';
-  const ens = owner?.domains?.map(domain => domain.name) || [];
-  const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
+const loaderData = Array(6).fill({});
 
-  const { lens, farcaster } = useMemo(() => {
-    const social = owner?.socials || [];
-    const result = { lens: [], farcaster: [] };
-    social.forEach(({ dappSlug, profileName }) => {
-      const type = getDAppType(dappSlug);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const list = result[type];
-      if (list) {
-        list.push(profileName);
-      }
-    });
-    return result;
-  }, [owner?.socials]);
+type TableRowProps = ComponentProps<'tr'> & {
+  isLoader?: boolean;
+};
 
-  const getShowMoreHandler = useCallback(
-    (items: string[], type: string) => () => {
-      onShowMore?.(items, type);
-    },
-    [onShowMore]
-  );
-
+function TableRow({ isLoader, children, ...props }: TableRowProps) {
   return (
-    <>
-      <td>
-        <ListWithMoreOptions
-          list={ens}
-          onShowMore={getShowMoreHandler(ens, 'ens')}
-        />
-      </td>
-      <td className="ellipsis">{primarEns || '--'}</td>
-      <td className="ellipsis">{walletAddress || '--'}</td>
-      <td>
-        <ListWithMoreOptions
-          list={lens}
-          onShowMore={getShowMoreHandler(lens, 'lens')}
-        />
-      </td>
-      <td>
-        <ListWithMoreOptions
-          list={farcaster}
-          onShowMore={getShowMoreHandler(farcaster, 'farcaster')}
-        />
-      </td>
-      <td>
-        {xmtpEnabled ? <Icon name="xmtp" height={14} width={14} /> : '--'}
-      </td>
-    </>
+    <tr
+      className={classNames(
+        '[&>td]:px-8 [&>td]:py-5 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer',
+        { 'skeleton-loader [&>td:last-child]:hidden': isLoader }
+      )}
+      data-loader-type="block"
+      data-loader-margin="10"
+      {...props}
+    >
+      {children}
+    </tr>
   );
 }
-
-const loaderData = Array(6).fill({});
 
 function Loader() {
   return (
     <>
       {loaderData.map((_, index) => (
-        <tr
-          key={index}
-          className="[&>td]:px-2 [&>td]:py-4 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer skeleton-loader [&>td:last-child]:hidden"
-          data-loader-type="block"
-          data-loader-margin="10"
-        >
+        <TableRow isLoader={true} key={index}>
           <Token token={null} />
-        </tr>
+        </TableRow>
       ))}
     </>
   );
@@ -284,14 +242,11 @@ export function TokensComponent() {
         loader={null}
       >
         <table className="w-auto text-xs table-fixed sm:w-full">
-          {!loading && <Header />}
+          <Header />
           <tbody>
             {tokens.map((token, index) => (
-              <tr
+              <TableRow
                 key={index}
-                className="[&>td]:px-2 [&>td]:py-4 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer"
-                data-loader-type="block"
-                data-loader-margin="10"
                 onClick={() => {
                   const address = token?.owner?.addresses || '';
                   if (address) {
@@ -302,7 +257,7 @@ export function TokensComponent() {
                 }}
               >
                 <Token token={token} onShowMore={handleShowMore} />
-              </tr>
+              </TableRow>
             ))}
             {showLoader && <Loader />}
           </tbody>

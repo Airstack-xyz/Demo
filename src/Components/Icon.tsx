@@ -25,7 +25,8 @@ export type IconType =
   | 'count-loader'
   | 'arrow-down'
   | 'xmtp'
-  | 'table-view';
+  | 'table-view'
+  | 'filter';
 
 export type IconProps = {
   name: IconType;
