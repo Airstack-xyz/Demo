@@ -42,10 +42,12 @@ export function Token({
   return (
     <>
       <td>
-        <ListWithMoreOptions
-          list={ens}
-          onShowMore={getShowMoreHandler(ens, 'ens')}
-        />
+        <div className="max-w-[30vw] sm:max-w-none">
+          <ListWithMoreOptions
+            list={ens}
+            onShowMore={getShowMoreHandler(ens, 'ens')}
+          />
+        </div>
       </td>
       <td className="ellipsis">{primarEns || '--'}</td>
       <td className="ellipsis">{walletAddress || '--'}</td>
