@@ -38,7 +38,7 @@ export const Filters = memo(function Filters() {
         return (
           <button
             className={classNames(
-              'py-1.5 px-3 mr-3.5 rounded-full glass-effect-button text-text-secondary border border-solid border-transparent text-xs',
+              'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light',
               {
                 '!border-stroke-color bg-secondary font-bold !text-text-primary':
                   tokenType === 'All'

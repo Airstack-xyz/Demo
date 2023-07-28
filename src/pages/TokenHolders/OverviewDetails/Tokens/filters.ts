@@ -50,3 +50,28 @@ export function filterTokens(filters: string[], tokens: TokenOrPoap[]) {
   });
   return tokens;
 }
+
+export type RequestFilters = {
+  socialFilters?: string[];
+  hasPrimaryDomain?: boolean;
+};
+export function getRequestFilters(filters: string[]) {
+  const requestFilters: RequestFilters = {
+    socialFilters: []
+  };
+
+  filters.forEach(filter => {
+    if (filter === 'farcaster' || filter === 'lens') {
+      requestFilters['socialFilters']?.push(filter);
+    }
+    if (filter === 'primaryEns') {
+      requestFilters['hasPrimaryDomain'] = true;
+    }
+  });
+
+  if (requestFilters['socialFilters']?.length === 0) {
+    delete requestFilters['socialFilters'];
+  }
+
+  return requestFilters;
+}

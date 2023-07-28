@@ -14,13 +14,15 @@ import { Header } from './Header';
 import { useNavigate } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Poap, Token as TokenType } from '../../types';
-import { filterTokens } from './filters';
+import { filterTokens, getRequestFilters } from './filters';
 import {
   getFilterablePoapsQuery,
   getFilterableTokensQuery
 } from '../../../../queries/token-holders';
 import { Token } from './Token';
 import classNames from 'classnames';
+import { StatusLoader } from './StatusLoader';
+import { useLoaderContext } from '../../../../hooks/useLoader';
 
 const LIMIT = 50;
 
@@ -58,36 +60,18 @@ function Loader() {
   );
 }
 
-type RequestFilters = {
-  socialFilters?: string[];
-  hasPrimaryDomain?: boolean;
-};
-
 export function TokensComponent() {
   const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
   const tokensRef = useRef<(TokenType | Poap)[]>([]);
-  const [loadingData, setLoadingData] = useState(false);
   const [{ tokenFilters: filters }] = useSearchInput();
+  const [showStatusLoader, setShowStatusLoader] = useState(false);
+  const [loaderStats, setLoaderStats] = useState({
+    total: 0,
+    matching: 0
+  });
 
   const requestFilters = useMemo(() => {
-    const requestFilters: RequestFilters = {
-      socialFilters: []
-    };
-
-    filters.forEach(filter => {
-      if (filter === 'farcaster' || filter === 'lens') {
-        requestFilters['socialFilters']?.push(filter);
-      }
-      if (filter === 'primaryEns') {
-        requestFilters['hasPrimaryDomain'] = true;
-      }
-    });
-
-    if (requestFilters['socialFilters']?.length === 0) {
-      delete requestFilters['socialFilters'];
-    }
-
-    return requestFilters;
+    return getRequestFilters(filters);
   }, [filters]);
 
   const { tokensQuery, poapsQuery } = useMemo(() => {
@@ -140,6 +124,11 @@ export function TokensComponent() {
       tokensData = null;
       tokensRef.current = [];
       setTokens([]);
+      setShowStatusLoader(true);
+      setLoaderStats({
+        total: 0,
+        matching: 0
+      });
 
       if (isPoap) {
         fetchPoap({
@@ -163,6 +152,10 @@ export function TokensComponent() {
     : paginationTokens;
 
   const loading = loadingPoaps || loadingTokens;
+  const loaderContext = useLoaderContext();
+  useEffect(() => {
+    loaderContext.setIsLoading(loading);
+  }, [loaderContext, loading]);
 
   useEffect(() => {
     if (!tokensData || isPoap || loading) return;
@@ -172,28 +165,44 @@ export function TokensComponent() {
     const polygonTokenBalances: TokenType[] =
       tokensData.polygon?.TokenBalance || [];
 
-    const filteredTokens = filterTokens(filters, [
-      ...ethTokenBalances,
-      ...polygonTokenBalances
-    ]);
+    const tokens = [...ethTokenBalances, ...polygonTokenBalances];
+
+    const filteredTokens = filterTokens(filters, tokens);
 
     tokensRef.current = [...tokensRef.current, ...filteredTokens];
+
+    setLoaderStats(({ total }) => ({
+      total: total + (tokens.length || 0),
+      matching: tokensRef.current.length
+    }));
 
     if (tokensRef.current.length < LIMIT && hasNextPage) {
       getNextPage();
     } else {
       setTokens(existingTokens => [...existingTokens, ...tokensRef.current]);
-      setLoadingData(false);
+      setShowStatusLoader(false);
     }
   }, [filters, isPoap, tokensData, loading, hasNextPage, getNextPage]);
 
   useEffect(() => {
     if (!poapsData) return;
+    const tokens = poapsData?.Poaps?.Poap || [];
+    const filteredPoaps = filterTokens(filters, tokens);
 
-    const filteredPoaps = filterTokens(filters, poapsData?.Poaps?.Poap || []);
+    tokensRef.current = [...tokensRef.current, ...filteredPoaps];
 
-    setTokens(existingPoaps => [...existingPoaps, ...filteredPoaps]);
-  }, [filters, poapsData]);
+    setLoaderStats(({ total }) => ({
+      total: total + (tokens.length || 0),
+      matching: tokensRef.current.length
+    }));
+
+    if (tokensRef.current.length < LIMIT && hasNextPage) {
+      getNextPage();
+    } else {
+      setTokens(existingPoaps => [...existingPoaps, ...tokensRef.current]);
+      setShowStatusLoader(false);
+    }
+  }, [filters, getNextPage, hasNextPage, poapsData]);
 
   const handleShowMore = useCallback((values: string[], dataType: string) => {
     const leftValues: string[] = [];
@@ -221,78 +230,90 @@ export function TokensComponent() {
 
   if (loading && (!tokens || tokens.length === 0)) {
     return (
-      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
-        <table className="w-auto text-xs table-fixed sm:w-full">
-          <tbody>
-            <Loader />
-          </tbody>
-        </table>
-      </div>
+      <>
+        <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
+          <table className="w-auto text-xs table-fixed sm:w-full">
+            <tbody>
+              <Loader />
+            </tbody>
+          </table>
+        </div>
+        <StatusLoader
+          total={loaderStats.total}
+          matching={loaderStats.matching}
+        />
+      </>
     );
   }
 
-  const showLoader = loading || loadingData;
-
   return (
-    <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
-      <InfiniteScroll
-        next={handleNext}
-        dataLength={tokens.length}
-        hasMore={hasNextPage}
-        loader={null}
-      >
-        <table className="w-auto text-xs table-fixed sm:w-full">
-          <Header />
-          <tbody>
-            {tokens.map((token, index) => (
-              <TableRow
-                key={index}
-                onClick={() => {
-                  const address = token?.owner?.addresses || '';
-                  if (address) {
-                    navigate(
-                      `/token-balances?address=${address}&rawInput=${address}`
-                    );
-                  }
-                }}
-              >
-                <Token token={token} onShowMore={handleShowMore} />
-              </TableRow>
-            ))}
-            {showLoader && <Loader />}
-          </tbody>
-        </table>
-      </InfiniteScroll>
-      <Modal
-        heading={`All ${modalValues.dataType} names of ${tokenAddress}`}
-        isOpen={showModal}
-        onRequestClose={() => {
-          setShowModal(false);
-          setModalValues({
-            leftValues: [],
-            rightValues: [],
-            dataType: ''
-          });
-        }}
-      >
-        <div className="w-[600px] max-h-[60vh] h-auto bg-primary rounded-xl p-5 overflow-auto flex">
-          <div className="flex-1">
-            {modalValues.leftValues.map((value, index) => (
-              <div className="mb-8" key={index}>
-                {value}
-              </div>
-            ))}
+    <>
+      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
+        <InfiniteScroll
+          next={handleNext}
+          dataLength={tokens.length}
+          hasMore={hasNextPage}
+          loader={null}
+        >
+          <table className="w-auto text-xs table-fixed sm:w-full">
+            <Header />
+            <tbody>
+              {tokens.map((token, index) => (
+                <TableRow
+                  key={index}
+                  onClick={() => {
+                    const address = token?.owner?.addresses || '';
+                    if (address) {
+                      navigate(
+                        `/token-balances?address=${address}&rawInput=${address}`
+                      );
+                    }
+                  }}
+                >
+                  <Token token={token} onShowMore={handleShowMore} />
+                </TableRow>
+              ))}
+              {loading && <Loader />}
+            </tbody>
+          </table>
+        </InfiniteScroll>
+        <Modal
+          heading={`All ${modalValues.dataType} names of ${tokenAddress}`}
+          isOpen={showModal}
+          onRequestClose={() => {
+            setShowModal(false);
+            setModalValues({
+              leftValues: [],
+              rightValues: [],
+              dataType: ''
+            });
+          }}
+        >
+          <div className="w-[600px] max-h-[60vh] h-auto bg-primary rounded-xl p-5 overflow-auto flex">
+            <div className="flex-1">
+              {modalValues.leftValues.map((value, index) => (
+                <div className="mb-8" key={index}>
+                  {value}
+                </div>
+              ))}
+            </div>
+            <div className="border-l border-solid border-stroke-color flex-1 pl-5">
+              {modalValues.rightValues.map((value, index) => (
+                <div className="mb-8" key={index}>
+                  {value}
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="border-l border-solid border-stroke-color flex-1 pl-5">
-            {modalValues.rightValues.map((value, index) => (
-              <div className="mb-8" key={index}>
-                {value}
-              </div>
-            ))}
-          </div>
-        </div>
-      </Modal>
-    </div>
+        </Modal>
+      </div>
+      {(loading || showStatusLoader) && (
+        <StatusLoader
+          total={loaderStats.total}
+          matching={loaderStats.matching}
+        />
+      )}
+    </>
   );
 }
 

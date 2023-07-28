@@ -1,6 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { Icon } from '../../../Components/Icon';
+import classNames from 'classnames';
+import { useLoaderContext } from '../../../hooks/useLoader';
 
 type View = 'owners' | 'primaryEns' | 'ens' | 'lens' | 'farcaster' | 'xmtp';
 
@@ -32,6 +34,7 @@ const options: Array<{
 
 export function Filters() {
   const [{ tokenFilters: filters, activeView }, setFilters] = useSearchInput();
+  const { isLoading } = useLoaderContext();
   const [selected, setSelected] = useState<string[]>([]);
   const [show, setShow] = useState(false);
 
@@ -51,16 +54,31 @@ export function Filters() {
     []
   );
 
+  const newFiltersApplied = useMemo(() => {
+    return (
+      Boolean(selected.find(filter => !filters.includes(filter))) ||
+      selected.length !== filters.length
+    );
+  }, [filters, selected]);
+
   return (
     <div className="relative">
       <button
-        className="rounded-18 px-3 py-1.5 bg-glass border-solid-stroke flex-row-center"
+        className={classNames(
+          'rounded-18 px-3 py-1.5 bg-glass-1 hover:bg-glass-1-light border-solid-stroke flex-row-center disabled:opacity-75 disabled:cursor-not-allowed disabled:hover:bg-glass-1',
+          {
+            '!border-white': show
+          }
+        )}
+        disabled={isLoading}
         onClick={() => {
           setShow(prev => !prev);
         }}
       >
         <Icon name="filter" height={12} width={12} />{' '}
-        <span className="ml-1.5 text-xs">Filters</span>
+        <span className="ml-1.5 text-[13px]">
+          Filters {filters.length > 1 ? `(${filters.length - 1})` : ''}
+        </span>
       </button>
       {show && (
         <ul className="absolute top-full right-0 z-10 bg-glass p-3 rounded-18 border-solid-stroke mt-1 text-xs [&>li]:mb-1.5 ">
@@ -70,7 +88,7 @@ export function Filters() {
 
             return (
               <li key={value} className="-mx-3">
-                <label className="whitespace-nowrap flex flex-row items-end py-1.5 px-3 cursor-pointer hover:bg-glass">
+                <label className="whitespace-nowrap flex items-center py-1.5 px-3 cursor-pointer hover:bg-glass">
                   <input
                     type="checkbox"
                     checked={selected.includes(value)}
@@ -84,7 +102,7 @@ export function Filters() {
           })}
           <li className="flex items-center mt-3 !mb-0">
             <button
-              className="rounded-18 bg-button-primary px-3 py-1.5 mr-4"
+              className="rounded-18 bg-button-primary px-3 py-1.5 mr-4 disabled:opacity-75 disabled:cursor-not-allowed"
               onClick={() => {
                 setFilters(
                   {
@@ -96,6 +114,7 @@ export function Filters() {
                 );
                 setShow(false);
               }}
+              disabled={!newFiltersApplied}
             >
               Apply
             </button>

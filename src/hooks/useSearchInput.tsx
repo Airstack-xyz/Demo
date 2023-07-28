@@ -46,6 +46,10 @@ export function useSearchInput(): [
   const setData: UpdateUserInputs = useCallback(
     (data: Partial<cachedQuery>, config) => {
       let inputs = data;
+      const shouldReplaceFilters =
+        data?.tokenFilters &&
+        userInputCache.tokenHolder?.tokenFilters?.length > 0;
+
       if (isTokenBalances) {
         inputs = {
           ...(config?.reset ? {} : userInputCache.tokenBalance),
@@ -73,7 +77,9 @@ export function useSearchInput(): [
             searchParams[key] = (inputs[key] as string[]).join(',');
           }
         }
-        setSarchParams(searchParams as Record<string, string>);
+        setSarchParams(searchParams as Record<string, string>, {
+          replace: shouldReplaceFilters
+        });
       }
     },
     [isTokenBalances, setSarchParams]
