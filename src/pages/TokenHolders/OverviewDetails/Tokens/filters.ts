@@ -7,7 +7,7 @@ export function filterByEns(tokens: TokenOrPoap[]) {
 }
 
 export function filterByPrimaryEns(tokens: TokenOrPoap[]) {
-  return tokens?.filter(token => token?.owner?.domains?.length > 0);
+  return tokens?.filter(token => token?.owner?.primaryDomain);
 }
 
 export function filterByLens(tokens: TokenOrPoap[]) {

@@ -64,13 +64,10 @@ function Loader() {
   return (
     <>
       {loaderData.map((_, index) => (
-        <div
-          className="skeleton-loader [&>div]:mb-0 mb-5"
-          data-loader-type="block"
-          data-loader-bg="glass"
-          key={index}
-        >
-          <Token key={''} amount={0} symbol={''} type={''} logo="" />
+        <div className="skeleton-loader [&>div>div]:mb-0 mb-5" key={index}>
+          <div data-loader-type="block" data-loader-bg="glass">
+            <Token key={''} amount={0} symbol={''} type={''} logo="" />
+          </div>
         </div>
       ))}
     </>

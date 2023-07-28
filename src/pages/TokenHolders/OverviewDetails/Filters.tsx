@@ -39,8 +39,13 @@ export function Filters() {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    setSelected?.(filters);
+    setSelected(filters);
   }, [filters]);
+
+  const handleClose = useCallback(() => {
+    setShow(false);
+    setSelected([]);
+  }, []);
 
   const getFilterSetter = useCallback(
     (filter: string) => () => {
@@ -61,6 +66,10 @@ export function Filters() {
     );
   }, [filters, selected]);
 
+  const appliedFiltersCount = useMemo(() => {
+    return filters.length > 1 ? filters.length - 1 : 0;
+  }, [filters]);
+
   return (
     <div className="relative">
       <button
@@ -77,12 +86,11 @@ export function Filters() {
       >
         <Icon name="filter" height={12} width={12} />{' '}
         <span className="ml-1.5 text-[13px]">
-          Filters {filters.length > 1 ? `(${filters.length - 1})` : ''}
+          Filters {appliedFiltersCount ? `(${appliedFiltersCount})` : ''}
         </span>
       </button>
       {show && (
         <ul className="absolute top-full right-0 z-10 bg-glass p-3 rounded-18 border-solid-stroke mt-1 text-xs [&>li]:mb-1.5 ">
-          <li className="font-bold"> Token </li>
           {options.map(({ label, value }) => {
             if (value === activeView) return null;
 
@@ -112,18 +120,13 @@ export function Filters() {
                     updateQueryParams: true
                   }
                 );
-                setShow(false);
+                handleClose();
               }}
               disabled={!newFiltersApplied}
             >
               Apply
             </button>
-            <button
-              className="px-3 py-1.5"
-              onClick={() => {
-                setShow(false);
-              }}
-            >
+            <button className="px-3 py-1.5" onClick={handleClose}>
               Close
             </button>
           </li>

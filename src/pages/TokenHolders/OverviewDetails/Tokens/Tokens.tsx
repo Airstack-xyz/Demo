@@ -37,10 +37,11 @@ function TableRow({ isLoader, children, ...props }: TableRowProps) {
     <tr
       className={classNames(
         '[&>td]:px-8 [&>td]:py-5 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer',
-        { 'skeleton-loader [&>td:last-child]:hidden': isLoader }
+        {
+          'skeleton-loader [&>td:last-child]:hidden': isLoader,
+          '[&>div>td]:px-8 [&>div>td]:py-5': isLoader
+        }
       )}
-      data-loader-type="block"
-      data-loader-margin="10"
       {...props}
     >
       {children}
@@ -50,13 +51,17 @@ function TableRow({ isLoader, children, ...props }: TableRowProps) {
 
 function Loader() {
   return (
-    <>
-      {loaderData.map((_, index) => (
-        <TableRow isLoader={true} key={index}>
-          <Token token={null} />
-        </TableRow>
-      ))}
-    </>
+    <table className="w-auto text-xs table-fixed sm:w-full">
+      <tbody>
+        {loaderData.map((_, index) => (
+          <TableRow isLoader={true} key={index}>
+            <div data-loader-type="block" data-loader-margin="10">
+              <Token token={null} />
+            </div>
+          </TableRow>
+        ))}
+      </tbody>
+    </table>
   );
 }
 
@@ -66,7 +71,7 @@ export function TokensComponent() {
   const [{ tokenFilters: filters }] = useSearchInput();
   const [showStatusLoader, setShowStatusLoader] = useState(false);
   const [loaderStats, setLoaderStats] = useState({
-    total: 0,
+    total: LIMIT,
     matching: 0
   });
 
@@ -126,7 +131,7 @@ export function TokensComponent() {
       setTokens([]);
       setShowStatusLoader(true);
       setLoaderStats({
-        total: 0,
+        total: LIMIT,
         matching: 0
       });
 
@@ -175,17 +180,16 @@ export function TokensComponent() {
 
     const filteredTokens = filterTokens(filters, tokens);
 
-    tokensRef.current = [...tokensRef.current, ...filteredTokens];
-
-    setLoaderStats(({ total }) => ({
+    setLoaderStats(({ total, matching }) => ({
       total: total + (tokens.length || 0),
-      matching: tokensRef.current.length
+      matching: matching + filteredTokens.length
     }));
+    tokensRef.current = [...tokensRef.current, ...filteredTokens];
+    setTokens(existingTokens => [...existingTokens, ...filteredTokens]);
 
     if (tokensRef.current.length < LIMIT && hasNextPage) {
       getNextPage();
     } else {
-      setTokens(existingTokens => [...existingTokens, ...tokensRef.current]);
       setShowStatusLoader(false);
     }
   }, [filters, isPoap, tokensData, loading, hasNextPage, getNextPage]);
@@ -218,11 +222,7 @@ export function TokensComponent() {
     return (
       <>
         <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
-          <table className="w-auto text-xs table-fixed sm:w-full">
-            <tbody>
-              <Loader />
-            </tbody>
-          </table>
+          <Loader />
         </div>
         <StatusLoader
           total={loaderStats.total}
@@ -259,9 +259,9 @@ export function TokensComponent() {
                   <Token token={token} onShowMore={handleShowMore} />
                 </TableRow>
               ))}
-              {loading && <Loader />}
             </tbody>
           </table>
+          {loading && <Loader />}
         </InfiniteScroll>
         <Modal
           heading={`All ${modalValues.dataType} names of ${tokenAddress}`}

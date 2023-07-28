@@ -70,7 +70,7 @@ export const Search = memo(function Search() {
       }
 
       if (searchParams.get('rawInput') === value) {
-        navigate(0); // reload page if same search, this is to trigger refetch in pages
+        window.location.reload(); // reload page if same search
       }
 
       setSearchParams(searchData);
