@@ -111,7 +111,7 @@ body {
 .skeleton-loader.no-shimmer [data-loader-type='block']:after,
 .skeleton-loader.no-shimmer[data-loader-type='block']:after {
   mask: none;
-  animaiton: none;
+  animation: none;
 }
 
 @keyframes shimmer {
