@@ -11,7 +11,7 @@ import { SectionHeader } from './SectionHeader';
 import { TokenType } from './types';
 import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
-import { createTokenHolderUrl } from '../../utils/createTokenHolderUrl';
+import { createTokenHolderUrl } from '../../utils/createTokenUrl';
 import { Link } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { formatNumber } from '../../utils/formatNumber';
@@ -164,7 +164,9 @@ export function ERC20Tokens() {
               data-address={token?.tokenAddress}
               to={createTokenHolderUrl({
                 address: token?.tokenAddress,
-                tokenType: 'ERC20'
+                type: 'ERC20',
+                blockchain: token.blockchain,
+                label: token?.token?.name
               })}
             >
               <Token

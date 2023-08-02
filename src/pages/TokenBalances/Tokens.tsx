@@ -7,7 +7,7 @@ import { formatDate } from '../../utils';
 import { tokenTypes } from './constants';
 import { Icon } from '../../Components/Icon';
 import { Link } from 'react-router-dom';
-import { createTokenHolderUrl } from '../../utils/createTokenHolderUrl';
+import { createTokenHolderUrl } from '../../utils/createTokenUrl';
 import { Asset } from '../../Components/Asset';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
@@ -21,6 +21,7 @@ type TokenProps = {
   tokenId: string;
   image?: string;
   eventId?: string;
+  tokenName: string;
 };
 
 function Token({
@@ -32,7 +33,8 @@ function Token({
   blockchain = 'ethereum',
   tokenId,
   image,
-  eventId
+  eventId,
+  tokenName
 }: TokenProps) {
   const isPoap = type.toLowerCase() === 'poap';
   return (
@@ -42,7 +44,9 @@ function Token({
       to={createTokenHolderUrl({
         address: isPoap && eventId ? eventId : address,
         inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
-        tokenType: type
+        type,
+        blockchain,
+        label: tokenName
       })}
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
     >
@@ -92,6 +96,7 @@ function Loader() {
             symbol={''}
             blockchain={'ethereum'}
             tokenId={''}
+            tokenName=""
           />
         </div>
       ))}
@@ -228,6 +233,7 @@ function TokensComponent() {
               tokenId={tokenId}
               image={image}
               eventId={eventId}
+              tokenName={isPoap ? poapEvent.eventName : token?.token?.name}
             />
           </div>
         );

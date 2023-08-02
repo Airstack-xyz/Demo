@@ -32,7 +32,7 @@ export const Search = memo(function Search() {
 
   useEffect(() => {
     setValue(rawInput);
-  }, [rawInput, value]);
+  }, [rawInput]);
 
   const navigate = useNavigate();
 
