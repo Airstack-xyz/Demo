@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { Icon } from './Icon';
 import { InputWithMention } from './Input/Input';
-import { FormEvent, memo, useCallback, useState } from 'react';
+import { FormEvent, memo, useCallback, useEffect, useState } from 'react';
 import {
   Link,
   createSearchParams,
@@ -29,6 +29,10 @@ export const Search = memo(function Search() {
   const [{ rawInput }, setData] = useSearchInput();
 
   const [value, setValue] = useState(rawInput || '');
+
+  useEffect(() => {
+    setValue(rawInput);
+  }, [rawInput, value]);
 
   const navigate = useNavigate();
 
@@ -117,7 +121,7 @@ export const Search = memo(function Search() {
           {isTokenBalances ? (
             <input
               className="bg-transparent h-full w-full outline-none text-sm"
-              defaultValue={value}
+              value={value}
               placeholder={tokenBalancesPlaceholder}
               onChange={({ target }) => setValue(target.value)}
             />
