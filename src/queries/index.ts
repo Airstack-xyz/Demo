@@ -181,6 +181,7 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
       tokenId
       blockchain
       tokenType
+      formattedAmount
       token {
         name
         symbol
@@ -238,6 +239,7 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
       tokenId
       blockchain
       tokenType
+      formattedAmount
       token {
         name
         symbol

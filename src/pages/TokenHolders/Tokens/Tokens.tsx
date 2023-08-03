@@ -151,6 +151,8 @@ export function TokensComponent() {
     );
   }
 
+  const isERC20 = tokens && tokens[0]?.tokenType === 'ERC20';
+
   return (
     <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
       <InfiniteScroll
@@ -160,7 +162,7 @@ export function TokensComponent() {
         loader={null}
       >
         <table className="w-auto text-xs table-fixed sm:w-full">
-          {!loading && <Header />}
+          {!loading && <Header isERC20={isERC20} />}
           <tbody>
             {tokens.map((token, index) => (
               <tr

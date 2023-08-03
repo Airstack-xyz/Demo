@@ -104,7 +104,13 @@ export function Token({
           )}
         </div>
       </td>
-      <td className="ellipsis">{tokenId ? `#${tokenId}` : '--'}</td>
+      <td className="ellipsis">
+        {_token?.tokenType === 'ERC20'
+          ? _token?.formattedAmount
+          : tokenId
+          ? `#${tokenId}`
+          : '--'}
+      </td>
       <td className="ellipsis">
         {}
         <ListWithMoreOptions
