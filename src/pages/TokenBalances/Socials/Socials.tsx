@@ -3,11 +3,11 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { SocialQuery } from '../../../queries';
 import { SectionHeader } from '../SectionHeader';
 import { SocialsType } from '../types';
-import { Modal } from '../../../Components/Modal';
 import classNames from 'classnames';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { Social } from './Social';
 import { XMTP } from './XMTP';
+import { AddressesModal } from '../../../Components/AddressesModal';
 
 type SocialType = SocialsType['Wallet'];
 const imagesMap: Record<string, string> = {
@@ -73,8 +73,8 @@ function SocialsComponent() {
     });
   }, []);
 
-  const getNameClickHandler = useCallback(
-    (value: string) => () => {
+  const handleAddressClick = useCallback(
+    (value: string) => {
       setData(
         {
           rawInput: value,
@@ -171,36 +171,13 @@ function SocialsComponent() {
           />
         </div>
       </div>
-      <Modal
+      <AddressesModal
         heading="All ENS names of vitalik.eth"
         isOpen={showModal}
         onRequestClose={closeModal}
-      >
-        <div className="w-[600px] max-h-[60vh] h-auto bg-primary rounded-xl p-5 overflow-auto flex">
-          <div className="flex-1">
-            {modalValues.leftValues.map((value, index) => (
-              <div
-                className="mb-8 px-3 py-1 rounded-18 ellipsis hover:bg-glass cursor-pointer"
-                key={index}
-                onClick={getNameClickHandler(value)}
-              >
-                {value}
-              </div>
-            ))}
-          </div>
-          <div className="border-l border-solid border-stroke-color flex-1 pl-5">
-            {modalValues.rightValues.map((value, index) => (
-              <div
-                className="mb-8 px-3 py-1 rounded-18 ellipsis hover:bg-glass cursor-pointer"
-                key={index}
-                onClick={getNameClickHandler(value)}
-              >
-                {value}
-              </div>
-            ))}
-          </div>
-        </div>
-      </Modal>
+        modalValues={modalValues}
+        onAddressClick={handleAddressClick}
+      />
     </div>
   );
 }

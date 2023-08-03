@@ -31,3 +31,18 @@ export function createTokenHolderUrl({
     }).toString()
   };
 }
+export function createTokenBalancesUrl({
+  address,
+  inputType = 'ADDRESS',
+  blockchain
+}: Omit<CreateTokenHolderUrlArgument, 'label' | 'type'>) {
+  return {
+    pathname: '/token-balances',
+    search: createSearchParams({
+      address,
+      blockchain,
+      inputType,
+      rawInput: address
+    }).toString()
+  };
+}

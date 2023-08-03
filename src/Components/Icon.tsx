@@ -26,7 +26,8 @@ export type IconType =
   | 'arrow-down'
   | 'xmtp'
   | 'table-view'
-  | 'filter';
+  | 'filter'
+  | 'copy';
 
 export type IconProps = {
   name: IconType;

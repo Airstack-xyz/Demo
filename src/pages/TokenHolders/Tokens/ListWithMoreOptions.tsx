@@ -1,14 +1,18 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 
 const maxTokens = 7;
 const minTokens = 1;
 
 export function ListWithMoreOptions({
   list,
-  onShowMore
+  onShowMore,
+  listFor,
+  onItemClick
 }: {
   list: string[];
   onShowMore?: () => void;
+  listFor: string;
+  onItemClick: (address: string, type: string) => void;
 }) {
   const [showMax, setShowMax] = useState(false);
   const items = useMemo(() => {
@@ -18,11 +22,23 @@ export function ListWithMoreOptions({
     return list?.slice(0, maxTokens);
   }, [showMax, list]);
 
+  const getItemClickHandler = useCallback(
+    (value: string) => () => {
+      onItemClick(value, listFor);
+    },
+    [listFor, onItemClick]
+  );
+
   return (
     <ul>
       {items.map((name, index) => (
         <li key={index} className="ellipsis mb-1">
-          {name}
+          <div
+            className="px-1 py-1 rounded-18 ellipsis hover:bg-glass cursor-pointer"
+            onClick={getItemClickHandler(name)}
+          >
+            {name}
+          </div>
         </li>
       ))}
       {list.length === 0 && <li>--</li>}
@@ -32,7 +48,7 @@ export function ListWithMoreOptions({
             e.stopPropagation();
             setShowMax(show => !show);
           }}
-          className="text-text-button font-bold cursor-pointer"
+          className="text-text-button font-bold cursor-pointer px-1 py-1"
         >
           see more
         </li>
@@ -46,7 +62,7 @@ export function ListWithMoreOptions({
               return;
             }
           }}
-          className="text-text-button font-bold cursor-pointer"
+          className="text-text-button font-bold cursor-pointer px-1 py-1"
         >
           see all
         </li>

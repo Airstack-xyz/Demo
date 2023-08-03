@@ -147,6 +147,8 @@ function Overview() {
 
   useEffect(() => {
     const data: TotalPoapsSupply = totalPoapsSupply;
+    if (!data?.PoapEvents?.PoapEvent) return;
+
     const totalSupply = data?.PoapEvents?.PoapEvent[0]?.tokenMints;
 
     if (totalSupply) {

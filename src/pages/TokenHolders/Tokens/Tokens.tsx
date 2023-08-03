@@ -1,102 +1,16 @@
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { PoapOwnerQuery, TokenOwnerQuery } from '../../../queries';
 import { useSearchInput } from '../../../hooks/useSearchInput';
-import { getDAppType } from '../utils';
-import { Chain } from '@airstack/airstack-react/constants';
-import { Modal } from '../../../Components/Modal';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { Header } from './Header';
-import { ListWithMoreOptions } from './ListWithMoreOptions';
 import { useNavigate } from 'react-router-dom';
-import { Asset } from '../../../Components/Asset';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Poap, Token as TokenType } from '../types';
-import { Icon } from '../../../Components/Icon';
+import { Token } from './Token';
+import { AddressesModal } from '../../../Components/AddressesModal';
+import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 
 const LIMIT = 20;
-
-export function Token({
-  token,
-  onShowMore
-}: {
-  token: TokenType | Poap | null;
-  onShowMore?: (value: string[], dataType: string) => void;
-}) {
-  const owner = token?.owner;
-  const walletAddress = owner?.addresses || '';
-  const tokenId = token?.tokenId || '';
-  const tokenAddress = token?.tokenAddress || '';
-  const primarEns = owner?.primaryDomain?.name || '';
-  const ens = owner?.domains?.map(domain => domain.name) || [];
-  const _token = token as TokenType;
-  const image =
-    _token?.token?.logo?.small || _token?.token?.projectDetails?.imageUrl;
-
-  const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
-
-  const { lens, farcaster } = useMemo(() => {
-    const social = owner?.socials || [];
-    const result = { lens: [], farcaster: [] };
-    social.forEach(({ dappSlug, profileName }) => {
-      const type = getDAppType(dappSlug);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const list = result[type];
-      if (list) {
-        list.push(profileName);
-      }
-    });
-    return result;
-  }, [owner?.socials]);
-
-  const getShowMoreHandler = useCallback(
-    (items: string[], type: string) => () => {
-      onShowMore?.(items, type);
-    },
-    [onShowMore]
-  );
-
-  return (
-    <>
-      <td className="!pl-9">
-        <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden [&>div]:w-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center">
-          <Asset
-            address={tokenAddress}
-            tokenId={tokenId}
-            preset="small"
-            containerClassName="token-img"
-            chain={token?.blockchain as Chain}
-            image={image}
-          />
-        </div>
-      </td>
-      <td className="ellipsis">{walletAddress || '--'}</td>
-      <td className="ellipsis">{tokenId ? `#${tokenId}` : '--'}</td>
-      <td className="ellipsis">{primarEns || '--'}</td>
-      <td>
-        <ListWithMoreOptions
-          list={ens}
-          onShowMore={getShowMoreHandler(ens, 'ens')}
-        />
-      </td>
-      <td>
-        <ListWithMoreOptions
-          list={lens}
-          onShowMore={getShowMoreHandler(lens, 'lens')}
-        />
-      </td>
-      <td>
-        <ListWithMoreOptions
-          list={farcaster}
-          onShowMore={getShowMoreHandler(farcaster, 'farcaster')}
-        />
-      </td>
-      <td>
-        {xmtpEnabled ? <Icon name="xmtp" height={14} width={14} /> : '--'}
-      </td>
-    </>
-  );
-}
 
 const loaderData = Array(6).fill({});
 
@@ -132,6 +46,7 @@ export function TokensComponent() {
   ] = useLazyQueryWithPagination(PoapOwnerQuery);
 
   const [{ address: tokenAddress, inputType }] = useSearchInput();
+  const navigator = useNavigate();
 
   const [showModal, setShowModal] = useState(false);
   const [modalValues, setModalValues] = useState<{
@@ -144,7 +59,6 @@ export function TokensComponent() {
     dataType: ''
   });
 
-  const navigate = useNavigate();
   const isPoap = inputType === 'POAP';
 
   useEffect(() => {
@@ -198,10 +112,24 @@ export function TokensComponent() {
     setModalValues({
       leftValues,
       rightValues,
-      dataType
+      dataType: dataType || 'ens'
     });
     setShowModal(true);
   }, []);
+
+  const handleAddressClick = useCallback(
+    (address: string) => {
+      const isFarcaster = modalValues.dataType?.includes('farcaster');
+      navigator(
+        createTokenBalancesUrl({
+          address: isFarcaster ? `fc_fname:${address}` : address,
+          blockchain: 'ethereum',
+          inputType: 'ADDRESS'
+        })
+      );
+    },
+    [modalValues.dataType, navigator]
+  );
 
   const { hasNextPage, getNextPage } = isPoap
     ? paginationPoaps
@@ -237,17 +165,9 @@ export function TokensComponent() {
             {tokens.map((token, index) => (
               <tr
                 key={index}
-                className="[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer"
+                className="[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px]"
                 data-loader-type="block"
                 data-loader-margin="10"
-                onClick={() => {
-                  const address = token?.owner?.addresses || '';
-                  if (address) {
-                    navigate(
-                      `/token-balances?address=${address}&rawInput=${address}`
-                    );
-                  }
-                }}
               >
                 <Token token={token} onShowMore={handleShowMore} />
               </tr>
@@ -256,7 +176,7 @@ export function TokensComponent() {
         </table>
         {loading && <Loader />}
       </InfiniteScroll>
-      <Modal
+      <AddressesModal
         heading={`All ${modalValues.dataType} names of ${tokenAddress}`}
         isOpen={showModal}
         onRequestClose={() => {
@@ -267,24 +187,9 @@ export function TokensComponent() {
             dataType: ''
           });
         }}
-      >
-        <div className="w-[600px] max-h-[60vh] h-auto bg-primary rounded-xl p-5 overflow-auto flex">
-          <div className="flex-1">
-            {modalValues.leftValues.map((value, index) => (
-              <div className="mb-8" key={index}>
-                {value}
-              </div>
-            ))}
-          </div>
-          <div className="border-l border-solid border-stroke-color flex-1 pl-5">
-            {modalValues.rightValues.map((value, index) => (
-              <div className="mb-8" key={index}>
-                {value}
-              </div>
-            ))}
-          </div>
-        </div>
-      </Modal>
+        modalValues={modalValues}
+        onAddressClick={handleAddressClick}
+      />
     </div>
   );
 }
