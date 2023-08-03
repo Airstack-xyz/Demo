@@ -9,8 +9,9 @@ import {
   useNavigate,
   useSearchParams
 } from 'react-router-dom';
-import { getValuesFromId } from './Input/utils';
+import { getValuesFromId, isMention } from './Input/utils';
 import { UserInputs, useSearchInput } from '../hooks/useSearchInput';
+import { createFormattedRawInput } from '../utils/createQueryParamsWithMention';
 
 const tokenHoldersPlaceholder =
   'Use @ mention or enter any token contract address';
@@ -49,21 +50,37 @@ export const Search = memo(function Search() {
 
       if (!address) return;
 
+      let rawInput = value.trim();
+      let inputType: UserInputs['inputType'] = null;
+
+      if (!isTokenBalances && !isMention(value)) {
+        inputType = rawInput.startsWith('0x')
+          ? 'ADDRESS'
+          : !isNaN(Number(rawInput))
+          ? 'POAP'
+          : null;
+
+        if (inputType) {
+          rawInput = createFormattedRawInput({
+            address,
+            blockchain,
+            type: '',
+            label: address
+          });
+        }
+      }
+
       const searchData = {
         address: eventId || address,
         blockchain,
-        rawInput: value,
-        inputType: (customInputType as UserInputs['inputType']) || 'ADDRESS'
+        rawInput,
+        inputType:
+          (customInputType as UserInputs['inputType']) || inputType || 'ADDRESS'
       };
 
-      setData(
-        {
-          ...searchData
-        },
-        {
-          reset: true
-        }
-      );
+      setData(searchData, {
+        reset: true
+      });
 
       if (isHome) {
         navigate({
@@ -79,7 +96,15 @@ export const Search = memo(function Search() {
 
       setSearchParams(searchData);
     },
-    [isHome, navigate, searchParams, setData, setSearchParams, value]
+    [
+      isHome,
+      isTokenBalances,
+      navigate,
+      searchParams,
+      setData,
+      setSearchParams,
+      value
+    ]
   );
 
   const activeClasss =
@@ -127,7 +152,7 @@ export const Search = memo(function Search() {
             />
           ) : (
             <InputWithMention
-              defaultValue={value}
+              value={value}
               onChange={setValue}
               onSubmit={setValue}
               placeholder={tokenHoldersPlaceholder}

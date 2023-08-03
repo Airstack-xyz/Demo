@@ -158,6 +158,9 @@ export function getUsableValues(value: string) {
     displayValue
   };
 }
+export function isMention(str: string) {
+  return Boolean(/#⎱.+?⎱\((.+?)\)\s*/g.exec(str));
+}
 
 export function getValuesFromId(id: string) {
   const match = /#⎱.+?⎱\((.+?)\)\s*/g.exec(id);

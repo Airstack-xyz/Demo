@@ -3,7 +3,9 @@ import { Icon } from './Icon';
 import { InputWithMention } from './Input/Input';
 import { FormEvent, useCallback, useState } from 'react';
 import { createSearchParams, useNavigate } from 'react-router-dom';
-import { getValuesFromId } from './Input/utils';
+import { getValuesFromId, isMention } from './Input/utils';
+import { UserInputs } from '../hooks/useSearchInput';
+import { createFormattedRawInput } from '../utils/createQueryParamsWithMention';
 
 const tokenHoldersPlaceholder = 'Use @ mention or enter any contract address';
 const tokenBalancesPlaceholder =
@@ -28,11 +30,32 @@ export function HomeSearch() {
 
       if (!address) return;
 
+      let rawInput = value.trim();
+      let inputType: UserInputs['inputType'] = null;
+
+      if (!isTokenBalances && !isMention(value)) {
+        inputType = rawInput.startsWith('0x')
+          ? 'ADDRESS'
+          : !isNaN(Number(rawInput))
+          ? 'POAP'
+          : null;
+
+        if (inputType) {
+          rawInput = createFormattedRawInput({
+            address,
+            blockchain,
+            type: '',
+            label: address
+          });
+        }
+      }
+
       const searchData = {
         address: eventId || address,
         blockchain,
-        rawInput: value,
-        inputType: customInputType || 'ADDRESS'
+        rawInput: rawInput,
+        inputType:
+          (customInputType as UserInputs['inputType']) || inputType || 'ADDRESS'
       };
 
       navigate({
@@ -57,7 +80,10 @@ export function HomeSearch() {
                 [activeClasss]: isTokenBalances
               }
             )}
-            onClick={() => setIsTokenBalances(true)}
+            onClick={() => {
+              setIsTokenBalances(true);
+              setValue('');
+            }}
           >
             <Icon name="token-balances" className="w-4 mr-1" /> Token balances
           </button>
@@ -68,7 +94,10 @@ export function HomeSearch() {
                 [activeClasss]: !isTokenBalances
               }
             )}
-            onClick={() => setIsTokenBalances(false)}
+            onClick={() => {
+              setIsTokenBalances(false);
+              setValue('');
+            }}
           >
             <Icon name="token-holders" className="w-4 mr-1" /> Token holders
           </button>
@@ -87,7 +116,7 @@ export function HomeSearch() {
             />
           ) : (
             <InputWithMention
-              defaultValue={value}
+              value={value}
               onChange={setValue}
               onSubmit={setValue}
               placeholder={tokenHoldersPlaceholder}
