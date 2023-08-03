@@ -1,0 +1,19 @@
+.random-color-list .random-color-item:nth-child(5n + 1) .item {
+  background: #ee7957;
+}
+
+.random-color-list .random-color-item:nth-child(5n + 2) .item {
+  background: #f4be2e;
+}
+
+.random-color-list .random-color-item:nth-child(5n + 3) .item {
+  background: #aa99cb;
+}
+
+.random-color-list .random-color-item:nth-child(5n + 4) .item {
+  background: #c197fb;
+}
+
+.random-color-list .random-color-item:nth-child(5n + 5) .item {
+  background: #6a4c93;
+}

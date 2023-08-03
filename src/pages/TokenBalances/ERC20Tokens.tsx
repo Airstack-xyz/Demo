@@ -15,14 +15,25 @@ import { createTokenHolderUrl } from '../../utils/createTokenUrl';
 import { Link } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { formatNumber } from '../../utils/formatNumber';
+import './erc20.styles.css';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
+  symbol: string;
 };
 
-function Logo({ logo, ...props }: LogoProps) {
+function Logo({ logo, symbol, ...props }: LogoProps) {
   const [error, setError] = useState(false);
   if (error || !logo) {
+    if (symbol) {
+      const text = symbol.substring(0, 3);
+      return (
+        <div className="item flex justify-center items-center h-full w-full font-medium text-xs ellipsis">
+          {text.toUpperCase()}
+          {symbol.length > 3 ? '..' : ''}
+        </div>
+      );
+    }
     return <img src="images/placeholder.svg" {...props} />;
   }
   return <img src={logo} onError={() => setError(true)} {...props} />;
@@ -45,7 +56,7 @@ function Token({
         className="h-10 w-10 rounded-full overflow-hidden border-solid-stroke flex-col-center"
         data-loader-type="hidden"
       >
-        <Logo logo={logo} className="w-full min-w-full" />
+        <Logo logo={logo} symbol={symbol} className="w-full min-w-full" />
       </div>
       <div className="flex flex-1 items-center min-w-0 text-sm pl-2.5">
         <span>{formatNumber(amount)}</span>
@@ -139,7 +150,7 @@ export function ERC20Tokens() {
       </div>
       <div
         className={classNames(
-          'mt-3.5 bg-glass py-3 px-2 rounded-18 border-solid-stroke',
+          'mt-3.5 bg-glass py-3 px-2 rounded-18 border-solid-stroke random-color-list',
           {
             'skeleton-loader min-h-[200px]': items.length === 0 && loading
           }
@@ -168,6 +179,7 @@ export function ERC20Tokens() {
                 blockchain: token.blockchain,
                 label: token?.token?.name
               })}
+              className="random-color-item"
             >
               <Token
                 key={index}
