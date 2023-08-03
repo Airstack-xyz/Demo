@@ -11,7 +11,7 @@ import {
   TokenTotalSupplyQuery
 } from '../../queries';
 import classNames from 'classnames';
-import { Dropdown } from '../../Components/Dropdown';
+import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Icon } from '../../Components/Icon';
 import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { getRequestFilters } from './OverviewDetails/Tokens/filters';
@@ -105,7 +105,7 @@ export function TokenHolders() {
         {query && (
           <>
             <div className="hidden sm:flex-col-center my-3">
-              <Dropdown options={options} />
+              <GetAPIDropdown options={options} />
             </div>
             {activeView && <OverviewDetails />}
             {!activeView && (

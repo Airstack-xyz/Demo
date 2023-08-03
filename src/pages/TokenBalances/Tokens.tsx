@@ -1,6 +1,6 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
-import { useState, useEffect, useCallback, memo } from 'react';
-import { POAPQuery, TokensQuery } from '../../queries';
+import { useState, useEffect, useCallback, memo, useMemo } from 'react';
+import { POAPQuery } from '../../queries';
 import { PoapType, TokenType as TokenType } from './types';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { formatDate } from '../../utils';
@@ -10,6 +10,7 @@ import { Link } from 'react-router-dom';
 import { createTokenHolderUrl } from '../../utils/createTokenUrl';
 import { Asset } from '../../Components/Asset';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { getTokensQuery } from '../../queries/tokensQuery';
 
 type TokenProps = {
   type: string;
@@ -112,16 +113,26 @@ const config = {
 
 function TokensComponent() {
   const [
+    { address: owner, tokenType: tokenType = '', blockchainType, sortOrder }
+  ] = useSearchInput();
+
+  const fetchAllBlockchains =
+    blockchainType.length === 2 || blockchainType.length === 0;
+
+  const query = useMemo(() => {
+    return getTokensQuery(fetchAllBlockchains ? null : blockchainType[0]);
+  }, [blockchainType, fetchAllBlockchains]);
+
+  const [
     fetchTokens,
     { data: tokensData, loading: loadingTokens, pagination: paginationTokens }
-  ] = useLazyQueryWithPagination(TokensQuery, variables, config);
+  ] = useLazyQueryWithPagination(query, variables, config);
   const [
     fetchPoaps,
     { data: poapsData, loading: loadingPoaps, pagination: paginationPoaps }
   ] = useLazyQueryWithPagination(POAPQuery, variables, config);
 
   const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
-  const [{ address: owner, tokenType: tokenType = '' }] = useSearchInput();
   const isPoap = tokenType === 'POAP';
 
   useEffect(() => {
@@ -129,7 +140,8 @@ function TokensComponent() {
       if (!tokenType || !isPoap) {
         fetchTokens({
           owner,
-          limit: 10,
+          limit: fetchAllBlockchains ? 10 : 20,
+          sortBy: sortOrder ? sortOrder : 'DESC',
           tokenType:
             tokenType && tokenType.length > 0
               ? [tokenType]
@@ -140,12 +152,21 @@ function TokensComponent() {
       if (!tokenType || isPoap) {
         fetchPoaps({
           owner,
-          limit: isPoap ? 20 : 10
+          limit: isPoap ? 20 : 10,
+          sortBy: sortOrder ? sortOrder : 'ASC'
         });
       }
       setTokens([]);
     }
-  }, [fetchPoaps, fetchTokens, isPoap, owner, tokenType]);
+  }, [
+    fetchAllBlockchains,
+    fetchPoaps,
+    fetchTokens,
+    isPoap,
+    owner,
+    sortOrder,
+    tokenType
+  ]);
 
   useEffect(() => {
     if (tokensData) {

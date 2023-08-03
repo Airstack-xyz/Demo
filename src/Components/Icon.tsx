@@ -27,7 +27,10 @@ export type IconType =
   | 'xmtp'
   | 'table-view'
   | 'filter'
-  | 'copy';
+  | 'copy'
+  | 'sort'
+  | 'blockchain-filter'
+  | 'check-mark';
 
 export type IconProps = {
   name: IconType;

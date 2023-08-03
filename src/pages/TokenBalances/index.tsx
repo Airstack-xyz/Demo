@@ -12,7 +12,7 @@ import { isMobileDevice } from '../../utils/isMobileDevice';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
 import { POAPQuery, SocialQuery, TokensQuery } from '../../queries';
 import { tokenTypes } from './constants';
-import { Dropdown } from '../../Components/Dropdown';
+import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   return (
@@ -109,7 +109,7 @@ export function TokenBalance() {
         {query && (
           <>
             <div className="hidden sm:flex-col-center my-3">
-              <Dropdown options={options} />
+              <GetAPIDropdown options={options} />
             </div>
             <div className="flex justify-between px-5">
               <div className="w-full h-full" key={query}>

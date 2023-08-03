@@ -1,12 +1,32 @@
-import { useEffect, useRef, useState } from 'react';
-import { Icon } from './Icon';
-import classNames from 'classnames';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 
-type Options = {
+export type Option = {
   label: string;
-  link: string;
-};
-export function Dropdown({ options }: { options: Options[] }) {
+  value: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} & Record<string, any>;
+
+export function Dropdown({
+  options,
+  selected,
+  closeOnSelect = false,
+  renderOption,
+  renderPlaceholder,
+  onChange
+}: {
+  options: Option[];
+  selected?: Option[];
+  closeOnSelect?: boolean;
+  renderPlaceholder: (option: Option[]) => ReactNode;
+  renderOption: (params: {
+    option: Option;
+    selected: Option[];
+    isSelected: boolean;
+    setSelected: (selected: Option[]) => void;
+  }) => ReactNode;
+  onChange: (selected: Option[]) => void;
+}) {
+  const [_selected, setSelected] = useState<Option[]>([]);
   const ref = useRef<HTMLDivElement>(null);
   const [show, setShow] = useState(false);
 
@@ -23,39 +43,46 @@ export function Dropdown({ options }: { options: Options[] }) {
     };
   }, []);
 
+  const handleSelction = useCallback(
+    (newSelection: Option[]) => {
+      if (selected === undefined) {
+        setSelected(newSelection);
+      }
+      onChange(newSelection);
+      if (closeOnSelect) {
+        setShow(false);
+      }
+    },
+    [closeOnSelect, onChange, selected]
+  );
+
+  const actualSelected = selected || _selected;
+
   return (
     <div
-      className="text-xs font-medium relative flex flex-col items-center"
+      className="text-xs font-medium relative inline-flex flex-col items-center"
       ref={ref}
     >
-      <button
-        className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium flex-row-center outline-none"
-        onClick={() => setShow(show => !show)}
-      >
-        <span>GraphQL APIs</span>
-        <Icon
-          name="arrow-down"
-          height={16}
-          width={16}
-          className={classNames('ml-1 mt-0.5 transition', {
-            'rotate-180': show
-          })}
-        />
-      </button>
+      <div onClick={() => setShow(show => !show)}>
+        {renderPlaceholder(actualSelected)}
+      </div>
       {show && (
         <div
           className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute z-10 min-w-[120%] top-full"
           onClick={() => setShow(false)}
         >
-          {options.map(({ label, link }) => (
-            <a
-              className="py-2 px-5 text-text-button rounded-full hover:bg-glass mb-1 cursor-pointer text-left whitespace-nowrap"
-              target="_blank"
-              href={link}
-              key={label}
-            >
-              {label}
-            </a>
+          {options.map((option, index) => (
+            <div key={index}>
+              {renderOption({
+                option,
+                selected: actualSelected,
+                setSelected: handleSelction,
+                isSelected:
+                  actualSelected.findIndex(
+                    item => item.value === option.value
+                  ) !== -1
+              })}
+            </div>
           ))}
         </div>
       )}
