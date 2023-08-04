@@ -7,13 +7,15 @@ import { Icon } from '../../Components/Icon';
 const options = [
   {
     label: 'Newest transfer first',
-    value: 'ASC'
+    value: 'DESC'
   },
   {
     label: 'Oldest transfer first',
-    value: 'DESC'
+    value: 'ASC'
   }
 ];
+const defaultSortOrder = options[0].value;
+
 const buttonClass =
   'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light';
 
@@ -24,7 +26,7 @@ export function SortBy() {
     (selected: Option[]) => {
       setData(
         {
-          sortOrder: selected?.[0]?.value || 'DESC'
+          sortOrder: selected?.[0]?.value || defaultSortOrder
         },
         { updateQueryParams: true }
       );
@@ -33,7 +35,7 @@ export function SortBy() {
   );
 
   const selected = useMemo(() => {
-    return [sortOrder === 'ASC' ? options[0] : options[1]];
+    return [sortOrder === defaultSortOrder ? options[0] : options[1]];
   }, [sortOrder]);
 
   return (
