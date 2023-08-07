@@ -49,6 +49,8 @@ export const Search = memo(function Search() {
         customInputType
       } = getValuesFromId(value) || {};
 
+      // const [allMentions, mentionOnlyValue] = getAllMentionDetails(value);
+
       if (!address) return;
 
       let rawInput = value.trim();
