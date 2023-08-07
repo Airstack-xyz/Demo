@@ -168,8 +168,16 @@ export function isMention(str: string) {
   return Boolean(/#⎱.+?⎱\((.+?)\)\s*/g.exec(str));
 }
 
-export function getValuesFromId(id: string) {
+type MentionValues = {
+  address: string;
+  token?: string;
+  blockchain?: string;
+  eventId?: string | null;
+  customInputType?: string;
+};
+export function getValuesFromId(id: string): MentionValues {
   const match = /#⎱.+?⎱\((.+?)\)\s*/g.exec(id);
+  // console.log({ match, id, newMatch: id.match(/#⎱.+?⎱\((.+?)\)\s*/g) });
   if (!match) return { address: id };
   const [address, token, blockchain, eventId, customInputId] =
     match[1].split(' ');
@@ -186,6 +194,16 @@ export function getValuesFromId(id: string) {
     eventId: eventId === 'null' ? null : eventId,
     customInputType
   };
+}
+
+export function getAllMentionDetails(query: string): [MentionValues[], string] {
+  const matches = query.match(/#⎱.+?⎱\((.+?)\)\s*/g);
+  if (!matches) return [[], ''];
+
+  return [
+    matches.map(match => getValuesFromId(match)),
+    matches.map(match => match.trim()).join(' ')
+  ];
 }
 
 export function needHelp(str: string) {
