@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
 import { Dropdown, Option } from '../../Components/Dropdown';
@@ -18,14 +18,26 @@ const blockchainOptions = [
   }
 ];
 const buttonClass =
-  'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light';
+  'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light disabled:hover:bg-glass-1 disabled:hover:cursor-not-allowed disabled:opacity-80';
 
 export function BlockchainFilter() {
-  const [{ blockchainType }, setData] = useSearchInput();
+  const [{ blockchainType, tokenType }, setData] = useSearchInput();
+  const isPoapFilterApplied = tokenType === 'POAP';
+
+  useEffect(() => {
+    // If POAP filter is applied, reset blockchain filter
+    if (isPoapFilterApplied && blockchainType.length > 0) {
+      setData(
+        {
+          blockchainType: []
+        },
+        { updateQueryParams: true }
+      );
+    }
+  }, [blockchainType, isPoapFilterApplied, setData]);
 
   const handleChange = useCallback(
     (selected: Option[]) => {
-      //   setData;
       setData(
         {
           blockchainType: selected.map(item => item.value)
@@ -48,8 +60,10 @@ export function BlockchainFilter() {
       selected={selected}
       onChange={handleChange}
       options={blockchainOptions}
+      disabled={isPoapFilterApplied}
       renderPlaceholder={(selected, isOpen) => (
         <button
+          disabled={isPoapFilterApplied}
           className={classNames(
             buttonClass,
             'flex justify-center items-center !rounded-full',

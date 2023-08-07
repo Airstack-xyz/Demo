@@ -138,10 +138,12 @@ function TokensComponent() {
 
   useEffect(() => {
     if (owner) {
+      const hasPolygonChainFilter = blockchainType.includes('polygon');
+
       if (!tokenType || !isPoap) {
         fetchTokens({
           owner,
-          limit: fetchAllBlockchains ? 10 : 20,
+          limit: fetchAllBlockchains || !hasPolygonChainFilter ? 10 : 20,
           sortBy: sortOrder ? sortOrder : defaultSortOrder,
           tokenType:
             tokenType && tokenType.length > 0
@@ -150,7 +152,7 @@ function TokensComponent() {
         });
       }
 
-      if (!tokenType || isPoap) {
+      if (!hasPolygonChainFilter && (!tokenType || isPoap)) {
         fetchPoaps({
           owner,
           limit: isPoap ? 20 : 10,
@@ -160,6 +162,7 @@ function TokensComponent() {
       setTokens([]);
     }
   }, [
+    blockchainType,
     fetchAllBlockchains,
     fetchPoaps,
     fetchTokens,

@@ -12,7 +12,8 @@ export function Dropdown({
   closeOnSelect = false,
   renderOption,
   renderPlaceholder,
-  onChange
+  onChange,
+  disabled
 }: {
   options: Option[];
   selected?: Option[];
@@ -25,6 +26,7 @@ export function Dropdown({
     setSelected: (selected: Option[]) => void;
   }) => ReactNode;
   onChange: (selected: Option[]) => void;
+  disabled?: boolean;
 }) {
   const [_selected, setSelected] = useState<Option[]>([]);
   const ref = useRef<HTMLDivElement>(null);
@@ -63,7 +65,7 @@ export function Dropdown({
       className="text-xs font-medium relative inline-flex flex-col items-center"
       ref={ref}
     >
-      <div onClick={() => setShow(show => !show)}>
+      <div onClick={() => setShow(show => (disabled ? false : !show))}>
         {renderPlaceholder(actualSelected, show)}
       </div>
       {show && (
