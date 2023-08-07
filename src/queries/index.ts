@@ -61,8 +61,8 @@ export const TokensQuery = `query GetTokens($owner: Identity, $tokenType: [Token
   }
 }`;
 
-export const POAPQuery = `query GetPOAPs($owner: Identity, $limit: Int) {
-  Poaps(input: {filter: {owner: {_eq: $owner}}, blockchain: ALL, limit: $limit}) {
+export const POAPQuery = `query GetPOAPs($owner: Identity, $limit: Int $sortBy: OrderBy) {
+  Poaps(input: {filter: {owner: {_eq: $owner}}, blockchain: ALL, limit: $limit, order:{createdAtBlockNumber: $sortBy}}) {
     Poap {
       id
       blockchain

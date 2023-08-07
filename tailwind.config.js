@@ -15,7 +15,7 @@ module.exports = {
         'button-secondary-hover': '#1B1B24',
         'button-secondary-disabled': '#efadaf',
         'toast-positive': '#387C44',
-        'toast-error': '#F30C0C',
+        'toast-negative': '#F30C0C',
         'text-primary': '#FFFFFF',
         'text-secondary': '#97999c',
         'text-placeholder': '#b1b3b5',

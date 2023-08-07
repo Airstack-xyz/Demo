@@ -11,6 +11,7 @@ import { createTokenHolderUrl } from '../../utils/createTokenUrl';
 import { Asset } from '../../Components/Asset';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { getTokensQuery } from '../../queries/tokensQuery';
+import { defaultSortOrder } from './SortBy';
 
 type TokenProps = {
   type: string;
@@ -141,7 +142,7 @@ function TokensComponent() {
         fetchTokens({
           owner,
           limit: fetchAllBlockchains ? 10 : 20,
-          sortBy: sortOrder ? sortOrder : 'DESC',
+          sortBy: sortOrder ? sortOrder : defaultSortOrder,
           tokenType:
             tokenType && tokenType.length > 0
               ? [tokenType]
@@ -153,7 +154,7 @@ function TokensComponent() {
         fetchPoaps({
           owner,
           limit: isPoap ? 20 : 10,
-          sortBy: sortOrder ? sortOrder : 'ASC'
+          sortBy: sortOrder ? sortOrder : defaultSortOrder
         });
       }
       setTokens([]);

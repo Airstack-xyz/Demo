@@ -84,7 +84,7 @@ export function Token({
       </td>
       <td className="ellipsis">
         <div
-          className="flex px-1 py-1 rounded-18 hover:bg-glass cursor-pointer"
+          className="flex px-1 py-1 rounded-18 hover:bg-glass-1 cursor-pointer"
           onClick={() => {
             handleAddressClick(walletAddress, '');
           }}

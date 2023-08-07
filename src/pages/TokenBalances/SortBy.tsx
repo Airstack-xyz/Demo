@@ -14,7 +14,8 @@ const options = [
     value: 'ASC'
   }
 ];
-const defaultSortOrder = options[0].value;
+// eslint-disable-next-line react-refresh/only-export-components
+export const defaultSortOrder = options[0].value;
 
 const buttonClass =
   'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light';
@@ -35,7 +36,9 @@ export function SortBy() {
   );
 
   const selected = useMemo(() => {
-    return [sortOrder === defaultSortOrder ? options[0] : options[1]];
+    return [
+      !sortOrder || sortOrder === defaultSortOrder ? options[0] : options[1]
+    ];
   }, [sortOrder]);
 
   return (
@@ -43,11 +46,12 @@ export function SortBy() {
       selected={selected}
       onChange={handleChange}
       options={options}
-      renderPlaceholder={selected => (
+      renderPlaceholder={(selected, isOpen) => (
         <button
           className={classNames(
             buttonClass,
-            'flex justify-center items-center !rounded-full'
+            'flex justify-center items-center !rounded-full',
+            { 'border-white': isOpen }
           )}
         >
           <Icon name="sort" height={12} width={12} className="mr-1.5" />
@@ -59,7 +63,12 @@ export function SortBy() {
       renderOption={({ option, isSelected, setSelected }) => {
         return (
           <label
-            className="flex py-2 px-3 rounded-full hover:bg-glass mb-1 cursor-pointer text-left whitespace-nowrap"
+            className={classNames(
+              'flex py-2 px-3 rounded-full hover:bg-glass mb-1 cursor-pointer text-left whitespace-nowrap',
+              {
+                'font-bold': isSelected
+              }
+            )}
             onClick={() => {
               setSelected([option]);
             }}

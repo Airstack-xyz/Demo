@@ -12,6 +12,7 @@ import {
 import { getValuesFromId, isMention } from './Input/utils';
 import { UserInputs, useSearchInput } from '../hooks/useSearchInput';
 import { createFormattedRawInput } from '../utils/createQueryParamsWithMention';
+import { showToast } from '../utils/showToast';
 
 const tokenHoldersPlaceholder =
   'Use @ mention or enter any token contract address';
@@ -60,14 +61,18 @@ export const Search = memo(function Search() {
           ? 'POAP'
           : null;
 
-        if (inputType) {
-          rawInput = createFormattedRawInput({
-            address,
-            blockchain,
-            type: '',
-            label: address
-          });
+        if (!inputType) {
+          showToast('Couldn’t find any contract', 'negative');
+          setData({}, { reset: true, updateQueryParams: true });
+          return;
         }
+
+        rawInput = createFormattedRawInput({
+          address,
+          blockchain,
+          type: '',
+          label: address
+        });
       }
 
       const searchData = {

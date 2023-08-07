@@ -43,7 +43,7 @@ export function useSearchInput(): [
   if (isHome) {
     isTokenBalances = true;
   }
-  const { tokenBalance, tokenHolder } = userInputCache;
+
   const [searchParams, setSarchParams] = useSearchParams();
 
   const setData: UpdateUserInputs = useCallback(
@@ -89,6 +89,7 @@ export function useSearchInput(): [
   );
 
   return useMemo(() => {
+    const { tokenBalance, tokenHolder } = userInputCache;
     const {
       rawInput: rawQuery,
       address,
@@ -115,7 +116,7 @@ export function useSearchInput(): [
     const blockchainTypeString = searchParams.get('blockchainType') || '';
     let blockchainType = blockchainTypeString
       ? blockchainTypeString.split(',')
-      : [];
+      : savedBlockchainType || [];
 
     if (
       savedBlockchainType &&
@@ -126,7 +127,9 @@ export function useSearchInput(): [
     }
 
     const filtersString = searchParams.get('tokenFilters') || '';
-    let tokenFilters = filtersString ? filtersString.split(',') : [];
+    let tokenFilters = filtersString
+      ? filtersString.split(',')
+      : savedTokenFilters || [];
 
     if (savedTokenFilters && savedTokenFilters.join(',') === filtersString) {
       // if filters are same as saved filters, use refrerence of saved filters so the component doesn't re-render unnecessarily
@@ -151,12 +154,5 @@ export function useSearchInput(): [
     setData(data);
 
     return [data, setData, setSarchParams];
-  }, [
-    isTokenBalances,
-    tokenBalance,
-    tokenHolder,
-    searchParams,
-    setData,
-    setSarchParams
-  ]);
+  }, [isTokenBalances, searchParams, setData, setSarchParams]);
 }

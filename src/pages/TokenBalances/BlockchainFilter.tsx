@@ -48,11 +48,12 @@ export function BlockchainFilter() {
       selected={selected}
       onChange={handleChange}
       options={blockchainOptions}
-      renderPlaceholder={selected => (
+      renderPlaceholder={(selected, isOpen) => (
         <button
           className={classNames(
             buttonClass,
-            'flex justify-center items-center !rounded-full'
+            'flex justify-center items-center !rounded-full',
+            { 'border-white': isOpen }
           )}
         >
           <Icon
@@ -76,7 +77,12 @@ export function BlockchainFilter() {
         }
         return (
           <label
-            className="flex py-2 px-5 rounded-full hover:bg-glass mb-1 cursor-pointer text-left whitespace-nowrap"
+            className={classNames(
+              'flex py-2 px-5 rounded-full hover:bg-glass mb-1 cursor-pointer text-left whitespace-nowrap',
+              {
+                'font-bold': isSelected
+              }
+            )}
             onClick={() => {
               const newSelected = isSelected
                 ? selected.filter(item => item.value !== option.value)

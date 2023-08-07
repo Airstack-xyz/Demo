@@ -34,7 +34,7 @@ export function ListWithMoreOptions({
       {items.map((name, index) => (
         <li key={index} className="ellipsis mb-1">
           <div
-            className="px-1 py-1 rounded-18 ellipsis hover:bg-glass cursor-pointer"
+            className="px-1 py-1 rounded-18 ellipsis hover:bg-glass-1 cursor-pointer"
             onClick={getItemClickHandler(name)}
           >
             {name}

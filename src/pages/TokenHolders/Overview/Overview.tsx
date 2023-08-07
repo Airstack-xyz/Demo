@@ -147,9 +147,13 @@ function Overview() {
 
   useEffect(() => {
     const data: TotalPoapsSupply = totalPoapsSupply;
-    if (!data?.PoapEvents?.PoapEvent) return;
+    const event = data?.PoapEvents?.PoapEvent;
+    if (!event) return;
 
-    const totalSupply = data?.PoapEvents?.PoapEvent[0]?.tokenMints;
+    const totalSupply = (event || []).reduce(
+      (acc, event) => acc + event?.tokenMints,
+      0
+    );
 
     if (totalSupply) {
       setOverViewData(overViewData => ({

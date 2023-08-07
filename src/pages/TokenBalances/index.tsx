@@ -14,6 +14,7 @@ import { POAPQuery, SocialQuery } from '../../queries';
 import { tokenTypes } from './constants';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { getTokensQuery } from '../../queries/tokensQuery';
+import { defaultSortOrder } from './SortBy';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   return (
@@ -41,7 +42,7 @@ export function TokenBalance() {
     const nftLink = createAppUrlWithQuery(tokensQuery, {
       owner: query,
       limit: 10,
-      sortBy: sortOrder ? sortOrder : 'DESC',
+      sortBy: sortOrder ? sortOrder : defaultSortOrder,
       tokenType: tokenType
         ? [tokenType]
         : tokenTypes.filter(tokenType => tokenType !== 'POAP')
@@ -49,7 +50,8 @@ export function TokenBalance() {
 
     const poapLink = createAppUrlWithQuery(POAPQuery, {
       owner: query,
-      limit: 10
+      limit: 10,
+      sortBy: sortOrder ? sortOrder : defaultSortOrder
     });
 
     const socialLink = createAppUrlWithQuery(SocialQuery, {

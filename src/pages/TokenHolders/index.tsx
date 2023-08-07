@@ -16,6 +16,7 @@ import { Icon } from '../../Components/Icon';
 import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { getRequestFilters } from './OverviewDetails/Tokens/filters';
 import {
+  POAPSupplyQuery,
   getFilterablePoapsQuery,
   getFilterableTokensQuery
 } from '../../queries/token-holders';
@@ -72,6 +73,10 @@ export function TokenHolders() {
       tokenAddress: query
     });
 
+    const poapSupplyLink = createAppUrlWithQuery(POAPSupplyQuery, {
+      eventId: query
+    });
+
     const options = [
       isPoap
         ? {
@@ -84,12 +89,10 @@ export function TokenHolders() {
           }
     ];
 
-    if (!isPoap) {
-      options.push({
-        label: 'Token supply',
-        link: tokenSupplyLink
-      });
-    }
+    options.push({
+      label: 'Token supply',
+      link: isPoap ? poapSupplyLink : tokenSupplyLink
+    });
 
     return options;
   }, [activeView, inputType, query, tokenFilters]);
