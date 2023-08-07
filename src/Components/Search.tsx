@@ -116,7 +116,7 @@ export const Search = memo(function Search() {
     'bg-glass !border-stroke-color font-bold !text-text-primary';
 
   return (
-    <div className="w-full z-10">
+    <div className="w-[105%] sm:w-full z-10">
       <div className="my-6 flex-col-center">
         <div className="bg-glass bg-secondry border flex p-1 rounded-full">
           <Link
@@ -143,14 +143,11 @@ export const Search = memo(function Search() {
           </Link>
         </div>
       </div>
-      <form
-        className="flex flex-col sm:flex-row justify-center"
-        onSubmit={handleSubmit}
-      >
+      <form className="flex flex-row justify-center" onSubmit={handleSubmit}>
         <div className="flex flex-col sm:flex-row items-center h-[50px] w-full sm:w-[645px] border-solid-stroke rounded-18 bg-glass px-5 py-3">
           {isTokenBalances ? (
             <input
-              className="bg-transparent h-full w-full outline-none text-sm"
+              className="bg-transparent h-full w-full outline-none text-base sm:text-sm"
               value={value}
               placeholder={tokenBalancesPlaceholder}
               onChange={({ target }) => setValue(target.value)}
@@ -166,7 +163,7 @@ export const Search = memo(function Search() {
         </div>
         <button
           type="submit"
-          className="bg-button-primary rounded-18 sm:ml-5 mt-5 sm:mt-0 px-6 py-3.5 font-bold w-[40%] sm:w-auto self-center"
+          className="bg-button-primary rounded-18 ml-2 sm:ml-5 px-6 py-3 sm:py-3.5 font-bold self-center"
         >
           Go
         </button>
