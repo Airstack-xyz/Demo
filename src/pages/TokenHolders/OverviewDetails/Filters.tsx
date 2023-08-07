@@ -40,7 +40,7 @@ export function Filters() {
 
   useEffect(() => {
     setSelected(filters);
-  }, [filters]);
+  }, [filters, show]);
 
   const handleClose = useCallback(() => {
     setShow(false);
