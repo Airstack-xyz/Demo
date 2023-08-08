@@ -3,84 +3,11 @@ import { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import { POAPQuery } from '../../queries';
 import { PoapType, TokenType as TokenType } from './types';
 import { useSearchInput } from '../../hooks/useSearchInput';
-import { formatDate } from '../../utils';
 import { tokenTypes } from './constants';
-import { Icon } from '../../Components/Icon';
-import { Link } from 'react-router-dom';
-import { createTokenHolderUrl } from '../../utils/createTokenUrl';
-import { Asset } from '../../Components/Asset';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { getTokensQuery } from '../../queries/tokensQuery';
 import { defaultSortOrder } from './SortBy';
-
-type TokenProps = {
-  type: string;
-  name: string;
-  id: string;
-  address: string;
-  symbol: string;
-  blockchain: 'ethereum' | 'polygon';
-  tokenId: string;
-  image?: string;
-  eventId?: string;
-  tokenName: string;
-};
-
-function Token({
-  type,
-  name,
-  symbol,
-  address,
-  id,
-  blockchain = 'ethereum',
-  tokenId,
-  image,
-  eventId,
-  tokenName
-}: TokenProps) {
-  const isPoap = type.toLowerCase() === 'poap';
-  return (
-    <Link
-      className="h-[300px] w-[300px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token"
-      data-loader-type="block"
-      to={createTokenHolderUrl({
-        address: isPoap && eventId ? eventId : address,
-        inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
-        type,
-        blockchain,
-        label: tokenName
-      })}
-      style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
-    >
-      <div className="absolute inset-0 [&>div]:w-full [&>div]:h-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center">
-        {(image || (address && tokenId)) && (
-          <Asset
-            image={image}
-            address={address}
-            tokenId={tokenId}
-            chain={blockchain}
-            preset="medium"
-          />
-        )}
-      </div>
-      <div className="flex justify-end">
-        <div className="rounded-full h-9 w-9 bg-glass border-solid-light">
-          <Icon name={blockchain} className="w-full" />
-        </div>
-        <div className="h-9 rounded-3xl ml-2.5 border-solid-light flex justify-center items-center px-2 bg-glass">
-          {type}
-        </div>
-      </div>
-      <div className="h-14 rounded-3xl flex flex-col px-3.5 py-2 text-sm bg-glass border-solid-light">
-        <div className="ellipsis text-xs mb-">{name}</div>
-        <div className="flex items-center justify-between font-bold ">
-          <div className="ellipsis flex-1 mr-2">{id}</div>
-          <div>{symbol || ''}</div>
-        </div>
-      </div>
-    </Link>
-  );
-}
+import { Token } from './Token';
 
 const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 
@@ -89,17 +16,7 @@ function Loader() {
     <>
       {loaderData.map((_, index) => (
         <div className="skeleton-loader" key={index}>
-          <Token
-            key={index}
-            type={''}
-            name={''}
-            id={''}
-            address={''}
-            symbol={''}
-            blockchain={'ethereum'}
-            tokenId={''}
-            tokenName=""
-          />
+          <Token key={index} token={null} />
         </div>
       ))}
     </>
@@ -137,13 +54,15 @@ function TokensComponent() {
   const isPoap = tokenType === 'POAP';
 
   const canFetchPoap = useMemo(() => {
-    const hasPolygonChainFilter = blockchainType.includes('polygon');
+    const hasPolygonChainFilter =
+      blockchainType.length === 1 && blockchainType[0] === 'polygon';
     return !hasPolygonChainFilter && (!tokenType || isPoap);
   }, [blockchainType, isPoap, tokenType]);
 
   useEffect(() => {
     if (owner) {
-      const hasPolygonChainFilter = blockchainType.includes('polygon');
+      const hasPolygonChainFilter =
+        blockchainType.length === 1 && blockchainType[0] === 'polygon';
 
       if (!tokenType || !isPoap) {
         fetchTokens({
@@ -236,43 +155,12 @@ function TokensComponent() {
       loader={loading ? <Loader /> : null}
       className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start mb-10"
     >
-      {tokens.map((_token, index) => {
-        const token = _token as TokenType;
-        const poap = _token as Poap;
-        const isPoap = Boolean(poap.poapEvent);
-        const poapEvent = poap.poapEvent || {};
-        const city = poapEvent.city || '';
-
-        const address = token.tokenAddress || poap.tokenAddress;
-        const id = token.tokenNfts?.tokenId
-          ? '#' + token.tokenNfts?.tokenId
-          : poapEvent.eventName;
-
-        const symbol = token?.token?.symbol || '';
-        const type = token.tokenType || 'POAP';
-        const blockchain = token.blockchain || 'ethereum';
-        const name =
-          token?.token?.name ||
-          `${formatDate(poapEvent.startDate)}${city ? ` (${city})` : ''}`;
-        const tokenId = token.tokenNfts?.tokenId || poap.tokenId;
-        const image = isPoap ? poapEvent?.logo?.image?.medium : '';
-        const eventId = poapEvent?.eventId || '';
-
+      {tokens.map((token, index) => {
+        const id =
+          (token as Poap)?.tokenId || (token as TokenType)?.tokenNfts?.tokenId;
         return (
           <div>
-            <Token
-              key={index}
-              type={type}
-              name={name}
-              id={id}
-              address={address}
-              symbol={symbol}
-              blockchain={blockchain}
-              tokenId={tokenId}
-              image={image}
-              eventId={eventId}
-              tokenName={isPoap ? poapEvent.eventName : token?.token?.name}
-            />
+            <Token key={`${index}-${id}`} token={token} />
           </div>
         );
       })}

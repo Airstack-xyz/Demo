@@ -90,7 +90,7 @@ export function TokenHolders() {
     ];
 
     options.push({
-      label: 'Token supply',
+      label: isPoap ? 'POAP supply' : 'Token supply',
       link: isPoap ? poapSupplyLink : tokenSupplyLink
     });
 

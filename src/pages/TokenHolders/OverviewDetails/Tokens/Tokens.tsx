@@ -11,7 +11,6 @@ import { useSearchInput } from '../../../../hooks/useSearchInput';
 import { Modal } from '../../../../Components/Modal';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { Header } from './Header';
-import { useNavigate } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Poap, Token as TokenType } from '../../types';
 import { filterTokens, getRequestFilters } from './filters';
@@ -120,7 +119,6 @@ export function TokensComponent() {
     dataType: ''
   });
 
-  const navigate = useNavigate();
   const isPoap = inputType === 'POAP';
 
   useEffect(() => {
@@ -245,17 +243,7 @@ export function TokensComponent() {
             <Header />
             <tbody>
               {tokens.map((token, index) => (
-                <TableRow
-                  key={index}
-                  onClick={() => {
-                    const address = token?.owner?.addresses || '';
-                    if (address) {
-                      navigate(
-                        `/token-balances?address=${address}&rawInput=${address}`
-                      );
-                    }
-                  }}
-                >
+                <TableRow key={index}>
                   <Token token={token} onShowMore={handleShowMore} />
                 </TableRow>
               ))}
