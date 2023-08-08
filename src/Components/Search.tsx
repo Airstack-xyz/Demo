@@ -9,7 +9,11 @@ import {
   useNavigate,
   useSearchParams
 } from 'react-router-dom';
-import { getValuesFromId, isMention } from './Input/utils';
+import {
+  getAllMentionDetails,
+  getValuesFromId,
+  isMention
+} from './Input/utils';
 import { UserInputs, useSearchInput } from '../hooks/useSearchInput';
 import { createFormattedRawInput } from '../utils/createQueryParamsWithMention';
 import { showToast } from '../utils/showToast';
@@ -38,9 +42,62 @@ export const Search = memo(function Search() {
 
   const navigate = useNavigate();
 
+  const handleTokenHoldersSearch = useCallback(() => {
+    const string = value.trim();
+    const [allMentions, mentionOnlyValue] = getAllMentionDetails(string);
+
+    let inputType: UserInputs['inputType'] = null;
+
+    const isValidInput = allMentions.every(
+      mention => mention.blockchain === allMentions[0].blockchain
+    );
+
+    const hasNoMentions = allMentions.length === 0;
+
+    if (hasNoMentions) {
+      const firstWord = string.split(' ')[0];
+      inputType = firstWord.startsWith('0x')
+        ? 'ADDRESS'
+        : !isNaN(Number(firstWord))
+        ? 'POAP'
+        : null;
+    }
+
+    if (!isValidInput || (hasNoMentions && !inputType)) {
+      showToast('Couldn’t find any contract', 'negative');
+      setData({}, { reset: true, updateQueryParams: true });
+      return;
+    }
+
+    const {
+      blockchain = 'ethereum',
+      customInputType,
+      eventId
+    } = allMentions[0];
+
+    const address = allMentions.map(
+      mention => (eventId ? mention.eventId : mention.address) as string
+    );
+
+    const searchData = {
+      address,
+      blockchain,
+      rawInput: mentionOnlyValue,
+      inputType:
+        (customInputType as UserInputs['inputType']) || inputType || 'ADDRESS'
+    };
+    setValue(mentionOnlyValue);
+    setData(searchData);
+  }, [setData, value]);
+
   const handleSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
+
+      if (!isTokenBalances) {
+        handleTokenHoldersSearch();
+        return;
+      }
 
       const {
         address,
@@ -48,8 +105,6 @@ export const Search = memo(function Search() {
         eventId,
         customInputType
       } = getValuesFromId(value) || {};
-
-      // const [allMentions, mentionOnlyValue] = getAllMentionDetails(value);
 
       if (!address) return;
 
@@ -78,7 +133,7 @@ export const Search = memo(function Search() {
       }
 
       const searchData = {
-        address: eventId || address,
+        address: [eventId || address],
         blockchain,
         rawInput,
         inputType:
@@ -104,6 +159,7 @@ export const Search = memo(function Search() {
       setSearchParams(searchData);
     },
     [
+      handleTokenHoldersSearch,
       isHome,
       isTokenBalances,
       navigate,
