@@ -6,9 +6,7 @@ import {
 import { useCallback, useMemo } from 'react';
 
 export type CachedQuery = {
-  address: string;
-  // blockchain is not being used, we can remove it
-  blockchain: string;
+  address: string[];
   tokenType: string;
   rawInput: string;
   inputType: 'POAP' | 'ADDRESS' | null;
@@ -31,6 +29,8 @@ type UpdateUserInputs = (
   data: Partial<UserInputs>,
   config?: { reset?: boolean; updateQueryParams?: boolean }
 ) => void;
+
+const arrayTypes = ['address', 'blockchainType', 'tokenFilters'];
 
 export function useSearchInput(): [
   UserInputs,
@@ -74,7 +74,7 @@ export function useSearchInput(): [
             // eslint-disable-next-line
             // @ts-ignore
             searchParams[key] = '';
-          } else if (key === 'tokenFilters' || key === 'blockchainType') {
+          } else if (arrayTypes.includes(key)) {
             // eslint-disable-next-line
             // @ts-ignore
             searchParams[key] = (inputs[key] as string[]).join(',');
@@ -88,71 +88,56 @@ export function useSearchInput(): [
     [isTokenBalances, setSarchParams]
   );
 
+  const getData = useCallback(
+    <T extends true | false | undefined = false>(
+      key: keyof CachedQuery,
+      isArray?: T
+    ): T extends true ? string[] : string => {
+      const { tokenBalance, tokenHolder } = userInputCache;
+      const valueString = searchParams.get(key) || '';
+      const savedValue =
+        (isTokenBalances ? tokenBalance[key] : tokenHolder[key]) ||
+        (isArray ? [] : '');
+
+      let value = isArray
+        ? valueString
+          ? valueString.split(',')
+          : savedValue || []
+        : valueString;
+
+      if (
+        isArray &&
+        Array.isArray(savedValue) &&
+        savedValue.join(',') === valueString
+      ) {
+        // if filters are same as saved filters, use refrerence of saved filters so the component doesn't re-render unnecessarily
+        value = savedValue;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return value as any;
+    },
+    [isTokenBalances, searchParams]
+  );
+
   return useMemo(() => {
-    const { tokenBalance, tokenHolder } = userInputCache;
-    const {
-      rawInput: rawQuery,
-      address,
-      blockchain: savedBlockchain,
-      tokenType: savedTokenType,
-      inputType: savedInputType,
-      tokenFilters: savedTokenFilters,
-      blockchainType: savedBlockchainType,
-      sortOrder: savedSortOrder
-    } = isTokenBalances ? tokenBalance : tokenHolder;
-
-    const query = searchParams.get('address') || '';
-    const tokenType = searchParams.get('tokenType') || '';
-    const blockchain = searchParams.get('blockchain') || '';
-    const rawInput = searchParams.get('rawInput') || '';
-    const activeView = searchParams.get('activeView') || '';
-    const activeViewToken = searchParams.get('activeViewToken') || '';
-    const activeViewCount = searchParams.get('activeViewCount') || '';
-    const inputType =
-      (searchParams.get('inputType') as UserInputs['inputType']) || null;
-
-    const sortOrder = searchParams.get('sortOrder') || '';
-
-    const blockchainTypeString = searchParams.get('blockchainType') || '';
-    let blockchainType = blockchainTypeString
-      ? blockchainTypeString.split(',')
-      : savedBlockchainType || [];
-
-    if (
-      savedBlockchainType &&
-      savedBlockchainType.join(',') === blockchainTypeString
-    ) {
-      // if filters are same as saved filters, use refrerence of saved filters so the component doesn't re-render unnecessarily
-      blockchainType = savedBlockchainType;
-    }
-
-    const filtersString = searchParams.get('tokenFilters') || '';
-    let tokenFilters = filtersString
-      ? filtersString.split(',')
-      : savedTokenFilters || [];
-
-    if (savedTokenFilters && savedTokenFilters.join(',') === filtersString) {
-      // if filters are same as saved filters, use refrerence of saved filters so the component doesn't re-render unnecessarily
-      tokenFilters = savedTokenFilters;
-    }
-
     const data = {
-      address: query || address || '',
-      tokenType: tokenType || savedTokenType || '',
-      // blockchain is not being used, we can remove it
-      blockchain: blockchain || savedBlockchain || '',
-      rawInput: rawInput || rawQuery || '',
-      inputType: !isTokenBalances ? inputType || savedInputType : null,
-      activeView: isTokenBalances ? '' : activeView,
-      tokenFilters: !isTokenBalances ? tokenFilters : [],
-      activeViewToken: isTokenBalances ? '' : activeViewToken,
-      activeViewCount: isTokenBalances ? '' : activeViewCount,
-      blockchainType: blockchainType || savedBlockchainType || [],
-      sortOrder: sortOrder || savedSortOrder || ''
+      address: getData('address', true),
+      tokenType: getData('tokenType'),
+      rawInput: getData('rawInput'),
+      inputType: !isTokenBalances
+        ? (getData('inputType') as CachedQuery['inputType'])
+        : null,
+      activeView: isTokenBalances ? '' : getData('activeView'),
+      tokenFilters: !isTokenBalances ? getData('tokenFilters', true) : [],
+      activeViewToken: isTokenBalances ? '' : getData('activeViewToken'),
+      activeViewCount: isTokenBalances ? '' : getData('activeViewCount'),
+      blockchainType: getData('blockchainType', true),
+      sortOrder: getData('sortOrder')
     };
 
     setData(data);
 
     return [data, setData, setSarchParams];
-  }, [isTokenBalances, searchParams, setData, setSarchParams]);
+  }, [getData, isTokenBalances, setData, setSarchParams]);
 }
