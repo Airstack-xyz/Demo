@@ -35,7 +35,8 @@ function Overview() {
     xmtp: 0
   });
 
-  const [{ address: tokenAddress, inputType, tokenType }] = useSearchInput();
+  const [{ address, inputType, tokenType }] = useSearchInput();
+  const tokenAddress = address.length > 0 ? address[0] : '';
 
   const isPoap = inputType === 'POAP' || tokenType === 'POAP';
 

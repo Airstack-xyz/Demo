@@ -60,31 +60,31 @@ function TokensComponent() {
   }, [blockchainType, isPoap, tokenType]);
 
   useEffect(() => {
-    if (owner) {
-      const hasPolygonChainFilter =
-        blockchainType.length === 1 && blockchainType[0] === 'polygon';
+    if (owner.length === 0) return;
 
-      if (!tokenType || !isPoap) {
-        fetchTokens({
-          owner,
-          limit: fetchAllBlockchains || !hasPolygonChainFilter ? 10 : 20,
-          sortBy: sortOrder ? sortOrder : defaultSortOrder,
-          tokenType:
-            tokenType && tokenType.length > 0
-              ? [tokenType]
-              : tokenTypes.filter(tokenType => tokenType !== 'POAP')
-        });
-      }
+    const hasPolygonChainFilter =
+      blockchainType.length === 1 && blockchainType[0] === 'polygon';
 
-      if (canFetchPoap) {
-        fetchPoaps({
-          owner,
-          limit: isPoap ? 20 : 10,
-          sortBy: sortOrder ? sortOrder : defaultSortOrder
-        });
-      }
-      setTokens([]);
+    if (!tokenType || !isPoap) {
+      fetchTokens({
+        owner: owner[0],
+        limit: fetchAllBlockchains || !hasPolygonChainFilter ? 10 : 20,
+        sortBy: sortOrder ? sortOrder : defaultSortOrder,
+        tokenType:
+          tokenType && tokenType.length > 0
+            ? [tokenType]
+            : tokenTypes.filter(tokenType => tokenType !== 'POAP')
+      });
     }
+
+    if (canFetchPoap) {
+      fetchPoaps({
+        owner: owner[0],
+        limit: isPoap ? 20 : 10,
+        sortBy: sortOrder ? sortOrder : defaultSortOrder
+      });
+    }
+    setTokens([]);
   }, [
     blockchainType,
     canFetchPoap,
