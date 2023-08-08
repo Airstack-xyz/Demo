@@ -94,10 +94,12 @@ export function ERC20Tokens() {
     polygon: []
   });
 
-  const [fetch, { data: data, loading, pagination }] =
-    useLazyQueryWithPagination(ERC20TokensQuery);
+  const [fetch, { data: erc20Data, loading, pagination }] =
+    useLazyQueryWithPagination(ERC20TokensQuery, {}, { cache: false });
   const [{ address: owner, tokenType, blockchainType, sortOrder }] =
     useSearchInput();
+
+  let data = erc20Data;
 
   useEffect(() => {
     if (owner) {
@@ -105,9 +107,14 @@ export function ERC20Tokens() {
         ethereum: [],
         polygon: []
       });
+
+      // remove data to make sure on next render, the data is not used in the useEffect below
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      data = null;
+
       fetch({
         owner,
-        limit: 20
+        limit: 10
       });
     }
     /*
