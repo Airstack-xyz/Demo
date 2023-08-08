@@ -11,18 +11,29 @@ import { SectionHeader } from './SectionHeader';
 import { TokenType } from './types';
 import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
-import { createTokenHolderUrl } from '../../utils/createTokenHolderUrl';
+import { createTokenHolderUrl } from '../../utils/createTokenUrl';
 import { Link } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { formatNumber } from '../../utils/formatNumber';
+import './erc20.styles.css';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
+  symbol: string;
 };
 
-function Logo({ logo, ...props }: LogoProps) {
+function Logo({ logo, symbol, ...props }: LogoProps) {
   const [error, setError] = useState(false);
   if (error || !logo) {
+    if (symbol) {
+      const text = symbol.substring(0, 3);
+      return (
+        <div className="item flex justify-center items-center h-full w-full font-medium text-xs ellipsis">
+          {text.toUpperCase()}
+          {symbol.length > 3 ? '..' : ''}
+        </div>
+      );
+    }
     return <img src="images/placeholder.svg" {...props} />;
   }
   return <img src={logo} onError={() => setError(true)} {...props} />;
@@ -45,7 +56,7 @@ function Token({
         className="h-10 w-10 rounded-full overflow-hidden border-solid-stroke flex-col-center"
         data-loader-type="hidden"
       >
-        <Logo logo={logo} className="w-full min-w-full" />
+        <Logo logo={logo} symbol={symbol} className="w-full min-w-full" />
       </div>
       <div className="flex flex-1 items-center min-w-0 text-sm pl-2.5">
         <span>{formatNumber(amount)}</span>
@@ -64,13 +75,10 @@ function Loader() {
   return (
     <>
       {loaderData.map((_, index) => (
-        <div
-          className="skeleton-loader [&>div]:mb-0 mb-5"
-          data-loader-type="block"
-          data-loader-bg="glass"
-          key={index}
-        >
-          <Token key={''} amount={0} symbol={''} type={''} logo="" />
+        <div className="skeleton-loader [&>div>div]:mb-0 mb-5" key={index}>
+          <div data-loader-type="block" data-loader-bg="glass">
+            <Token key={''} amount={0} symbol={''} type={''} logo="" />
+          </div>
         </div>
       ))}
     </>
@@ -86,9 +94,12 @@ export function ERC20Tokens() {
     polygon: []
   });
 
-  const [fetch, { data: data, loading, pagination }] =
-    useLazyQueryWithPagination(ERC20TokensQuery);
-  const { address: owner, tokenType } = useSearchInput();
+  const [fetch, { data: erc20Data, loading, pagination }] =
+    useLazyQueryWithPagination(ERC20TokensQuery, {}, { cache: false });
+  const [{ address: owner, tokenType, blockchainType, sortOrder }] =
+    useSearchInput();
+
+  let data = erc20Data;
 
   useEffect(() => {
     if (owner) {
@@ -96,9 +107,14 @@ export function ERC20Tokens() {
         ethereum: [],
         polygon: []
       });
+
+      // remove data to make sure on next render, the data is not used in the useEffect below
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      data = null;
+
       fetch({
         owner,
-        limit: 20
+        limit: 10
       });
     }
     /*
@@ -106,7 +122,7 @@ export function ERC20Tokens() {
       Without this, the tokens list would be unable to fetch additional pages since the window scroll height would be too great (too many ERC20 items).
       InfiniteScroll depends on the window scroll height, if the height is too high, user will have to scroll to the bottom to initiate a pagination call.
     */
-  }, [fetch, owner, tokenType]);
+  }, [fetch, owner, tokenType, blockchainType, sortOrder]);
 
   useEffect(() => {
     if (data) {
@@ -142,7 +158,7 @@ export function ERC20Tokens() {
       </div>
       <div
         className={classNames(
-          'mt-3.5 bg-glass py-3 px-2 rounded-18 border-solid-stroke',
+          'mt-3.5 bg-glass py-3 px-2 rounded-18 border-solid-stroke random-color-list',
           {
             'skeleton-loader min-h-[200px]': items.length === 0 && loading
           }
@@ -167,8 +183,11 @@ export function ERC20Tokens() {
               data-address={token?.tokenAddress}
               to={createTokenHolderUrl({
                 address: token?.tokenAddress,
-                tokenType: 'ERC20'
+                type: 'ERC20',
+                blockchain: token.blockchain,
+                label: token?.token?.name
               })}
+              className="random-color-item"
             >
               <Token
                 key={index}

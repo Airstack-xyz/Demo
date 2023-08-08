@@ -37,6 +37,7 @@ type AIInputProps = {
   onSubmit: (value: string) => void;
   defaultValue?: string;
   placeholder: string;
+  value: string;
 };
 
 const mentionTypeMap: Record<MentionType, string> = {
@@ -49,7 +50,7 @@ const mentionTypeMap: Record<MentionType, string> = {
 export function InputWithMention({
   disabled,
   onChange,
-  defaultValue,
+  value,
   onSubmit,
   placeholder
 }: AIInputProps) {
@@ -61,7 +62,6 @@ export function InputWithMention({
     left: 'auto',
     right: 'auto'
   });
-  const [value, setValue] = useState(defaultValue || '');
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const allowSubmitRef = useRef(true);
   const valueRef = useRef(value);
@@ -114,7 +114,6 @@ export function InputWithMention({
   const handleUserInput = useCallback(
     ({ target: { value } }: { target: { value: string } }) => {
       valueRef.current = value;
-      setValue(value);
       onChange(value);
     },
     [onChange]

@@ -10,9 +10,11 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
-import { POAPQuery, SocialQuery, TokensQuery } from '../../queries';
+import { POAPQuery, SocialQuery } from '../../queries';
 import { tokenTypes } from './constants';
-import { Dropdown } from '../../Components/Dropdown';
+import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
+import { getTokensQuery } from '../../queries/tokensQuery';
+import { defaultSortOrder } from './SortBy';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   return (
@@ -24,14 +26,23 @@ const SocialsAndERC20 = memo(function SocialsAndERC20() {
 });
 
 export function TokenBalance() {
-  const { address: query, tokenType } = useSearchInput();
+  const [{ address: query, tokenType, blockchainType, sortOrder }] =
+    useSearchInput();
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
 
   const options = useMemo(() => {
-    const nftLink = createAppUrlWithQuery(TokensQuery, {
+    const fetchAllBlockchains =
+      blockchainType.length === 2 || blockchainType.length === 0;
+
+    const tokensQuery = getTokensQuery(
+      fetchAllBlockchains ? null : blockchainType[0]
+    );
+
+    const nftLink = createAppUrlWithQuery(tokensQuery, {
       owner: query,
       limit: 10,
+      sortBy: sortOrder ? sortOrder : defaultSortOrder,
       tokenType: tokenType
         ? [tokenType]
         : tokenTypes.filter(tokenType => tokenType !== 'POAP')
@@ -39,7 +50,8 @@ export function TokenBalance() {
 
     const poapLink = createAppUrlWithQuery(POAPQuery, {
       owner: query,
-      limit: 10
+      limit: 10,
+      sortBy: sortOrder ? sortOrder : defaultSortOrder
     });
 
     const socialLink = createAppUrlWithQuery(SocialQuery, {
@@ -67,7 +79,7 @@ export function TokenBalance() {
       link: socialLink
     });
     return options;
-  }, [query, tokenType]);
+  }, [blockchainType, query, sortOrder, tokenType]);
 
   const renderMobileTabs = useCallback(() => {
     return (
@@ -109,7 +121,7 @@ export function TokenBalance() {
         {query && (
           <>
             <div className="hidden sm:flex-col-center my-3">
-              <Dropdown options={options} />
+              <GetAPIDropdown options={options} />
             </div>
             <div className="flex justify-between px-5">
               <div className="w-full h-full" key={query}>

@@ -11,12 +11,54 @@ import {
   TokenTotalSupplyQuery
 } from '../../queries';
 import classNames from 'classnames';
-import { Dropdown } from '../../Components/Dropdown';
+import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
+import { Icon } from '../../Components/Icon';
+import { OverviewDetails } from './OverviewDetails/OverviewDetails';
+import { getRequestFilters } from './OverviewDetails/Tokens/filters';
+import {
+  POAPSupplyQuery,
+  getFilterablePoapsQuery,
+  getFilterableTokensQuery
+} from '../../queries/token-holders';
 
 export function TokenHolders() {
-  const { address: query, tokenType, inputType } = useSearchInput();
+  const [{ address: query, tokenType, inputType, activeView, tokenFilters }] =
+    useSearchInput();
 
   const options = useMemo(() => {
+    const isPoap = inputType === 'POAP';
+    if (activeView) {
+      const requestFilters = getRequestFilters(tokenFilters);
+      let combinationsQueryLink = '';
+      if (isPoap) {
+        const combinationsQuery = getFilterablePoapsQuery(
+          Boolean(requestFilters?.socialFilters),
+          requestFilters?.hasPrimaryDomain
+        );
+        combinationsQueryLink = createAppUrlWithQuery(combinationsQuery, {
+          eventId: query,
+          limit: 200,
+          ...requestFilters
+        });
+      } else {
+        const combinationsQuery = getFilterableTokensQuery(
+          Boolean(requestFilters?.socialFilters),
+          requestFilters?.hasPrimaryDomain
+        );
+        combinationsQueryLink = createAppUrlWithQuery(combinationsQuery, {
+          tokenAddress: query,
+          limit: 200,
+          ...requestFilters
+        });
+      }
+      return [
+        {
+          label: 'Combinations',
+          link: combinationsQueryLink
+        }
+      ];
+    }
+
     const tokenLink = createAppUrlWithQuery(TokenOwnerQuery, {
       tokenAddress: query,
       limit: 20
@@ -31,7 +73,9 @@ export function TokenHolders() {
       tokenAddress: query
     });
 
-    const isPoap = inputType === 'POAP';
+    const poapSupplyLink = createAppUrlWithQuery(POAPSupplyQuery, {
+      eventId: query
+    });
 
     const options = [
       isPoap
@@ -45,15 +89,13 @@ export function TokenHolders() {
           }
     ];
 
-    if (!isPoap) {
-      options.push({
-        label: 'Token supply',
-        link: tokenSupplyLink
-      });
-    }
+    options.push({
+      label: isPoap ? 'POAP supply' : 'Token supply',
+      link: isPoap ? poapSupplyLink : tokenSupplyLink
+    });
 
     return options;
-  }, [inputType, query]);
+  }, [activeView, inputType, query, tokenFilters]);
 
   const isERC20 = tokenType === 'ERC20';
 
@@ -66,18 +108,25 @@ export function TokenHolders() {
         {query && (
           <>
             <div className="hidden sm:flex-col-center my-3">
-              <Dropdown options={options} />
+              <GetAPIDropdown options={options} />
             </div>
-            <div className="flex flex-col justify-center mt-7" key={query}>
-              {!isERC20 && <HoldersOverview />}
-              <div
-                className={classNames({
-                  'mt-10': !isERC20
-                })}
-              >
-                <Tokens />
+            {activeView && <OverviewDetails />}
+            {!activeView && (
+              <div className="flex flex-col justify-center mt-7" key={query}>
+                {!isERC20 && <HoldersOverview />}
+                <div
+                  className={classNames({
+                    'mt-7': !isERC20
+                  })}
+                >
+                  <div className="flex mb-4">
+                    <Icon name="token-holders" height={20} width={20} />{' '}
+                    <span className="font-bold ml-1.5 text-sm">Holders</span>
+                  </div>
+                  <Tokens />
+                </div>
               </div>
-            </div>
+            )}
           </>
         )}
       </div>

@@ -15,7 +15,7 @@ module.exports = {
         'button-secondary-hover': '#1B1B24',
         'button-secondary-disabled': '#efadaf',
         'toast-positive': '#387C44',
-        'toast-error': '#F30C0C',
+        'toast-negative': '#F30C0C',
         'text-primary': '#FFFFFF',
         'text-secondary': '#97999c',
         'text-placeholder': '#b1b3b5',
@@ -68,6 +68,22 @@ module.exports = {
             rgba(255, 255, 255, 0) 100%
           )`,
           'backdrop-filter': `blur(100px)`
+        },
+        '.bg-glass-1': {
+          background: `linear-gradient(
+            137deg,
+            rgba(255, 255, 255, 0.12) 0.55%,
+            rgba(255, 255, 255, 0) 100%
+          )`,
+          'backdrop-filter': `blur(33.31547927856445px)`
+        },
+        '.bg-glass-1-light': {
+          background: `linear-gradient(
+            137deg,
+            rgba(255, 255, 255, 0.2) 0.55%,
+            rgba(255, 255, 255, 0) 100%
+          );`,
+          'backdrop-filter': `blur(33.31547927856445px)`
         }
       });
     }

@@ -24,7 +24,13 @@ export type IconType =
   | 'arrow-right-round'
   | 'count-loader'
   | 'arrow-down'
-  | 'xmtp';
+  | 'xmtp'
+  | 'table-view'
+  | 'filter'
+  | 'copy'
+  | 'sort'
+  | 'blockchain-filter'
+  | 'check-mark';
 
 export type IconProps = {
   name: IconType;
