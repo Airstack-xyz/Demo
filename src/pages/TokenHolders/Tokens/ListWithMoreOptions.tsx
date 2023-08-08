@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import { useState, useMemo, useCallback } from 'react';
 
 const maxTokens = 7;
@@ -34,10 +35,12 @@ export function ListWithMoreOptions({
       {items.map((name, index) => (
         <li key={index} className="ellipsis mb-1">
           <div
-            className="px-1 py-1 rounded-18 ellipsis hover:bg-glass-1 cursor-pointer"
+            className={classNames('px-1 py-1 rounded-18 ellipsis', {
+              'hover:bg-glass-1 cursor-pointer': name
+            })}
             onClick={getItemClickHandler(name)}
           >
-            {name}
+            {name || '--'}
           </div>
         </li>
       ))}

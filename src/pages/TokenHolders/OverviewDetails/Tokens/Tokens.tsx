@@ -36,7 +36,7 @@ function TableRow({ isLoader, children, ...props }: TableRowProps) {
   return (
     <tr
       className={classNames(
-        '[&>td]:px-8 [&>td]:py-5 [&>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer',
+        '[&>td]:px-8 [&>td]:py-5 [&>td]:align-middle min-h-[54px]',
         {
           'skeleton-loader [&>td:last-child]:hidden': isLoader,
           '[&>div>td]:px-8 [&>div>td]:py-5': isLoader

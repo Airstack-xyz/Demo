@@ -1,8 +1,11 @@
-import { ListWithMoreOptions } from './ListWithMoreOptions';
 import { Poap, Token as TokenType } from '../../types';
 import { Icon } from '../../../../Components/Icon';
 import { useMemo, useCallback } from 'react';
 import { getDAppType } from '../../utils';
+import { ListWithMoreOptions } from '../../Tokens/ListWithMoreOptions';
+import { useNavigate } from 'react-router-dom';
+import { createTokenBalancesUrl } from '../../../../utils/createTokenUrl';
+import { WalletAddress } from '../../Tokens/WalletAddress';
 
 export function Token({
   token,
@@ -12,10 +15,14 @@ export function Token({
   onShowMore?: (value: string[], dataType: string) => void;
 }) {
   const owner = token?.owner;
-  const walletAddress = owner?.addresses || '';
+  const walletAddresses = owner?.addresses || '';
+  const walletAddress = Array.isArray(walletAddresses)
+    ? walletAddresses[0]
+    : '';
   const primarEns = owner?.primaryDomain?.name || '';
   const ens = owner?.domains?.map(domain => domain.name) || [];
   const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
+  const navigate = useNavigate();
 
   const { lens, farcaster } = useMemo(() => {
     const social = owner?.socials || [];
@@ -39,6 +46,20 @@ export function Token({
     [onShowMore]
   );
 
+  const handleAddressClick = useCallback(
+    (address: string, type = '') => {
+      const isFarcaster = type?.includes('farcaster');
+      navigate(
+        createTokenBalancesUrl({
+          address: isFarcaster ? `fc_fname:${address}` : address,
+          blockchain: 'ethereum',
+          inputType: 'ADDRESS'
+        })
+      );
+    },
+    [navigate]
+  );
+
   return (
     <>
       <td>
@@ -46,21 +67,36 @@ export function Token({
           <ListWithMoreOptions
             list={ens}
             onShowMore={getShowMoreHandler(ens, 'ens')}
+            listFor="ens"
+            onItemClick={handleAddressClick}
           />
         </div>
       </td>
-      <td className="ellipsis">{primarEns || '--'}</td>
-      <td className="ellipsis">{walletAddress || '--'}</td>
+      <td className="ellipsis">
+        <ListWithMoreOptions
+          list={[primarEns || '']}
+          onShowMore={getShowMoreHandler(ens, 'ens')}
+          listFor="ens"
+          onItemClick={handleAddressClick}
+        />
+      </td>
+      <td className="ellipsis">
+        <WalletAddress address={walletAddress} onClick={handleAddressClick} />
+      </td>
       <td>
         <ListWithMoreOptions
           list={lens}
           onShowMore={getShowMoreHandler(lens, 'lens')}
+          listFor="lens"
+          onItemClick={handleAddressClick}
         />
       </td>
       <td>
         <ListWithMoreOptions
           list={farcaster}
           onShowMore={getShowMoreHandler(farcaster, 'farcaster')}
+          listFor="farcaster"
+          onItemClick={handleAddressClick}
         />
       </td>
       <td>

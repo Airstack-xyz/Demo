@@ -7,7 +7,7 @@ import { getDAppType } from '../utils';
 import { Poap, Token as TokenType } from '../types';
 import { ListWithMoreOptions } from './ListWithMoreOptions';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
-import { showToast } from '../../../utils/showToast';
+import { WalletAddress } from './WalletAddress';
 
 export function Token({
   token,
@@ -55,7 +55,7 @@ export function Token({
   );
 
   const handleAddressClick = useCallback(
-    (address: string, type: string) => {
+    (address: string, type = '') => {
       const isFarcaster = type?.includes('farcaster');
       navigate(
         createTokenBalancesUrl({
@@ -83,26 +83,7 @@ export function Token({
         </div>
       </td>
       <td className="ellipsis">
-        <div
-          className="flex px-1 py-1 rounded-18 hover:bg-glass-1 cursor-pointer"
-          onClick={() => {
-            handleAddressClick(walletAddress, '');
-          }}
-        >
-          <span className="ellipsis">{walletAddress || '--'}</span>
-          {walletAddress && (
-            <Icon
-              name="copy"
-              height={16}
-              width={16}
-              onClick={async e => {
-                e.stopPropagation();
-                await navigator.clipboard.writeText(walletAddress);
-                showToast('Copied to clipboard');
-              }}
-            />
-          )}
-        </div>
+        <WalletAddress address={walletAddress} onClick={handleAddressClick} />
       </td>
       <td className="ellipsis">
         {_token?.tokenType === 'ERC20'
@@ -114,7 +95,7 @@ export function Token({
       <td className="ellipsis">
         {}
         <ListWithMoreOptions
-          list={[primarEns || '--']}
+          list={[primarEns || '']}
           onShowMore={getShowMoreHandler(ens, 'ens')}
           listFor="ens"
           onItemClick={handleAddressClick}

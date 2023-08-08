@@ -136,6 +136,11 @@ function TokensComponent() {
   const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
   const isPoap = tokenType === 'POAP';
 
+  const canFetchPoap = useMemo(() => {
+    const hasPolygonChainFilter = blockchainType.includes('polygon');
+    return !hasPolygonChainFilter && (!tokenType || isPoap);
+  }, [blockchainType, isPoap, tokenType]);
+
   useEffect(() => {
     if (owner) {
       const hasPolygonChainFilter = blockchainType.includes('polygon');
@@ -152,7 +157,7 @@ function TokensComponent() {
         });
       }
 
-      if (!hasPolygonChainFilter && (!tokenType || isPoap)) {
+      if (canFetchPoap) {
         fetchPoaps({
           owner,
           limit: isPoap ? 20 : 10,
@@ -163,6 +168,7 @@ function TokensComponent() {
     }
   }, [
     blockchainType,
+    canFetchPoap,
     fetchAllBlockchains,
     fetchPoaps,
     fetchTokens,
@@ -192,10 +198,17 @@ function TokensComponent() {
       paginationTokens.getNextPage();
     }
 
-    if (!loadingPoaps && paginationPoaps?.hasNextPage) {
+    if (canFetchPoap && !loadingPoaps && paginationPoaps?.hasNextPage) {
       paginationPoaps.getNextPage();
     }
-  }, [isPoap, loadingPoaps, loadingTokens, paginationPoaps, paginationTokens]);
+  }, [
+    canFetchPoap,
+    isPoap,
+    loadingPoaps,
+    loadingTokens,
+    paginationPoaps,
+    paginationTokens
+  ]);
 
   const loading = loadingTokens || loadingPoaps;
 
