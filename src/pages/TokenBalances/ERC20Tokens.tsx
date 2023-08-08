@@ -102,7 +102,7 @@ export function ERC20Tokens() {
   let data = erc20Data;
 
   useEffect(() => {
-    if (owner) {
+    if (owner.length > 0) {
       setTokens({
         ethereum: [],
         polygon: []
@@ -113,7 +113,7 @@ export function ERC20Tokens() {
       data = null;
 
       fetch({
-        owner,
+        owner: owner[0],
         limit: 10
       });
     }

@@ -31,7 +31,7 @@ export function Social({ name, values, image, onShowMore }: SocialProps) {
       setData(
         {
           rawInput: isFarcaster ? `fc_fname:${value}` : value,
-          address: isFarcaster ? `fc_fname:${value}` : value,
+          address: isFarcaster ? [`fc_fname:${value}`] : [value],
           inputType: 'ADDRESS'
         },
         { updateQueryParams: true }

@@ -106,7 +106,8 @@ export function TokensComponent() {
   // and fetch next data call will not be made
   let tokensData = data || poapsData || null;
 
-  const [{ address: tokenAddress, inputType }] = useSearchInput();
+  const [{ address, inputType }] = useSearchInput();
+  const tokenAddress = address.length > 0 ? address[0] : '';
 
   const [showModal, setShowModal] = useState(false);
   const [modalValues, setModalValues] = useState<{
