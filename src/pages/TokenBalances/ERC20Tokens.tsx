@@ -96,7 +96,8 @@ export function ERC20Tokens() {
 
   const [fetch, { data: data, loading, pagination }] =
     useLazyQueryWithPagination(ERC20TokensQuery);
-  const [{ address: owner, tokenType }] = useSearchInput();
+  const [{ address: owner, tokenType, blockchainType, sortOrder }] =
+    useSearchInput();
 
   useEffect(() => {
     if (owner) {
@@ -114,7 +115,7 @@ export function ERC20Tokens() {
       Without this, the tokens list would be unable to fetch additional pages since the window scroll height would be too great (too many ERC20 items).
       InfiniteScroll depends on the window scroll height, if the height is too high, user will have to scroll to the bottom to initiate a pagination call.
     */
-  }, [fetch, owner, tokenType]);
+  }, [fetch, owner, tokenType, blockchainType, sortOrder]);
 
   useEffect(() => {
     if (data) {
