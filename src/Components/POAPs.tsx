@@ -56,9 +56,9 @@ export function POAPs() {
   const [{ address: ownerAddress }] = useSearchInput();
 
   useEffect(() => {
-    if (ownerAddress) {
+    if (ownerAddress.length > 0) {
       fetch({
-        owner: ownerAddress,
+        owner: ownerAddress[0],
         limit: 20
       });
       setPoaps([]);

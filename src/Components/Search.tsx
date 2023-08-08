@@ -87,7 +87,7 @@ export const Search = memo(function Search() {
         (customInputType as UserInputs['inputType']) || inputType || 'ADDRESS'
     };
     setValue(mentionOnlyValue);
-    setData(searchData);
+    setData(searchData, { updateQueryParams: true });
   }, [setData, value]);
 
   const handleSubmit = useCallback(

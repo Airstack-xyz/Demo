@@ -22,8 +22,10 @@ import {
 } from '../../queries/token-holders';
 
 export function TokenHolders() {
-  const [{ address: query, tokenType, inputType, activeView, tokenFilters }] =
+  const [{ address, tokenType, inputType, activeView, tokenFilters }] =
     useSearchInput();
+
+  const query = address.length > 0 ? address[0] : '';
 
   const options = useMemo(() => {
     const isPoap = inputType === 'POAP';

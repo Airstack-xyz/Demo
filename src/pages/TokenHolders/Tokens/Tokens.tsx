@@ -62,20 +62,20 @@ export function TokensComponent() {
   const isPoap = inputType === 'POAP';
 
   useEffect(() => {
-    if (tokenAddress) {
-      if (isPoap) {
-        fetchPoap({
-          eventId: tokenAddress,
-          limit: LIMIT
-        });
-        return;
-      }
+    if (tokenAddress.length === 0) return;
 
-      fetchTokens({
-        tokenAddress,
+    if (isPoap) {
+      fetchPoap({
+        eventId: tokenAddress[0],
         limit: LIMIT
       });
+      return;
     }
+
+    fetchTokens({
+      tokenAddress: tokenAddress[0],
+      limit: LIMIT
+    });
   }, [fetchPoap, fetchTokens, isPoap, tokenAddress]);
 
   useEffect(() => {
