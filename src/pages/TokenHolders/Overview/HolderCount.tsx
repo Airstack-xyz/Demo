@@ -1,11 +1,10 @@
-import { ReactNode } from 'react';
 import { Icon } from '../../../Components/Icon';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 
 export function HolderCount({
   count,
   subText,
-  image,
+  images,
   loading,
   name,
   tokenName
@@ -15,7 +14,7 @@ export function HolderCount({
   loading: boolean;
   name: string;
   tokenName: string;
-  image?: ReactNode;
+  images: React.JSX.Element[];
 }) {
   const setInputs = useSearchInput()[1];
 
@@ -38,8 +37,19 @@ export function HolderCount({
         );
       }}
     >
-      <div className="rounded-full min-w-[47px] w-[47px] h-[47px] overflow-hidden flex-row-center">
-        {image}
+      <div
+        className="flex relative min-w-[47px] min-h-[47px]"
+        style={{ marginRight: images.length * 5 }}
+      >
+        {images &&
+          images.map((image, index) => (
+            <div
+              style={{ left: 10 * index, zIndex: length - index }}
+              className="absolute rounded-full min-w-[47px] w-[47px] h-[47px] overflow-hidden flex-row-center"
+            >
+              {image}
+            </div>
+          ))}
       </div>
       <div className="pl-2.5 flex-1 overflow-hidden">
         <div className="text-xl font-bold">

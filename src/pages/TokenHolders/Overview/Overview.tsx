@@ -1,19 +1,13 @@
 import { useLazyQuery } from '@airstack/airstack-react';
 import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
-import {
-  PoapOwnerQuery,
-  TokenOwnerQuery,
-  TokenTotalSupplyQuery
-} from '../../../queries';
+import { TokenTotalSupplyQuery } from '../../../queries';
 import { HolderCount } from './HolderCount';
 import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
 import {
   OverviewBlockchainData,
   OverviewData,
-  Poap,
-  Token,
   TotalPoapsSupply,
   TotalSupply
 } from '../types';
@@ -21,6 +15,7 @@ import { useGetTokenOverview } from '../../../hooks/useGetTokenOverview';
 import { Chain } from '@airstack/airstack-react/constants';
 import { POAPSupplyQuery } from '../../../queries/token-holders';
 import { imageAndSubTextMap } from './imageAndSubTextMap';
+import { useFetchTokens } from '../../../hooks/useGetTokens';
 
 function Overview() {
   const [overViewData, setOverViewData] = useState<
@@ -44,11 +39,9 @@ function Overview() {
     data: tokenOverviewData,
     loading: loadingTokenOverview,
     error: tokenOverviewError
-  } = useGetTokenOverview(tokenAddress, isPoap);
+  } = useGetTokenOverview(address, isPoap);
 
-  const [fetchTokens, { data: tokensData }] = useLazyQuery(
-    isPoap ? PoapOwnerQuery : TokenOwnerQuery
-  );
+  const [fetchTokens, tokenDetails] = useFetchTokens();
 
   const [fetchTotalSupply, { data: totalSupply, loading: loadingSupply }] =
     useLazyQuery(TokenTotalSupplyQuery);
@@ -58,24 +51,10 @@ function Overview() {
     { data: totalPoapsSupply, loading: loadingPoapsSupply }
   ] = useLazyQuery(POAPSupplyQuery);
 
-  const [tokenDetails, setTokenDetails] = useState<null | {
-    name: string;
-    tokenId: string;
-    tokenAddress: string;
-    image: string;
-    tokenType: string;
-    blockchain: string;
-  } | null>(null);
-
   useEffect(() => {
     if (!tokenAddress) return;
 
-    const variables = isPoap ? { eventId: tokenAddress } : { tokenAddress };
-    // just fetch one token to show the details
-    fetchTokens({
-      ...variables,
-      limit: 1
-    });
+    fetchTokens(address);
 
     if (isPoap) {
       fetchPoapsTotalSupply({
@@ -88,6 +67,7 @@ function Overview() {
       tokenAddress
     });
   }, [
+    address,
     fetchPoapsTotalSupply,
     fetchTokens,
     fetchTotalSupply,
@@ -95,7 +75,12 @@ function Overview() {
     tokenAddress
   ]);
 
-  const isERC20 = tokenType === 'ERC20' || tokenDetails?.tokenType === 'ERC20';
+  const isERC20 = useMemo(() => {
+    return (
+      tokenType === 'ERC20' ||
+      tokenDetails.some(token => token.tokenType === 'ERC20')
+    );
+  }, [tokenDetails, tokenType]);
 
   const updateOverviewData = useCallback((overview: OverviewBlockchainData) => {
     setOverViewData(_overview => {
@@ -164,68 +149,38 @@ function Overview() {
     }
   }, [totalPoapsSupply]);
 
-  useEffect(() => {
-    if (isPoap || !tokensData || isERC20) return;
-
-    const ethTokenBalances = tokensData?.ethereum?.TokenBalance || [];
-    const polygonTokenBalances = tokensData?.polygon?.TokenBalance || [];
-
-    const token = (ethTokenBalances[0] || polygonTokenBalances[0]) as Token;
-
-    setTokenDetails(tokenDetails => {
-      if (tokenDetails) return tokenDetails;
-
-      return {
-        name: token?.token?.name || '',
-        tokenId: token?.tokenId || '',
-        tokenAddress: token?.tokenAddress || '',
-        image:
-          token?.token?.logo?.medium ||
-          token?.token?.projectDetails?.imageUrl ||
-          '',
-        tokenType: token?.tokenType,
-        blockchain: token?.blockchain
-      };
-    });
-  }, [tokensData, isERC20, isPoap]);
-
-  useEffect(() => {
-    if (!isPoap || !tokensData) return;
-    const poaps: Poap[] = tokensData?.Poaps?.Poap || [];
-    const poap = poaps[0] as Poap;
-    if (!poap) return;
-
-    setTokenDetails(tokenDetails => {
-      if (tokenDetails) return tokenDetails;
-      return {
-        name: poap?.poapEvent?.eventName || '',
-        tokenId: poap?.tokenId || '',
-        tokenAddress: poap?.tokenAddress || '',
-        image: poap?.poapEvent?.logo?.image?.medium || '',
-        tokenType: 'POAP',
-        blockchain: 'ethereum'
-      };
-    });
-  }, [isPoap, tokensData]);
-
-  const tokenImage = useMemo(() => {
+  const tokenImages = useMemo(() => {
     if (!tokenDetails) return null;
-
-    const { tokenId, tokenAddress, image, blockchain } = tokenDetails;
-
-    return (
-      <Asset
-        address={tokenAddress}
-        tokenId={tokenId}
-        preset="medium"
-        image={image}
-        chain={blockchain as Chain}
-      />
-    );
+    return tokenDetails.map(token => {
+      const { tokenId, tokenAddress, image, blockchain } = token;
+      if (image)
+        return (
+          <div>
+            <Asset
+              address={tokenAddress}
+              tokenId={tokenId}
+              preset="medium"
+              image={image}
+              chain={blockchain as Chain}
+            />
+          </div>
+        );
+      return (
+        <Asset
+          address={tokenAddress}
+          tokenId={tokenId}
+          preset="medium"
+          image={image}
+          chain={blockchain as Chain}
+        />
+      );
+    });
   }, [tokenDetails]);
 
   const loading = loadingTokenOverview;
   const totalHolders = (overViewData?.owners as number) || 0;
+  const name = tokenDetails.length === 1 ? tokenDetails[0].name : '';
+
   const holderCounts = useMemo(() => {
     return Object.keys(overViewData).map(key => {
       if (key === 'totalSupply') return null;
@@ -233,7 +188,7 @@ function Overview() {
       let subText = text;
       if (key === 'owners' && tokenDetails) {
         subText += `${totalHolders <= 1 ? 's' : ''} ${
-          tokenDetails.name || 'this contract'
+          name || 'these contract'
         }`;
       }
 
@@ -245,21 +200,24 @@ function Overview() {
         <HolderCount
           key={key}
           name={key}
-          tokenName={tokenDetails?.name || ''}
+          tokenName={name || ''}
           loading={loading}
           count={count}
           subText={subText}
-          image={
-            !image ? tokenImage : <img src={image} alt="" className="w-full" />
+          images={
+            !image
+              ? tokenImages || []
+              : [<img src={image} alt="" className="w-full" />]
           }
         />
       );
     });
   }, [
     loading,
+    name,
     overViewData,
     tokenDetails,
-    tokenImage,
+    tokenImages,
     tokenOverviewError,
     totalHolders
   ]);
@@ -268,6 +226,9 @@ function Overview() {
 
   const lodingTotalSupply = loadingPoapsSupply || loadingSupply;
   const supply = overViewData?.totalSupply;
+  // eslint-disable-next-line
+  // @ts-ignore
+  window.totalOwners = overViewData?.owners || 0;
 
   return (
     <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px]">
@@ -292,10 +253,12 @@ function Overview() {
         <div className="grid grid-cols-2 gap-2.5 mt-5">{holderCounts}</div>
       </div>
       <div
-        className="h-full flex-1 hidden [&>div]:h-full [&>div]:w-full [&>div>img]:w-full [&>div>img]:min-w-full sm:flex-col-center max-w-[421px]"
+        className="h-full flex-1 hidden [&>div]:h-full [&>div]:w-full sm:flex-col-center max-w-[421px]"
         data-loader-type="block"
       >
-        {tokenImage}
+        <div className="flex [&>*]:w-1/2 justify-center items-center flex-wrap">
+          {tokenImages}
+        </div>
       </div>
     </div>
   );
