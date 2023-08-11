@@ -17,9 +17,9 @@ import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { getRequestFilters } from './OverviewDetails/Tokens/filters';
 import {
   POAPSupplyQuery,
-  getFilterablePoapsQuery,
   getFilterableTokensQuery
-} from '../../queries/token-holders';
+} from '../../queries/overviewDetailsTokens';
+import { getFilterablePoapsQuery } from '../../queries/overviewDetailsPoap';
 
 export function TokenHolders() {
   const [{ address, tokenType, inputType, activeView, tokenFilters }] =
@@ -34,6 +34,7 @@ export function TokenHolders() {
       let combinationsQueryLink = '';
       if (isPoap) {
         const combinationsQuery = getFilterablePoapsQuery(
+          address,
           Boolean(requestFilters?.socialFilters),
           requestFilters?.hasPrimaryDomain
         );
@@ -44,6 +45,7 @@ export function TokenHolders() {
         });
       } else {
         const combinationsQuery = getFilterableTokensQuery(
+          address,
           Boolean(requestFilters?.socialFilters),
           requestFilters?.hasPrimaryDomain
         );
@@ -97,7 +99,7 @@ export function TokenHolders() {
     });
 
     return options;
-  }, [activeView, inputType, query, tokenFilters]);
+  }, [activeView, address, inputType, query, tokenFilters]);
 
   const isERC20 = tokenType === 'ERC20';
 

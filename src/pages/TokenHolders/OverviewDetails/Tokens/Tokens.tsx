@@ -12,16 +12,14 @@ import { Modal } from '../../../../Components/Modal';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { Header } from './Header';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { Poap, Token as TokenType } from '../../types';
+import { Poap, PoapsData, Token as TokenType, TokensData } from '../../types';
 import { filterTokens, getRequestFilters } from './filters';
-import {
-  getFilterablePoapsQuery,
-  getFilterableTokensQuery
-} from '../../../../queries/token-holders';
+import { getFilterableTokensQuery } from '../../../../queries/overviewDetailsTokens';
 import { Token } from './Token';
 import classNames from 'classnames';
 import { StatusLoader } from './StatusLoader';
 import { useLoaderContext } from '../../../../hooks/useLoader';
+import { getFilterablePoapsQuery } from '../../../../queries/overviewDetailsPoap';
 
 const LIMIT = 50;
 
@@ -67,7 +65,7 @@ function Loader() {
 export function TokensComponent() {
   const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
   const tokensRef = useRef<(TokenType | Poap)[]>([]);
-  const [{ tokenFilters: filters }] = useSearchInput();
+  const [{ tokenFilters: filters, address, inputType }] = useSearchInput();
   const [showStatusLoader, setShowStatusLoader] = useState(false);
   const [loaderStats, setLoaderStats] = useState({
     total: LIMIT,
@@ -80,10 +78,12 @@ export function TokensComponent() {
 
   const { tokensQuery, poapsQuery } = useMemo(() => {
     const tokensQuery = getFilterableTokensQuery(
+      address,
       Boolean(requestFilters?.socialFilters),
       requestFilters?.hasPrimaryDomain
     );
     const poapsQuery = getFilterablePoapsQuery(
+      address,
       Boolean(requestFilters?.socialFilters),
       requestFilters?.hasPrimaryDomain
     );
@@ -91,12 +91,17 @@ export function TokensComponent() {
       tokensQuery,
       poapsQuery
     };
-  }, [requestFilters?.hasPrimaryDomain, requestFilters?.socialFilters]);
+  }, [
+    address,
+    requestFilters?.hasPrimaryDomain,
+    requestFilters?.socialFilters
+  ]);
 
   const [
     fetchTokens,
     { data, loading: loadingTokens, pagination: paginationTokens }
   ] = useLazyQueryWithPagination(tokensQuery);
+
   const [
     fetchPoap,
     { data: poapsData, loading: loadingPoaps, pagination: paginationPoaps }
@@ -106,8 +111,8 @@ export function TokensComponent() {
   // and fetch next data call will not be made
   let tokensData = data || poapsData || null;
 
-  const [{ address, inputType }] = useSearchInput();
-  const tokenAddress = address.length > 0 ? address[0] : '';
+  const shouldFetchTokens = address.length > 0;
+  const hasMultipleTokens = address.length > 1;
 
   const [showModal, setShowModal] = useState(false);
   const [modalValues, setModalValues] = useState<{
@@ -123,7 +128,7 @@ export function TokensComponent() {
   const isPoap = inputType === 'POAP';
 
   useEffect(() => {
-    if (tokenAddress) {
+    if (shouldFetchTokens) {
       // eslint-disable-next-line
       tokensData = null;
       tokensRef.current = [];
@@ -136,7 +141,6 @@ export function TokensComponent() {
 
       if (isPoap) {
         fetchPoap({
-          eventId: tokenAddress,
           limit: LIMIT,
           ...requestFilters
         });
@@ -144,12 +148,18 @@ export function TokensComponent() {
       }
 
       fetchTokens({
-        tokenAddress,
         limit: LIMIT,
         ...requestFilters
       });
     }
-  }, [fetchPoap, fetchTokens, filters, isPoap, requestFilters, tokenAddress]);
+  }, [
+    fetchPoap,
+    fetchTokens,
+    filters,
+    isPoap,
+    requestFilters,
+    shouldFetchTokens
+  ]);
 
   const { hasNextPage, getNextPage } = isPoap
     ? paginationPoaps
@@ -162,25 +172,59 @@ export function TokensComponent() {
     loaderContext.setIsLoading(loading);
   }, [loaderContext, loading]);
 
+  const getPoapList = useCallback(
+    (tokensData: PoapsData): [Poap[], number] => {
+      const poaps = tokensData?.Poaps?.Poap || [];
+      if (!hasMultipleTokens) {
+        return [poaps, poaps.length];
+      }
+      const poapsWithValues = poaps
+        .filter(token => Boolean(token.owner.poaps))
+        .map(token => {
+          return {
+            ...token.owner.poaps[0],
+            _poapEvent: token.poapEvent
+          };
+        });
+      return [poapsWithValues, poaps.length];
+    },
+    [hasMultipleTokens]
+  );
+
+  const getTokenList = useCallback(
+    (tokensData: TokensData): [TokenType[], number] => {
+      let ethTokenBalances: TokenType[] =
+        tokensData.ethereum?.TokenBalance || [];
+      let polygonTokenBalances: TokenType[] =
+        tokensData.polygon?.TokenBalance || [];
+      const originalSize =
+        ethTokenBalances.length + polygonTokenBalances.length;
+
+      if (hasMultipleTokens) {
+        ethTokenBalances = ethTokenBalances
+          .filter(token => token.owner?.tokenBalances?.length)
+          .map(token => token.owner?.tokenBalances[0]);
+
+        polygonTokenBalances = polygonTokenBalances
+          .filter(token => token.owner?.tokenBalances?.length)
+          .map(token => token.owner?.tokenBalances[0]);
+      }
+
+      return [[...ethTokenBalances, ...polygonTokenBalances], originalSize];
+    },
+    [hasMultipleTokens]
+  );
+
   useEffect(() => {
     if (!tokensData || loading) return;
-
-    let tokens = [];
-    if (isPoap) {
-      tokens = tokensData?.Poaps?.Poap || [];
-    } else {
-      const ethTokenBalances: TokenType[] =
-        tokensData.ethereum?.TokenBalance || [];
-      const polygonTokenBalances: TokenType[] =
-        tokensData.polygon?.TokenBalance || [];
-
-      tokens = [...ethTokenBalances, ...polygonTokenBalances];
-    }
+    const [tokens, size] = isPoap
+      ? getPoapList(tokensData)
+      : getTokenList(tokensData);
 
     const filteredTokens = filterTokens(filters, tokens);
 
     setLoaderStats(({ total, matching }) => ({
-      total: total + (tokens.length || 0),
+      total: total + (size || 0),
       matching: matching + filteredTokens.length
     }));
     tokensRef.current = [...tokensRef.current, ...filteredTokens];
@@ -191,7 +235,16 @@ export function TokensComponent() {
     } else {
       setShowStatusLoader(false);
     }
-  }, [filters, isPoap, tokensData, loading, hasNextPage, getNextPage]);
+  }, [
+    filters,
+    isPoap,
+    tokensData,
+    loading,
+    hasNextPage,
+    getNextPage,
+    getPoapList,
+    getTokenList
+  ]);
 
   const handleShowMore = useCallback((values: string[], dataType: string) => {
     const leftValues: string[] = [];
@@ -253,7 +306,7 @@ export function TokensComponent() {
           {loading && <Loader />}
         </InfiniteScroll>
         <Modal
-          heading={`All ${modalValues.dataType} names of ${tokenAddress}`}
+          heading={`All ${modalValues.dataType} names of ${address.join(', ')}`}
           isOpen={showModal}
           onRequestClose={() => {
             setShowModal(false);
