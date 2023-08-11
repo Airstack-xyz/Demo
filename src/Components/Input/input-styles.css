@@ -6,7 +6,7 @@
   width: 100%;
   color: transparent;
   overflow: hidden;
-  white-space: pre-wrap;
+  white-space: pre;
   overflow-wrap: break-word;
   border: none !important;
   text-align: start;

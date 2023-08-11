@@ -1,21 +1,15 @@
-import { useLazyQuery } from '@airstack/airstack-react';
 import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
-import { TokenTotalSupplyQuery } from '../../../queries';
 import { HolderCount } from './HolderCount';
 import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
-import {
-  OverviewBlockchainData,
-  OverviewData,
-  TotalPoapsSupply,
-  TotalSupply
-} from '../types';
+import { OverviewBlockchainData, OverviewData } from '../types';
 import { useGetTokenOverview } from '../../../hooks/useGetTokenOverview';
 import { Chain } from '@airstack/airstack-react/constants';
-import { POAPSupplyQuery } from '../../../queries/token-holders';
 import { imageAndSubTextMap } from './imageAndSubTextMap';
 import { useFetchTokens } from '../../../hooks/useGetTokens';
+import { useTokensSupply } from '../../../hooks/useTokensSupply';
+import classNames from 'classnames';
 
 function Overview() {
   const [overViewData, setOverViewData] = useState<
@@ -43,37 +37,13 @@ function Overview() {
 
   const [fetchTokens, tokenDetails] = useFetchTokens();
 
-  const [fetchTotalSupply, { data: totalSupply, loading: loadingSupply }] =
-    useLazyQuery(TokenTotalSupplyQuery);
-
-  const [
-    fetchPoapsTotalSupply,
-    { data: totalPoapsSupply, loading: loadingPoapsSupply }
-  ] = useLazyQuery(POAPSupplyQuery);
+  const [fetchTotalSupply, totalSupply, loadingSupply] = useTokensSupply();
 
   useEffect(() => {
-    if (!tokenAddress) return;
-
-    fetchTokens(address);
-
-    if (isPoap) {
-      fetchPoapsTotalSupply({
-        eventId: tokenAddress
-      });
-      return;
-    }
-
-    fetchTotalSupply({
-      tokenAddress
-    });
-  }, [
-    address,
-    fetchPoapsTotalSupply,
-    fetchTokens,
-    fetchTotalSupply,
-    isPoap,
-    tokenAddress
-  ]);
+    if (!address.length) return;
+    fetchTokens(address, isPoap);
+    fetchTotalSupply(address, isPoap);
+  }, [address, fetchTokens, fetchTotalSupply, isPoap, tokenAddress]);
 
   const isERC20 = useMemo(() => {
     return (
@@ -110,44 +80,6 @@ function Overview() {
       updateOverviewData(_overview?.polygon);
     }
   }, [tokenOverviewData, isERC20, updateOverviewData]);
-
-  useEffect(() => {
-    if (totalSupply) {
-      const supply = totalSupply as TotalSupply;
-      let count = 0;
-
-      if (supply?.ethereum?.totalSupply) {
-        count += parseInt(supply.ethereum.totalSupply);
-      }
-
-      if (supply?.polygon?.totalSupply) {
-        count += parseInt(supply.polygon.totalSupply);
-      }
-
-      setOverViewData(overViewData => ({
-        ...overViewData,
-        totalSupply: count
-      }));
-    }
-  }, [totalSupply]);
-
-  useEffect(() => {
-    const data: TotalPoapsSupply = totalPoapsSupply;
-    const event = data?.PoapEvents?.PoapEvent;
-    if (!event) return;
-
-    const totalSupply = (event || []).reduce(
-      (acc, event) => acc + event?.tokenMints,
-      0
-    );
-
-    if (totalSupply) {
-      setOverViewData(overViewData => ({
-        ...overViewData,
-        totalSupply
-      }));
-    }
-  }, [totalPoapsSupply]);
 
   const tokenImages = useMemo(() => {
     if (!tokenDetails) return null;
@@ -222,27 +154,45 @@ function Overview() {
     totalHolders
   ]);
 
+  const getTokenNameAndSupply = useCallback(() => {
+    return (
+      <>
+        {tokenDetails.map(({ name, tokenAddress }, index) => {
+          return (
+            <span>
+              {name} {totalSupply?.[tokenAddress.toLocaleLowerCase()] || '--'}
+              {index < tokenDetails.length - 1 ? (
+                <span className="mx-1">|</span>
+              ) : null}
+            </span>
+          );
+        })}
+      </>
+    );
+  }, [tokenDetails, totalSupply]);
+
   if (isERC20) return null;
 
-  const lodingTotalSupply = loadingPoapsSupply || loadingSupply;
-  const supply = overViewData?.totalSupply;
+  const lodingTotalSupply = loadingSupply || loadingTokenOverview;
   // eslint-disable-next-line
   // @ts-ignore
   window.totalOwners = overViewData?.owners || 0;
 
   return (
     <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px]">
-      <div className="border-solid-stroke bg-glass rounded-18 p-5 m-2.5 flex-1 w-full">
-        <h3 className="text-2xl mb-2 flex items-center">
-          Total supply{' '}
-          {lodingTotalSupply ? (
-            <div className="h-7 flex items-center ml-2">
-              <Icon name="count-loader" className="h-2.5 w-auto" />
-            </div>
-          ) : (
-            supply || '--'
-          )}
-        </h3>
+      <div className="border-solid-stroke bg-glass rounded-18 p-5 m-2.5 flex-1 w-full overflow-hidden">
+        <div className="mb-2 flex flex-col">
+          <div className="text-sm text-text-secondary">Total supply </div>
+          <div className="ellipsis text-lg">
+            {lodingTotalSupply ? (
+              <div className="h-7 flex items-center ml-2">
+                <Icon name="count-loader" className="h-2.5 w-auto" />
+              </div>
+            ) : (
+              <div>{getTokenNameAndSupply()}</div>
+            )}
+          </div>
+        </div>
         <div className="h-[5px] flex rounded-full overflow-hidden">
           <div className="h-full bg-[#6527A3] w-[55%]"></div>
           <div className="h-full bg-[#5398FF] w-[20%]"></div>
@@ -253,10 +203,18 @@ function Overview() {
         <div className="grid grid-cols-2 gap-2.5 mt-5">{holderCounts}</div>
       </div>
       <div
-        className="h-full flex-1 hidden [&>div]:h-full [&>div]:w-full sm:flex-col-center max-w-[421px]"
+        className="h-full flex-1 hidden [&>div]:h-full [&>div]:w-full sm:flex-col-center min-w-[421px] max-w-[421px]"
         data-loader-type="block"
       >
-        <div className="flex [&>*]:w-1/2 justify-center items-center flex-wrap">
+        <div
+          className={classNames(
+            'flex [&>*]:w-1/2 justify-center items-center flex-wrap',
+            {
+              '[&>div]:!h-full [&>div]:!w-full':
+                tokenImages && tokenImages.length === 1
+            }
+          )}
+        >
           {tokenImages}
         </div>
       </div>
