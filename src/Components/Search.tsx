@@ -42,28 +42,82 @@ export const Search = memo(function Search() {
 
   const navigate = useNavigate();
 
+  const handleNonMenttionSearch = useCallback(
+    (value: string) => {
+      const address: string[] = [];
+      const rawInput: string[] = [];
+      let hasInputTypeMismatch = false;
+      let inputType: UserInputs['inputType'] = null;
+
+      value.split(' ').forEach(str => {
+        const _inputType = str.startsWith('0x')
+          ? 'ADDRESS'
+          : !isNaN(Number(str))
+          ? 'POAP'
+          : null;
+
+        hasInputTypeMismatch = hasInputTypeMismatch
+          ? hasInputTypeMismatch
+          : inputType !== null
+          ? inputType !== _inputType
+          : false;
+
+        inputType = _inputType;
+
+        if (_inputType) {
+          const _rawInput = createFormattedRawInput({
+            address: str,
+            blockchain: 'ethereum',
+            type: '',
+            label: str
+          });
+
+          address.push(str);
+          rawInput.push(_rawInput);
+        }
+      });
+
+      if (hasInputTypeMismatch) {
+        showToast(
+          'Input can only be either an Address or Event Id',
+          'negative'
+        );
+        setData({}, { reset: true, updateQueryParams: true });
+        return;
+      }
+
+      if (address.length === 0) {
+        showToast('Couldn’t find any contract', 'negative');
+        setData({}, { reset: true, updateQueryParams: true });
+        return;
+      }
+      const rawTextWithMenions = rawInput.join(' ');
+      const searchData = {
+        address,
+        blockchain: 'ethereum',
+        rawInput: rawTextWithMenions,
+        inputType: (inputType || 'ADDRESS') as UserInputs['inputType']
+      };
+      setValue(rawTextWithMenions);
+      setData(searchData, { updateQueryParams: true });
+    },
+    [setData]
+  );
+
   const handleTokenHoldersSearch = useCallback(() => {
     const string = value.trim();
     const [allMentions, mentionOnlyValue] = getAllMentionDetails(string);
-
-    let inputType: UserInputs['inputType'] = null;
 
     const isValidInput = allMentions.every(
       mention => mention.blockchain === allMentions[0].blockchain
     );
 
-    const hasNoMentions = allMentions.length === 0;
-
-    if (hasNoMentions) {
-      const firstWord = string.split(' ')[0];
-      inputType = firstWord.startsWith('0x')
-        ? 'ADDRESS'
-        : !isNaN(Number(firstWord))
-        ? 'POAP'
-        : null;
+    if (allMentions.length === 0) {
+      handleNonMenttionSearch(string);
+      return;
     }
 
-    if (!isValidInput || (hasNoMentions && !inputType)) {
+    if (!isValidInput) {
       showToast('Couldn’t find any contract', 'negative');
       setData({}, { reset: true, updateQueryParams: true });
       return;
@@ -71,8 +125,9 @@ export const Search = memo(function Search() {
 
     const {
       blockchain = 'ethereum',
-      customInputType,
-      eventId
+      eventId,
+      token,
+      customInputType
     } = allMentions[0];
 
     const address = allMentions.map(
@@ -83,12 +138,13 @@ export const Search = memo(function Search() {
       address,
       blockchain,
       rawInput: mentionOnlyValue,
-      inputType:
-        (customInputType as UserInputs['inputType']) || inputType || 'ADDRESS'
+      inputType: (customInputType ||
+        token ||
+        'ADDRESS') as UserInputs['inputType']
     };
     setValue(mentionOnlyValue);
     setData(searchData, { updateQueryParams: true });
-  }, [setData, value]);
+  }, [handleNonMenttionSearch, setData, value]);
 
   const handleSubmit = useCallback(
     (e: FormEvent) => {
