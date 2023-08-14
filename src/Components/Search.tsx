@@ -104,6 +104,51 @@ export const Search = memo(function Search() {
     [setData]
   );
 
+  const handleTokenBalancesSearch = useCallback(() => {
+    const address: string[] = [];
+    const rawInput: string[] = [];
+
+    value
+      .trim()
+      .split(' ')
+      .forEach(str => {
+        let isValid =
+          str.startsWith('fc_fname:') || Boolean(str.match(/.*\.(eth|lens)$/));
+        // check if it is a valid address
+        isValid = isValid || str.startsWith('0x');
+        if (!isValid) return;
+
+        // const _rawInput = createFormattedRawInput({
+        //   address: str,
+        //   blockchain: 'ethereum',
+        //   type: 'ADDRESS',
+        //   label: str
+        // });
+
+        address.push(str);
+        // todo: use _rawInput once we start using the mention input here
+        rawInput.push(str);
+      });
+
+    if (address.length === 0) {
+      showToast(
+        'Couldn’t find any valid wallet address or ens/lens/farcaster name',
+        'negative'
+      );
+      setData({}, { reset: true, updateQueryParams: true });
+      return;
+    }
+    const rawTextWithMenions = rawInput.join(' ');
+    const searchData = {
+      address,
+      blockchain: 'ethereum',
+      rawInput: rawTextWithMenions,
+      inputType: 'ADDRESS' as UserInputs['inputType']
+    };
+    setValue(rawTextWithMenions);
+    setData(searchData, { updateQueryParams: true });
+  }, [setData, value]);
+
   const handleTokenHoldersSearch = useCallback(() => {
     const string = value.trim();
     const [allMentions, mentionOnlyValue] = getAllMentionDetails(string);
@@ -154,6 +199,8 @@ export const Search = memo(function Search() {
         handleTokenHoldersSearch();
         return;
       }
+
+      return handleTokenBalancesSearch();
 
       const {
         address,
@@ -215,6 +262,7 @@ export const Search = memo(function Search() {
       setSearchParams(searchData);
     },
     [
+      handleTokenBalancesSearch,
       handleTokenHoldersSearch,
       isHome,
       isTokenBalances,

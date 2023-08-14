@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 import { Icon } from '../../Components/Icon';
 import { formatDate } from '../../utils';
 import { createTokenHolderUrl } from '../../utils/createTokenUrl';
-import { PoapType, TokenType as TokenType } from './types';
+import { PoapsType, TokenType as TokenType } from './types';
 import { Asset } from '../../Components/Asset';
 
-type Poap = PoapType['Poaps']['Poap'][0];
+type Poap = PoapsType['Poaps']['Poap'][0];
 
 type TokenProps = {
   token: null | TokenType | Poap;
