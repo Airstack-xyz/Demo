@@ -1,4 +1,3 @@
-import * as airstackReact from '@airstack/airstack-react';
 import { config } from '@airstack/airstack-react/config';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createNftWithCommonOwnersQuery } from '../queries/nftWithCommonOwnersQuery';
@@ -6,6 +5,7 @@ import { useSearchInput } from './useSearchInput';
 import { defaultSortOrder } from '../pages/TokenBalances/SortBy';
 import { tokenTypes } from '../pages/TokenBalances/constants';
 import { CommonTokenType, TokenType } from '../pages/TokenBalances/types';
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 
 const LIMIT = 200;
 const LIMIT_DISPLAY_ITEMS = 20;
@@ -34,7 +34,7 @@ export function useGetTokensOfOwner() {
       data: tokensData,
       pagination: { getNextPage, hasNextPage }
     }
-  ] = airstackReact.useLazyQueryWithPagination(query, {}, config);
+  ] = useLazyQueryWithPagination(query, {}, config);
 
   useEffect(() => {
     if (owners.length === 0) return;
