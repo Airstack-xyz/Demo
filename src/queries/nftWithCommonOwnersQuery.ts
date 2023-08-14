@@ -1,11 +1,12 @@
 const fields = `
         amount
-        owner {
-            addresses
-        }
         tokenType
         blockchain
         tokenAddress
+        formattedAmount
+        owner {
+            addresses
+        }
         tokenNfts {
             tokenId
             contentValue {
@@ -21,6 +22,12 @@ const fields = `
         token {
             name
             symbol
+            logo {
+              small
+            }
+            projectDetails {
+              imageUrl
+            }
         }
 `;
 

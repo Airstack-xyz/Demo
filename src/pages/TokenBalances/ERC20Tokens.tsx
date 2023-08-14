@@ -4,11 +4,11 @@ import {
   useEffect,
   useMemo,
   useCallback,
-  ComponentProps
+  ComponentProps,
+  useRef
 } from 'react';
-import { ERC20TokensQuery } from '../../queries';
 import { SectionHeader } from './SectionHeader';
-import { TokenType } from './types';
+import { CommonTokenType, TokenType } from './types';
 import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { createTokenHolderUrl } from '../../utils/createTokenUrl';
@@ -16,6 +16,7 @@ import { Link } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { formatNumber } from '../../utils/formatNumber';
 import './erc20.styles.css';
+import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
@@ -86,35 +87,35 @@ function Loader() {
 }
 
 export function ERC20Tokens() {
-  const [tokens, setTokens] = useState<{
-    ethereum: TokenType[];
-    polygon: TokenType[];
-  }>({
-    ethereum: [],
-    polygon: []
-  });
-
-  const [fetch, { data: erc20Data, loading, pagination }] =
-    useLazyQueryWithPagination(ERC20TokensQuery, {}, { cache: false });
-  const [{ address: owner, tokenType, blockchainType, sortOrder }] =
+  const [tokens, setTokens] = useState<TokenType[]>([]);
+  const [{ address: owners, tokenType, blockchainType, sortOrder }] =
     useSearchInput();
+  const tokensRef = useRef<TokenType[]>([]);
+  const [loading, setLoading] = useState(false);
+  const query = useMemo(() => {
+    return createNftWithCommonOwnersQuery(owners, null);
+  }, [owners]);
+
+  const [fetch, { data: erc20Data, pagination }] = useLazyQueryWithPagination(
+    query,
+    {},
+    { cache: false }
+  );
 
   let data = erc20Data;
+  const { hasNextPage, getNextPage } = pagination;
 
   useEffect(() => {
-    if (owner.length > 0) {
-      setTokens({
-        ethereum: [],
-        polygon: []
-      });
-
+    if (owners.length > 0) {
+      setTokens([]);
+      setLoading(true);
       // remove data to make sure on next render, the data is not used in the useEffect below
       // eslint-disable-next-line react-hooks/exhaustive-deps
       data = null;
 
       fetch({
-        owner: owner[0],
-        limit: 10
+        limit: 50,
+        tokenType: ['ERC20']
       });
     }
     /*
@@ -122,34 +123,53 @@ export function ERC20Tokens() {
       Without this, the tokens list would be unable to fetch additional pages since the window scroll height would be too great (too many ERC20 items).
       InfiniteScroll depends on the window scroll height, if the height is too high, user will have to scroll to the bottom to initiate a pagination call.
     */
-  }, [fetch, owner, tokenType, blockchainType, sortOrder]);
+  }, [fetch, owners, tokenType, blockchainType, sortOrder]);
 
   useEffect(() => {
-    if (data) {
-      setTokens(existingTokens => ({
-        ethereum: [
-          ...existingTokens.ethereum,
-          ...(data?.ethereum?.TokenBalance || [])
-        ],
-        polygon: [
-          ...existingTokens.polygon,
-          ...(data?.polygon?.TokenBalance || [])
-        ]
-      }));
-    }
-  }, [data]);
+    if (!data) return;
+    const { ethereum, polygon } = data;
+    let ethTokens = ethereum?.TokenBalance || [];
+    let maticTokens = polygon?.TokenBalance || [];
 
-  const { hasNextPage, getNextPage } = pagination;
+    if (ethTokens.length > 0 && ethTokens[0]?.token?.tokenBalances) {
+      ethTokens = ethTokens
+        .filter(
+          (token: CommonTokenType) => token.token.tokenBalances.length > 0
+        )
+        .reduce((items: TokenType[], token: CommonTokenType) => {
+          items.push(token.token.tokenBalances[0]);
+          //   token.token.tokenBalances.forEach(item => items.push(item));
+          return items;
+        }, []);
+    }
+    if (maticTokens.length > 0 && maticTokens[0]?.token?.tokenBalances) {
+      maticTokens = maticTokens
+        .filter(
+          (token: CommonTokenType) => token.token.tokenBalances.length > 0
+        )
+        .reduce((items: TokenType[], token: CommonTokenType) => {
+          items.push(token.token.tokenBalances[0]);
+          //   token.token.tokenBalances.forEach(item => items.push(item));
+          return items;
+        }, []);
+    }
+    tokensRef.current = [...tokensRef.current, ...ethTokens, ...maticTokens];
+
+    setTokens(tokensRef.current);
+    if (hasNextPage && tokensRef.current.length < 10) {
+      setLoading(true);
+      getNextPage();
+      return;
+    }
+    setLoading(false);
+    tokensRef.current = [];
+  }, [data, getNextPage, hasNextPage]);
 
   const handleNext = useCallback(() => {
     if (!loading && hasNextPage) {
       getNextPage();
     }
   }, [getNextPage, hasNextPage, loading]);
-
-  const items = useMemo((): TokenType[] => {
-    return [...tokens.ethereum, ...tokens.polygon];
-  }, [tokens.ethereum, tokens.polygon]);
 
   return (
     <div className="mt-11">
@@ -160,13 +180,13 @@ export function ERC20Tokens() {
         className={classNames(
           'mt-3.5 bg-glass py-3 px-2 rounded-18 border-solid-stroke random-color-list',
           {
-            'skeleton-loader min-h-[200px]': items.length === 0 && loading
+            'skeleton-loader min-h-[200px]': tokens.length === 0 && loading
           }
         )}
         data-loader-type="block"
         data-loader-height="auto"
       >
-        {items.length === 0 && !loading && (
+        {tokens.length === 0 && !loading && (
           <div className="flex flex-1 justify-center text-xs">
             No data found!
           </div>
@@ -174,11 +194,11 @@ export function ERC20Tokens() {
 
         <InfiniteScroll
           next={handleNext}
-          dataLength={items.length}
+          dataLength={tokens.length}
           hasMore={hasNextPage}
           loader={<Loader />}
         >
-          {items.map((token, index) => (
+          {tokens.map((token, index) => (
             <Link
               data-address={token?.tokenAddress}
               to={createTokenHolderUrl({
