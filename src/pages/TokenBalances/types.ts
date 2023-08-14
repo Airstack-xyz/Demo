@@ -8,6 +8,12 @@ export interface TokenType {
   token: Token;
 }
 
+export type CommonTokenType = TokenType & {
+  token?: {
+    tokenBalances: TokenType[];
+  };
+};
+
 export interface TokenNfts {
   tokenId: string;
   contentValue: ContentValue;
@@ -33,7 +39,7 @@ export interface Token {
   };
 }
 
-export type PoapType = {
+export type PoapsType = {
   Poaps: {
     Poap: {
       id: string;
@@ -57,6 +63,14 @@ export type PoapType = {
       nextCursor: string;
       prevCursor: string;
     };
+  };
+};
+
+export type PoapType = PoapsType['Poaps']['Poap'][0];
+
+export type CommonPoapType = PoapsType['Poaps']['Poap'][0] & {
+  poapEvent?: {
+    poaps: PoapType[];
   };
 };
 
