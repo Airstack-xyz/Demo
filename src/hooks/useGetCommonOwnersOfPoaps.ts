@@ -17,7 +17,7 @@ type CommonOwner = {
   };
 };
 
-const LIMIT = 200;
+const LIMIT = 20;
 const MIN_LIMIT = 20;
 
 export function useGetCommonOwnersOfPoaps(eventIds: string[]) {
@@ -25,6 +25,7 @@ export function useGetCommonOwnersOfPoaps(eventIds: string[]) {
   const itemsRef = useRef<Token[]>([]);
   const [loading, setLoading] = useState(false);
   const [poaps, setPoaps] = useState<Token[]>([]);
+  const [processedPoapsCount, setProcessedPoapsCount] = useState(LIMIT);
   const query = useMemo(
     () => createCommonOwnersPOAPsQuery(eventIds),
     [eventIds]
@@ -78,6 +79,7 @@ export function useGetCommonOwnersOfPoaps(eventIds: string[]) {
     if (tokens.length > 0) {
       setPoaps(exiting => [...exiting, ...tokens]);
     }
+    setProcessedPoapsCount(count => count + poaps.length);
   }, [data, fetchSingleToken, getNextPage, hasNextPage, totalOwners]);
 
   const getNext = useCallback(() => {
@@ -94,6 +96,7 @@ export function useGetCommonOwnersOfPoaps(eventIds: string[]) {
     fetch({
       limit: fetchSingleToken ? MIN_LIMIT : LIMIT
     });
+    setProcessedPoapsCount(LIMIT);
   }, [fetch, fetchSingleToken]);
 
   return {
@@ -101,6 +104,7 @@ export function useGetCommonOwnersOfPoaps(eventIds: string[]) {
     poaps,
     loading,
     hasNextPage: hasMorePages,
+    processedPoapsCount,
     getNextPage: getNext
   };
 }
