@@ -4,11 +4,11 @@ import { createCommonOwnersQuery } from '../queries/commonOwnersQuery';
 import { Token as TokenType } from '../pages/TokenHolders/types';
 
 type Token = TokenType;
-type NextedTokenBalance = {
+type NextedTokenBalance = (Pick<Token, 'tokenAddress' | 'tokenId' | 'token'> & {
   owner: {
     tokenBalances: Token[];
   };
-}[];
+})[];
 
 type CommonOwner = {
   ethereum: {
@@ -19,7 +19,7 @@ type CommonOwner = {
   };
 };
 
-const LIMIT = 200;
+const LIMIT = 20;
 const MIN_LIMIT = 20;
 
 export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
@@ -39,11 +39,18 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
   // eslint-disable-next-line
   // @ts-ignore
   const totalOwners = window.totalOwners;
-  const hasMorePages = !totalOwners ? hasNextPage : tokens.length < totalOwners;
+  const hasMorePages = !totalOwners
+    ? hasNextPage
+    : hasNextPage === false
+    ? false
+    : tokens.length < totalOwners;
   const fetchSingleToken = tokenAddress.length === 1;
 
   useEffect(() => {
-    if (!data?.ethereum?.TokenBalance) return;
+    if (!data?.ethereum?.TokenBalance && !data?.polygon?.TokenBalance) {
+      setLoading(false);
+      return;
+    }
     const ownersInEth = data?.ethereum as CommonOwner['ethereum'];
     const ownersInPolygon = data?.polygon as CommonOwner['polygon'];
     const tokenBalances = [
@@ -58,7 +65,15 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
       tokens = (tokenBalances as NextedTokenBalance)
         .filter(token => Boolean(token?.owner?.tokenBalances?.length))
         .reduce(
-          (tokens, token) => [...tokens, ...token.owner.tokenBalances],
+          (tokens, token) => [
+            ...tokens,
+            {
+              ...token.owner.tokenBalances[0],
+              _tokenAddress: token.tokenAddress,
+              _tokenId: token.tokenId,
+              _token: token.token
+            }
+          ],
           [] as Token[]
         );
     }

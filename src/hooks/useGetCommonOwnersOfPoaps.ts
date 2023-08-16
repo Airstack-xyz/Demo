@@ -8,6 +8,7 @@ type NextedTokenBalance = {
   owner: {
     poaps: Token[];
   };
+  poapEvent: Token['_poapEvent'];
 }[];
 
 type CommonOwner = {
@@ -49,7 +50,13 @@ export function useGetCommonOwnersOfPoaps(eventIds: string[]) {
       tokens = (poaps as NextedTokenBalance)
         .filter(token => Boolean(token?.owner?.poaps?.length))
         .reduce(
-          (tokens, token) => [...tokens, ...token.owner.poaps],
+          (tokens, token) => [
+            ...tokens,
+            {
+              ...token.owner.poaps[0],
+              _poapEvent: token.poapEvent
+            }
+          ],
           [] as Token[]
         );
     }

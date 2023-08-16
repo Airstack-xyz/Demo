@@ -173,7 +173,6 @@ function Overview() {
 
   if (isERC20) return null;
 
-  const lodingTotalSupply = loadingSupply || loadingTokenOverview;
   // eslint-disable-next-line
   // @ts-ignore
   window.totalOwners = overViewData?.owners || 0;
@@ -184,7 +183,7 @@ function Overview() {
         <div className="mb-2 flex flex-col">
           <div className="text-sm text-text-secondary">Total supply </div>
           <div className="ellipsis text-lg">
-            {lodingTotalSupply ? (
+            {loadingSupply ? (
               <div className="h-7 flex items-center ml-2">
                 <Icon name="count-loader" className="h-2.5 w-auto" />
               </div>
