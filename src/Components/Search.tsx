@@ -116,13 +116,14 @@ export const Search = memo(function Search() {
         address.push(word);
         rawInput.push(rawValue);
       });
-      const isValidInput = wordsAndMentions.every(({ mention }) =>
-        mention ? mention.blockchain === blockchain : true
-      );
 
-      if (!isValidInput || hasInputTypeMismatch) {
-        showToast('Couldn’t find any contract', 'negative');
-        setData({}, { reset: true, updateQueryParams: true });
+      if (address.length === 0) {
+        showToast(
+          hasInputTypeMismatch
+            ? 'Input tokens can only be of one type (Poap or NFT)'
+            : 'Couldn’t find any contract',
+          'negative'
+        );
         return;
       }
 
@@ -206,7 +207,7 @@ export const Search = memo(function Search() {
                 ? tokenBalancesPlaceholder
                 : tokenHoldersPlaceholder
             }
-            disableSuggestions
+            disableSuggestions={isTokenBalances}
           />
         </div>
         <button
