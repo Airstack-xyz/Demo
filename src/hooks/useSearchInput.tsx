@@ -32,6 +32,11 @@ type UpdateUserInputs = (
 
 const arrayTypes = ['address', 'blockchainType', 'tokenFilters'];
 
+export function resetCachedUserInputs() {
+  userInputCache.tokenBalance = {} as UserInputs;
+  userInputCache.tokenHolder = {} as UserInputs;
+}
+
 export function useSearchInput(): [
   UserInputs,
   UpdateUserInputs,
