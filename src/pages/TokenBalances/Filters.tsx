@@ -1,5 +1,4 @@
 import classNames from 'classnames';
-import { useSearchParams } from 'react-router-dom';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { tokenTypes } from './constants';
 import { memo, useCallback } from 'react';
@@ -8,29 +7,23 @@ import { SortBy } from './SortBy';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 
 export const Filters = memo(function Filters() {
-  const setSearchParams = useSearchParams()[1];
-  const [{ tokenType: existingTokenType = '', ...rest }, setData] =
-    useSearchInput();
+  const [{ tokenType: existingTokenType = '' }, setData] = useSearchInput();
 
   const getFilterHandler = useCallback(
     (tokenType: string) => () => {
       const input = {
-        ...rest,
         tokenType:
           existingTokenType.toLowerCase() === tokenType.toLowerCase()
             ? ''
             : tokenType
       };
-
       if (input.tokenType === 'All') {
         input.tokenType = '';
       }
 
-      setData(input);
-      // eslint-disable-next-line
-      setSearchParams(input as any);
+      setData(input, { updateQueryParams: true });
     },
-    [existingTokenType, rest, setData, setSearchParams]
+    [existingTokenType, setData]
   );
 
   const filters = ['All', ...tokenTypes];
@@ -47,7 +40,7 @@ export const Filters = memo(function Filters() {
           return (
             <button
               className={classNames(buttonClass, {
-                '!border-stroke-color bg-secondary font-bold !text-text-primary':
+                '!border-white bg-secondary font-bold !text-text-primary':
                   tokenType === 'All'
                     ? !existingTokenType
                     : existingTokenType.toLowerCase() ===
