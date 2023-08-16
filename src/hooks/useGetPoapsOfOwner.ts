@@ -13,6 +13,7 @@ export function useGetPoapsOfOwner(
 ) {
   const [loading, setLoading] = useState(false);
   const tokensRef = useRef<PoapType[]>([]);
+  const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
   const [
     { address: owners, tokenType: tokenType = '', blockchainType, sortOrder }
   ] = useSearchInput();
@@ -44,6 +45,7 @@ export function useGetPoapsOfOwner(
       sortBy: sortOrder ? sortOrder : defaultSortOrder
     });
     tokensRef.current = [];
+    setProcessedTokensCount(LIMIT);
   }, [canFetchPoap, fetchTokens, isPoap, owners, sortOrder]);
 
   useEffect(() => {
@@ -62,6 +64,7 @@ export function useGetPoapsOfOwner(
     }
 
     tokensRef.current = [...tokensRef.current, ...poaps];
+    setProcessedTokensCount(count => count + tokensData?.Poaps?.Poap.length);
     onDataReceived(poaps);
     if (hasNextPage && tokensRef.current.length < LIMIT) {
       setLoading(true);
@@ -83,7 +86,8 @@ export function useGetPoapsOfOwner(
     return {
       loading,
       hasNextPage,
+      processedTokensCount,
       getNext
     };
-  }, [loading, hasNextPage, getNext]);
+  }, [loading, hasNextPage, processedTokensCount, getNext]);
 }

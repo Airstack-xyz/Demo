@@ -5,6 +5,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { Token } from './Token';
 import { useGetTokensOfOwner } from '../../hooks/useGetTokensOfOwner';
 import { useGetPoapsOfOwner } from '../../hooks/useGetPoapsOfOwner';
+import { StatusLoader } from '../TokenHolders/OverviewDetails/Tokens/StatusLoader';
 
 const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 
@@ -40,12 +41,14 @@ function TokensComponent() {
   const {
     loading: loadingTokens,
     hasNextPage: hasNextPageTokens,
+    processedTokensCount,
     getNext: getNextTokens
   } = useGetTokensOfOwner(handleTokens);
 
   const {
     loading: loadingPoaps,
     getNext: getNextPoaps,
+    processedTokensCount: processedPoapsCount,
     hasNextPage: hasNextPagePoaps
   } = useGetPoapsOfOwner(handleTokens);
 
@@ -85,33 +88,44 @@ function TokensComponent() {
   }
 
   const hasNextPage = hasNextPageTokens || hasNextPagePoaps;
+  const totalProcessed = processedTokensCount + processedPoapsCount;
+  const showStatusLoader = loading && owners.length > 1;
+
   if (tokens.length === 0 && loading) {
     return (
       <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">
         <Loader />
+        {showStatusLoader && (
+          <StatusLoader matching={tokens.length} total={totalProcessed} />
+        )}
       </div>
     );
   }
 
   return (
-    <InfiniteScroll
-      next={handleNext}
-      dataLength={tokens.length}
-      hasMore={hasNextPage}
-      loader={loading ? <Loader /> : null}
-      className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start mb-10"
-    >
-      {tokens.map((token, index) => {
-        const id =
-          (token as PoapType)?.tokenId ||
-          (token as TokenType)?.tokenNfts?.tokenId;
-        return (
-          <div>
-            <Token key={`${index}-${id}`} token={token} />
-          </div>
-        );
-      })}
-    </InfiniteScroll>
+    <>
+      <InfiniteScroll
+        next={handleNext}
+        dataLength={tokens.length}
+        hasMore={hasNextPage}
+        loader={loading ? <Loader /> : null}
+        className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start mb-10"
+      >
+        {tokens.map((token, index) => {
+          const id =
+            (token as PoapType)?.tokenId ||
+            (token as TokenType)?.tokenNfts?.tokenId;
+          return (
+            <div>
+              <Token key={`${index}-${id}`} token={token} />
+            </div>
+          );
+        })}
+      </InfiniteScroll>
+      {showStatusLoader && (
+        <StatusLoader matching={tokens.length} total={totalProcessed} />
+      )}
+    </>
   );
 }
 
