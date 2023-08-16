@@ -96,7 +96,10 @@ export function TokenBalance() {
             }
           )}
         >
-          <SectionHeader iconName="nft-flat" heading="NFTs & POAPs" />
+          <SectionHeader
+            iconName="nft-flat"
+            heading={`NFTs & POAPs${address.length > 1 ? ' in common' : ''}`}
+          />
         </div>
         <div
           onClick={() => setShowSocials(true)}
@@ -112,7 +115,7 @@ export function TokenBalance() {
         </div>
       </div>
     );
-  }, [showSocials]);
+  }, [address.length, showSocials]);
 
   const noQuery = !query;
 

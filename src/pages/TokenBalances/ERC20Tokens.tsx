@@ -174,7 +174,10 @@ export function ERC20Tokens() {
   return (
     <div className="mt-11">
       <div className="hidden sm:block">
-        <SectionHeader iconName="erc20" heading="ERC20 tokens" />
+        <SectionHeader
+          iconName="erc20"
+          heading={`ERC20 tokens${owners.length > 1 ? ' in common' : ''}`}
+        />
       </div>
       <div
         className={classNames(
