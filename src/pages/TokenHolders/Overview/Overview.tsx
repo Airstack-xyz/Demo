@@ -202,18 +202,21 @@ function Overview() {
         <div className="grid grid-cols-2 gap-2.5 mt-5">{holderCounts}</div>
       </div>
       <div
-        className="h-full flex-1 hidden [&>div]:h-full [&>div]:w-full sm:flex-col-center min-w-[421px] max-w-[421px]"
+        className="h-full flex-1 hidden [&>div]:h-full [&>div]:w-full sm:flex-col-center min-w-[421px] max-w-[421px] relative overflow-hidden"
         data-loader-type="block"
       >
         <div
           className={classNames(
-            'flex [&>*]:w-1/2 justify-center items-center flex-wrap',
+            'flex [&>*]:w-1/2 justify-center items-center flex-wrap z-10 bg-glass',
             {
               '[&>div]:!h-full [&>div]:!w-full':
                 tokenImages && tokenImages.length === 1
             }
           )}
         >
+          {tokenImages}
+        </div>
+        <div className="flex [&>*]:w-1/2 justify-center items-center flex-wrap h-[150%] w-[150%] absolute">
           {tokenImages}
         </div>
       </div>
