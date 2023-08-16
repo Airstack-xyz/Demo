@@ -71,10 +71,8 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
     });
 
     itemsRef.current = [...itemsRef.current, ...tokens];
-    if (itemsRef.current.length < (totalOwners || MIN_LIMIT)) {
-      if (hasNextPage) {
-        getNextPage();
-      }
+    if (hasNextPage && itemsRef.current.length < (totalOwners || MIN_LIMIT)) {
+      getNextPage();
     } else {
       setLoading(false);
     }

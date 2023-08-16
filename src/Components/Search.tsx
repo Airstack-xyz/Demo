@@ -2,20 +2,9 @@ import classNames from 'classnames';
 import { Icon } from './Icon';
 import { InputWithMention } from './Input/Input';
 import { FormEvent, memo, useCallback, useEffect, useState } from 'react';
-import {
-  Link,
-  createSearchParams,
-  useMatch,
-  useNavigate,
-  useSearchParams
-} from 'react-router-dom';
-import {
-  getAllMentionDetails,
-  getValuesFromId,
-  isMention
-} from './Input/utils';
+import { Link, useMatch, useSearchParams } from 'react-router-dom';
+import { getAllWordsAndMentions } from './Input/utils';
 import { UserInputs, useSearchInput } from '../hooks/useSearchInput';
-import { createFormattedRawInput } from '../utils/createQueryParamsWithMention';
 import { showToast } from '../utils/showToast';
 
 const tokenHoldersPlaceholder =
@@ -24,7 +13,7 @@ const tokenBalancesPlaceholder =
   'Enter 0x, name.eth, fc_fname:name, or name.lens';
 
 export const Search = memo(function Search() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   let isTokenBalances = !!useMatch('/token-balances');
   const isHome = useMatch('/');
 
@@ -40,63 +29,44 @@ export const Search = memo(function Search() {
     setValue(rawInput);
   }, [rawInput]);
 
-  const navigate = useNavigate();
-
-  const handleNonMenttionSearch = useCallback(
+  const handleTokenBalancesSearch = useCallback(
     (value: string) => {
       const address: string[] = [];
       const rawInput: string[] = [];
-      let hasInputTypeMismatch = false;
-      let inputType: UserInputs['inputType'] = null;
 
-      value.split(' ').forEach(str => {
-        const _inputType = str.startsWith('0x')
-          ? 'ADDRESS'
-          : !isNaN(Number(str))
-          ? 'POAP'
-          : null;
-
-        hasInputTypeMismatch = hasInputTypeMismatch
-          ? hasInputTypeMismatch
-          : inputType !== null
-          ? inputType !== _inputType
-          : false;
-
-        inputType = _inputType;
-
-        if (_inputType) {
-          const _rawInput = createFormattedRawInput({
-            address: str,
-            blockchain: 'ethereum',
-            type: '',
-            label: str
-          });
-
-          address.push(str);
-          rawInput.push(_rawInput);
+      getAllWordsAndMentions(value).forEach(({ word, mention, rawValue }) => {
+        if (mention) {
+          rawInput.push(rawValue);
+          address.push(mention.address);
+          return;
         }
+
+        let isValid =
+          word.startsWith('fc_fname:') ||
+          Boolean(word.match(/.*\.(eth|lens)$/));
+        // check if it is a valid address
+        isValid = isValid || word.startsWith('0x');
+        if (!isValid) return;
+
+        address.push(word);
+        rawInput.push(rawValue);
       });
 
-      if (hasInputTypeMismatch) {
+      if (address.length === 0) {
         showToast(
-          'Input can only be either an Address or Event Id',
+          'Couldn’t find any valid wallet address or ens/lens/farcaster name',
           'negative'
         );
         setData({}, { reset: true, updateQueryParams: true });
         return;
       }
 
-      if (address.length === 0) {
-        showToast('Couldn’t find any contract', 'negative');
-        setData({}, { reset: true, updateQueryParams: true });
-        return;
-      }
       const rawTextWithMenions = rawInput.join(' ');
       const searchData = {
         address,
         blockchain: 'ethereum',
         rawInput: rawTextWithMenions,
-        inputType: (inputType || 'ADDRESS') as UserInputs['inputType']
+        inputType: 'ADDRESS' as UserInputs['inputType']
       };
       setValue(rawTextWithMenions);
       setData(searchData, { updateQueryParams: true });
@@ -104,172 +74,92 @@ export const Search = memo(function Search() {
     [setData]
   );
 
-  const handleTokenBalancesSearch = useCallback(() => {
-    const address: string[] = [];
-    const rawInput: string[] = [];
+  const handleTokenHoldersSearch = useCallback(
+    (value: string) => {
+      const address: string[] = [];
+      const rawInput: string[] = [];
+      let inputType: string | null = null;
+      let hasInputTypeMismatch = false;
+      let blockchain = 'ethereum';
+      let token = '';
+      const wordsAndMentions = getAllWordsAndMentions(value);
 
-    value
-      .trim()
-      .split(' ')
-      .forEach(str => {
-        let isValid =
-          str.startsWith('fc_fname:') || Boolean(str.match(/.*\.(eth|lens)$/));
-        // check if it is a valid address
-        isValid = isValid || str.startsWith('0x');
-        if (!isValid) return;
+      wordsAndMentions.forEach(({ word, mention, rawValue }) => {
+        if (mention) {
+          rawInput.push(rawValue);
+          address.push(mention.address);
+          blockchain = mention.blockchain || '';
+          token = mention.token || '';
+          const _inputType = mention.customInputType || '';
+          hasInputTypeMismatch = hasInputTypeMismatch
+            ? hasInputTypeMismatch
+            : inputType !== null
+            ? inputType !== _inputType
+            : false;
+          inputType = inputType || _inputType;
+          return;
+        }
 
-        // const _rawInput = createFormattedRawInput({
-        //   address: str,
-        //   blockchain: 'ethereum',
-        //   type: 'ADDRESS',
-        //   label: str
-        // });
+        const _inputType = word.startsWith('0x')
+          ? 'ADDRESS'
+          : !isNaN(Number(word))
+          ? 'POAP'
+          : null;
+        hasInputTypeMismatch = hasInputTypeMismatch
+          ? hasInputTypeMismatch
+          : inputType !== null
+          ? inputType !== _inputType
+          : false;
 
-        address.push(str);
-        // todo: use _rawInput once we start using the mention input here
-        rawInput.push(str);
+        inputType = inputType || _inputType;
+        if (!inputType) return;
+        address.push(word);
+        rawInput.push(rawValue);
       });
-
-    if (address.length === 0) {
-      showToast(
-        'Couldn’t find any valid wallet address or ens/lens/farcaster name',
-        'negative'
+      const isValidInput = wordsAndMentions.every(({ mention }) =>
+        mention ? mention.blockchain === blockchain : true
       );
-      setData({}, { reset: true, updateQueryParams: true });
-      return;
-    }
-    const rawTextWithMenions = rawInput.join(' ');
-    const searchData = {
-      address,
-      blockchain: 'ethereum',
-      rawInput: rawTextWithMenions,
-      inputType: 'ADDRESS' as UserInputs['inputType']
-    };
-    setValue(rawTextWithMenions);
-    setData(searchData, { updateQueryParams: true });
-  }, [setData, value]);
 
-  const handleTokenHoldersSearch = useCallback(() => {
-    const string = value.trim();
-    const [allMentions, mentionOnlyValue] = getAllMentionDetails(string);
+      if (!isValidInput || hasInputTypeMismatch) {
+        showToast('Couldn’t find any contract', 'negative');
+        setData({}, { reset: true, updateQueryParams: true });
+        return;
+      }
 
-    const isValidInput = allMentions.every(
-      mention => mention.blockchain === allMentions[0].blockchain
-    );
-
-    if (allMentions.length === 0) {
-      handleNonMenttionSearch(string);
-      return;
-    }
-
-    if (!isValidInput) {
-      showToast('Couldn’t find any contract', 'negative');
-      setData({}, { reset: true, updateQueryParams: true });
-      return;
-    }
-
-    const {
-      blockchain = 'ethereum',
-      eventId,
-      token,
-      customInputType
-    } = allMentions[0];
-
-    const address = allMentions.map(
-      mention => (eventId ? mention.eventId : mention.address) as string
-    );
-
-    const searchData = {
-      address,
-      blockchain,
-      rawInput: mentionOnlyValue,
-      inputType: (customInputType ||
-        token ||
-        'ADDRESS') as UserInputs['inputType']
-    };
-    setValue(mentionOnlyValue);
-    setData(searchData, { updateQueryParams: true });
-  }, [handleNonMenttionSearch, setData, value]);
+      const rawTextWithMenions = rawInput.join(' ');
+      const searchData = {
+        address,
+        blockchain,
+        rawInput: rawTextWithMenions,
+        inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType']
+      };
+      setValue(rawTextWithMenions);
+      setData(searchData, { updateQueryParams: true });
+    },
+    [setData]
+  );
 
   const handleSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
+      const trimedValue = value.trim();
 
-      if (!isTokenBalances) {
-        handleTokenHoldersSearch();
-        return;
-      }
-
-      return handleTokenBalancesSearch();
-
-      const {
-        address,
-        blockchain = 'ethereum',
-        eventId,
-        customInputType
-      } = getValuesFromId(value) || {};
-
-      if (!address) return;
-
-      let rawInput = value.trim();
-      let inputType: UserInputs['inputType'] = null;
-
-      if (!isTokenBalances && !isMention(value)) {
-        inputType = rawInput.startsWith('0x')
-          ? 'ADDRESS'
-          : !isNaN(Number(rawInput))
-          ? 'POAP'
-          : null;
-
-        if (!inputType) {
-          showToast('Couldn’t find any contract', 'negative');
-          setData({}, { reset: true, updateQueryParams: true });
-          return;
-        }
-
-        rawInput = createFormattedRawInput({
-          address,
-          blockchain,
-          type: '',
-          label: address
-        });
-      }
-
-      const searchData = {
-        address: [eventId || address],
-        blockchain,
-        rawInput,
-        inputType:
-          (customInputType as UserInputs['inputType']) || inputType || 'ADDRESS'
-      };
-
-      setData(searchData, {
-        reset: true
-      });
-
-      if (isHome) {
-        navigate({
-          pathname: '/token-balances',
-          search: createSearchParams(searchData).toString()
-        });
-        return;
-      }
-
-      if (searchParams.get('rawInput') === value) {
+      if (searchParams.get('rawInput') === trimedValue) {
         window.location.reload(); // reload page if same search
+        return;
       }
 
-      setSearchParams(searchData);
+      if (isTokenBalances) {
+        return handleTokenBalancesSearch(trimedValue);
+      }
+
+      handleTokenHoldersSearch(trimedValue);
     },
     [
       handleTokenBalancesSearch,
       handleTokenHoldersSearch,
-      isHome,
       isTokenBalances,
-      navigate,
       searchParams,
-      setData,
-      setSearchParams,
       value
     ]
   );
@@ -307,21 +197,17 @@ export const Search = memo(function Search() {
       </div>
       <form className="flex flex-row justify-center" onSubmit={handleSubmit}>
         <div className="flex flex-col sm:flex-row items-center h-[50px] w-full sm:w-[645px] border-solid-stroke rounded-18 bg-glass px-5 py-3">
-          {isTokenBalances ? (
-            <input
-              className="bg-transparent h-full w-full outline-none text-base sm:text-sm"
-              value={value}
-              placeholder={tokenBalancesPlaceholder}
-              onChange={({ target }) => setValue(target.value)}
-            />
-          ) : (
-            <InputWithMention
-              value={value}
-              onChange={setValue}
-              onSubmit={setValue}
-              placeholder={tokenHoldersPlaceholder}
-            />
-          )}
+          <InputWithMention
+            value={value}
+            onChange={setValue}
+            onSubmit={setValue}
+            placeholder={
+              isTokenBalances
+                ? tokenBalancesPlaceholder
+                : tokenHoldersPlaceholder
+            }
+            disableSuggestions
+          />
         </div>
         <button
           type="submit"

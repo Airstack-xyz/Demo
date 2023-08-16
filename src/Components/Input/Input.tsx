@@ -38,6 +38,7 @@ type AIInputProps = {
   defaultValue?: string;
   placeholder: string;
   value: string;
+  disableSuggestions?: boolean;
 };
 
 const mentionTypeMap: Record<MentionType, string> = {
@@ -52,7 +53,8 @@ export function InputWithMention({
   onChange,
   value,
   onSubmit,
-  placeholder
+  placeholder,
+  disableSuggestions
 }: AIInputProps) {
   const [showInputFor, setShowInputFor] = useState<
     'ID_ADDRESS' | 'ID_POAP' | null
@@ -301,45 +303,51 @@ export function InputWithMention({
           onAdd={onAddSuggestion}
           className="mention"
           isLoading={loading}
-          renderSuggestion={(suggestion: Option) => {
-            if (suggestion.id === ADDRESS_OPTION_ID) {
-              return (
-                <div className="addressOption">
-                  <Icon name="input-tokens" /> Enter token contract address
-                </div>
-              );
-            }
+          renderSuggestion={
+            disableSuggestions
+              ? null
+              : (suggestion: Option) => {
+                  if (suggestion.id === ADDRESS_OPTION_ID) {
+                    return (
+                      <div className="addressOption">
+                        <Icon name="input-tokens" /> Enter token contract
+                        address
+                      </div>
+                    );
+                  }
 
-            if (suggestion.id === POAP_OPTION_ID) {
-              return (
-                <div className="addressOption">
-                  <Icon name="input-poap" /> Enter a POAP event ID
-                </div>
-              );
-            }
+                  if (suggestion.id === POAP_OPTION_ID) {
+                    return (
+                      <div className="addressOption">
+                        <Icon name="input-poap" /> Enter a POAP event ID
+                      </div>
+                    );
+                  }
 
-            return (
-              <div className="suggestion">
-                <img
-                  src={suggestion.thumbnailURL || ''}
-                  alt={suggestion.display}
-                />
-                <span className="text">
-                  <p className="text-left">
-                    {suggestion.display}
-                    <span className="type">
-                      {suggestion.blockchain}
-                      <span>•</span>
-                      {mentionTypeMap[suggestion.type as MentionType] || ''}
-                    </span>
-                  </p>
-                </span>
-              </div>
-            );
-          }}
+                  return (
+                    <div className="suggestion">
+                      <img
+                        src={suggestion.thumbnailURL || ''}
+                        alt={suggestion.display}
+                      />
+                      <span className="text">
+                        <p className="text-left">
+                          {suggestion.display}
+                          <span className="type">
+                            {suggestion.blockchain}
+                            <span>•</span>
+                            {mentionTypeMap[suggestion.type as MentionType] ||
+                              ''}
+                          </span>
+                        </p>
+                      </span>
+                    </div>
+                  );
+                }
+          }
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore-next-line
-          data={getData}
+          data={disableSuggestions ? null : getData}
         />
       </MentionsInput>
     </div>
