@@ -179,7 +179,7 @@ function Overview() {
 
   return (
     <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px]">
-      <div className="border-solid-stroke bg-glass rounded-18 p-5 m-2.5 flex-1 w-full overflow-hidden">
+      <div className="border-solid-stroke bg-glass rounded-18 px-5 py-2.5 m-2.5 flex-1 w-full overflow-hidden">
         <div className="mb-2 flex flex-col">
           <div className="text-sm text-text-secondary">Total supply </div>
           <div className="ellipsis text-lg">
