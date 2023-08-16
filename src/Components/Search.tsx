@@ -26,7 +26,7 @@ export const Search = memo(function Search() {
   const [value, setValue] = useState(rawInput || '');
 
   useEffect(() => {
-    setValue(rawInput);
+    setValue(rawInput + '  ');
   }, [rawInput]);
 
   const handleTokenBalancesSearch = useCallback(
@@ -69,14 +69,14 @@ export const Search = memo(function Search() {
         return;
       }
 
-      const rawTextWithMenions = rawInput.join(' ');
+      const rawTextWithMenions = rawInput.join('  ');
       const searchData = {
         address,
         blockchain: 'ethereum',
         rawInput: rawTextWithMenions,
         inputType: 'ADDRESS' as UserInputs['inputType']
       };
-      setValue(rawTextWithMenions);
+      setValue(rawTextWithMenions + '  ');
       setData(searchData, { updateQueryParams: true });
     },
     [setData]
@@ -143,14 +143,14 @@ export const Search = memo(function Search() {
         return;
       }
 
-      const rawTextWithMenions = rawInput.join(' ');
+      const rawTextWithMenions = rawInput.join('  ');
       const searchData = {
         address,
         blockchain,
         rawInput: rawTextWithMenions,
         inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType']
       };
-      setValue(rawTextWithMenions);
+      setValue(rawTextWithMenions + '  ');
       setData(searchData, { updateQueryParams: true });
     },
     [setData]
