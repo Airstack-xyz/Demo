@@ -102,11 +102,21 @@ export function TokenHolders() {
   }, [activeView, address, inputType, query, tokenFilters]);
 
   const isERC20 = tokenType === 'ERC20';
+  const noQuery = !query;
 
   return (
     <Layout>
-      <div className="flex flex-col px-2 pt-5 w-[955px] max-w-[100vw] sm:pt-8">
+      <div
+        className={classNames(
+          'flex flex-col px-2 pt-5 w-[955px] max-w-[100vw] sm:pt-8',
+          {
+            'flex-1 h-full w-full flex flex-col items-center !pt-[30%] text-center':
+              noQuery
+          }
+        )}
+      >
         <div className="flex flex-col items-center">
+          {noQuery && <h1 className="text-[2rem]">Explore web3 identities</h1>}
           <Search />
         </div>
         {query && (

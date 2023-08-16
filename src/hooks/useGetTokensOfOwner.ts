@@ -7,11 +7,11 @@ import { tokenTypes } from '../pages/TokenBalances/constants';
 import { CommonTokenType, TokenType } from '../pages/TokenBalances/types';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 
-const LIMIT = 200;
-const LIMIT_DISPLAY_ITEMS = 20;
+const LIMIT = 20;
 
-export function useGetTokensOfOwner() {
-  const [tokens, setTokens] = useState<TokenType[]>([]);
+export function useGetTokensOfOwner(
+  onDataReceived: (tokens: TokenType[]) => void
+) {
   const [loading, setLoading] = useState(false);
   const tokensRef = useRef<TokenType[]>([]);
   const [
@@ -54,7 +54,6 @@ export function useGetTokensOfOwner() {
       });
     }
     tokensRef.current = [];
-    setTokens([]);
   }, [
     blockchainType,
     fetchTokens,
@@ -93,15 +92,16 @@ export function useGetTokensOfOwner() {
         }, []);
     }
     tokensRef.current = [...tokensRef.current, ...ethTokens, ...maticTokens];
-    setTokens(tokensRef.current);
-    if (hasNextPage && tokensRef.current.length < LIMIT_DISPLAY_ITEMS) {
+    onDataReceived([...ethTokens, ...maticTokens]);
+
+    if (hasNextPage && tokensRef.current.length < LIMIT) {
       setLoading(true);
       getNextPage();
       return;
     }
     setLoading(false);
     tokensRef.current = [];
-  }, [getNextPage, hasNextPage, tokensData]);
+  }, [getNextPage, hasNextPage, onDataReceived, tokensData]);
 
   const getNext = useCallback(() => {
     if (!hasNextPage) return;
@@ -112,10 +112,9 @@ export function useGetTokensOfOwner() {
 
   return useMemo(() => {
     return {
-      tokens,
       loading,
       hasNextPage,
       getNext
     };
-  }, [tokens, loading, hasNextPage, getNext]);
+  }, [loading, hasNextPage, getNext]);
 }

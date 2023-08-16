@@ -6,11 +6,11 @@ import { defaultSortOrder } from '../pages/TokenBalances/SortBy';
 import { CommonPoapType, PoapType } from '../pages/TokenBalances/types';
 import { poapsOfCommonOwnersQuery } from '../queries/poapsOfCommonOwnersQuery';
 
-const LIMIT = 200;
-const LIMIT_DISPLAY_ITEMS = 20;
+const LIMIT = 20;
 
-export function useGetPoapsOfOwner() {
-  const [tokens, setTokens] = useState<PoapType[]>([]);
+export function useGetPoapsOfOwner(
+  onDataReceived: (tokens: PoapType[]) => void
+) {
   const [loading, setLoading] = useState(false);
   const tokensRef = useRef<PoapType[]>([]);
   const [
@@ -43,12 +43,13 @@ export function useGetPoapsOfOwner() {
       limit: LIMIT,
       sortBy: sortOrder ? sortOrder : defaultSortOrder
     });
-    setTokens([]);
+    tokensRef.current = [];
   }, [canFetchPoap, fetchTokens, isPoap, owners, sortOrder]);
 
   useEffect(() => {
     if (!tokensData) return;
-    let poaps = tokensData.Poaps?.Poap;
+    let poaps = tokensData?.Poaps?.Poap;
+    if (!poaps) return;
 
     if (poaps.length > 0 && poaps[0]?.poapEvent?.poaps) {
       poaps = poaps.reduce((poaps: PoapType[], poap: CommonPoapType) => {
@@ -61,15 +62,15 @@ export function useGetPoapsOfOwner() {
     }
 
     tokensRef.current = [...tokensRef.current, ...poaps];
-    setTokens(tokensRef.current);
-    if (hasNextPage && tokensRef.current.length < LIMIT_DISPLAY_ITEMS) {
+    onDataReceived(poaps);
+    if (hasNextPage && tokensRef.current.length < LIMIT) {
       setLoading(true);
       getNextPage();
       return;
     }
     setLoading(false);
     tokensRef.current = [];
-  }, [getNextPage, hasNextPage, tokensData]);
+  }, [getNextPage, hasNextPage, onDataReceived, tokensData]);
 
   const getNext = useCallback(() => {
     if (!hasNextPage) return;
@@ -80,10 +81,9 @@ export function useGetPoapsOfOwner() {
 
   return useMemo(() => {
     return {
-      tokens,
       loading,
       hasNextPage,
       getNext
     };
-  }, [tokens, loading, hasNextPage, getNext]);
+  }, [loading, hasNextPage, getNext]);
 }
