@@ -13,6 +13,7 @@ export function useGetTokensOfOwner(
   onDataReceived: (tokens: TokenType[]) => void
 ) {
   const [loading, setLoading] = useState(false);
+  const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
   const tokensRef = useRef<TokenType[]>([]);
   const [
     { address: owners, tokenType: tokenType = '', blockchainType, sortOrder }
@@ -54,6 +55,7 @@ export function useGetTokensOfOwner(
       });
     }
     tokensRef.current = [];
+    setProcessedTokensCount(LIMIT);
   }, [
     blockchainType,
     fetchTokens,
@@ -92,6 +94,9 @@ export function useGetTokensOfOwner(
         }, []);
     }
     tokensRef.current = [...tokensRef.current, ...ethTokens, ...maticTokens];
+    setProcessedTokensCount(
+      count => count + (ethTokens.length + maticTokens.length)
+    );
     onDataReceived([...ethTokens, ...maticTokens]);
 
     if (hasNextPage && tokensRef.current.length < LIMIT) {
@@ -114,7 +119,8 @@ export function useGetTokensOfOwner(
     return {
       loading,
       hasNextPage,
+      processedTokensCount,
       getNext
     };
-  }, [loading, hasNextPage, getNext]);
+  }, [loading, hasNextPage, processedTokensCount, getNext]);
 }

@@ -27,6 +27,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
   const itemsRef = useRef<Token[]>([]);
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<Token[]>([]);
+  const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
   const CommonTokenOwnerQuery = useMemo(
     () => createCommonOwnersQuery(tokenAddress),
     [tokenAddress]
@@ -95,6 +96,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
     if (tokens.length > 0) {
       setTokens(exiting => [...exiting, ...tokens]);
     }
+    setProcessedTokensCount(count => count + tokenBalances.length);
   }, [data, fetchSingleToken, getNextPage, hasNextPage, totalOwners]);
 
   const getNext = useCallback(() => {
@@ -111,6 +113,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
     fetch({
       limit: fetchSingleToken ? MIN_LIMIT : LIMIT
     });
+    setProcessedTokensCount(LIMIT);
   }, [fetch, fetchSingleToken]);
 
   return {
@@ -118,6 +121,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
     tokens,
     loading,
     hasNextPage: hasMorePages,
+    processedTokensCount,
     getNextPage: getNext
   };
 }
