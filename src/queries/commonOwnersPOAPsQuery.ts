@@ -67,6 +67,20 @@ export function createCommonOwnersPOAPsQuery(tokenIds: string[]) {
       input: {filter: {eventId: {_eq: "${tokenIds[0]}"}}, blockchain: ALL, limit: $limit}
     ) {
       Poap {
+        poapEvent {
+          contentValue {
+            image {
+              small
+            }
+            video
+            audio
+          }
+          logo: contentValue {
+            image {
+              small
+            }
+          }
+        }
         ${childern}
       }
     } 

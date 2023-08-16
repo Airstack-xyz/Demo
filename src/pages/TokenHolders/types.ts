@@ -2,6 +2,8 @@ import { TokenBalance } from '../TokenBalances/types';
 
 export type Token = TokenBalance & {
   _token: TokenBalance['token'];
+  _tokenAddress: string;
+  _tokenId: string;
   owner: TokenBalance['owner'] & {
     tokenBalances: Token[];
   };

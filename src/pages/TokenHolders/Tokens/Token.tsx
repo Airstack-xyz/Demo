@@ -29,6 +29,25 @@ export function Token({
   const image =
     _token?.token?.logo?.small || _token?.token?.projectDetails?.imageUrl;
 
+  const assets = useMemo(() => {
+    const assetData: {
+      image: string;
+      tokenId: string;
+      tokenAddress: string;
+    }[] = [{ image, tokenId, tokenAddress }];
+    const innerToken = _token?._token;
+    const _image =
+      innerToken?.logo?.small || innerToken?.projectDetails?.imageUrl;
+    if (_image || _token?._tokenId) {
+      assetData.push({
+        image: _image,
+        tokenId: _token?._tokenId || '',
+        tokenAddress: _token?._tokenAddress || ''
+      });
+    }
+    return assetData;
+  }, [_token, image, tokenAddress, tokenId]);
+
   const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
   const navigate = useNavigate();
 
@@ -71,15 +90,22 @@ export function Token({
   return (
     <>
       <td className="!pl-9">
-        <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden [&>div]:w-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center">
-          <Asset
-            address={tokenAddress}
-            tokenId={tokenId}
-            preset="small"
-            containerClassName="token-img"
-            chain={token?.blockchain as Chain}
-            image={image}
-          />
+        <div className="flex">
+          {assets.map(asset => (
+            <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden [&>div]:w-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center mr-1 last:!mr-0">
+              <Asset
+                address={asset.tokenAddress}
+                tokenId={asset.tokenId}
+                preset="small"
+                containerClassName="token-img"
+                chain={token?.blockchain as Chain}
+                image={asset.image}
+                videoProps={{
+                  controls: false
+                }}
+              />
+            </div>
+          ))}
         </div>
       </td>
       <td className="ellipsis">

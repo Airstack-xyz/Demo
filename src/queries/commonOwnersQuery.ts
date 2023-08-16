@@ -7,7 +7,6 @@ token {
   name
   symbol
   logo {
-    medium
     small
   }
   projectDetails {
@@ -19,10 +18,6 @@ tokenNfts {
     video
     image {
       small
-      original
-      medium
-      large
-      extraSmall
     }
   }
 }
@@ -30,7 +25,6 @@ owner {
   identity
   addresses
   socials {
-    blockchain
     dappSlug
     profileName
   }
@@ -38,12 +32,22 @@ owner {
     name
   }
   domains {
-    chainId
     dappName
     name
   }
   xmtp {
     isXMTPEnabled
+  }
+}`;
+
+const fieldsWithAsset = `tokenId
+tokenAddress
+token {
+  logo {
+    small
+  }
+  projectDetails {
+    imageUrl
   }
 }`;
 
@@ -64,16 +68,22 @@ export function createCommonOwnersQuery(tokenAddress: string[]) {
     tokenAddress.length === 1 ? fields : getQueryWithFiter(tokenAddress, 1);
   return `query GetTokenHolders($limit: Int) {
     ethereum: TokenBalances(
-      input: {filter: {tokenAddress: {_eq: "${tokenAddress[0]}"}}, blockchain: ethereum, limit: $limit}
+      input: {filter: {tokenAddress: {_eq: "${
+        tokenAddress[0]
+      }"}}, blockchain: ethereum, limit: $limit}
     ) {
       TokenBalance {
+        ${tokenAddress.length > 1 ? fieldsWithAsset : ''} 
         ${childern}
       }
     }
     polygon: TokenBalances(
-      input: {filter: {tokenAddress: {_eq: "${tokenAddress[0]}"}}, blockchain: polygon, limit: $limit}
+      input: {filter: {tokenAddress: {_eq: "${
+        tokenAddress[0]
+      }"}}, blockchain: polygon, limit: $limit}
     ) {
       TokenBalance {
+        ${tokenAddress.length > 1 ? fieldsWithAsset : ''}
         ${childern}
       }
     }
