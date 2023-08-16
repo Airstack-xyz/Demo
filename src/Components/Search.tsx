@@ -61,6 +61,14 @@ export const Search = memo(function Search() {
         return;
       }
 
+      if (address.length > 2) {
+        showToast(
+          'You can only search for 2 or less identities at a time',
+          'negative'
+        );
+        return;
+      }
+
       const rawTextWithMenions = rawInput.join(' ');
       const searchData = {
         address,
@@ -117,11 +125,19 @@ export const Search = memo(function Search() {
         rawInput.push(rawValue);
       });
 
-      if (address.length === 0) {
+      if (address.length === 0 || hasInputTypeMismatch) {
         showToast(
           hasInputTypeMismatch
             ? 'Input tokens can only be of one type (Poap or NFT)'
             : 'Couldn’t find any contract',
+          'negative'
+        );
+        return;
+      }
+
+      if (address.length > 2) {
+        showToast(
+          'You can only search for 2 or less tokens/poaps at a time',
           'negative'
         );
         return;
