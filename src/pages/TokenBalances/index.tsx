@@ -142,7 +142,12 @@ export function TokenBalance() {
             <div className="flex justify-between px-5">
               <div className="w-full h-full" key={query}>
                 <div className="hidden sm:block">
-                  <SectionHeader iconName="nft-flat" heading="NFTs & POAPs" />
+                  <SectionHeader
+                    iconName="nft-flat"
+                    heading={`NFTs & POAPs${
+                      address.length > 1 ? ' in common' : ''
+                    }`}
+                  />
                 </div>
                 {isMobile && renderMobileTabs()}
                 <div className="mt-3.5 mb-5">

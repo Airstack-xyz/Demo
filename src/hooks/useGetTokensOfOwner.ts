@@ -73,23 +73,21 @@ export function useGetTokensOfOwner(
 
     if (ethTokens.length > 0 && ethTokens[0]?.token?.tokenBalances) {
       ethTokens = ethTokens
-        .filter(
-          (token: CommonTokenType) => token.token.tokenBalances.length > 0
+        .filter((token: CommonTokenType) =>
+          Boolean(token?.token?.tokenBalances?.length)
         )
         .reduce((items: TokenType[], token: CommonTokenType) => {
           items.push(token.token.tokenBalances[0]);
-          //   token.token.tokenBalances.forEach(item => items.push(item));
           return items;
         }, []);
     }
     if (maticTokens.length > 0 && maticTokens[0]?.token?.tokenBalances) {
       maticTokens = maticTokens
-        .filter(
-          (token: CommonTokenType) => token.token.tokenBalances.length > 0
+        .filter((token: CommonTokenType) =>
+          Boolean(token?.token?.tokenBalances?.length)
         )
         .reduce((items: TokenType[], token: CommonTokenType) => {
           items.push(token.token.tokenBalances[0]);
-          //   token.token.tokenBalances.forEach(item => items.push(item));
           return items;
         }, []);
     }

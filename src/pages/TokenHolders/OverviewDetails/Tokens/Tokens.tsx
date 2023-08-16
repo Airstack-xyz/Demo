@@ -13,7 +13,11 @@ import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { Header } from './Header';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Poap, PoapsData, Token as TokenType, TokensData } from '../../types';
-import { filterTokens, getRequestFilters } from './filters';
+import {
+  filterTokens,
+  getRequestFilters,
+  removeDuplicateOwners
+} from './filters';
 import { getFilterableTokensQuery } from '../../../../queries/overviewDetailsTokens';
 import { Token } from './Token';
 import classNames from 'classnames';
@@ -176,10 +180,23 @@ export function TokensComponent() {
     (tokensData: PoapsData): [Poap[], number] => {
       const poaps = tokensData?.Poaps?.Poap || [];
       if (!hasMultipleTokens) {
-        return [poaps, poaps.length];
+        return [removeDuplicateOwners(poaps) as Poap[], poaps.length];
       }
+      const visitedSet = new Set();
       const poapsWithValues = poaps
-        .filter(token => Boolean(token.owner.poaps))
+        .filter(token => {
+          const poaps = token.owner.poaps;
+
+          if (!poaps || poaps.length === 0) return false;
+
+          const poap = poaps[0];
+          const address = Array.isArray(token.owner.addresses)
+            ? poap.owner.addresses[0]
+            : poap.owner.addresses;
+          const duplicate = visitedSet.has(address);
+          visitedSet.add(address);
+          return !duplicate;
+        })
         .map(token => {
           return {
             ...token.owner.poaps[0],
@@ -209,8 +226,12 @@ export function TokensComponent() {
           .filter(token => token.owner?.tokenBalances?.length)
           .map(token => token.owner?.tokenBalances[0]);
       }
+      const tokens = removeDuplicateOwners([
+        ...ethTokenBalances,
+        ...polygonTokenBalances
+      ]) as TokenType[];
 
-      return [[...ethTokenBalances, ...polygonTokenBalances], originalSize];
+      return [tokens, originalSize];
     },
     [hasMultipleTokens]
   );

@@ -26,7 +26,7 @@ export const Search = memo(function Search() {
   const [value, setValue] = useState(rawInput || '');
 
   useEffect(() => {
-    setValue(rawInput + '  ');
+    setValue(rawInput ? rawInput + '  ' : '');
   }, [rawInput]);
 
   const handleTokenBalancesSearch = useCallback(

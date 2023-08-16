@@ -1,4 +1,4 @@
-import { useCallback, memo, useMemo, useState, useEffect } from 'react';
+import { useCallback, memo, useMemo, useState, useEffect, useRef } from 'react';
 import { PoapType, TokenType as TokenType } from './types';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -26,15 +26,23 @@ function TokensComponent() {
     { address: owners, tokenType: tokenType = '', blockchainType, sortOrder }
   ] = useSearchInput();
   const [tokens, setTokens] = useState<(TokenType | PoapType)[]>([]);
+  const visitedTokensSetRef = useRef<Set<string>>(new Set());
 
   const handleTokens = useCallback((tokens: (TokenType | PoapType)[]) => {
-    setTokens(existingTokens => [...existingTokens, ...tokens]);
+    const filteredTokens = tokens.filter(token => {
+      const id = token.tokenAddress || (token as PoapType).tokenId;
+      const duplicate = visitedTokensSetRef.current.has(id);
+      visitedTokensSetRef.current.add(id);
+      return !duplicate;
+    });
+    setTokens(existingTokens => [...existingTokens, ...filteredTokens]);
   }, []);
 
   useEffect(() => {
     // reset tokens when filters, sort or addresses change
     if (owners.length > 0) {
       setTokens([]);
+      visitedTokensSetRef.current = new Set();
     }
   }, [blockchainType, owners, sortOrder, tokenType]);
 
