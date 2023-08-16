@@ -1,4 +1,4 @@
-import { useCallback, memo, useMemo } from 'react';
+import { useCallback, memo, useMemo, useState, useEffect } from 'react';
 import { PoapType, TokenType as TokenType } from './types';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -21,21 +21,33 @@ function Loader() {
 }
 
 function TokensComponent() {
-  const [{ tokenType: tokenType = '', blockchainType }] = useSearchInput();
+  const [
+    { address: owners, tokenType: tokenType = '', blockchainType, sortOrder }
+  ] = useSearchInput();
+  const [tokens, setTokens] = useState<(TokenType | PoapType)[]>([]);
+
+  const handleTokens = useCallback((tokens: (TokenType | PoapType)[]) => {
+    setTokens(existingTokens => [...existingTokens, ...tokens]);
+  }, []);
+
+  useEffect(() => {
+    // reset tokens when filters, sort or addresses change
+    if (owners.length > 0) {
+      setTokens([]);
+    }
+  }, [blockchainType, owners, sortOrder, tokenType]);
 
   const {
-    tokens: tokensData,
     loading: loadingTokens,
     hasNextPage: hasNextPageTokens,
     getNext: getNextTokens
-  } = useGetTokensOfOwner();
+  } = useGetTokensOfOwner(handleTokens);
 
   const {
-    tokens: poapsData,
     loading: loadingPoaps,
     getNext: getNextPoaps,
     hasNextPage: hasNextPagePoaps
-  } = useGetPoapsOfOwner();
+  } = useGetPoapsOfOwner(handleTokens);
 
   const isPoap = tokenType === 'POAP';
 
@@ -65,7 +77,6 @@ function TokensComponent() {
   ]);
 
   const loading = loadingTokens || loadingPoaps;
-  const tokens = isPoap ? poapsData : tokensData;
 
   if (tokens.length === 0 && !loading) {
     return (

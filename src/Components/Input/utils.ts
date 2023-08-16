@@ -1,4 +1,5 @@
 import { MentionsQuery } from '../../queries';
+import { createFormattedRawInput } from '../../utils/createQueryParamsWithMention';
 import { ADDRESS_OPTION_ID, POAP_OPTION_ID } from './constants';
 
 export enum MentionType {
@@ -171,11 +172,9 @@ type MentionValues = {
 };
 export function getValuesFromId(id: string): MentionValues {
   const match = /#⎱.+?⎱\((.+?)\)\s*/g.exec(id);
-  // console.log({ match, id, newMatch: id.match(/#⎱.+?⎱\((.+?)\)\s*/g) });
   if (!match) return { address: id };
   const [address, token, blockchain, eventId, customInputId] =
     match[1].split(' ');
-
   const customInputType =
     token === MentionType.POAP || customInputId === POAP_OPTION_ID
       ? 'POAP'
@@ -198,6 +197,71 @@ export function getAllMentionDetails(query: string): [MentionValues[], string] {
     matches.map(match => getValuesFromId(match)),
     matches.map(match => match.trim()).join(' ')
   ];
+}
+
+function getRawString(string: string) {
+  return createFormattedRawInput({
+    address: string,
+    blockchain: 'ethereum',
+    type: string.startsWith('0x')
+      ? 'ADDRESS'
+      : !isNaN(Number(string))
+      ? 'POAP'
+      : '',
+    label: string
+  });
+}
+
+type WordWitnMention = {
+  word: string;
+  rawValue: string;
+  mention?: MentionValues;
+};
+
+export function getAllWordsAndMentions(query: string): WordWitnMention[] {
+  const matches = query.matchAll(/#⎱.+?⎱\((.+?)\)\s*/g);
+
+  const wordsAndMentions: WordWitnMention[] = [];
+  let currentIndex = 0;
+
+  [...matches].forEach(match => {
+    const matchedString = match[0];
+    const index = match.index;
+    const wordBeforeMention = query.substring(currentIndex, index);
+
+    if (wordBeforeMention) {
+      wordBeforeMention.split(' ').forEach(word => {
+        if (word) {
+          wordsAndMentions.push({
+            word: word,
+            rawValue: getRawString(word)
+          });
+        }
+      });
+    }
+
+    if (index !== undefined && index >= currentIndex) {
+      wordsAndMentions.push({
+        word: matchedString.trim(),
+        rawValue: matchedString.trim(),
+        mention: getValuesFromId(matchedString.trim())
+      });
+      currentIndex = index + matchedString.length;
+    }
+  });
+
+  if (currentIndex < query.length) {
+    const lastWord = query.substring(currentIndex, query.length);
+    lastWord.split(' ').forEach(word => {
+      if (word) {
+        wordsAndMentions.push({
+          word: word,
+          rawValue: getRawString(word)
+        });
+      }
+    });
+  }
+  return wordsAndMentions;
 }
 
 export function needHelp(str: string) {
