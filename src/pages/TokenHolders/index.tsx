@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Search } from '../../Components/Search';
 import { Layout } from '../../Components/layout';
 import { Tokens } from './Tokens/Tokens';
@@ -22,10 +22,26 @@ import {
 import { getFilterablePoapsQuery } from '../../queries/overviewDetailsPoap';
 
 export function TokenHolders() {
-  const [{ address, tokenType, inputType, activeView, tokenFilters }] =
+  const [{ address, tokenType, inputType, activeView, tokenFilters }, setData] =
     useSearchInput();
+  const addressRef = useRef<null | string[]>(null);
 
   const query = address.length > 0 ? address[0] : '';
+
+  useEffect(() => {
+    // go to token-holders page if user input address has changed
+    if (addressRef.current && addressRef.current !== address) {
+      setData(
+        {
+          activeView: ''
+        },
+        {
+          updateQueryParams: true
+        }
+      );
+    }
+    addressRef.current = address;
+  }, [address, setData]);
 
   const options = useMemo(() => {
     const isPoap = inputType === 'POAP';

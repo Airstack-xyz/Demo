@@ -40,9 +40,6 @@ export function useGetTokensOfOwner(
   useEffect(() => {
     if (owners.length === 0) return;
 
-    // // const hasPolygonChainFilter =
-    //   blockchainType.length === 1 && blockchainType[0] === 'polygon';
-
     if (!tokenType || !isPoap) {
       setLoading(true);
       fetchTokens({
@@ -70,6 +67,7 @@ export function useGetTokensOfOwner(
     const { ethereum, polygon } = tokensData;
     let ethTokens = ethereum?.TokenBalance || [];
     let maticTokens = polygon?.TokenBalance || [];
+    const processedTokenCount = ethTokens.length + maticTokens.length;
 
     if (ethTokens.length > 0 && ethTokens[0]?.token?.tokenBalances) {
       ethTokens = ethTokens
@@ -92,9 +90,7 @@ export function useGetTokensOfOwner(
         }, []);
     }
     tokensRef.current = [...tokensRef.current, ...ethTokens, ...maticTokens];
-    setProcessedTokensCount(
-      count => count + (ethTokens.length + maticTokens.length)
-    );
+    setProcessedTokensCount(count => count + processedTokenCount);
     onDataReceived([...ethTokens, ...maticTokens]);
 
     if (hasNextPage && tokensRef.current.length < LIMIT) {

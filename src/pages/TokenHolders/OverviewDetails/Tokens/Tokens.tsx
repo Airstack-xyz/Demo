@@ -348,7 +348,7 @@ export function TokensComponent() {
 
   return (
     <>
-      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
+      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto mb-5">
         <InfiniteScroll
           next={handleNext}
           dataLength={tokens.length}
