@@ -14,9 +14,8 @@ export function useGetPoapsOfOwner(
   const [loading, setLoading] = useState(false);
   const tokensRef = useRef<PoapType[]>([]);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
-  const [
-    { address: owners, tokenType: tokenType = '', blockchainType, sortOrder }
-  ] = useSearchInput();
+  const [{ address: owners, tokenType = '', blockchainType, sortOrder }] =
+    useSearchInput();
   const isPoap = tokenType === 'POAP';
 
   const query = useMemo(() => {
@@ -32,10 +31,12 @@ export function useGetPoapsOfOwner(
   const [
     fetchTokens,
     {
-      data: tokensData,
+      data,
       pagination: { getNextPage, hasNextPage }
     }
   ] = airstackReact.useLazyQueryWithPagination(query, {}, config);
+
+  const tokensData = !canFetchPoap ? null : data;
 
   useEffect(() => {
     if (owners.length === 0 || !canFetchPoap) return;
@@ -46,7 +47,7 @@ export function useGetPoapsOfOwner(
     });
     tokensRef.current = [];
     setProcessedTokensCount(LIMIT);
-  }, [canFetchPoap, fetchTokens, isPoap, owners, sortOrder]);
+  }, [canFetchPoap, fetchTokens, owners, sortOrder, blockchainType, tokenType]);
 
   useEffect(() => {
     if (!tokensData) return;
@@ -73,14 +74,14 @@ export function useGetPoapsOfOwner(
     }
     setLoading(false);
     tokensRef.current = [];
-  }, [getNextPage, hasNextPage, onDataReceived, tokensData]);
+  }, [canFetchPoap, getNextPage, hasNextPage, onDataReceived, tokensData]);
 
   const getNext = useCallback(() => {
-    if (!hasNextPage) return;
+    if (!hasNextPage || !canFetchPoap) return;
     setLoading(true);
     tokensRef.current = [];
     getNextPage();
-  }, [getNextPage, hasNextPage]);
+  }, [canFetchPoap, getNextPage, hasNextPage]);
 
   return useMemo(() => {
     return {
