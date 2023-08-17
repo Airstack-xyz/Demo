@@ -78,11 +78,13 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
   const fetchSingleToken = tokenAddress.length === 1;
 
   useEffect(() => {
+    if (!data) return;
     if (
       hasPoap
-        ? !data?.Poaps?.Poap
-        : !data?.ethereum?.TokenBalance && !data?.polygon?.TokenBalance
+        ? !data.Poaps?.Poap
+        : !data.ethereum?.TokenBalance && !data?.polygon?.TokenBalance
     ) {
+      // if there is no data, hide the loader
       setLoading(false);
       return;
     }
