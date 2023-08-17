@@ -88,7 +88,8 @@ function sortArray(array: string[]) {
 export function TokensComponent() {
   const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
   const tokensRef = useRef<(TokenType | Poap)[]>([]);
-  const [{ tokenFilters: filters, address }] = useSearchInput();
+  const [{ tokenFilters: filters, address, activeViewToken }] =
+    useSearchInput();
   const [showStatusLoader, setShowStatusLoader] = useState(false);
   const [loaderStats, setLoaderStats] = useState({
     total: LIMIT,
@@ -341,6 +342,7 @@ export function TokensComponent() {
         <StatusLoader
           total={loaderStats.total}
           matching={loaderStats.matching}
+          tokenName={activeViewToken || ''}
         />
       </>
     );
@@ -406,6 +408,7 @@ export function TokensComponent() {
         <StatusLoader
           total={loaderStats.total}
           matching={loaderStats.matching}
+          tokenName={activeViewToken || ''}
         />
       )}
     </>
