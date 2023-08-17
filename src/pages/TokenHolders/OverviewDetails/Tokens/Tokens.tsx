@@ -18,12 +18,16 @@ import {
   getRequestFilters,
   removeDuplicateOwners
 } from './filters';
-import { getFilterableTokensQuery } from '../../../../queries/overviewDetailsTokens';
 import { Token } from './Token';
 import classNames from 'classnames';
 import { StatusLoader } from './StatusLoader';
 import { useLoaderContext } from '../../../../hooks/useLoader';
 import { getFilterablePoapsQuery } from '../../../../queries/overviewDetailsPoap';
+import {
+  getCommonNftOwnersQueryWithFilters,
+  getNftOwnersQueryWithFilters
+} from '../../../../queries/commonNftOwnersQueryWithFilters';
+import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../../../queries/commonPoapAndNftOwnersQueryWithFilters';
 
 const LIMIT = 50;
 
@@ -66,10 +70,25 @@ function Loader() {
   );
 }
 
+function sortArray(array: string[]) {
+  const startsWith0x: string[] = [];
+  const notStartsWith0x: string[] = [];
+
+  for (const item of array) {
+    if (item.startsWith('0x')) {
+      startsWith0x.push(item);
+    } else {
+      notStartsWith0x.push(item);
+    }
+  }
+
+  return [...notStartsWith0x, ...startsWith0x];
+}
+
 export function TokensComponent() {
   const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
   const tokensRef = useRef<(TokenType | Poap)[]>([]);
-  const [{ tokenFilters: filters, address, inputType }] = useSearchInput();
+  const [{ tokenFilters: filters, address }] = useSearchInput();
   const [showStatusLoader, setShowStatusLoader] = useState(false);
   const [loaderStats, setLoaderStats] = useState({
     total: LIMIT,
@@ -80,21 +99,44 @@ export function TokensComponent() {
     return getRequestFilters(filters);
   }, [filters]);
 
-  const { tokensQuery, poapsQuery } = useMemo(() => {
-    const tokensQuery = getFilterableTokensQuery(
+  const hasSomePoap = address.some(token => !token.startsWith('0x'));
+  const hasPoap = address.every(token => !token.startsWith('0x'));
+
+  const tokensQuery = useMemo(() => {
+    if (address.length === 1)
+      return getNftOwnersQueryWithFilters(
+        address[0],
+        Boolean(requestFilters?.socialFilters),
+        requestFilters?.hasPrimaryDomain
+      );
+    if (hasSomePoap) {
+      const tokens = sortArray(address);
+      return getCommonPoapAndNftOwnersQueryWithFilters(
+        tokens[0],
+        tokens[1],
+        Boolean(requestFilters?.socialFilters),
+        requestFilters?.hasPrimaryDomain
+      );
+    }
+    return getCommonNftOwnersQueryWithFilters(
+      address[0],
+      address[1],
+      Boolean(requestFilters?.socialFilters),
+      requestFilters?.hasPrimaryDomain
+    );
+  }, [
+    address,
+    hasSomePoap,
+    requestFilters?.hasPrimaryDomain,
+    requestFilters?.socialFilters
+  ]);
+
+  const poapsQuery = useMemo(() => {
+    return getFilterablePoapsQuery(
       address,
       Boolean(requestFilters?.socialFilters),
       requestFilters?.hasPrimaryDomain
     );
-    const poapsQuery = getFilterablePoapsQuery(
-      address,
-      Boolean(requestFilters?.socialFilters),
-      requestFilters?.hasPrimaryDomain
-    );
-    return {
-      tokensQuery,
-      poapsQuery
-    };
   }, [
     address,
     requestFilters?.hasPrimaryDomain,
@@ -129,8 +171,6 @@ export function TokensComponent() {
     dataType: ''
   });
 
-  const isPoap = inputType === 'POAP';
-
   useEffect(() => {
     if (shouldFetchTokens) {
       // eslint-disable-next-line
@@ -143,7 +183,7 @@ export function TokensComponent() {
         matching: 0
       });
 
-      if (isPoap) {
+      if (hasPoap) {
         fetchPoap({
           limit: LIMIT,
           ...requestFilters
@@ -160,12 +200,12 @@ export function TokensComponent() {
     fetchPoap,
     fetchTokens,
     filters,
-    isPoap,
+    hasPoap,
     requestFilters,
     shouldFetchTokens
   ]);
 
-  const { hasNextPage, getNextPage } = isPoap
+  const { hasNextPage, getNextPage } = hasPoap
     ? paginationPoaps
     : paginationTokens;
 
@@ -210,35 +250,36 @@ export function TokensComponent() {
 
   const getTokenList = useCallback(
     (tokensData: TokensData): [TokenType[], number] => {
-      let ethTokenBalances: TokenType[] =
-        tokensData.ethereum?.TokenBalance || [];
-      let polygonTokenBalances: TokenType[] =
-        tokensData.polygon?.TokenBalance || [];
-      const originalSize =
-        ethTokenBalances.length + polygonTokenBalances.length;
+      let tokenBalances: TokenType[] = [];
+
+      if (hasSomePoap) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        tokenBalances = tokensData?.Poaps?.Poap as any;
+      } else {
+        const ethTokenBalances: TokenType[] =
+          tokensData.ethereum?.TokenBalance || [];
+        const polygonTokenBalances: TokenType[] =
+          tokensData.polygon?.TokenBalance || [];
+        tokenBalances = [...ethTokenBalances, ...polygonTokenBalances];
+      }
+
+      const originalSize = tokenBalances.length;
 
       if (hasMultipleTokens) {
-        ethTokenBalances = ethTokenBalances
-          .filter(token => token.owner?.tokenBalances?.length)
-          .map(token => token.owner?.tokenBalances[0]);
-
-        polygonTokenBalances = polygonTokenBalances
+        tokenBalances = tokenBalances
           .filter(token => token.owner?.tokenBalances?.length)
           .map(token => token.owner?.tokenBalances[0]);
       }
-      const tokens = removeDuplicateOwners([
-        ...ethTokenBalances,
-        ...polygonTokenBalances
-      ]) as TokenType[];
+      const tokens = removeDuplicateOwners(tokenBalances) as TokenType[];
 
       return [tokens, originalSize];
     },
-    [hasMultipleTokens]
+    [hasMultipleTokens, hasSomePoap]
   );
 
   useEffect(() => {
     if (!tokensData || loading) return;
-    const [tokens, size] = isPoap
+    const [tokens, size] = hasPoap
       ? getPoapList(tokensData)
       : getTokenList(tokensData);
 
@@ -258,7 +299,7 @@ export function TokensComponent() {
     }
   }, [
     filters,
-    isPoap,
+    hasPoap,
     tokensData,
     loading,
     hasNextPage,
@@ -324,6 +365,11 @@ export function TokensComponent() {
               ))}
             </tbody>
           </table>
+          {!loading && tokens.length === 0 && (
+            <div className="flex flex-1 justify-center text-xs font-semibold mt-5">
+              No data found!
+            </div>
+          )}
           {loading && <Loader />}
         </InfiniteScroll>
         <Modal
