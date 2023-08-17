@@ -1,13 +1,14 @@
 import { TokenBalance } from '../TokenBalances/types';
 
-export type Token = TokenBalance & {
-  _token: TokenBalance['token'];
-  _tokenAddress: string;
-  _tokenId: string;
-  owner: TokenBalance['owner'] & {
-    tokenBalances: Token[];
+export type Token = TokenBalance &
+  Pick<Poap, '_poapEvent'> & {
+    _token: TokenBalance['token'];
+    _tokenAddress: string;
+    _tokenId: string;
+    owner: TokenBalance['owner'] & {
+      tokenBalances: Token[];
+    };
   };
-};
 
 export type TokensData = {
   ethereum: { TokenBalance: Token[] };

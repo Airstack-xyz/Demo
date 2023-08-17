@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { Header } from './Header';
 import { useNavigate } from 'react-router-dom';
@@ -33,6 +33,10 @@ function Loader() {
 
 export function TokensComponent() {
   const [{ address: tokenAddress, inputType }] = useSearchInput();
+  const shouldFetchPoaps = useMemo(
+    () => !tokenAddress.some(address => address.startsWith('0x')),
+    [tokenAddress]
+  );
   const {
     fetch: fetchTokens,
     loading: loadingTokens,
@@ -67,13 +71,13 @@ export function TokensComponent() {
   useEffect(() => {
     if (tokenAddress.length === 0) return;
 
-    if (isPoap) {
+    if (isPoap && shouldFetchPoaps) {
       fetchPoap();
       return;
     }
 
     fetchTokens();
-  }, [fetchPoap, fetchTokens, isPoap, tokenAddress]);
+  }, [fetchPoap, fetchTokens, isPoap, shouldFetchPoaps, tokenAddress]);
 
   const handleShowMore = useCallback((values: string[], dataType: string) => {
     const leftValues: string[] = [];
@@ -119,7 +123,7 @@ export function TokensComponent() {
     }
   }, [getNextPage, hasNextPage, loading]);
 
-  const tokens = isPoap ? poaps : tokensData;
+  const tokens = shouldFetchPoaps ? poaps : tokensData;
   const totalProcessed = processedTokensCount + processedPoapsCount;
   const showStatusLoader = loading && tokenAddress.length > 1;
 

@@ -30,7 +30,7 @@ function TokensComponent() {
 
   const handleTokens = useCallback((tokens: (TokenType | PoapType)[]) => {
     const filteredTokens = tokens.filter(token => {
-      const id = token.tokenAddress || (token as PoapType).tokenId;
+      const id = (token as PoapType).tokenId || token.tokenAddress;
       const duplicate = visitedTokensSetRef.current.has(id);
       visitedTokensSetRef.current.add(id);
       return !duplicate;

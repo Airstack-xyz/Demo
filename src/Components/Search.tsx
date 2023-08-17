@@ -125,13 +125,8 @@ export const Search = memo(function Search() {
         rawInput.push(rawValue);
       });
 
-      if (address.length === 0 || hasInputTypeMismatch) {
-        showToast(
-          hasInputTypeMismatch
-            ? 'Input tokens can only be of one type (Poap or NFT)'
-            : 'Couldn’t find any contract',
-          'negative'
-        );
+      if (address.length === 0) {
+        showToast('Couldn’t find any contract', 'negative');
         return;
       }
 
