@@ -1,14 +1,23 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createCommonOwnersQuery } from '../queries/commonOwnersQuery';
-import { Token as TokenType } from '../pages/TokenHolders/types';
+import { Poap, Token as TokenType } from '../pages/TokenHolders/types';
+import { getCommonPoapAndNftOwnersQuery } from '../queries/commonPoapAndNftOwnersQuery';
+import {
+  getCommonNftOwnersQuery,
+  getNftOwnersQuery
+} from '../queries/commonNftOwnersQuery';
 
-type Token = TokenType;
-type NextedTokenBalance = (Pick<Token, 'tokenAddress' | 'tokenId' | 'token'> & {
-  owner: {
-    tokenBalances: Token[];
-  };
-})[];
+type Token = TokenType & {
+  _poapEvent?: Poap['poapEvent'];
+};
+
+type NextedTokenBalance = (Pick<Token, 'tokenAddress' | 'tokenId' | 'token'> &
+  Pick<Poap, 'poapEvent'> & {
+    owner: {
+      tokenBalances: Token[];
+    };
+    poapEvent?: Poap['poapEvent'];
+  })[];
 
 type CommonOwner = {
   ethereum: {
@@ -19,8 +28,23 @@ type CommonOwner = {
   };
 };
 
-const LIMIT = 20;
-const MIN_LIMIT = 20;
+const LIMIT = 200;
+const MIN_LIMIT = 200;
+
+function sortArray(array: string[]) {
+  const startsWith0x: string[] = [];
+  const notStartsWith0x: string[] = [];
+
+  for (const item of array) {
+    if (item.startsWith('0x')) {
+      startsWith0x.push(item);
+    } else {
+      notStartsWith0x.push(item);
+    }
+  }
+
+  return [...notStartsWith0x, ...startsWith0x];
+}
 
 export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
   const ownersSetRef = useRef<Set<string>>(new Set());
@@ -28,13 +52,19 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<Token[]>([]);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
-  const CommonTokenOwnerQuery = useMemo(
-    () => createCommonOwnersQuery(tokenAddress),
-    [tokenAddress]
-  );
-  const [fetch, { data, pagination }] = useLazyQueryWithPagination(
-    CommonTokenOwnerQuery
-  );
+
+  const hasPoap = tokenAddress.some(token => !token.startsWith('0x'));
+
+  const query = useMemo(() => {
+    if (tokenAddress.length === 1) return getNftOwnersQuery(tokenAddress[0]);
+    if (hasPoap) {
+      const tokens = sortArray(tokenAddress);
+      return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
+    }
+    return getCommonNftOwnersQuery(tokenAddress[0], tokenAddress[1]);
+  }, [hasPoap, tokenAddress]);
+
+  const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
 
   const { hasNextPage, getNextPage } = pagination;
   // eslint-disable-next-line
@@ -48,16 +78,29 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
   const fetchSingleToken = tokenAddress.length === 1;
 
   useEffect(() => {
-    if (!data?.ethereum?.TokenBalance && !data?.polygon?.TokenBalance) {
+    if (
+      hasPoap
+        ? !data?.Poaps?.Poap
+        : !data?.ethereum?.TokenBalance && !data?.polygon?.TokenBalance
+    ) {
       setLoading(false);
       return;
     }
+
+    let tokenBalances = [];
+
     const ownersInEth = data?.ethereum as CommonOwner['ethereum'];
     const ownersInPolygon = data?.polygon as CommonOwner['polygon'];
-    const tokenBalances = [
-      ...(ownersInEth?.TokenBalance || []),
-      ...(ownersInPolygon?.TokenBalance || [])
-    ];
+
+    if (hasPoap) {
+      tokenBalances = data.Poaps?.Poap;
+    } else {
+      tokenBalances = [
+        ...(ownersInEth?.TokenBalance || []),
+        ...(ownersInPolygon?.TokenBalance || [])
+      ];
+    }
+
     let tokens: Token[] = [];
 
     if (fetchSingleToken) {
@@ -72,12 +115,14 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
               ...token.owner.tokenBalances[0],
               _tokenAddress: token.tokenAddress,
               _tokenId: token.tokenId,
-              _token: token.token
+              _token: token.token,
+              _poapEvent: token.poapEvent
             }
           ],
           [] as Token[]
         );
     }
+
     tokens = tokens.filter(token => {
       const address = token?.owner?.identity;
       if (!address) return false;
@@ -97,7 +142,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
       setTokens(exiting => [...exiting, ...tokens]);
     }
     setProcessedTokensCount(count => count + tokenBalances.length);
-  }, [data, fetchSingleToken, getNextPage, hasNextPage, totalOwners]);
+  }, [data, fetchSingleToken, getNextPage, hasNextPage, hasPoap, totalOwners]);
 
   const getNext = useCallback(() => {
     if (!hasMorePages) return;
@@ -107,6 +152,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
   }, [getNextPage, hasMorePages]);
 
   const getTokens = useCallback(() => {
+    if (tokenAddress.length === 0) return;
     itemsRef.current = [];
     setLoading(true);
     setTokens([]);
@@ -114,7 +160,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
       limit: fetchSingleToken ? MIN_LIMIT : LIMIT
     });
     setProcessedTokensCount(LIMIT);
-  }, [fetch, fetchSingleToken]);
+  }, [fetch, fetchSingleToken, tokenAddress.length]);
 
   return {
     fetch: getTokens,
