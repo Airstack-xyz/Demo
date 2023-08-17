@@ -6,6 +6,7 @@ import {
   getCommonNftOwnersQuery,
   getNftOwnersQuery
 } from '../queries/commonNftOwnersQuery';
+import { sortAddressByPoapFirst } from '../utils/sortAddressByPoapFirst';
 
 type Token = TokenType & {
   _poapEvent?: Poap['poapEvent'];
@@ -31,21 +32,6 @@ type CommonOwner = {
 const LIMIT = 200;
 const MIN_LIMIT = 200;
 
-function sortArray(array: string[]) {
-  const startsWith0x: string[] = [];
-  const notStartsWith0x: string[] = [];
-
-  for (const item of array) {
-    if (item.startsWith('0x')) {
-      startsWith0x.push(item);
-    } else {
-      notStartsWith0x.push(item);
-    }
-  }
-
-  return [...notStartsWith0x, ...startsWith0x];
-}
-
 export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
   const ownersSetRef = useRef<Set<string>>(new Set());
   const itemsRef = useRef<Token[]>([]);
@@ -58,7 +44,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
   const query = useMemo(() => {
     if (tokenAddress.length === 1) return getNftOwnersQuery(tokenAddress[0]);
     if (hasPoap) {
-      const tokens = sortArray(tokenAddress);
+      const tokens = sortAddressByPoapFirst(tokenAddress);
       return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
     }
     return getCommonNftOwnersQuery(tokenAddress[0], tokenAddress[1]);

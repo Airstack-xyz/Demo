@@ -1,7 +1,12 @@
 const APP_EXPLORER_URL = 'https://app.airstack.xyz/api-studio';
 
 function encode(string: string) {
-  return btoa(encodeURIComponent(string));
+  try {
+    const _string = btoa(string);
+    return _string;
+  } catch {
+    return string;
+  }
 }
 
 export function createAppUrlWithQuery(
