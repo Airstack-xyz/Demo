@@ -116,7 +116,7 @@ function TokensComponent() {
         next={handleNext}
         dataLength={tokens.length}
         hasMore={hasNextPage}
-        loader={loading ? <Loader /> : null}
+        loader={null}
         className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start mb-10"
       >
         {tokens.map((token, index) => {
@@ -129,6 +129,7 @@ function TokensComponent() {
             </div>
           );
         })}
+        {loading && <Loader />}
       </InfiniteScroll>
       {showStatusLoader && (
         <StatusLoader matching={tokens.length} total={totalProcessed} />

@@ -51,8 +51,8 @@ export function useGetPoapsOfOwner(
 
   useEffect(() => {
     if (!tokensData) return;
-    let poaps = tokensData?.Poaps?.Poap;
-    if (!poaps) return;
+    let poaps = tokensData?.Poaps?.Poap || [];
+    const processedTokensCount = poaps.length;
 
     if (poaps.length > 0 && poaps[0]?.poapEvent?.poaps) {
       poaps = poaps.reduce((poaps: PoapType[], poap: CommonPoapType) => {
@@ -65,7 +65,7 @@ export function useGetPoapsOfOwner(
     }
 
     tokensRef.current = [...tokensRef.current, ...poaps];
-    setProcessedTokensCount(count => count + tokensData?.Poaps?.Poap.length);
+    setProcessedTokensCount(count => count + processedTokensCount);
     onDataReceived(poaps);
     if (hasNextPage && tokensRef.current.length < LIMIT) {
       setLoading(true);
