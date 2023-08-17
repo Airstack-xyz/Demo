@@ -1,6 +1,8 @@
 import {
   SetURLSearchParams,
+  createSearchParams,
   useMatch,
+  useNavigate,
   useSearchParams
 } from 'react-router-dom';
 import { useCallback, useMemo } from 'react';
@@ -27,7 +29,7 @@ export const userInputCache = {
 
 type UpdateUserInputs = (
   data: Partial<UserInputs>,
-  config?: { reset?: boolean; updateQueryParams?: boolean }
+  config?: { reset?: boolean; updateQueryParams?: boolean; redirectTo?: string }
 ) => void;
 
 const arrayTypes = ['address', 'blockchainType', 'tokenFilters'];
@@ -44,6 +46,7 @@ export function useSearchInput(): [
 ] {
   let isTokenBalances = !!useMatch('/token-balances');
   const isHome = useMatch('/');
+  const navigate = useNavigate();
 
   if (isHome) {
     isTokenBalances = true;
@@ -85,12 +88,20 @@ export function useSearchInput(): [
             searchParams[key] = (inputs[key] as string[]).join(',');
           }
         }
+        if (config.redirectTo) {
+          navigate({
+            pathname: config.redirectTo,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            search: createSearchParams(data as any).toString()
+          });
+          return;
+        }
         setSarchParams(searchParams as Record<string, string>, {
           replace: shouldReplaceFilters
         });
       }
     },
-    [isTokenBalances, setSarchParams]
+    [isTokenBalances, navigate, setSarchParams]
   );
 
   const getData = useCallback(

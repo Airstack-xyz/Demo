@@ -20,7 +20,12 @@ const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address }] = useSearchInput();
   return (
     <aside className="w-full min-w-full sm:w-[305px] sm:min-w-[305px] sm:ml-16">
-      {address.length <= 1 && <Socials />}
+      {address.length <= 1 && (
+        <>
+          <Socials />
+          <div className="mt-11"></div>
+        </>
+      )}
       <ERC20Tokens />
     </aside>
   );
