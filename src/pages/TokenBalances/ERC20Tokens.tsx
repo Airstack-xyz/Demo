@@ -172,7 +172,7 @@ export function ERC20Tokens() {
   }, [getNextPage, hasNextPage, loading]);
 
   return (
-    <div className="mt-11">
+    <div>
       <div className="hidden sm:block">
         <SectionHeader
           iconName="erc20"

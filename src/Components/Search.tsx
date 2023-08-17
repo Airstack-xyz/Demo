@@ -4,7 +4,11 @@ import { InputWithMention } from './Input/Input';
 import { FormEvent, memo, useCallback, useEffect, useState } from 'react';
 import { Link, useMatch, useSearchParams } from 'react-router-dom';
 import { getAllWordsAndMentions } from './Input/utils';
-import { UserInputs, useSearchInput } from '../hooks/useSearchInput';
+import {
+  CachedQuery,
+  UserInputs,
+  useSearchInput
+} from '../hooks/useSearchInput';
 import { showToast } from '../utils/showToast';
 
 const tokenHoldersPlaceholder =
@@ -28,6 +32,23 @@ export const Search = memo(function Search() {
   useEffect(() => {
     setValue(rawInput ? rawInput + '  ' : '');
   }, [rawInput]);
+
+  const handleDataChange = useCallback(
+    (data: Partial<CachedQuery>, reset = false) => {
+      if (isHome) {
+        setData(data, {
+          updateQueryParams: true,
+          reset,
+          redirectTo: isTokenBalances ? '/token-balances' : '/token-holders'
+        });
+      }
+      setData(data, {
+        updateQueryParams: true,
+        reset
+      });
+    },
+    [isHome, isTokenBalances, setData]
+  );
 
   const handleTokenBalancesSearch = useCallback(
     (value: string) => {
@@ -57,7 +78,7 @@ export const Search = memo(function Search() {
           'Couldn’t find any valid wallet address or ens/lens/farcaster name',
           'negative'
         );
-        setData({}, { reset: true, updateQueryParams: true });
+        handleDataChange({}, true);
         return;
       }
 
@@ -77,9 +98,9 @@ export const Search = memo(function Search() {
         inputType: 'ADDRESS' as UserInputs['inputType']
       };
       setValue(rawTextWithMenions + '  ');
-      setData(searchData, { updateQueryParams: true });
+      handleDataChange(searchData);
     },
-    [setData]
+    [handleDataChange]
   );
 
   const handleTokenHoldersSearch = useCallback(
@@ -146,9 +167,9 @@ export const Search = memo(function Search() {
         inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType']
       };
       setValue(rawTextWithMenions + '  ');
-      setData(searchData, { updateQueryParams: true });
+      handleDataChange(searchData);
     },
-    [setData]
+    [handleDataChange]
   );
 
   const handleSubmit = useCallback(
