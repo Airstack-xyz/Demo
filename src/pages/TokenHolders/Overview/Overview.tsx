@@ -124,8 +124,8 @@ function Overview() {
       const { image, subText: text } = imageAndSubTextMap[key];
       let subText = text;
       if (key === 'owners' && tokenDetails) {
-        subText += `${totalHolders <= 1 ? 's' : ''} ${
-          tokenDetails.length > 1 ? 'both' : name || 'these contract'
+        subText += `${totalHolders === 1 ? 's' : ''} ${
+          tokenDetails.length > 1 ? 'both contracts' : name || 'these contract'
         }`;
       }
 
