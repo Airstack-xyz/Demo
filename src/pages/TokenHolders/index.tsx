@@ -5,21 +5,26 @@ import { Tokens } from './Tokens/Tokens';
 import { HoldersOverview } from './Overview/Overview';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
-import {
-  PoapOwnerQuery,
-  TokenOwnerQuery,
-  TokenTotalSupplyQuery
-} from '../../queries';
+import { TokenTotalSupplyQuery } from '../../queries';
 import classNames from 'classnames';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Icon } from '../../Components/Icon';
 import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { getRequestFilters } from './OverviewDetails/Tokens/filters';
-import {
-  POAPSupplyQuery,
-  getFilterableTokensQuery
-} from '../../queries/overviewDetailsTokens';
+import { POAPSupplyQuery } from '../../queries/overviewDetailsTokens';
 import { getFilterablePoapsQuery } from '../../queries/overviewDetailsPoap';
+import {
+  getCommonNftOwnersQuery,
+  getNftOwnersQuery
+} from '../../queries/commonNftOwnersQuery';
+import { sortAddressByPoapFirst } from '../../utils/sortAddressByPoapFirst';
+import { getCommonPoapAndNftOwnersQuery } from '../../queries/commonPoapAndNftOwnersQuery';
+import { createCommonOwnersPOAPsQuery } from '../../queries/commonOwnersPOAPsQuery';
+import {
+  getCommonNftOwnersQueryWithFilters,
+  getNftOwnersQueryWithFilters
+} from '../../queries/commonNftOwnersQueryWithFilters';
+import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../queries/commonPoapAndNftOwnersQueryWithFilters';
 
 export function TokenHolders() {
   const [{ address, tokenType, inputType, activeView, tokenFilters }, setData] =
@@ -43,8 +48,47 @@ export function TokenHolders() {
     addressRef.current = address;
   }, [address, setData]);
 
+  const hasSomePoap = address.some(token => !token.startsWith('0x'));
+  const isPoap = address.every(token => !token.startsWith('0x'));
+
+  const tokenOwnersQuery = useMemo(() => {
+    if (address.length === 0) return '';
+    if (address.length === 1) return getNftOwnersQuery(address[0]);
+    if (hasSomePoap) {
+      const tokens = sortAddressByPoapFirst(address);
+      return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
+    }
+    return getCommonNftOwnersQuery(address[0], address[1]);
+  }, [hasSomePoap, address]);
+
+  const tokensQueryWithFilter = useMemo(() => {
+    const requestFilters = getRequestFilters(tokenFilters);
+    if (address.length === 1)
+      return getNftOwnersQueryWithFilters(
+        address[0],
+        Boolean(requestFilters?.socialFilters),
+        requestFilters?.hasPrimaryDomain
+      );
+    if (hasSomePoap) {
+      const tokens = sortAddressByPoapFirst(address);
+      return getCommonPoapAndNftOwnersQueryWithFilters(
+        tokens[0],
+        tokens[1],
+        Boolean(requestFilters?.socialFilters),
+        requestFilters?.hasPrimaryDomain
+      );
+    }
+    return getCommonNftOwnersQueryWithFilters(
+      address[0],
+      address[1],
+      Boolean(requestFilters?.socialFilters),
+      requestFilters?.hasPrimaryDomain
+    );
+  }, [address, hasSomePoap, tokenFilters]);
+
   const options = useMemo(() => {
-    const isPoap = inputType === 'POAP';
+    if (address.length === 0) return [];
+
     if (activeView) {
       const requestFilters = getRequestFilters(tokenFilters);
       let combinationsQueryLink = '';
@@ -55,18 +99,11 @@ export function TokenHolders() {
           requestFilters?.hasPrimaryDomain
         );
         combinationsQueryLink = createAppUrlWithQuery(combinationsQuery, {
-          eventId: query,
           limit: 200,
           ...requestFilters
         });
       } else {
-        const combinationsQuery = getFilterableTokensQuery(
-          address,
-          Boolean(requestFilters?.socialFilters),
-          requestFilters?.hasPrimaryDomain
-        );
-        combinationsQueryLink = createAppUrlWithQuery(combinationsQuery, {
-          tokenAddress: query,
+        combinationsQueryLink = createAppUrlWithQuery(tokensQueryWithFilter, {
           limit: 200,
           ...requestFilters
         });
@@ -79,12 +116,13 @@ export function TokenHolders() {
       ];
     }
 
-    const tokenLink = createAppUrlWithQuery(TokenOwnerQuery, {
+    const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
       tokenAddress: query,
       limit: 20
     });
+    const poapsQuery = createCommonOwnersPOAPsQuery(address);
 
-    const poapLink = createAppUrlWithQuery(PoapOwnerQuery, {
+    const poapLink = createAppUrlWithQuery(poapsQuery, {
       eventId: inputType === 'POAP' ? query : '123',
       limit: 20
     });
@@ -115,7 +153,16 @@ export function TokenHolders() {
     });
 
     return options;
-  }, [activeView, address, inputType, query, tokenFilters]);
+  }, [
+    activeView,
+    address,
+    inputType,
+    isPoap,
+    query,
+    tokenFilters,
+    tokenOwnersQuery,
+    tokensQueryWithFilter
+  ]);
 
   const isERC20 = tokenType === 'ERC20';
   const noQuery = !query;
@@ -135,7 +182,7 @@ export function TokenHolders() {
           {noQuery && <h1 className="text-[2rem]">Explore web3 identities</h1>}
           <Search />
         </div>
-        {query && (
+        {query && query.length > 0 && (
           <>
             <div className="hidden sm:flex-col-center my-3">
               <GetAPIDropdown options={options} />

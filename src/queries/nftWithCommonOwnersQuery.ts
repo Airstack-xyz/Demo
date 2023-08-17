@@ -67,6 +67,7 @@ export function createNftWithCommonOwnersQuery(
   owners: string[],
   blockchain: string | null
 ) {
+  if (!owners.length) return '';
   return `query GetTokens($tokenType: [TokenType!], $limit: Int, $sortBy: OrderBy) {
     ${
       !blockchain || blockchain === 'ethereum'

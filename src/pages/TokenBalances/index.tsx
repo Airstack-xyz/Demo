@@ -10,11 +10,12 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
-import { POAPQuery, SocialQuery } from '../../queries';
+import { SocialQuery } from '../../queries';
 import { tokenTypes } from './constants';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
-import { getTokensQuery } from '../../queries/tokensQuery';
 import { defaultSortOrder } from './SortBy';
+import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address }] = useSearchInput();
@@ -39,15 +40,16 @@ export function TokenBalance() {
   const isMobile = isMobileDevice();
 
   const options = useMemo(() => {
+    if (address.length === 0) return [];
     const fetchAllBlockchains =
       blockchainType.length === 2 || blockchainType.length === 0;
 
-    const tokensQuery = getTokensQuery(
+    const tokensQuery = createNftWithCommonOwnersQuery(
+      address,
       fetchAllBlockchains ? null : blockchainType[0]
     );
 
     const nftLink = createAppUrlWithQuery(tokensQuery, {
-      owner: query,
       limit: 10,
       sortBy: sortOrder ? sortOrder : defaultSortOrder,
       tokenType: tokenType
@@ -55,8 +57,9 @@ export function TokenBalance() {
         : tokenTypes.filter(tokenType => tokenType !== 'POAP')
     });
 
-    const poapLink = createAppUrlWithQuery(POAPQuery, {
-      owner: query,
+    const poapsQuery = poapsOfCommonOwnersQuery(address);
+
+    const poapLink = createAppUrlWithQuery(poapsQuery, {
       limit: 10,
       sortBy: sortOrder ? sortOrder : defaultSortOrder
     });
@@ -86,7 +89,7 @@ export function TokenBalance() {
       link: socialLink
     });
     return options;
-  }, [blockchainType, query, sortOrder, tokenType]);
+  }, [address, blockchainType, query, sortOrder, tokenType]);
 
   const renderMobileTabs = useCallback(() => {
     return (
@@ -139,7 +142,7 @@ export function TokenBalance() {
           {noQuery && <h1 className="text-[2rem]">Explore web3 identities</h1>}
           <Search />
         </div>
-        {query && (
+        {query && query.length > 0 && (
           <>
             <div className="hidden sm:flex-col-center my-3">
               <GetAPIDropdown options={options} />
