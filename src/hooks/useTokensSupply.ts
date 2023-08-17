@@ -13,11 +13,11 @@ export function useTokensSupply() {
 
   const getTokenFromResponse = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (totalSupply: any, isPoap = false) => {
+    (totalSupply: any): number => {
       let supply = 0;
-      if (isPoap) {
+      if (totalSupply?.PoapEvents) {
         const event = (totalSupply as TotalPoapsSupply)?.PoapEvents?.PoapEvent;
-        if (!event) return;
+        if (!event) return 0;
 
         supply = (event || []).reduce(
           (acc, event) => acc + event?.tokenMints,
@@ -42,12 +42,13 @@ export function useTokensSupply() {
   );
 
   const fetch = useCallback(
-    async (tokenAddress: string[], isPoap = false) => {
+    async (tokenAddress: string[]) => {
       setLoading(true);
       setData(null);
       const promises: FetchQueryReturnType[] = [];
-      tokenAddress.forEach(tokenAddress => {
-        const variables = isPoap ? { eventId: tokenAddress } : { tokenAddress };
+      tokenAddress.forEach(token => {
+        const isPoap = !token.startsWith('0x');
+        const variables = isPoap ? { eventId: token } : { tokenAddress: token };
         const request = fetchQuery(
           isPoap ? POAPSupplyQuery : TokenTotalSupplyQuery,
           variables
@@ -59,9 +60,9 @@ export function useTokensSupply() {
       results.forEach((result, index) => {
         if (result.status === 'fulfilled' && result?.value?.data) {
           const { data } = result.value;
-          const token = getTokenFromResponse(data, isPoap);
-          if (token) {
-            supply[tokenAddress[index].toLowerCase()] = token;
+          const _supply: number = getTokenFromResponse(data);
+          if (_supply) {
+            supply[tokenAddress[index].toLowerCase()] = _supply;
           }
         }
       });

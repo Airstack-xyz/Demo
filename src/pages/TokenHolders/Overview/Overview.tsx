@@ -24,10 +24,10 @@ function Overview() {
     xmtp: 0
   });
 
-  const [{ address, inputType, tokenType }] = useSearchInput();
+  const [{ address }] = useSearchInput();
   const tokenAddress = address.length > 0 ? address[0] : '';
 
-  const isPoap = inputType === 'POAP' || tokenType === 'POAP';
+  const isPoap = address.every(token => !token.startsWith('0x'));
 
   const {
     data: tokenOverviewData,
@@ -42,7 +42,7 @@ function Overview() {
   useEffect(() => {
     if (!address.length) return;
     fetchTokens(address);
-    fetchTotalSupply(address, isPoap);
+    fetchTotalSupply(address);
   }, [address, fetchTokens, fetchTotalSupply, isPoap, tokenAddress]);
 
   const isERC20 = useMemo(() => {
@@ -163,7 +163,9 @@ function Overview() {
   const getTokenNameAndSupply = useCallback(() => {
     return (
       <>
-        {tokenDetails.map(({ name, tokenAddress }, index) => {
+        {tokenDetails.map(({ name, tokenAddress, eventId }, index) => {
+          const key = eventId ? eventId : tokenAddress;
+          const supply = totalSupply?.[key.toLocaleLowerCase()];
           return (
             <span
               className={classNames('flex', {
@@ -171,9 +173,7 @@ function Overview() {
               })}
             >
               <span className="ellipsis mr-1">{name} </span>
-              <span>
-                {totalSupply?.[tokenAddress.toLocaleLowerCase()] || '--'}
-              </span>
+              <span className="max-w-[80px] ellipsis">{supply || '--'}</span>
               {index < tokenDetails.length - 1 ? (
                 <span className="mx-1">|</span>
               ) : null}

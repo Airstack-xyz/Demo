@@ -30,6 +30,7 @@ import {
 import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../../../queries/commonPoapAndNftOwnersQueryWithFilters';
 
 const LIMIT = 50;
+const MIN_LIMIT = 20;
 
 const loaderData = Array(6).fill({});
 
@@ -104,12 +105,13 @@ export function TokensComponent() {
   const hasPoap = address.every(token => !token.startsWith('0x'));
 
   const tokensQuery = useMemo(() => {
-    if (address.length === 1)
+    if (address.length === 1) {
       return getNftOwnersQueryWithFilters(
         address[0],
         Boolean(requestFilters?.socialFilters),
         requestFilters?.hasPrimaryDomain
       );
+    }
     if (hasSomePoap) {
       const tokens = sortArray(address);
       return getCommonPoapAndNftOwnersQueryWithFilters(
@@ -125,12 +127,7 @@ export function TokensComponent() {
       Boolean(requestFilters?.socialFilters),
       requestFilters?.hasPrimaryDomain
     );
-  }, [
-    address,
-    hasSomePoap,
-    requestFilters?.hasPrimaryDomain,
-    requestFilters?.socialFilters
-  ]);
+  }, [address, hasSomePoap, requestFilters]);
 
   const poapsQuery = useMemo(() => {
     return getFilterablePoapsQuery(
@@ -293,7 +290,7 @@ export function TokensComponent() {
     tokensRef.current = [...tokensRef.current, ...filteredTokens];
     setTokens(existingTokens => [...existingTokens, ...filteredTokens]);
 
-    if (tokensRef.current.length < LIMIT && hasNextPage) {
+    if (tokensRef.current.length < MIN_LIMIT && hasNextPage) {
       getNextPage();
     } else {
       setShowStatusLoader(false);
