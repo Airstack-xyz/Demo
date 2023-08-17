@@ -107,8 +107,9 @@ export function ERC20Tokens() {
 
   useEffect(() => {
     if (owners.length > 0) {
-      setTokens([]);
       setLoading(true);
+      tokensRef.current = [];
+      setTokens([]);
       // remove data to make sure on next render, the data is not used in the useEffect below
       // eslint-disable-next-line react-hooks/exhaustive-deps
       data = null;
