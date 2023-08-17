@@ -111,7 +111,12 @@ function Overview() {
 
   const loading = loadingTokenOverview;
   const totalHolders = (overViewData?.owners as number) || 0;
-  const name = tokenDetails.length === 1 ? tokenDetails[0].name : '';
+  const name =
+    tokenDetails.length > 0
+      ? `${tokenDetails[0].name}${
+          tokenDetails[1] ? ` & ${tokenDetails[1]?.name}` : ''
+        }`
+      : '';
 
   const holderCounts = useMemo(() => {
     return Object.keys(overViewData).map(key => {
@@ -120,7 +125,7 @@ function Overview() {
       let subText = text;
       if (key === 'owners' && tokenDetails) {
         subText += `${totalHolders <= 1 ? 's' : ''} ${
-          name || 'these contract'
+          tokenDetails.length > 1 ? 'both' : name || 'these contract'
         }`;
       }
 
