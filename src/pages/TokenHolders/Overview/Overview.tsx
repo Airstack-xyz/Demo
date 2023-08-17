@@ -159,8 +159,15 @@ function Overview() {
       <>
         {tokenDetails.map(({ name, tokenAddress }, index) => {
           return (
-            <span>
-              {name} {totalSupply?.[tokenAddress.toLocaleLowerCase()] || '--'}
+            <span
+              className={classNames('flex', {
+                'max-w-[50%]': tokenDetails.length > 1
+              })}
+            >
+              <span className="ellipsis mr-1">{name} </span>
+              <span>
+                {totalSupply?.[tokenAddress.toLocaleLowerCase()] || '--'}
+              </span>
               {index < tokenDetails.length - 1 ? (
                 <span className="mx-1">|</span>
               ) : null}
@@ -188,7 +195,7 @@ function Overview() {
                 <Icon name="count-loader" className="h-2.5 w-auto" />
               </div>
             ) : (
-              <div>{getTokenNameAndSupply()}</div>
+              <div className="flex">{getTokenNameAndSupply()}</div>
             )}
           </div>
         </div>
