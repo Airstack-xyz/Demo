@@ -12,6 +12,7 @@ type ResultTokenType = {
   image: string;
   tokenType: string;
   blockchain: string;
+  eventId?: string;
 };
 
 export function useFetchTokens() {
@@ -32,7 +33,8 @@ export function useFetchTokens() {
           tokenAddress: poap?.tokenAddress || '',
           image: poap?.poapEvent?.logo?.image?.medium || '',
           tokenType: 'POAP',
-          blockchain: 'ethereum'
+          blockchain: 'ethereum',
+          eventId: poap?.eventId
         };
       }
 

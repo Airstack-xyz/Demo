@@ -1,6 +1,7 @@
 import { useState, useMemo, ReactNode, useCallback } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import classNames from 'classnames';
+import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
 
 const maxSocials = 7;
 const minSocials = 2;
@@ -28,10 +29,18 @@ export function Social({ name, values, image, onShowMore }: SocialProps) {
       if (typeof value !== 'string') return;
 
       const isFarcaster = name.includes('farcaster');
+      const farcasterId = `fc_fname:${value}`;
+
+      const rawInput = createFormattedRawInput({
+        type: 'ADDRESS',
+        address: isFarcaster ? farcasterId : value,
+        label: isFarcaster ? farcasterId : value,
+        blockchain: 'ethereum'
+      });
       setData(
         {
-          rawInput: isFarcaster ? `fc_fname:${value}` : value,
-          address: isFarcaster ? [`fc_fname:${value}`] : [value],
+          rawInput: rawInput,
+          address: isFarcaster ? [farcasterId] : [value],
           inputType: 'ADDRESS'
         },
         { updateQueryParams: true }

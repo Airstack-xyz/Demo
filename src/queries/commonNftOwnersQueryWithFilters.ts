@@ -38,7 +38,7 @@ export function getCommonNftOwnersQueryWithFilters(
               primaryDomain {
                 name
               }
-              domains {
+              domains${hasPrimaryDomainFilter ? primaryDomainInput : ''} {
                 chainId
                 dappName
                 name
@@ -78,7 +78,7 @@ export function getCommonNftOwnersQueryWithFilters(
               primaryDomain {
                 name
               }
-              domains {
+              domains${hasPrimaryDomainFilter ? primaryDomainInput : ''} {
                 chainId
                 dappName
                 name
