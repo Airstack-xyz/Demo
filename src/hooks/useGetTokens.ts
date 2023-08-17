@@ -20,8 +20,8 @@ export function useFetchTokens() {
 
   const getTokenFromResponse = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (tokensData: any, isPoap = false) => {
-      if (isPoap) {
+    (tokensData: any) => {
+      if (tokensData?.Poaps) {
         const poaps: Poap[] = tokensData?.Poaps?.Poap || [];
         const poap = poaps[0] as Poap;
         if (!poap) return null;
@@ -60,11 +60,12 @@ export function useFetchTokens() {
   );
 
   const fetch = useCallback(
-    async (tokenAddress: string[], isPoap = false) => {
+    async (tokenAddress: string[]) => {
       setLoading(true);
       setData([]);
       const promises: FetchQueryReturnType[] = [];
       tokenAddress.forEach(tokenAddress => {
+        const isPoap = !tokenAddress.startsWith('0x');
         const variables = isPoap ? { eventId: tokenAddress } : { tokenAddress };
         const request = fetchQuery(isPoap ? PoapOwnerQuery : TokenOwnerQuery, {
           ...variables,
@@ -77,7 +78,7 @@ export function useFetchTokens() {
       results.forEach(result => {
         if (result.status === 'fulfilled' && result?.value?.data) {
           const { data } = result.value;
-          const token = getTokenFromResponse(data, isPoap);
+          const token = getTokenFromResponse(data);
           if (token) {
             tokens.push(token);
           }

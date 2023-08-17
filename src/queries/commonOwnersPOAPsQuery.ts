@@ -67,6 +67,8 @@ export function createCommonOwnersPOAPsQuery(tokenIds: string[]) {
       input: {filter: {eventId: {_eq: "${tokenIds[0]}"}}, blockchain: ALL, limit: $limit}
     ) {
       Poap {
+        tokenId
+        tokenAddress
         poapEvent {
           contentValue {
             image {
