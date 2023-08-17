@@ -41,7 +41,7 @@ function Overview() {
 
   useEffect(() => {
     if (!address.length) return;
-    fetchTokens(address, isPoap);
+    fetchTokens(address);
     fetchTotalSupply(address, isPoap);
   }, [address, fetchTokens, fetchTotalSupply, isPoap, tokenAddress]);
 
