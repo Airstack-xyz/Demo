@@ -296,12 +296,13 @@ export function debouncePromise<CB extends (...args: any[]) => any>(
   }) as CB;
 }
 
+const mentionAPI = process.env.MENTION_ENDPOINT as string;
 export async function fetchMentionOptions(
   query: string,
   limit: number
 ): Promise<[null | object, null | string]> {
   try {
-    const res = await fetch('https://bff-prod.airstack.xyz/graphql', {
+    const res = await fetch(mentionAPI, {
       method: 'POST',
       body: JSON.stringify({
         operationName: 'SearchAIMentions',

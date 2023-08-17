@@ -46,11 +46,8 @@ function Overview() {
   }, [address, fetchTokens, fetchTotalSupply, isPoap, tokenAddress]);
 
   const isERC20 = useMemo(() => {
-    return (
-      tokenType === 'ERC20' ||
-      tokenDetails.some(token => token.tokenType === 'ERC20')
-    );
-  }, [tokenDetails, tokenType]);
+    return tokenDetails.every(token => token.tokenType === 'ERC20');
+  }, [tokenDetails]);
 
   const updateOverviewData = useCallback((overview: OverviewBlockchainData) => {
     setOverViewData(_overview => {
@@ -87,7 +84,11 @@ function Overview() {
       const { tokenId, tokenAddress, image, blockchain } = token;
       if (image)
         return (
-          <div>
+          <div
+            className={classNames({
+              flex: address.length === 1
+            })}
+          >
             <Asset
               address={tokenAddress}
               tokenId={tokenId}
@@ -107,7 +108,7 @@ function Overview() {
         />
       );
     });
-  }, [tokenDetails]);
+  }, [address.length, tokenDetails]);
 
   const loading = loadingTokenOverview;
   const totalHolders = (overViewData?.owners as number) || 0;
@@ -228,9 +229,11 @@ function Overview() {
         >
           {tokenImages}
         </div>
-        <div className="flex [&>*]:w-1/2 justify-center items-center flex-wrap h-[150%] w-[150%] absolute">
-          {tokenImages}
-        </div>
+        {address.length > 1 && (
+          <div className="flex [&>*]:w-1/2 justify-center items-center flex-wrap h-[150%] w-[150%] absolute">
+            {tokenImages}
+          </div>
+        )}
       </div>
     </div>
   );
