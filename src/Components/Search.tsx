@@ -34,17 +34,17 @@ export const Search = memo(function Search() {
   }, [rawInput]);
 
   const handleDataChange = useCallback(
-    (data: Partial<CachedQuery>, reset = false) => {
+    (data: Partial<CachedQuery>) => {
       if (isHome) {
         setData(data, {
           updateQueryParams: true,
-          reset,
+          reset: isTokenBalances,
           redirectTo: isTokenBalances ? '/token-balances' : '/token-holders'
         });
       }
       setData(data, {
         updateQueryParams: true,
-        reset
+        reset: isTokenBalances
       });
     },
     [isHome, isTokenBalances, setData]
@@ -78,7 +78,7 @@ export const Search = memo(function Search() {
           'Couldn’t find any valid wallet address or ens/lens/farcaster name',
           'negative'
         );
-        handleDataChange({}, true);
+        handleDataChange({});
         return;
       }
 
