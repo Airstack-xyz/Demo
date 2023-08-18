@@ -39,17 +39,16 @@ export function resetCachedUserInputs() {
   userInputCache.tokenHolder = {} as UserInputs;
 }
 
-export function useSearchInput(): [
-  UserInputs,
-  UpdateUserInputs,
-  SetURLSearchParams
-] {
+export function useSearchInput(
+  isTokenBalancesPage?: boolean
+): [UserInputs, UpdateUserInputs, SetURLSearchParams] {
   let isTokenBalances = !!useMatch('/token-balances');
   const isHome = useMatch('/');
   const navigate = useNavigate();
 
   if (isHome) {
-    isTokenBalances = true;
+    isTokenBalances =
+      isTokenBalancesPage !== undefined ? isTokenBalancesPage : true;
   }
 
   const [searchParams, setSarchParams] = useSearchParams();

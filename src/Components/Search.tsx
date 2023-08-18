@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { Icon } from './Icon';
 import { InputWithMention } from './Input/Input';
 import { FormEvent, memo, useCallback, useEffect, useState } from 'react';
-import { Link, useMatch, useSearchParams } from 'react-router-dom';
+import { Link, useMatch, useNavigate, useSearchParams } from 'react-router-dom';
 import { getAllWordsAndMentions } from './Input/utils';
 import {
   CachedQuery,
@@ -16,21 +16,49 @@ const tokenHoldersPlaceholder =
 const tokenBalancesPlaceholder =
   'Enter 0x, name.eth, fc_fname:name, or name.lens';
 
+const activeClasss =
+  'bg-glass !border-stroke-color font-bold !text-text-primary';
+const tabClassName =
+  'px-2.5 h-[30px] rounded-full mr-5 flex-row-center text-xs text-text-secondary border border-solid border-transparent';
+
+function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
+  return (
+    <>
+      <Link
+        to="/token-balances"
+        className={classNames(tabClassName, {
+          [activeClasss]: isTokenBalances
+        })}
+      >
+        <Icon name="token-balances" className="w-4 mr-1" /> Token balances
+      </Link>
+      <Link
+        to="/token-holders"
+        className={classNames(tabClassName, {
+          [activeClasss]: !isTokenBalances
+        })}
+      >
+        <Icon name="token-holders" className="w-4 mr-1" /> Token holders
+      </Link>
+    </>
+  );
+}
+
 export const Search = memo(function Search() {
-  const [searchParams] = useSearchParams();
-  let isTokenBalances = !!useMatch('/token-balances');
+  const [isTokenBalanceActive, setIsTokenBalanceActive] = useState(true);
   const isHome = useMatch('/');
+  const isTokenBalancesPage = !!useMatch('/token-balances');
+  const [searchParams] = useSearchParams();
 
-  if (isHome) {
-    isTokenBalances = true;
-  }
+  const isTokenBalances = isHome ? isTokenBalanceActive : isTokenBalancesPage;
 
-  const [{ rawInput }, setData] = useSearchInput();
+  const [{ rawInput }, setData] = useSearchInput(isTokenBalances);
+  const navigate = useNavigate();
 
   const [value, setValue] = useState(rawInput || '');
 
   useEffect(() => {
-    setValue(rawInput ? rawInput + '  ' : '');
+    setValue(rawInput ? rawInput.trim() + '  ' : '');
   }, [rawInput]);
 
   const handleDataChange = useCallback(
@@ -97,7 +125,7 @@ export const Search = memo(function Search() {
         rawInput: rawTextWithMenions,
         inputType: 'ADDRESS' as UserInputs['inputType']
       };
-      setValue(rawTextWithMenions + '  ');
+      setValue(rawTextWithMenions.trim() + '  ');
       handleDataChange(searchData);
     },
     [handleDataChange]
@@ -116,7 +144,7 @@ export const Search = memo(function Search() {
       wordsAndMentions.forEach(({ word, mention, rawValue }) => {
         if (mention) {
           rawInput.push(rawValue);
-          address.push(mention.address);
+          address.push(mention.eventId || mention.address);
           blockchain = mention.blockchain || '';
           token = mention.token || '';
           const _inputType = mention.customInputType || '';
@@ -197,35 +225,46 @@ export const Search = memo(function Search() {
     ]
   );
 
-  const activeClasss =
-    'bg-glass !border-stroke-color font-bold !text-text-primary';
+  const getTabChangeHandler = useCallback(
+    (tokenBalance: boolean) => {
+      if (!isHome) {
+        setValue('');
+        navigate({
+          pathname: tokenBalance ? '/token-balances' : '/token-holders'
+        });
+      } else {
+        setIsTokenBalanceActive(active => !active);
+      }
+    },
+    [isHome, navigate]
+  );
 
   return (
     <div className="w-[105%] sm:w-full z-10">
       <div className="my-6 flex-col-center">
         <div className="bg-glass bg-secondry border flex p-1 rounded-full">
-          <Link
-            to="/token-balances"
-            className={classNames(
-              'px-2.5 h-[30px] rounded-full mr-5 flex-row-center text-xs text-text-secondary border border-solid border-transparent',
-              {
-                [activeClasss]: isTokenBalances
-              }
-            )}
-          >
-            <Icon name="token-balances" className="w-4 mr-1" /> Token balances
-          </Link>
-          <Link
-            to="/token-holders"
-            className={classNames(
-              'px-2.5 h-[30px] rounded-full mr-5 flex-row-center text-xs text-text-secondary border border-solid border-transparent',
-              {
-                [activeClasss]: !isTokenBalances
-              }
-            )}
-          >
-            <Icon name="token-holders" className="w-4 mr-1" /> Token holders
-          </Link>
+          {isHome && (
+            <>
+              <button
+                onClick={() => getTabChangeHandler(true)}
+                className={classNames(tabClassName, {
+                  [activeClasss]: isTokenBalances
+                })}
+              >
+                <Icon name="token-balances" className="w-4 mr-1" /> Token
+                balances
+              </button>
+              <button
+                onClick={() => getTabChangeHandler(false)}
+                className={classNames(tabClassName, {
+                  [activeClasss]: !isTokenBalances
+                })}
+              >
+                <Icon name="token-holders" className="w-4 mr-1" /> Token holders
+              </button>
+            </>
+          )}
+          {!isHome && <TabLinks isTokenBalances={isTokenBalances} />}
         </div>
       </div>
       <form className="flex flex-row justify-center" onSubmit={handleSubmit}>
