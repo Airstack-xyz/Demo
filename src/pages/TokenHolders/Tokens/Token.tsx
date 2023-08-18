@@ -8,13 +8,16 @@ import { Poap, Token as TokenType } from '../types';
 import { ListWithMoreOptions } from './ListWithMoreOptions';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 import { WalletAddress } from './WalletAddress';
+import classNames from 'classnames';
 
 export function Token({
   token,
+  isCombination,
   onShowMore
 }: {
   token: TokenType | Poap | null;
   onShowMore?: (value: string[], dataType: string) => void;
+  isCombination: boolean;
 }) {
   const owner = token?.owner;
   const walletAddresses = owner?.addresses || '';
@@ -93,21 +96,31 @@ export function Token({
 
   return (
     <>
-      <td className="!pl-9">
+      <td
+        className={classNames({
+          '!pl-9': !isCombination,
+          '!pl-3': isCombination
+        })}
+      >
         <div className="flex">
           {assets.map(asset => (
-            <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden [&>div]:w-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center mr-1 last:!mr-0">
-              <Asset
-                address={asset.tokenAddress}
-                tokenId={asset.tokenId}
-                preset="small"
-                containerClassName="token-img"
-                chain={token?.blockchain as Chain}
-                image={asset.image}
-                videoProps={{
-                  controls: false
-                }}
-              />
+            <div>
+              <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden [&>div]:w-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center mr-1.5 last:!mr-0">
+                <Asset
+                  address={asset.tokenAddress}
+                  tokenId={asset.tokenId}
+                  preset="small"
+                  containerClassName="token-img"
+                  chain={token?.blockchain as Chain}
+                  image={asset.image}
+                  videoProps={{
+                    controls: false
+                  }}
+                />
+              </div>
+              {isCombination && (
+                <div className="text-[10px] mt-1">#{asset.tokenId}</div>
+              )}
             </div>
           ))}
         </div>
@@ -115,13 +128,15 @@ export function Token({
       <td className="ellipsis">
         <WalletAddress address={walletAddress} onClick={handleAddressClick} />
       </td>
-      <td className="ellipsis">
-        {_token?.tokenType === 'ERC20'
-          ? _token?.formattedAmount
-          : tokenId
-          ? `#${tokenId}`
-          : '--'}
-      </td>
+      {!isCombination && (
+        <td className="ellipsis">
+          {_token?.tokenType === 'ERC20'
+            ? _token?.formattedAmount
+            : tokenId
+            ? `#${tokenId}`
+            : '--'}
+        </td>
+      )}
       <td className="ellipsis">
         {}
         <ListWithMoreOptions
