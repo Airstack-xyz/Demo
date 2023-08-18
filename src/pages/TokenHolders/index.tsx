@@ -25,11 +25,13 @@ import {
   getNftOwnersQueryWithFilters
 } from '../../queries/commonNftOwnersQueryWithFilters';
 import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../queries/commonPoapAndNftOwnersQueryWithFilters';
+import { useMatch } from 'react-router-dom';
 
 export function TokenHolders() {
   const [{ address, tokenType, inputType, activeView, tokenFilters }, setData] =
     useSearchInput();
   const addressRef = useRef<null | string[]>(null);
+  const isHome = useMatch('/');
 
   const query = address.length > 0 ? address[0] : '';
 
@@ -165,7 +167,7 @@ export function TokenHolders() {
   ]);
 
   const isERC20 = tokenType === 'ERC20';
-  const noQuery = !query;
+  const showInCenter = isHome;
 
   return (
     <Layout>
@@ -174,12 +176,14 @@ export function TokenHolders() {
           'flex flex-col px-2 pt-5 w-[955px] max-w-[100vw] sm:pt-8',
           {
             'flex-1 h-full w-full flex flex-col items-center !pt-[30%] text-center':
-              noQuery
+              showInCenter
           }
         )}
       >
         <div className="flex flex-col items-center">
-          {noQuery && <h1 className="text-[2rem]">Explore web3 identities</h1>}
+          {showInCenter && (
+            <h1 className="text-[2rem]">Explore web3 identities</h1>
+          )}
           <Search />
         </div>
         {query && query.length > 0 && (

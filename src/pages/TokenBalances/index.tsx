@@ -16,6 +16,7 @@ import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { defaultSortOrder } from './SortBy';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
+import { useMatch } from 'react-router-dom';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address }] = useSearchInput();
@@ -35,6 +36,7 @@ const SocialsAndERC20 = memo(function SocialsAndERC20() {
 export function TokenBalance() {
   const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
   const query = address.length > 0 ? address[0] : '';
+  const isHome = useMatch('/');
 
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
@@ -55,6 +57,12 @@ export function TokenBalance() {
       tokenType: tokenType
         ? [tokenType]
         : tokenTypes.filter(tokenType => tokenType !== 'POAP')
+    });
+
+    const erc20Link = createAppUrlWithQuery(tokensQuery, {
+      limit: 50,
+      sortBy: sortOrder ? sortOrder : defaultSortOrder,
+      tokenType: ['ERC20']
     });
 
     const poapsQuery = poapsOfCommonOwnersQuery(address);
@@ -88,6 +96,12 @@ export function TokenBalance() {
       label: 'Socials, Domains & XMTP',
       link: socialLink
     });
+
+    options.push({
+      label: 'ERC20',
+      link: erc20Link
+    });
+
     return options;
   }, [address, blockchainType, query, sortOrder, tokenType]);
 
@@ -125,7 +139,7 @@ export function TokenBalance() {
     );
   }, [address.length, showSocials]);
 
-  const noQuery = !query;
+  const showInCenter = isHome;
 
   return (
     <Layout>
@@ -134,12 +148,14 @@ export function TokenBalance() {
           'flex flex-col px-2 pt-5 w-[1440px] max-w-[100vw] sm:pt-8',
           {
             'flex-1 h-full w-full flex flex-col items-center !pt-[30%] text-center':
-              noQuery
+              showInCenter
           }
         )}
       >
         <div className="flex flex-col items-center">
-          {noQuery && <h1 className="text-[2rem]">Explore web3 identities</h1>}
+          {showInCenter && (
+            <h1 className="text-[2rem]">Explore web3 identities</h1>
+          )}
           <Search />
         </div>
         {query && query.length > 0 && (
