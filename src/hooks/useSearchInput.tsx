@@ -119,7 +119,7 @@ export function useSearchInput(): [
         ? valueString
           ? valueString.split(',')
           : savedValue || []
-        : valueString;
+        : valueString || savedValue;
 
       if (
         isArray &&
@@ -129,7 +129,6 @@ export function useSearchInput(): [
         // if filters are same as saved filters, use refrerence of saved filters so the component doesn't re-render unnecessarily
         value = savedValue;
       }
-
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return value as any;
     },
