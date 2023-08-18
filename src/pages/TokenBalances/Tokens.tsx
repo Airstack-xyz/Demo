@@ -5,7 +5,8 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { Token } from './Token';
 import { useGetTokensOfOwner } from '../../hooks/useGetTokensOfOwner';
 import { useGetPoapsOfOwner } from '../../hooks/useGetPoapsOfOwner';
-import { StatusLoader } from '../TokenHolders/OverviewDetails/Tokens/StatusLoader';
+import { emit } from '../../utils/eventEmitter/eventEmitter';
+import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 
 const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 
@@ -89,6 +90,16 @@ function TokensComponent() {
 
   const loading = loadingTokens || loadingPoaps;
 
+  useEffect(() => {
+    const totalProcessedTokens =
+      processedTokensCount + processedPoapsCount || 40;
+    emit('token-balances:tokens', {
+      matched: tokens.length,
+      total: totalProcessedTokens,
+      loading
+    });
+  }, [processedPoapsCount, processedTokensCount, tokens.length, loading]);
+
   if (tokens.length === 0 && !loading) {
     return (
       <div className="flex flex-1 justify-center mt-10">No data found!</div>
@@ -96,16 +107,13 @@ function TokensComponent() {
   }
 
   const hasNextPage = hasNextPageTokens || hasNextPagePoaps;
-  const totalProcessed = processedTokensCount + processedPoapsCount;
   const showStatusLoader = loading && owners.length > 1;
 
   if (tokens.length === 0 && loading) {
     return (
       <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">
         <Loader />
-        {showStatusLoader && (
-          <StatusLoader matching={tokens.length} total={totalProcessed} />
-        )}
+        {showStatusLoader && <TokenBalancesLoaderWithInfo />}
       </div>
     );
   }
@@ -131,9 +139,7 @@ function TokensComponent() {
         })}
         {loading && <Loader />}
       </InfiniteScroll>
-      {showStatusLoader && (
-        <StatusLoader matching={tokens.length} total={totalProcessed} />
-      )}
+      {showStatusLoader && <TokenBalancesLoaderWithInfo />}
     </>
   );
 }
