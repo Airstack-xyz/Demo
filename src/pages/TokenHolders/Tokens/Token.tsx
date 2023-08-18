@@ -27,7 +27,9 @@ export function Token({
   const ens = owner?.domains?.map(domain => domain.name) || [];
   const _token = token as TokenType;
   const image =
-    _token?.token?.logo?.small || _token?.token?.projectDetails?.imageUrl;
+    _token?.token?.logo?.small ||
+    _token?.tokenNfts?.contentValue?.image?.small ||
+    _token?.token?.projectDetails?.imageUrl;
 
   const assets = useMemo(() => {
     const assetData: {
@@ -37,7 +39,9 @@ export function Token({
     }[] = [{ image, tokenId, tokenAddress }];
     const innerToken = _token?._token;
     const _image =
-      innerToken?.logo?.small || innerToken?.projectDetails?.imageUrl;
+      innerToken?.logo?.small ||
+      _token?._tokenNfts?.contentValue?.image?.small ||
+      innerToken?.projectDetails?.imageUrl;
     if (_image || _token?._tokenId) {
       assetData.push({
         image: _image,

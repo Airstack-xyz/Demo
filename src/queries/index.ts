@@ -201,10 +201,7 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
           video
           image {
             small
-            original
             medium
-            large
-            extraSmall
           }
         }
       }
@@ -259,10 +256,7 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
           video
           image {
             small
-            original
             medium
-            large
-            extraSmall
           }
         }
       }

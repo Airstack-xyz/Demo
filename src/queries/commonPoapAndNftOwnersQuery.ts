@@ -43,6 +43,14 @@ export function getCommonPoapAndNftOwnersQuery(
                 imageUrl
               }
             }
+            tokenNfts {
+              contentValue {
+                video
+                image {
+                  small
+                }
+              }
+            }
             owner {
               identity
               addresses
