@@ -22,7 +22,7 @@ function Loader() {
             className="[&>div>td]:px-2 [&>div>td]:py-3 [&>div>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer skeleton-loader [&>div>td:last-child]:hidden"
           >
             <div data-loader-type="block" data-loader-margin="10">
-              <Token token={null} />
+              <Token token={null} isCombination={false} />
             </div>
           </tr>
         ))}
@@ -125,7 +125,8 @@ export function TokensComponent() {
 
   const tokens = shouldFetchPoaps ? poaps : tokensData;
   const totalProcessed = processedTokensCount + processedPoapsCount;
-  const showStatusLoader = loading && tokenAddress.length > 1;
+  const isCombination = tokenAddress.length > 1;
+  const showStatusLoader = loading && isCombination;
 
   if (loading && (!tokens || tokens.length === 0)) {
     return (
@@ -150,7 +151,7 @@ export function TokensComponent() {
           loader={null}
         >
           <table className="w-auto text-xs table-fixed sm:w-full">
-            <Header isERC20={isERC20} />
+            <Header isERC20={isERC20} isCombination={isCombination} />
             <tbody>
               {tokens.map((token, index) => (
                 <tr
@@ -159,7 +160,11 @@ export function TokensComponent() {
                   data-loader-type="block"
                   data-loader-margin="10"
                 >
-                  <Token token={token} onShowMore={handleShowMore} />
+                  <Token
+                    token={token}
+                    isCombination={isCombination}
+                    onShowMore={handleShowMore}
+                  />
                 </tr>
               ))}
             </tbody>
