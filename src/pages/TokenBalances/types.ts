@@ -25,6 +25,7 @@ export interface ContentValue {
 
 export interface Image {
   small: string;
+  medium: string;
 }
 
 export interface Token {
@@ -123,6 +124,7 @@ export interface TokenBalance {
   blockchain: string;
   tokenId: string;
   token: Token;
+  tokenNfts: TokenNfts;
   owner: Owner;
   tokenType: string;
   id: string;

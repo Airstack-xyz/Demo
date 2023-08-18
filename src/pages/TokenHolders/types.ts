@@ -2,6 +2,7 @@ import { TokenBalance } from '../TokenBalances/types';
 
 export type Token = TokenBalance &
   Pick<Poap, '_poapEvent'> & {
+    _tokenNfts: TokenBalance['tokenNfts'];
     _token: TokenBalance['token'];
     _tokenAddress: string;
     _tokenId: string;

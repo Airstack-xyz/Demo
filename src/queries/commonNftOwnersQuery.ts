@@ -14,6 +14,14 @@ export function getCommonNftOwnersQuery(token1: string, token2: string) {
             imageUrl
           }
         }
+        tokenNfts {
+          contentValue {
+            video
+            image {
+              small
+            }
+          }
+        }
         owner {
           tokenBalances(input: {filter: {tokenAddress: {_eq: "${token2}"}}}) {
             tokenId
@@ -24,6 +32,14 @@ export function getCommonNftOwnersQuery(token1: string, token2: string) {
               }
               projectDetails {
                 imageUrl
+              }
+            }
+            tokenNfts {
+              contentValue {
+                video
+                image {
+                  small
+                }
               }
             }
             owner {
@@ -119,6 +135,14 @@ export function getNftOwnersQuery(token: string) {
             imageUrl
           }
         }
+        tokenNfts {
+          contentValue {
+            video
+            image {
+              small
+            }
+          }
+        }
         owner {
           identity
           addresses
@@ -153,6 +177,14 @@ export function getNftOwnersQuery(token: string) {
           }
           projectDetails {
             imageUrl
+          }
+        }
+        tokenNfts {
+          contentValue {
+            video
+            image {
+              small
+            }
           }
         }
         owner {
