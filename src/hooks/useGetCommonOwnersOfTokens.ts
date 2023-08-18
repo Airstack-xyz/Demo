@@ -12,7 +12,10 @@ type Token = TokenType & {
   _poapEvent?: Poap['poapEvent'];
 };
 
-type NextedTokenBalance = (Pick<Token, 'tokenAddress' | 'tokenId' | 'token'> &
+type NextedTokenBalance = (Pick<
+  Token,
+  'tokenAddress' | 'tokenId' | 'token' | 'tokenNfts'
+> &
   Pick<Poap, 'poapEvent'> & {
     owner: {
       tokenBalances: Token[];
@@ -104,6 +107,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
               _tokenAddress: token.tokenAddress,
               _tokenId: token.tokenId,
               _token: token.token,
+              _tokenNfts: token.tokenNfts,
               _poapEvent: token.poapEvent
             }
           ],

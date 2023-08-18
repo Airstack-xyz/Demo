@@ -52,6 +52,7 @@ export function useFetchTokens() {
         tokenAddress: token?.tokenAddress || '',
         image:
           token?.token?.logo?.medium ||
+          token?.tokenNfts?.contentValue?.image?.medium ||
           token?.token?.projectDetails?.imageUrl ||
           '',
         tokenType: token?.tokenType,
