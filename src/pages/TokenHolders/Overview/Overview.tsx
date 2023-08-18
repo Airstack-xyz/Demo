@@ -142,6 +142,7 @@ function Overview() {
           name={key}
           tokenName={name || ''}
           loading={loading}
+          disableAction={loading || loadingTokens}
           count={count}
           subText={subText}
           images={
@@ -154,6 +155,7 @@ function Overview() {
     });
   }, [
     loading,
+    loadingTokens,
     name,
     overViewData,
     tokenDetails,
