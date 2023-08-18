@@ -27,6 +27,7 @@ export interface SearchAIMentions_SearchAIMentions {
 export const ID_REGEX = /#⎱.+?⎱\((.+?)\)\s*/g;
 export const NAME_REGEX = /#⎱(.+?)⎱\(.+?\)/g;
 export const REGEX_LAST_WORD_STARTS_WITH_AT = /\s@[^\s-]*$/g;
+export const REGEX_FIRST_WORD_IS_AT = /^@[^\s-]*/g;
 const REGEX_FISRT_WORD = /([^\s-]*)/;
 
 const tokenValuePrefixMap: Record<MentionType, string> = {
@@ -89,6 +90,8 @@ export function highlightMentionText(root: HTMLElement, matched = false) {
     if (mentionStartMatch) {
       updateOnMatch(node, REGEX_LAST_WORD_STARTS_WITH_AT);
       matched = true;
+    } else if (REGEX_FIRST_WORD_IS_AT.exec(node.innerText)) {
+      updateOnMatch(node, REGEX_FIRST_WORD_IS_AT);
     }
   });
 }
