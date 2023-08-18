@@ -11,7 +11,7 @@ import { WalletAddress } from './WalletAddress';
 import classNames from 'classnames';
 
 export function Token({
-  token,
+  token: tokenInProps,
   isCombination,
   onShowMore
 }: {
@@ -19,20 +19,23 @@ export function Token({
   onShowMore?: (value: string[], dataType: string) => void;
   isCombination: boolean;
 }) {
-  const owner = token?.owner;
+  const owner = tokenInProps?.owner;
   const walletAddresses = owner?.addresses || '';
   const walletAddress = Array.isArray(walletAddresses)
     ? walletAddresses[0]
     : '';
-  const tokenId = token?.tokenId || '';
-  const tokenAddress = token?.tokenAddress || '';
+  const tokenId = tokenInProps?.tokenId || '';
+  const tokenAddress = tokenInProps?.tokenAddress || '';
   const primarEns = owner?.primaryDomain?.name || '';
   const ens = owner?.domains?.map(domain => domain.name) || [];
-  const _token = token as TokenType;
+  const token = tokenInProps as TokenType;
+  const poap = tokenInProps as Poap;
   const image =
-    _token?.token?.logo?.small ||
-    _token?.tokenNfts?.contentValue?.image?.small ||
-    _token?.token?.projectDetails?.imageUrl;
+    token?.token?.logo?.small ||
+    token?.tokenNfts?.contentValue?.image?.small ||
+    token?.token?.projectDetails?.imageUrl ||
+    poap?.poapEvent?.contentValue?.image?.small ||
+    poap?.poapEvent?.logo?.image?.small;
 
   const assets = useMemo(() => {
     const assetData: {
@@ -40,20 +43,32 @@ export function Token({
       tokenId: string;
       tokenAddress: string;
     }[] = [{ image, tokenId, tokenAddress }];
-    const innerToken = _token?._token;
+    const innerToken = token?._token;
     const _image =
       innerToken?.logo?.small ||
-      _token?._tokenNfts?.contentValue?.image?.small ||
-      innerToken?.projectDetails?.imageUrl;
-    if (_image || _token?._tokenId) {
+      token?._tokenNfts?.contentValue?.image?.small ||
+      innerToken?.projectDetails?.imageUrl ||
+      token?._poapEvent?.contentValue?.image?.small ||
+      token?._poapEvent?.logo?.image?.small;
+    if (_image || token?._tokenId) {
       assetData.push({
         image: _image,
-        tokenId: _token?._tokenId || '',
-        tokenAddress: _token?._tokenAddress || ''
+        tokenId: token?._tokenId || '',
+        tokenAddress: token?._tokenAddress || ''
       });
     }
     return assetData;
-  }, [_token, image, tokenAddress, tokenId]);
+  }, [
+    image,
+    tokenId,
+    tokenAddress,
+    token?._token,
+    token?._tokenNfts?.contentValue?.image?.small,
+    token?._poapEvent?.contentValue?.image?.small,
+    token?._poapEvent?.logo?.image?.small,
+    token?._tokenId,
+    token?._tokenAddress
+  ]);
 
   const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
   const navigate = useNavigate();
@@ -104,14 +119,14 @@ export function Token({
       >
         <div className="flex">
           {assets.map(asset => (
-            <div>
-              <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden [&>div]:w-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center mr-1.5 last:!mr-0">
+            <div className="mr-1.5 last:!mr-0">
+              <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden [&>div]:w-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center">
                 <Asset
                   address={asset.tokenAddress}
                   tokenId={asset.tokenId}
                   preset="small"
                   containerClassName="token-img"
-                  chain={token?.blockchain as Chain}
+                  chain={tokenInProps?.blockchain as Chain}
                   image={asset.image}
                   videoProps={{
                     controls: false
@@ -119,7 +134,9 @@ export function Token({
                 />
               </div>
               {isCombination && (
-                <div className="text-[10px] mt-1">#{asset.tokenId}</div>
+                <div className="text-[10px] mt-1 text-center">
+                  #{asset.tokenId}
+                </div>
               )}
             </div>
           ))}
@@ -130,8 +147,8 @@ export function Token({
       </td>
       {!isCombination && (
         <td className="ellipsis">
-          {_token?.tokenType === 'ERC20'
-            ? _token?.formattedAmount
+          {token?.tokenType === 'ERC20'
+            ? token?.formattedAmount
             : tokenId
             ? `#${tokenId}`
             : '--'}

@@ -1,4 +1,4 @@
-import { TokenBalance } from '../TokenBalances/types';
+import { TokenBalance, ContentValue } from '../TokenBalances/types';
 
 export type Token = TokenBalance &
   Pick<Poap, '_poapEvent'> & {
@@ -40,6 +40,7 @@ export type Poap = {
 export type PoapEvent = {
   blockchain: string;
   eventName: string;
+  contentValue: ContentValue;
   logo: {
     image: {
       small: string;

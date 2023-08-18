@@ -28,7 +28,7 @@ import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../queries/commonP
 import { useMatch } from 'react-router-dom';
 
 export function TokenHolders() {
-  const [{ address, tokenType, inputType, activeView, tokenFilters }, setData] =
+  const [{ address, tokenType, activeView, tokenFilters }, setData] =
     useSearchInput();
   const addressRef = useRef<null | string[]>(null);
   const isHome = useMatch('/');
@@ -125,7 +125,6 @@ export function TokenHolders() {
     const poapsQuery = createCommonOwnersPOAPsQuery(address);
 
     const poapLink = createAppUrlWithQuery(poapsQuery, {
-      eventId: inputType === 'POAP' ? query : '123',
       limit: 20
     });
 
@@ -158,7 +157,6 @@ export function TokenHolders() {
   }, [
     activeView,
     address,
-    inputType,
     isPoap,
     query,
     tokenFilters,

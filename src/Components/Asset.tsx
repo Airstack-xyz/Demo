@@ -14,14 +14,16 @@ type AssetProps = ComponentProps<typeof AirstackAsset> & {
 };
 
 export function Asset({ image, ...props }: AssetProps) {
-  if (image) {
-    return <Image src={image} />;
-  }
-
   return (
     <AirstackAsset
       preset="medium"
-      error={<img src="images/placeholder.svg" alt="error" />}
+      error={
+        image ? (
+          <Image src={image} />
+        ) : (
+          <img src="images/placeholder.svg" alt="error" />
+        )
+      }
       loading={<img src="images/placeholder.svg" alt="loadig" />}
       {...props}
     />

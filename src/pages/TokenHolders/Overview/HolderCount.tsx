@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import { Icon } from '../../../Components/Icon';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 
@@ -6,6 +7,7 @@ export function HolderCount({
   subText,
   images,
   loading,
+  disableAction,
   name,
   tokenName
 }: {
@@ -14,13 +16,20 @@ export function HolderCount({
   loading: boolean;
   name: string;
   tokenName: string;
+  disableAction: boolean;
   images: React.JSX.Element[];
 }) {
   const setInputs = useSearchInput()[1];
 
   return (
     <div
-      className="px-3 py-5 flex items-center rounded-18 bg-glass cursor-pointer border border-solid border-transparent hover:border-stroke-color-light"
+      className={classNames(
+        'px-3 py-5 flex items-center rounded-18 bg-glass border border-solid border-transparent',
+        {
+          'pointer-events-none': disableAction,
+          'hover:border-stroke-color-light cursor-pointer ': !loading
+        }
+      )}
       data-loader-type="block"
       data-loader-height="auto"
       onClick={() => {
