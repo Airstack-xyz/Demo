@@ -92,10 +92,12 @@ export function TokenBalance() {
       });
     }
 
-    options.push({
-      label: 'Socials, Domains & XMTP',
-      link: socialLink
-    });
+    if (address.length === 1) {
+      options.push({
+        label: 'Socials, Domains & XMTP',
+        link: socialLink
+      });
+    }
 
     options.push({
       label: 'ERC20',

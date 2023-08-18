@@ -35,7 +35,7 @@ function Overview() {
     error: tokenOverviewError
   } = useGetTokenOverview(address, isPoap);
 
-  const [fetchTokens, tokenDetails] = useFetchTokens();
+  const [fetchTokens, tokenDetails, loadingTokens] = useFetchTokens();
 
   const [fetchTotalSupply, totalSupply, loadingSupply] = useTokensSupply();
 
@@ -46,7 +46,9 @@ function Overview() {
   }, [address, fetchTokens, fetchTotalSupply, isPoap, tokenAddress]);
 
   const isERC20 = useMemo(() => {
-    return tokenDetails.every(token => token.tokenType === 'ERC20');
+    return tokenDetails.length === 0
+      ? false
+      : tokenDetails.every(token => token.tokenType === 'ERC20');
   }, [tokenDetails]);
 
   const updateOverviewData = useCallback((overview: OverviewBlockchainData) => {
@@ -215,7 +217,12 @@ function Overview() {
         <div className="grid grid-cols-2 gap-2.5 mt-5">{holderCounts}</div>
       </div>
       <div
-        className="h-full flex-1 hidden [&>div]:h-full [&>div]:w-full sm:flex-col-center min-w-[421px] max-w-[421px] relative overflow-hidden"
+        className={classNames(
+          'h-full flex-1 hidden [&>div]:h-full [&>div]:w-full sm:flex-col-center min-w-[421px] max-w-[421px] relative overflow-hidden',
+          {
+            'skeleton-loader': loadingTokens
+          }
+        )}
         data-loader-type="block"
       >
         <div
