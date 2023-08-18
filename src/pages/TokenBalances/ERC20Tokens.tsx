@@ -17,6 +17,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { formatNumber } from '../../utils/formatNumber';
 import './erc20.styles.css';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { emit } from '../../utils/eventEmitter/eventEmitter';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
@@ -86,7 +87,11 @@ function Loader() {
   );
 }
 
+const LIMIT = 50;
+const MIN_LIMIT = 10;
+
 export function ERC20Tokens() {
+  const [totalProcessedTokens, setTotalProcessedTokens] = useState(0);
   const [tokens, setTokens] = useState<TokenType[]>([]);
   const [{ address: owners, tokenType, blockchainType, sortOrder }] =
     useSearchInput();
@@ -110,12 +115,13 @@ export function ERC20Tokens() {
       setLoading(true);
       tokensRef.current = [];
       setTokens([]);
+      setTotalProcessedTokens(0);
       // remove data to make sure on next render, the data is not used in the useEffect below
       // eslint-disable-next-line react-hooks/exhaustive-deps
       data = null;
 
       fetch({
-        limit: 50,
+        limit: LIMIT,
         tokenType: ['ERC20']
       });
     }
@@ -131,6 +137,7 @@ export function ERC20Tokens() {
     const { ethereum, polygon } = data;
     let ethTokens = ethereum?.TokenBalance || [];
     let maticTokens = polygon?.TokenBalance || [];
+    const totalTokens = ethTokens.length + maticTokens.length;
 
     if (ethTokens.length > 0 && ethTokens[0]?.token?.tokenBalances) {
       ethTokens = ethTokens
@@ -155,9 +162,9 @@ export function ERC20Tokens() {
         }, []);
     }
     tokensRef.current = [...tokensRef.current, ...ethTokens, ...maticTokens];
-
+    setTotalProcessedTokens(count => count + totalTokens);
     setTokens(tokensRef.current);
-    if (hasNextPage && tokensRef.current.length < 10) {
+    if (hasNextPage && tokensRef.current.length < MIN_LIMIT) {
       setLoading(true);
       getNextPage();
       return;
@@ -171,6 +178,13 @@ export function ERC20Tokens() {
       getNextPage();
     }
   }, [getNextPage, hasNextPage, loading]);
+  useEffect(() => {
+    emit('token-balances:ERC20', {
+      matched: tokens.length,
+      total: totalProcessedTokens || LIMIT,
+      loading
+    });
+  }, [loading, tokens.length, totalProcessedTokens]);
 
   return (
     <div>
@@ -200,7 +214,7 @@ export function ERC20Tokens() {
           next={handleNext}
           dataLength={tokens.length}
           hasMore={hasNextPage}
-          loader={<Loader />}
+          loader={null}
         >
           {tokens.map((token, index) => (
             <Link
@@ -225,6 +239,7 @@ export function ERC20Tokens() {
               />
             </Link>
           ))}
+          {loading && <Loader />}
         </InfiniteScroll>
       </div>
     </div>

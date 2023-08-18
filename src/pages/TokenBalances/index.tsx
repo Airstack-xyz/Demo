@@ -17,6 +17,7 @@ import { defaultSortOrder } from './SortBy';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
 import { useMatch } from 'react-router-dom';
+import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address }] = useSearchInput();
@@ -194,6 +195,7 @@ export function TokenBalance() {
           </>
         )}
       </div>
+      <TokenBalancesLoaderWithInfo />
     </Layout>
   );
 }
