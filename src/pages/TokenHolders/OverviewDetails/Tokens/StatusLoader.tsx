@@ -10,7 +10,7 @@ type LoaderProps = {
 export function StatusLoader({
   total,
   matching,
-  tokenName = 'tokens'
+  tokenName = 'records'
 }: LoaderProps) {
   const loader = useMemo(() => {
     return (

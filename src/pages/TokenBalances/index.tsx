@@ -78,13 +78,6 @@ export function TokenBalance() {
 
     const options = [];
 
-    if (tokenType !== 'POAP') {
-      options.push({
-        label: 'Token Balances',
-        link: nftLink
-      });
-    }
-
     if (!tokenType || tokenType === 'POAP') {
       options.push({
         label: 'POAPs',
@@ -92,17 +85,24 @@ export function TokenBalance() {
       });
     }
 
+    if (tokenType !== 'POAP') {
+      options.push({
+        label: 'Token Balances (NFT)',
+        link: nftLink
+      });
+    }
+
+    options.push({
+      label: 'Token Balances (ERC20)',
+      link: erc20Link
+    });
+
     if (address.length === 1) {
       options.push({
         label: 'Socials, Domains & XMTP',
         link: socialLink
       });
     }
-
-    options.push({
-      label: 'ERC20',
-      link: erc20Link
-    });
 
     return options;
   }, [address, blockchainType, query, sortOrder, tokenType]);
