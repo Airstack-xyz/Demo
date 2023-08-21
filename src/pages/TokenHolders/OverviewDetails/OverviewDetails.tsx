@@ -4,10 +4,14 @@ import { imageAndSubTextMap } from '../Overview/imageAndSubTextMap';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { Filters } from './Filters';
 import { LoaderProvider } from '../../../context/loader';
+import { useEffect } from 'react';
 
 export function OverviewDetails() {
   const [{ activeView, activeViewCount: count, activeViewToken }, setFilters] =
     useSearchInput();
+
+  // reset activeView when user navigates away from the page or refreshes the page
+  useEffect(() => setFilters({ activeView: '' }), [setFilters]);
 
   const handleGoBack = () => {
     setFilters(
@@ -30,7 +34,7 @@ export function OverviewDetails() {
           <div className="flex items-center text-xs sm:text-base mx-w-[100%] sm:max-w-[80%] overflow-hidden">
             <div className="flex items-center w-[60%] sm:w-auto overflow-hidden mr-1">
               <div
-                className="flex items-center cursor-pointer hover:bg-glass-1 -ml-2 px-2 py-1 rounded-full overflow-hidden"
+                className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
                 onClick={handleGoBack}
               >
                 <Icon name="token-holders" height={20} width={20} />{' '}

@@ -26,10 +26,15 @@ import {
 } from '../../queries/commonNftOwnersQueryWithFilters';
 import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../queries/commonPoapAndNftOwnersQueryWithFilters';
 import { useMatch } from 'react-router-dom';
+import {
+  useOverviewTokens,
+  TokenHolders as TokenAndHolder
+} from '../../store/tokenHoldersOverview';
 
 export function TokenHolders() {
-  const [{ address, tokenType, activeView, tokenFilters }, setData] =
-    useSearchInput();
+  const [{ address, activeView, tokenFilters }, setData] = useSearchInput();
+  const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
+
   const addressRef = useRef<null | string[]>(null);
   const isHome = useMatch('/');
 
@@ -163,7 +168,13 @@ export function TokenHolders() {
     tokensQueryWithFilter
   ]);
 
-  const isERC20 = tokenType === 'ERC20';
+  const hasMulitpleERC20 = useMemo(() => {
+    const erc20Tokens = overviewTokens.filter(
+      (token: TokenAndHolder) => token.tokenType === 'ERC20'
+    );
+    return erc20Tokens.length > 1;
+  }, [overviewTokens]);
+
   const showInCenter = isHome;
 
   return (
@@ -183,7 +194,7 @@ export function TokenHolders() {
           )}
           <Search />
         </div>
-        {query && query.length > 0 && (
+        {!hasMulitpleERC20 && query && query.length > 0 && (
           <>
             <div className="hidden sm:flex-col-center my-3">
               <GetAPIDropdown options={options} />
@@ -191,12 +202,8 @@ export function TokenHolders() {
             {activeView && <OverviewDetails />}
             {!activeView && (
               <div className="flex flex-col justify-center mt-7" key={query}>
-                {!isERC20 && <HoldersOverview />}
-                <div
-                  className={classNames({
-                    'mt-7': !isERC20
-                  })}
-                >
+                <HoldersOverview />
+                <div>
                   <div className="flex mb-4">
                     <Icon name="token-holders" height={20} width={20} />{' '}
                     <span className="font-bold ml-1.5 text-sm">Holders</span>
