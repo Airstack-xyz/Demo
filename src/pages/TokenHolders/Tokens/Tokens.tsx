@@ -9,6 +9,10 @@ import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 import { useGetCommonOwnersOfTokens } from '../../../hooks/useGetCommonOwnersOfTokens';
 import { useGetCommonOwnersOfPoaps } from '../../../hooks/useGetCommonOwnersOfPoaps';
 import { StatusLoader } from '../OverviewDetails/Tokens/StatusLoader';
+import {
+  TokenHolders,
+  useOverviewTokens
+} from '../../../store/tokenHoldersOverview';
 
 const loaderData = Array(6).fill({});
 
@@ -32,11 +36,49 @@ function Loader() {
 }
 
 export function TokensComponent() {
-  const [{ address: tokenAddress, inputType }] = useSearchInput();
+  const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
+  const [{ address, inputType }] = useSearchInput();
+
   const shouldFetchPoaps = useMemo(
-    () => !tokenAddress.some(address => address.startsWith('0x')),
-    [tokenAddress]
+    () => !address.some(address => address.startsWith('0x')),
+    [address]
   );
+
+  const hasMulitpleERC20 = useMemo(() => {
+    const erc20Tokens = overviewTokens.filter(
+      (token: TokenHolders) => token.tokenType === 'ERC20'
+    );
+    return erc20Tokens.length > 1;
+  }, [overviewTokens]);
+
+  const tokenAddress = useMemo(() => {
+    const hasEitherAddressOrEvent =
+      shouldFetchPoaps || address.every(address => address.startsWith('0x'));
+
+    if (hasEitherAddressOrEvent) {
+      // sort tokens by holders count so that the token with the least holders is the first one
+      const sortedAddress = (overviewTokens as TokenHolders[]).sort(
+        (a, b) => a.holdersCount - b.holdersCount
+      );
+
+      const ercTokens: TokenHolders[] = [],
+        otherTokens: TokenHolders[] = [];
+
+      sortedAddress.forEach(token => {
+        if (token.tokenType === 'ERC20') {
+          ercTokens.push(token);
+        } else {
+          otherTokens.push(token);
+        }
+      });
+      // ERC20 tokens mostly have a large number of holders so keep it at the end of array so they are always in the inner query
+      return [...otherTokens, ...ercTokens].map(_token =>
+        _token.tokenAddress.toLowerCase()
+      );
+    }
+    return address;
+  }, [shouldFetchPoaps, address, overviewTokens]);
+
   const {
     fetch: fetchTokens,
     loading: loadingTokens,
@@ -51,7 +93,7 @@ export function TokensComponent() {
     poaps,
     processedPoapsCount,
     ...paginationPoaps
-  } = useGetCommonOwnersOfPoaps(tokenAddress);
+  } = useGetCommonOwnersOfPoaps(address);
 
   const navigator = useNavigate();
 
@@ -69,7 +111,7 @@ export function TokensComponent() {
   const isPoap = inputType === 'POAP';
 
   useEffect(() => {
-    if (tokenAddress.length === 0) return;
+    if (tokenAddress.length === 0 || hasMulitpleERC20) return;
 
     if (isPoap && shouldFetchPoaps) {
       fetchPoap();
@@ -77,7 +119,15 @@ export function TokensComponent() {
     }
 
     fetchTokens();
-  }, [fetchPoap, fetchTokens, isPoap, shouldFetchPoaps, tokenAddress]);
+  }, [
+    fetchPoap,
+    fetchTokens,
+    isPoap,
+    shouldFetchPoaps,
+    address,
+    tokenAddress.length,
+    hasMulitpleERC20
+  ]);
 
   const handleShowMore = useCallback((values: string[], dataType: string) => {
     const leftValues: string[] = [];
@@ -115,7 +165,7 @@ export function TokensComponent() {
     ? paginationPoaps
     : paginationTokens;
 
-  const loading = loadingPoaps || loadingTokens;
+  const loading = overviewTokens.length === 0 || loadingPoaps || loadingTokens;
 
   const handleNext = useCallback(() => {
     if (!loading && hasNextPage && getNextPage) {
@@ -125,8 +175,11 @@ export function TokensComponent() {
 
   const tokens = shouldFetchPoaps ? poaps : tokensData;
   const totalProcessed = processedTokensCount + processedPoapsCount;
-  const isCombination = tokenAddress.length > 1;
+  const isCombination = address.length > 1;
   const showStatusLoader = loading && isCombination;
+
+  // ERC20 tokens have a large number of holders so we don't allow multiple ERC20 tokens to be searched at once
+  if (hasMulitpleERC20) return null;
 
   if (loading && (!tokens || tokens.length === 0)) {
     return (
@@ -178,7 +231,7 @@ export function TokensComponent() {
         {loading && <Loader />}
       </div>
       <AddressesModal
-        heading={`All ${modalValues.dataType} names of ${tokenAddress}`}
+        heading={`All ${modalValues.dataType} names of ${address}`}
         isOpen={showModal}
         onRequestClose={() => {
           setShowModal(false);
