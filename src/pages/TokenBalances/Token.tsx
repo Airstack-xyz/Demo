@@ -27,9 +27,9 @@ export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
   const symbol = token?.token?.symbol || '';
   const type = token?.tokenType || 'POAP';
   const blockchain = token.blockchain || 'ethereum';
-  const name =
-    token?.token?.name ||
-    `${formatDate(poapEvent.startDate)}${city ? ` (${city})` : ''}`;
+  const name = isPoap
+    ? `${formatDate(poapEvent.startDate)}${city ? ` (${city})` : ''}`
+    : token?.token?.name;
   const tokenId = token?.tokenNfts?.tokenId || poap.tokenId;
   const image = isPoap ? poapEvent?.logo?.image?.medium : '';
   const eventId = poapEvent?.eventId || '';
@@ -44,7 +44,7 @@ export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
         inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
         type,
         blockchain,
-        label: tokenName
+        label: tokenName || '--'
       })}
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
     >
@@ -68,7 +68,7 @@ export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
         </div>
       </div>
       <div className="h-14 rounded-3xl flex flex-col px-3.5 py-2 text-sm bg-glass border-solid-light">
-        <div className="ellipsis text-xs mb-">{name}</div>
+        <div className="ellipsis text-xs mb-">{name || '--'}</div>
         <div className="flex items-center justify-between font-bold ">
           <div className="ellipsis flex-1 mr-2">{id}</div>
           <div>{symbol || ''}</div>

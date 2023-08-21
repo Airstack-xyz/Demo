@@ -10,6 +10,11 @@ import { imageAndSubTextMap } from './imageAndSubTextMap';
 import { useFetchTokens } from '../../../hooks/useGetTokens';
 import { useTokensSupply } from '../../../hooks/useTokensSupply';
 import classNames from 'classnames';
+import {
+  TokenHolders,
+  useOverviewTokens
+} from '../../../store/tokenHoldersOverview';
+import { showToast } from '../../../utils/showToast';
 
 function Overview() {
   const [overViewData, setOverViewData] = useState<
@@ -35,21 +40,54 @@ function Overview() {
     error: tokenOverviewError
   } = useGetTokenOverview(address, isPoap);
 
+  const setTokens = useOverviewTokens(['tokens'])[1];
+
   const [fetchTokens, tokenDetails, loadingTokens] = useFetchTokens();
 
   const [fetchTotalSupply, totalSupply, loadingSupply] = useTokensSupply();
+
+  const hasMulitpleERC20 = useMemo(() => {
+    const erc20Tokens = tokenDetails.filter(
+      token => token.tokenType === 'ERC20'
+    );
+    return erc20Tokens.length > 1;
+  }, [tokenDetails]);
+
+  useEffect(() => {
+    if (hasMulitpleERC20) {
+      showToast(
+        'Can not search for more then one  ERC20 tokens together!',
+        'negative'
+      );
+    }
+  }, [hasMulitpleERC20]);
+
+  const isERC20 = tokenDetails.every(token => token.tokenType === 'ERC20');
+
+  useEffect(() => {
+    if (tokenDetails.length > 0) {
+      setTokens({
+        tokens: tokenDetails.map(
+          ({ name, tokenAddress, eventId, tokenType }) => {
+            const key = eventId ? eventId : tokenAddress;
+            const tokenAndHolders: TokenHolders = {
+              name,
+              tokenAddress: key,
+              holdersCount: totalSupply?.[key.toLocaleLowerCase()] || 0,
+              tokenType
+            };
+            return tokenAndHolders;
+          }
+        )
+      });
+    }
+  }, [tokenDetails, setTokens, totalSupply]);
 
   useEffect(() => {
     if (!address.length) return;
     fetchTokens(address);
     fetchTotalSupply(address);
   }, [address, fetchTokens, fetchTotalSupply, isPoap, tokenAddress]);
-
-  const isERC20 = useMemo(() => {
-    return tokenDetails.length === 0
-      ? false
-      : tokenDetails.every(token => token.tokenType === 'ERC20');
-  }, [tokenDetails]);
 
   const updateOverviewData = useCallback((overview: OverviewBlockchainData) => {
     setOverViewData(_overview => {
@@ -87,7 +125,7 @@ function Overview() {
       if (image)
         return (
           <div
-            className={classNames({
+            className={classNames('[&>div>img]:w-full', {
               flex: address.length === 1
             })}
           >
@@ -97,6 +135,9 @@ function Overview() {
               preset="medium"
               image={image}
               chain={blockchain as Chain}
+              videoProps={{
+                controls: false
+              }}
             />
           </div>
         );
@@ -188,7 +229,7 @@ function Overview() {
     );
   }, [tokenDetails, totalSupply]);
 
-  if (isERC20) return null;
+  if (isERC20) return <div className="mt-7"></div>;
 
   // eslint-disable-next-line
   // @ts-ignore

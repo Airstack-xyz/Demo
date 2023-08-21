@@ -4,6 +4,7 @@ import { fetchQuery } from '@airstack/airstack-react';
 import { PoapOwnerQuery, TokenOwnerQuery } from '../queries';
 import { FetchQueryReturnType } from '@airstack/airstack-react/types';
 import { TokenBalance } from '../pages/TokenBalances/types';
+import { useOverviewTokens } from '../store/tokenHoldersOverview';
 
 type ResultTokenType = {
   name: string;
@@ -16,6 +17,8 @@ type ResultTokenType = {
 };
 
 export function useFetchTokens() {
+  const setTokens = useOverviewTokens([])[1];
+
   const [data, setData] = useState<ResultTokenType[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -66,6 +69,8 @@ export function useFetchTokens() {
     async (tokenAddress: string[]) => {
       setLoading(true);
       setData([]);
+      setTokens({ tokens: [] });
+
       const promises: FetchQueryReturnType[] = [];
       tokenAddress.forEach(tokenAddress => {
         const isPoap = !tokenAddress.startsWith('0x');
@@ -90,7 +95,8 @@ export function useFetchTokens() {
       setData(tokens);
       setLoading(false);
     },
-    [getTokenFromResponse]
+    [getTokenFromResponse, setTokens]
   );
+
   return [fetch, data, loading] as const;
 }
