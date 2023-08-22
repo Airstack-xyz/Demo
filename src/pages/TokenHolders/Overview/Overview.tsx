@@ -80,10 +80,7 @@ function Overview() {
 
   useEffect(() => {
     if (hasMulitpleERC20) {
-      showToast(
-        'Can not search for more then one  ERC20 tokens together!',
-        'negative'
-      );
+      showToast('Try to combine ERC20 tokens with NFTs or POAPs', 'negative');
     }
   }, [hasMulitpleERC20]);
 
@@ -275,14 +272,14 @@ function Overview() {
     );
   }, [tokenDetails, totalSupply]);
 
-  if (isERC20) return <div className="mt-7"></div>;
+  if (isERC20) return null;
 
   // eslint-disable-next-line
   // @ts-ignore
   window.totalOwners = overViewData?.owners || 0;
 
   return (
-    <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px]">
+    <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px] mb-7">
       <div className="border-solid-stroke bg-glass rounded-18 px-5 py-2.5 m-2.5 flex-1 w-full overflow-hidden">
         <div className="mb-2 flex flex-col">
           <div className="text-sm text-text-secondary">Total supply </div>

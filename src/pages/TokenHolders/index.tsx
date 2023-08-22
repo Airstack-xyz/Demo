@@ -194,22 +194,26 @@ export function TokenHolders() {
           )}
           <Search />
         </div>
-        {!hasMulitpleERC20 && query && query.length > 0 && (
+        {query && query.length > 0 && (
           <>
-            <div className="hidden sm:flex-col-center my-3">
-              <GetAPIDropdown options={options} />
-            </div>
-            {activeView && <OverviewDetails />}
+            {!hasMulitpleERC20 && (
+              <div className="hidden sm:flex-col-center my-3">
+                <GetAPIDropdown options={options} />
+              </div>
+            )}
+            {activeView && !hasMulitpleERC20 && <OverviewDetails />}
             {!activeView && (
               <div className="flex flex-col justify-center mt-7" key={query}>
                 <HoldersOverview />
-                <div>
-                  <div className="flex mb-4">
-                    <Icon name="token-holders" height={20} width={20} />{' '}
-                    <span className="font-bold ml-1.5 text-sm">Holders</span>
+                {!hasMulitpleERC20 && (
+                  <div>
+                    <div className="flex mb-4">
+                      <Icon name="token-holders" height={20} width={20} />{' '}
+                      <span className="font-bold ml-1.5 text-sm">Holders</span>
+                    </div>
+                    <Tokens />
                   </div>
-                  <Tokens />
-                </div>
+                )}
               </div>
             )}
           </>

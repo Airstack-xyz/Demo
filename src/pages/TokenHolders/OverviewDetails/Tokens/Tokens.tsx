@@ -87,6 +87,7 @@ function sortArray(array: string[]) {
 }
 
 export function TokensComponent() {
+  const ownersSetRef = useRef<Set<string>>(new Set());
   const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
   const tokensRef = useRef<(TokenType | Poap)[]>([]);
   const [{ tokenFilters: filters, address, activeViewToken }] =
@@ -174,6 +175,7 @@ export function TokensComponent() {
       // eslint-disable-next-line
       tokensData = null;
       tokensRef.current = [];
+      ownersSetRef.current = new Set();
       setTokens([]);
       setShowStatusLoader(true);
       setLoaderStats({
@@ -281,7 +283,14 @@ export function TokensComponent() {
       ? getPoapList(tokensData)
       : getTokenList(tokensData);
 
-    const filteredTokens = filterTokens(filters, tokens);
+    let filteredTokens = filterTokens(filters, tokens);
+    filteredTokens = filteredTokens.filter(token => {
+      const address = token?.owner?.identity;
+      if (!address) return false;
+      if (ownersSetRef.current.has(address)) return false;
+      ownersSetRef.current.add(address);
+      return true;
+    });
 
     setLoaderStats(({ total, matching }) => ({
       total: total + (size || 0),
