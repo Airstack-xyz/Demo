@@ -74,7 +74,9 @@ export function useGetCommonOwnersOfPoaps(eventIds: string[]) {
     });
 
     itemsRef.current = [...itemsRef.current, ...tokens];
-    if (hasNextPage && itemsRef.current.length < (totalOwners || MIN_LIMIT)) {
+    const minItemsToFetch =
+      totalOwners > 0 ? Math.min(totalOwners, MIN_LIMIT) : MIN_LIMIT;
+    if (hasNextPage && itemsRef.current.length < minItemsToFetch) {
       getNextPage();
     } else {
       setLoading(false);
