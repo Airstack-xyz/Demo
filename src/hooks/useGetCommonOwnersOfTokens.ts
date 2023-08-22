@@ -125,7 +125,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
 
     itemsRef.current = [...itemsRef.current, ...tokens];
     const minItemsToFetch =
-      totalOwners > 0 ? Math.min(totalOwners, MIN_LIMIT) : totalOwners;
+      totalOwners > 0 ? Math.min(totalOwners, MIN_LIMIT) : MIN_LIMIT;
     if (hasNextPage && itemsRef.current.length < minItemsToFetch) {
       getNextPage();
     } else {
