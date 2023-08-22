@@ -9,7 +9,9 @@ export function HolderCount({
   loading,
   disableAction,
   name,
-  tokenName
+  tokenName,
+  withoutCount,
+  sectionName
 }: {
   count: string | number;
   subText: string;
@@ -18,6 +20,8 @@ export function HolderCount({
   tokenName: string;
   disableAction: boolean;
   images: React.JSX.Element[];
+  withoutCount?: boolean;
+  sectionName: string;
 }) {
   const setInputs = useSearchInput()[1];
 
@@ -70,7 +74,12 @@ export function HolderCount({
             count
           )}
         </div>
-        <div className="text-text-secondary text-xs ellipsis">{subText}</div>
+        {withoutCount && (
+          <div className="text-xs font-normal leading-normal">{`Combined holders with ${sectionName} ->`}</div>
+        )}
+        {subText && (
+          <div className="text-text-secondary text-xs ellipsis">{subText}</div>
+        )}
       </div>
     </div>
   );

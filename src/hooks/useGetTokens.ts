@@ -6,7 +6,7 @@ import { FetchQueryReturnType } from '@airstack/airstack-react/types';
 import { TokenBalance } from '../pages/TokenBalances/types';
 import { useOverviewTokens } from '../store/tokenHoldersOverview';
 
-type ResultTokenType = {
+export type OverviewTokenDetailsType = {
   name: string;
   tokenId: string;
   tokenAddress: string;
@@ -19,7 +19,7 @@ type ResultTokenType = {
 export function useFetchTokens() {
   const setTokens = useOverviewTokens([])[1];
 
-  const [data, setData] = useState<ResultTokenType[]>([]);
+  const [data, setData] = useState<OverviewTokenDetailsType[]>([]);
   const [loading, setLoading] = useState(false);
 
   const getTokenFromResponse = useCallback(
@@ -82,7 +82,7 @@ export function useFetchTokens() {
         promises.push(request);
       });
       const results = await Promise.allSettled(promises);
-      const tokens: ResultTokenType[] = [];
+      const tokens: OverviewTokenDetailsType[] = [];
       results.forEach(result => {
         if (result.status === 'fulfilled' && result?.value?.data) {
           const { data } = result.value;
