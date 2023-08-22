@@ -87,7 +87,12 @@ function Overview() {
     }
   }, [hasMulitpleERC20]);
 
-  const isERC20 = tokenDetails.every(token => token.tokenType === 'ERC20');
+  const isERC20 = useMemo(() => {
+    return (
+      tokenDetails.length > 0 &&
+      tokenDetails.every(token => token.tokenType === 'ERC20')
+    );
+  }, [tokenDetails]);
 
   useEffect(() => {
     if (tokenDetails.length > 0) {
