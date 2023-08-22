@@ -7,7 +7,8 @@ import { getAllWordsAndMentions } from './Input/utils';
 import {
   CachedQuery,
   UserInputs,
-  useSearchInput
+  useSearchInput,
+  userInputCache
 } from '../hooks/useSearchInput';
 import { showToast } from '../utils/showToast';
 
@@ -61,6 +62,14 @@ export const Search = memo(function Search() {
     setValue(rawInput ? rawInput.trim() + '  ' : '');
   }, [rawInput]);
 
+  useEffect(() => {
+    if (isTokenBalances) {
+      // force reset tokenHolder's activeView when user navigates to tokenBalances page
+      // else when user clicks on a token in balances page and goes to holder they will see the detailed activeView instead of the holders
+      userInputCache.tokenHolder.activeView = '';
+    }
+  }, [isTokenBalances]);
+
   const handleDataChange = useCallback(
     (data: Partial<CachedQuery>) => {
       if (isHome) {
@@ -69,6 +78,7 @@ export const Search = memo(function Search() {
           reset: isTokenBalances,
           redirectTo: isTokenBalances ? '/token-balances' : '/token-holders'
         });
+        return;
       }
       setData(data, {
         updateQueryParams: true,

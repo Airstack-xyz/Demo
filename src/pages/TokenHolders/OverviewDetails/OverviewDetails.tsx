@@ -4,14 +4,10 @@ import { imageAndSubTextMap } from '../Overview/imageAndSubTextMap';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { Filters } from './Filters';
 import { LoaderProvider } from '../../../context/loader';
-import { useEffect } from 'react';
 
 export function OverviewDetails() {
   const [{ activeView, activeViewCount: count, activeViewToken }, setFilters] =
     useSearchInput();
-
-  // reset activeView when user navigates away from the page or refreshes the page
-  useEffect(() => setFilters({ activeView: '' }), [setFilters]);
 
   const handleGoBack = () => {
     setFilters(

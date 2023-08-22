@@ -16,7 +16,9 @@ export function Token({
 }) {
   const owner = token?.owner;
   const walletAddresses = owner?.addresses || '';
-  const walletAddress = Array.isArray(walletAddresses)
+  const walletAddress = owner?.identity
+    ? owner.identity
+    : Array.isArray(walletAddresses)
     ? walletAddresses[0]
     : '';
   const primarEns = owner?.primaryDomain?.name || '';
