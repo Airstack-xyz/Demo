@@ -17,7 +17,7 @@ export type OverviewTokenDetailsType = {
 };
 
 export function useFetchTokens() {
-  const setTokens = useOverviewTokens([])[1];
+  const setTokens = useOverviewTokens(['tokens'])[1];
 
   const [data, setData] = useState<OverviewTokenDetailsType[]>([]);
   const [loading, setLoading] = useState(false);
