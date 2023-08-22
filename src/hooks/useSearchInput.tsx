@@ -91,7 +91,7 @@ export function useSearchInput(
           navigate({
             pathname: config.redirectTo,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            search: createSearchParams(data as any).toString()
+            search: createSearchParams(searchParams as any).toString()
           });
           return;
         }
