@@ -29,7 +29,7 @@ function Overview() {
     xmtp: 0
   });
 
-  const [{ address }] = useSearchInput();
+  const [{ address, activeView }] = useSearchInput();
 
   const isPoap = address.every(token => !token.startsWith('0x'));
 
@@ -113,8 +113,10 @@ function Overview() {
   useEffect(() => {
     if (!address.length) return;
     fetchTokens(address);
-    fetchTotalSupply(address);
-  }, [address, fetchTokens, fetchTotalSupply, isPoap]);
+    if (!activeView) {
+      fetchTotalSupply(address);
+    }
+  }, [activeView, address, fetchTokens, fetchTotalSupply, isPoap]);
 
   const updateOverviewData = useCallback((overview: OverviewBlockchainData) => {
     setOverViewData(_overview => {
@@ -272,7 +274,7 @@ function Overview() {
     );
   }, [tokenDetails, totalSupply]);
 
-  if (isERC20) return null;
+  if (isERC20 || activeView) return null;
 
   // eslint-disable-next-line
   // @ts-ignore
