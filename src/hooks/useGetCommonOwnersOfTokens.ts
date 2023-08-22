@@ -33,7 +33,7 @@ type CommonOwner = {
 };
 
 const LIMIT = 200;
-const MIN_LIMIT = 200;
+const MIN_LIMIT = 50;
 
 export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
   const ownersSetRef = useRef<Set<string>>(new Set());
@@ -58,7 +58,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
   const { hasNextPage, getNextPage } = pagination;
   // eslint-disable-next-line
   // @ts-ignore
-  const totalOwners = window.totalOwners;
+  const totalOwners = window.totalOwners || 0;
   const hasMorePages = !totalOwners
     ? hasNextPage
     : hasNextPage === false
@@ -124,7 +124,9 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
     });
 
     itemsRef.current = [...itemsRef.current, ...tokens];
-    if (hasNextPage && itemsRef.current.length < (totalOwners || MIN_LIMIT)) {
+    const minItemsToFetch =
+      totalOwners > 0 ? Math.min(totalOwners, MIN_LIMIT) : totalOwners;
+    if (hasNextPage && itemsRef.current.length < minItemsToFetch) {
       getNextPage();
     } else {
       setLoading(false);
@@ -148,6 +150,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
     itemsRef.current = [];
     setLoading(true);
     setTokens([]);
+    ownersSetRef.current = new Set();
     fetch({
       limit: fetchSingleToken ? MIN_LIMIT : LIMIT
     });
