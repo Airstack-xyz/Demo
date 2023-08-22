@@ -30,19 +30,21 @@ import {
   useOverviewTokens,
   TokenHolders as TokenAndHolder
 } from '../../store/tokenHoldersOverview';
+import { getNFTQueryForTokensHolder } from '../../utils/getNFTQueryForTokensHolder';
 
 export function TokenHolders() {
-  const [{ address, activeView, tokenFilters }, setData] = useSearchInput();
+  const [{ address: tokenAddress, activeView, tokenFilters }, setData] =
+    useSearchInput();
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
 
   const addressRef = useRef<null | string[]>(null);
   const isHome = useMatch('/');
 
-  const query = address.length > 0 ? address[0] : '';
+  const query = tokenAddress.length > 0 ? tokenAddress[0] : '';
 
   useEffect(() => {
     // go to token-holders page if user input address has changed
-    if (addressRef.current && addressRef.current !== address) {
+    if (addressRef.current && addressRef.current !== tokenAddress) {
       setData(
         {
           activeView: ''
@@ -52,11 +54,16 @@ export function TokenHolders() {
         }
       );
     }
-    addressRef.current = address;
-  }, [address, setData]);
+    addressRef.current = tokenAddress;
+  }, [tokenAddress, setData]);
+
+  const isPoap = tokenAddress.every(token => !token.startsWith('0x'));
+
+  const address = useMemo(() => {
+    return getNFTQueryForTokensHolder(tokenAddress, overviewTokens, isPoap);
+  }, [isPoap, tokenAddress, overviewTokens]);
 
   const hasSomePoap = address.some(token => !token.startsWith('0x'));
-  const isPoap = address.every(token => !token.startsWith('0x'));
 
   const tokenOwnersQuery = useMemo(() => {
     if (address.length === 0) return '';
@@ -198,24 +205,31 @@ export function TokenHolders() {
           <>
             {!hasMulitpleERC20 && (
               <div className="hidden sm:flex-col-center my-3">
-                <GetAPIDropdown options={options} />
+                <GetAPIDropdown
+                  options={options}
+                  disabled={overviewTokens.length === 0}
+                />
               </div>
             )}
-            {activeView && !hasMulitpleERC20 && <OverviewDetails />}
-            {!activeView && (
-              <div className="flex flex-col justify-center mt-7" key={query}>
-                <HoldersOverview />
-                {!hasMulitpleERC20 && (
-                  <div>
-                    <div className="flex mb-4">
-                      <Icon name="token-holders" height={20} width={20} />{' '}
-                      <span className="font-bold ml-1.5 text-sm">Holders</span>
+            <div className="flex flex-col justify-center mt-7" key={query}>
+              <HoldersOverview />
+              {!hasMulitpleERC20 && (
+                <>
+                  {activeView && <OverviewDetails />}
+                  {!activeView && (
+                    <div>
+                      <div className="flex mb-4">
+                        <Icon name="token-holders" height={20} width={20} />{' '}
+                        <span className="font-bold ml-1.5 text-sm">
+                          Holders
+                        </span>
+                      </div>
+                      <Tokens />
                     </div>
-                    <Tokens />
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                </>
+              )}
+            </div>
           </>
         )}
       </div>
