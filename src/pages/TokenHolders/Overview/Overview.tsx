@@ -30,21 +30,46 @@ function Overview() {
   });
 
   const [{ address }] = useSearchInput();
-  const tokenAddress = address.length > 0 ? address[0] : '';
 
   const isPoap = address.every(token => !token.startsWith('0x'));
 
+  const [fetchTokens, tokenDetails, loadingTokens] = useFetchTokens();
+
+  const shouldFetchHoldersCount = useMemo(() => {
+    // only fetch holders count if all tokens are of same type or all are NFTs
+    const nftTokens = ['ERC721', 'ERC1155'];
+    const tokenType = tokenDetails[0]?.tokenType;
+
+    return tokenDetails.every(token => {
+      if (nftTokens.includes(tokenType)) {
+        return nftTokens.includes(token.tokenType);
+      }
+      return token.tokenType === tokenType;
+    });
+  }, [tokenDetails]);
+
   const {
+    fetch: fetchTokenOverview,
     data: tokenOverviewData,
     loading: loadingTokenOverview,
     error: tokenOverviewError
-  } = useGetTokenOverview(address, isPoap);
+  } = useGetTokenOverview();
 
   const setTokens = useOverviewTokens(['tokens'])[1];
 
-  const [fetchTokens, tokenDetails, loadingTokens] = useFetchTokens();
-
   const [fetchTotalSupply, totalSupply, loadingSupply] = useTokensSupply();
+
+  useEffect(() => {
+    if (shouldFetchHoldersCount && tokenDetails.length > 0) {
+      fetchTokenOverview(address, isPoap);
+    }
+  }, [
+    fetchTokenOverview,
+    address,
+    shouldFetchHoldersCount,
+    isPoap,
+    tokenDetails.length
+  ]);
 
   const hasMulitpleERC20 = useMemo(() => {
     const erc20Tokens = tokenDetails.filter(
@@ -87,7 +112,7 @@ function Overview() {
     if (!address.length) return;
     fetchTokens(address);
     fetchTotalSupply(address);
-  }, [address, fetchTokens, fetchTotalSupply, isPoap, tokenAddress]);
+  }, [address, fetchTokens, fetchTotalSupply, isPoap]);
 
   const updateOverviewData = useCallback((overview: OverviewBlockchainData) => {
     setOverViewData(_overview => {
@@ -153,9 +178,8 @@ function Overview() {
     });
   }, [address.length, tokenDetails]);
 
-  const loading = loadingTokenOverview;
   const totalHolders = (overViewData?.owners as number) || 0;
-  const name =
+  const tokenName =
     tokenDetails.length > 0
       ? `${tokenDetails[0].name}${
           tokenDetails[1] ? ` & ${tokenDetails[1]?.name}` : ''
@@ -164,28 +188,44 @@ function Overview() {
 
   const holderCounts = useMemo(() => {
     return Object.keys(overViewData).map(key => {
-      if (key === 'totalSupply') return null;
-      const { image, subText: text } = imageAndSubTextMap[key];
+      const noHoldersCount = !loadingTokens && !shouldFetchHoldersCount;
+      if (key === 'totalSupply' || (noHoldersCount && key === 'owners')) {
+        return null;
+      }
+
+      const { image, subText: text, name } = imageAndSubTextMap[key];
       let subText = text;
       if (key === 'owners' && tokenDetails) {
         subText += `${totalHolders === 1 ? 's' : ''} ${
-          tokenDetails.length > 1 ? 'both contracts' : name || 'these contract'
+          tokenDetails.length > 1
+            ? 'both contracts'
+            : tokenName || 'these contract'
         }`;
       }
 
-      const count = tokenOverviewError
+      let count = tokenOverviewError
         ? '--'
         : overViewData[key as keyof typeof overViewData];
+
+      // hide count and subtext if there is no holders count
+      if (noHoldersCount) {
+        subText = '';
+        count = '';
+      }
 
       return (
         <HolderCount
           key={key}
           name={key}
-          tokenName={name || ''}
-          loading={loading}
-          disableAction={loading || loadingTokens}
+          tokenName={tokenName || ''}
+          loading={
+            loadingTokenOverview || (loadingTokens && shouldFetchHoldersCount)
+          }
+          disableAction={loadingTokenOverview || loadingTokens}
           count={count}
           subText={subText}
+          withoutCount={noHoldersCount}
+          sectionName={name}
           images={
             !image
               ? tokenImages || []
@@ -195,12 +235,13 @@ function Overview() {
       );
     });
   }, [
-    loading,
+    loadingTokenOverview,
     loadingTokens,
-    name,
     overViewData,
+    shouldFetchHoldersCount,
     tokenDetails,
     tokenImages,
+    tokenName,
     tokenOverviewError,
     totalHolders
   ]);
