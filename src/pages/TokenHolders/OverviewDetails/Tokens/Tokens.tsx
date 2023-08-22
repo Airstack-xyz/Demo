@@ -28,6 +28,8 @@ import {
   getNftOwnersQueryWithFilters
 } from '../../../../queries/commonNftOwnersQueryWithFilters';
 import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../../../queries/commonPoapAndNftOwnersQueryWithFilters';
+import { getNFTQueryForTokensHolder } from '../../../../utils/getNFTQueryForTokensHolder';
+import { useOverviewTokens } from '../../../../store/tokenHoldersOverview';
 
 const LIMIT = 50;
 const MIN_LIMIT = 20;
@@ -90,7 +92,8 @@ export function TokensComponent() {
   const ownersSetRef = useRef<Set<string>>(new Set());
   const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
   const tokensRef = useRef<(TokenType | Poap)[]>([]);
-  const [{ tokenFilters: filters, address, activeViewToken }] =
+  const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
+  const [{ tokenFilters: filters, address: tokenAddress, activeViewToken }] =
     useSearchInput();
   const [showStatusLoader, setShowStatusLoader] = useState(false);
   const [loaderStats, setLoaderStats] = useState({
@@ -102,8 +105,12 @@ export function TokensComponent() {
     return getRequestFilters(filters);
   }, [filters]);
 
-  const hasSomePoap = address.some(token => !token.startsWith('0x'));
-  const hasPoap = address.every(token => !token.startsWith('0x'));
+  const hasSomePoap = tokenAddress.some(token => !token.startsWith('0x'));
+  const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
+
+  const address = useMemo(() => {
+    return getNFTQueryForTokensHolder(tokenAddress, overviewTokens, hasPoap);
+  }, [hasPoap, tokenAddress, overviewTokens]);
 
   const tokensQuery = useMemo(() => {
     if (address.length === 1) {
@@ -209,7 +216,7 @@ export function TokensComponent() {
     ? paginationPoaps
     : paginationTokens;
 
-  const loading = loadingPoaps || loadingTokens;
+  const loading = overviewTokens.length === 0 || loadingPoaps || loadingTokens;
   const loaderContext = useLoaderContext();
 
   useEffect(() => {

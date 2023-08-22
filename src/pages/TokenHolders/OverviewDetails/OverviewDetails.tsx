@@ -26,7 +26,7 @@ export function OverviewDetails() {
   return (
     <LoaderProvider>
       <div>
-        <div className="flex items-center justify-between mb-4 mt-7 px-2 sm:px-0">
+        <div className="flex items-center justify-between mb-4 px-2 sm:px-0">
           <div className="flex items-center text-xs sm:text-base mx-w-[100%] sm:max-w-[80%] overflow-hidden">
             <div className="flex items-center w-[60%] sm:w-auto overflow-hidden mr-1">
               <div

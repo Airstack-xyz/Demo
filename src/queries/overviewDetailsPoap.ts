@@ -134,6 +134,7 @@ export function getFilterablePoapsQuery(
   hasSocialFilters = false,
   hasPrimaryDomainFilter = false
 ) {
+  if (tokenIds.length === 0) return '';
   const childern =
     tokenIds.length === 1
       ? getFields(hasSocialFilters, hasPrimaryDomainFilter)
