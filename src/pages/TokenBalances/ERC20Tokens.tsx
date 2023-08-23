@@ -49,7 +49,7 @@ function Token({
 }: {
   type: string;
   symbol: string;
-  amount: number;
+  amount: null | number;
   logo: string;
 }) {
   return (
@@ -61,7 +61,7 @@ function Token({
         <Logo logo={logo} symbol={symbol} className="w-full min-w-full" />
       </div>
       <div className="flex flex-1 items-center min-w-0 text-sm pl-2.5">
-        <span>{formatNumber(amount)}</span>
+        {amount !== null && <span>{formatNumber(amount)}</span>}
         <span className="mx-1.5 ellipsis">{symbol}</span>
         <span className="text-xs text-text-secondary ellipsis min-w-[30%] lowercase">
           {type}
@@ -101,39 +101,8 @@ export function ERC20Tokens() {
     return createNftWithCommonOwnersQuery(owners, null);
   }, [owners]);
 
-  const [fetch, { data: erc20Data, pagination }] = useLazyQueryWithPagination(
-    query,
-    {},
-    { cache: false }
-  );
-
-  let data = erc20Data;
-  const { hasNextPage, getNextPage } = pagination;
-
-  useEffect(() => {
-    if (owners.length > 0) {
-      setLoading(true);
-      tokensRef.current = [];
-      setTokens([]);
-      setTotalProcessedTokens(0);
-      // remove data to make sure on next render, the data is not used in the useEffect below
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      data = null;
-
-      fetch({
-        limit: owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT,
-        tokenType: ['ERC20']
-      });
-    }
-    /*
-      Even though ERC20 tokens are not dependant on tokenType, we added tokenType to the dependency array to force a refetch when tokenType changes.
-      Without this, the tokens list would be unable to fetch additional pages since the window scroll height would be too great (too many ERC20 items).
-      InfiniteScroll depends on the window scroll height, if the height is too high, user will have to scroll to the bottom to initiate a pagination call.
-    */
-  }, [fetch, owners, tokenType, blockchainType, sortOrder]);
-
-  useEffect(() => {
-    if (!data) return;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onData = useCallback((data: any) => {
     const { ethereum, polygon } = data;
     let ethTokens = ethereum?.TokenBalance || [];
     let maticTokens = polygon?.TokenBalance || [];
@@ -164,6 +133,42 @@ export function ERC20Tokens() {
     tokensRef.current = [...tokensRef.current, ...ethTokens, ...maticTokens];
     setTotalProcessedTokens(count => count + totalTokens);
     setTokens(tokens => [...tokens, ...ethTokens, ...maticTokens]);
+  }, []);
+
+  const [fetch, { data: erc20Data, pagination }] = useLazyQueryWithPagination(
+    query,
+    {},
+    { cache: false, onCompleted: onData }
+  );
+
+  let data = erc20Data;
+  const { hasNextPage, getNextPage } = pagination;
+  const isCombination = owners.length > 1;
+
+  useEffect(() => {
+    if (owners.length > 0) {
+      setLoading(true);
+      tokensRef.current = [];
+      setTokens([]);
+      setTotalProcessedTokens(0);
+      // remove data to make sure on next render, the data is not used in the useEffect below
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      data = null;
+
+      fetch({
+        limit: owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT,
+        tokenType: ['ERC20']
+      });
+    }
+    /*
+      Even though ERC20 tokens are not dependant on tokenType, we added tokenType to the dependency array to force a refetch when tokenType changes.
+      Without this, the tokens list would be unable to fetch additional pages since the window scroll height would be too great (too many ERC20 items).
+      InfiniteScroll depends on the window scroll height, if the height is too high, user will have to scroll to the bottom to initiate a pagination call.
+    */
+  }, [fetch, owners, tokenType, blockchainType, sortOrder]);
+
+  useEffect(() => {
+    if (!data) return;
     if (hasNextPage && tokensRef.current.length < MIN_LIMIT) {
       setLoading(true);
       getNextPage();
@@ -193,7 +198,7 @@ export function ERC20Tokens() {
       <div className="hidden sm:block">
         <SectionHeader
           iconName="erc20"
-          heading={`ERC20 tokens${owners.length > 1 ? ' in common' : ''}`}
+          heading={`ERC20 tokens${isCombination ? ' in common' : ''}`}
         />
       </div>
       <div
@@ -231,7 +236,7 @@ export function ERC20Tokens() {
             >
               <Token
                 key={index}
-                amount={token?.formattedAmount}
+                amount={isCombination ? null : token?.formattedAmount}
                 symbol={token?.token?.symbol}
                 type={token?.token?.name}
                 logo={
