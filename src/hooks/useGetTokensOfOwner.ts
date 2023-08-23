@@ -52,6 +52,8 @@ export function useGetTokensOfOwner(
 
     if (!tokenType || !isPoap) {
       setLoading(true);
+      visitedTokensSetRef.current = new Set();
+      tokensRef.current = [];
       fetchTokens({
         limit: LIMIT,
         sortBy: sortOrder ? sortOrder : defaultSortOrder,
@@ -61,7 +63,7 @@ export function useGetTokensOfOwner(
             : tokenTypes.filter(tokenType => tokenType !== 'POAP')
       });
     }
-    tokensRef.current = [];
+
     setProcessedTokensCount(LIMIT);
   }, [
     blockchainType,

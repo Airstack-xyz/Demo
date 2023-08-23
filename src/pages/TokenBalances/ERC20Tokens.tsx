@@ -87,7 +87,7 @@ function Loader() {
   );
 }
 
-const LIMIT = 50;
+const LIMIT = 20;
 const MIN_LIMIT = 10;
 
 export function ERC20Tokens() {
@@ -121,7 +121,7 @@ export function ERC20Tokens() {
       data = null;
 
       fetch({
-        limit: LIMIT,
+        limit: tokenType || owners.length > 1 ? MIN_LIMIT : LIMIT,
         tokenType: ['ERC20']
       });
     }
