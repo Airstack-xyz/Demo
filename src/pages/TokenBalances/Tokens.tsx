@@ -23,8 +23,9 @@ function Loader() {
 }
 
 function TokensComponent() {
-  const [{ address: owners, tokenType: tokenType = '', blockchainType }] =
-    useSearchInput();
+  const [
+    { address: owners, tokenType: tokenType = '', blockchainType, sortOrder }
+  ] = useSearchInput();
   const [tokens, setTokens] = useState<(TokenType | PoapType)[]>([]);
 
   const handleTokens = useCallback((tokens: (TokenType | PoapType)[]) => {
@@ -44,6 +45,12 @@ function TokensComponent() {
     processedTokensCount: processedPoapsCount,
     hasNextPage: hasNextPagePoaps
   } = useGetPoapsOfOwner(handleTokens);
+
+  useEffect(() => {
+    if (owners.length === 0) return;
+    // reset tokens when search input changes
+    setTokens([]);
+  }, [blockchainType, owners, sortOrder, tokenType]);
 
   const isPoap = tokenType === 'POAP';
 
