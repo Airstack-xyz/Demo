@@ -21,7 +21,9 @@ export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
 
   const address = token.tokenAddress || poap.tokenAddress;
   const id = token?.tokenNfts?.tokenId
-    ? '#' + token?.tokenNfts?.tokenId
+    ? `#${token?.tokenNfts?.tokenId}${
+        token?._tokenId ? `, #${token?._tokenId}` : ''
+      }`
     : poapEvent?.eventName;
 
   const symbol = token?.token?.symbol || '';

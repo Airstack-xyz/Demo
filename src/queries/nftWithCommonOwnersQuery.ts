@@ -58,6 +58,9 @@ export function getQueryForBlockchain(owners: string[], isEth: boolean) {
       input: {filter: {owner: {_eq: "${owners[0]}"}, tokenType: {_in: $tokenType}}, blockchain: ${blockchain}, limit: $limit, order: {lastUpdatedTimestamp: $sortBy}}
     ) {
       TokenBalance {
+        tokenNfts {
+          tokenId
+        }
         ${childern}
       }
     }`;

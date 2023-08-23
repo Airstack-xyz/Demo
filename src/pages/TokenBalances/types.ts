@@ -6,6 +6,7 @@ export interface TokenType {
   formattedAmount: number;
   tokenNfts: TokenNfts;
   token: Token;
+  _tokenId?: string;
 }
 
 export type CommonTokenType = TokenType & {

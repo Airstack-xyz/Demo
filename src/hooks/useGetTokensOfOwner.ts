@@ -88,7 +88,10 @@ export function useGetTokensOfOwner(
           Boolean(token?.token?.tokenBalances?.length)
         )
         .reduce((items: TokenType[], token: CommonTokenType) => {
-          items.push(token.token.tokenBalances[0]);
+          items.push({
+            ...token.token.tokenBalances[0],
+            _tokenId: token?.tokenNfts?.tokenId
+          });
           return items;
         }, []);
     }
@@ -98,7 +101,10 @@ export function useGetTokensOfOwner(
           Boolean(token?.token?.tokenBalances?.length)
         )
         .reduce((items: TokenType[], token: CommonTokenType) => {
-          items.push(token.token.tokenBalances[0]);
+          items.push({
+            ...token.token.tokenBalances[0],
+            _tokenId: token?.tokenNfts?.tokenId
+          });
           return items;
         }, []);
     }
