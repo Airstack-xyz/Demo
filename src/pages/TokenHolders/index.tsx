@@ -42,6 +42,10 @@ export function TokenHolders() {
 
   const query = tokenAddress.length > 0 ? tokenAddress[0] : '';
 
+  const tokenListKey = useMemo(() => {
+    return tokenAddress.join(',');
+  }, [tokenAddress]);
+
   useEffect(() => {
     // go to token-holders page if user input address has changed
     if (addressRef.current && addressRef.current !== tokenAddress) {
@@ -217,7 +221,7 @@ export function TokenHolders() {
                 <>
                   {activeView && <OverviewDetails />}
                   {!activeView && (
-                    <div>
+                    <div key={tokenListKey}>
                       <div className="flex mb-4">
                         <Icon name="token-holders" height={20} width={20} />{' '}
                         <span className="font-bold ml-1.5 text-sm">

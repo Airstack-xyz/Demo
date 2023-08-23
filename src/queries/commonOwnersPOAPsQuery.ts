@@ -60,6 +60,7 @@ function getQueryWithFiter(tokenids: string[], index = 0): string {
 }
 
 export function createCommonOwnersPOAPsQuery(tokenIds: string[]) {
+  if (tokenIds.length === 0) return '';
   const childern =
     tokenIds.length === 1 ? fields : getQueryWithFiter(tokenIds, 1);
   return `query GetPoapHolders($limit: Int) {

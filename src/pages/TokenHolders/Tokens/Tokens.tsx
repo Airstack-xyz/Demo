@@ -41,7 +41,7 @@ export function TokensComponent() {
   const [{ address, inputType }] = useSearchInput();
 
   const shouldFetchPoaps = useMemo(
-    () => !address.some(address => address.startsWith('0x')),
+    () => !address.some(a => a.startsWith('0x')),
     [address]
   );
 
@@ -74,7 +74,7 @@ export function TokensComponent() {
     poaps,
     processedPoapsCount,
     ...paginationPoaps
-  } = useGetCommonOwnersOfPoaps(address);
+  } = useGetCommonOwnersOfPoaps(tokenAddress);
 
   const navigator = useNavigate();
 
@@ -105,7 +105,6 @@ export function TokensComponent() {
     fetchTokens,
     isPoap,
     shouldFetchPoaps,
-    address,
     tokenAddress.length,
     hasMulitpleERC20
   ]);
