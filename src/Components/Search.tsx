@@ -11,6 +11,7 @@ import {
   userInputCache
 } from '../hooks/useSearchInput';
 import { showToast } from '../utils/showToast';
+import { useOverviewTokens } from '../store/tokenHoldersOverview';
 
 const tokenHoldersPlaceholder =
   'Use @ mention or enter any token contract address';
@@ -70,8 +71,13 @@ export const Search = memo(function Search() {
     }
   }, [isTokenBalances]);
 
+  const setTokens = useOverviewTokens(['tokens'])[1];
+
   const handleDataChange = useCallback(
     (data: Partial<CachedQuery>) => {
+      setTokens({
+        tokens: []
+      });
       if (isHome) {
         setData(data, {
           updateQueryParams: true,
@@ -85,7 +91,7 @@ export const Search = memo(function Search() {
         reset: isTokenBalances
       });
     },
-    [isHome, isTokenBalances, setData]
+    [isHome, isTokenBalances, setData, setTokens]
   );
 
   const handleTokenBalancesSearch = useCallback(
