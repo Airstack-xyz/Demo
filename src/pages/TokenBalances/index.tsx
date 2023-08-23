@@ -136,7 +136,10 @@ export function TokenBalance() {
             }
           )}
         >
-          <SectionHeader iconName="nft-flat" heading="Socials & ERC20" />
+          <SectionHeader
+            iconName="erc20"
+            heading={`Socials & ERC20${address.length > 1 ? ' in common' : ''}`}
+          />
         </div>
       </div>
     );
