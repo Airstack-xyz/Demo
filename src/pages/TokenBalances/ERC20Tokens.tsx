@@ -121,7 +121,7 @@ export function ERC20Tokens() {
       data = null;
 
       fetch({
-        limit: tokenType || owners.length > 1 ? MIN_LIMIT : LIMIT,
+        limit: owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT,
         tokenType: ['ERC20']
       });
     }
@@ -163,7 +163,7 @@ export function ERC20Tokens() {
     }
     tokensRef.current = [...tokensRef.current, ...ethTokens, ...maticTokens];
     setTotalProcessedTokens(count => count + totalTokens);
-    setTokens(tokensRef.current);
+    setTokens(tokens => [...tokens, ...ethTokens, ...maticTokens]);
     if (hasNextPage && tokensRef.current.length < MIN_LIMIT) {
       setLoading(true);
       getNextPage();
@@ -176,8 +176,10 @@ export function ERC20Tokens() {
   const handleNext = useCallback(() => {
     if (!loading && hasNextPage) {
       getNextPage();
+      setLoading(true);
     }
   }, [getNextPage, hasNextPage, loading]);
+
   useEffect(() => {
     emit('token-balances:ERC20', {
       matched: tokens.length,
