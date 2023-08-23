@@ -51,11 +51,12 @@ export function useGetPoapsOfOwner(
   useEffect(() => {
     if (owners.length === 0 || !canFetchPoap) return;
     setLoading(true);
+    visitedTokensSetRef.current = new Set();
+    tokensRef.current = [];
     fetchTokens({
       limit: LIMIT,
       sortBy: sortOrder ? sortOrder : defaultSortOrder
     });
-    tokensRef.current = [];
     setProcessedTokensCount(LIMIT);
   }, [canFetchPoap, fetchTokens, owners, sortOrder, blockchainType, tokenType]);
 
