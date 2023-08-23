@@ -12,6 +12,7 @@ const LIMIT = 20;
 export function useGetTokensOfOwner(
   onDataReceived: (tokens: TokenType[]) => void
 ) {
+  const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
   const tokensRef = useRef<TokenType[]>([]);
@@ -36,6 +37,15 @@ export function useGetTokensOfOwner(
       pagination: { getNextPage, hasNextPage }
     }
   ] = useLazyQueryWithPagination(query, {}, config);
+
+  const filterDuplicateTokens = useCallback((tokens: TokenType[]) => {
+    return tokens.filter(token => {
+      const id = token.tokenAddress;
+      const duplicate = visitedTokensSetRef.current.has(id);
+      visitedTokensSetRef.current.add(id);
+      return !duplicate;
+    });
+  }, []);
 
   useEffect(() => {
     if (owners.length === 0) return;
@@ -68,6 +78,7 @@ export function useGetTokensOfOwner(
     let ethTokens = ethereum?.TokenBalance || [];
     let maticTokens = polygon?.TokenBalance || [];
     const processedTokenCount = ethTokens.length + maticTokens.length;
+    setProcessedTokensCount(count => count + processedTokenCount);
 
     if (ethTokens.length > 0 && ethTokens[0]?.token?.tokenBalances) {
       ethTokens = ethTokens
@@ -89,9 +100,10 @@ export function useGetTokensOfOwner(
           return items;
         }, []);
     }
-    tokensRef.current = [...tokensRef.current, ...ethTokens, ...maticTokens];
-    setProcessedTokensCount(count => count + processedTokenCount);
-    onDataReceived([...ethTokens, ...maticTokens]);
+
+    const tokens = filterDuplicateTokens([...ethTokens, ...maticTokens]);
+    tokensRef.current = [...tokensRef.current, ...tokens];
+    onDataReceived(tokens);
 
     if (hasNextPage && tokensRef.current.length < LIMIT) {
       setLoading(true);
@@ -100,7 +112,13 @@ export function useGetTokensOfOwner(
     }
     setLoading(false);
     tokensRef.current = [];
-  }, [getNextPage, hasNextPage, onDataReceived, tokensData]);
+  }, [
+    filterDuplicateTokens,
+    getNextPage,
+    hasNextPage,
+    onDataReceived,
+    tokensData
+  ]);
 
   const getNext = useCallback(() => {
     if (!hasNextPage) return;

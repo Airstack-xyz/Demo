@@ -11,6 +11,7 @@ const LIMIT = 20;
 export function useGetPoapsOfOwner(
   onDataReceived: (tokens: PoapType[]) => void
 ) {
+  const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const tokensRef = useRef<PoapType[]>([]);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
@@ -27,6 +28,15 @@ export function useGetPoapsOfOwner(
       blockchainType.length === 1 && blockchainType[0] === 'polygon';
     return !hasPolygonChainFilter && (!tokenType || isPoap);
   }, [blockchainType, isPoap, tokenType]);
+
+  const filterDuplicateTokens = useCallback((tokens: PoapType[]) => {
+    return tokens.filter(token => {
+      const id = token.tokenId;
+      const duplicate = visitedTokensSetRef.current.has(id);
+      visitedTokensSetRef.current.add(id);
+      return !duplicate;
+    });
+  }, []);
 
   const [
     fetchTokens,
@@ -63,7 +73,7 @@ export function useGetPoapsOfOwner(
         return poaps;
       }, []);
     }
-
+    poaps = filterDuplicateTokens(poaps);
     tokensRef.current = [...tokensRef.current, ...poaps];
     setProcessedTokensCount(count => count + processedTokensCount);
     onDataReceived(poaps);
@@ -74,7 +84,14 @@ export function useGetPoapsOfOwner(
     }
     setLoading(false);
     tokensRef.current = [];
-  }, [canFetchPoap, getNextPage, hasNextPage, onDataReceived, tokensData]);
+  }, [
+    canFetchPoap,
+    filterDuplicateTokens,
+    getNextPage,
+    hasNextPage,
+    onDataReceived,
+    tokensData
+  ]);
 
   const getNext = useCallback(() => {
     if (!hasNextPage || !canFetchPoap) return;
