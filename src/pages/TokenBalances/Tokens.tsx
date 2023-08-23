@@ -30,13 +30,7 @@ function TokensComponent() {
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
 
   const handleTokens = useCallback((tokens: (TokenType | PoapType)[]) => {
-    const filteredTokens = tokens.filter(token => {
-      const id = (token as PoapType).tokenId || token.tokenAddress;
-      const duplicate = visitedTokensSetRef.current.has(id);
-      visitedTokensSetRef.current.add(id);
-      return !duplicate;
-    });
-    setTokens(existingTokens => [...existingTokens, ...filteredTokens]);
+    setTokens(existingTokens => [...existingTokens, ...tokens]);
   }, []);
 
   useEffect(() => {
