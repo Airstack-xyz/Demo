@@ -20,7 +20,13 @@ import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
-  const [{ address }] = useSearchInput();
+  const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
+  // force the component to re-render when any of the search input change, so that the ERC20 can reset, refetched
+  const erc20Key = useMemo(
+    () => `${address.join(',')}-${blockchainType}-${tokenType}-${sortOrder}`,
+    [address, blockchainType, sortOrder, tokenType]
+  );
+
   return (
     <aside className="w-full min-w-full sm:w-[305px] sm:min-w-[305px] sm:ml-16">
       {address.length <= 1 && (
@@ -29,7 +35,7 @@ const SocialsAndERC20 = memo(function SocialsAndERC20() {
           <div className="mt-11"></div>
         </>
       )}
-      <ERC20Tokens />
+      <ERC20Tokens key={erc20Key} />
     </aside>
   );
 });
@@ -145,6 +151,11 @@ export function TokenBalance() {
     );
   }, [address.length, showSocials]);
 
+  // force the component to re-render when any of the search input change, so that the tokens are reset and refetched
+  const tokensKey = useMemo(
+    () => `${address.join(',')}-${blockchainType}-${tokenType}-${sortOrder}`,
+    [address, blockchainType, sortOrder, tokenType]
+  );
   const showInCenter = isHome;
 
   return (
@@ -187,10 +198,10 @@ export function TokenBalance() {
                   showSocials ? (
                     <SocialsAndERC20 />
                   ) : (
-                    <Tokens />
+                    <Tokens key={tokensKey} />
                   )
                 ) : (
-                  <Tokens />
+                  <Tokens key={tokensKey} />
                 )}
               </div>
               {!isMobile && <SocialsAndERC20 />}

@@ -1,12 +1,12 @@
-import * as airstackReact from '@airstack/airstack-react';
-import { config } from '@airstack/airstack-react/config';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchInput } from './useSearchInput';
 import { defaultSortOrder } from '../pages/TokenBalances/SortBy';
 import { CommonPoapType, PoapType } from '../pages/TokenBalances/types';
 import { poapsOfCommonOwnersQuery } from '../queries/poapsOfCommonOwnersQuery';
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 
 const LIMIT = 20;
+const LIMIT_COMBINATIONS = 100;
 
 export function useGetPoapsOfOwner(
   onDataReceived: (tokens: PoapType[]) => void
@@ -44,7 +44,7 @@ export function useGetPoapsOfOwner(
       data,
       pagination: { getNextPage, hasNextPage }
     }
-  ] = airstackReact.useLazyQueryWithPagination(query, {}, config);
+  ] = useLazyQueryWithPagination(query);
 
   const tokensData = !canFetchPoap ? null : data;
 
@@ -54,7 +54,7 @@ export function useGetPoapsOfOwner(
     visitedTokensSetRef.current = new Set();
     tokensRef.current = [];
     fetchTokens({
-      limit: LIMIT,
+      limit: owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT,
       sortBy: sortOrder ? sortOrder : defaultSortOrder
     });
     setProcessedTokensCount(LIMIT);

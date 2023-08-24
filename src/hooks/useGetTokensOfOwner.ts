@@ -8,6 +8,7 @@ import { CommonTokenType, TokenType } from '../pages/TokenBalances/types';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 
 const LIMIT = 20;
+const LIMIT_COMBINATIONS = 100;
 
 export function useGetTokensOfOwner(
   onDataReceived: (tokens: TokenType[]) => void
@@ -55,7 +56,7 @@ export function useGetTokensOfOwner(
       visitedTokensSetRef.current = new Set();
       tokensRef.current = [];
       fetchTokens({
-        limit: LIMIT,
+        limit: owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT,
         sortBy: sortOrder ? sortOrder : defaultSortOrder,
         tokenType:
           tokenType && tokenType.length > 0
@@ -108,7 +109,6 @@ export function useGetTokensOfOwner(
           return items;
         }, []);
     }
-
     const tokens = filterDuplicateTokens([...ethTokens, ...maticTokens]);
     tokensRef.current = [...tokensRef.current, ...tokens];
     onDataReceived(tokens);
