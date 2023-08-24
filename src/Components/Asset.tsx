@@ -18,6 +18,7 @@ export function Asset({ image, ...props }: AssetProps) {
   if ((props.chain as string) === 'gnosis') {
     return <Image src={image} />;
   }
+
   return (
     <AirstackAsset
       preset="medium"
