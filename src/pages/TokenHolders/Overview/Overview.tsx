@@ -262,7 +262,7 @@ function Overview() {
                 'max-w-[50%]': tokenDetails.length > 1
               })}
             >
-              <span className="ellipsis mr-1">{name} </span>
+              <span className="ellipsis mr-1">{name} - </span>
               <span className="w-[80px] ellipsis">{supply || '--'}</span>
               {index < tokenDetails.length - 1 ? (
                 <span className="mx-1">|</span>
