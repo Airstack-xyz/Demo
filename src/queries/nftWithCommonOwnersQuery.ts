@@ -49,18 +49,22 @@ function getQueryWithFiter(
         }`;
 }
 
+const tokenId = `tokenNfts {
+  tokenId
+}`;
+
 export function getQueryForBlockchain(owners: string[], isEth: boolean) {
   const blockchain = isEth ? 'ethereum' : 'polygon';
   const childern =
     owners.length === 1 ? fields : getQueryWithFiter(owners, 1, blockchain);
   return `
     ${blockchain}: TokenBalances(
-      input: {filter: {owner: {_eq: "${owners[0]}"}, tokenType: {_in: $tokenType}}, blockchain: ${blockchain}, limit: $limit, order: {lastUpdatedTimestamp: $sortBy}}
+      input: {filter: {owner: {_eq: "${
+        owners[0]
+      }"}, tokenType: {_in: $tokenType}}, blockchain: ${blockchain}, limit: $limit, order: {lastUpdatedTimestamp: $sortBy}}
     ) {
       TokenBalance {
-        tokenNfts {
-          tokenId
-        }
+        ${owners.length > 1 ? tokenId : ''}
         ${childern}
       }
     }`;
