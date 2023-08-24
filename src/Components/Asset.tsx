@@ -14,6 +14,10 @@ type AssetProps = ComponentProps<typeof AirstackAsset> & {
 };
 
 export function Asset({ image, ...props }: AssetProps) {
+  // TODO: there is no image for gnosis chain in the api, so we use a placeholder, remove this when we have the image
+  if ((props.chain as string) === 'gnosis') {
+    return <Image src={image} />;
+  }
   return (
     <AirstackAsset
       preset="medium"

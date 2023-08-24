@@ -51,6 +51,7 @@ export const Search = memo(function Search() {
   const isHome = useMatch('/');
   const isTokenBalancesPage = !!useMatch('/token-balances');
   const [searchParams] = useSearchParams();
+  const setOverviewTokens = useOverviewTokens(['tokens'])[1];
 
   const isTokenBalances = isHome ? isTokenBalanceActive : isTokenBalancesPage;
 
@@ -71,11 +72,17 @@ export const Search = memo(function Search() {
     }
   }, [isTokenBalances]);
 
-  const setTokens = useOverviewTokens(['tokens'])[1];
+  useEffect(() => {
+    if (isTokenBalances) {
+      setOverviewTokens({
+        tokens: []
+      });
+    }
+  }, [isTokenBalances, setOverviewTokens]);
 
   const handleDataChange = useCallback(
     (data: Partial<CachedQuery>) => {
-      setTokens({
+      setOverviewTokens({
         tokens: []
       });
       if (isHome) {
@@ -91,7 +98,7 @@ export const Search = memo(function Search() {
         reset: isTokenBalances
       });
     },
-    [isHome, isTokenBalances, setData, setTokens]
+    [isHome, isTokenBalances, setData, setOverviewTokens]
   );
 
   const handleTokenBalancesSearch = useCallback(
