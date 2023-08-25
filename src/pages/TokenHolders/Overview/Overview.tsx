@@ -154,7 +154,7 @@ function Overview() {
       if (image)
         return (
           <div
-            className={classNames('[&>div>img]:w-full', {
+            className={classNames({
               flex: address.length === 1
             })}
           >
@@ -167,6 +167,7 @@ function Overview() {
               videoProps={{
                 controls: false
               }}
+              containerClassName="[&>img]:w-full"
             />
           </div>
         );
@@ -177,6 +178,7 @@ function Overview() {
           preset="medium"
           image={image}
           chain={blockchain as Chain}
+          containerClassName="[&>img]:w-full"
         />
       );
     });
