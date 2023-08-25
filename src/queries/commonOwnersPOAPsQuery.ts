@@ -70,6 +70,7 @@ export function createCommonOwnersPOAPsQuery(tokenIds: string[]) {
       Poap {
         tokenId
         tokenAddress
+        blockchain
         poapEvent {
           contentValue {
             image {

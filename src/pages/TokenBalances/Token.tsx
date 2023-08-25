@@ -64,6 +64,7 @@ export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
             tokenId={tokenId}
             chain={blockchain}
             preset="medium"
+            useImageOnError={isPoap}
           />
         )}
       </div>
