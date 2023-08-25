@@ -1,10 +1,11 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '../../Components/Icon';
 import { formatDate } from '../../utils';
 import { createTokenHolderUrl } from '../../utils/createTokenUrl';
 import { PoapsType, TokenType as TokenType } from './types';
 import { Asset } from '../../Components/Asset';
+import classNames from 'classnames';
 
 type Poap = PoapsType['Poaps']['Poap'][0];
 
@@ -20,11 +21,16 @@ export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
   const city = poapEvent.city || '';
 
   const address = token.tokenAddress || poap.tokenAddress;
-  const id = token?.tokenNfts?.tokenId
-    ? `#${token?.tokenNfts?.tokenId}${
-        token?._tokenId ? `, #${token?._tokenId}` : ''
-      }`
-    : poapEvent?.eventName;
+
+  const ids = useMemo(() => {
+    if (isPoap) return [poapEvent?.eventName];
+    return [token?.tokenNfts?.tokenId, token?._tokenId].filter(Boolean);
+  }, [
+    isPoap,
+    poapEvent?.eventName,
+    token?._tokenId,
+    token?.tokenNfts?.tokenId
+  ]);
 
   const symbol = token?.token?.symbol || '';
   const type = token?.tokenType || 'POAP';
@@ -72,8 +78,20 @@ export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
       <div className="h-14 rounded-3xl flex flex-col px-3.5 py-2 text-sm bg-glass border-solid-light">
         <div className="ellipsis text-xs mb-">{name || '--'}</div>
         <div className="flex items-center justify-between font-bold ">
-          <div className="ellipsis flex-1 mr-2">{id}</div>
-          <div>{symbol || ''}</div>
+          <div className="ellipsis flex flex-1 mr-2">
+            {ids.map(id => (
+              <span
+                key={id}
+                className={classNames('mr-1 ellipsis', {
+                  'max-w-[50%]': ids.length > 1
+                })}
+              >
+                {!isPoap && '#'}
+                {id}
+              </span>
+            ))}
+          </div>
+          <div className="ellipsis text-right max-w-[50%]">{symbol || ''}</div>
         </div>
       </div>
     </Link>
