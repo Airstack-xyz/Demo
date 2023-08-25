@@ -164,6 +164,7 @@ function Overview() {
               preset="medium"
               image={image}
               chain={blockchain as Chain}
+              useImageOnError // use image if there is an error loading the token image
               videoProps={{
                 controls: false
               }}
