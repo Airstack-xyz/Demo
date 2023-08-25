@@ -88,14 +88,4 @@ export const MultiPoapsOverviewQuery = `query TokenOverviewQuery($eventId: [Addr
     totalHolders
     xmtpUsersCount
   }
-  polygon: TokenHolders(
-    input: {filter: {inputType: {_eq: poap}, eventId: {_intersection: $eventId}}, blockchain: polygon}
-  ) {
-    ensUsersCount
-    farcasterProfileCount
-    lensProfileCount
-    primaryEnsUsersCount
-    totalHolders
-    xmtpUsersCount
-  }
 }`;
