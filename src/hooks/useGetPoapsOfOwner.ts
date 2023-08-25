@@ -29,15 +29,6 @@ export function useGetPoapsOfOwner(
     return !hasPolygonChainFilter && (!tokenType || isPoap);
   }, [blockchainType, isPoap, tokenType]);
 
-  const filterDuplicateTokens = useCallback((tokens: PoapType[]) => {
-    return tokens.filter(token => {
-      const id = token.tokenId;
-      const duplicate = visitedTokensSetRef.current.has(id);
-      visitedTokensSetRef.current.add(id);
-      return !duplicate;
-    });
-  }, []);
-
   const [
     fetchTokens,
     {
@@ -74,7 +65,6 @@ export function useGetPoapsOfOwner(
         return poaps;
       }, []);
     }
-    poaps = filterDuplicateTokens(poaps);
     tokensRef.current = [...tokensRef.current, ...poaps];
     setProcessedTokensCount(count => count + processedTokensCount);
     onDataReceived(poaps);
@@ -85,14 +75,7 @@ export function useGetPoapsOfOwner(
     }
     setLoading(false);
     tokensRef.current = [];
-  }, [
-    canFetchPoap,
-    filterDuplicateTokens,
-    getNextPage,
-    hasNextPage,
-    onDataReceived,
-    tokensData
-  ]);
+  }, [canFetchPoap, getNextPage, hasNextPage, onDataReceived, tokensData]);
 
   const getNext = useCallback(() => {
     if (!hasNextPage || !canFetchPoap) return;

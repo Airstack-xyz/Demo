@@ -39,15 +39,6 @@ export function useGetTokensOfOwner(
     }
   ] = useLazyQueryWithPagination(query, {}, config);
 
-  const filterDuplicateTokens = useCallback((tokens: TokenType[]) => {
-    return tokens.filter(token => {
-      const id = token.tokenAddress;
-      const duplicate = visitedTokensSetRef.current.has(id);
-      visitedTokensSetRef.current.add(id);
-      return !duplicate;
-    });
-  }, []);
-
   useEffect(() => {
     if (owners.length === 0) return;
 
@@ -109,7 +100,7 @@ export function useGetTokensOfOwner(
           return items;
         }, []);
     }
-    const tokens = filterDuplicateTokens([...ethTokens, ...maticTokens]);
+    const tokens = [...ethTokens, ...maticTokens];
     tokensRef.current = [...tokensRef.current, ...tokens];
     onDataReceived(tokens);
 
@@ -120,13 +111,7 @@ export function useGetTokensOfOwner(
     }
     setLoading(false);
     tokensRef.current = [];
-  }, [
-    filterDuplicateTokens,
-    getNextPage,
-    hasNextPage,
-    onDataReceived,
-    tokensData
-  ]);
+  }, [getNextPage, hasNextPage, onDataReceived, tokensData]);
 
   const getNext = useCallback(() => {
     if (!hasNextPage) return;
