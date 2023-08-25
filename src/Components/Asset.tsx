@@ -4,9 +4,17 @@ import { ComponentProps, useState } from 'react';
 function Image(props: ComponentProps<'img'>) {
   const [error, setError] = useState(false);
   if (error || !props.src) {
-    return <img data-type="loader" {...props} src="images/placeholder.svg" />;
+    return (
+      <img
+        data-type="image-error-placeholder"
+        {...props}
+        src="images/placeholder.svg"
+      />
+    );
   }
-  return <img data-type="loader" onError={() => setError(true)} {...props} />;
+  return (
+    <img data-type="placeholder" onError={() => setError(true)} {...props} />
+  );
 }
 
 type AssetProps = ComponentProps<typeof AirstackAsset> & {

@@ -32,6 +32,7 @@ export type Poap = {
   eventId: string;
   poapEvent: PoapEvent;
   _poapEvent: PoapEvent;
+  _blockchain: string;
   owner: Owner & {
     poaps: Poap[];
   };
