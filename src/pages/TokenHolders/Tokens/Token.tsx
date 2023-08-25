@@ -42,7 +42,17 @@ export function Token({
       image: string;
       tokenId: string;
       tokenAddress: string;
-    }[] = [{ image, tokenId, tokenAddress }];
+      blockchain: Chain;
+      isPoap: boolean;
+    }[] = [
+      {
+        image,
+        tokenId,
+        tokenAddress,
+        isPoap: !!poap?.poapEvent,
+        blockchain: token?.blockchain as Chain
+      }
+    ];
     const innerToken = token?._token;
     const _image =
       innerToken?.logo?.small ||
@@ -54,7 +64,9 @@ export function Token({
       assetData.push({
         image: _image,
         tokenId: token?._tokenId || '',
-        tokenAddress: token?._tokenAddress || ''
+        tokenAddress: token?._tokenAddress || '',
+        isPoap: !!token?._poapEvent,
+        blockchain: poap?._blockchain as Chain
       });
     }
     return assetData;
@@ -62,10 +74,12 @@ export function Token({
     image,
     tokenId,
     tokenAddress,
+    poap?.poapEvent,
+    poap?._blockchain,
+    token?.blockchain,
     token?._token,
     token?._tokenNfts?.contentValue?.image?.small,
-    token?._poapEvent?.contentValue?.image?.small,
-    token?._poapEvent?.logo?.image?.small,
+    token?._poapEvent,
     token?._tokenId,
     token?._tokenAddress
   ]);
@@ -126,7 +140,7 @@ export function Token({
                   tokenId={asset.tokenId}
                   preset="small"
                   containerClassName="token-img"
-                  chain={tokenInProps?.blockchain as Chain}
+                  chain={asset.blockchain}
                   image={asset.image}
                   videoProps={{
                     controls: false

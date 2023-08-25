@@ -10,6 +10,7 @@ export function getCommonPoapAndNftOwnersQuery(
         id
         tokenId
         tokenAddress
+        blockchain
         poapEvent {
           contentValue {
             image {
@@ -35,6 +36,7 @@ export function getCommonPoapAndNftOwnersQuery(
           tokenBalances(input: {filter: {tokenAddress: {_eq: "${tokenId}"}}}) {
             tokenId
             tokenAddress
+            blockchain
             token {
               logo {
                 small
