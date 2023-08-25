@@ -79,16 +79,19 @@ export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
         <div className="ellipsis text-xs mb-">{name || '--'}</div>
         <div className="flex items-center justify-between font-bold ">
           <div className="ellipsis flex flex-1 mr-2">
-            {ids.map(id => (
-              <span
-                key={id}
-                className={classNames('mr-1 ellipsis', {
-                  'max-w-[50%]': ids.length > 1
-                })}
-              >
-                {!isPoap && '#'}
-                {id}
-              </span>
+            {ids.map((id, index) => (
+              <>
+                <span
+                  key={id}
+                  className={classNames('ellipsis', {
+                    'max-w-[50%]': ids.length > 1
+                  })}
+                >
+                  {!isPoap && '#'}
+                  {id}
+                </span>
+                {index < ids.length - 1 && <span className="mr-1">,</span>}
+              </>
             ))}
           </div>
           <div className="ellipsis text-right max-w-[50%]">{symbol || ''}</div>
