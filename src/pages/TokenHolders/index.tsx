@@ -28,9 +28,9 @@ import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../queries/commonP
 import { useMatch } from 'react-router-dom';
 import {
   useOverviewTokens,
-  TokenHolders as TokenAndHolder
+  TokenHolder as TokenAndHolder
 } from '../../store/tokenHoldersOverview';
-import { getNFTQueryForTokensHolder } from '../../utils/getNFTQueryForTokensHolder';
+import { sortByAddressByNonERC20First } from '../../utils/getNFTQueryForTokensHolder';
 
 export function TokenHolders() {
   const [{ address: tokenAddress, activeView, tokenFilters }, setData] =
@@ -64,34 +64,37 @@ export function TokenHolders() {
   const isPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
   const address = useMemo(() => {
-    return getNFTQueryForTokensHolder(tokenAddress, overviewTokens, isPoap);
+    return sortByAddressByNonERC20First(tokenAddress, overviewTokens, isPoap);
   }, [isPoap, tokenAddress, overviewTokens]);
 
-  const hasSomePoap = address.some(token => !token.startsWith('0x'));
+  const hasSomePoap = address.some(token => !token.address.startsWith('0x'));
 
   const tokenOwnersQuery = useMemo(() => {
     if (address.length === 0) return '';
-    if (address.length === 1) return getNftOwnersQuery(address[0]);
+    if (address.length === 1) return getNftOwnersQuery(address[0].address);
     if (hasSomePoap) {
-      const tokens = sortAddressByPoapFirst(address);
-      return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
+      const sortedAddress = sortAddressByPoapFirst(address);
+      return getCommonPoapAndNftOwnersQuery(sortedAddress[0], sortedAddress[1]);
     }
     return getCommonNftOwnersQuery(address[0], address[1]);
-  }, [hasSomePoap, address]);
+  }, [address, hasSomePoap]);
 
   const tokensQueryWithFilter = useMemo(() => {
+    if (address.length === 0) return '';
+
     const requestFilters = getRequestFilters(tokenFilters);
-    if (address.length === 1)
+    if (address.length === 1) {
       return getNftOwnersQueryWithFilters(
-        address[0],
+        address[0].address,
         Boolean(requestFilters?.socialFilters),
         requestFilters?.hasPrimaryDomain
       );
+    }
     if (hasSomePoap) {
-      const tokens = sortAddressByPoapFirst(address);
+      const sortedAddresses = sortAddressByPoapFirst(address);
       return getCommonPoapAndNftOwnersQueryWithFilters(
-        tokens[0],
-        tokens[1],
+        sortedAddresses[0],
+        sortedAddresses[1],
         Boolean(requestFilters?.socialFilters),
         requestFilters?.hasPrimaryDomain
       );

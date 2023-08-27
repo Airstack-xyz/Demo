@@ -10,10 +10,10 @@ import { useGetCommonOwnersOfTokens } from '../../../hooks/useGetCommonOwnersOfT
 import { useGetCommonOwnersOfPoaps } from '../../../hooks/useGetCommonOwnersOfPoaps';
 import { StatusLoader } from '../OverviewDetails/Tokens/StatusLoader';
 import {
-  TokenHolders,
+  TokenHolder,
   useOverviewTokens
 } from '../../../store/tokenHoldersOverview';
-import { getNFTQueryForTokensHolder } from '../../../utils/getNFTQueryForTokensHolder';
+import { sortByAddressByNonERC20First } from '../../../utils/getNFTQueryForTokensHolder';
 
 const loaderData = Array(6).fill({});
 
@@ -37,8 +37,9 @@ function Loader() {
 }
 
 export function TokensComponent() {
-  const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
+  const [{ tokens: _overviewTokens }] = useOverviewTokens(['tokens']);
   const [{ address, inputType }] = useSearchInput();
+  const overviewTokens: TokenHolder[] = _overviewTokens;
 
   const shouldFetchPoaps = useMemo(
     () => !address.some(a => a.startsWith('0x')),
@@ -47,13 +48,13 @@ export function TokensComponent() {
 
   const hasMulitpleERC20 = useMemo(() => {
     const erc20Tokens = overviewTokens.filter(
-      (token: TokenHolders) => token.tokenType === 'ERC20'
+      (token: TokenHolder) => token.tokenType === 'ERC20'
     );
     return erc20Tokens.length > 1;
   }, [overviewTokens]);
 
   const tokenAddress = useMemo(() => {
-    return getNFTQueryForTokensHolder(
+    return sortByAddressByNonERC20First(
       address,
       overviewTokens,
       shouldFetchPoaps

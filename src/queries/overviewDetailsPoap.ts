@@ -1,3 +1,5 @@
+import { TokenAddress } from '../pages/TokenHolders/types';
+
 const socialInput = '(input: {filter: {dappName: {_in: $socialFilters}}})';
 const primaryDomainInput =
   '(input: {filter: {isPrimary: {_eq: $hasPrimaryDomain}}})';
@@ -106,7 +108,7 @@ function getFields(hasSocialFilters = false, hasPrimaryDomainFilter = false) {
 // };
 
 function getQueryWithFiter(
-  tokenids: string[],
+  tokenids: TokenAddress[],
   index = 0,
   hasSocialFilters: boolean,
   hasPrimaryDomainFilter: boolean
@@ -122,7 +124,7 @@ function getQueryWithFiter(
         );
   return `owner {
           poaps(
-            input: {filter: {eventId: {_eq: "${tokenids[index]}"}}}
+            input: {filter: {eventId: {_eq: "${tokenids[index].address}"}}, blockchain: ${tokenids[index].blockchain} }
           ) {
               ${children}
             }
@@ -130,7 +132,7 @@ function getQueryWithFiter(
 }
 
 export function getFilterablePoapsQuery(
-  tokenIds: string[],
+  tokenIds: TokenAddress[],
   hasSocialFilters = false,
   hasPrimaryDomainFilter = false
 ) {
@@ -149,7 +151,7 @@ export function getFilterablePoapsQuery(
   }${hasPrimaryDomainFilter ? ', $hasPrimaryDomain: Boolean' : ''}) {
       Poaps(
         input: {filter: {eventId: {_eq: "${
-          tokenIds[0]
+          tokenIds[0].address
         }"}}, blockchain: ALL, limit: $limit}
       ) {
         Poap {

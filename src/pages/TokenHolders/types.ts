@@ -23,6 +23,11 @@ export type PoapsData = {
   };
 };
 
+export type TokenAddress = {
+  address: string;
+  blockchain: string;
+};
+
 export type Poap = {
   id: string;
   blockchain: string;

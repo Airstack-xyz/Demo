@@ -1,6 +1,10 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Poap, Token as TokenType } from '../pages/TokenHolders/types';
+import {
+  Poap,
+  TokenAddress,
+  Token as TokenType
+} from '../pages/TokenHolders/types';
 import { getCommonPoapAndNftOwnersQuery } from '../queries/commonPoapAndNftOwnersQuery';
 import {
   getCommonNftOwnersQuery,
@@ -37,17 +41,20 @@ type CommonOwner = {
 const LIMIT = 200;
 const MIN_LIMIT = 50;
 
-export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
+export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
   const ownersSetRef = useRef<Set<string>>(new Set());
   const itemsRef = useRef<Token[]>([]);
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<Token[]>([]);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
 
-  const hasPoap = tokenAddress.some(token => !token.startsWith('0x'));
+  const hasPoap = tokenAddress.some(token => !token.address.startsWith('0x'));
 
   const query = useMemo(() => {
-    if (tokenAddress.length === 1) return getNftOwnersQuery(tokenAddress[0]);
+    if (tokenAddress.length === 0) return '';
+
+    if (tokenAddress.length === 1)
+      return getNftOwnersQuery(tokenAddress[0].address);
     if (hasPoap) {
       const tokens = sortAddressByPoapFirst(tokenAddress);
       return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
