@@ -1,6 +1,6 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Poap } from '../pages/TokenHolders/types';
+import { Poap, TokenAddress } from '../pages/TokenHolders/types';
 import { createCommonOwnersPOAPsQuery } from '../queries/commonOwnersPOAPsQuery';
 
 type Token = Poap;
@@ -23,7 +23,7 @@ type CommonOwner = {
 const LIMIT = 20;
 const MIN_LIMIT = 20;
 
-export function useGetCommonOwnersOfPoaps(eventIds: string[]) {
+export function useGetCommonOwnersOfPoaps(eventIds: TokenAddress[]) {
   const ownersSetRef = useRef<Set<string>>(new Set());
   const itemsRef = useRef<Token[]>([]);
   const [loading, setLoading] = useState(false);

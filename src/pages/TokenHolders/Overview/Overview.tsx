@@ -11,7 +11,7 @@ import { useFetchTokens } from '../../../hooks/useGetTokens';
 import { useTokensSupply } from '../../../hooks/useTokensSupply';
 import classNames from 'classnames';
 import {
-  TokenHolders,
+  TokenHolder,
   useOverviewTokens
 } from '../../../store/tokenHoldersOverview';
 import { showToast } from '../../../utils/showToast';
@@ -95,13 +95,14 @@ function Overview() {
     if (tokenDetails.length > 0) {
       setTokens({
         tokens: tokenDetails.map(
-          ({ name, tokenAddress, eventId, tokenType }) => {
+          ({ name, tokenAddress, eventId, tokenType, blockchain }) => {
             const key = eventId ? eventId : tokenAddress;
-            const tokenAndHolders: TokenHolders = {
+            const tokenAndHolders: TokenHolder = {
               name,
               tokenAddress: key,
               holdersCount: totalSupply?.[key.toLocaleLowerCase()] || 0,
-              tokenType
+              tokenType,
+              blockchain
             };
             return tokenAndHolders;
           }
