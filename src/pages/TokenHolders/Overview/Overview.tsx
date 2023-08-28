@@ -39,13 +39,20 @@ function Overview() {
     // only fetch holders count if all tokens are of same type or all are NFTs
     const nftTokens = ['ERC721', 'ERC1155'];
     const tokenType = tokenDetails[0]?.tokenType;
+    const blockchin = tokenDetails[0]?.blockchain;
 
-    return tokenDetails.every(token => {
+    const hasSameBlockchain = tokenDetails.every(
+      token => token.blockchain === blockchin
+    );
+
+    const hasSameOrValidTokenType = tokenDetails.every(token => {
       if (nftTokens.includes(tokenType)) {
         return nftTokens.includes(token.tokenType);
       }
       return token.tokenType === tokenType;
     });
+
+    return hasSameBlockchain && hasSameOrValidTokenType;
   }, [tokenDetails]);
 
   const {
