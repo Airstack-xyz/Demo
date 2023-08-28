@@ -140,6 +140,7 @@ export function TokenHolders() {
     const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
       limit: 20
     });
+
     const poapsQuery = createCommonOwnersPOAPsQuery(address);
 
     const poapLink = createAppUrlWithQuery(poapsQuery, {
