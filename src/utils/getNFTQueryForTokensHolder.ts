@@ -3,12 +3,11 @@ import { TokenHolder } from '../store/tokenHoldersOverview';
 export function sortByAddressByNonERC20First(
   address: string[],
   overviewTokens: TokenHolder[],
-  shouldFetchPoaps: boolean
+  // remove this later as this is not being used
+  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+  _shouldFetchPoaps: boolean
 ) {
-  const hasEitherAddressOrEvent =
-    shouldFetchPoaps || address.every(address => address.startsWith('0x'));
-
-  if (hasEitherAddressOrEvent) {
+  if (overviewTokens.length > 0) {
     if (overviewTokens.length === 0) return [];
 
     // sort tokens by holders count so that the token with the least holders is the first one
@@ -32,6 +31,7 @@ export function sortByAddressByNonERC20First(
       blockchain: _token.blockchain
     }));
   }
+
   return address.map(address => ({
     address: address.toLowerCase(),
     blockchain: 'ethereum'
