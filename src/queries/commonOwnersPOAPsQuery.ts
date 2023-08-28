@@ -54,7 +54,7 @@ function getQueryWithFiter(tokenids: TokenAddress[], index = 0): string {
       : getQueryWithFiter(tokenids, index + 1);
   return `owner {
         poaps(
-          input: {filter: {eventId: {_eq: "${tokenids[index].address}"}}}
+          input: {filter: {eventId: {_eq: "${tokenids[index].address}"}}, blockchain: ALL}
         ) {
             ${children}
           }

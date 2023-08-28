@@ -124,7 +124,7 @@ function getQueryWithFiter(
         );
   return `owner {
           poaps(
-            input: {filter: {eventId: {_eq: "${tokenids[index].address}"}}, blockchain: ${tokenids[index].blockchain} }
+            input: {filter: {eventId: {_eq: "${tokenids[index].address}"}}, blockchain: ALL }
           ) {
               ${children}
             }

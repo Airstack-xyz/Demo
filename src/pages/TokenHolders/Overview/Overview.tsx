@@ -228,14 +228,16 @@ function Overview() {
         count = '';
       }
 
+      const loadingCount = noHoldersCount
+        ? false
+        : loadingTokenOverview || (loadingTokens && shouldFetchHoldersCount);
+
       return (
         <HolderCount
           key={key}
           name={key}
           tokenName={tokenName || ''}
-          loading={
-            loadingTokenOverview || (loadingTokens && shouldFetchHoldersCount)
-          }
+          loading={loadingCount}
           disableAction={loadingTokenOverview || loadingTokens}
           count={count}
           subText={subText}
