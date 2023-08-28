@@ -115,6 +115,9 @@ export const MentionsQuery = `
       eventId
       blockchain
       thumbnailURL
+      metadata {
+        tokenMints
+      }
     }
   }
 `;

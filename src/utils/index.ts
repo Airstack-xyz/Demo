@@ -8,3 +8,14 @@ export function formatDate(dateString: string) {
     year: 'numeric'
   });
 }
+
+export const pluralize = (
+  count: number | null | undefined,
+  noun: string | null | undefined,
+  suffix = 's'
+) => {
+  if (!count || !noun) {
+    return '';
+  }
+  return `${count} ${noun}${count > 1 ? suffix : ''}`;
+};

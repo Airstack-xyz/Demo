@@ -25,6 +25,7 @@ import {
 import { AddressInput } from './AddressInput';
 import { ADDRESS_OPTION_ID, MENTION_COUNT, POAP_OPTION_ID } from './constants';
 import { Icon } from '../Icon';
+import { pluralize } from '../../utils';
 
 type Option = SearchAIMentions_SearchAIMentions & {
   id: string;
@@ -318,6 +319,11 @@ export function InputWithMention({
               );
             }
 
+            const tokenMints = suggestion?.metadata?.tokenMints;
+            const showPOAPHolderCount =
+              suggestion.type === MentionType.POAP &&
+              Number.isInteger(tokenMints);
+
             return (
               <div className="suggestion">
                 <img
@@ -331,6 +337,12 @@ export function InputWithMention({
                       {suggestion.blockchain}
                       <span>•</span>
                       {mentionTypeMap[suggestion.type as MentionType] || ''}
+                      {showPOAPHolderCount && (
+                        <>
+                          <span>•</span>
+                          {pluralize(tokenMints, 'holder')}
+                        </>
+                      )}
                     </span>
                   </p>
                 </span>
