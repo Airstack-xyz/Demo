@@ -212,9 +212,7 @@ function Overview() {
       let subText = text;
       if (key === 'owners' && tokenDetails) {
         subText += `${totalHolders === 1 ? 's' : ''} ${
-          tokenDetails.length > 1
-            ? 'both contracts'
-            : tokenName || 'these contract'
+          tokenDetails.length > 1 ? 'both tokens' : tokenName || 'these tokens'
         }`;
       }
 

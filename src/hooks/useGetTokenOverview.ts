@@ -5,9 +5,7 @@ import {
   MultiTokenOverviewQuery
 } from '../queries/tokensQuery';
 
-// const API = 'https://api.beta.airstack.xyz/gql';
-// temp remove below api later
-const API = 'https://api.uat.airstack.xyz/gql';
+const API = 'https://api.beta.airstack.xyz/gql';
 
 export function useGetTokenOverview() {
   const [data, setData] = useState(null);

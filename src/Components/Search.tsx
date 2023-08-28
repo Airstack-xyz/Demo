@@ -134,10 +134,7 @@ export const Search = memo(function Search() {
       }
 
       if (address.length > 2) {
-        showToast(
-          'You can only search for 2 or less identities at a time',
-          'negative'
-        );
+        showToast('You can only compare 2 identities at a time', 'negative');
         return;
       }
 
@@ -203,10 +200,7 @@ export const Search = memo(function Search() {
       }
 
       if (address.length > 2) {
-        showToast(
-          'You can only search for 2 or less tokens/poaps at a time',
-          'negative'
-        );
+        showToast('You can only compare 2 tokens at a time', 'negative');
         return;
       }
 
