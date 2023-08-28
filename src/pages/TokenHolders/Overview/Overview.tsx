@@ -238,7 +238,7 @@ function Overview() {
           name={key}
           tokenName={tokenName || ''}
           loading={loadingCount}
-          disableAction={loadingTokenOverview || loadingTokens}
+          disableAction={loadingCount}
           count={count}
           subText={subText}
           withoutCount={noHoldersCount}
