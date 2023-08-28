@@ -58,10 +58,14 @@ export function useGetPoapsOfOwner(
 
     if (poaps.length > 0 && poaps[0]?.poapEvent?.poaps) {
       poaps = poaps.reduce((poaps: PoapType[], poap: CommonPoapType) => {
-        const _poap = poap.poapEvent.poaps[0];
-        if (_poap) {
-          poaps.push(_poap);
-        }
+        if (!poap?.poapEvent?.poaps) return poaps;
+
+        poap.poapEvent.poaps?.forEach(_poap => {
+          if (_poap) {
+            poaps.push(_poap);
+          }
+        });
+
         return poaps;
       }, []);
     }

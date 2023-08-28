@@ -74,7 +74,7 @@ export function HolderCount({
             count
           )}
         </div>
-        {withoutCount && (
+        {!loading && withoutCount && (
           <div className="text-xs font-normal leading-normal pr-1">{`Combined holders with ${sectionName} ->`}</div>
         )}
         {subText && (

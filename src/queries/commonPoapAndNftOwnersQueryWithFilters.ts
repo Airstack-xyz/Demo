@@ -14,13 +14,15 @@ export function getCommonPoapAndNftOwnersQueryWithFilters(
     hasSocialFilters ? ', $socialFilters: [SocialDappName!]' : ''
   }${hasPrimaryDomainFilter ? ', $hasPrimaryDomain: Boolean' : ''}) {
     Poaps(
-      input: {filter: {eventId: {_eq: "${eventId}"}}, blockchain: ALL, limit: $limit}
+      input: {filter: {eventId: {_eq: "${
+        eventId.address
+      }"}}, blockchain: ALL, limit: $limit}
     ) {
       Poap { 
         owner {
           tokenBalances(input: {filter: {tokenAddress: {_eq: "${
             tokenId.address
-          }"}}, blockchain: ${tokenId.blockchain}}"}) {
+          }"}}, blockchain: ${tokenId.blockchain}}) {
             tokenId
             tokenAddress
             token {

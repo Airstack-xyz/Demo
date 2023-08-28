@@ -79,6 +79,7 @@ export function getCommonNftOwnersQuery(
       TokenBalance {
         tokenId
         tokenAddress
+        blockchain
         token {
           logo {
             small
@@ -91,6 +92,7 @@ export function getCommonNftOwnersQuery(
           tokenBalances(input: {filter: {tokenAddress: {_eq: "${token2.address}"}}, blockchain: ${token2.blockchain}}) {
             tokenId
             tokenAddress
+            blockchain
             token {
               logo {
                 small

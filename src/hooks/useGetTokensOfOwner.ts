@@ -93,9 +93,15 @@ export function useGetTokensOfOwner(
           Boolean(token?.token?.tokenBalances?.length)
         )
         .reduce((items: TokenType[], token: CommonTokenType) => {
-          items.push({
-            ...token.token.tokenBalances[0],
-            _tokenId: token?.tokenNfts?.tokenId
+          if (!token?.token?.tokenBalances) return items;
+
+          token.token.tokenBalances.forEach(tokenBalance => {
+            if (tokenBalance) {
+              items.push({
+                ...tokenBalance,
+                _tokenId: token?.tokenNfts?.tokenId
+              });
+            }
           });
           return items;
         }, []);
