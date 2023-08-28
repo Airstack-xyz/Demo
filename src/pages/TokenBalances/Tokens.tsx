@@ -7,6 +7,7 @@ import { useGetTokensOfOwner } from '../../hooks/useGetTokensOfOwner';
 import { useGetPoapsOfOwner } from '../../hooks/useGetPoapsOfOwner';
 import { emit } from '../../utils/eventEmitter/eventEmitter';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
+import { TokenCombination } from './TokenCombination';
 
 const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 
@@ -124,7 +125,11 @@ function TokensComponent() {
             (token as TokenType)?.tokenNfts?.tokenId;
           return (
             <div>
-              <Token key={`${index}-${id}`} token={token} />
+              {owners.length > 1 ? (
+                <TokenCombination key={`${index}-${id}`} token={token} />
+              ) : (
+                <Token key={`${index}-${id}`} token={token} />
+              )}
             </div>
           );
         })}
