@@ -31,7 +31,8 @@ export type IconType =
   | 'sort'
   | 'blockchain-filter'
   | 'check-mark'
-  | 'search';
+  | 'search'
+  | 'tools';
 
 export type IconProps = {
   name: IconType;
