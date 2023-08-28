@@ -1,7 +1,14 @@
 import classNames from 'classnames';
 import { Icon } from './Icon';
 import { InputWithMention } from './Input/Input';
-import { FormEvent, memo, useCallback, useEffect, useState } from 'react';
+import {
+  FormEvent,
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 import { Link, useMatch, useNavigate, useSearchParams } from 'react-router-dom';
 import { getAllWordsAndMentions } from './Input/utils';
 import {
@@ -60,6 +67,10 @@ export const Search = memo(function Search() {
 
   const [value, setValue] = useState(rawInput || '');
 
+  const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
+  const inputSectionRef = useRef<HTMLDivElement>(null);
+  const buttonSectionRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setValue(rawInput ? rawInput.trim() + '  ' : '');
   }, [rawInput]);
@@ -79,6 +90,29 @@ export const Search = memo(function Search() {
       });
     }
   }, [isTokenBalances, setOverviewTokens]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      // if click event is outside input section
+      if (
+        inputSectionRef.current &&
+        !inputSectionRef.current?.contains(event.target as Node)
+      ) {
+        setIsInputSectionFocused(false);
+      }
+      // if click event is from input section not from button section
+      else if (
+        buttonSectionRef.current &&
+        !buttonSectionRef.current?.contains(event.target as Node)
+      ) {
+        setIsInputSectionFocused(true);
+      }
+    }
+    document.addEventListener('click', handleClickOutside, true);
+    return () => {
+      document.removeEventListener('click', handleClickOutside, true);
+    };
+  }, []);
 
   const handleDataChange = useCallback(
     (data: Partial<CachedQuery>) => {
@@ -248,6 +282,10 @@ export const Search = memo(function Search() {
     ]
   );
 
+  const handleInputClear = useCallback(() => {
+    setValue('');
+  }, []);
+
   const getTabChangeHandler = useCallback(
     (tokenBalance: boolean) => {
       if (!isHome) {
@@ -290,8 +328,14 @@ export const Search = memo(function Search() {
           {!isHome && <TabLinks isTokenBalances={isTokenBalances} />}
         </div>
       </div>
-      <form className="flex flex-row justify-center" onSubmit={handleSubmit}>
-        <div className="flex flex-col sm:flex-row items-center h-[50px] w-full sm:w-[645px] border-solid-stroke rounded-18 bg-glass px-5 py-3">
+      <form
+        className="flex flex-row justify-center px-3"
+        onSubmit={handleSubmit}
+      >
+        <div
+          ref={inputSectionRef}
+          className="flex items-center h-[50px] w-full sm:w-[645px] border-solid-stroke rounded-18 bg-glass px-4 py-3"
+        >
           <InputWithMention
             value={value}
             onChange={setValue}
@@ -303,13 +347,19 @@ export const Search = memo(function Search() {
             }
             disableSuggestions={isTokenBalances}
           />
+          <div ref={buttonSectionRef} className="flex justify-end w-6">
+            {isInputSectionFocused && value && (
+              <button type="submit">
+                <Icon name="search" width={22} height={22} />
+              </button>
+            )}
+            {!isInputSectionFocused && value && (
+              <button type="button" onClick={handleInputClear}>
+                <Icon name="close" width={14} height={14} />
+              </button>
+            )}
+          </div>
         </div>
-        <button
-          type="submit"
-          className="bg-button-primary rounded-18 ml-2 sm:ml-5 px-6 py-3 sm:py-3.5 font-bold self-center"
-        >
-          Go
-        </button>
       </form>
     </div>
   );
