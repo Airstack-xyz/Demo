@@ -162,7 +162,7 @@ function Overview() {
       if (image)
         return (
           <div
-            className={classNames({
+            className={classNames('[&>img]:w-full', {
               flex: address.length === 1
             })}
           >
