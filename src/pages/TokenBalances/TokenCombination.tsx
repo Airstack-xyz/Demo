@@ -94,7 +94,7 @@ export const TokenCombination = memo(function TokenCombination({
           </div>
         </div>
       </div>
-      <div>
+      <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start mb-10">
         {tokens?.map((_token, index) => {
           return <Token token={_token} key={index} />;
         })}
