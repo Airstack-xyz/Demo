@@ -49,8 +49,15 @@ function getQueryWithFiter(
         }`;
 }
 
-const tokenId = `tokenNfts {
-  tokenId
+const tokenId = `blockchain
+tokenAddress
+tokenNfts {
+    tokenId
+    contentValue {
+        image {
+          medium
+        }
+    }
 }`;
 
 export function getQueryForBlockchain(owners: string[], isEth: boolean) {
