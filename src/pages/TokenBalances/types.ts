@@ -6,7 +6,14 @@ export interface TokenType {
   formattedAmount: number;
   tokenNfts: TokenNfts;
   token: Token;
+  _tokenId?: string;
 }
+
+export type CommonTokenType = TokenType & {
+  token?: {
+    tokenBalances: TokenType[];
+  };
+};
 
 export interface TokenNfts {
   tokenId: string;
@@ -19,6 +26,7 @@ export interface ContentValue {
 
 export interface Image {
   small: string;
+  medium: string;
 }
 
 export interface Token {
@@ -33,7 +41,7 @@ export interface Token {
   };
 }
 
-export type PoapType = {
+export type PoapsType = {
   Poaps: {
     Poap: {
       id: string;
@@ -57,6 +65,14 @@ export type PoapType = {
       nextCursor: string;
       prevCursor: string;
     };
+  };
+};
+
+export type PoapType = PoapsType['Poaps']['Poap'][0];
+
+export type CommonPoapType = PoapsType['Poaps']['Poap'][0] & {
+  poapEvent?: {
+    poaps: PoapType[];
   };
 };
 
@@ -109,6 +125,7 @@ export interface TokenBalance {
   blockchain: string;
   tokenId: string;
   token: Token;
+  tokenNfts: TokenNfts;
   owner: Owner;
   tokenType: string;
   id: string;

@@ -1,19 +1,24 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { apiKey } from '../constants';
-import { PoapOverviewQuery, TokenOverviewQuery } from '../queries';
+import {
+  MultiPoapsOverviewQuery,
+  MultiTokenOverviewQuery
+} from '../queries/tokensQuery';
 
 const API = 'https://api.beta.airstack.xyz/gql';
 
-export function useGetTokenOverview(tokenAddress: string, isPoap = false) {
+export function useGetTokenOverview() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<null | string>(null);
 
   const fetchTokenOverview = useCallback(
-    async (tokenAddress: string) => {
+    async (tokenAddress: string[], isPoap = false) => {
       setLoading(true);
       try {
-        const query = isPoap ? PoapOverviewQuery : TokenOverviewQuery;
+        const query = isPoap
+          ? MultiPoapsOverviewQuery
+          : MultiTokenOverviewQuery;
         const variables = isPoap ? { eventId: tokenAddress } : { tokenAddress };
 
         const res = await fetch(API, {
@@ -43,14 +48,7 @@ export function useGetTokenOverview(tokenAddress: string, isPoap = false) {
         setLoading(false);
       }
     },
-    [isPoap]
+    []
   );
-
-  useEffect(() => {
-    if (tokenAddress) {
-      fetchTokenOverview(tokenAddress);
-    }
-  }, [fetchTokenOverview, tokenAddress]);
-
-  return { data, loading, error };
+  return { fetch: fetchTokenOverview, data, loading, error };
 }

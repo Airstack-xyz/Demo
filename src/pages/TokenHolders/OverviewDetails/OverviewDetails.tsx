@@ -26,15 +26,15 @@ export function OverviewDetails() {
   return (
     <LoaderProvider>
       <div>
-        <div className="flex items-center justify-between mb-4 mt-7 px-2 sm:px-0">
-          <div className="flex items-center text-xs sm:text-base">
-            <div className="flex items-center w-[60%] sm:w-auto">
+        <div className="flex items-center justify-between mb-4 px-2 sm:px-0">
+          <div className="flex items-center text-xs sm:text-base mx-w-[100%] sm:max-w-[80%] overflow-hidden">
+            <div className="flex items-center w-[60%] sm:w-auto overflow-hidden mr-1">
               <div
-                className="flex items-center cursor-pointer hover:bg-glass-1 -ml-2 px-2 py-1 rounded-full"
+                className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
                 onClick={handleGoBack}
               >
                 <Icon name="token-holders" height={20} width={20} />{' '}
-                <span className="ml-1.5 text-text-secondary break-all cursor-pointer max-w-[90%] sm:max-w-none">
+                <span className="ml-1.5 text-text-secondary break-all cursor-pointer max-w-[90%] sm:max-w-[500px] ellipsis">
                   Holders of {activeViewToken}
                 </span>
               </div>
@@ -42,8 +42,10 @@ export function OverviewDetails() {
             </div>
             <div className="flex items-center flex-1">
               <Icon name="table-view" height={20} width={20} className="mr-1" />{' '}
-              {count === '0' ? '--' : count}{' '}
-              {imageAndSubTextMap[activeView as string]?.subText}
+              <span>
+                {count === '0' ? '--' : count}{' '}
+                {imageAndSubTextMap[activeView as string]?.subText}
+              </span>
             </div>
           </div>
           <div className="w-auto">

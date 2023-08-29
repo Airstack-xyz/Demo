@@ -75,3 +75,19 @@ export function getRequestFilters(filters: string[]) {
 
   return requestFilters;
 }
+
+export function removeDuplicateOwners(
+  tokens: (Poap | Token)[]
+): (Poap | Token)[] {
+  const visitedTokensSet = new Set();
+  return tokens.filter(token => {
+    const address =
+      token.owner.identity ||
+      (Array.isArray(token.owner.addresses)
+        ? token.owner.addresses[0]
+        : token.owner.addresses);
+    const duplicate = visitedTokensSet.has(address);
+    visitedTokensSet.add(address);
+    return !duplicate;
+  });
+}

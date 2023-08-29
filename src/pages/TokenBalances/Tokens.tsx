@@ -1,13 +1,12 @@
-import { useLazyQueryWithPagination } from '@airstack/airstack-react';
-import { useState, useEffect, useCallback, memo, useMemo } from 'react';
-import { POAPQuery } from '../../queries';
+import { useCallback, memo, useMemo, useState, useEffect } from 'react';
 import { PoapType, TokenType as TokenType } from './types';
 import { useSearchInput } from '../../hooks/useSearchInput';
-import { tokenTypes } from './constants';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { getTokensQuery } from '../../queries/tokensQuery';
-import { defaultSortOrder } from './SortBy';
 import { Token } from './Token';
+import { useGetTokensOfOwner } from '../../hooks/useGetTokensOfOwner';
+import { useGetPoapsOfOwner } from '../../hooks/useGetPoapsOfOwner';
+import { emit } from '../../utils/eventEmitter/eventEmitter';
+import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 
 const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 
@@ -23,34 +22,36 @@ function Loader() {
   );
 }
 
-type Poap = PoapType['Poaps']['Poap'][0];
-const variables = {};
-const config = {
-  cache: false
-};
-
 function TokensComponent() {
   const [
-    { address: owner, tokenType: tokenType = '', blockchainType, sortOrder }
+    { address: owners, tokenType: tokenType = '', blockchainType, sortOrder }
   ] = useSearchInput();
+  const [tokens, setTokens] = useState<(TokenType | PoapType)[]>([]);
 
-  const fetchAllBlockchains =
-    blockchainType.length === 2 || blockchainType.length === 0;
+  const handleTokens = useCallback((tokens: (TokenType | PoapType)[]) => {
+    setTokens(existingTokens => [...existingTokens, ...tokens]);
+  }, []);
 
-  const query = useMemo(() => {
-    return getTokensQuery(fetchAllBlockchains ? null : blockchainType[0]);
-  }, [blockchainType, fetchAllBlockchains]);
+  const {
+    loading: loadingTokens,
+    hasNextPage: hasNextPageTokens,
+    processedTokensCount,
+    getNext: getNextTokens
+  } = useGetTokensOfOwner(handleTokens);
 
-  const [
-    fetchTokens,
-    { data: tokensData, loading: loadingTokens, pagination: paginationTokens }
-  ] = useLazyQueryWithPagination(query, variables, config);
-  const [
-    fetchPoaps,
-    { data: poapsData, loading: loadingPoaps, pagination: paginationPoaps }
-  ] = useLazyQueryWithPagination(POAPQuery, variables, config);
+  const {
+    loading: loadingPoaps,
+    getNext: getNextPoaps,
+    processedTokensCount: processedPoapsCount,
+    hasNextPage: hasNextPagePoaps
+  } = useGetPoapsOfOwner(handleTokens);
 
-  const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
+  useEffect(() => {
+    if (owners.length === 0) return;
+    // reset tokens when search input changes
+    setTokens([]);
+  }, [blockchainType, owners, sortOrder, tokenType]);
+
   const isPoap = tokenType === 'POAP';
 
   const canFetchPoap = useMemo(() => {
@@ -59,77 +60,36 @@ function TokensComponent() {
     return !hasPolygonChainFilter && (!tokenType || isPoap);
   }, [blockchainType, isPoap, tokenType]);
 
-  useEffect(() => {
-    if (owner) {
-      const hasPolygonChainFilter =
-        blockchainType.length === 1 && blockchainType[0] === 'polygon';
-
-      if (!tokenType || !isPoap) {
-        fetchTokens({
-          owner,
-          limit: fetchAllBlockchains || !hasPolygonChainFilter ? 10 : 20,
-          sortBy: sortOrder ? sortOrder : defaultSortOrder,
-          tokenType:
-            tokenType && tokenType.length > 0
-              ? [tokenType]
-              : tokenTypes.filter(tokenType => tokenType !== 'POAP')
-        });
-      }
-
-      if (canFetchPoap) {
-        fetchPoaps({
-          owner,
-          limit: isPoap ? 20 : 10,
-          sortBy: sortOrder ? sortOrder : defaultSortOrder
-        });
-      }
-      setTokens([]);
-    }
-  }, [
-    blockchainType,
-    canFetchPoap,
-    fetchAllBlockchains,
-    fetchPoaps,
-    fetchTokens,
-    isPoap,
-    owner,
-    sortOrder,
-    tokenType
-  ]);
-
-  useEffect(() => {
-    if (tokensData) {
-      const { ethereum, polygon } = tokensData;
-      const ethTokens = ethereum?.TokenBalance || [];
-      const maticTokens = polygon?.TokenBalance || [];
-      setTokens(tokens => [...tokens, ...ethTokens, ...maticTokens]);
-    }
-  }, [tokensData]);
-
-  useEffect(() => {
-    if (poapsData) {
-      setTokens(tokens => [...tokens, ...(poapsData?.Poaps?.Poap || [])]);
-    }
-  }, [poapsData]);
-
   const handleNext = useCallback(() => {
-    if (!loadingTokens && !isPoap && paginationTokens?.hasNextPage) {
-      paginationTokens.getNextPage();
+    if (!loadingTokens && !isPoap && hasNextPageTokens) {
+      getNextTokens();
     }
 
-    if (canFetchPoap && !loadingPoaps && paginationPoaps?.hasNextPage) {
-      paginationPoaps.getNextPage();
+    if (canFetchPoap && !loadingPoaps && hasNextPagePoaps) {
+      getNextPoaps();
     }
   }, [
     canFetchPoap,
+    getNextPoaps,
+    getNextTokens,
+    hasNextPagePoaps,
+    hasNextPageTokens,
     isPoap,
     loadingPoaps,
-    loadingTokens,
-    paginationPoaps,
-    paginationTokens
+    loadingTokens
   ]);
 
   const loading = loadingTokens || loadingPoaps;
+
+  useEffect(() => {
+    const totalProcessedTokens =
+      processedTokensCount + processedPoapsCount || 40;
+    emit('token-balances:tokens', {
+      matched: tokens.length,
+      total: totalProcessedTokens,
+      loading
+    });
+  }, [processedPoapsCount, processedTokensCount, tokens.length, loading]);
 
   if (tokens.length === 0 && !loading) {
     return (
@@ -137,34 +97,41 @@ function TokensComponent() {
     );
   }
 
-  const hasNextPage =
-    paginationTokens?.hasNextPage || paginationPoaps?.hasNextPage;
+  const hasNextPage = hasNextPageTokens || hasNextPagePoaps;
+  const showStatusLoader = loading && owners.length > 1;
+
   if (tokens.length === 0 && loading) {
     return (
       <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">
         <Loader />
+        {showStatusLoader && <TokenBalancesLoaderWithInfo />}
       </div>
     );
   }
 
   return (
-    <InfiniteScroll
-      next={handleNext}
-      dataLength={tokens.length}
-      hasMore={hasNextPage}
-      loader={loading ? <Loader /> : null}
-      className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start mb-10"
-    >
-      {tokens.map((token, index) => {
-        const id =
-          (token as Poap)?.tokenId || (token as TokenType)?.tokenNfts?.tokenId;
-        return (
-          <div>
-            <Token key={`${index}-${id}`} token={token} />
-          </div>
-        );
-      })}
-    </InfiniteScroll>
+    <>
+      <InfiniteScroll
+        next={handleNext}
+        dataLength={tokens.length}
+        hasMore={hasNextPage}
+        loader={null}
+        className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start mb-10"
+      >
+        {tokens.map((token, index) => {
+          const id =
+            (token as PoapType)?.tokenId ||
+            (token as TokenType)?.tokenNfts?.tokenId;
+          return (
+            <div>
+              <Token key={`${index}-${id}`} token={token} />
+            </div>
+          );
+        })}
+        {loading && <Loader />}
+      </InfiniteScroll>
+      {showStatusLoader && <TokenBalancesLoaderWithInfo />}
+    </>
   );
 }
 

@@ -10,37 +10,55 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
-import { POAPQuery, SocialQuery } from '../../queries';
+import { SocialQuery } from '../../queries';
 import { tokenTypes } from './constants';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
-import { getTokensQuery } from '../../queries/tokensQuery';
 import { defaultSortOrder } from './SortBy';
+import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
+import { useMatch } from 'react-router-dom';
+import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
+  const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
+  // force the component to re-render when any of the search input change, so that the ERC20 can reset, refetched
+  const erc20Key = useMemo(
+    () => `${address.join(',')}-${blockchainType}-${tokenType}-${sortOrder}`,
+    [address, blockchainType, sortOrder, tokenType]
+  );
+
   return (
     <aside className="w-full min-w-full sm:w-[305px] sm:min-w-[305px] sm:ml-16">
-      <Socials />
-      <ERC20Tokens />
+      {address.length <= 1 && (
+        <>
+          <Socials />
+          <div className="mt-11"></div>
+        </>
+      )}
+      <ERC20Tokens key={erc20Key} />
     </aside>
   );
 });
 
 export function TokenBalance() {
-  const [{ address: query, tokenType, blockchainType, sortOrder }] =
-    useSearchInput();
+  const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
+  const query = address.length > 0 ? address[0] : '';
+  const isHome = useMatch('/');
+
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
 
   const options = useMemo(() => {
+    if (address.length === 0) return [];
     const fetchAllBlockchains =
       blockchainType.length === 2 || blockchainType.length === 0;
 
-    const tokensQuery = getTokensQuery(
+    const tokensQuery = createNftWithCommonOwnersQuery(
+      address,
       fetchAllBlockchains ? null : blockchainType[0]
     );
 
     const nftLink = createAppUrlWithQuery(tokensQuery, {
-      owner: query,
       limit: 10,
       sortBy: sortOrder ? sortOrder : defaultSortOrder,
       tokenType: tokenType
@@ -48,8 +66,15 @@ export function TokenBalance() {
         : tokenTypes.filter(tokenType => tokenType !== 'POAP')
     });
 
-    const poapLink = createAppUrlWithQuery(POAPQuery, {
-      owner: query,
+    const erc20Link = createAppUrlWithQuery(tokensQuery, {
+      limit: 50,
+      sortBy: sortOrder ? sortOrder : defaultSortOrder,
+      tokenType: ['ERC20']
+    });
+
+    const poapsQuery = poapsOfCommonOwnersQuery(address);
+
+    const poapLink = createAppUrlWithQuery(poapsQuery, {
       limit: 10,
       sortBy: sortOrder ? sortOrder : defaultSortOrder
     });
@@ -60,13 +85,6 @@ export function TokenBalance() {
 
     const options = [];
 
-    if (tokenType !== 'POAP') {
-      options.push({
-        label: 'Token Balances',
-        link: nftLink
-      });
-    }
-
     if (!tokenType || tokenType === 'POAP') {
       options.push({
         label: 'POAPs',
@@ -74,12 +92,27 @@ export function TokenBalance() {
       });
     }
 
+    if (tokenType !== 'POAP') {
+      options.push({
+        label: 'Token Balances (NFT)',
+        link: nftLink
+      });
+    }
+
     options.push({
-      label: 'Socials, Domains & XMTP',
-      link: socialLink
+      label: 'Token Balances (ERC20)',
+      link: erc20Link
     });
+
+    if (address.length === 1) {
+      options.push({
+        label: 'Socials, Domains & XMTP',
+        link: socialLink
+      });
+    }
+
     return options;
-  }, [blockchainType, query, sortOrder, tokenType]);
+  }, [address, blockchainType, query, sortOrder, tokenType]);
 
   const renderMobileTabs = useCallback(() => {
     return (
@@ -94,7 +127,10 @@ export function TokenBalance() {
             }
           )}
         >
-          <SectionHeader iconName="nft-flat" heading="NFTs & POAPs" />
+          <SectionHeader
+            iconName="nft-flat"
+            heading={`NFTs & POAPs${address.length > 1 ? ' in common' : ''}`}
+          />
         </div>
         <div
           onClick={() => setShowSocials(true)}
@@ -106,19 +142,40 @@ export function TokenBalance() {
             }
           )}
         >
-          <SectionHeader iconName="nft-flat" heading="Socials & ERC20" />
+          <SectionHeader
+            iconName="erc20"
+            heading={`Socials & ERC20${address.length > 1 ? ' in common' : ''}`}
+          />
         </div>
       </div>
     );
-  }, [showSocials]);
+  }, [address.length, showSocials]);
+
+  // force the component to re-render when any of the search input change, so that the tokens are reset and refetched
+  const tokensKey = useMemo(
+    () => `${address.join(',')}-${blockchainType}-${tokenType}-${sortOrder}`,
+    [address, blockchainType, sortOrder, tokenType]
+  );
+  const showInCenter = isHome;
 
   return (
     <Layout>
-      <div className="flex flex-col px-2 pt-5 w-[1440px] max-w-[100vw] sm:pt-8">
+      <div
+        className={classNames(
+          'flex flex-col px-2 pt-5 w-[1440px] max-w-[100vw] sm:pt-8',
+          {
+            'flex-1 h-full w-full flex flex-col items-center !pt-[30%] text-center':
+              showInCenter
+          }
+        )}
+      >
         <div className="flex flex-col items-center">
+          {showInCenter && (
+            <h1 className="text-[2rem]">Explore web3 identities</h1>
+          )}
           <Search />
         </div>
-        {query && (
+        {query && query.length > 0 && (
           <>
             <div className="hidden sm:flex-col-center my-3">
               <GetAPIDropdown options={options} />
@@ -126,7 +183,12 @@ export function TokenBalance() {
             <div className="flex justify-between px-5">
               <div className="w-full h-full" key={query}>
                 <div className="hidden sm:block">
-                  <SectionHeader iconName="nft-flat" heading="NFTs & POAPs" />
+                  <SectionHeader
+                    iconName="nft-flat"
+                    heading={`NFTs & POAPs${
+                      address.length > 1 ? ' in common' : ''
+                    }`}
+                  />
                 </div>
                 {isMobile && renderMobileTabs()}
                 <div className="mt-3.5 mb-5">
@@ -136,10 +198,10 @@ export function TokenBalance() {
                   showSocials ? (
                     <SocialsAndERC20 />
                   ) : (
-                    <Tokens />
+                    <Tokens key={tokensKey} />
                   )
                 ) : (
-                  <Tokens />
+                  <Tokens key={tokensKey} />
                 )}
               </div>
               {!isMobile && <SocialsAndERC20 />}
@@ -147,6 +209,7 @@ export function TokenBalance() {
           </>
         )}
       </div>
+      <TokenBalancesLoaderWithInfo />
     </Layout>
   );
 }

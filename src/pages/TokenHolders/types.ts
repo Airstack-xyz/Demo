@@ -1,6 +1,32 @@
-import { TokenBalance } from '../TokenBalances/types';
+import { TokenBalance, ContentValue } from '../TokenBalances/types';
 
-export type Token = TokenBalance;
+export type Token = TokenBalance &
+  Pick<Poap, '_poapEvent'> & {
+    _tokenNfts: TokenBalance['tokenNfts'];
+    _token: TokenBalance['token'];
+    _tokenAddress: string;
+    _tokenId: string;
+    owner: TokenBalance['owner'] & {
+      tokenBalances: Token[];
+    };
+  };
+
+export type TokensData = {
+  ethereum: { TokenBalance: Token[] };
+  polygon: { TokenBalance: Token[] };
+  Poaps: PoapsData['Poaps'];
+};
+
+export type PoapsData = {
+  Poaps: {
+    Poap: Poap[];
+  };
+};
+
+export type TokenAddress = {
+  address: string;
+  blockchain: string;
+};
 
 export type Poap = {
   id: string;
@@ -10,12 +36,17 @@ export type Poap = {
   tokenAddress: string;
   eventId: string;
   poapEvent: PoapEvent;
-  owner: Owner;
+  _poapEvent: PoapEvent;
+  _blockchain: string;
+  owner: Owner & {
+    poaps: Poap[];
+  };
 };
 
 export type PoapEvent = {
   blockchain: string;
   eventName: string;
+  contentValue: ContentValue;
   logo: {
     image: {
       small: string;

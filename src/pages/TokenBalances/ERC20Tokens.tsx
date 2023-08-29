@@ -4,11 +4,11 @@ import {
   useEffect,
   useMemo,
   useCallback,
-  ComponentProps
+  ComponentProps,
+  useRef
 } from 'react';
-import { ERC20TokensQuery } from '../../queries';
 import { SectionHeader } from './SectionHeader';
-import { TokenType } from './types';
+import { CommonTokenType, TokenType } from './types';
 import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { createTokenHolderUrl } from '../../utils/createTokenUrl';
@@ -16,6 +16,8 @@ import { Link } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { formatNumber } from '../../utils/formatNumber';
 import './erc20.styles.css';
+import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { emit } from '../../utils/eventEmitter/eventEmitter';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
@@ -47,7 +49,7 @@ function Token({
 }: {
   type: string;
   symbol: string;
-  amount: number;
+  amount: null | number;
   logo: string;
 }) {
   return (
@@ -59,7 +61,7 @@ function Token({
         <Logo logo={logo} symbol={symbol} className="w-full min-w-full" />
       </div>
       <div className="flex flex-1 items-center min-w-0 text-sm pl-2.5">
-        <span>{formatNumber(amount)}</span>
+        {amount !== null && <span>{formatNumber(amount)}</span>}
         <span className="mx-1.5 ellipsis">{symbol}</span>
         <span className="text-xs text-text-secondary ellipsis min-w-[30%] lowercase">
           {type}
@@ -85,36 +87,77 @@ function Loader() {
   );
 }
 
-export function ERC20Tokens() {
-  const [tokens, setTokens] = useState<{
-    ethereum: TokenType[];
-    polygon: TokenType[];
-  }>({
-    ethereum: [],
-    polygon: []
-  });
+const LIMIT = 20;
+const MIN_LIMIT = 10;
 
-  const [fetch, { data: erc20Data, loading, pagination }] =
-    useLazyQueryWithPagination(ERC20TokensQuery, {}, { cache: false });
-  const [{ address: owner, tokenType, blockchainType, sortOrder }] =
+export function ERC20Tokens() {
+  const [totalProcessedTokens, setTotalProcessedTokens] = useState(0);
+  const [tokens, setTokens] = useState<TokenType[]>([]);
+  const [{ address: owners, tokenType, blockchainType, sortOrder }] =
     useSearchInput();
+  const tokensRef = useRef<TokenType[]>([]);
+  const [loading, setLoading] = useState(false);
+  const query = useMemo(() => {
+    return createNftWithCommonOwnersQuery(owners, null);
+  }, [owners]);
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const onData = useCallback((data: any) => {
+    const { ethereum, polygon } = data;
+    let ethTokens = ethereum?.TokenBalance || [];
+    let maticTokens = polygon?.TokenBalance || [];
+    const totalTokens = ethTokens.length + maticTokens.length;
+
+    if (ethTokens.length > 0 && ethTokens[0]?.token?.tokenBalances) {
+      ethTokens = ethTokens
+        .filter(
+          (token: CommonTokenType) => token.token.tokenBalances.length > 0
+        )
+        .reduce((items: TokenType[], token: CommonTokenType) => {
+          items.push(token.token.tokenBalances[0]);
+          //   token.token.tokenBalances.forEach(item => items.push(item));
+          return items;
+        }, []);
+    }
+    if (maticTokens.length > 0 && maticTokens[0]?.token?.tokenBalances) {
+      maticTokens = maticTokens
+        .filter(
+          (token: CommonTokenType) => token.token.tokenBalances.length > 0
+        )
+        .reduce((items: TokenType[], token: CommonTokenType) => {
+          items.push(token.token.tokenBalances[0]);
+          //   token.token.tokenBalances.forEach(item => items.push(item));
+          return items;
+        }, []);
+    }
+    tokensRef.current = [...tokensRef.current, ...ethTokens, ...maticTokens];
+    setTotalProcessedTokens(count => count + totalTokens);
+    setTokens(tokens => [...tokens, ...ethTokens, ...maticTokens]);
+  }, []);
+
+  const [fetch, { data: erc20Data, pagination }] = useLazyQueryWithPagination(
+    query,
+    {},
+    { cache: false, onCompleted: onData }
+  );
 
   let data = erc20Data;
+  const { hasNextPage, getNextPage } = pagination;
+  const isCombination = owners.length > 1;
 
   useEffect(() => {
-    if (owner) {
-      setTokens({
-        ethereum: [],
-        polygon: []
-      });
-
+    if (owners.length > 0) {
+      setLoading(true);
+      tokensRef.current = [];
+      setTokens([]);
+      setTotalProcessedTokens(0);
       // remove data to make sure on next render, the data is not used in the useEffect below
       // eslint-disable-next-line react-hooks/exhaustive-deps
       data = null;
 
       fetch({
-        owner,
-        limit: 10
+        limit: owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT,
+        tokenType: ['ERC20']
       });
     }
     /*
@@ -122,51 +165,53 @@ export function ERC20Tokens() {
       Without this, the tokens list would be unable to fetch additional pages since the window scroll height would be too great (too many ERC20 items).
       InfiniteScroll depends on the window scroll height, if the height is too high, user will have to scroll to the bottom to initiate a pagination call.
     */
-  }, [fetch, owner, tokenType, blockchainType, sortOrder]);
+  }, [fetch, owners, tokenType, blockchainType, sortOrder]);
 
   useEffect(() => {
-    if (data) {
-      setTokens(existingTokens => ({
-        ethereum: [
-          ...existingTokens.ethereum,
-          ...(data?.ethereum?.TokenBalance || [])
-        ],
-        polygon: [
-          ...existingTokens.polygon,
-          ...(data?.polygon?.TokenBalance || [])
-        ]
-      }));
+    if (!data) return;
+    if (hasNextPage && tokensRef.current.length < MIN_LIMIT) {
+      setLoading(true);
+      getNextPage();
+      return;
     }
-  }, [data]);
-
-  const { hasNextPage, getNextPage } = pagination;
+    setLoading(false);
+    tokensRef.current = [];
+  }, [data, getNextPage, hasNextPage]);
 
   const handleNext = useCallback(() => {
     if (!loading && hasNextPage) {
       getNextPage();
+      setLoading(true);
     }
   }, [getNextPage, hasNextPage, loading]);
 
-  const items = useMemo((): TokenType[] => {
-    return [...tokens.ethereum, ...tokens.polygon];
-  }, [tokens.ethereum, tokens.polygon]);
+  useEffect(() => {
+    emit('token-balances:ERC20', {
+      matched: tokens.length,
+      total: totalProcessedTokens || LIMIT,
+      loading
+    });
+  }, [loading, tokens.length, totalProcessedTokens]);
 
   return (
-    <div className="mt-11">
+    <div>
       <div className="hidden sm:block">
-        <SectionHeader iconName="erc20" heading="ERC20 tokens" />
+        <SectionHeader
+          iconName="erc20"
+          heading={`ERC20 tokens${isCombination ? ' in common' : ''}`}
+        />
       </div>
       <div
         className={classNames(
           'mt-3.5 bg-glass py-3 px-2 rounded-18 border-solid-stroke random-color-list',
           {
-            'skeleton-loader min-h-[200px]': items.length === 0 && loading
+            'skeleton-loader min-h-[200px]': tokens.length === 0 && loading
           }
         )}
         data-loader-type="block"
         data-loader-height="auto"
       >
-        {items.length === 0 && !loading && (
+        {tokens.length === 0 && !loading && (
           <div className="flex flex-1 justify-center text-xs">
             No data found!
           </div>
@@ -174,11 +219,11 @@ export function ERC20Tokens() {
 
         <InfiniteScroll
           next={handleNext}
-          dataLength={items.length}
+          dataLength={tokens.length}
           hasMore={hasNextPage}
-          loader={<Loader />}
+          loader={null}
         >
-          {items.map((token, index) => (
+          {tokens.map((token, index) => (
             <Link
               data-address={token?.tokenAddress}
               to={createTokenHolderUrl({
@@ -191,7 +236,7 @@ export function ERC20Tokens() {
             >
               <Token
                 key={index}
-                amount={token?.formattedAmount}
+                amount={isCombination ? null : token?.formattedAmount}
                 symbol={token?.token?.symbol}
                 type={token?.token?.name}
                 logo={
@@ -201,6 +246,7 @@ export function ERC20Tokens() {
               />
             </Link>
           ))}
+          {loading && <Loader />}
         </InfiniteScroll>
       </div>
     </div>

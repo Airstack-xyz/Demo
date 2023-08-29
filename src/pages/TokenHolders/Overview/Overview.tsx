@@ -1,26 +1,20 @@
-import { useLazyQuery } from '@airstack/airstack-react';
 import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
-import {
-  PoapOwnerQuery,
-  TokenOwnerQuery,
-  TokenTotalSupplyQuery
-} from '../../../queries';
 import { HolderCount } from './HolderCount';
 import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
-import {
-  OverviewBlockchainData,
-  OverviewData,
-  Poap,
-  Token,
-  TotalPoapsSupply,
-  TotalSupply
-} from '../types';
+import { OverviewBlockchainData, OverviewData } from '../types';
 import { useGetTokenOverview } from '../../../hooks/useGetTokenOverview';
 import { Chain } from '@airstack/airstack-react/constants';
-import { POAPSupplyQuery } from '../../../queries/token-holders';
 import { imageAndSubTextMap } from './imageAndSubTextMap';
+import { useFetchTokens } from '../../../hooks/useGetTokens';
+import { useTokensSupply } from '../../../hooks/useTokensSupply';
+import classNames from 'classnames';
+import {
+  TokenHolder,
+  useOverviewTokens
+} from '../../../store/tokenHoldersOverview';
+import { showToast } from '../../../utils/showToast';
 
 function Overview() {
   const [overViewData, setOverViewData] = useState<
@@ -35,66 +29,102 @@ function Overview() {
     xmtp: 0
   });
 
-  const [{ address: tokenAddress, inputType, tokenType }] = useSearchInput();
+  const [{ address, activeView }] = useSearchInput();
 
-  const isPoap = inputType === 'POAP' || tokenType === 'POAP';
+  const isPoap = address.every(token => !token.startsWith('0x'));
+
+  const [fetchTokens, tokenDetails, loadingTokens] = useFetchTokens();
+
+  const shouldFetchHoldersCount = useMemo(() => {
+    // only fetch holders count if all tokens are of same type or all are NFTs
+    const nftTokens = ['ERC721', 'ERC1155'];
+    const tokenType = tokenDetails[0]?.tokenType;
+    const blockchin = tokenDetails[0]?.blockchain;
+
+    const hasSameBlockchain = tokenDetails.every(
+      token => token.blockchain === blockchin
+    );
+
+    const hasSameOrValidTokenType = tokenDetails.every(token => {
+      if (nftTokens.includes(tokenType)) {
+        return nftTokens.includes(token.tokenType);
+      }
+      return token.tokenType === tokenType;
+    });
+
+    return hasSameBlockchain && hasSameOrValidTokenType;
+  }, [tokenDetails]);
 
   const {
+    fetch: fetchTokenOverview,
     data: tokenOverviewData,
     loading: loadingTokenOverview,
     error: tokenOverviewError
-  } = useGetTokenOverview(tokenAddress, isPoap);
+  } = useGetTokenOverview();
 
-  const [fetchTokens, { data: tokensData }] = useLazyQuery(
-    isPoap ? PoapOwnerQuery : TokenOwnerQuery
-  );
+  const setTokens = useOverviewTokens(['tokens'])[1];
 
-  const [fetchTotalSupply, { data: totalSupply, loading: loadingSupply }] =
-    useLazyQuery(TokenTotalSupplyQuery);
-
-  const [
-    fetchPoapsTotalSupply,
-    { data: totalPoapsSupply, loading: loadingPoapsSupply }
-  ] = useLazyQuery(POAPSupplyQuery);
-
-  const [tokenDetails, setTokenDetails] = useState<null | {
-    name: string;
-    tokenId: string;
-    tokenAddress: string;
-    image: string;
-    tokenType: string;
-    blockchain: string;
-  } | null>(null);
+  const [fetchTotalSupply, totalSupply, loadingSupply] = useTokensSupply();
 
   useEffect(() => {
-    if (!tokenAddress) return;
-
-    const variables = isPoap ? { eventId: tokenAddress } : { tokenAddress };
-    // just fetch one token to show the details
-    fetchTokens({
-      ...variables,
-      limit: 1
-    });
-
-    if (isPoap) {
-      fetchPoapsTotalSupply({
-        eventId: tokenAddress
-      });
-      return;
+    if (shouldFetchHoldersCount && tokenDetails.length > 0) {
+      fetchTokenOverview(address, isPoap);
     }
-
-    fetchTotalSupply({
-      tokenAddress
-    });
   }, [
-    fetchPoapsTotalSupply,
-    fetchTokens,
-    fetchTotalSupply,
+    fetchTokenOverview,
+    address,
+    shouldFetchHoldersCount,
     isPoap,
-    tokenAddress
+    tokenDetails.length
   ]);
 
-  const isERC20 = tokenType === 'ERC20' || tokenDetails?.tokenType === 'ERC20';
+  const hasMulitpleERC20 = useMemo(() => {
+    const erc20Tokens = tokenDetails.filter(
+      token => token.tokenType === 'ERC20'
+    );
+    return erc20Tokens.length > 1;
+  }, [tokenDetails]);
+
+  useEffect(() => {
+    if (hasMulitpleERC20) {
+      showToast('Try to combine ERC20 tokens with NFTs or POAPs', 'negative');
+    }
+  }, [hasMulitpleERC20]);
+
+  const isERC20 = useMemo(() => {
+    return (
+      tokenDetails.length > 0 &&
+      tokenDetails.every(token => token.tokenType === 'ERC20')
+    );
+  }, [tokenDetails]);
+
+  useEffect(() => {
+    if (tokenDetails.length > 0) {
+      setTokens({
+        tokens: tokenDetails.map(
+          ({ name, tokenAddress, eventId, tokenType, blockchain }) => {
+            const key = eventId ? eventId : tokenAddress;
+            const tokenAndHolders: TokenHolder = {
+              name,
+              tokenAddress: key,
+              holdersCount: totalSupply?.[key.toLocaleLowerCase()] || 0,
+              tokenType,
+              blockchain
+            };
+            return tokenAndHolders;
+          }
+        )
+      });
+    }
+  }, [tokenDetails, setTokens, totalSupply]);
+
+  useEffect(() => {
+    if (!address.length) return;
+    fetchTokens(address);
+    if (!activeView) {
+      fetchTotalSupply(address);
+    }
+  }, [activeView, address, fetchTokens, fetchTotalSupply, isPoap]);
 
   const updateOverviewData = useCallback((overview: OverviewBlockchainData) => {
     setOverViewData(_overview => {
@@ -125,162 +155,158 @@ function Overview() {
     }
   }, [tokenOverviewData, isERC20, updateOverviewData]);
 
-  useEffect(() => {
-    if (totalSupply) {
-      const supply = totalSupply as TotalSupply;
-      let count = 0;
-
-      if (supply?.ethereum?.totalSupply) {
-        count += parseInt(supply.ethereum.totalSupply);
-      }
-
-      if (supply?.polygon?.totalSupply) {
-        count += parseInt(supply.polygon.totalSupply);
-      }
-
-      setOverViewData(overViewData => ({
-        ...overViewData,
-        totalSupply: count
-      }));
-    }
-  }, [totalSupply]);
-
-  useEffect(() => {
-    const data: TotalPoapsSupply = totalPoapsSupply;
-    const event = data?.PoapEvents?.PoapEvent;
-    if (!event) return;
-
-    const totalSupply = (event || []).reduce(
-      (acc, event) => acc + event?.tokenMints,
-      0
-    );
-
-    if (totalSupply) {
-      setOverViewData(overViewData => ({
-        ...overViewData,
-        totalSupply
-      }));
-    }
-  }, [totalPoapsSupply]);
-
-  useEffect(() => {
-    if (isPoap || !tokensData || isERC20) return;
-
-    const ethTokenBalances = tokensData?.ethereum?.TokenBalance || [];
-    const polygonTokenBalances = tokensData?.polygon?.TokenBalance || [];
-
-    const token = (ethTokenBalances[0] || polygonTokenBalances[0]) as Token;
-
-    setTokenDetails(tokenDetails => {
-      if (tokenDetails) return tokenDetails;
-
-      return {
-        name: token?.token?.name || '',
-        tokenId: token?.tokenId || '',
-        tokenAddress: token?.tokenAddress || '',
-        image:
-          token?.token?.logo?.medium ||
-          token?.token?.projectDetails?.imageUrl ||
-          '',
-        tokenType: token?.tokenType,
-        blockchain: token?.blockchain
-      };
-    });
-  }, [tokensData, isERC20, isPoap]);
-
-  useEffect(() => {
-    if (!isPoap || !tokensData) return;
-    const poaps: Poap[] = tokensData?.Poaps?.Poap || [];
-    const poap = poaps[0] as Poap;
-    if (!poap) return;
-
-    setTokenDetails(tokenDetails => {
-      if (tokenDetails) return tokenDetails;
-      return {
-        name: poap?.poapEvent?.eventName || '',
-        tokenId: poap?.tokenId || '',
-        tokenAddress: poap?.tokenAddress || '',
-        image: poap?.poapEvent?.logo?.image?.medium || '',
-        tokenType: 'POAP',
-        blockchain: 'ethereum'
-      };
-    });
-  }, [isPoap, tokensData]);
-
-  const tokenImage = useMemo(() => {
+  const tokenImages = useMemo(() => {
     if (!tokenDetails) return null;
+    return tokenDetails.map(token => {
+      const { tokenId, tokenAddress, image, blockchain } = token;
+      if (image)
+        return (
+          <div
+            className={classNames({
+              flex: address.length === 1
+            })}
+          >
+            <Asset
+              address={tokenAddress}
+              tokenId={tokenId}
+              preset="medium"
+              image={image}
+              chain={blockchain as Chain}
+              useImageOnError // use image if there is an error loading the token image
+              videoProps={{
+                controls: false
+              }}
+              containerClassName="[&>img]:w-full"
+            />
+          </div>
+        );
+      return (
+        <Asset
+          address={tokenAddress}
+          tokenId={tokenId}
+          preset="medium"
+          image={image}
+          chain={blockchain as Chain}
+          containerClassName="[&>img]:w-full"
+        />
+      );
+    });
+  }, [address.length, tokenDetails]);
 
-    const { tokenId, tokenAddress, image, blockchain } = tokenDetails;
-
-    return (
-      <Asset
-        address={tokenAddress}
-        tokenId={tokenId}
-        preset="medium"
-        image={image}
-        chain={blockchain as Chain}
-      />
-    );
-  }, [tokenDetails]);
-
-  const loading = loadingTokenOverview;
   const totalHolders = (overViewData?.owners as number) || 0;
+  const tokenName =
+    tokenDetails.length > 0
+      ? `${tokenDetails[0].name}${
+          tokenDetails[1] ? ` & ${tokenDetails[1]?.name}` : ''
+        }`
+      : '';
+
   const holderCounts = useMemo(() => {
     return Object.keys(overViewData).map(key => {
-      if (key === 'totalSupply') return null;
-      const { image, subText: text } = imageAndSubTextMap[key];
+      const noHoldersCount = !loadingTokens && !shouldFetchHoldersCount;
+      if (key === 'totalSupply' || (noHoldersCount && key === 'owners')) {
+        return null;
+      }
+
+      const { image, subText: text, name } = imageAndSubTextMap[key];
       let subText = text;
       if (key === 'owners' && tokenDetails) {
-        subText += `${totalHolders <= 1 ? 's' : ''} ${
-          tokenDetails.name || 'this contract'
+        subText += `${totalHolders === 1 ? 's' : ''} ${
+          tokenDetails.length > 1 ? 'both tokens' : tokenName || 'these tokens'
         }`;
       }
 
-      const count = tokenOverviewError
+      let count = tokenOverviewError
         ? '--'
         : overViewData[key as keyof typeof overViewData];
+
+      // hide count and subtext if there is no holders count
+      if (noHoldersCount) {
+        subText = '';
+        count = '';
+      }
+
+      const loadingCount = noHoldersCount
+        ? false
+        : loadingTokenOverview || (loadingTokens && shouldFetchHoldersCount);
 
       return (
         <HolderCount
           key={key}
           name={key}
-          tokenName={tokenDetails?.name || ''}
-          loading={loading}
+          tokenName={tokenName || ''}
+          loading={loadingCount}
+          disableAction={loadingCount}
           count={count}
           subText={subText}
-          image={
-            !image ? tokenImage : <img src={image} alt="" className="w-full" />
+          withoutCount={noHoldersCount}
+          sectionName={name}
+          images={
+            !image
+              ? tokenImages || []
+              : [<img src={image} alt="" className="w-full" />]
           }
         />
       );
     });
   }, [
-    loading,
+    loadingTokenOverview,
+    loadingTokens,
     overViewData,
+    shouldFetchHoldersCount,
     tokenDetails,
-    tokenImage,
+    tokenImages,
+    tokenName,
     tokenOverviewError,
     totalHolders
   ]);
 
-  if (isERC20) return null;
+  const getTokenNameAndSupply = useCallback(() => {
+    return (
+      <>
+        {tokenDetails.map(({ name, tokenAddress, eventId }, index) => {
+          const key = eventId ? eventId : tokenAddress;
+          const supply = totalSupply?.[key.toLocaleLowerCase()];
+          return (
+            <span
+              className={classNames('flex', {
+                'max-w-[50%]': tokenDetails.length > 1
+              })}
+            >
+              <span className="ellipsis mr-1"> {name} </span>
+              <span className="mx-1">: </span>
+              <span className="w-[80px] ellipsis">{supply || '--'}</span>
+              {index < tokenDetails.length - 1 ? (
+                <span className="mx-1">|</span>
+              ) : null}
+            </span>
+          );
+        })}
+      </>
+    );
+  }, [tokenDetails, totalSupply]);
 
-  const lodingTotalSupply = loadingPoapsSupply || loadingSupply;
-  const supply = overViewData?.totalSupply;
+  if (isERC20 || activeView) return null;
+
+  // eslint-disable-next-line
+  // @ts-ignore
+  window.totalOwners = overViewData?.owners || 0;
 
   return (
-    <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px]">
-      <div className="border-solid-stroke bg-glass rounded-18 p-5 m-2.5 flex-1 w-full">
-        <h3 className="text-2xl mb-2 flex items-center">
-          Total supply{' '}
-          {lodingTotalSupply ? (
-            <div className="h-7 flex items-center ml-2">
-              <Icon name="count-loader" className="h-2.5 w-auto" />
-            </div>
-          ) : (
-            supply || '--'
-          )}
-        </h3>
+    <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px] mb-7">
+      <div className="border-solid-stroke bg-glass rounded-18 px-5 py-2.5 m-2.5 flex-1 w-full overflow-hidden">
+        <div className="mb-2 flex flex-col">
+          <div className="text-sm text-text-secondary">Total supply </div>
+          <div className="ellipsis text-lg">
+            {loadingSupply ? (
+              <div className="h-7 flex items-center ml-2">
+                <Icon name="count-loader" className="h-2.5 w-auto" />
+              </div>
+            ) : (
+              <div className="flex">{getTokenNameAndSupply()}</div>
+            )}
+          </div>
+        </div>
         <div className="h-[5px] flex rounded-full overflow-hidden">
           <div className="h-full bg-[#6527A3] w-[55%]"></div>
           <div className="h-full bg-[#5398FF] w-[20%]"></div>
@@ -291,10 +317,30 @@ function Overview() {
         <div className="grid grid-cols-2 gap-2.5 mt-5">{holderCounts}</div>
       </div>
       <div
-        className="h-full flex-1 hidden [&>div]:h-full [&>div]:w-full [&>div>img]:w-full [&>div>img]:min-w-full sm:flex-col-center max-w-[421px]"
+        className={classNames(
+          'h-full flex-1 hidden [&>div]:h-full [&>div]:w-full sm:flex-col-center min-w-[421px] max-w-[421px] relative overflow-hidden',
+          {
+            'skeleton-loader': loadingTokens
+          }
+        )}
         data-loader-type="block"
       >
-        {tokenImage}
+        <div
+          className={classNames(
+            'flex [&>*]:w-1/2 justify-center items-center flex-wrap z-10 bg-glass',
+            {
+              '[&>div]:!h-full [&>div]:!w-full':
+                tokenImages && tokenImages.length === 1
+            }
+          )}
+        >
+          {tokenImages}
+        </div>
+        {address.length > 1 && (
+          <div className="flex [&>*]:w-1/2 justify-center items-center flex-wrap h-[150%] w-[150%] absolute">
+            {tokenImages}
+          </div>
+        )}
       </div>
     </div>
   );

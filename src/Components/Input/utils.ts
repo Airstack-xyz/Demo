@@ -1,4 +1,5 @@
 import { MentionsQuery } from '../../queries';
+import { createFormattedRawInput } from '../../utils/createQueryParamsWithMention';
 import { ADDRESS_OPTION_ID, POAP_OPTION_ID } from './constants';
 
 export enum MentionType {
@@ -32,6 +33,7 @@ export interface SearchAIMentions_SearchAIMentions {
 export const ID_REGEX = /#⎱.+?⎱\((.+?)\)\s*/g;
 export const NAME_REGEX = /#⎱(.+?)⎱\(.+?\)/g;
 export const REGEX_LAST_WORD_STARTS_WITH_AT = /\s@[^\s-]*$/g;
+export const REGEX_FIRST_WORD_IS_AT = /^@[^\s-]*/g;
 const REGEX_FISRT_WORD = /([^\s-]*)/;
 
 const tokenValuePrefixMap: Record<MentionType, string> = {
@@ -94,6 +96,8 @@ export function highlightMentionText(root: HTMLElement, matched = false) {
     if (mentionStartMatch) {
       updateOnMatch(node, REGEX_LAST_WORD_STARTS_WITH_AT);
       matched = true;
+    } else if (REGEX_FIRST_WORD_IS_AT.exec(node.innerText)) {
+      updateOnMatch(node, REGEX_FIRST_WORD_IS_AT);
     }
   });
 }
@@ -168,12 +172,18 @@ export function isMention(str: string) {
   return Boolean(/#⎱.+?⎱\((.+?)\)\s*/g.exec(str));
 }
 
-export function getValuesFromId(id: string) {
+type MentionValues = {
+  address: string;
+  token?: string;
+  blockchain?: string;
+  eventId?: string | null;
+  customInputType?: string;
+};
+export function getValuesFromId(id: string): MentionValues {
   const match = /#⎱.+?⎱\((.+?)\)\s*/g.exec(id);
   if (!match) return { address: id };
   const [address, token, blockchain, eventId, customInputId] =
     match[1].split(' ');
-
   const customInputType =
     token === MentionType.POAP || customInputId === POAP_OPTION_ID
       ? 'POAP'
@@ -186,6 +196,81 @@ export function getValuesFromId(id: string) {
     eventId: eventId === 'null' ? null : eventId,
     customInputType
   };
+}
+
+export function getAllMentionDetails(query: string): [MentionValues[], string] {
+  const matches = query.match(/#⎱.+?⎱\((.+?)\)\s*/g);
+  if (!matches) return [[], ''];
+
+  return [
+    matches.map(match => getValuesFromId(match)),
+    matches.map(match => match.trim()).join(' ')
+  ];
+}
+
+function getRawString(string: string) {
+  return createFormattedRawInput({
+    address: string,
+    blockchain: 'ethereum',
+    type: string.startsWith('0x')
+      ? 'ADDRESS'
+      : !isNaN(Number(string))
+      ? 'POAP'
+      : '',
+    label: string
+  });
+}
+
+type WordWitnMention = {
+  word: string;
+  rawValue: string;
+  mention?: MentionValues;
+};
+
+export function getAllWordsAndMentions(query: string): WordWitnMention[] {
+  const matches = query.matchAll(/#⎱.+?⎱\((.+?)\)\s*/g);
+
+  const wordsAndMentions: WordWitnMention[] = [];
+  let currentIndex = 0;
+
+  [...matches].forEach(match => {
+    const matchedString = match[0];
+    const index = match.index;
+    const wordBeforeMention = query.substring(currentIndex, index);
+
+    if (wordBeforeMention) {
+      wordBeforeMention.split(' ').forEach(word => {
+        if (word) {
+          wordsAndMentions.push({
+            word: word,
+            rawValue: getRawString(word)
+          });
+        }
+      });
+    }
+
+    if (index !== undefined && index >= currentIndex) {
+      wordsAndMentions.push({
+        word: matchedString.trim(),
+        rawValue: matchedString.trim(),
+        mention: getValuesFromId(matchedString.trim())
+      });
+      currentIndex = index + matchedString.length;
+    }
+  });
+
+  if (currentIndex < query.length) {
+    const lastWord = query.substring(currentIndex, query.length);
+    lastWord.split(' ').forEach(word => {
+      if (word) {
+        wordsAndMentions.push({
+          word: word,
+          rawValue: getRawString(word)
+        });
+      }
+    });
+  }
+  return wordsAndMentions;
 }
 
 export function needHelp(str: string) {
@@ -220,12 +305,13 @@ export function debouncePromise<CB extends (...args: any[]) => any>(
   }) as CB;
 }
 
+const mentionAPI = process.env.MENTION_ENDPOINT as string;
 export async function fetchMentionOptions(
   query: string,
   limit: number
 ): Promise<[null | object, null | string]> {
   try {
-    const res = await fetch('https://bff-prod.airstack.xyz/graphql', {
+    const res = await fetch(mentionAPI, {
       method: 'POST',
       body: JSON.stringify({
         operationName: 'SearchAIMentions',

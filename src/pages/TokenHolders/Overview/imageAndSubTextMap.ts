@@ -3,29 +3,36 @@ export const imageAndSubTextMap: Record<
   {
     image?: string;
     subText: string;
+    name: string;
   }
 > = {
   owners: {
-    subText: 'own'
+    subText: 'own',
+    name: ''
   },
   lens: {
     image: '/images/lens.svg',
-    subText: 'have Lens profiles'
+    subText: 'have Lens profiles',
+    name: 'Lens'
   },
   farcaster: {
     image: '/images/farcaster.svg',
-    subText: 'have Farcaster profiles'
+    subText: 'have Farcaster profiles',
+    name: 'Farcaster'
   },
   ens: {
     image: '/images/ens.svg',
-    subText: 'have ENS names'
+    subText: 'have ENS names',
+    name: 'ENS'
   },
   primaryEns: {
     image: '/images/ens.svg',
-    subText: 'have Primary ENS'
+    subText: 'have Primary ENS',
+    name: 'primary ENS'
   },
   xmtp: {
     image: '/images/xmtp.svg',
-    subText: 'have XMTP'
+    subText: 'have XMTP',
+    name: 'XMTP'
   }
 };

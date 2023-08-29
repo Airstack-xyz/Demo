@@ -6,7 +6,13 @@ type Options = {
   label: string;
   link: string;
 };
-export function GetAPIDropdown({ options }: { options: Options[] }) {
+export function GetAPIDropdown({
+  options,
+  disabled
+}: {
+  options: Options[];
+  disabled?: boolean;
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const [show, setShow] = useState(false);
 
@@ -29,8 +35,14 @@ export function GetAPIDropdown({ options }: { options: Options[] }) {
       ref={ref}
     >
       <button
-        className="py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium flex-row-center outline-none"
+        className={classNames(
+          'py-2 px-5 text-text-button bg-secondary rounded-full text-xs font-medium flex-row-center outline-none',
+          {
+            'cursor-not-allowed pointer-events-none opacity-80': disabled
+          }
+        )}
         onClick={() => setShow(show => !show)}
+        disabled={disabled}
       >
         <span>GraphQL APIs</span>
         <Icon

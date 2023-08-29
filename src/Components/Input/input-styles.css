@@ -6,7 +6,7 @@
   width: 100%;
   color: transparent;
   overflow: hidden;
-  white-space: pre-wrap;
+  white-space: pre;
   overflow-wrap: break-word;
   border: none !important;
   text-align: start;
@@ -155,4 +155,11 @@
 }
 .addressInput button {
   @apply py-0 px-3 rounded-none text-text-button font-bold;
+}
+@media (max-width: 500px) {
+  #suggestions-overlay {
+    left: 0px !important;
+    width: 100%;
+    max-width: 90vw;
+  }
 }

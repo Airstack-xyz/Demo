@@ -1,16 +1,19 @@
-import { memo, useCallback, useEffect, useState } from 'react';
-import { PoapOwnerQuery, TokenOwnerQuery } from '../../../queries';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
-import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { Header } from './Header';
 import { useNavigate } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { Poap, Token as TokenType } from '../types';
 import { Token } from './Token';
 import { AddressesModal } from '../../../Components/AddressesModal';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
-
-const LIMIT = 20;
+import { useGetCommonOwnersOfTokens } from '../../../hooks/useGetCommonOwnersOfTokens';
+import { useGetCommonOwnersOfPoaps } from '../../../hooks/useGetCommonOwnersOfPoaps';
+import { StatusLoader } from '../OverviewDetails/Tokens/StatusLoader';
+import {
+  TokenHolder,
+  useOverviewTokens
+} from '../../../store/tokenHoldersOverview';
+import { sortByAddressByNonERC20First } from '../../../utils/getNFTQueryForTokensHolder';
 
 const loaderData = Array(6).fill({});
 
@@ -24,7 +27,7 @@ function Loader() {
             className="[&>div>td]:px-2 [&>div>td]:py-3 [&>div>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer skeleton-loader [&>div>td:last-child]:hidden"
           >
             <div data-loader-type="block" data-loader-margin="10">
-              <Token token={null} />
+              <Token token={null} isCombination={false} />
             </div>
           </tr>
         ))}
@@ -34,18 +37,46 @@ function Loader() {
 }
 
 export function TokensComponent() {
-  const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
-  const [
-    fetchTokens,
-    { data: tokensData, loading: loadingTokens, pagination: paginationTokens }
-  ] = useLazyQueryWithPagination(TokenOwnerQuery);
+  const [{ tokens: _overviewTokens }] = useOverviewTokens(['tokens']);
+  const [{ address, inputType }] = useSearchInput();
+  const overviewTokens: TokenHolder[] = _overviewTokens;
 
-  const [
-    fetchPoap,
-    { data: poapsData, loading: loadingPoaps, pagination: paginationPoaps }
-  ] = useLazyQueryWithPagination(PoapOwnerQuery);
+  const shouldFetchPoaps = useMemo(
+    () => !address.some(a => a.startsWith('0x')),
+    [address]
+  );
 
-  const [{ address: tokenAddress, inputType }] = useSearchInput();
+  const hasMulitpleERC20 = useMemo(() => {
+    const erc20Tokens = overviewTokens.filter(
+      (token: TokenHolder) => token.tokenType === 'ERC20'
+    );
+    return erc20Tokens.length > 1;
+  }, [overviewTokens]);
+
+  const tokenAddress = useMemo(() => {
+    return sortByAddressByNonERC20First(
+      address,
+      overviewTokens,
+      shouldFetchPoaps
+    );
+  }, [shouldFetchPoaps, address, overviewTokens]);
+
+  const {
+    fetch: fetchTokens,
+    loading: loadingTokens,
+    tokens: tokensData,
+    processedTokensCount,
+    ...paginationTokens
+  } = useGetCommonOwnersOfTokens(tokenAddress);
+
+  const {
+    fetch: fetchPoap,
+    loading: loadingPoaps,
+    poaps,
+    processedPoapsCount,
+    ...paginationPoaps
+  } = useGetCommonOwnersOfPoaps(tokenAddress);
+
   const navigator = useNavigate();
 
   const [showModal, setShowModal] = useState(false);
@@ -62,42 +93,22 @@ export function TokensComponent() {
   const isPoap = inputType === 'POAP';
 
   useEffect(() => {
-    if (tokenAddress) {
-      if (isPoap) {
-        fetchPoap({
-          eventId: tokenAddress,
-          limit: LIMIT
-        });
-        return;
-      }
+    if (tokenAddress.length === 0 || hasMulitpleERC20) return;
 
-      fetchTokens({
-        tokenAddress,
-        limit: LIMIT
-      });
+    if (isPoap && shouldFetchPoaps) {
+      fetchPoap();
+      return;
     }
-  }, [fetchPoap, fetchTokens, isPoap, tokenAddress]);
 
-  useEffect(() => {
-    if (!tokensData || isPoap) return;
-
-    const ethTokenBalances: TokenType[] =
-      tokensData.ethereum?.TokenBalance || [];
-    const polygonTokenBalances: TokenType[] =
-      tokensData.polygon?.TokenBalance || [];
-
-    setTokens(existingTokens => [
-      ...existingTokens,
-      ...ethTokenBalances,
-      ...polygonTokenBalances
-    ]);
-  }, [isPoap, tokensData]);
-
-  useEffect(() => {
-    if (!poapsData) return;
-    const poaps: Poap[] = poapsData.Poaps?.Poap || [];
-    setTokens(existingPoaps => [...existingPoaps, ...poaps]);
-  }, [poapsData]);
+    fetchTokens();
+  }, [
+    fetchPoap,
+    fetchTokens,
+    isPoap,
+    shouldFetchPoaps,
+    tokenAddress.length,
+    hasMulitpleERC20
+  ]);
 
   const handleShowMore = useCallback((values: string[], dataType: string) => {
     const leftValues: string[] = [];
@@ -135,7 +146,7 @@ export function TokensComponent() {
     ? paginationPoaps
     : paginationTokens;
 
-  const loading = loadingPoaps || loadingTokens;
+  const loading = overviewTokens.length === 0 || loadingPoaps || loadingTokens;
 
   const handleNext = useCallback(() => {
     if (!loading && hasNextPage && getNextPage) {
@@ -143,10 +154,21 @@ export function TokensComponent() {
     }
   }, [getNextPage, hasNextPage, loading]);
 
+  const tokens = shouldFetchPoaps ? poaps : tokensData;
+  const totalProcessed = processedTokensCount + processedPoapsCount;
+  const isCombination = address.length > 1;
+  const showStatusLoader = loading && isCombination;
+
+  // ERC20 tokens have a large number of holders so we don't allow multiple ERC20 tokens to be searched at once
+  if (hasMulitpleERC20) return null;
+
   if (loading && (!tokens || tokens.length === 0)) {
     return (
       <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
         <Loader />
+        {showStatusLoader && (
+          <StatusLoader total={totalProcessed} matching={tokens.length} />
+        )}
       </div>
     );
   }
@@ -154,32 +176,43 @@ export function TokensComponent() {
   const isERC20 = tokens && tokens[0]?.tokenType === 'ERC20';
 
   return (
-    <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
-      <InfiniteScroll
-        next={handleNext}
-        dataLength={tokens.length}
-        hasMore={hasNextPage}
-        loader={null}
-      >
-        <table className="w-auto text-xs table-fixed sm:w-full">
-          {!loading && <Header isERC20={isERC20} />}
-          <tbody>
-            {tokens.map((token, index) => (
-              <tr
-                key={index}
-                className="[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px]"
-                data-loader-type="block"
-                data-loader-margin="10"
-              >
-                <Token token={token} onShowMore={handleShowMore} />
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <>
+      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto mb-5">
+        <InfiniteScroll
+          next={handleNext}
+          dataLength={tokens.length}
+          hasMore={hasNextPage}
+          loader={null}
+        >
+          <table className="w-auto text-xs table-fixed sm:w-full">
+            <Header isERC20={isERC20} isCombination={isCombination} />
+            <tbody>
+              {tokens.map((token, index) => (
+                <tr
+                  key={index}
+                  className="[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px]"
+                  data-loader-type="block"
+                  data-loader-margin="10"
+                >
+                  <Token
+                    token={token}
+                    isCombination={isCombination}
+                    onShowMore={handleShowMore}
+                  />
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {!loading && tokens.length === 0 && (
+            <div className="flex flex-1 justify-center text-xs font-semibold mt-5">
+              No data found!
+            </div>
+          )}
+        </InfiniteScroll>
         {loading && <Loader />}
-      </InfiniteScroll>
+      </div>
       <AddressesModal
-        heading={`All ${modalValues.dataType} names of ${tokenAddress}`}
+        heading={`All ${modalValues.dataType} names of ${address}`}
         isOpen={showModal}
         onRequestClose={() => {
           setShowModal(false);
@@ -192,7 +225,10 @@ export function TokensComponent() {
         modalValues={modalValues}
         onAddressClick={handleAddressClick}
       />
-    </div>
+      {showStatusLoader && (
+        <StatusLoader total={totalProcessed} matching={tokens.length} />
+      )}
+    </>
   );
 }
 

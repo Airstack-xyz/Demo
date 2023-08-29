@@ -2,7 +2,7 @@ import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useState, useEffect } from 'react';
 import { POAPQuery } from '../../queries';
 import { SectionHeader } from './SectionHeader';
-import { PoapType } from './types';
+import { PoapsType } from './types';
 import { formatDate } from '../../utils';
 import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
@@ -10,7 +10,7 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 function Poap({
   eventName,
   startDate
-}: PoapType['Poaps']['Poap'][0]['poapEvent']) {
+}: PoapsType['Poaps']['Poap'][0]['poapEvent']) {
   return (
     <div
       className="flex rounded-lg bg-glass border-solid-stroke mb-5 overflow-hidden"
@@ -36,15 +36,15 @@ function Poap({
 const loaderData = Array(3).fill({ poapEvent: {} });
 
 export function Poaps() {
-  const [poaps, setPoaps] = useState<PoapType['Poaps']['Poap']>([]);
+  const [poaps, setPoaps] = useState<PoapsType['Poaps']['Poap']>([]);
 
   const [fetch, { data, loading }] = useLazyQueryWithPagination(POAPQuery);
   const [{ address: owner }] = useSearchInput();
 
   useEffect(() => {
-    if (owner) {
+    if (owner.length > 0) {
       fetch({
-        owner,
+        owner: owner[0],
         limit: 20
       });
       setPoaps([]);

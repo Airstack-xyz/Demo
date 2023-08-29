@@ -1,14 +1,17 @@
 import classNames from 'classnames';
-import { useSearchInput } from '../../../../hooks/useSearchInput';
 import { useMemo } from 'react';
 
 type LoaderProps = {
   total: number;
   matching: number;
+  tokenName?: string;
 };
 
-export function StatusLoader({ total, matching }: LoaderProps) {
-  const [{ activeViewToken }] = useSearchInput();
+export function StatusLoader({
+  total,
+  matching,
+  tokenName = 'records'
+}: LoaderProps) {
   const loader = useMemo(() => {
     return (
       <img src="images/loader.svg" height={20} width={30} className="mr-2" />
@@ -20,7 +23,7 @@ export function StatusLoader({ total, matching }: LoaderProps) {
         <div className="mb-4 flex items-center">
           {loader}
           <span className="ellipsis">
-            Scanning {total} {activeViewToken}
+            Scanning {total} {tokenName}
           </span>
         </div>
         <div

@@ -42,7 +42,12 @@ export function createTokenBalancesUrl({
       address,
       blockchain,
       inputType,
-      rawInput: address
+      rawInput: createFormattedRawInput({
+        type: 'ADDRESS',
+        address,
+        label: address,
+        blockchain
+      })
     }).toString()
   };
 }

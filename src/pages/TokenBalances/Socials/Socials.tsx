@@ -31,9 +31,9 @@ function SocialsComponent() {
   const socialDetails = (data?.Wallet || {}) as SocialType;
 
   useEffect(() => {
-    if (owner) {
+    if (owner.length > 0) {
       fetch({
-        identity: owner
+        identity: owner[0]
       });
     }
   }, [fetch, owner]);
@@ -78,7 +78,7 @@ function SocialsComponent() {
       setData(
         {
           rawInput: value,
-          address: value,
+          address: [value],
           inputType: 'ADDRESS'
         },
         { updateQueryParams: true }
