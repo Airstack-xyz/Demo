@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
-import { Dropdown, Option } from '../../Components/Dropdown';
-import { Icon } from '../../Components/Icon';
+import { Dropdown, Option } from '../Dropdown';
+import { Icon } from '../Icon';
+
 const blockchainOptions = [
   {
-    label: 'Blockchain',
-    value: ''
+    label: 'All chains',
+    value: '*'
   },
   {
     label: 'Ethereum',
@@ -17,8 +18,9 @@ const blockchainOptions = [
     value: 'polygon'
   }
 ];
+
 const buttonClass =
-  'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light disabled:hover:bg-glass-1 disabled:hover:cursor-not-allowed disabled:opacity-80';
+  'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light disabled:hover:bg-glass-1 disabled:hover:cursor-not-allowed disabled:opacity-80 flex justify-center items-center';
 
 export function BlockchainFilter() {
   const [{ blockchainType, tokenType }, setData] = useSearchInput();
@@ -40,7 +42,7 @@ export function BlockchainFilter() {
     (selected: Option[]) => {
       setData(
         {
-          blockchainType: selected.map(item => item.value)
+          blockchainType: selected[0].value === '*' ? [] : [selected[0].value]
         },
         { updateQueryParams: true }
       );
@@ -49,14 +51,25 @@ export function BlockchainFilter() {
   );
 
   const selected = useMemo(() => {
-    return blockchainType.map(type => ({
-      label: type === 'ethereum' ? 'Ethereum' : 'Polygon',
-      value: type
-    }));
+    const options = [];
+    const value = blockchainType[0];
+    switch (value) {
+      case 'ethereum':
+        options.push(blockchainOptions[1]);
+        break;
+      case 'polygon':
+        options.push(blockchainOptions[2]);
+        break;
+      default:
+        options.push(blockchainOptions[0]);
+        break;
+    }
+    return options;
   }, [blockchainType]);
 
   return (
     <Dropdown
+      heading="Blockchain"
       selected={selected}
       onChange={handleChange}
       options={blockchainOptions}
@@ -64,11 +77,7 @@ export function BlockchainFilter() {
       renderPlaceholder={(selected, isOpen) => (
         <button
           disabled={isPoapFilterApplied}
-          className={classNames(
-            buttonClass,
-            'flex justify-center items-center !rounded-full',
-            { 'border-white': isOpen }
-          )}
+          className={classNames(buttonClass, { 'border-white': isOpen })}
         >
           <Icon
             name="blockchain-filter"
@@ -76,38 +85,29 @@ export function BlockchainFilter() {
             width={12}
             className="mr-1.5"
           />
-          {selected.length === 0 || selected.length === 2
-            ? 'All chains'
-            : selected[0].label}
+          {selected[0].label}
         </button>
       )}
-      renderOption={({ option, isSelected, selected, setSelected }) => {
-        if (!option.value) {
-          return (
-            <div className="font-bold py-2 px-5 rounded-full mb-1 text-left whitespace-nowrap">
-              Blockchain
-            </div>
-          );
-        }
+      renderOption={({ option, isSelected, setSelected }) => {
         return (
           <label
             className={classNames(
-              'flex py-2 px-5 rounded-full hover:bg-glass mb-1 cursor-pointer text-left whitespace-nowrap',
+              'flex py-1 px-2 rounded-full hover:bg-glass mb-1 cursor-pointer text-left whitespace-nowrap',
               {
                 'font-bold': isSelected
               }
             )}
             onClick={() => {
-              const newSelected = isSelected
-                ? selected.filter(item => item.value !== option.value)
-                : [...selected, option];
-              setSelected(newSelected);
+              setSelected([option]);
             }}
           >
-            <input
-              type="checkbox"
-              className="mr-1.5"
-              defaultChecked={isSelected}
+            <Icon
+              name="check-mark"
+              width={8}
+              height={8}
+              className={classNames('mx-2', {
+                invisible: !isSelected
+              })}
             />
             {option.label}
           </label>

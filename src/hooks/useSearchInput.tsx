@@ -18,6 +18,9 @@ export type CachedQuery = {
   activeViewCount: string;
   blockchainType: string[];
   sortOrder: string;
+  snapshotDate: string; // Format: YYYY-MM-DD
+  snapshotBlockNumber: string;
+  snapshotTimestamp: string;
 };
 
 export type UserInputs = CachedQuery;
@@ -147,7 +150,10 @@ export function useSearchInput(
       activeViewToken: isTokenBalances ? '' : getData('activeViewToken'),
       activeViewCount: isTokenBalances ? '' : getData('activeViewCount'),
       blockchainType: getData('blockchainType', true),
-      sortOrder: getData('sortOrder')
+      sortOrder: getData('sortOrder'),
+      snapshotDate: getData('snapshotDate'),
+      snapshotBlockNumber: getData('snapshotBlockNumber'),
+      snapshotTimestamp: getData('snapshotTimestamp')
     };
 
     setData(data);

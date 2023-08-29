@@ -284,7 +284,8 @@ export const Search = memo(function Search() {
 
   const handleInputClear = useCallback(() => {
     setValue('');
-  }, []);
+    handleDataChange({});
+  }, [handleDataChange]);
 
   const getTabChangeHandler = useCallback(
     (tokenBalance: boolean) => {
@@ -301,7 +302,7 @@ export const Search = memo(function Search() {
   );
 
   return (
-    <div className="w-[105%] sm:w-full z-10">
+    <div className="w-[calc(100vw-20px)] sm:w-[645px] z-10">
       <div className="my-6 flex-col-center">
         <div className="bg-glass bg-secondry border flex p-1 rounded-full">
           {isHome && (
@@ -328,13 +329,10 @@ export const Search = memo(function Search() {
           {!isHome && <TabLinks isTokenBalances={isTokenBalances} />}
         </div>
       </div>
-      <form
-        className="flex flex-row justify-center px-3"
-        onSubmit={handleSubmit}
-      >
+      <form className="flex flex-row justify-center" onSubmit={handleSubmit}>
         <div
           ref={inputSectionRef}
-          className="flex items-center h-[50px] w-full sm:w-[645px] border-solid-stroke rounded-18 bg-glass px-4 py-3"
+          className="flex items-center h-[50px] w-full border-solid-stroke rounded-18 bg-glass px-4 py-3"
         >
           <InputWithMention
             value={value}
@@ -347,7 +345,7 @@ export const Search = memo(function Search() {
             }
             disableSuggestions={isTokenBalances}
           />
-          <div ref={buttonSectionRef} className="flex justify-end w-6">
+          <div ref={buttonSectionRef} className="flex justify-end">
             {isInputSectionFocused && value && (
               <button type="submit">
                 <Icon name="search" width={22} height={22} />

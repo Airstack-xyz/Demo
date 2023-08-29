@@ -13,11 +13,15 @@ import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
 import { SocialQuery } from '../../queries';
 import { tokenTypes } from './constants';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
-import { defaultSortOrder } from './SortBy';
+import {
+  SortBy,
+  defaultSortOrder
+} from '../../Components/DropdownFilters/SortBy';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
 import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
+import { BlockchainFilter } from '../../Components/DropdownFilters/BlockchainFilter';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
@@ -177,8 +181,14 @@ export function TokenBalance() {
         </div>
         {query && query.length > 0 && (
           <>
-            <div className="hidden sm:flex-col-center my-3">
-              <GetAPIDropdown options={options} />
+            <div className="m-3 flex-row-center">
+              <div className="flex justify-between w-[calc(100vw-20px)] sm:w-[645px]">
+                <div className="flex-row-center gap-1">
+                  <BlockchainFilter />
+                  <SortBy />
+                </div>
+                <GetAPIDropdown options={options} />
+              </div>
             </div>
             <div className="flex justify-between px-5">
               <div className="w-full h-full" key={query}>

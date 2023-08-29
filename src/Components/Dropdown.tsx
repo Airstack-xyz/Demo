@@ -13,7 +13,8 @@ export function Dropdown({
   renderOption,
   renderPlaceholder,
   onChange,
-  disabled
+  disabled,
+  heading
 }: {
   options: Option[];
   selected?: Option[];
@@ -27,6 +28,7 @@ export function Dropdown({
   }) => ReactNode;
   onChange: (selected: Option[]) => void;
   disabled?: boolean;
+  heading?: string;
 }) {
   const [_selected, setSelected] = useState<Option[]>([]);
   const ref = useRef<HTMLDivElement>(null);
@@ -45,7 +47,7 @@ export function Dropdown({
     };
   }, []);
 
-  const handleSelction = useCallback(
+  const handleSelection = useCallback(
     (newSelection: Option[]) => {
       if (selected === undefined) {
         setSelected(newSelection);
@@ -70,15 +72,20 @@ export function Dropdown({
       </div>
       {show && (
         <div
-          className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute z-10 min-w-[120%] top-full"
+          className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute z-10 min-w-[110%] top-full"
           onClick={() => setShow(false)}
         >
+          {!!heading && (
+            <div className="font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap">
+              {heading}
+            </div>
+          )}
           {options.map((option, index) => (
             <div key={index}>
               {renderOption({
                 option,
                 selected: actualSelected,
-                setSelected: handleSelction,
+                setSelected: handleSelection,
                 isSelected:
                   actualSelected.findIndex(
                     item => item.value === option.value
