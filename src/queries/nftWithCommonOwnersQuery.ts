@@ -11,12 +11,16 @@ const fields = `
             tokenId
             contentValue {
                 image {
-                small
-                large
-                extraSmall
-                medium
-                original
+                  medium
                 }
+            }
+            erc6551Accounts {
+              address {
+                identity
+              }
+              tokenAddress
+              tokenId
+              deployer
             }
         }
         token {
