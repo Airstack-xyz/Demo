@@ -1,9 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useCallback, useMemo } from 'react';
 import { useSearchInput } from '../../hooks/useSearchInput';
-import classNames from 'classnames';
 import { Dropdown, Option } from '../Dropdown';
-import { Icon } from '../Icon';
+import { FilterOption } from './FilterOption';
+import { FilterPlaceholder } from './FilterPlaceholder';
 
 const sortOptions = [
   {
@@ -17,9 +17,6 @@ const sortOptions = [
 ];
 
 export const defaultSortOrder = sortOptions[0].value;
-
-const buttonClass =
-  'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light';
 
 export function SortBy() {
   const [{ sortOrder }, setData] = useSearchInput();
@@ -53,42 +50,21 @@ export function SortBy() {
       onChange={handleChange}
       options={sortOptions}
       renderPlaceholder={(selected, isOpen) => (
-        <button
-          className={classNames(
-            buttonClass,
-            'flex justify-center items-center !rounded-full',
-            { 'border-white': isOpen }
-          )}
-        >
-          <Icon name="sort" height={12} width={12} className="mr-1.5" />
-          {selected[0].label}
-        </button>
+        <FilterPlaceholder
+          isOpen={isOpen}
+          icon="sort"
+          label={selected[0].label}
+        />
       )}
-      renderOption={({ option, isSelected, setSelected }) => {
-        return (
-          <label
-            className={classNames(
-              'flex py-1 px-3 rounded-full hover:bg-glass mb-1 cursor-pointer text-left whitespace-nowrap',
-              {
-                'font-bold': isSelected
-              }
-            )}
-            onClick={() => {
-              setSelected([option]);
-            }}
-          >
-            <Icon
-              name="check-mark"
-              width={8}
-              height={8}
-              className={classNames('mx-2', {
-                invisible: !isSelected
-              })}
-            />
-            {option.label}
-          </label>
-        );
-      }}
+      renderOption={({ option, isSelected, setSelected }) => (
+        <FilterOption
+          isSelected={isSelected}
+          label={option.label}
+          onClick={() => {
+            setSelected([option]);
+          }}
+        />
+      )}
     />
   );
 }

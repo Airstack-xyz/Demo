@@ -22,6 +22,7 @@ import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery
 import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { BlockchainFilter } from '../../Components/DropdownFilters/BlockchainFilter';
+import { SnapshotFilter } from '../../Components/DropdownFilters/SnapshotFilter';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
@@ -184,6 +185,7 @@ export function TokenBalance() {
             <div className="m-3 flex-row-center">
               <div className="flex justify-between w-[calc(100vw-20px)] sm:w-[645px]">
                 <div className="flex-row-center gap-1">
+                  <SnapshotFilter />
                   <BlockchainFilter />
                   <SortBy />
                 </div>

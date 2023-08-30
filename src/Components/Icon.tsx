@@ -32,7 +32,11 @@ export type IconType =
   | 'blockchain-filter'
   | 'check-mark'
   | 'search'
-  | 'tools';
+  | 'tools'
+  | 'calendar'
+  | 'clock'
+  | 'block'
+  | 'eye';
 
 export type IconProps = {
   name: IconType;
