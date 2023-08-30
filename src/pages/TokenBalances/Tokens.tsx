@@ -8,6 +8,7 @@ import { useGetPoapsOfOwner } from '../../hooks/useGetPoapsOfOwner';
 import { emit } from '../../utils/eventEmitter/eventEmitter';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenCombination } from './TokenCombination';
+import classNames from 'classnames';
 
 const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 
@@ -98,8 +99,9 @@ function TokensComponent() {
     );
   }
 
+  const hasCombination = owners.length > 1;
   const hasNextPage = hasNextPageTokens || hasNextPagePoaps;
-  const showStatusLoader = loading && owners.length > 1;
+  const showStatusLoader = loading && hasCombination;
 
   if (tokens.length === 0 && loading) {
     return (
@@ -117,7 +119,13 @@ function TokensComponent() {
         dataLength={tokens.length}
         hasMore={hasNextPage}
         loader={null}
-        className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start mb-10"
+        className={classNames(
+          'flex flex-wrap justify-center md:justify-start mb-10',
+          {
+            'gap-x-[20px] gap-y-[20px]': hasCombination,
+            'gap-x-[55px] gap-y-[55px]': !hasCombination
+          }
+        )}
       >
         {tokens.map((token, index) => {
           const id =
@@ -125,7 +133,7 @@ function TokensComponent() {
             (token as TokenType)?.tokenNfts?.tokenId;
           return (
             <div>
-              {owners.length > 1 ? (
+              {hasCombination ? (
                 <TokenCombination key={`${index}-${id}`} token={token} />
               ) : (
                 <Token key={`${index}-${id}`} token={token} />
