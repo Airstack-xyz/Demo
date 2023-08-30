@@ -9,6 +9,7 @@ import { emit } from '../../utils/eventEmitter/eventEmitter';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenCombination } from './TokenCombination';
 import classNames from 'classnames';
+import { ERC6551Details } from './ERC6551Details';
 
 const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 
@@ -92,6 +93,8 @@ function TokensComponent() {
       loading
     });
   }, [processedPoapsCount, processedTokensCount, tokens.length, loading]);
+
+  return <ERC6551Details />;
 
   if (tokens.length === 0 && !loading) {
     return (
