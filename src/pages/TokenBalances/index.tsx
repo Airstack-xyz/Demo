@@ -144,7 +144,9 @@ export function TokenBalance() {
         >
           <SectionHeader
             iconName="erc20"
-            heading={`Socials & ERC20${address.length > 1 ? ' in common' : ''}`}
+            heading={`${address.length === 1 ? 'Socials & ' : ''}ERC20${
+              address.length > 1 ? ' in common' : ''
+            }`}
           />
         </div>
       </div>
@@ -180,7 +182,7 @@ export function TokenBalance() {
             <div className="hidden sm:flex-col-center my-3">
               <GetAPIDropdown options={options} />
             </div>
-            <div className="flex justify-between px-5">
+            <div className="flex justify-between px-2 sm:px-5">
               <div className="w-full h-full" key={query}>
                 <div className="hidden sm:block">
                   <SectionHeader
