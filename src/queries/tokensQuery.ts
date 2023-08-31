@@ -77,15 +77,13 @@ export const MultiTokenOverviewQuery = `query TokenOverviewQuery($tokenAddress: 
   }
 }`;
 
-export const MultiPoapsOverviewQuery = `query TokenOverviewQuery($eventId: [Address!]) {
-  ethereum: TokenHolders(
-    input: {filter: {inputType: {_eq: poap}, eventId: {_intersection: $eventId}}, blockchain: ethereum}
-  ) {
-    ensUsersCount
+export const OverviewQuery = `query TokenHolders($polygonTokens: [Address!], $eventIds: [Address!], $ethereumTokens: [Address!]) {
+  TokenHolders(input: {filter: {polygonTokens: {_intersection: $polygonTokens}, eventId: {_intersection: $eventIds}, ethereumTokens: {_intersection: $ethereumTokens}}}) {
     farcasterProfileCount
-    lensProfileCount
     primaryEnsUsersCount
     totalHolders
     xmtpUsersCount
+    lensProfileCount
+    ensUsersCount
   }
 }`;

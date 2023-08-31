@@ -3,7 +3,7 @@ import { useSearchInput } from '../../../hooks/useSearchInput';
 import { HolderCount } from './HolderCount';
 import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
-import { OverviewBlockchainData, OverviewData } from '../types';
+import { OverviewData } from '../types';
 import { useGetTokenOverview } from '../../../hooks/useGetTokenOverview';
 import { Chain } from '@airstack/airstack-react/constants';
 import { imageAndSubTextMap } from './imageAndSubTextMap';
@@ -36,23 +36,9 @@ function Overview() {
   const [fetchTokens, tokenDetails, loadingTokens] = useFetchTokens();
 
   const shouldFetchHoldersCount = useMemo(() => {
-    // only fetch holders count if all tokens are of same type or all are NFTs
-    const nftTokens = ['ERC721', 'ERC1155'];
-    const tokenType = tokenDetails[0]?.tokenType;
-    const blockchin = tokenDetails[0]?.blockchain;
-
-    const hasSameBlockchain = tokenDetails.every(
-      token => token.blockchain === blockchin
-    );
-
-    const hasSameOrValidTokenType = tokenDetails.every(token => {
-      if (nftTokens.includes(tokenType)) {
-        return nftTokens.includes(token.tokenType);
-      }
-      return token.tokenType === tokenType;
+    return tokenDetails.every(token => {
+      return token.tokenType !== 'ERC20';
     });
-
-    return hasSameBlockchain && hasSameOrValidTokenType;
   }, [tokenDetails]);
 
   const {
@@ -68,14 +54,35 @@ function Overview() {
 
   useEffect(() => {
     if (shouldFetchHoldersCount && tokenDetails.length > 0) {
-      fetchTokenOverview(address, isPoap);
+      const polygonTokens: string[] = [];
+      const ethereumTokens: string[] = [];
+      const eventIds: string[] = [];
+
+      tokenDetails.forEach(token => {
+        if (token.eventId) {
+          eventIds.push(token.eventId);
+          return;
+        }
+        if (token.blockchain === 'polygon') {
+          polygonTokens.push(token.tokenAddress);
+        } else {
+          ethereumTokens.push(token.tokenAddress);
+        }
+      });
+
+      fetchTokenOverview({
+        ethereumTokens,
+        polygonTokens,
+        eventIds
+      });
     }
   }, [
     fetchTokenOverview,
     address,
     shouldFetchHoldersCount,
     isPoap,
-    tokenDetails.length
+    tokenDetails.length,
+    tokenDetails
   ]);
 
   const hasMulitpleERC20 = useMemo(() => {
@@ -126,32 +133,32 @@ function Overview() {
     }
   }, [activeView, address, fetchTokens, fetchTotalSupply, isPoap]);
 
-  const updateOverviewData = useCallback((overview: OverviewBlockchainData) => {
-    setOverViewData(_overview => {
-      return {
-        ..._overview,
-        owners: overview?.totalHolders || 0,
-        ens: overview?.ensUsersCount || 0,
-        primaryEns: overview?.primaryEnsUsersCount || 0,
-        lens: overview?.lensProfileCount || 0,
-        farcaster: overview?.farcasterProfileCount || 0,
-        xmtp:
-          overview?.xmtpUsersCount === null
-            ? '--'
-            : overview?.xmtpUsersCount || 0
-      };
-    });
-  }, []);
+  const updateOverviewData = useCallback(
+    (overview: OverviewData['TokenHolders']) => {
+      setOverViewData(_overview => {
+        return {
+          ..._overview,
+          owners: overview?.totalHolders || 0,
+          ens: overview?.ensUsersCount || 0,
+          primaryEns: overview?.primaryEnsUsersCount || 0,
+          lens: overview?.lensProfileCount || 0,
+          farcaster: overview?.farcasterProfileCount || 0,
+          xmtp:
+            overview?.xmtpUsersCount === null
+              ? '--'
+              : overview?.xmtpUsersCount || 0
+        };
+      });
+    },
+    []
+  );
 
   useEffect(() => {
     if (isERC20 || !tokenOverviewData) return;
 
     const _overview = tokenOverviewData as OverviewData;
-
-    if (_overview?.ethereum?.totalHolders) {
-      updateOverviewData(_overview.ethereum);
-    } else if (_overview?.polygon) {
-      updateOverviewData(_overview?.polygon);
+    if (_overview?.TokenHolders) {
+      updateOverviewData(_overview.TokenHolders);
     }
   }, [tokenOverviewData, isERC20, updateOverviewData]);
 
