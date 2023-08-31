@@ -134,14 +134,10 @@ function TokensComponent() {
           const id =
             (token as PoapType)?.tokenId ||
             (token as TokenType)?.tokenNfts?.tokenId;
-          return (
-            <div>
-              {hasCombination ? (
-                <TokenCombination key={`${index}-${id}`} token={token} />
-              ) : (
-                <Token key={`${index}-${id}`} token={token} />
-              )}
-            </div>
+          return hasCombination ? (
+            <TokenCombination key={`${index}-${id}`} token={token} />
+          ) : (
+            <Token key={`${index}-${id}`} token={token} />
           );
         })}
         {loading && <Loader />}
