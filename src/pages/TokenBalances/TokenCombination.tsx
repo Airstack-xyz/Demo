@@ -6,6 +6,8 @@ import { createTokenHolderUrl } from '../../utils/createTokenUrl';
 import { PoapType, TokenType as TokenType } from './types';
 import { Asset } from '../../Components/Asset';
 import { useSearchInput } from '../../hooks/useSearchInput';
+import classNames from 'classnames';
+import { isMobileDevice } from '../../utils/isMobileDevice';
 
 type TokenProps = {
   token: null | TokenType | PoapType;
@@ -29,10 +31,10 @@ function Token({
   const image = isPoap ? poapEvent?.logo?.image?.medium : '';
   const address = token.tokenAddress || poap.tokenAddress;
   const tokenId = token?.tokenNfts?.tokenId || poap.tokenId;
-  const id = token?.tokenNfts?.tokenId || poapEvent?.eventName || '';
+  const id = token?.tokenNfts?.tokenId || poap.tokenId || '';
   return (
     <Link
-      className="h-[200px] w-[200px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token"
+      className="h-[300px] w-[300px] sm:h-[200px] sm:w-[200px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token"
       data-loader-type="block"
       to={createTokenHolderUrl({
         address: isPoap && eventId ? eventId : address,
@@ -53,15 +55,12 @@ function Token({
           useImageOnError={isPoap}
         />
       </div>
-      <div className="z-10 flex justify-end items-center">
+      <div className="z-10 flex justify-end items-center text-xs">
         <Icon name="holder-white" height={15} width={15} />
         <span className="ml-0.5 text-xs">{ownerName}</span>
       </div>
-      <div className="flex items-center rounded-3xl px-3.5 py-2 text-sm bg-glass border-solid-light">
-        <div className="ellipsis">
-          {!isPoap && '#'}
-          {id}
-        </div>
+      <div className="flex items-center rounded-3xl px-3.5 py-2 text-xs bg-glass border-solid-light">
+        <div className="ellipsis">#{id}</div>
       </div>
     </Link>
   );
@@ -82,7 +81,7 @@ export const TokenCombination = memo(function TokenCombination({
   const type = token?.tokenType || 'POAP';
   const blockchain = token.blockchain || 'ethereum';
   const name = isPoap
-    ? `${formatDate(poapEvent.startDate)}${city ? ` (${city})` : ''}`
+    ? `${poapEvent.eventName} (${formatDate(poapEvent.startDate)}${city || ''})`
     : token?.token?.name;
 
   const [tokens, allTokens]: [TokenType[], TokenType[]] = useMemo(() => {
@@ -92,12 +91,25 @@ export const TokenCombination = memo(function TokenCombination({
     return [allTokens.slice(0, MAX_TOKENS), allTokens];
   }, [showAllTokens, token]);
 
+  const headingWidth = isMobileDevice()
+    ? 'auto'
+    : Math.min(4, tokens.length) * 150;
+  const hasMoreTokens = allTokens.length > MAX_TOKENS;
+
   return (
-    <div className="border-solid-stroke rounded-18 bg-glass">
+    <div
+      className={classNames('border-solid-stroke rounded-18 bg-glass flex-1', {
+        'w-[80%] sm:max-w-full lg:max-w-[49%] ': !showAllTokens
+      })}
+    >
       <div className="rounded-18 bg-glass flex items-center justify-between px-3 py-2.5">
-        <div>
-          {name}
-          <span className="ml-0.5">{symbol ? `(${symbol})` : ''}</span>
+        <div
+          className="flex mr-1.5 text-sm ellipsis"
+          style={{ width: headingWidth }}
+        >
+          <span className="ellipsis">
+            {name} {symbol ? `(${symbol})` : ''}
+          </span>
         </div>
         <div className="flex justify-end">
           <div className="rounded-full h-9 w-9 bg-glass border-solid-light">
@@ -108,7 +120,15 @@ export const TokenCombination = memo(function TokenCombination({
           </div>
         </div>
       </div>
-      <div className="flex flex-wrap gap-x-[20px] gap-y-[20px] justify-center md:justify-start p-5">
+      <div
+        className={classNames(
+          'flex flex-col sm:flex-row flex-wrap gap-x-[20px] gap-y-[20px] items-center justify-center sm:justify-evenly p-5',
+          {
+            'gap-x-[8px] px-1.5': !showAllTokens && hasMoreTokens,
+            '!justify-center': showAllTokens
+          }
+        )}
+      >
         {tokens?.map((_token, index) => {
           return (
             <Token
@@ -118,9 +138,9 @@ export const TokenCombination = memo(function TokenCombination({
             />
           );
         })}
-        {!showAllTokens && allTokens.length > MAX_TOKENS && (
+        {!showAllTokens && hasMoreTokens && (
           <button
-            className="bg-glass border-solid-stroke rounded-18 pl-1 pr-1.5 text-text-button font-semibold w-[200px] h-10 sm:h-auto sm:w-auto hover:border-solid-light"
+            className="bg-glass border-solid-stroke rounded-18 pl-1 pr-1.5 text-text-button font-semibold w-[300px] sm:w-auto h-10 sm:h-[200px] hover:border-solid-light"
             onClick={() => setShowAllTokens(show => !show)}
           >
             +{allTokens.length - MAX_TOKENS}

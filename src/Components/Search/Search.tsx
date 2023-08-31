@@ -10,7 +10,7 @@ import {
   useState
 } from 'react';
 import { Link, useMatch, useNavigate, useSearchParams } from 'react-router-dom';
-import { getAllWordsAndMentions, isMention } from '../Input/utils';
+import { getAllMentionDetails, getAllWordsAndMentions } from '../Input/utils';
 import {
   CachedQuery,
   UserInputs,
@@ -228,7 +228,8 @@ export const Search = memo(function Search() {
 
   const shouldShowCombinationPlaceholder = useMemo(() => {
     if (!rawInput) return false;
-    return isMention(value) && rawInput === value.trim();
+    const [mentions] = getAllMentionDetails(value);
+    return mentions.length === 1 && rawInput === value.trim();
   }, [rawInput, value]);
 
   useEffect(() => {
@@ -306,7 +307,7 @@ export const Search = memo(function Search() {
         </div>
       </div>
       <form className="flex flex-row justify-center" onSubmit={handleSubmit}>
-        <div className="flex flex-col sm:flex-row items-center h-[50px] w-full sm:w-[645px] border-solid-stroke rounded-18 bg-glass px-5 py-3">
+        <div className="flex flex-col sm:flex-row items-center h-[50px]  w-[75vw] max-w-[645px] border-solid-stroke rounded-18 bg-glass px-5 py-3">
           <InputWithMention
             value={value}
             onChange={setValue}
