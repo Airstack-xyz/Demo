@@ -55,12 +55,13 @@ export function useGetPoapsOfOwner(
     if (!tokensData) return;
     let poaps = tokensData?.Poaps?.Poap || [];
     const processedTokensCount = poaps.length;
-
     if (poaps.length > 0 && poaps[0]?.poapEvent?.poaps) {
-      poaps = poaps.map((poap: CommonPoapType) => {
-        if (!poap?.poapEvent?.poaps) return poaps;
-        poap._common_tokens = poap.poapEvent.poaps;
-        return poap;
+      poaps = poaps.reduce((items: CommonPoapType[], poap: CommonPoapType) => {
+        if (poap.poapEvent.poaps.length > 0) {
+          poap._common_tokens = poap.poapEvent.poaps;
+          items.push(poap);
+        }
+        return items;
       }, []);
     }
     tokensRef.current = [...tokensRef.current, ...poaps];
