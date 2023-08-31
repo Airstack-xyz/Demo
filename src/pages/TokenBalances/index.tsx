@@ -120,7 +120,7 @@ export function TokenBalance() {
         <div
           onClick={() => setShowSocials(false)}
           className={classNames(
-            'pb-2 flex-1 flex justify-center border-b-4 border-solid border-text-secondary -mb-1',
+            'pb-2 flex-1 flex justify-center border-b-4 border-solid border-text-secondary -mb-1 ellipsis',
             {
               '!border-transparent [&>div]:font-normal  text-text-secondary':
                 showSocials
@@ -144,7 +144,9 @@ export function TokenBalance() {
         >
           <SectionHeader
             iconName="erc20"
-            heading={`Socials & ERC20${address.length > 1 ? ' in common' : ''}`}
+            heading={`${address.length === 1 ? 'Socials & ' : ''}ERC20${
+              address.length > 1 ? ' in common' : ''
+            }`}
           />
         </div>
       </div>
