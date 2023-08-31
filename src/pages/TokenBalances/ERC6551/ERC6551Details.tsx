@@ -1,8 +1,9 @@
 import { useQuery } from '@airstack/airstack-react';
-import { Icon } from '../../Components/Icon';
-import { Token } from './Token';
-import { erc6551DetailsQuery } from '../../queries/erc6551-details';
-import { ERC20Response, Nft } from './erc20-types';
+import { Icon } from '../../../Components/Icon';
+import { Token } from '../Token';
+import { erc6551DetailsQuery } from '../../../queries/erc6551-details';
+import { ERC20Response, Nft } from '../erc20-types';
+import { Children } from './Children';
 
 const infoOptions: {
   name: string;
@@ -77,31 +78,34 @@ export function ERC6551Details() {
   }
 
   return (
-    <div className="bg-glass border-solid-stroke rounded-18 flex p-5">
-      <div className="mr-7">
-        <Token token={data?.nft} />
-        <button className="py-10 px-10 mt-7">
-          <Icon name="token-holders" />
-          <span>View holders</span>
-        </button>
-      </div>
-      <div className="text-sm">
-        {infoOptions.map((option, index) => (
-          <div className="flex mb-3" key={index}>
-            <div className="w-32 mr-2">{option.name}</div>
-            <div className="text-text-secondary">
-              {nft
-                ? nft[option.dataKey as keyof Nft] ||
-                  getValueFromKey(option.dataKey)
-                : '--'}
+    <div>
+      <div className="bg-glass border-solid-stroke rounded-18 flex p-5">
+        <div className="mr-7">
+          <Token token={data?.nft} />
+          <button className="py-10 px-10 mt-7">
+            <Icon name="token-holders" />
+            <span>View holders</span>
+          </button>
+        </div>
+        <div className="text-sm">
+          {infoOptions.map((option, index) => (
+            <div className="flex mb-3" key={index}>
+              <div className="w-32 mr-2">{option.name}</div>
+              <div className="text-text-secondary">
+                {nft
+                  ? nft[option.dataKey as keyof Nft] ||
+                    getValueFromKey(option.dataKey)
+                  : '--'}
+              </div>
             </div>
+          ))}
+          <div className="flex mb-3">
+            <div className="w-32 mr-2">Contract</div>
+            <div className="text-text-secondary">--</div>
           </div>
-        ))}
-        <div className="flex mb-3">
-          <div className="w-32 mr-2">Contract</div>
-          <div className="text-text-secondary">--</div>
         </div>
       </div>
+      <Children />
     </div>
   );
 }
