@@ -9,7 +9,7 @@ import { emit } from '../../utils/eventEmitter/eventEmitter';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenCombination } from './TokenCombination';
 import classNames from 'classnames';
-import { ERC6551Details } from './ERC6551Details';
+import { ERC6551Details } from './ERC6551/ERC6551Details';
 
 const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 

@@ -65,3 +65,33 @@ export const tokenDetailsQuery = `query MyQuery($tokenAddress: Address, $tokenId
     }
   }
 }`;
+
+export const getERC6551OfTokens = `query MyQuery($tokenAddress: Address, $tokenId: String, $blockchain: TokenBlockchain!) {
+  Accounts(
+    input: {blockchain: $blockchain, filter: {tokenAddress: {_eq: $tokenAddress}, tokenId: {_eq: $tokenId}}}
+  ) {
+    Account {
+      standard
+      address {
+        addresses
+        tokenBalances {
+          tokenType
+          blockchain
+          tokenAddress
+          tokenId
+          token {
+            name
+            symbol
+          }
+          tokenNfts {
+            contentValue {
+              image {
+                medium
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}`;

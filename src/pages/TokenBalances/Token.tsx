@@ -141,7 +141,7 @@ export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
 
       <div className="h-20 rounded-3xl px-3 py-2.5 z-10">
         <div className="flex flex-col text-sm z-10">
-          <div>+{token.tokenNfts?.erc6551Accounts.length} assets</div>
+          <div>+{token.tokenNfts?.erc6551Accounts?.length} assets</div>
           <div className="ellipsis text-xs font-semibold my-1.5">
             {name || '--'}
           </div>
