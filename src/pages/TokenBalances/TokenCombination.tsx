@@ -34,7 +34,7 @@ function Token({
   const id = token?.tokenNfts?.tokenId || poap.tokenId || '';
   return (
     <Link
-      className="h-[300px] w-[300px] sm:h-[200px] sm:w-[200px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token"
+      className="h-[300px] w-[300px] sm:h-[200px] sm:w-[200px] max-w-full rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token"
       data-loader-type="block"
       to={createTokenHolderUrl({
         address: isPoap && eventId ? eventId : address,
