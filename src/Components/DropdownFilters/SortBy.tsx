@@ -5,20 +5,25 @@ import { Dropdown, Option } from '../Dropdown';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 
-const sortOptions = [
+export const enum SortOrderType {
+  DESC = 'DESC',
+  ASC = 'ASC'
+}
+
+export const sortOptions = [
   {
     label: 'Newest transfer first',
-    value: 'DESC'
+    value: SortOrderType.DESC
   },
   {
     label: 'Oldest transfer first',
-    value: 'ASC'
+    value: SortOrderType.ASC
   }
 ];
 
-export const defaultSortOrder = sortOptions[0].value;
+export const defaultSortOrder = SortOrderType.DESC;
 
-export function SortBy() {
+export function SortBy({ disabled }: { disabled?: boolean }) {
   const [{ sortOrder }, setData] = useSearchInput();
 
   const handleChange = useCallback(
@@ -34,18 +39,15 @@ export function SortBy() {
   );
 
   const selected = useMemo(() => {
-    const options = [];
-    if (!sortOrder || sortOrder === defaultSortOrder) {
-      options.push(sortOptions[0]);
-    } else {
-      options.push(sortOptions[1]);
-    }
-    return options;
+    return sortOrder === SortOrderType.ASC
+      ? [sortOptions[1]]
+      : [sortOptions[0]];
   }, [sortOrder]);
 
   return (
     <Dropdown
       heading="Sort by"
+      disabled={disabled}
       selected={selected}
       onChange={handleChange}
       options={sortOptions}

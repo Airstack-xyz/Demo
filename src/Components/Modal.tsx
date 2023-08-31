@@ -33,6 +33,7 @@ export function Modal({
     <ReactModal
       overlayClassName="modal-overlay flex flex-col justify-center items-center fixed inset-0"
       className="bg-transparent min-h-[400px] min-w-[400px] outline-none"
+      ariaHideApp={false}
       {...props}
     >
       {!hideCloseButton && (

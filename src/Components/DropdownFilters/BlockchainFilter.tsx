@@ -1,21 +1,30 @@
+/* eslint-disable react-refresh/only-export-components */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { Dropdown, Option } from '../Dropdown';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 
-const blockchainOptions = [
+export const enum BlockchainFilterType {
+  ALL = '*',
+  ETHEREUM = 'ethereum',
+  POLYGON = 'polygon'
+}
+
+export const defaultBlockchainFilter = BlockchainFilterType.ALL;
+
+export const blockchainOptions = [
   {
     label: 'All chains',
-    value: '*'
+    value: BlockchainFilterType.ALL
   },
   {
     label: 'Ethereum',
-    value: 'ethereum'
+    value: BlockchainFilterType.ETHEREUM
   },
   {
     label: 'Polygon',
-    value: 'polygon'
+    value: BlockchainFilterType.POLYGON
   }
 ];
 
@@ -39,7 +48,10 @@ export function BlockchainFilter() {
     (selected: Option[]) => {
       setData(
         {
-          blockchainType: selected[0].value === '*' ? [] : [selected[0].value]
+          blockchainType:
+            selected[0].value === defaultBlockchainFilter
+              ? []
+              : [selected[0].value]
         },
         { updateQueryParams: true }
       );
@@ -48,20 +60,14 @@ export function BlockchainFilter() {
   );
 
   const selected = useMemo(() => {
-    const options = [];
-    const value = blockchainType[0];
-    switch (value) {
-      case 'ethereum':
-        options.push(blockchainOptions[1]);
-        break;
-      case 'polygon':
-        options.push(blockchainOptions[2]);
-        break;
-      default:
-        options.push(blockchainOptions[0]);
-        break;
+    const filterValue = blockchainType[0];
+    if (filterValue === BlockchainFilterType.ETHEREUM) {
+      return [blockchainOptions[1]];
     }
-    return options;
+    if (filterValue === BlockchainFilterType.POLYGON) {
+      return [blockchainOptions[2]];
+    }
+    return [blockchainOptions[0]];
   }, [blockchainType]);
 
   return (

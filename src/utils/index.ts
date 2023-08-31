@@ -1,6 +1,6 @@
-export function formatDate(dateString: string) {
-  const date = new Date(dateString);
-  if (date.toDateString() === 'Invalid Date') return dateString;
+export function formatDate(dateValue: string | Date) {
+  const date = new Date(dateValue);
+  if (date.toDateString() === 'Invalid Date') return String(dateValue);
 
   return date.toLocaleString(undefined, {
     day: 'numeric',

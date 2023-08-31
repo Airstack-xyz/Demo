@@ -5,6 +5,11 @@ import './styles.css';
 const monthFormatter = (locale: string | undefined, date: Date) =>
   date.toLocaleString(locale, { month: 'short', year: 'numeric' });
 
+type DateInput = Date | null;
+
+// Type for date output
+export type DateValue = DateInput | [DateInput, DateInput];
+
 export const DatePicker = (props: CalendarProps) => {
   return <Calendar formatMonthYear={monthFormatter} {...props} />;
 };
