@@ -7,6 +7,7 @@ export interface TokenType {
   tokenNfts: TokenNfts;
   token: Token;
   _tokenId?: string;
+  _common_tokens?: TokenType[];
 }
 
 export type CommonTokenType = TokenType & {
@@ -60,6 +61,7 @@ export type PoapsType = {
           };
         };
       };
+      _common_tokens?: PoapType[];
     }[];
     pageInfo: {
       nextCursor: string;

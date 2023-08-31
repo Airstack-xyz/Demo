@@ -163,3 +163,7 @@
     max-width: 90vw;
   }
 }
+
+.mentions #mention-highlight #overlay-placeholder {
+  color: #b1b3b5 !important;
+}
