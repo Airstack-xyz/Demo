@@ -24,7 +24,10 @@ export function useGetTokenOverview() {
       // abort previous request
       abortControllerRef.current.abort();
     }
+
     setLoading(true);
+    setData(null);
+
     const variables: Partial<Variable> = {};
     for (const key in tokenAddress) {
       const value = tokenAddress[key as keyof Variable];
