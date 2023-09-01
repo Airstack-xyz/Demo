@@ -1,9 +1,8 @@
-import { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { useEffect, useCallback, useMemo, memo } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { HolderCount } from './HolderCount';
 import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
-import { OverviewData } from '../types';
 import { useGetTokenOverview } from '../../../hooks/useGetTokenOverview';
 import { Chain } from '@airstack/airstack-react/constants';
 import { imageAndSubTextMap } from './imageAndSubTextMap';
@@ -17,18 +16,6 @@ import {
 import { showToast } from '../../../utils/showToast';
 
 function Overview() {
-  const [overViewData, setOverViewData] = useState<
-    Record<string, string | number>
-  >({
-    totalSupply: 0,
-    owners: 0,
-    ens: 0,
-    primaryEns: 0,
-    lens: 0,
-    farcaster: 0,
-    xmtp: 0
-  });
-
   const [{ address, activeView }] = useSearchInput();
 
   const isPoap = address.every(token => !token.startsWith('0x'));
@@ -133,34 +120,18 @@ function Overview() {
     }
   }, [activeView, address, fetchTokens, fetchTotalSupply, isPoap]);
 
-  const updateOverviewData = useCallback(
-    (overview: OverviewData['TokenHolders']) => {
-      setOverViewData(_overview => {
-        return {
-          ..._overview,
-          owners: overview?.totalHolders || 0,
-          ens: overview?.ensUsersCount || 0,
-          primaryEns: overview?.primaryEnsUsersCount || 0,
-          lens: overview?.lensProfileCount || 0,
-          farcaster: overview?.farcasterProfileCount || 0,
-          xmtp:
-            overview?.xmtpUsersCount === null
-              ? '--'
-              : overview?.xmtpUsersCount || 0
-        };
-      });
-    },
-    []
-  );
-
-  useEffect(() => {
-    if (isERC20 || !tokenOverviewData) return;
-
-    const _overview = tokenOverviewData as OverviewData;
-    if (_overview?.TokenHolders) {
-      updateOverviewData(_overview.TokenHolders);
-    }
-  }, [tokenOverviewData, isERC20, updateOverviewData]);
+  const overViewData = useMemo(() => {
+    const overview = tokenOverviewData;
+    return {
+      owners: overview?.totalHolders || 0,
+      ens: overview?.ensUsersCount || 0,
+      primaryEns: overview?.primaryEnsUsersCount || 0,
+      lens: overview?.lensProfileCount || 0,
+      farcaster: overview?.farcasterProfileCount || 0,
+      xmtp:
+        overview?.xmtpUsersCount === null ? '--' : overview?.xmtpUsersCount || 0
+    };
+  }, [tokenOverviewData]);
 
   const tokenImages = useMemo(() => {
     if (!tokenDetails) return null;

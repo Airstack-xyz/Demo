@@ -1,6 +1,7 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { apiKey } from '../constants';
 import { getOverviewQuery } from '../queries/tokensQuery';
+import { OverviewData } from '../pages/TokenHolders/types';
 
 // const API = 'https://api.beta.airstack.xyz/gql';
 // temp remove below api later
@@ -11,14 +12,19 @@ type Variable = {
   eventIds: string[];
   ethereumTokens: string[];
 };
+
 export function useGetTokenOverview() {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<null | OverviewData['TokenHolders']>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<null | string>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const fetchTokenOverview = useCallback(async (tokenAddress: Variable) => {
+    if (abortControllerRef.current) {
+      // abort previous request
+      abortControllerRef.current.abort();
+    }
     setLoading(true);
-
     const variables: Partial<Variable> = {};
     for (const key in tokenAddress) {
       const value = tokenAddress[key as keyof Variable];
@@ -33,9 +39,10 @@ export function useGetTokenOverview() {
         !!variables.eventIds?.length,
         !!variables.ethereumTokens?.length
       );
-
+      abortControllerRef.current = new AbortController();
       const res = await fetch(API, {
         method: 'POST',
+        signal: abortControllerRef.current.signal,
         headers: {
           'Content-Type': 'application/json',
           Authorization: apiKey
@@ -46,18 +53,22 @@ export function useGetTokenOverview() {
         })
       });
       const json = await res.json();
-      const data = json?.data;
+      const data: OverviewData = json?.data;
       if (json.errors) {
         setError('Unable to fetch overview data');
         return;
       }
 
-      if (data) {
-        setData(data);
+      if (data?.TokenHolders) {
+        setData(data?.TokenHolders);
       }
     } catch (e) {
+      if (e instanceof DOMException && e?.name === 'AbortError') {
+        return;
+      }
       setError('Unable to fetch overview data');
     } finally {
+      abortControllerRef.current = null;
       setLoading(false);
     }
   }, []);
