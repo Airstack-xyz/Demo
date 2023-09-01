@@ -1,11 +1,10 @@
 import { useCallback, useState } from 'react';
 import { apiKey } from '../constants';
-import {
-  MultiPoapsOverviewQuery,
-  MultiTokenOverviewQuery
-} from '../queries/tokensQuery';
+import { OverviewQuery } from '../queries/tokensQuery';
 
-const API = 'https://api.beta.airstack.xyz/gql';
+// const API = 'https://api.beta.airstack.xyz/gql';
+// temp remove below api later
+const API = 'https://api.uat.airstack.xyz/gql';
 
 export function useGetTokenOverview() {
   const [data, setData] = useState(null);
@@ -13,13 +12,19 @@ export function useGetTokenOverview() {
   const [error, setError] = useState<null | string>(null);
 
   const fetchTokenOverview = useCallback(
-    async (tokenAddress: string[], isPoap = false) => {
+    async (variables: {
+      polygonTokens: string[];
+      eventIds: string[];
+      ethereumTokens: string[];
+    }) => {
       setLoading(true);
+      let { polygonTokens, eventIds, ethereumTokens } = variables;
+      polygonTokens = polygonTokens.length === 0 ? [''] : polygonTokens;
+      eventIds = eventIds.length === 0 ? [''] : eventIds;
+      ethereumTokens = ethereumTokens.length === 0 ? [''] : ethereumTokens;
+
       try {
-        const query = isPoap
-          ? MultiPoapsOverviewQuery
-          : MultiTokenOverviewQuery;
-        const variables = isPoap ? { eventId: tokenAddress } : { tokenAddress };
+        const query = OverviewQuery;
 
         const res = await fetch(API, {
           method: 'POST',
@@ -29,7 +34,11 @@ export function useGetTokenOverview() {
           },
           body: JSON.stringify({
             query,
-            variables
+            variables: {
+              polygonTokens,
+              eventIds,
+              ethereumTokens
+            }
           })
         });
         const json = await res.json();
