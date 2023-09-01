@@ -121,15 +121,16 @@ function Overview() {
   }, [activeView, address, fetchTokens, fetchTotalSupply, isPoap]);
 
   const overViewData = useMemo(() => {
-    const overview = tokenOverviewData;
     return {
-      owners: overview?.totalHolders || 0,
-      ens: overview?.ensUsersCount || 0,
-      primaryEns: overview?.primaryEnsUsersCount || 0,
-      lens: overview?.lensProfileCount || 0,
-      farcaster: overview?.farcasterProfileCount || 0,
+      owners: tokenOverviewData?.totalHolders || 0,
+      ens: tokenOverviewData?.ensUsersCount || 0,
+      primaryEns: tokenOverviewData?.primaryEnsUsersCount || 0,
+      lens: tokenOverviewData?.lensProfileCount || 0,
+      farcaster: tokenOverviewData?.farcasterProfileCount || 0,
       xmtp:
-        overview?.xmtpUsersCount === null ? '--' : overview?.xmtpUsersCount || 0
+        tokenOverviewData?.xmtpUsersCount === null
+          ? '--'
+          : tokenOverviewData?.xmtpUsersCount || 0
     };
   }, [tokenOverviewData]);
 
