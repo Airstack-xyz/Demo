@@ -37,6 +37,7 @@ export function useGetTokenOverview() {
       }
     }
 
+    let requestAborted = false;
     try {
       const query = getOverviewQuery(
         !!variables.polygonTokens?.length,
@@ -68,12 +69,15 @@ export function useGetTokenOverview() {
       }
     } catch (e) {
       if (e instanceof DOMException && e?.name === 'AbortError') {
+        requestAborted = true;
         return;
       }
       setError('Unable to fetch overview data');
     } finally {
       abortControllerRef.current = null;
-      setLoading(false);
+      if (!requestAborted) {
+        setLoading(false);
+      }
     }
   }, []);
   return { fetch: fetchTokenOverview, data, loading, error };
