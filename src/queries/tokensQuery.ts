@@ -54,38 +54,13 @@ export function getTokensQuery(blockchain: string | null) {
 }`;
 }
 
-export const MultiTokenOverviewQuery = `query TokenOverviewQuery($tokenAddress: [Address!]) {
-  ethereum: TokenHolders(
-    input: {filter: {inputType: {_eq: token}, tokenAddress: {_intersection: $tokenAddress}}, blockchain: ethereum}
-  ) {
-    ensUsersCount
+export const OverviewQuery = `query TokenHolders($polygonTokens: [Address!], $eventIds: [Address!], $ethereumTokens: [Address!]) {
+  TokenHolders(input: {filter: {polygonTokens: {_intersection: $polygonTokens}, eventId: {_intersection: $eventIds}, ethereumTokens: {_intersection: $ethereumTokens}}}) {
     farcasterProfileCount
-    lensProfileCount
     primaryEnsUsersCount
     totalHolders
     xmtpUsersCount
-  }
-  polygon: TokenHolders(
-    input: {filter: {inputType: {_eq: token}, tokenAddress: {_intersection: $tokenAddress}}, blockchain: polygon}
-  ) {
-    ensUsersCount
-    farcasterProfileCount
     lensProfileCount
-    primaryEnsUsersCount
-    totalHolders
-    xmtpUsersCount
-  }
-}`;
-
-export const MultiPoapsOverviewQuery = `query TokenOverviewQuery($eventId: [Address!]) {
-  ethereum: TokenHolders(
-    input: {filter: {inputType: {_eq: poap}, eventId: {_intersection: $eventId}}, blockchain: ethereum}
-  ) {
     ensUsersCount
-    farcasterProfileCount
-    lensProfileCount
-    primaryEnsUsersCount
-    totalHolders
-    xmtpUsersCount
   }
 }`;
