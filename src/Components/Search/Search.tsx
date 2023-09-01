@@ -1,17 +1,25 @@
 import classNames from 'classnames';
-import { Icon } from './Icon';
-import { InputWithMention } from './Input/Input';
-import { FormEvent, memo, useCallback, useEffect, useState } from 'react';
+import { Icon } from '../Icon';
+import { InputWithMention } from '../Input/Input';
+import {
+  FormEvent,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 import { Link, useMatch, useNavigate, useSearchParams } from 'react-router-dom';
-import { getAllWordsAndMentions } from './Input/utils';
+import { getAllMentionDetails, getAllWordsAndMentions } from '../Input/utils';
 import {
   CachedQuery,
   UserInputs,
   useSearchInput,
   userInputCache
-} from '../hooks/useSearchInput';
-import { showToast } from '../utils/showToast';
-import { useOverviewTokens } from '../store/tokenHoldersOverview';
+} from '../../hooks/useSearchInput';
+import { showToast } from '../../utils/showToast';
+import { useOverviewTokens } from '../../store/tokenHoldersOverview';
+import { addAndRemoveCombinationPlacholder } from './utils';
 
 const tokenHoldersPlaceholder =
   'Use @ mention or enter any token contract address';
@@ -46,6 +54,7 @@ function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
   );
 }
 
+const padding = '  ';
 export const Search = memo(function Search() {
   const [isTokenBalanceActive, setIsTokenBalanceActive] = useState(true);
   const isHome = useMatch('/');
@@ -61,7 +70,7 @@ export const Search = memo(function Search() {
   const [value, setValue] = useState(rawInput || '');
 
   useEffect(() => {
-    setValue(rawInput ? rawInput.trim() + '  ' : '');
+    setValue(rawInput ? rawInput.trim() + padding : '');
   }, [rawInput]);
 
   useEffect(() => {
@@ -138,14 +147,14 @@ export const Search = memo(function Search() {
         return;
       }
 
-      const rawTextWithMenions = rawInput.join('  ');
+      const rawTextWithMenions = rawInput.join(padding);
       const searchData = {
         address,
         blockchain: 'ethereum',
         rawInput: rawTextWithMenions,
         inputType: 'ADDRESS' as UserInputs['inputType']
       };
-      setValue(rawTextWithMenions.trim() + '  ');
+      setValue(rawTextWithMenions.trim() + padding);
       handleDataChange(searchData);
     },
     [handleDataChange]
@@ -204,18 +213,31 @@ export const Search = memo(function Search() {
         return;
       }
 
-      const rawTextWithMenions = rawInput.join('  ');
+      const rawTextWithMenions = rawInput.join(padding);
       const searchData = {
         address,
         blockchain,
         rawInput: rawTextWithMenions,
         inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType']
       };
-      setValue(rawTextWithMenions + '  ');
+      setValue(rawTextWithMenions + padding);
       handleDataChange(searchData);
     },
     [handleDataChange]
   );
+
+  const shouldShowCombinationPlaceholder = useMemo(() => {
+    if (!rawInput) return false;
+    const [mentions] = getAllMentionDetails(value);
+    return mentions.length === 1 && rawInput === value.trim();
+  }, [rawInput, value]);
+
+  useEffect(() => {
+    return addAndRemoveCombinationPlacholder(
+      shouldShowCombinationPlaceholder,
+      isTokenBalances
+    );
+  }, [isTokenBalances, shouldShowCombinationPlaceholder]);
 
   const handleSubmit = useCallback(
     (e: FormEvent) => {
@@ -285,7 +307,7 @@ export const Search = memo(function Search() {
         </div>
       </div>
       <form className="flex flex-row justify-center" onSubmit={handleSubmit}>
-        <div className="flex flex-col sm:flex-row items-center h-[50px] w-full sm:w-[645px] border-solid-stroke rounded-18 bg-glass px-5 py-3">
+        <div className="flex flex-col sm:flex-row items-center h-[50px]  w-[75vw] max-w-[645px] border-solid-stroke rounded-18 bg-glass px-5 py-3">
           <InputWithMention
             value={value}
             onChange={setValue}

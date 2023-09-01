@@ -79,12 +79,9 @@ export function useGetTokensOfOwner(
         .filter((token: CommonTokenType) =>
           Boolean(token?.token?.tokenBalances?.length)
         )
-        .reduce((items: TokenType[], token: CommonTokenType) => {
-          items.push({
-            ...token.token.tokenBalances[0],
-            _tokenId: token?.tokenNfts?.tokenId
-          });
-          return items;
+        .map((token: CommonTokenType) => {
+          token._common_tokens = token.token.tokenBalances || null;
+          return token;
         }, []);
     }
     if (maticTokens.length > 0 && maticTokens[0]?.token?.tokenBalances) {
@@ -92,18 +89,9 @@ export function useGetTokensOfOwner(
         .filter((token: CommonTokenType) =>
           Boolean(token?.token?.tokenBalances?.length)
         )
-        .reduce((items: TokenType[], token: CommonTokenType) => {
-          if (!token?.token?.tokenBalances) return items;
-
-          token.token.tokenBalances.forEach(tokenBalance => {
-            if (tokenBalance) {
-              items.push({
-                ...tokenBalance,
-                _tokenId: token?.tokenNfts?.tokenId
-              });
-            }
-          });
-          return items;
+        .map((token: CommonTokenType) => {
+          token._common_tokens = token.token.tokenBalances || null;
+          return token;
         }, []);
     }
     const tokens = [...ethTokens, ...maticTokens];

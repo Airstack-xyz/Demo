@@ -10,7 +10,7 @@ export function SectionHeader({
   return (
     <div className="flex items-center font-bold">
       <Icon name={iconName} className="h-5 mr-1.5" />
-      {heading}
+      <span className="ellipsis">{heading}</span>
     </div>
   );
 }

@@ -30,7 +30,8 @@ export type IconType =
   | 'copy'
   | 'sort'
   | 'blockchain-filter'
-  | 'check-mark';
+  | 'check-mark'
+  | 'holder-white';
 
 export type IconProps = {
   name: IconType;
