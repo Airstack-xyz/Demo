@@ -54,13 +54,29 @@ export function getTokensQuery(blockchain: string | null) {
 }`;
 }
 
-export const OverviewQuery = `query TokenHolders($polygonTokens: [Address!], $eventIds: [Address!], $ethereumTokens: [Address!]) {
-  TokenHolders(input: {filter: {polygonTokens: {_intersection: $polygonTokens}, eventId: {_intersection: $eventIds}, ethereumTokens: {_intersection: $ethereumTokens}}}) {
-    farcasterProfileCount
-    primaryEnsUsersCount
-    totalHolders
-    xmtpUsersCount
-    lensProfileCount
-    ensUsersCount
-  }
-}`;
+export function getOverviewQuery(
+  hasPolygon: boolean,
+  hasEvents: boolean,
+  hasEthereum: boolean
+) {
+  return `query TokenHolders(${
+    hasPolygon ? '$polygonTokens: [Address!], ' : ''
+  }${hasEvents ? '$eventIds: [Address!], ' : ''}${
+    hasEthereum ? '$ethereumTokens: [Address!]' : ''
+  }) {
+    TokenHolders(input: {filter: {polygonTokens: {${
+      hasPolygon ? '_intersection: $polygonTokens' : ''
+    }}, eventId: {${
+    hasEvents ? '_intersection: $eventIds' : ''
+  }}, ethereumTokens: {${
+    hasEthereum ? '_intersection: $ethereumTokens' : ''
+  }}}}) {
+      farcasterProfileCount
+      primaryEnsUsersCount
+      totalHolders
+      xmtpUsersCount
+      lensProfileCount
+      ensUsersCount
+    }
+  }`;
+}
