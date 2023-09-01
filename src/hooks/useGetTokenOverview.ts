@@ -27,6 +27,7 @@ export function useGetTokenOverview() {
 
     setLoading(true);
     setData(null);
+    setError(null);
 
     const variables: Partial<Variable> = {};
     for (const key in tokenAddress) {
