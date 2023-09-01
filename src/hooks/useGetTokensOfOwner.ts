@@ -44,8 +44,8 @@ export function useGetTokensOfOwner(
       return createNftWithCommonOwnersSnapshotQuery({
         owners,
         blockchain: _blockchain,
-        date: snapshotDate,
         blockNumber: snapshotBlockNumber,
+        date: snapshotDate,
         timestamp: snapshotTimestamp
       });
     }
@@ -88,9 +88,9 @@ export function useGetTokensOfOwner(
         fetchTokens({
           limit: _limit,
           tokenType: _tokenType,
-          date: snapshotDate || undefined,
-          blockNumber: snapshotBlockNumber || undefined,
-          timestamp: snapshotTimestamp || undefined
+          blockNumber: snapshotBlockNumber,
+          date: snapshotDate,
+          timestamp: snapshotTimestamp
         });
       } else {
         fetchTokens({

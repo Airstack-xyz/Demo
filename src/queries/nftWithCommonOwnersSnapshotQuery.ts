@@ -31,7 +31,7 @@ const fields = `
   }
 `;
 
-function getQueryWithFiter(
+function getSubqueryWithFiter(
   owners: string[],
   index = 0,
   blockchain: string
@@ -39,7 +39,7 @@ function getQueryWithFiter(
   const children =
     owners.length - 1 === index
       ? fields
-      : getQueryWithFiter(owners, index + 1, blockchain);
+      : getSubqueryWithFiter(owners, index + 1, blockchain);
   return `
     token {
       tokenBalances(input: {filter: {owner: {_eq: "${owners[index]}"}, tokenType: {_in: $tokenType}}, blockchain: ${blockchain}}) {
@@ -55,7 +55,7 @@ const tokenId = `
   }
 `;
 
-export function getQueryForBlockchain({
+function getSubqueryForBlockchain({
   owners,
   isEthereum,
   hasDate,
@@ -70,26 +70,25 @@ export function getQueryForBlockchain({
 }) {
   const blockchain = isEthereum ? 'ethereum' : 'polygon';
   const children =
-    owners.length === 1 ? fields : getQueryWithFiter(owners, 1, blockchain);
+    owners.length === 1 ? fields : getSubqueryWithFiter(owners, 1, blockchain);
 
   const _filters = [
-    `owner: { _eq: "${owners[0]}" }`,
-    `tokenType: { _in: $tokenType }`
+    `owner:{ _eq: "${owners[0]}" }`,
+    `tokenType:{ _in: $tokenType }`
   ];
   if (hasDate) {
-    _filters.push('data: { _eq: $date }');
+    _filters.push('date:{ _eq: $date }');
   }
   if (hasBlockNumber) {
-    _filters.push('blockNumber: { _eq: $blockNumber }');
+    _filters.push('blockNumber:{ _eq: $blockNumber }');
   }
   if (hasTimestamp) {
-    _filters.push('timestamp: $timestamp');
+    _filters.push('timestamp:{ _eq: $timestamp }');
   }
-
   const _filtersString = _filters.join(',');
 
   return `
-    ${blockchain}: Snapshots(input: { filter:{ ${_filtersString} }, blockchain: ${blockchain}, limit: $limit }) {
+    ${blockchain}: Snapshots(input:{ filter:{ ${_filtersString} }, blockchain: ${blockchain}, limit: $limit }) {
       TokenBalance: Snapshot {
         ${owners.length > 1 ? tokenId : ''}
         ${children}
@@ -108,10 +107,11 @@ export function createNftWithCommonOwnersSnapshotQuery({
   owners: string[];
   blockchain: string | null;
   date?: string;
-  blockNumber?: string;
-  timestamp?: string;
+  blockNumber?: number;
+  timestamp?: number;
 }) {
   if (!owners.length) return '';
+
   const commonParams = {
     owners,
     hasDate: !!date,
@@ -129,13 +129,12 @@ export function createNftWithCommonOwnersSnapshotQuery({
   if (commonParams.hasTimestamp) {
     _variables.push('$timestamp: Int!');
   }
-
   const _variablesString = _variables.join(',');
 
   return `query GetTokens(${_variablesString}) {
     ${
       !blockchain || blockchain === 'ethereum'
-        ? getQueryForBlockchain({
+        ? getSubqueryForBlockchain({
             isEthereum: true,
             ...commonParams
           })
@@ -143,7 +142,7 @@ export function createNftWithCommonOwnersSnapshotQuery({
     }
     ${
       !blockchain || blockchain === 'polygon'
-        ? getQueryForBlockchain({
+        ? getSubqueryForBlockchain({
             isEthereum: false,
             ...commonParams
           })

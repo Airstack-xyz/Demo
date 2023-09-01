@@ -31,10 +31,28 @@ import {
   TokenHolders as TokenAndHolder
 } from '../../store/tokenHoldersOverview';
 import { getNFTQueryForTokensHolder } from '../../utils/getNFTQueryForTokensHolder';
+import { SnapshotFilter } from '../../Components/DropdownFilters/SnapshotFilter';
+import {
+  getCommonNftOwnersSnapshotQuery,
+  getNftOwnersSnapshotQuery
+} from '../../queries/commonNftOwnersSnapshotQuery';
+import {
+  getCommonNftOwnersSnapshotQueryWithFilters,
+  getNftOwnersSnapshotQueryWithFilters
+} from '../../queries/commonNftOwnersSnapshotQueryWithFilters';
 
 export function TokenHolders() {
-  const [{ address: tokenAddress, activeView, tokenFilters }, setData] =
-    useSearchInput();
+  const [
+    {
+      address: tokenAddress,
+      activeView,
+      tokenFilters,
+      snapshotBlockNumber,
+      snapshotDate,
+      snapshotTimestamp
+    },
+    setData
+  ] = useSearchInput();
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
 
   const addressRef = useRef<null | string[]>(null);
@@ -61,70 +79,143 @@ export function TokenHolders() {
     addressRef.current = tokenAddress;
   }, [tokenAddress, setData]);
 
-  const isPoap = tokenAddress.every(token => !token.startsWith('0x'));
+  const isSnapshotQuery = Boolean(
+    snapshotBlockNumber || snapshotDate || snapshotTimestamp
+  );
+  const isCombination = tokenAddress.length > 1;
+  const hasSomePoap = tokenAddress.some(token => !token.startsWith('0x'));
+  const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
   const address = useMemo(() => {
-    return getNFTQueryForTokensHolder(tokenAddress, overviewTokens, isPoap);
-  }, [isPoap, tokenAddress, overviewTokens]);
-
-  const hasSomePoap = address.some(token => !token.startsWith('0x'));
+    return getNFTQueryForTokensHolder(tokenAddress, overviewTokens, hasPoap);
+  }, [hasPoap, tokenAddress, overviewTokens]);
 
   const tokenOwnersQuery = useMemo(() => {
     if (address.length === 0) return '';
-    if (address.length === 1) return getNftOwnersQuery(address[0]);
+    if (address.length === 1) {
+      if (isSnapshotQuery) {
+        return getNftOwnersSnapshotQuery({
+          address: address[0],
+          blockNumber: snapshotBlockNumber,
+          date: snapshotDate,
+          timestamp: snapshotTimestamp
+        });
+      }
+      return getNftOwnersQuery(address[0]);
+    }
     if (hasSomePoap) {
       const tokens = sortAddressByPoapFirst(address);
       return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
     }
+    if (isSnapshotQuery) {
+      return getCommonNftOwnersSnapshotQuery({
+        address1: address[0],
+        address2: address[1],
+        blockNumber: snapshotBlockNumber,
+        date: snapshotDate,
+        timestamp: snapshotTimestamp
+      });
+    }
     return getCommonNftOwnersQuery(address[0], address[1]);
-  }, [hasSomePoap, address]);
+  }, [
+    address,
+    hasSomePoap,
+    isSnapshotQuery,
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp
+  ]);
 
   const tokensQueryWithFilter = useMemo(() => {
     const requestFilters = getRequestFilters(tokenFilters);
-    if (address.length === 1)
+    const _hasSocialFilters = Boolean(requestFilters?.socialFilters);
+    const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
+    if (address.length === 1) {
+      if (isSnapshotQuery) {
+        return getNftOwnersSnapshotQueryWithFilters({
+          address: address[0],
+          blockNumber: snapshotBlockNumber,
+          date: snapshotDate,
+          timestamp: snapshotTimestamp,
+          hasSocialFilters: _hasSocialFilters,
+          hasPrimaryDomain: _hasPrimaryDomain
+        });
+      }
       return getNftOwnersQueryWithFilters(
         address[0],
-        Boolean(requestFilters?.socialFilters),
-        requestFilters?.hasPrimaryDomain
+        _hasSocialFilters,
+        _hasPrimaryDomain
       );
+    }
     if (hasSomePoap) {
       const tokens = sortAddressByPoapFirst(address);
       return getCommonPoapAndNftOwnersQueryWithFilters(
         tokens[0],
         tokens[1],
-        Boolean(requestFilters?.socialFilters),
-        requestFilters?.hasPrimaryDomain
+        _hasSocialFilters,
+        _hasPrimaryDomain
       );
+    }
+    if (isSnapshotQuery) {
+      return getCommonNftOwnersSnapshotQueryWithFilters({
+        address1: address[0],
+        address2: address[1],
+        blockNumber: snapshotBlockNumber,
+        date: snapshotDate,
+        timestamp: snapshotTimestamp,
+        hasSocialFilters: _hasSocialFilters,
+        hasPrimaryDomain: _hasPrimaryDomain
+      });
     }
     return getCommonNftOwnersQueryWithFilters(
       address[0],
       address[1],
-      Boolean(requestFilters?.socialFilters),
-      requestFilters?.hasPrimaryDomain
+      _hasSocialFilters,
+      _hasPrimaryDomain
     );
-  }, [address, hasSomePoap, tokenFilters]);
+  }, [
+    address,
+    tokenFilters,
+    hasSomePoap,
+    isSnapshotQuery,
+    snapshotDate,
+    snapshotBlockNumber,
+    snapshotTimestamp
+  ]);
 
   const options = useMemo(() => {
     if (address.length === 0) return [];
 
     if (activeView) {
       const requestFilters = getRequestFilters(tokenFilters);
+      const _hasSocialFilters = Boolean(requestFilters?.socialFilters);
+      const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
       let combinationsQueryLink = '';
-      if (isPoap) {
+      if (hasPoap) {
         const combinationsQuery = getFilterablePoapsQuery(
           address,
-          Boolean(requestFilters?.socialFilters),
-          requestFilters?.hasPrimaryDomain
+          _hasSocialFilters,
+          _hasPrimaryDomain
         );
         combinationsQueryLink = createAppUrlWithQuery(combinationsQuery, {
           limit: 200,
           ...requestFilters
         });
       } else {
-        combinationsQueryLink = createAppUrlWithQuery(tokensQueryWithFilter, {
-          limit: 200,
-          ...requestFilters
-        });
+        if (isSnapshotQuery) {
+          combinationsQueryLink = createAppUrlWithQuery(tokensQueryWithFilter, {
+            limit: 200,
+            blockNumber: snapshotBlockNumber,
+            date: snapshotDate,
+            timestamp: snapshotTimestamp,
+            ...requestFilters
+          });
+        } else {
+          combinationsQueryLink = createAppUrlWithQuery(tokensQueryWithFilter, {
+            limit: 200,
+            ...requestFilters
+          });
+        }
       }
       return [
         {
@@ -134,49 +225,75 @@ export function TokenHolders() {
       ];
     }
 
-    const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
-      limit: 20
-    });
-    const poapsQuery = createCommonOwnersPOAPsQuery(address);
+    const options = [];
 
-    const poapLink = createAppUrlWithQuery(poapsQuery, {
-      limit: 20
-    });
+    if (hasPoap) {
+      const poapsQuery = createCommonOwnersPOAPsQuery(address);
 
-    const tokenSupplyLink = createAppUrlWithQuery(TokenTotalSupplyQuery, {
-      tokenAddress: query
-    });
+      const poapLink = createAppUrlWithQuery(poapsQuery, {
+        limit: 20
+      });
 
-    const poapSupplyLink = createAppUrlWithQuery(POAPSupplyQuery, {
-      eventId: query
-    });
+      const poapSupplyLink = createAppUrlWithQuery(POAPSupplyQuery, {
+        eventId: query
+      });
 
-    const options = [
-      isPoap
-        ? {
-            label: 'POAP holders',
-            link: poapLink
-          }
-        : {
-            label: 'Token holders',
-            link: tokenLink
-          }
-    ];
+      options.push({
+        label: 'POAP holders',
+        link: poapLink
+      });
 
-    options.push({
-      label: isPoap ? 'POAP supply' : 'Token supply',
-      link: isPoap ? poapSupplyLink : tokenSupplyLink
-    });
+      options.push({
+        label: 'POAP supply',
+        link: poapSupplyLink
+      });
+    } else {
+      if (isSnapshotQuery) {
+        const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
+          limit: 20,
+          blockNumber: snapshotBlockNumber,
+          date: snapshotDate,
+          timestamp: snapshotTimestamp
+        });
+
+        options.push({
+          label: 'Token holders',
+          link: tokenLink
+        });
+      } else {
+        const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
+          limit: 20
+        });
+
+        options.push({
+          label: 'Token holders',
+          link: tokenLink
+        });
+
+        const tokenSupplyLink = createAppUrlWithQuery(TokenTotalSupplyQuery, {
+          tokenAddress: query
+        });
+
+        options.push({
+          label: 'Token supply',
+          link: tokenSupplyLink
+        });
+      }
+    }
 
     return options;
   }, [
     activeView,
     address,
-    isPoap,
+    hasPoap,
     query,
     tokenFilters,
     tokenOwnersQuery,
-    tokensQueryWithFilter
+    tokensQueryWithFilter,
+    isSnapshotQuery,
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp
   ]);
 
   const hasMulitpleERC20 = useMemo(() => {
@@ -208,15 +325,20 @@ export function TokenHolders() {
         {query && query.length > 0 && (
           <>
             {!hasMulitpleERC20 && (
-              <div className="hidden sm:flex-col-center my-3">
-                <GetAPIDropdown
-                  options={options}
-                  disabled={overviewTokens.length === 0}
-                />
+              <div className="m-3 flex-row-center">
+                <div className="flex justify-between w-[calc(100vw-20px)] sm:w-[645px]">
+                  <div className="flex-row-center gap-1">
+                    {!hasSomePoap && !isCombination && <SnapshotFilter />}
+                  </div>
+                  <GetAPIDropdown
+                    options={options}
+                    disabled={overviewTokens.length === 0}
+                  />
+                </div>
               </div>
             )}
             <div className="flex flex-col justify-center mt-7" key={query}>
-              <HoldersOverview />
+              {!isSnapshotQuery && <HoldersOverview />}
               {!hasMulitpleERC20 && (
                 <>
                   {activeView && <OverviewDetails />}

@@ -62,7 +62,10 @@ export const Search = memo(function Search() {
 
   const isTokenBalances = isHome ? isTokenBalanceActive : isTokenBalancesPage;
 
-  const [{ rawInput }, setData] = useSearchInput(isTokenBalances);
+  const [
+    { rawInput, snapshotBlockNumber, snapshotDate, snapshotTimestamp },
+    setData
+  ] = useSearchInput(isTokenBalances);
   const navigate = useNavigate();
 
   const [value, setValue] = useState(rawInput || '');
@@ -70,6 +73,10 @@ export const Search = memo(function Search() {
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
   const inputSectionRef = useRef<HTMLDivElement>(null);
   const buttonSectionRef = useRef<HTMLDivElement>(null);
+
+  const isSnapshotQuery = Boolean(
+    snapshotBlockNumber || snapshotDate || snapshotTimestamp
+  );
 
   useEffect(() => {
     setValue(rawInput ? rawInput.trim() + '  ' : '');
@@ -167,6 +174,14 @@ export const Search = memo(function Search() {
         return;
       }
 
+      if (isSnapshotQuery && address.length > 1) {
+        showToast(
+          'You can only search for snapshots for 1 identity at a time',
+          'negative'
+        );
+        return;
+      }
+
       if (address.length > 2) {
         showToast(
           'You can only search for 2 or less identities at a time',
@@ -185,7 +200,7 @@ export const Search = memo(function Search() {
       setValue(rawTextWithMenions.trim() + '  ');
       handleDataChange(searchData);
     },
-    [handleDataChange]
+    [isSnapshotQuery, handleDataChange]
   );
 
   const handleTokenHoldersSearch = useCallback(

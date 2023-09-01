@@ -118,8 +118,8 @@ export function ERC20Tokens() {
       return createNftWithCommonOwnersSnapshotQuery({
         owners,
         blockchain: null,
-        date: snapshotDate,
         blockNumber: snapshotBlockNumber,
+        date: snapshotDate,
         timestamp: snapshotTimestamp
       });
     }
@@ -191,9 +191,9 @@ export function ERC20Tokens() {
         fetch({
           limit: _limit,
           tokenType: ['ERC20'],
-          date: snapshotDate || undefined,
-          blockNumber: snapshotBlockNumber || undefined,
-          timestamp: snapshotTimestamp || undefined
+          blockNumber: snapshotBlockNumber,
+          date: snapshotDate,
+          timestamp: snapshotTimestamp
         });
       } else {
         fetch({

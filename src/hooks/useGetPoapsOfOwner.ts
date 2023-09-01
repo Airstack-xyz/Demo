@@ -27,26 +27,20 @@ export function useGetPoapsOfOwner(
     }
   ] = useSearchInput();
 
+  const isSnapshotQuery = Boolean(
+    snapshotBlockNumber || snapshotDate || snapshotTimestamp
+  );
+
   const query = useMemo(() => {
     return poapsOfCommonOwnersQuery(owners);
   }, [owners]);
 
   const canFetchPoap = useMemo(() => {
     const isPoap = tokenType === 'POAP';
-    // Don't fetch POAPs for snapshot query as right now Snapshot API gives snapshot for TokenBalance only
-    const isSnapshotQuery = Boolean(
-      snapshotBlockNumber || snapshotDate || snapshotTimestamp
-    );
     const hasPolygonChainFilter =
       blockchainType.length === 1 && blockchainType[0] === 'polygon';
     return !hasPolygonChainFilter && !isSnapshotQuery && (!tokenType || isPoap);
-  }, [
-    blockchainType,
-    tokenType,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
-  ]);
+  }, [isSnapshotQuery, tokenType, blockchainType]);
 
   const [
     fetchTokens,

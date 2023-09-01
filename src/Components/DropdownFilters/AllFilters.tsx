@@ -16,6 +16,7 @@ import { filterButtonClass } from './FilterPlaceholder';
 import {
   SnapshotFilterType,
   SnapshotToastMessage,
+  TextValue,
   defaultSnapshotFilter,
   getSnackbarMessage
 } from './SnapshotFilter';
@@ -96,8 +97,8 @@ export function AllFilters() {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
 
-  const [blockNumber, setBlockNumber] = useState('');
-  const [timestamp, setTimestamp] = useState('');
+  const [blockNumber, setBlockNumber] = useState<TextValue>('');
+  const [timestamp, setTimestamp] = useState<TextValue>('');
   const [date, setDate] = useState<DateValue>(new Date());
 
   const datePickerContainerRef = useOutsideClick(() =>
@@ -220,13 +221,17 @@ export function AllFilters() {
     // For snapshot filter
     switch (currentSnapshotFilter) {
       case SnapshotFilterType.BLOCK_NUMBER:
-        filterValues.snapshotBlockNumber = blockNumber;
+        filterValues.snapshotBlockNumber = blockNumber
+          ? Number(blockNumber)
+          : undefined;
         break;
       case SnapshotFilterType.CUSTOM_DATE:
         filterValues.snapshotDate = (date as Date).toISOString().split('T')[0];
         break;
       case SnapshotFilterType.TIMESTAMP:
-        filterValues.snapshotTimestamp = timestamp;
+        filterValues.snapshotTimestamp = timestamp
+          ? Number(timestamp)
+          : undefined;
         break;
     }
 

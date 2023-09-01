@@ -101,49 +101,12 @@ export function TokenBalance() {
 
     const fetchAllBlockchains =
       blockchainType.length === 2 || blockchainType.length === 0;
-    const blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
+    const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
     const _limit = tokenType
       ? [tokenType]
       : tokenTypes.filter(tokenType => tokenType !== 'POAP');
     const _sortBy = sortOrder ? sortOrder : defaultSortOrder;
-
-    let nftLink = null;
-    let erc20Link = null;
-
-    if (isSnapshotQuery) {
-      const tokensQuery = createNftWithCommonOwnersSnapshotQuery({
-        owners: address,
-        blockchain,
-        date: snapshotDate,
-        blockNumber: snapshotBlockNumber,
-        timestamp: snapshotTimestamp
-      });
-
-      nftLink = createAppUrlWithQuery(tokensQuery, {
-        limit: 10,
-        tokenType: _limit
-      });
-
-      erc20Link = createAppUrlWithQuery(tokensQuery, {
-        limit: 50,
-        tokenType: ['ERC20']
-      });
-    } else {
-      const tokensQuery = createNftWithCommonOwnersQuery(address, blockchain);
-
-      nftLink = createAppUrlWithQuery(tokensQuery, {
-        limit: 10,
-        sortBy: _sortBy,
-        tokenType: _limit
-      });
-
-      erc20Link = createAppUrlWithQuery(tokensQuery, {
-        limit: 50,
-        sortBy: _sortBy,
-        tokenType: ['ERC20']
-      });
-    }
 
     const options = [];
 
@@ -152,12 +115,55 @@ export function TokenBalance() {
 
       const poapLink = createAppUrlWithQuery(poapsQuery, {
         limit: 10,
-        sortBy: sortOrder ? sortOrder : defaultSortOrder
+        sortBy: _sortBy
       });
 
       options.push({
         label: 'POAPs',
         link: poapLink
+      });
+    }
+
+    let nftLink = '';
+    let erc20Link = '';
+
+    if (isSnapshotQuery) {
+      const tokensQuery = createNftWithCommonOwnersSnapshotQuery({
+        owners: address,
+        blockchain: _blockchain,
+        blockNumber: snapshotBlockNumber,
+        date: snapshotDate,
+        timestamp: snapshotTimestamp
+      });
+
+      nftLink = createAppUrlWithQuery(tokensQuery, {
+        limit: 10,
+        tokenType: _limit,
+        blockNumber: snapshotBlockNumber,
+        date: snapshotDate,
+        timestamp: snapshotTimestamp
+      });
+
+      erc20Link = createAppUrlWithQuery(tokensQuery, {
+        limit: 50,
+        tokenType: ['ERC20'],
+        blockNumber: snapshotBlockNumber,
+        date: snapshotDate,
+        timestamp: snapshotTimestamp
+      });
+    } else {
+      const tokensQuery = createNftWithCommonOwnersQuery(address, _blockchain);
+
+      nftLink = createAppUrlWithQuery(tokensQuery, {
+        limit: 10,
+        sortBy: _sortBy,
+        tokenType: _limit
+      });
+
+      erc20Link = createAppUrlWithQuery(tokensQuery, {
+        limit: 50,
+        sortBy: _sortBy,
+        tokenType: ['ERC20']
       });
     }
 
@@ -283,7 +289,7 @@ export function TokenBalance() {
                     <AllFilters />
                   ) : (
                     <>
-                      <SnapshotFilter />
+                      {!isCombination && <SnapshotFilter />}
                       <BlockchainFilter />
                       {!isSnapshotQuery && <SortBy />}
                     </>

@@ -27,6 +27,10 @@ import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../../../queries/c
 import { getNFTQueryForTokensHolder } from '../../../../utils/getNFTQueryForTokensHolder';
 import { useOverviewTokens } from '../../../../store/tokenHoldersOverview';
 import { getPoapList, getTokenList } from './utils';
+import {
+  getCommonNftOwnersSnapshotQueryWithFilters,
+  getNftOwnersSnapshotQueryWithFilters
+} from '../../../../queries/commonNftOwnersSnapshotQueryWithFilters';
 
 const LIMIT = 200;
 const MIN_LIMIT = 20;
@@ -90,8 +94,16 @@ export function TokensComponent() {
   const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
   const tokensRef = useRef<(TokenType | Poap)[]>([]);
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
-  const [{ tokenFilters: filters, address: tokenAddress, activeViewToken }] =
-    useSearchInput();
+  const [
+    {
+      tokenFilters: filters,
+      address: tokenAddress,
+      activeViewToken,
+      snapshotBlockNumber,
+      snapshotDate,
+      snapshotTimestamp
+    }
+  ] = useSearchInput();
   const [showStatusLoader, setShowStatusLoader] = useState(false);
   const [loaderStats, setLoaderStats] = useState({
     total: LIMIT,
@@ -102,6 +114,9 @@ export function TokensComponent() {
     return getRequestFilters(filters);
   }, [filters]);
 
+  const isSnapshotQuery = Boolean(
+    snapshotBlockNumber || snapshotDate || snapshotTimestamp
+  );
   const hasSomePoap = tokenAddress.some(token => !token.startsWith('0x'));
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
@@ -110,11 +125,23 @@ export function TokensComponent() {
   }, [hasPoap, tokenAddress, overviewTokens]);
 
   const tokensQuery = useMemo(() => {
+    const _hasSocialFilters = Boolean(requestFilters?.socialFilters);
+    const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
     if (address.length === 1) {
+      if (isSnapshotQuery) {
+        return getNftOwnersSnapshotQueryWithFilters({
+          address: address[0],
+          blockNumber: snapshotBlockNumber,
+          date: snapshotDate,
+          timestamp: snapshotTimestamp,
+          hasSocialFilters: _hasSocialFilters,
+          hasPrimaryDomain: _hasPrimaryDomain
+        });
+      }
       return getNftOwnersQueryWithFilters(
         address[0],
-        Boolean(requestFilters?.socialFilters),
-        requestFilters?.hasPrimaryDomain
+        _hasSocialFilters,
+        _hasPrimaryDomain
       );
     }
     if (hasSomePoap) {
@@ -122,23 +149,45 @@ export function TokensComponent() {
       return getCommonPoapAndNftOwnersQueryWithFilters(
         tokens[0],
         tokens[1],
-        Boolean(requestFilters?.socialFilters),
-        requestFilters?.hasPrimaryDomain
+        _hasSocialFilters,
+        _hasPrimaryDomain
       );
+    }
+    if (isSnapshotQuery) {
+      return getCommonNftOwnersSnapshotQueryWithFilters({
+        address1: address[0],
+        address2: address[1],
+        blockNumber: snapshotBlockNumber,
+        date: snapshotDate,
+        timestamp: snapshotTimestamp,
+        hasSocialFilters: _hasSocialFilters,
+        hasPrimaryDomain: _hasPrimaryDomain
+      });
     }
     return getCommonNftOwnersQueryWithFilters(
       address[0],
       address[1],
-      Boolean(requestFilters?.socialFilters),
-      requestFilters?.hasPrimaryDomain
+      _hasSocialFilters,
+      _hasPrimaryDomain
     );
-  }, [address, hasSomePoap, requestFilters]);
+  }, [
+    address,
+    hasSomePoap,
+    requestFilters?.hasPrimaryDomain,
+    requestFilters?.socialFilters,
+    isSnapshotQuery,
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp
+  ]);
 
   const poapsQuery = useMemo(() => {
+    const _hasSocialFilters = Boolean(requestFilters?.socialFilters);
+    const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
     return getFilterablePoapsQuery(
       address,
-      Boolean(requestFilters?.socialFilters),
-      requestFilters?.hasPrimaryDomain
+      _hasSocialFilters,
+      _hasPrimaryDomain
     );
   }, [
     address,
@@ -233,10 +282,20 @@ export function TokensComponent() {
         return;
       }
 
-      fetchTokens({
-        limit: LIMIT,
-        ...requestFilters
-      });
+      if (isSnapshotQuery) {
+        fetchTokens({
+          limit: LIMIT,
+          blockNumber: snapshotBlockNumber,
+          date: snapshotDate,
+          timestamp: snapshotTimestamp,
+          ...requestFilters
+        });
+      } else {
+        fetchTokens({
+          limit: LIMIT,
+          ...requestFilters
+        });
+      }
     }
   }, [
     fetchPoap,
@@ -244,7 +303,10 @@ export function TokensComponent() {
     filters,
     hasPoap,
     requestFilters,
-    shouldFetchTokens
+    shouldFetchTokens,
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp
   ]);
 
   const { hasNextPage, getNextPage } = hasPoap

@@ -38,12 +38,19 @@ function Loader() {
 
 export function TokensComponent() {
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
-  const [{ address, inputType }] = useSearchInput();
+  const [
+    { address, inputType, snapshotBlockNumber, snapshotDate, snapshotTimestamp }
+  ] = useSearchInput();
 
-  const shouldFetchPoaps = useMemo(
-    () => !address.some(a => a.startsWith('0x')),
-    [address]
+  const isSnapshotQuery = Boolean(
+    snapshotBlockNumber || snapshotDate || snapshotTimestamp
   );
+
+  const shouldFetchPoaps = useMemo(() => {
+    const hasSomeToken = address.some(a => a.startsWith('0x'));
+    // Don't fetch Poaps for snapshot query
+    return !hasSomeToken && !isSnapshotQuery;
+  }, [address, isSnapshotQuery]);
 
   const hasMulitpleERC20 = useMemo(() => {
     const erc20Tokens = overviewTokens.filter(

@@ -27,9 +27,9 @@ export const defaultSnapshotFilter = SnapshotFilterType.TODAY;
 
 type FunctionParams = {
   selectedFilter: SnapshotFilterType;
-  snapshotBlockNumber: string;
-  snapshotDate: string;
-  snapshotTimestamp: string;
+  snapshotBlockNumber?: number;
+  snapshotDate?: string;
+  snapshotTimestamp?: number;
 };
 
 export const getSnackbarMessage = ({
@@ -63,7 +63,7 @@ const getLabelAndIcon = ({
   let icon: IconType = 'calendar';
   switch (selectedFilter) {
     case SnapshotFilterType.BLOCK_NUMBER:
-      label = snapshotBlockNumber;
+      label = String(snapshotBlockNumber);
       icon = 'block';
       break;
     case SnapshotFilterType.CUSTOM_DATE:
@@ -71,7 +71,7 @@ const getLabelAndIcon = ({
       icon = 'calendar';
       break;
     case SnapshotFilterType.TIMESTAMP:
-      label = snapshotTimestamp;
+      label = String(snapshotTimestamp);
       icon = 'clock';
       break;
   }
@@ -86,6 +86,8 @@ export function SnapshotToastMessage({ message }: { message: string }) {
     </div>
   );
 }
+
+export type TextValue = string | number | undefined;
 
 export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   const [{ snapshotBlockNumber, snapshotDate, snapshotTimestamp }, setData] =
@@ -103,8 +105,8 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
 
-  const [blockNumber, setBlockNumber] = useState('');
-  const [timestamp, setTimestamp] = useState('');
+  const [blockNumber, setBlockNumber] = useState<TextValue>('');
+  const [timestamp, setTimestamp] = useState<TextValue>('');
   const [date, setDate] = useState<DateValue>(new Date());
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -178,13 +180,17 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
 
     switch (currentFilter) {
       case SnapshotFilterType.BLOCK_NUMBER:
-        filterValues.snapshotBlockNumber = blockNumber;
+        filterValues.snapshotBlockNumber = blockNumber
+          ? Number(blockNumber)
+          : undefined;
         break;
       case SnapshotFilterType.CUSTOM_DATE:
         filterValues.snapshotDate = (date as Date).toISOString().split('T')[0];
         break;
       case SnapshotFilterType.TIMESTAMP:
-        filterValues.snapshotTimestamp = timestamp;
+        filterValues.snapshotTimestamp = timestamp
+          ? Number(timestamp)
+          : undefined;
         break;
     }
 

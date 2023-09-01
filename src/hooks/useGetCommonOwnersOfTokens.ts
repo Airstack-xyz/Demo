@@ -7,6 +7,11 @@ import {
   getNftOwnersQuery
 } from '../queries/commonNftOwnersQuery';
 import { sortAddressByPoapFirst } from '../utils/sortAddressByPoapFirst';
+import { useSearchInput } from './useSearchInput';
+import {
+  getCommonNftOwnersSnapshotQuery,
+  getNftOwnersSnapshotQuery
+} from '../queries/commonNftOwnersSnapshotQuery';
 
 type Token = TokenType & {
   _poapEvent?: Poap['poapEvent'];
@@ -44,16 +49,48 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
 
+  const [{ snapshotBlockNumber, snapshotDate, snapshotTimestamp }] =
+    useSearchInput();
+
+  const isSnapshotQuery = Boolean(
+    snapshotBlockNumber || snapshotDate || snapshotTimestamp
+  );
   const hasPoap = tokenAddress.some(token => !token.startsWith('0x'));
 
   const query = useMemo(() => {
-    if (tokenAddress.length === 1) return getNftOwnersQuery(tokenAddress[0]);
+    if (tokenAddress.length === 1) {
+      if (isSnapshotQuery) {
+        return getNftOwnersSnapshotQuery({
+          address: tokenAddress[0],
+          blockNumber: snapshotBlockNumber,
+          date: snapshotDate,
+          timestamp: snapshotTimestamp
+        });
+      }
+      return getNftOwnersQuery(tokenAddress[0]);
+    }
     if (hasPoap) {
       const tokens = sortAddressByPoapFirst(tokenAddress);
       return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
     }
+    if (isSnapshotQuery) {
+      return getCommonNftOwnersSnapshotQuery({
+        address1: tokenAddress[0],
+        address2: tokenAddress[1],
+        blockNumber: snapshotBlockNumber,
+        date: snapshotDate,
+        timestamp: snapshotTimestamp
+      });
+    }
     return getCommonNftOwnersQuery(tokenAddress[0], tokenAddress[1]);
-  }, [hasPoap, tokenAddress]);
+  }, [
+    hasPoap,
+    tokenAddress,
+    isSnapshotQuery,
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp
+  ]);
 
   const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
 
@@ -154,11 +191,32 @@ export function useGetCommonOwnersOfTokens(tokenAddress: string[]) {
     setLoading(true);
     setTokens([]);
     ownersSetRef.current = new Set();
-    fetch({
-      limit: fetchSingleToken ? MIN_LIMIT : LIMIT
-    });
+
+    const _limit = fetchSingleToken ? MIN_LIMIT : LIMIT;
+
+    if (isSnapshotQuery) {
+      fetch({
+        limit: _limit,
+        blockNumber: snapshotBlockNumber,
+        date: snapshotDate,
+        timestamp: snapshotTimestamp
+      });
+    } else {
+      fetch({
+        limit: _limit
+      });
+    }
+
     setProcessedTokensCount(LIMIT);
-  }, [fetch, fetchSingleToken, tokenAddress.length]);
+  }, [
+    fetch,
+    fetchSingleToken,
+    tokenAddress.length,
+    isSnapshotQuery,
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp
+  ]);
 
   return {
     fetch: getTokens,

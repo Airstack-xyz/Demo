@@ -18,9 +18,9 @@ export type CachedQuery = {
   activeViewCount: string;
   blockchainType: string[];
   sortOrder: string;
-  snapshotDate: string; // Format: YYYY-MM-DD
-  snapshotBlockNumber: string;
-  snapshotTimestamp: string;
+  snapshotDate: string | undefined; // Format: YYYY-MM-DD
+  snapshotBlockNumber: number | undefined;
+  snapshotTimestamp: number | undefined;
 };
 
 export type UserInputs = CachedQuery;
@@ -138,6 +138,10 @@ export function useSearchInput(
   );
 
   return useMemo(() => {
+    const _snapshotDate = getData('snapshotDate');
+    const _snapshotBlockNumber = getData('snapshotBlockNumber');
+    const _snapshotTimestamp = getData('snapshotTimestamp');
+
     const data = {
       address: getData('address', true),
       tokenType: getData('tokenType'),
@@ -151,9 +155,13 @@ export function useSearchInput(
       activeViewCount: isTokenBalances ? '' : getData('activeViewCount'),
       blockchainType: getData('blockchainType', true),
       sortOrder: getData('sortOrder'),
-      snapshotDate: getData('snapshotDate'),
-      snapshotBlockNumber: getData('snapshotBlockNumber'),
-      snapshotTimestamp: getData('snapshotTimestamp')
+      snapshotDate: _snapshotDate || undefined,
+      snapshotBlockNumber: _snapshotBlockNumber
+        ? Number(_snapshotBlockNumber)
+        : undefined,
+      snapshotTimestamp: _snapshotTimestamp
+        ? Number(_snapshotTimestamp)
+        : undefined
     };
 
     setData(data);
