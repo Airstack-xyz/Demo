@@ -15,19 +15,38 @@ export function useGetPoapsOfOwner(
   const [loading, setLoading] = useState(false);
   const tokensRef = useRef<PoapType[]>([]);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
-  const [{ address: owners, tokenType = '', blockchainType, sortOrder }] =
-    useSearchInput();
-  const isPoap = tokenType === 'POAP';
+  const [
+    {
+      address: owners,
+      tokenType = '',
+      blockchainType,
+      sortOrder,
+      snapshotBlockNumber,
+      snapshotDate,
+      snapshotTimestamp
+    }
+  ] = useSearchInput();
 
   const query = useMemo(() => {
     return poapsOfCommonOwnersQuery(owners);
   }, [owners]);
 
   const canFetchPoap = useMemo(() => {
+    const isPoap = tokenType === 'POAP';
+    // Don't fetch POAPs for snapshot query as right now Snapshot API gives snapshot for TokenBalance only
+    const isSnapshotQuery = Boolean(
+      snapshotBlockNumber || snapshotDate || snapshotTimestamp
+    );
     const hasPolygonChainFilter =
       blockchainType.length === 1 && blockchainType[0] === 'polygon';
-    return !hasPolygonChainFilter && (!tokenType || isPoap);
-  }, [blockchainType, isPoap, tokenType]);
+    return !hasPolygonChainFilter && !isSnapshotQuery && (!tokenType || isPoap);
+  }, [
+    blockchainType,
+    tokenType,
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp
+  ]);
 
   const [
     fetchTokens,
@@ -49,7 +68,17 @@ export function useGetPoapsOfOwner(
       sortBy: sortOrder ? sortOrder : defaultSortOrder
     });
     setProcessedTokensCount(LIMIT);
-  }, [canFetchPoap, fetchTokens, owners, sortOrder, blockchainType, tokenType]);
+  }, [
+    fetchTokens,
+    canFetchPoap,
+    owners,
+    sortOrder,
+    blockchainType,
+    tokenType,
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp
+  ]);
 
   useEffect(() => {
     if (!tokensData) return;

@@ -77,10 +77,10 @@ export function BlockchainFilter() {
       onChange={handleChange}
       options={blockchainOptions}
       disabled={isPoapFilterApplied}
-      renderPlaceholder={(selected, isOpen) => (
+      renderPlaceholder={(selected, isOpen, isDisabled) => (
         <FilterPlaceholder
           isOpen={isOpen}
-          disabled={isPoapFilterApplied}
+          disabled={isPoapFilterApplied || isDisabled}
           icon="blockchain-filter"
           label={selected[0].label}
         />

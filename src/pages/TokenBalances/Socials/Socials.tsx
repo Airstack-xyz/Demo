@@ -1,4 +1,3 @@
-import { useLazyQuery } from '@airstack/airstack-react';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { SocialQuery } from '../../../queries';
 import { SectionHeader } from '../SectionHeader';
@@ -8,6 +7,7 @@ import { useSearchInput } from '../../../hooks/useSearchInput';
 import { Social } from './Social';
 import { XMTP } from './XMTP';
 import { AddressesModal } from '../../../Components/AddressesModal';
+import { useLazyQuery } from '@airstack/airstack-react';
 
 type SocialType = SocialsType['Wallet'];
 const imagesMap: Record<string, string> = {

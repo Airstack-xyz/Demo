@@ -1,13 +1,25 @@
 import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { tokenTypes } from './constants';
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 
 const buttonClass =
   'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light';
 
 export const Filters = memo(function Filters() {
-  const [{ tokenType: existingTokenType = '' }, setData] = useSearchInput();
+  const [
+    {
+      tokenType: existingTokenType = '',
+      snapshotBlockNumber,
+      snapshotDate,
+      snapshotTimestamp
+    },
+    setData
+  ] = useSearchInput();
+
+  const isSnapshotQuery = Boolean(
+    snapshotBlockNumber || snapshotDate || snapshotTimestamp
+  );
 
   const getFilterHandler = useCallback(
     (tokenType: string) => () => {
@@ -25,7 +37,14 @@ export const Filters = memo(function Filters() {
     [existingTokenType, setData]
   );
 
-  const filters = ['All', ...tokenTypes];
+  const filters = useMemo(() => {
+    const tokens = ['All', ...tokenTypes];
+    // Remove POAP token for snapshot query as right now Snapshot API gives snapshot for TokenBalance only
+    if (isSnapshotQuery) {
+      return tokens.filter(tokenType => tokenType !== 'POAP');
+    }
+    return tokens;
+  }, [isSnapshotQuery]);
 
   return (
     <div className="flex justify-between items-center">

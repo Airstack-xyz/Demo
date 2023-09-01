@@ -19,7 +19,11 @@ export function Dropdown({
   options: Option[];
   selected?: Option[];
   closeOnSelect?: boolean;
-  renderPlaceholder: (option: Option[], isOpen: boolean) => ReactNode;
+  renderPlaceholder: (
+    option: Option[],
+    isOpen: boolean,
+    isDisabled?: boolean
+  ) => ReactNode;
   renderOption: (params: {
     option: Option;
     selected: Option[];
@@ -68,7 +72,7 @@ export function Dropdown({
       ref={ref}
     >
       <div onClick={() => setShow(show => (disabled ? false : !show))}>
-        {renderPlaceholder(actualSelected, show)}
+        {renderPlaceholder(actualSelected, show, disabled)}
       </div>
       {show && (
         <div

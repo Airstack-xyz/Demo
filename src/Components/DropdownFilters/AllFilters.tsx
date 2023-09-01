@@ -106,6 +106,9 @@ export function AllFilters() {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const isSnapshotQuery = Boolean(
+    snapshotBlockNumber || snapshotDate || snapshotTimestamp
+  );
   const isPoapFilterApplied = tokenType === 'POAP';
 
   useEffect(() => {
@@ -235,7 +238,12 @@ export function AllFilters() {
     }
 
     // For sort filter
-    filterValues.sortOrder = currentSortOrder || defaultSortOrder;
+    // For snapshot query resetting sort order so that it is not counted in applied filters
+    if (isSnapshotQuery) {
+      filterValues.sortOrder = defaultSortOrder;
+    } else {
+      filterValues.sortOrder = currentSortOrder || defaultSortOrder;
+    }
 
     setIsDropdownVisible(false);
     setData(filterValues, { updateQueryParams: true });
@@ -373,16 +381,20 @@ export function AllFilters() {
                 onClick={handleBlockchainFilterOptionClick(item.value)}
               />
             ))}
-            <div className="font-bold mt-2 py-2 px-3.5 rounded-full text-left whitespace-nowrap">
-              Sort by
-            </div>
-            {sortOptions.map(item => (
-              <FilterOption
-                label={item.label}
-                isSelected={currentSortOrder === item.value}
-                onClick={handleSortOrderOptionClick(item.value)}
-              />
-            ))}
+            {!isSnapshotQuery && (
+              <>
+                <div className="font-bold mt-2 py-2 px-3.5 rounded-full text-left whitespace-nowrap">
+                  Sort by
+                </div>
+                {sortOptions.map(item => (
+                  <FilterOption
+                    label={item.label}
+                    isSelected={currentSortOrder === item.value}
+                    onClick={handleSortOrderOptionClick(item.value)}
+                  />
+                ))}
+              </>
+            )}
             <div className="p-2 mt-1 flex justify-between">
               <button
                 type="button"

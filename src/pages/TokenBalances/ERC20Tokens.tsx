@@ -18,6 +18,7 @@ import { formatNumber } from '../../utils/formatNumber';
 import './erc20.styles.css';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { emit } from '../../utils/eventEmitter/eventEmitter';
+import { createNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
@@ -93,13 +94,43 @@ const MIN_LIMIT = 10;
 export function ERC20Tokens() {
   const [totalProcessedTokens, setTotalProcessedTokens] = useState(0);
   const [tokens, setTokens] = useState<TokenType[]>([]);
-  const [{ address: owners, tokenType, blockchainType, sortOrder }] =
-    useSearchInput();
+  const [
+    {
+      address: owners,
+      tokenType,
+      blockchainType,
+      sortOrder,
+      snapshotBlockNumber,
+      snapshotDate,
+      snapshotTimestamp
+    }
+  ] = useSearchInput();
   const tokensRef = useRef<TokenType[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const isSnapshotQuery = Boolean(
+    snapshotBlockNumber || snapshotDate || snapshotTimestamp
+  );
+  const isCombination = owners.length > 1;
+
   const query = useMemo(() => {
+    if (isSnapshotQuery) {
+      return createNftWithCommonOwnersSnapshotQuery({
+        owners,
+        blockchain: null,
+        date: snapshotDate,
+        blockNumber: snapshotBlockNumber,
+        timestamp: snapshotTimestamp
+      });
+    }
     return createNftWithCommonOwnersQuery(owners, null);
-  }, [owners]);
+  }, [
+    owners,
+    isSnapshotQuery,
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp
+  ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onData = useCallback((data: any) => {
@@ -143,7 +174,6 @@ export function ERC20Tokens() {
 
   let data = erc20Data;
   const { hasNextPage, getNextPage } = pagination;
-  const isCombination = owners.length > 1;
 
   useEffect(() => {
     if (owners.length > 0) {
@@ -151,21 +181,43 @@ export function ERC20Tokens() {
       tokensRef.current = [];
       setTokens([]);
       setTotalProcessedTokens(0);
-      // remove data to make sure on next render, the data is not used in the useEffect below
+      // Remove data to make sure on next render, the data is not used in the useEffect below
       // eslint-disable-next-line react-hooks/exhaustive-deps
       data = null;
 
-      fetch({
-        limit: owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT,
-        tokenType: ['ERC20']
-      });
+      const _limit = owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT;
+
+      if (isSnapshotQuery) {
+        fetch({
+          limit: _limit,
+          tokenType: ['ERC20'],
+          date: snapshotDate || undefined,
+          blockNumber: snapshotBlockNumber || undefined,
+          timestamp: snapshotTimestamp || undefined
+        });
+      } else {
+        fetch({
+          limit: _limit,
+          tokenType: ['ERC20']
+        });
+      }
     }
     /*
       Even though ERC20 tokens are not dependant on tokenType, we added tokenType to the dependency array to force a refetch when tokenType changes.
       Without this, the tokens list would be unable to fetch additional pages since the window scroll height would be too great (too many ERC20 items).
       InfiniteScroll depends on the window scroll height, if the height is too high, user will have to scroll to the bottom to initiate a pagination call.
     */
-  }, [fetch, owners, tokenType, blockchainType, sortOrder]);
+  }, [
+    fetch,
+    owners,
+    tokenType,
+    blockchainType,
+    sortOrder,
+    isSnapshotQuery,
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp
+  ]);
 
   useEffect(() => {
     if (!data) return;

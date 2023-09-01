@@ -14,6 +14,7 @@ import { Icon, IconType } from '../Icon';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 import { formatDate } from '../../utils';
+import { defaultSortOrder } from './SortBy';
 
 export const enum SnapshotFilterType {
   TODAY = 'TODAY',
@@ -169,6 +170,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   // Not enclosing in useCallback as its dependencies will change everytime
   const handleApplyClick = () => {
     const filterValues: Partial<CachedQuery> = {
+      sortOrder: defaultSortOrder, // For snapshot query resetting sort order so that it is not counted in applied filters
       snapshotBlockNumber: undefined,
       snapshotDate: undefined,
       snapshotTimestamp: undefined

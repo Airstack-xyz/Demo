@@ -51,9 +51,10 @@ export function SortBy({ disabled }: { disabled?: boolean }) {
       selected={selected}
       onChange={handleChange}
       options={sortOptions}
-      renderPlaceholder={(selected, isOpen) => (
+      renderPlaceholder={(selected, isOpen, isDisabled) => (
         <FilterPlaceholder
           isOpen={isOpen}
+          disabled={isDisabled}
           icon="sort"
           label={selected[0].label}
         />

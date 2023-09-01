@@ -5,6 +5,7 @@ import { useSearchInput } from './useSearchInput';
 import { defaultSortOrder } from '../Components/DropdownFilters/SortBy';
 import { tokenTypes } from '../pages/TokenBalances/constants';
 import { CommonTokenType, TokenType } from '../pages/TokenBalances/types';
+import { createNftWithCommonOwnersSnapshotQuery } from '../queries/nftWithCommonOwnersSnapshotQuery';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 
 const LIMIT = 20;
@@ -18,19 +19,46 @@ export function useGetTokensOfOwner(
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
   const tokensRef = useRef<TokenType[]>([]);
   const [
-    { address: owners, tokenType: tokenType = '', blockchainType, sortOrder }
+    {
+      address: owners,
+      tokenType: tokenType = '',
+      blockchainType,
+      sortOrder,
+      snapshotBlockNumber,
+      snapshotDate,
+      snapshotTimestamp
+    }
   ] = useSearchInput();
-  const fetchAllBlockchains =
-    blockchainType.length === 2 || blockchainType.length === 0;
+
+  const isSnapshotQuery = Boolean(
+    snapshotBlockNumber || snapshotDate || snapshotTimestamp
+  );
 
   const query = useMemo(() => {
-    return createNftWithCommonOwnersQuery(
-      owners,
-      fetchAllBlockchains ? null : blockchainType[0]
-    );
-  }, [blockchainType, fetchAllBlockchains, owners]);
+    const fetchAllBlockchains =
+      blockchainType.length === 2 || blockchainType.length === 0;
 
-  const isPoap = tokenType === 'POAP';
+    const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
+
+    if (isSnapshotQuery) {
+      return createNftWithCommonOwnersSnapshotQuery({
+        owners,
+        blockchain: _blockchain,
+        date: snapshotDate,
+        blockNumber: snapshotBlockNumber,
+        timestamp: snapshotTimestamp
+      });
+    }
+    return createNftWithCommonOwnersQuery(owners, _blockchain);
+  }, [
+    owners,
+    blockchainType,
+    isSnapshotQuery,
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp
+  ]);
+
   const [
     fetchTokens,
     {
@@ -42,28 +70,48 @@ export function useGetTokensOfOwner(
   useEffect(() => {
     if (owners.length === 0) return;
 
+    const isPoap = tokenType === 'POAP';
+
     if (!tokenType || !isPoap) {
       setLoading(true);
       visitedTokensSetRef.current = new Set();
       tokensRef.current = [];
-      fetchTokens({
-        limit: owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT,
-        sortBy: sortOrder ? sortOrder : defaultSortOrder,
-        tokenType:
-          tokenType && tokenType.length > 0
-            ? [tokenType]
-            : tokenTypes.filter(tokenType => tokenType !== 'POAP')
-      });
+
+      const _limit = owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT;
+      const _tokenType =
+        tokenType && tokenType.length > 0
+          ? [tokenType]
+          : tokenTypes.filter(tokenType => tokenType !== 'POAP');
+
+      // For snapshots different variables are being passed
+      if (isSnapshotQuery) {
+        fetchTokens({
+          limit: _limit,
+          tokenType: _tokenType,
+          date: snapshotDate || undefined,
+          blockNumber: snapshotBlockNumber || undefined,
+          timestamp: snapshotTimestamp || undefined
+        });
+      } else {
+        fetchTokens({
+          limit: _limit,
+          tokenType: _tokenType,
+          sortBy: sortOrder ? sortOrder : defaultSortOrder
+        });
+      }
     }
 
     setProcessedTokensCount(LIMIT);
   }, [
-    blockchainType,
     fetchTokens,
-    isPoap,
     owners.length,
+    blockchainType,
     sortOrder,
-    tokenType
+    tokenType,
+    isSnapshotQuery,
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp
   ]);
 
   useEffect(() => {
