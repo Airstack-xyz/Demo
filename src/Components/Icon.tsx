@@ -36,7 +36,8 @@ export type IconType =
   | 'calendar'
   | 'clock'
   | 'block'
-  | 'eye';
+  | 'eye'
+  | 'holder-white';
 
 export type IconProps = {
   name: IconType;

@@ -24,13 +24,14 @@ import {
   getNftOwnersQueryWithFilters
 } from '../../../../queries/commonNftOwnersQueryWithFilters';
 import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../../../queries/commonPoapAndNftOwnersQueryWithFilters';
-import { getNFTQueryForTokensHolder } from '../../../../utils/getNFTQueryForTokensHolder';
-import { useOverviewTokens } from '../../../../store/tokenHoldersOverview';
-import { getPoapList, getTokenList } from './utils';
 import {
   getCommonNftOwnersSnapshotQueryWithFilters,
   getNftOwnersSnapshotQueryWithFilters
 } from '../../../../queries/commonNftOwnersSnapshotQueryWithFilters';
+import { sortByAddressByNonERC20First } from '../../../../utils/getNFTQueryForTokensHolder';
+import { useOverviewTokens } from '../../../../store/tokenHoldersOverview';
+import { getPoapList, getTokenList } from './utils';
+import { sortAddressByPoapFirst } from '../../../../utils/sortAddressByPoapFirst';
 
 const LIMIT = 200;
 const MIN_LIMIT = 20;
@@ -74,20 +75,20 @@ function Loader() {
   );
 }
 
-function sortArray(array: string[]) {
-  const startsWith0x: string[] = [];
-  const notStartsWith0x: string[] = [];
+// function sortArray(array: TokenAddress[]) {
+//   const startsWith0x: TokenAddress[] = [];
+//   const notStartsWith0x: TokenAddress[] = [];
 
-  for (const item of array) {
-    if (item.startsWith('0x')) {
-      startsWith0x.push(item);
-    } else {
-      notStartsWith0x.push(item);
-    }
-  }
+//   for (const item of array) {
+//     if (item.address.startsWith('0x')) {
+//       startsWith0x.push(item);
+//     } else {
+//       notStartsWith0x.push(item);
+//     }
+//   }
 
-  return [...notStartsWith0x, ...startsWith0x];
-}
+//   return [...notStartsWith0x, ...startsWith0x];
+// }
 
 export function TokensComponent() {
   const ownersSetRef = useRef<Set<string>>(new Set());
@@ -121,7 +122,7 @@ export function TokensComponent() {
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
   const address = useMemo(() => {
-    return getNFTQueryForTokensHolder(tokenAddress, overviewTokens, hasPoap);
+    return sortByAddressByNonERC20First(tokenAddress, overviewTokens, hasPoap);
   }, [hasPoap, tokenAddress, overviewTokens]);
 
   const tokensQuery = useMemo(() => {
@@ -130,7 +131,7 @@ export function TokensComponent() {
     if (address.length === 1) {
       if (isSnapshotQuery) {
         return getNftOwnersSnapshotQueryWithFilters({
-          address: address[0],
+          address: address[0].address,
           blockNumber: snapshotBlockNumber,
           date: snapshotDate,
           timestamp: snapshotTimestamp,
@@ -139,13 +140,13 @@ export function TokensComponent() {
         });
       }
       return getNftOwnersQueryWithFilters(
-        address[0],
+        address[0].address,
         _hasSocialFilters,
         _hasPrimaryDomain
       );
     }
     if (hasSomePoap) {
-      const tokens = sortArray(address);
+      const tokens = sortAddressByPoapFirst(address);
       return getCommonPoapAndNftOwnersQueryWithFilters(
         tokens[0],
         tokens[1],

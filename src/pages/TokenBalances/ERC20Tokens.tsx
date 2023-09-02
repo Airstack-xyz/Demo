@@ -209,7 +209,7 @@ export function ERC20Tokens() {
     */
   }, [
     fetch,
-    owners,
+    owners.length,
     tokenType,
     blockchainType,
     sortOrder,

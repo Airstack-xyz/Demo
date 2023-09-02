@@ -1,6 +1,8 @@
-const socialInput = '(input:{ filter:{ dappName:{ _in: $socialFilters } } })';
+import { TokenAddress } from '../pages/TokenHolders/types';
+
+const socialInput = '(input: {filter: {dappName: {_in: $socialFilters}}})';
 const primaryDomainInput =
-  '(input:{ filter:{ isPrimary:{ _eq: $hasPrimaryDomain } } })';
+  '(input: {filter: {isPrimary: {_eq: $hasPrimaryDomain}}})';
 
 function getCommonNftOwnersSubqueryForBlockchain({
   address1,
@@ -12,8 +14,8 @@ function getCommonNftOwnersSubqueryForBlockchain({
   hasSocialFilters,
   hasPrimaryDomain
 }: {
-  address1: string;
-  address2: string;
+  address1: TokenAddress;
+  address2: TokenAddress;
   blockchain: string;
   hasDate?: boolean;
   hasBlockNumber?: boolean;
@@ -21,23 +23,25 @@ function getCommonNftOwnersSubqueryForBlockchain({
   hasSocialFilters: boolean;
   hasPrimaryDomain: boolean;
 }) {
-  const _filters = [`tokenAddress:{ _eq: "${address1}" }`];
+  const _filters = [`tokenAddress: {_eq: "${address1.address}"}`];
   if (hasDate) {
-    _filters.push('date:{ _eq: $date }');
+    _filters.push('date: {_eq: $date}');
   }
   if (hasBlockNumber) {
-    _filters.push('blockNumber:{ _eq: $blockNumber }');
+    _filters.push('blockNumber: {_eq: $blockNumber}');
   }
   if (hasTimestamp) {
-    _filters.push('timestamp:{ _eq: $timestamp }');
+    _filters.push('timestamp: {_eq: $timestamp}');
   }
   const _filtersString = _filters.join(',');
 
   return `
-    ${blockchain}: Snapshots(input:{ filter:{ ${_filtersString} }, blockchain: ${blockchain}, limit: $limit}) {
+    ${blockchain}: Snapshots(input :{filter: {${_filtersString}}, blockchain: ${blockchain}, limit: $limit}) {
         TokenBalance: Snapshot {
           owner {
-            tokenBalances(input:{ filter:{ tokenAddress:{ _eq: "${address2}" } } }) {
+            tokenBalances(input: {filter: {tokenAddress: {_eq:"${
+              address2.address
+            }"}}, blockchain: ${address2.blockchain}}) {
               tokenId
               tokenAddress
               token {
@@ -84,8 +88,8 @@ export function getCommonNftOwnersSnapshotQueryWithFilters({
   hasSocialFilters = false,
   hasPrimaryDomain = false
 }: {
-  address1: string;
-  address2: string;
+  address1: TokenAddress;
+  address2: TokenAddress;
   date?: string;
   blockNumber?: number;
   timestamp?: number;
@@ -149,20 +153,20 @@ function getNftOwnersSubqueryForBlockchain({
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }) {
-  const _filters = [`tokenAddress:{ _eq: "${address}" }`];
+  const _filters = [`tokenAddress: {_eq: "${address}"}`];
   if (hasDate) {
-    _filters.push('date:{ _eq: $date }');
+    _filters.push('date: {_eq: $date}');
   }
   if (hasBlockNumber) {
-    _filters.push('blockNumber:{ _eq: $blockNumber }');
+    _filters.push('blockNumber: {_eq: $blockNumber}');
   }
   if (hasTimestamp) {
-    _filters.push('timestamp:{ _eq: $timestamp }');
+    _filters.push('timestamp: {_eq: $timestamp}');
   }
   const _filtersString = _filters.join(',');
 
   return `
-    ${blockchain}: Snapshots(input:{ filter:{ ${_filtersString} }, blockchain: ${blockchain}, limit: $limit}) {
+    ${blockchain}: Snapshots(input: {filter: {${_filtersString}}, blockchain: ${blockchain}, limit: $limit}) {
       TokenBalance : Snapshot {
         tokenId
         tokenAddress

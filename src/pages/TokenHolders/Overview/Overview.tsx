@@ -11,7 +11,7 @@ import { useFetchTokens } from '../../../hooks/useGetTokens';
 import { useTokensSupply } from '../../../hooks/useTokensSupply';
 import classNames from 'classnames';
 import {
-  TokenHolders,
+  TokenHolder,
   useOverviewTokens
 } from '../../../store/tokenHoldersOverview';
 import { showToast } from '../../../utils/showToast';
@@ -39,13 +39,20 @@ function Overview() {
     // only fetch holders count if all tokens are of same type or all are NFTs
     const nftTokens = ['ERC721', 'ERC1155'];
     const tokenType = tokenDetails[0]?.tokenType;
+    const blockchin = tokenDetails[0]?.blockchain;
 
-    return tokenDetails.every(token => {
+    const hasSameBlockchain = tokenDetails.every(
+      token => token.blockchain === blockchin
+    );
+
+    const hasSameOrValidTokenType = tokenDetails.every(token => {
       if (nftTokens.includes(tokenType)) {
         return nftTokens.includes(token.tokenType);
       }
       return token.tokenType === tokenType;
     });
+
+    return hasSameBlockchain && hasSameOrValidTokenType;
   }, [tokenDetails]);
 
   const {
@@ -95,13 +102,14 @@ function Overview() {
     if (tokenDetails.length > 0) {
       setTokens({
         tokens: tokenDetails.map(
-          ({ name, tokenAddress, eventId, tokenType }) => {
+          ({ name, tokenAddress, eventId, tokenType, blockchain }) => {
             const key = eventId ? eventId : tokenAddress;
-            const tokenAndHolders: TokenHolders = {
+            const tokenAndHolders: TokenHolder = {
               name,
               tokenAddress: key,
               holdersCount: totalSupply?.[key.toLocaleLowerCase()] || 0,
-              tokenType
+              tokenType,
+              blockchain
             };
             return tokenAndHolders;
           }
@@ -154,7 +162,7 @@ function Overview() {
       if (image)
         return (
           <div
-            className={classNames({
+            className={classNames('[&>img]:w-full', {
               flex: address.length === 1
             })}
           >
@@ -204,9 +212,7 @@ function Overview() {
       let subText = text;
       if (key === 'owners' && tokenDetails) {
         subText += `${totalHolders === 1 ? 's' : ''} ${
-          tokenDetails.length > 1
-            ? 'both contracts'
-            : tokenName || 'these contract'
+          tokenDetails.length > 1 ? 'both tokens' : tokenName || 'these tokens'
         }`;
       }
 
@@ -220,15 +226,17 @@ function Overview() {
         count = '';
       }
 
+      const loadingCount = noHoldersCount
+        ? false
+        : loadingTokenOverview || (loadingTokens && shouldFetchHoldersCount);
+
       return (
         <HolderCount
           key={key}
           name={key}
           tokenName={tokenName || ''}
-          loading={
-            loadingTokenOverview || (loadingTokens && shouldFetchHoldersCount)
-          }
-          disableAction={loadingTokenOverview || loadingTokens}
+          loading={loadingCount}
+          disableAction={loadingCount}
           count={count}
           subText={subText}
           withoutCount={noHoldersCount}

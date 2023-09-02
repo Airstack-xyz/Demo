@@ -85,11 +85,11 @@ export function TokenBalance() {
       snapshotTimestamp
     }
   ] = useSearchInput();
-  const query = address.length > 0 ? address[0] : '';
   const isHome = useMatch('/');
-
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
+
+  const query = address.length > 0 ? address[0] : '';
 
   const isSnapshotQuery = Boolean(
     snapshotBlockNumber || snapshotDate || snapshotTimestamp
@@ -298,7 +298,7 @@ export function TokenBalance() {
                 <GetAPIDropdown options={options} />
               </div>
             </div>
-            <div className="flex justify-between px-5">
+            <div className="flex justify-between px-2 sm:px-5">
               <div className="w-full h-full" key={query}>
                 <div className="hidden sm:block">
                   <SectionHeader iconName="nft-flat" heading={tab1Header} />

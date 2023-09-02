@@ -1,10 +1,12 @@
+import { TokenAddress } from '../pages/TokenHolders/types';
+
 const socialInput = '(input: {filter: {dappName: {_in: $socialFilters}}})';
 const primaryDomainInput =
   '(input: {filter: {isPrimary: {_eq: $hasPrimaryDomain}}})';
 
 export function getCommonNftOwnersQueryWithFilters(
-  token1: string,
-  token2: string,
+  token1: TokenAddress,
+  token2: TokenAddress,
   hasSocialFilters = false,
   hasPrimaryDomainFilter = false
 ) {
@@ -12,11 +14,15 @@ export function getCommonNftOwnersQueryWithFilters(
     hasSocialFilters ? ', $socialFilters: [SocialDappName!]' : ''
   }${hasPrimaryDomainFilter ? ', $hasPrimaryDomain: Boolean' : ''}) {
     ethereum: TokenBalances(
-      input: {filter: {tokenAddress: {_eq: "${token1}"}}, blockchain: ethereum, limit: $limit}
+      input: {filter: {tokenAddress: {_eq: "${
+        token1.address
+      }"}}, blockchain: ethereum, limit: $limit}
     ) {
       TokenBalance {
         owner {
-          tokenBalances(input: {filter: {tokenAddress: {_eq: "${token2}"}}}) {
+          tokenBalances(input: {filter: {tokenAddress: {_eq: "${
+            token2.address
+          }"}}, blockchain: ${token2.blockchain}}) {
             tokenId
             tokenAddress
             token {
@@ -52,11 +58,15 @@ export function getCommonNftOwnersQueryWithFilters(
       }
     }
     polygon: TokenBalances(
-      input: {filter: {tokenAddress: {_eq: "${token1}"}}, blockchain: polygon, limit: $limit}
+      input: {filter: {tokenAddress: {_eq: "${
+        token1.address
+      }"}}, blockchain: polygon, limit: $limit}
     ) {
       TokenBalance {
         owner {
-          tokenBalances(input: {filter: {tokenAddress: {_eq: "${token2}"}}}) {
+          tokenBalances(input: {filter: {tokenAddress: {_eq: "${
+            token2.address
+          }"}}, blockchain: ${token2.blockchain}}) {
             tokenId
             tokenAddress
             token {

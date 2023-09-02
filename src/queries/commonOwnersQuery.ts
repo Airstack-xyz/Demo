@@ -64,7 +64,7 @@ function getQueryWithFiter(tokens: string[], index = 0): string {
 }
 
 export function createCommonOwnersQuery(tokenAddress: string[]) {
-  const childern =
+  const children =
     tokenAddress.length === 1 ? fields : getQueryWithFiter(tokenAddress, 1);
   return `query GetTokenHolders($limit: Int) {
     ethereum: TokenBalances(
@@ -74,7 +74,7 @@ export function createCommonOwnersQuery(tokenAddress: string[]) {
     ) {
       TokenBalance {
         ${tokenAddress.length > 1 ? fieldsWithAsset : ''} 
-        ${childern}
+        ${children}
       }
     }
     polygon: TokenBalances(
@@ -84,7 +84,7 @@ export function createCommonOwnersQuery(tokenAddress: string[]) {
     ) {
       TokenBalance {
         ${tokenAddress.length > 1 ? fieldsWithAsset : ''}
-        ${childern}
+        ${children}
       }
     }
   }`;

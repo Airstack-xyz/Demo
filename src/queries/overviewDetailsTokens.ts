@@ -104,7 +104,7 @@ export const getFilterableTokensQuery = (
   hasSocialFilters = false,
   hasPrimaryDomainFilter = false
 ) => {
-  const childern =
+  const children =
     tokenAddress.length === 1
       ? createBaseQuery(hasSocialFilters, hasPrimaryDomainFilter)
       : getQueryWithFiter(
@@ -122,7 +122,7 @@ export const getFilterableTokensQuery = (
       }"}}, blockchain: ethereum, limit: $limit}
     ) {
       TokenBalance {
-        ${childern}
+        ${children}
       }
     }
     polygon: TokenBalances(
@@ -131,7 +131,7 @@ export const getFilterableTokensQuery = (
       }"}}, blockchain: polygon, limit: $limit}
     ) {
       TokenBalance {
-        ${childern}
+        ${children}
       }
     }
   }`;

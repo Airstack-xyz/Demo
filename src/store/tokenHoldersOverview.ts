@@ -1,14 +1,15 @@
 import { createStore } from 'react-nano-store';
 
-export type TokenHolders = {
+export type TokenHolder = {
   name: string;
   tokenAddress: string;
   holdersCount: number;
   tokenType: string;
+  blockchain: string;
 };
 
 const store: {
-  tokens: TokenHolders[];
+  tokens: TokenHolder[];
 } = {
   tokens: []
 };

@@ -140,7 +140,7 @@ export function commonOwnersQueryDynamic(tokenAddress: string[]) {
   // make sure the tokenAddress had tokens alwasy first
   tokenAddress = sortArray(tokenAddress);
   const isToken = tokenAddress[0].startsWith('0x');
-  const childern =
+  const children =
     tokenAddress.length === 1
       ? getFields(tokenAddress[0])
       : getQueryWithFiter(tokenAddress, 1);
@@ -153,7 +153,7 @@ export function commonOwnersQueryDynamic(tokenAddress: string[]) {
     ) {
       TokenBalance {
         ${tokenAddress.length > 1 ? fieldsWithAsset : ''} 
-        ${childern}
+        ${children}
       }
     }
     ${
@@ -165,7 +165,7 @@ export function commonOwnersQueryDynamic(tokenAddress: string[]) {
     ) {
       TokenBalance {
         ${tokenAddress.length > 1 ? fieldsWithAsset : ''}
-        ${childern}
+        ${children}
       }
     }`
         : ''

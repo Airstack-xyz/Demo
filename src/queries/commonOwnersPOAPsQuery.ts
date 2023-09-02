@@ -1,3 +1,5 @@
+import { TokenAddress } from '../pages/TokenHolders/types';
+
 const fields = `id
 blockchain
 tokenId
@@ -45,27 +47,27 @@ owner {
   }
 }`;
 
-function getQueryWithFiter(tokenids: string[], index = 0): string {
+function getQueryWithFiter(tokenIds: TokenAddress[], index = 0): string {
   const children =
-    tokenids.length - 1 === index
+    tokenIds.length - 1 === index
       ? fields
-      : getQueryWithFiter(tokenids, index + 1);
+      : getQueryWithFiter(tokenIds, index + 1);
   return `owner {
         poaps(
-          input: {filter: {eventId: {_eq: "${tokenids[index]}"}}}
+          input: {filter: {eventId: {_eq: "${tokenIds[index].address}"}}, blockchain: ALL}
         ) {
             ${children}
           }
         }`;
 }
 
-export function createCommonOwnersPOAPsQuery(tokenIds: string[]) {
+export function createCommonOwnersPOAPsQuery(tokenIds: TokenAddress[]) {
   if (tokenIds.length === 0) return '';
-  const childern =
+  const children =
     tokenIds.length === 1 ? fields : getQueryWithFiter(tokenIds, 1);
   return `query GetPoapHolders($limit: Int) {
     Poaps(
-      input: {filter: {eventId: {_eq: "${tokenIds[0]}"}}, blockchain: ALL, limit: $limit}
+      input: {filter: {eventId: {_eq: "${tokenIds[0].address}"}}, blockchain: ALL, limit: $limit}
     ) {
       Poap {
         tokenId
@@ -85,7 +87,7 @@ export function createCommonOwnersPOAPsQuery(tokenIds: string[]) {
             }
           }
         }
-        ${childern}
+        ${children}
       }
     } 
   }`;

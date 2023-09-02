@@ -28,9 +28,9 @@ import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../queries/commonP
 import { useMatch } from 'react-router-dom';
 import {
   useOverviewTokens,
-  TokenHolders as TokenAndHolder
+  TokenHolder
 } from '../../store/tokenHoldersOverview';
-import { getNFTQueryForTokensHolder } from '../../utils/getNFTQueryForTokensHolder';
+import { sortByAddressByNonERC20First } from '../../utils/getNFTQueryForTokensHolder';
 import { SnapshotFilter } from '../../Components/DropdownFilters/SnapshotFilter';
 import {
   getCommonNftOwnersSnapshotQuery,
@@ -87,7 +87,7 @@ export function TokenHolders() {
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
   const address = useMemo(() => {
-    return getNFTQueryForTokensHolder(tokenAddress, overviewTokens, hasPoap);
+    return sortByAddressByNonERC20First(tokenAddress, overviewTokens, hasPoap);
   }, [hasPoap, tokenAddress, overviewTokens]);
 
   const tokenOwnersQuery = useMemo(() => {
@@ -95,13 +95,13 @@ export function TokenHolders() {
     if (address.length === 1) {
       if (isSnapshotQuery) {
         return getNftOwnersSnapshotQuery({
-          address: address[0],
+          address: address[0].address,
           blockNumber: snapshotBlockNumber,
           date: snapshotDate,
           timestamp: snapshotTimestamp
         });
       }
-      return getNftOwnersQuery(address[0]);
+      return getNftOwnersQuery(address[0].address);
     }
     if (hasSomePoap) {
       const tokens = sortAddressByPoapFirst(address);
@@ -133,7 +133,7 @@ export function TokenHolders() {
     if (address.length === 1) {
       if (isSnapshotQuery) {
         return getNftOwnersSnapshotQueryWithFilters({
-          address: address[0],
+          address: address[0].address,
           blockNumber: snapshotBlockNumber,
           date: snapshotDate,
           timestamp: snapshotTimestamp,
@@ -142,7 +142,7 @@ export function TokenHolders() {
         });
       }
       return getNftOwnersQueryWithFilters(
-        address[0],
+        address[0].address,
         _hasSocialFilters,
         _hasPrimaryDomain
       );
@@ -298,7 +298,7 @@ export function TokenHolders() {
 
   const hasMulitpleERC20 = useMemo(() => {
     const erc20Tokens = overviewTokens.filter(
-      (token: TokenAndHolder) => token.tokenType === 'ERC20'
+      (token: TokenHolder) => token.tokenType === 'ERC20'
     );
     return erc20Tokens.length > 1;
   }, [overviewTokens]);

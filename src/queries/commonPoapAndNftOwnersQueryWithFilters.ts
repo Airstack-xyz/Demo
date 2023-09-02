@@ -1,10 +1,12 @@
+import { TokenAddress } from '../pages/TokenHolders/types';
+
 const socialInput = '(input: {filter: {dappName: {_in: $socialFilters}}})';
 const primaryDomainInput =
   '(input: {filter: {isPrimary: {_eq: $hasPrimaryDomain}}})';
 
 export function getCommonPoapAndNftOwnersQueryWithFilters(
-  eventId: string,
-  tokenId: string,
+  eventId: TokenAddress,
+  tokenId: TokenAddress,
   hasSocialFilters = false,
   hasPrimaryDomainFilter = false
 ) {
@@ -12,11 +14,15 @@ export function getCommonPoapAndNftOwnersQueryWithFilters(
     hasSocialFilters ? ', $socialFilters: [SocialDappName!]' : ''
   }${hasPrimaryDomainFilter ? ', $hasPrimaryDomain: Boolean' : ''}) {
     Poaps(
-      input: {filter: {eventId: {_eq: "${eventId}"}}, blockchain: ALL, limit: $limit}
+      input: {filter: {eventId: {_eq: "${
+        eventId.address
+      }"}}, blockchain: ALL, limit: $limit}
     ) {
       Poap { 
         owner {
-          tokenBalances(input: {filter: {tokenAddress: {_eq: "${tokenId}"}}}) {
+          tokenBalances(input: {filter: {tokenAddress: {_eq: "${
+            tokenId.address
+          }"}}, blockchain: ${tokenId.blockchain}}) {
             tokenId
             tokenAddress
             token {

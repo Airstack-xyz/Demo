@@ -1,33 +1,33 @@
-const fields = `
+const recursiveFields = `
   amount
   tokenType
   blockchain
   tokenAddress
   formattedAmount
   owner {
-      addresses
+    addresses
   }
   tokenNfts {
-      tokenId
-      contentValue {
-          image {
-          small
-          large
-          extraSmall
-          medium
-          original
-          }
+    tokenId
+    contentValue {
+      image {
+        small
+        large
+        extraSmall
+        medium
+        original
       }
+    }
   }
   token {
-      name
-      symbol
-      logo {
-        small
-      }
-      projectDetails {
-        imageUrl
-      }
+    name
+    symbol
+    logo {
+      small
+    }
+    projectDetails {
+      imageUrl
+    }
   }
 `;
 
@@ -38,10 +38,18 @@ function getSubqueryWithFiter(
 ): string {
   const children =
     owners.length - 1 === index
-      ? fields
+      ? recursiveFields
       : getSubqueryWithFiter(owners, index + 1, blockchain);
   return `
     token {
+      name
+      symbol
+      logo {
+        small
+      }
+      projectDetails {
+        imageUrl
+      }
       tokenBalances(input: {filter: {owner: {_eq: "${owners[index]}"}, tokenType: {_in: $tokenType}}, blockchain: ${blockchain}}) {
         ${children}
       }
@@ -49,9 +57,27 @@ function getSubqueryWithFiter(
   `;
 }
 
-const tokenId = `
-  tokenNfts: tokenNft {
+const fields = `
+  blockchain
+  tokenAddress
+  tokenType
+  tokenNfts {
     tokenId
+    contentValue {
+      image {
+        medium
+      }
+    }
+  }
+  token {
+    name
+    symbol
+    logo {
+      small
+    }
+    projectDetails {
+      imageUrl
+    }
   }
 `;
 
@@ -70,27 +96,29 @@ function getSubqueryForBlockchain({
 }) {
   const blockchain = isEthereum ? 'ethereum' : 'polygon';
   const children =
-    owners.length === 1 ? fields : getSubqueryWithFiter(owners, 1, blockchain);
+    owners.length === 1
+      ? recursiveFields
+      : getSubqueryWithFiter(owners, 1, blockchain);
 
   const _filters = [
-    `owner:{ _eq: "${owners[0]}" }`,
-    `tokenType:{ _in: $tokenType }`
+    `owner: {_eq: "${owners[0]}"}`,
+    `tokenType: {_in: $tokenType}`
   ];
   if (hasDate) {
-    _filters.push('date:{ _eq: $date }');
+    _filters.push('date: {_eq: $date}');
   }
   if (hasBlockNumber) {
-    _filters.push('blockNumber:{ _eq: $blockNumber }');
+    _filters.push('blockNumber: {_eq: $blockNumber}');
   }
   if (hasTimestamp) {
-    _filters.push('timestamp:{ _eq: $timestamp }');
+    _filters.push('timestamp: {_eq: $timestamp }');
   }
   const _filtersString = _filters.join(',');
 
   return `
-    ${blockchain}: Snapshots(input:{ filter:{ ${_filtersString} }, blockchain: ${blockchain}, limit: $limit }) {
+    ${blockchain}: Snapshots(input: {filter: {${_filtersString}}, blockchain: ${blockchain}, limit: $limit}) {
       TokenBalance: Snapshot {
-        ${owners.length > 1 ? tokenId : ''}
+        ${owners.length > 1 ? fields : ''}
         ${children}
       }
     }

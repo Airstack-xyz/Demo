@@ -14,6 +14,11 @@ export enum Blockchain {
   polygon = 'polygon'
 }
 
+export interface SearchAIMentions_SearchAIMentions_metadata {
+  __typename: 'Metadata';
+  tokenMints: number | null;
+}
+
 export interface SearchAIMentions_SearchAIMentions {
   __typename: 'SearchAIMentionsResult';
   type: MentionType | null;
@@ -22,6 +27,7 @@ export interface SearchAIMentions_SearchAIMentions {
   eventId: string | null;
   blockchain: Blockchain | null;
   thumbnailURL: string | null;
+  metadata: SearchAIMentions_SearchAIMentions_metadata | null;
 }
 
 export const ID_REGEX = /#⎱.+?⎱\((.+?)\)\s*/g;

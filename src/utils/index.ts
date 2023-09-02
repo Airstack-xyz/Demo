@@ -10,3 +10,14 @@ export function formatDate(dateValue: string | Date | undefined) {
     year: 'numeric'
   });
 }
+
+export const pluralize = (
+  count: number | null | undefined,
+  noun: string | null | undefined,
+  suffix = 's'
+) => {
+  if (!count || !noun) {
+    return '';
+  }
+  return `${count} ${noun}${count > 1 ? suffix : ''}`;
+};

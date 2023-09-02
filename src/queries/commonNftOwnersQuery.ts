@@ -1,7 +1,12 @@
-export function getCommonNftOwnersQuery(token1: string, token2: string) {
+import { TokenAddress } from '../pages/TokenHolders/types';
+
+export function getCommonNftOwnersQuery(
+  token1: TokenAddress,
+  token2: TokenAddress
+) {
   return `query CommonNftOwners($limit: Int) {
     ethereum: TokenBalances(
-      input: {filter: {tokenAddress: {_eq: "${token1}"}}, blockchain: ethereum, limit: $limit}
+      input: {filter: {tokenAddress: {_eq: "${token1.address}"}}, blockchain: ethereum, limit: $limit}
     ) {
       TokenBalance {
         tokenId
@@ -24,7 +29,7 @@ export function getCommonNftOwnersQuery(token1: string, token2: string) {
           }
         }
         owner {
-          tokenBalances(input: {filter: {tokenAddress: {_eq: "${token2}"}}}) {
+          tokenBalances(input: {filter: {tokenAddress: {_eq: "${token2.address}"}}, blockchain: ${token2.blockchain}}) {
             tokenId
             tokenAddress
             blockchain
@@ -69,11 +74,12 @@ export function getCommonNftOwnersQuery(token1: string, token2: string) {
       }
     }
     polygon: TokenBalances(
-      input: {filter: {tokenAddress: {_eq: "${token1}"}}, blockchain: polygon, limit: $limit}
+      input: {filter: {tokenAddress: {_eq: "${token1.address}"}}, blockchain: polygon, limit: $limit}
     ) {
       TokenBalance {
         tokenId
         tokenAddress
+        blockchain
         token {
           logo {
             small
@@ -83,9 +89,10 @@ export function getCommonNftOwnersQuery(token1: string, token2: string) {
           }
         }
         owner {
-          tokenBalances(input: {filter: {tokenAddress: {_eq: "${token2}"}}}) {
+          tokenBalances(input: {filter: {tokenAddress: {_eq: "${token2.address}"}}, blockchain: ${token2.blockchain}}) {
             tokenId
             tokenAddress
+            blockchain
             token {
               logo {
                 small

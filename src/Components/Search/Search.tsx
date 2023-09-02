@@ -1,24 +1,26 @@
 import classNames from 'classnames';
-import { Icon } from './Icon';
-import { InputWithMention } from './Input/Input';
+import { Icon } from '../Icon';
+import { InputWithMention } from '../Input/Input';
 import {
   FormEvent,
   memo,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState
 } from 'react';
 import { Link, useMatch, useNavigate, useSearchParams } from 'react-router-dom';
-import { getAllWordsAndMentions } from './Input/utils';
+import { getAllMentionDetails, getAllWordsAndMentions } from '../Input/utils';
 import {
   CachedQuery,
   UserInputs,
   useSearchInput,
   userInputCache
-} from '../hooks/useSearchInput';
-import { showToast } from '../utils/showToast';
-import { useOverviewTokens } from '../store/tokenHoldersOverview';
+} from '../../hooks/useSearchInput';
+import { showToast } from '../../utils/showToast';
+import { useOverviewTokens } from '../../store/tokenHoldersOverview';
+import { addAndRemoveCombinationPlacholder } from './utils';
 
 const tokenHoldersPlaceholder =
   'Use @ mention or enter any token contract address';
@@ -53,6 +55,7 @@ function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
   );
 }
 
+const padding = '  ';
 export const Search = memo(function Search() {
   const [isTokenBalanceActive, setIsTokenBalanceActive] = useState(true);
   const isHome = useMatch('/');
@@ -79,7 +82,7 @@ export const Search = memo(function Search() {
   );
 
   useEffect(() => {
-    setValue(rawInput ? rawInput.trim() + '  ' : '');
+    setValue(rawInput ? rawInput.trim() + padding : '');
   }, [rawInput]);
 
   useEffect(() => {
@@ -167,7 +170,7 @@ export const Search = memo(function Search() {
 
       if (address.length === 0) {
         showToast(
-          'Couldn’t find any valid wallet address or ens/lens/farcaster name',
+          "Couldn't find any valid wallet address or ens/lens/farcaster name",
           'negative'
         );
         handleDataChange({});
@@ -183,24 +186,21 @@ export const Search = memo(function Search() {
       }
 
       if (address.length > 2) {
-        showToast(
-          'You can only search for 2 or less identities at a time',
-          'negative'
-        );
+        showToast('You can only compare 2 identities at a time', 'negative');
         return;
       }
 
-      const rawTextWithMenions = rawInput.join('  ');
+      const rawTextWithMenions = rawInput.join(padding);
       const searchData = {
         address,
         blockchain: 'ethereum',
         rawInput: rawTextWithMenions,
         inputType: 'ADDRESS' as UserInputs['inputType']
       };
-      setValue(rawTextWithMenions.trim() + '  ');
+      setValue(rawTextWithMenions.trim() + padding);
       handleDataChange(searchData);
     },
-    [isSnapshotQuery, handleDataChange]
+    [handleDataChange, isSnapshotQuery]
   );
 
   const handleTokenHoldersSearch = useCallback(
@@ -247,30 +247,40 @@ export const Search = memo(function Search() {
       });
 
       if (address.length === 0) {
-        showToast('Couldn’t find any contract', 'negative');
+        showToast("Couldn't find any contract", 'negative');
         return;
       }
 
       if (address.length > 2) {
-        showToast(
-          'You can only search for 2 or less tokens/poaps at a time',
-          'negative'
-        );
+        showToast('You can only compare 2 tokens at a time', 'negative');
         return;
       }
 
-      const rawTextWithMenions = rawInput.join('  ');
+      const rawTextWithMenions = rawInput.join(padding);
       const searchData = {
         address,
         blockchain,
         rawInput: rawTextWithMenions,
         inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType']
       };
-      setValue(rawTextWithMenions + '  ');
+      setValue(rawTextWithMenions + padding);
       handleDataChange(searchData);
     },
     [handleDataChange]
   );
+
+  const shouldShowCombinationPlaceholder = useMemo(() => {
+    if (!rawInput || isSnapshotQuery) return false;
+    const [mentions] = getAllMentionDetails(value);
+    return mentions.length === 1 && rawInput === value.trim();
+  }, [isSnapshotQuery, rawInput, value]);
+
+  useEffect(() => {
+    return addAndRemoveCombinationPlacholder(
+      shouldShowCombinationPlaceholder,
+      isTokenBalances
+    );
+  }, [isTokenBalances, shouldShowCombinationPlaceholder]);
 
   const handleSubmit = useCallback(
     (e: FormEvent) => {
@@ -317,7 +327,7 @@ export const Search = memo(function Search() {
   );
 
   return (
-    <div className="w-[calc(100vw-20px)] sm:w-[645px] z-10">
+    <div className="w-[105%] sm:w-full z-10">
       <div className="my-6 flex-col-center">
         <div className="bg-glass bg-secondry border flex p-1 rounded-full">
           {isHome && (
