@@ -1,6 +1,6 @@
 import { TokenAddress } from '../pages/TokenHolders/types';
 
-function getCommonNftOwnersSubqueryForBlockchain({
+function getCommonNftOwnersSubQueryForBlockchain({
   address1,
   address2,
   blockchain,
@@ -41,7 +41,7 @@ function getCommonNftOwnersSubqueryForBlockchain({
             imageUrl
           }
         }
-        tokenNfts {
+        tokenNfts: tokenNft {
           contentValue {
             video
             image {
@@ -131,18 +131,18 @@ export function getCommonNftOwnersSnapshotQuery({
   const _variablesString = _variables.join(',');
 
   return `query CommonNftOwners(${_variablesString}) {
-    ${getCommonNftOwnersSubqueryForBlockchain({
+    ${getCommonNftOwnersSubQueryForBlockchain({
       blockchain: 'ethereum',
       ...commonParams
     })}
-    ${getCommonNftOwnersSubqueryForBlockchain({
+    ${getCommonNftOwnersSubQueryForBlockchain({
       blockchain: 'polygon',
       ...commonParams
     })}
   }`;
 }
 
-function getNftOwnersSubqueryForBlockchain({
+function getNftOwnersSubQueryForBlockchain({
   address,
   blockchain,
   hasDate,
@@ -181,7 +181,7 @@ function getNftOwnersSubqueryForBlockchain({
             imageUrl
           }
         }
-        tokenNfts {
+        tokenNfts: tokenNft {
           contentValue {
             video
             image {
@@ -245,11 +245,11 @@ export function getNftOwnersSnapshotQuery({
   const _variablesString = _variables.join(',');
 
   return `query NftOwners(${_variablesString}) {
-    ${getNftOwnersSubqueryForBlockchain({
+    ${getNftOwnersSubQueryForBlockchain({
       blockchain: 'ethereum',
       ...commonParams
     })}
-    ${getNftOwnersSubqueryForBlockchain({
+    ${getNftOwnersSubQueryForBlockchain({
       blockchain: 'polygon',
       ...commonParams
     })}

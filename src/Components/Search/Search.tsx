@@ -20,14 +20,14 @@ import {
 } from '../../hooks/useSearchInput';
 import { showToast } from '../../utils/showToast';
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
-import { addAndRemoveCombinationPlacholder } from './utils';
+import { addAndRemoveCombinationPlaceholder } from './utils';
 
 const tokenHoldersPlaceholder =
   'Use @ mention or enter any token contract address';
 const tokenBalancesPlaceholder =
   'Enter 0x, name.eth, fc_fname:name, or name.lens';
 
-const activeClasss =
+const activeClass =
   'bg-glass !border-stroke-color font-bold !text-text-primary';
 const tabClassName =
   'px-2.5 h-[30px] rounded-full mr-5 flex-row-center text-xs text-text-secondary border border-solid border-transparent';
@@ -38,7 +38,7 @@ function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
       <Link
         to="/token-balances"
         className={classNames(tabClassName, {
-          [activeClasss]: isTokenBalances
+          [activeClass]: isTokenBalances
         })}
       >
         <Icon name="token-balances" className="w-4 mr-1" /> Token balances
@@ -46,7 +46,7 @@ function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
       <Link
         to="/token-holders"
         className={classNames(tabClassName, {
-          [activeClasss]: !isTokenBalances
+          [activeClass]: !isTokenBalances
         })}
       >
         <Icon name="token-holders" className="w-4 mr-1" /> Token holders
@@ -190,14 +190,14 @@ export const Search = memo(function Search() {
         return;
       }
 
-      const rawTextWithMenions = rawInput.join(padding);
+      const rawTextWithMentions = rawInput.join(padding);
       const searchData = {
         address,
         blockchain: 'ethereum',
-        rawInput: rawTextWithMenions,
+        rawInput: rawTextWithMentions,
         inputType: 'ADDRESS' as UserInputs['inputType']
       };
-      setValue(rawTextWithMenions.trim() + padding);
+      setValue(rawTextWithMentions.trim() + padding);
       handleDataChange(searchData);
     },
     [handleDataChange, isSnapshotQuery]
@@ -256,14 +256,14 @@ export const Search = memo(function Search() {
         return;
       }
 
-      const rawTextWithMenions = rawInput.join(padding);
+      const rawTextWithMentions = rawInput.join(padding);
       const searchData = {
         address,
         blockchain,
-        rawInput: rawTextWithMenions,
+        rawInput: rawTextWithMentions,
         inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType']
       };
-      setValue(rawTextWithMenions + padding);
+      setValue(rawTextWithMentions + padding);
       handleDataChange(searchData);
     },
     [handleDataChange]
@@ -276,7 +276,7 @@ export const Search = memo(function Search() {
   }, [isSnapshotQuery, rawInput, value]);
 
   useEffect(() => {
-    return addAndRemoveCombinationPlacholder(
+    return addAndRemoveCombinationPlaceholder(
       shouldShowCombinationPlaceholder,
       isTokenBalances
     );
@@ -285,18 +285,18 @@ export const Search = memo(function Search() {
   const handleSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
-      const trimedValue = value.trim();
+      const trimmedValue = value.trim();
 
-      if (searchParams.get('rawInput') === trimedValue) {
+      if (searchParams.get('rawInput') === trimmedValue) {
         window.location.reload(); // reload page if same search
         return;
       }
 
       if (isTokenBalances) {
-        return handleTokenBalancesSearch(trimedValue);
+        return handleTokenBalancesSearch(trimmedValue);
       }
 
-      handleTokenHoldersSearch(trimedValue);
+      handleTokenHoldersSearch(trimmedValue);
     },
     [
       handleTokenBalancesSearch,
@@ -329,13 +329,13 @@ export const Search = memo(function Search() {
   return (
     <div className="w-[105%] sm:w-full z-10">
       <div className="my-6 flex-col-center">
-        <div className="bg-glass bg-secondry border flex p-1 rounded-full">
+        <div className="bg-glass bg-secondary border flex p-1 rounded-full">
           {isHome && (
             <>
               <button
                 onClick={() => getTabChangeHandler(true)}
                 className={classNames(tabClassName, {
-                  [activeClasss]: isTokenBalances
+                  [activeClass]: isTokenBalances
                 })}
               >
                 <Icon name="token-balances" className="w-4 mr-1" /> Token
@@ -344,7 +344,7 @@ export const Search = memo(function Search() {
               <button
                 onClick={() => getTabChangeHandler(false)}
                 className={classNames(tabClassName, {
-                  [activeClasss]: !isTokenBalances
+                  [activeClass]: !isTokenBalances
                 })}
               >
                 <Icon name="token-holders" className="w-4 mr-1" /> Token holders
@@ -357,7 +357,7 @@ export const Search = memo(function Search() {
       <form className="flex flex-row justify-center" onSubmit={handleSubmit}>
         <div
           ref={inputSectionRef}
-          className="flex items-center h-[50px] w-full border-solid-stroke rounded-18 bg-glass px-4 py-3"
+          className="flex items-center h-[50px] w-[calc(100vw-20px)] sm:w-[645px] border-solid-stroke rounded-18 bg-glass px-4 py-3"
         >
           <InputWithMention
             value={value}
@@ -370,14 +370,18 @@ export const Search = memo(function Search() {
             }
             disableSuggestions={isTokenBalances}
           />
-          <div ref={buttonSectionRef} className="flex justify-end">
+          <div ref={buttonSectionRef} className="flex justify-end pl-3">
             {isInputSectionFocused && value && (
               <button type="submit">
-                <Icon name="search" width={22} height={22} />
+                <Icon name="search" width={20} height={20} />
               </button>
             )}
             {!isInputSectionFocused && value && (
-              <button type="button" onClick={handleInputClear}>
+              <button
+                type="button"
+                className="text-right w-5"
+                onClick={handleInputClear}
+              >
                 <Icon name="close" width={14} height={14} />
               </button>
             )}

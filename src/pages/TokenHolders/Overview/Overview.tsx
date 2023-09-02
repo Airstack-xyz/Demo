@@ -39,10 +39,10 @@ function Overview() {
     // only fetch holders count if all tokens are of same type or all are NFTs
     const nftTokens = ['ERC721', 'ERC1155'];
     const tokenType = tokenDetails[0]?.tokenType;
-    const blockchin = tokenDetails[0]?.blockchain;
+    const blockchain = tokenDetails[0]?.blockchain;
 
     const hasSameBlockchain = tokenDetails.every(
-      token => token.blockchain === blockchin
+      token => token.blockchain === blockchain
     );
 
     const hasSameOrValidTokenType = tokenDetails.every(token => {
@@ -78,7 +78,7 @@ function Overview() {
     tokenDetails.length
   ]);
 
-  const hasMulitpleERC20 = useMemo(() => {
+  const hasMultipleERC20 = useMemo(() => {
     const erc20Tokens = tokenDetails.filter(
       token => token.tokenType === 'ERC20'
     );
@@ -86,10 +86,10 @@ function Overview() {
   }, [tokenDetails]);
 
   useEffect(() => {
-    if (hasMulitpleERC20) {
+    if (hasMultipleERC20) {
       showToast('Try to combine ERC20 tokens with NFTs or POAPs', 'negative');
     }
-  }, [hasMulitpleERC20]);
+  }, [hasMultipleERC20]);
 
   const isERC20 = useMemo(() => {
     return (

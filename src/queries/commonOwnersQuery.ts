@@ -51,9 +51,11 @@ token {
   }
 }`;
 
-function getQueryWithFiter(tokens: string[], index = 0): string {
+function getQueryWithFilter(tokens: string[], index = 0): string {
   const children =
-    tokens.length - 1 === index ? fields : getQueryWithFiter(tokens, index + 1);
+    tokens.length - 1 === index
+      ? fields
+      : getQueryWithFilter(tokens, index + 1);
   return `owner {
         tokenBalances(
           input: {filter: {tokenAddress: {_eq: "${tokens[index]}"}}}
@@ -65,7 +67,7 @@ function getQueryWithFiter(tokens: string[], index = 0): string {
 
 export function createCommonOwnersQuery(tokenAddress: string[]) {
   const children =
-    tokenAddress.length === 1 ? fields : getQueryWithFiter(tokenAddress, 1);
+    tokenAddress.length === 1 ? fields : getQueryWithFilter(tokenAddress, 1);
   return `query GetTokenHolders($limit: Int) {
     ethereum: TokenBalances(
       input: {filter: {tokenAddress: {_eq: "${

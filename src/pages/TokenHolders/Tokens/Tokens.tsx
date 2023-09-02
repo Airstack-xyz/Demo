@@ -52,7 +52,7 @@ export function TokensComponent() {
     return !hasSomeToken && !isSnapshotQuery;
   }, [address, isSnapshotQuery]);
 
-  const hasMulitpleERC20 = useMemo(() => {
+  const hasMultipleERC20 = useMemo(() => {
     const erc20Tokens = overviewTokens.filter(
       (token: TokenHolder) => token.tokenType === 'ERC20'
     );
@@ -99,7 +99,7 @@ export function TokensComponent() {
   const isPoap = inputType === 'POAP';
 
   useEffect(() => {
-    if (tokenAddress.length === 0 || hasMulitpleERC20) return;
+    if (tokenAddress.length === 0 || hasMultipleERC20) return;
 
     if (isPoap && shouldFetchPoaps) {
       fetchPoap();
@@ -113,7 +113,7 @@ export function TokensComponent() {
     isPoap,
     shouldFetchPoaps,
     tokenAddress.length,
-    hasMulitpleERC20
+    hasMultipleERC20
   ]);
 
   const handleShowMore = useCallback((values: string[], dataType: string) => {
@@ -166,7 +166,7 @@ export function TokensComponent() {
   const showStatusLoader = loading && isCombination;
 
   // ERC20 tokens have a large number of holders so we don't allow multiple ERC20 tokens to be searched at once
-  if (hasMulitpleERC20) return null;
+  if (hasMultipleERC20) return null;
 
   if (loading && (!tokens || tokens.length === 0)) {
     return (

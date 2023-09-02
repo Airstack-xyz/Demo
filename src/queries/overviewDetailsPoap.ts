@@ -107,7 +107,7 @@ function getFields(hasSocialFilters = false, hasPrimaryDomainFilter = false) {
 //     }`;
 // };
 
-function getQueryWithFiter(
+function getQueryWithFilter(
   tokenIds: TokenAddress[],
   index = 0,
   hasSocialFilters: boolean,
@@ -116,7 +116,7 @@ function getQueryWithFiter(
   const children =
     tokenIds.length - 1 === index
       ? getFields(hasSocialFilters, hasPrimaryDomainFilter)
-      : getQueryWithFiter(
+      : getQueryWithFilter(
           tokenIds,
           index + 1,
           hasSocialFilters,
@@ -140,7 +140,7 @@ export function getFilterablePoapsQuery(
   const children =
     tokenIds.length === 1
       ? getFields(hasSocialFilters, hasPrimaryDomainFilter)
-      : getQueryWithFiter(
+      : getQueryWithFilter(
           tokenIds,
           1,
           hasSocialFilters,

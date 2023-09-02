@@ -111,7 +111,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const datePickerContainerRef = useOutsideClick(() =>
+  const datePickerContainerRef = useOutsideClick<HTMLDivElement>(() =>
     setIsDatePickerVisible(false)
   );
 
@@ -130,8 +130,8 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
     setCurrentFilter(selectedFilter);
   }, [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]);
 
-  const handleDropdownShow = useCallback(() => {
-    setIsDropdownVisible(true);
+  const handleDropdownToggle = useCallback(() => {
+    setIsDropdownVisible(prevValue => !prevValue);
   }, []);
 
   const handleFilterOptionClick = useCallback(
@@ -169,7 +169,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
     []
   );
 
-  // Not enclosing in useCallback as its dependencies will change everytime
+  // Not enclosing in useCallback as its dependencies will change every time
   const handleApplyClick = () => {
     const filterValues: Partial<CachedQuery> = {
       sortOrder: defaultSortOrder, // For snapshot query resetting sort order so that it is not counted in applied filters
@@ -237,7 +237,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
           isOpen={isDropdownVisible}
           label={label}
           icon={icon}
-          onClick={handleDropdownShow}
+          onClick={handleDropdownToggle}
         />
         {isDropdownVisible && (
           <div className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute min-w-[150px] left-0 top-full z-10">

@@ -2,7 +2,7 @@ import { config } from '@airstack/airstack-react/config';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createNftWithCommonOwnersQuery } from '../queries/nftWithCommonOwnersQuery';
 import { useSearchInput } from './useSearchInput';
-import { defaultSortOrder } from '../Components/DropdownFilters/SortBy';
+import { defaultSortOrder } from '../Components/Filters/SortBy';
 import { tokenTypes } from '../pages/TokenBalances/constants';
 import { CommonTokenType, TokenType } from '../pages/TokenBalances/types';
 import { createNftWithCommonOwnersSnapshotQuery } from '../queries/nftWithCommonOwnersSnapshotQuery';

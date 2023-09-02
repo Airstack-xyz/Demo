@@ -54,7 +54,7 @@ export function useSearchInput(
       isTokenBalancesPage !== undefined ? isTokenBalancesPage : true;
   }
 
-  const [searchParams, setSarchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const setData: UpdateUserInputs = useCallback(
     (data: Partial<CachedQuery>, config) => {
@@ -98,12 +98,12 @@ export function useSearchInput(
           });
           return;
         }
-        setSarchParams(searchParams as Record<string, string>, {
+        setSearchParams(searchParams as Record<string, string>, {
           replace: shouldReplaceFilters
         });
       }
     },
-    [isTokenBalances, navigate, setSarchParams]
+    [isTokenBalances, navigate, setSearchParams]
   );
 
   const getData = useCallback(
@@ -128,7 +128,7 @@ export function useSearchInput(
         Array.isArray(savedValue) &&
         savedValue.join(',') === valueString
       ) {
-        // if filters are same as saved filters, use refrerence of saved filters so the component doesn't re-render unnecessarily
+        // if filters are same as saved filters, use reference of saved filters so the component doesn't re-render unnecessarily
         value = savedValue;
       }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -166,6 +166,6 @@ export function useSearchInput(
 
     setData(data);
 
-    return [data, setData, setSarchParams];
-  }, [getData, isTokenBalances, setData, setSarchParams]);
+    return [data, setData, setSearchParams];
+  }, [getData, isTokenBalances, setData, setSearchParams]);
 }

@@ -59,7 +59,7 @@ const createBaseQuery = (
     }`;
 };
 
-function getQueryWithFiter(
+function getQueryWithFilter(
   tokens: string[],
   index = 0,
   hasSocialFilters: boolean,
@@ -68,7 +68,7 @@ function getQueryWithFiter(
   const children =
     tokens.length - 1 === index
       ? createBaseQuery(hasSocialFilters, hasPrimaryDomainFilter)
-      : getQueryWithFiter(
+      : getQueryWithFilter(
           tokens,
           index + 1,
           hasSocialFilters,
@@ -107,7 +107,7 @@ export const getFilterableTokensQuery = (
   const children =
     tokenAddress.length === 1
       ? createBaseQuery(hasSocialFilters, hasPrimaryDomainFilter)
-      : getQueryWithFiter(
+      : getQueryWithFilter(
           tokenAddress,
           1,
           hasSocialFilters,

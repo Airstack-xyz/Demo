@@ -22,7 +22,7 @@ type Token = TokenType & {
   _blockchain?: string;
 };
 
-type NextedTokenBalance = (Pick<
+type NestedTokenBalance = (Pick<
   Token,
   'tokenAddress' | 'tokenId' | 'token' | 'tokenNfts'
 > &
@@ -36,10 +36,10 @@ type NextedTokenBalance = (Pick<
 
 type CommonOwner = {
   ethereum: {
-    TokenBalance: NextedTokenBalance | Token[];
+    TokenBalance: NestedTokenBalance | Token[];
   };
   polygon: {
-    TokenBalance: NextedTokenBalance | Token[];
+    TokenBalance: NestedTokenBalance | Token[];
   };
 };
 
@@ -140,7 +140,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     if (fetchSingleToken) {
       tokens = tokenBalances as Token[];
     } else {
-      tokens = (tokenBalances as NextedTokenBalance)
+      tokens = (tokenBalances as NestedTokenBalance)
         .filter(token => Boolean(token?.owner?.tokenBalances?.length))
         .reduce(
           (tokens, token) => [

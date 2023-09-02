@@ -7,7 +7,7 @@ const recursiveFields = `
   owner {
     addresses
   }
-  tokenNfts {
+  tokenNfts: tokenNft {
     tokenId
     contentValue {
       image {
@@ -31,7 +31,7 @@ const recursiveFields = `
   }
 `;
 
-function getSubqueryWithFiter(
+function getSubQueryWithFilter(
   owners: string[],
   index = 0,
   blockchain: string
@@ -39,7 +39,7 @@ function getSubqueryWithFiter(
   const children =
     owners.length - 1 === index
       ? recursiveFields
-      : getSubqueryWithFiter(owners, index + 1, blockchain);
+      : getSubQueryWithFilter(owners, index + 1, blockchain);
   return `
     token {
       name
@@ -61,7 +61,7 @@ const fields = `
   blockchain
   tokenAddress
   tokenType
-  tokenNfts {
+  tokenNfts: tokenNft {
     tokenId
     contentValue {
       image {
@@ -81,7 +81,7 @@ const fields = `
   }
 `;
 
-function getSubqueryForBlockchain({
+function getSubQueryForBlockchain({
   owners,
   isEthereum,
   hasDate,
@@ -98,7 +98,7 @@ function getSubqueryForBlockchain({
   const children =
     owners.length === 1
       ? recursiveFields
-      : getSubqueryWithFiter(owners, 1, blockchain);
+      : getSubQueryWithFilter(owners, 1, blockchain);
 
   const _filters = [
     `owner: {_eq: "${owners[0]}"}`,
@@ -111,7 +111,7 @@ function getSubqueryForBlockchain({
     _filters.push('blockNumber: {_eq: $blockNumber}');
   }
   if (hasTimestamp) {
-    _filters.push('timestamp: {_eq: $timestamp }');
+    _filters.push('timestamp: {_eq: $timestamp}');
   }
   const _filtersString = _filters.join(',');
 
@@ -162,7 +162,7 @@ export function createNftWithCommonOwnersSnapshotQuery({
   return `query GetTokens(${_variablesString}) {
     ${
       !blockchain || blockchain === 'ethereum'
-        ? getSubqueryForBlockchain({
+        ? getSubQueryForBlockchain({
             isEthereum: true,
             ...commonParams
           })
@@ -170,7 +170,7 @@ export function createNftWithCommonOwnersSnapshotQuery({
     }
     ${
       !blockchain || blockchain === 'polygon'
-        ? getSubqueryForBlockchain({
+        ? getSubQueryForBlockchain({
             isEthereum: false,
             ...commonParams
           })

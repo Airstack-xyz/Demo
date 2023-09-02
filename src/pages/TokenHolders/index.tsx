@@ -31,7 +31,7 @@ import {
   TokenHolder
 } from '../../store/tokenHoldersOverview';
 import { sortByAddressByNonERC20First } from '../../utils/getNFTQueryForTokensHolder';
-import { SnapshotFilter } from '../../Components/DropdownFilters/SnapshotFilter';
+import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import {
   getCommonNftOwnersSnapshotQuery,
   getNftOwnersSnapshotQuery
@@ -296,7 +296,7 @@ export function TokenHolders() {
     snapshotTimestamp
   ]);
 
-  const hasMulitpleERC20 = useMemo(() => {
+  const hasMultipleERC20 = useMemo(() => {
     const erc20Tokens = overviewTokens.filter(
       (token: TokenHolder) => token.tokenType === 'ERC20'
     );
@@ -324,7 +324,7 @@ export function TokenHolders() {
         </div>
         {query && query.length > 0 && (
           <>
-            {!hasMulitpleERC20 && (
+            {!hasMultipleERC20 && (
               <div className="m-3 flex-row-center">
                 <div className="flex justify-between w-[calc(100vw-20px)] sm:w-[645px]">
                   <div className="flex-row-center gap-1">
@@ -339,7 +339,7 @@ export function TokenHolders() {
             )}
             <div className="flex flex-col justify-center mt-7" key={query}>
               {!isSnapshotQuery && <HoldersOverview />}
-              {!hasMulitpleERC20 && (
+              {!hasMultipleERC20 && (
                 <>
                   {activeView && <OverviewDetails />}
                   {!activeView && (

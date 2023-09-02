@@ -1,8 +1,9 @@
 import classNames from 'classnames';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useOutsideClick } from '../hooks/useOutsideClick';
+import { isMobileDevice } from '../utils/isMobileDevice';
 import { Icon } from './Icon';
 import { Modal } from './Modal';
-import { isMobileDevice } from '../utils/isMobileDevice';
 
 type Options = {
   label: string;
@@ -16,41 +17,27 @@ export function GetAPIDropdown({
   options: Options[];
   disabled?: boolean;
 }) {
-  const containerRef = useRef<HTMLDivElement>(null);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const isMobile = isMobileDevice();
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        setIsDropdownVisible(false);
-      }
-    };
-    document.addEventListener('click', handleClickOutside, true);
-    return () => {
-      document.removeEventListener('click', handleClickOutside, true);
-    };
+  const handleDropdownClose = useCallback(() => {
+    setIsDropdownVisible(false);
   }, []);
 
-  const handleDropdownClose = () => {
-    setIsDropdownVisible(false);
-  };
+  const containerRef = useOutsideClick<HTMLDivElement>(handleDropdownClose);
 
-  const handleDropdownToggle = () => {
+  const handleDropdownToggle = useCallback(() => {
     setIsDropdownVisible(prevValue => !prevValue);
-  };
+  }, []);
 
-  const handleModalOpen = () => {
+  const handleModalOpen = useCallback(() => {
     setIsModalVisible(true);
-  };
+  }, []);
 
-  const handleModalClose = () => {
+  const handleModalClose = useCallback(() => {
     setIsModalVisible(false);
-  };
+  }, []);
 
   return (
     <>

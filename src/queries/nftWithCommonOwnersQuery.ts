@@ -31,7 +31,7 @@ const fields = `
         }
 `;
 
-function getQueryWithFiter(
+function getQueryWithFilter(
   owners: string[],
   index = 0,
   blockchain: string
@@ -39,7 +39,7 @@ function getQueryWithFiter(
   const children =
     owners.length - 1 === index
       ? fields
-      : getQueryWithFiter(owners, index + 1, blockchain);
+      : getQueryWithFilter(owners, index + 1, blockchain);
   return `token {
         name
         symbol
@@ -82,7 +82,7 @@ token {
 export function getQueryForBlockchain(owners: string[], isEth: boolean) {
   const blockchain = isEth ? 'ethereum' : 'polygon';
   const children =
-    owners.length === 1 ? fields : getQueryWithFiter(owners, 1, blockchain);
+    owners.length === 1 ? fields : getQueryWithFilter(owners, 1, blockchain);
   return `
     ${blockchain}: TokenBalances(
       input: {filter: {owner: {_eq: "${

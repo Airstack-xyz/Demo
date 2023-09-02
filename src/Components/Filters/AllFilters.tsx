@@ -101,7 +101,7 @@ export function AllFilters() {
   const [timestamp, setTimestamp] = useState<TextValue>('');
   const [date, setDate] = useState<DateValue>(new Date());
 
-  const datePickerContainerRef = useOutsideClick(() =>
+  const datePickerContainerRef = useOutsideClick<HTMLDivElement>(() =>
     setIsDatePickerVisible(false)
   );
 
@@ -157,8 +157,8 @@ export function AllFilters() {
     selectedSortOrder
   ]);
 
-  const handleDropdownShow = useCallback(() => {
-    setIsDropdownVisible(true);
+  const handleDropdownToggle = useCallback(() => {
+    setIsDropdownVisible(prevValue => !prevValue);
   }, []);
 
   const handleSnapshotFilterOptionClick = useCallback(
@@ -210,7 +210,7 @@ export function AllFilters() {
     []
   );
 
-  // Not enclosing in useCallback as its dependencies will change everytime
+  // Not enclosing in useCallback as its dependencies will change every time
   const handleApplyClick = () => {
     const filterValues: Partial<CachedQuery> = {
       snapshotBlockNumber: undefined,
@@ -296,7 +296,7 @@ export function AllFilters() {
           className={classNames(filterButtonClass, {
             'border-white': isDropdownVisible
           })}
-          onClick={handleDropdownShow}
+          onClick={handleDropdownToggle}
         >
           Filters {appliedFilterCount > 0 ? `(${appliedFilterCount})` : ''}
           <Icon name="arrow-down" height={16} width={16} className="ml-1" />

@@ -26,7 +26,7 @@ export function Token({
     : '';
   const tokenId = tokenInProps?.tokenId || '';
   const tokenAddress = tokenInProps?.tokenAddress || '';
-  const primarEns = owner?.primaryDomain?.name || '';
+  const primaryEns = owner?.primaryDomain?.name || '';
   const ens = owner?.domains?.map(domain => domain.name) || [];
   const token = tokenInProps as TokenType;
   const poap = tokenInProps as Poap;
@@ -171,7 +171,7 @@ export function Token({
       <td className="ellipsis">
         {}
         <ListWithMoreOptions
-          list={[primarEns || '']}
+          list={[primaryEns || '']}
           onShowMore={getShowMoreHandler(ens, 'ens')}
           listFor="ens"
           onItemClick={handleAddressClick}

@@ -13,17 +13,14 @@ import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
 import { SocialQuery } from '../../queries';
 import { tokenTypes } from './constants';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
-import {
-  SortBy,
-  defaultSortOrder
-} from '../../Components/DropdownFilters/SortBy';
+import { SortBy, defaultSortOrder } from '../../Components/Filters/SortBy';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
 import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
-import { BlockchainFilter } from '../../Components/DropdownFilters/BlockchainFilter';
-import { SnapshotFilter } from '../../Components/DropdownFilters/SnapshotFilter';
-import { AllFilters } from '../../Components/DropdownFilters/AllFilters';
+import { BlockchainFilter } from '../../Components/Filters/BlockchainFilter';
+import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
+import { AllFilters } from '../../Components/Filters/AllFilters';
 import { createNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
@@ -43,7 +40,7 @@ const SocialsAndERC20 = memo(function SocialsAndERC20() {
     snapshotBlockNumber || snapshotDate || snapshotTimestamp
   );
 
-  // Force the component to re-render when any of the search input change, so that the ERC20 can reset, refetched
+  // Force the component to re-render when any of the search input change, so that the ERC20 can reset, refetch
   const erc20Key = useMemo(
     () =>
       `${address.join(
@@ -244,7 +241,7 @@ export function TokenBalance() {
     );
   }, [showSocials, tab1Header, tab2Header]);
 
-  // Force the component to re-render when any of the search input change, so that the tokens are reset and refetched
+  // Force the component to re-render when any of the search input change, so that the tokens are reset and refetch
   const tokensKey = useMemo(
     () =>
       `${address.join(

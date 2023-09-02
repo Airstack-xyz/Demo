@@ -4,7 +4,7 @@ const socialInput = '(input: {filter: {dappName: {_in: $socialFilters}}})';
 const primaryDomainInput =
   '(input: {filter: {isPrimary: {_eq: $hasPrimaryDomain}}})';
 
-function getCommonNftOwnersSubqueryForBlockchain({
+function getCommonNftOwnersSubQueryForBlockchain({
   address1,
   address2,
   blockchain,
@@ -125,18 +125,18 @@ export function getCommonNftOwnersSnapshotQueryWithFilters({
   const _variablesString = _variables.join(',');
 
   return `query CommonNftOwners(${_variablesString}) {
-    ${getCommonNftOwnersSubqueryForBlockchain({
+    ${getCommonNftOwnersSubQueryForBlockchain({
       blockchain: 'ethereum',
       ...commonParams
     })}
-    ${getCommonNftOwnersSubqueryForBlockchain({
+    ${getCommonNftOwnersSubQueryForBlockchain({
       blockchain: 'polygon',
       ...commonParams
     })}
   }`;
 }
 
-function getNftOwnersSubqueryForBlockchain({
+function getNftOwnersSubQueryForBlockchain({
   address,
   blockchain,
   hasDate,
@@ -238,11 +238,11 @@ export function getNftOwnersSnapshotQueryWithFilters({
   const _variablesString = _variables.join(',');
 
   return `query NftOwners(${_variablesString}) {
-    ${getNftOwnersSubqueryForBlockchain({
+    ${getNftOwnersSubQueryForBlockchain({
       blockchain: 'ethereum',
       ...commonParams
     })}
-    ${getNftOwnersSubqueryForBlockchain({
+    ${getNftOwnersSubQueryForBlockchain({
       blockchain: 'polygon',
       ...commonParams
     })}
