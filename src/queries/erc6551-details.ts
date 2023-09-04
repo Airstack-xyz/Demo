@@ -15,6 +15,7 @@ export const erc6551DetailsQuery = `query ERC6551Details($tokenAddress: Address!
     lastTransferHash
     tokenURI
     tokenId
+    address
     tokenBalances {
       tokenType
     }
@@ -23,6 +24,14 @@ export const erc6551DetailsQuery = `query ERC6551Details($tokenAddress: Address!
       symbol
       owner {
         identity
+      }
+      tokenNfts {
+        tokenId
+        contentValue {
+          image {
+            medium
+          }
+        }
       }
     }
   }
@@ -54,6 +63,7 @@ export const getERC6551OfTokens = `query MyQuery($tokenAddress: Address, $tokenI
           blockchain
           tokenAddress
           tokenId
+          blockchain
           token {
             name
             symbol
