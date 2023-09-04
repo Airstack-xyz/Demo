@@ -13,6 +13,7 @@ export interface Account {
 
 export interface Address {
   identity: string;
+  blockchain: string;
   tokenBalances: TokenBalance[];
 }
 
