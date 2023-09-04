@@ -9,6 +9,8 @@ import { emit } from '../../utils/eventEmitter/eventEmitter';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenCombination } from './TokenCombination';
 import classNames from 'classnames';
+import { ERC6551Details } from './ERC6551/ERC6551Details';
+import { TokenWithERC6551 } from './TokenWithERC6551';
 
 const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 
@@ -93,6 +95,8 @@ function TokensComponent() {
     });
   }, [processedPoapsCount, processedTokensCount, tokens.length, loading]);
 
+  // return <ERC6551Details />;
+
   if (tokens.length === 0 && !loading) {
     return (
       <div className="flex flex-1 justify-center mt-10">No data found!</div>
@@ -131,6 +135,13 @@ function TokensComponent() {
           const id =
             (token as PoapType)?.tokenId ||
             (token as TokenType)?.tokenNfts?.tokenId;
+          const hasERC6551 =
+            (token as TokenType)?.tokenNfts?.erc6551Accounts?.length > 0;
+
+          if (hasERC6551) {
+            return <TokenWithERC6551 key={`${index}-${id}`} token={token} />;
+          }
+
           return hasCombination ? (
             <TokenCombination key={`${index}-${id}`} token={token} />
           ) : (

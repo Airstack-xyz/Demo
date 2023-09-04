@@ -19,8 +19,17 @@ export type CommonTokenType = TokenType & {
 export interface TokenNfts {
   tokenId: string;
   contentValue: ContentValue;
+  erc6551Accounts: Erc6551Account[];
 }
 
+export interface Erc6551Account {
+  address: Address;
+}
+
+export interface Address {
+  addresses: string[];
+  tokenBalances: TokenType[];
+}
 export interface ContentValue {
   image: Image;
 }
