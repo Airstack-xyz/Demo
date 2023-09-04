@@ -6,11 +6,12 @@ import { createTokenHolderUrl } from '../../utils/createTokenUrl';
 import { PoapsType, TokenType as TokenType } from './types';
 import { Asset } from '../../Components/Asset';
 import classNames from 'classnames';
+import { Nft } from './erc20-types';
 
 type Poap = PoapsType['Poaps']['Poap'][0];
 
 type TokenProps = {
-  token: null | TokenType | Poap;
+  token: null | TokenType | Poap | Nft;
 };
 
 export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
@@ -20,17 +21,15 @@ export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
   const poapEvent = poap.poapEvent || {};
   const city = poapEvent.city || '';
 
-  const address = token.tokenAddress || poap.tokenAddress;
+  const address =
+    (tokenProp as Nft)?.address || token.tokenAddress || poap.tokenAddress;
+  const tokenId =
+    (tokenProp as Nft)?.tokenId || token?.tokenNfts?.tokenId || poap.tokenId;
 
   const ids = useMemo(() => {
     if (isPoap) return [poapEvent?.eventName];
-    return [token?.tokenNfts?.tokenId, token?._tokenId].filter(Boolean);
-  }, [
-    isPoap,
-    poapEvent?.eventName,
-    token?._tokenId,
-    token?.tokenNfts?.tokenId
-  ]);
+    return [tokenId, token?._tokenId].filter(Boolean);
+  }, [isPoap, poapEvent?.eventName, token?._tokenId, tokenId]);
 
   const symbol = token?.token?.symbol || '';
   const type = token?.tokenType || 'POAP';
@@ -38,7 +37,6 @@ export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
   const name = isPoap
     ? `${formatDate(poapEvent.startDate)}${city ? ` (${city})` : ''}`
     : token?.token?.name;
-  const tokenId = token?.tokenNfts?.tokenId || poap.tokenId;
   const image = isPoap ? poapEvent?.logo?.image?.medium : '';
   const eventId = poapEvent?.eventId || '';
   const tokenName = isPoap ? poapEvent?.eventName : token?.token?.name;

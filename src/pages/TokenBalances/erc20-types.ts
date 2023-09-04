@@ -11,6 +11,7 @@ export interface Nft {
   lastTransferHash: string;
   tokenURI: string;
   tokenId: string;
+  address: string;
   tokenBalances: TokenBalance[];
   token: Token;
 }
@@ -33,6 +34,9 @@ export interface Token {
   name: string;
   symbol: string;
   owner: Owner;
+  tokenNfts: {
+    tokenId: string;
+  };
 }
 
 export interface Owner {

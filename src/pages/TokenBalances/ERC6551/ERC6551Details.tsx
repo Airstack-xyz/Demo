@@ -6,6 +6,8 @@ import { ERC20Response, Nft, TokenTransfer } from '../erc20-types';
 import { Children } from './Children';
 import { CopyButton } from '../../../Components/CopyButton';
 import { ReactNode, useState } from 'react';
+import { useMatch } from 'react-router-dom';
+import { useSearchInput } from '../../../hooks/useSearchInput';
 
 const infoOptions: {
   name: string;
@@ -68,6 +70,9 @@ function KeyValue({ name, value }: { name: string; value: ReactNode }) {
 }
 
 export function ERC6551Details() {
+  const [{ address }] = useSearchInput();
+  const isTokenBalances = !!useMatch('/token-balances');
+
   const [showContactDetails, setShowContactDetails] = useState(false);
   const { data } = useQuery(
     erc6551DetailsQuery,
@@ -103,6 +108,28 @@ export function ERC6551Details() {
 
   return (
     <div className="max-w-[950px] text-sm">
+      <div className="flex items-center mb-7">
+        <div className="flex items-center w-[60%] sm:w-auto overflow-hidden mr-1">
+          <div
+            className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
+            // onClick={handleGoBack}
+          >
+            <Icon
+              name={isTokenBalances ? 'token-balances' : 'token-holders'}
+              height={20}
+              width={20}
+            />{' '}
+            <span className="ml-1.5 text-text-secondary break-all cursor-pointer max-w-[90%] sm:max-w-[500px] ellipsis">
+              Token {isTokenBalances ? 'balances' : 'holders'} of {address}
+            </span>
+          </div>
+          <span className="mr-2 text-text-secondary">/</span>
+        </div>
+        <div className="flex items-center flex-1">
+          <Icon name="table-view" height={20} width={20} className="mr-1" />{' '}
+          Details of {nft?.token?.name} (#{nft?.tokenId})
+        </div>
+      </div>
       <div className="bg-glass border-solid-stroke rounded-18 flex p-5">
         <div className="mr-7">
           <Token token={data?.nft} />
