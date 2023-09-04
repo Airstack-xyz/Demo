@@ -16,11 +16,19 @@ const fields = `
             }
             erc6551Accounts {
               address {
-                identity
+                addresses
+                tokenBalances {
+                  tokenAddress
+                  tokenId
+                  tokenNfts {
+                    contentValue {
+                      image {
+                        medium
+                      }
+                    }
+                  }
+                }
               }
-              tokenAddress
-              tokenId
-              deployer
             }
         }
         token {
