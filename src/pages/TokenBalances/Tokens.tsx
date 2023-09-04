@@ -95,7 +95,7 @@ function TokensComponent() {
     });
   }, [processedPoapsCount, processedTokensCount, tokens.length, loading]);
 
-  // return <ERC6551Details />;
+  return <ERC6551Details />;
 
   if (tokens.length === 0 && !loading) {
     return (
