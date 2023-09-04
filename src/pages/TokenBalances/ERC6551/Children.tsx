@@ -1,16 +1,32 @@
 import { useQuery } from '@airstack/airstack-react';
 import { Token } from '../Token';
-import { AccountsResponse } from './types';
+import { AccountsResponse, TokenBalance } from './types';
 import { getERC6551OfTokens } from '../../../queries/erc6551-details';
-import { TokenType } from '../types';
+import { useState } from 'react';
+import { Icon } from '../../../Components/Icon';
+import classNames from 'classnames';
 
 function formatData(data: AccountsResponse) {
-  if (!data) return {};
+  if (!data)
+    return {
+      accounts: []
+    };
   return {
-    accounts: data.Accounts.Account
+    accounts: data.Accounts.Account.map(account => ({
+      standard: account.standard,
+      blockchain: account?.address?.blockchain,
+      tokens: account?.address?.tokenBalances,
+      identity: account?.address?.identity
+    }))
   };
 }
+
+type Accounts = ReturnType<typeof formatData>['accounts'];
+
 export function Children() {
+  const [activeTab, setActiveTab] = useState(0);
+  const [showDetails, setShowDetails] = useState(false);
+
   const { data } = useQuery(
     getERC6551OfTokens,
     {
@@ -21,22 +37,85 @@ export function Children() {
     { dataFormatter: formatData }
   );
 
+  const accounts: Accounts = data?.accounts || [];
+
+  const account = data
+    ? accounts[activeTab]
+    : {
+        standard: '',
+        blockchain: '',
+        tokens: [] as TokenBalance[],
+        identity: ''
+      };
+
   return (
-    <div>
-      <div className="tabs flex">
-        <div>TAB1</div>
+    <div className=" text-sm mt-5">
+      <div className="tabs flex my-5 border-b-[5px] border-solid border-secondary tabs">
+        {accounts?.map((_, index) => (
+          <div
+            key={index}
+            className={classNames(
+              'flex w-[150px] items-center justify-center py-4 tab',
+              {
+                active: index === activeTab,
+                'cursor-pointer hover:bg-tertiary': index !== activeTab
+              }
+            )}
+            onClick={() => {
+              setActiveTab(index);
+              setShowDetails(false);
+            }}
+          >
+            <Icon name="stack" /> <span className="ml-1.5">TBA{index + 1}</span>
+          </div>
+        ))}
       </div>
       <div>
-        <div>
-          Contract details <button>View details</button>
+        <div className="flex items-center">
+          <span className="font-bold">Contract details</span>{' '}
+          <button
+            className="text-text-button text-xs ml-2.5 flex items-center justify-center"
+            onClick={() => {
+              setShowDetails(show => !show);
+            }}
+          >
+            {showDetails ? 'Hide details' : 'View details'}
+            <span className={showDetails ? 'rotate-180' : ''}>
+              <Icon name="arrow-down" />
+            </span>
+          </button>
         </div>
-        <div>Details</div>
+        {showDetails && (
+          <div>
+            <div className="flex my-3">
+              <div className="min-w-[120px] mr-5">Contract</div>
+              <div className="text-text-secondary">
+                {account.identity || '--'} NOTE: this IS identity not contract
+              </div>
+            </div>
+            <div className="flex my-3">
+              <div className="min-w-[120px] mr-5">Token standard</div>
+              <div className="text-text-secondary">
+                {account.standard || '--'}
+              </div>
+            </div>
+            <div className="flex my-3">
+              <div className="min-w-[120px] mr-5">Chain</div>
+              <div className="text-text-secondary">
+                {account.blockchain || '--'}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       <div>
-        <div>Asset</div>
-        <div className="flex gap-x-10 gap-y-10">
-          {data?.tokens?.map((token: TokenType) => {
-            return <Token token={token} />;
+        <div className="font-bold my-5">Asset</div>
+        <div className="flex flex-wrap gap-x-6 gap-y-6">
+          {account?.tokens?.map((token, index) => {
+            return (
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              <Token key={`${token.tokenId}-${index}`} token={token as any} />
+            );
           })}
         </div>
       </div>

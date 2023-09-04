@@ -1,17 +1,11 @@
 export interface ERC20Response {
-  Accounts: Accounts;
-}
-
-export interface Accounts {
-  Account: Account[];
-}
-
-export interface Account {
   nft: Nft;
-  address: Address;
+  transfers: Transfers;
 }
 
 export interface Nft {
+  totalSupply: string;
+  metaData: MetaData;
   lastTransferTimestamp: string;
   lastTransferBlock: number;
   lastTransferHash: string;
@@ -21,8 +15,40 @@ export interface Nft {
   token: Token;
 }
 
+export interface MetaData {
+  description: string;
+  attributes: Attribute[];
+}
+
+export interface Attribute {
+  trait_type: string;
+  value: string;
+}
+
 export interface TokenBalance {
   tokenType: string;
+}
+
+export interface Token {
+  name: string;
+  symbol: string;
+  owner: Owner;
+}
+
+export interface Owner {
+  identity: string;
+}
+
+export interface Transfers {
+  TokenTransfer: TokenTransfer[];
+}
+
+export interface TokenTransfer {
+  blockTimestamp: string;
+  blockNumber: number;
+  transactionHash: string;
+  tokenAddress: string;
+  tokenId: string;
 }
 
 export interface Token {

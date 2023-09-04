@@ -1,67 +1,40 @@
-export const erc6551DetailsQuery = `query ERC6551Details($blockchain: TokenBlockchain!, $tokenAddress: Address, $tokenId: String) {
-  Accounts(
-    input: {blockchain: $blockchain, filter: {tokenAddress: {_eq: $tokenAddress}, tokenId: {_eq: $tokenId}}}
+export const erc6551DetailsQuery = `query ERC6551Details($tokenAddress: Address!, $tokenId: String!, $blockchain: TokenBlockchain!) {
+  nft: TokenNft(
+    input: {address: $tokenAddress, tokenId: $tokenId, blockchain: $blockchain}
   ) {
-    Account {
-      nft {
-        lastTransferTimestamp
-        lastTransferBlock
-        lastTransferHash
-        tokenURI
-        tokenId
-        tokenBalances {
-          tokenType
-        }
-        token {
-          name
-          symbol
-          tokenTraits
-          totalSupply
-          owner {
-            identity
-          }
-        }
-      }
-      address {
-        tokenBalances {
-          tokenType
-          tokenAddress
-          tokenId
-          owner {
-            identity
-          }
-          tokenNfts {
-            erc6551Accounts {
-              address {
-                addresses
-              }
-            }
-          }
-        }
+    totalSupply
+    metaData {
+      description
+      attributes {
+        trait_type
+        value
       }
     }
-  }
-}`;
-
-export const tokenDetailsQuery = `query MyQuery($tokenAddress: Address, $tokenId: String, $blockchain: TokenBlockchain!, $limit: Int) {
-  TokenBalances(
-    input: {filter: {tokenAddress: {_eq: $tokenAddress}, tokenId: {_eq: $tokenId}}, blockchain: $blockchain, limit: $limit}
-  ) {
-    TokenBalance {
+    lastTransferTimestamp
+    lastTransferBlock
+    lastTransferHash
+    tokenURI
+    tokenId
+    tokenBalances {
+      tokenType
+    }
+    token {
+      name
+      symbol
       owner {
         identity
       }
-      amount
+    }
+  }
+  transfers: TokenTransfers(
+    input: {filter: {tokenAddress: {_eq: $tokenAddress}}, blockchain: $blockchain, limit: 1, order: {blockTimestamp: ASC}}
+  ) {
+    TokenTransfer {
+      blockTimestamp
+      blockNumber
+      transactionHash
       tokenAddress
       tokenId
-      tokenType
-      tokenNfts {
-        contentValue {
-          image {
-            medium
-          }
-        }
-      }
     }
   }
 }`;
@@ -74,6 +47,8 @@ export const getERC6551OfTokens = `query MyQuery($tokenAddress: Address, $tokenI
       standard
       address {
         addresses
+        blockchain
+        identity
         tokenBalances {
           tokenType
           blockchain
