@@ -18,6 +18,7 @@ import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwner
 import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
 import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
+import { ERC6551Details } from './ERC6551/ERC6551Details';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
@@ -41,7 +42,16 @@ const SocialsAndERC20 = memo(function SocialsAndERC20() {
 });
 
 export function TokenBalance() {
-  const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
+  const [
+    {
+      address,
+      tokenType,
+      blockchainType,
+      sortOrder,
+      tokenBalancesActiveViewInfo
+    },
+    setData
+  ] = useSearchInput();
   const query = address.length > 0 ? address[0] : '';
   const isHome = useMatch('/');
 
@@ -160,6 +170,16 @@ export function TokenBalance() {
   );
   const showInCenter = isHome;
 
+  const token = useMemo(() => {
+    const [tokenAddress, tokenId, blockchain] =
+      tokenBalancesActiveViewInfo.split(' ');
+    return {
+      tokenAddress,
+      tokenId,
+      blockchain
+    };
+  }, [tokenBalancesActiveViewInfo]);
+
   return (
     <Layout>
       <div
@@ -182,32 +202,41 @@ export function TokenBalance() {
             <div className="hidden sm:flex-col-center my-3">
               <GetAPIDropdown options={options} />
             </div>
-            <div className="flex justify-between px-2 sm:px-5">
-              <div className="w-full h-full" key={query}>
-                <div className="hidden sm:block">
-                  <SectionHeader
-                    iconName="nft-flat"
-                    heading={`NFTs & POAPs${
-                      address.length > 1 ? ' in common' : ''
-                    }`}
-                  />
-                </div>
-                {isMobile && renderMobileTabs()}
-                <div className="mt-3.5 mb-5">
-                  {(!isMobile || !showSocials) && <Filters />}
-                </div>
-                {isMobile ? (
-                  showSocials ? (
-                    <SocialsAndERC20 />
+            {tokenBalancesActiveViewInfo ? (
+              <ERC6551Details
+                tokenAddress={token.tokenAddress}
+                tokenId={token.tokenId}
+                blockchain={token.blockchain}
+                onClose={() => setData({ tokenBalancesActiveViewInfo: '' })}
+              />
+            ) : (
+              <div className="flex justify-between px-5">
+                <div className="w-full h-full" key={query}>
+                  <div className="hidden sm:block">
+                    <SectionHeader
+                      iconName="nft-flat"
+                      heading={`NFTs & POAPs${
+                        address.length > 1 ? ' in common' : ''
+                      }`}
+                    />
+                  </div>
+                  {isMobile && renderMobileTabs()}
+                  <div className="mt-3.5 mb-5">
+                    {(!isMobile || !showSocials) && <Filters />}
+                  </div>
+                  {isMobile ? (
+                    showSocials ? (
+                      <SocialsAndERC20 />
+                    ) : (
+                      <Tokens key={tokensKey} />
+                    )
                   ) : (
                     <Tokens key={tokensKey} />
-                  )
-                ) : (
-                  <Tokens key={tokensKey} />
-                )}
+                  )}
+                </div>
+                {!isMobile && <SocialsAndERC20 />}
               </div>
-              {!isMobile && <SocialsAndERC20 />}
-            </div>
+            )}
           </>
         )}
       </div>
