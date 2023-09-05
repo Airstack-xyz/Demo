@@ -6,6 +6,8 @@ import { Asset } from '../../Components/Asset';
 import classNames from 'classnames';
 import { Nft } from './erc20-types';
 import { useSearchInput } from '../../hooks/useSearchInput';
+import { createTokenHolderUrl } from '../../utils/createTokenUrl';
+import { Link } from 'react-router-dom';
 
 type Poap = PoapsType['Poaps']['Poap'][0];
 
@@ -96,7 +98,7 @@ export const TokenWithERC6551 = memo(function Token({
 
   const image = isPoap ? poapEvent?.logo?.image?.medium : '';
   const eventId = poapEvent?.eventId || '';
-  // const tokenName = isPoap ? poapEvent?.eventName : token?.token?.name;
+  const tokenName = isPoap ? poapEvent?.eventName : token?.token?.name;
 
   const erc6551Accounts = token.tokenNfts?.erc6551Accounts;
 
@@ -166,13 +168,6 @@ export const TokenWithERC6551 = memo(function Token({
           { updateQueryParams: true }
         );
       }}
-      // to={createTokenHolderUrl({
-      //   address: isPoap && eventId ? eventId : address,
-      //   inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
-      //   type,
-      //   blockchain,
-      //   label: tokenName || '--'
-      // })}
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
     >
       {address && tokenId && (
@@ -191,10 +186,19 @@ export const TokenWithERC6551 = memo(function Token({
         {assets}
       </div>
       <div className="flex justify-between z-10">
-        <button className="text-sm bg-white rounded-18 text-primary flex py-2 px-3 items-center">
+        <Link
+          className="text-sm bg-white rounded-18 text-primary flex py-2 px-3 items-center"
+          to={createTokenHolderUrl({
+            address: isPoap && eventId ? eventId : address,
+            inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
+            type,
+            blockchain,
+            label: tokenName || '--'
+          })}
+        >
           <Icon width={16} name="token-holders" />
           <span className="ml-1.5">Holders</span>
-        </button>
+        </Link>
         <div className="flex">
           <div className="rounded-full h-9 w-9 bg-glass border-solid-light">
             <Icon name={blockchain} className="w-full" />
