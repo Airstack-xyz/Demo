@@ -1,12 +1,11 @@
 import { memo, useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import { Icon } from '../../Components/Icon';
 import { formatDate } from '../../utils';
-import { createTokenHolderUrl } from '../../utils/createTokenUrl';
 import { PoapsType, TokenType as TokenType } from './types';
 import { Asset } from '../../Components/Asset';
 import classNames from 'classnames';
 import { Nft } from './erc20-types';
+import { useSearchInput } from '../../hooks/useSearchInput';
 
 type Poap = PoapsType['Poaps']['Poap'][0];
 
@@ -73,6 +72,7 @@ function FolderOverLay() {
 export const TokenWithERC6551 = memo(function Token({
   token: tokenProp
 }: TokenProps) {
+  const setSearchData = useSearchInput()[1];
   const token = (tokenProp || {}) as TokenType;
   const poap = (tokenProp || {}) as Poap;
   const isPoap = Boolean(poap.poapEvent);
@@ -96,7 +96,7 @@ export const TokenWithERC6551 = memo(function Token({
 
   const image = isPoap ? poapEvent?.logo?.image?.medium : '';
   const eventId = poapEvent?.eventId || '';
-  const tokenName = isPoap ? poapEvent?.eventName : token?.token?.name;
+  // const tokenName = isPoap ? poapEvent?.eventName : token?.token?.name;
 
   const erc6551Accounts = token.tokenNfts?.erc6551Accounts;
 
@@ -153,16 +153,26 @@ export const TokenWithERC6551 = memo(function Token({
   }, [address, blockchain, image, nestedTokens, tokenId]);
 
   return (
-    <Link
+    <div
       className="h-[300px] w-[300px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token"
       data-loader-type="block"
-      to={createTokenHolderUrl({
-        address: isPoap && eventId ? eventId : address,
-        inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
-        type,
-        blockchain,
-        label: tokenName || '--'
-      })}
+      onClick={() => {
+        setSearchData(
+          {
+            tokenBalancesActiveViewInfo: `${address} ${
+              isPoap ? eventId : tokenId
+            } ${blockchain}`
+          },
+          { updateQueryParams: true }
+        );
+      }}
+      // to={createTokenHolderUrl({
+      //   address: isPoap && eventId ? eventId : address,
+      //   inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
+      //   type,
+      //   blockchain,
+      //   label: tokenName || '--'
+      // })}
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
     >
       {address && tokenId && (
@@ -229,6 +239,6 @@ export const TokenWithERC6551 = memo(function Token({
           </div>
         )}
       </div>
-    </Link>
+    </div>
   );
 });
