@@ -17,6 +17,7 @@ export type CachedQuery = {
   activeViewToken: string;
   activeViewCount: string;
   blockchainType: string[];
+  tokenBalancesActiveViewInfo: string;
   sortOrder: string;
 };
 
@@ -142,7 +143,10 @@ export function useSearchInput(
       inputType: !isTokenBalances
         ? (getData('inputType') as CachedQuery['inputType'])
         : null,
-      activeView: isTokenBalances ? '' : getData('activeView'),
+      activeView: isTokenBalances ? '' : getData('activeView') || '',
+      tokenBalancesActiveViewInfo: isTokenBalances
+        ? searchParams.get('tokenBalancesActiveViewInfo') || ''
+        : '',
       tokenFilters: !isTokenBalances ? getData('tokenFilters', true) : [],
       activeViewToken: isTokenBalances ? '' : getData('activeViewToken'),
       activeViewCount: isTokenBalances ? '' : getData('activeViewCount'),
@@ -153,5 +157,5 @@ export function useSearchInput(
     setData(data);
 
     return [data, setData, setSarchParams];
-  }, [getData, isTokenBalances, setData, setSarchParams]);
+  }, [getData, isTokenBalances, searchParams, setData, setSarchParams]);
 }

@@ -69,7 +69,25 @@ function KeyValue({ name, value }: { name: string; value: ReactNode }) {
   );
 }
 
-export function ERC6551Details() {
+/* ERC 721 with 6551
+{
+      blockchain: 'ethereum',
+      tokenAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
+      tokenId: '6813'
+    },
+  */
+
+export function ERC6551Details({
+  tokenId,
+  blockchain,
+  tokenAddress,
+  onClose
+}: {
+  tokenAddress: string;
+  tokenId: string;
+  blockchain: string;
+  onClose: () => void;
+}) {
   const [{ address }] = useSearchInput();
   const isTokenBalances = !!useMatch('/token-balances');
 
@@ -77,9 +95,9 @@ export function ERC6551Details() {
   const { data } = useQuery(
     erc6551DetailsQuery,
     {
-      blockchain: 'ethereum',
-      tokenAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
-      tokenId: '6813'
+      tokenId,
+      blockchain,
+      tokenAddress
     },
     { dataFormatter: formatData }
   );
@@ -107,12 +125,12 @@ export function ERC6551Details() {
   }
 
   return (
-    <div className="max-w-[950px] text-sm">
+    <div className="max-w-[950px] text-sm m-auto">
       <div className="flex items-center mb-7">
         <div className="flex items-center w-[60%] sm:w-auto overflow-hidden mr-1">
           <div
             className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
-            // onClick={handleGoBack}
+            onClick={onClose}
           >
             <Icon
               name={isTokenBalances ? 'token-balances' : 'token-holders'}
