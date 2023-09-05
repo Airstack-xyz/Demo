@@ -18,7 +18,7 @@ import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwner
 import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
 import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
-import { ERC6551Details } from './ERC6551/ERC6551Details';
+import { TokenDetails } from './ERC6551/TokenDetails';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
@@ -171,12 +171,13 @@ export function TokenBalance() {
   const showInCenter = isHome;
 
   const token = useMemo(() => {
-    const [tokenAddress, tokenId, blockchain] =
+    const [tokenAddress, tokenId, blockchain, eventId] =
       tokenBalancesActiveViewInfo.split(' ');
     return {
       tokenAddress,
       tokenId,
-      blockchain
+      blockchain,
+      eventId
     };
   }, [tokenBalancesActiveViewInfo]);
 
@@ -203,10 +204,8 @@ export function TokenBalance() {
               <GetAPIDropdown options={options} />
             </div>
             {tokenBalancesActiveViewInfo ? (
-              <ERC6551Details
-                tokenAddress={token.tokenAddress}
-                tokenId={token.tokenId}
-                blockchain={token.blockchain}
+              <TokenDetails
+                {...token}
                 onClose={() => setData({ tokenBalancesActiveViewInfo: '' })}
               />
             ) : (

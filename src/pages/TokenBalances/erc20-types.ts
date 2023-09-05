@@ -14,6 +14,10 @@ export interface Nft {
   address: string;
   tokenBalances: TokenBalance[];
   token: Token;
+  type: string;
+  erc6551Accounts: {
+    standard: string;
+  }[];
 }
 
 export interface MetaData {
