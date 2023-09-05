@@ -1,4 +1,4 @@
-const APP_EXPLORER_URL = 'https://app.airstack.xyz/api-studio';
+const APP_EXPLORER_URL = 'https://app.dev.airstack.xyz/api-studio';
 
 function encode(string: string) {
   try {
