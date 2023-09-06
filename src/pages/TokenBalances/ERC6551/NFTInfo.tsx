@@ -1,4 +1,4 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { CopyButton } from '../../../Components/CopyButton';
 import { KeyValue } from './KeyValue';
 import { Nft, TokenTransfer } from '../erc20-types';
@@ -55,6 +55,15 @@ export function NFTInfo({
 }) {
   const [showContactDetails, setShowContactDetails] = useState(false);
 
+  const isERC7251WithoutAccounts =
+    nft?.type === 'ERC721' && nft?.erc6551Accounts?.length === 0;
+
+  useEffect(() => {
+    if (isERC7251WithoutAccounts) {
+      setShowContactDetails(true);
+    }
+  }, [isERC7251WithoutAccounts]);
+
   if (nft.type === 'ERC20') {
     return <TokenERC20Info token={nft} />;
   }
@@ -62,7 +71,7 @@ export function NFTInfo({
   function getValueFromKey(key: string): ReactNode {
     switch (key) {
       case 'holder':
-        return nft?.token?.owner.identity;
+        return nft?.token?.owner?.identity;
       case 'tokenTraits':
         return (
           nft?.metaData?.attributes?.map(attribute => (
@@ -79,6 +88,10 @@ export function NFTInfo({
     <div className="overflow-hidden text-sm">
       <div>
         {infoOptions.map(option => {
+          if (isERC7251WithoutAccounts && option.dataKey === 'assetsIncluded') {
+            return null;
+          }
+
           const value: ReactNode = nft
             ? (nft[option.dataKey as keyof Nft] as string) ||
               getValueFromKey(option.dataKey)

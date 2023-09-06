@@ -62,7 +62,7 @@ export const Token = memo(function Token({
   return (
     <div
       className={classNames(
-        'h-[300px] w-[300px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token',
+        'group h-[300px] w-[300px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token',
         {
           'cursor-pointer': !disabled,
           'hover:border-transparent': disabled
@@ -81,13 +81,14 @@ export const Token = memo(function Token({
             chain={blockchain}
             preset="medium"
             useImageOnError={isPoap}
+            containerClassName="w-full h-full [&>img]:w-full flex items-center"
           />
         )}
       </div>
       <div className="flex justify-between z-10">
-        {!hideHoldersButton && (
+        {!hideHoldersButton ? (
           <Link
-            className="text-sm bg-white rounded-18 text-primary flex py-2 px-3 items-center"
+            className="text-sm bg-white rounded-18 text-primary flex py-2 px-3 items-center visible sm:invisible group-hover:visible border border-solid border-transparent hover:border-text-secondary"
             to={createTokenHolderUrl({
               address: isPoap && eventId ? eventId : address,
               inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
@@ -99,6 +100,8 @@ export const Token = memo(function Token({
             <Icon width={16} name="token-holders" />
             <span className="ml-1.5">Holders</span>
           </Link>
+        ) : (
+          <div></div>
         )}
         <div className="flex">
           <div className="rounded-full h-9 w-9 bg-glass border-solid-light">

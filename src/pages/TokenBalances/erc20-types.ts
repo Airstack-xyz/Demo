@@ -15,6 +15,7 @@ export interface Nft {
   tokenBalances: TokenBalance[];
   token: Token;
   type: string;
+  blockchain: string;
   erc6551Accounts: {
     standard: string;
   }[];
