@@ -15,62 +15,6 @@ type TokenProps = {
   token: null | TokenType | Poap | Nft;
 };
 
-function FolderOverLay() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="288"
-      height="128"
-      viewBox="0 0 288 128"
-      fill="none"
-    >
-      <defs>
-        <filter
-          id="filter0_b_1224_923"
-          x="-100"
-          y="-100"
-          width="487.975"
-          height="328"
-          filterUnits="userSpaceOnUse"
-          color-interpolation-filters="sRGB"
-        >
-          <feFlood flood-opacity="0" result="BackgroundImageFix" />
-          <feGaussianBlur in="BackgroundImageFix" stdDeviation="50" />
-          <feComposite
-            in2="SourceAlpha"
-            operator="in"
-            result="effect1_backgroundBlur_1224_923"
-          />
-          <feBlend
-            mode="normal"
-            in="SourceGraphic"
-            in2="effect1_backgroundBlur_1224_923"
-            result="shape"
-          />
-        </filter>
-        <linearGradient
-          id="paint0_linear_1224_923"
-          x1="-25.0254"
-          y1="-11.4682"
-          x2="351.135"
-          y2="273.486"
-          gradientUnits="userSpaceOnUse"
-        >
-          <stop stop-color="white" stop-opacity="0.4" />
-          <stop offset="1" stop-color="white" stop-opacity="1" />
-        </linearGradient>
-      </defs>
-      <g filter="url(#filter0_b_1224_923)">
-        <path
-          d="M0 17.4C0 7.79025 7.79025 0 17.4 0H64.733C67.8375 0 70.8854 0.830568 73.5607 2.40556L111.889 24.9702C114.564 26.5452 117.612 27.3757 120.716 27.3757H270.575C280.184 27.3757 287.975 35.166 287.975 44.7757V110.6C287.975 120.21 280.184 128 270.575 128H17.4C7.79023 128 0 120.21 0 110.6L0 17.4Z"
-          fill="url(#paint0_linear_1224_923)"
-          fill-opacity="0.2"
-        />
-      </g>
-    </svg>
-  );
-}
-
 export const TokenWithERC6551 = memo(function Token({
   token: tokenProp
 }: TokenProps) {
@@ -209,14 +153,19 @@ export const TokenWithERC6551 = memo(function Token({
         </div>
       </div>
 
-      <div className="h-20 rounded-3xl px-3 py-2.5 z-10">
+      <div className="z-10 rounded-3xl flex flex-col px-3.5 pt-3.5 pb-3 text-sm bg-glass border-solid-light font-medium">
         <div className="flex flex-col text-sm z-10">
-          <div>+{nestedTokens.length} assets</div>
+          <div className="flex items-center text-xs">
+            <span className="bg-[#5a8178] px-1.5 py-0.5 rounded-18 mr-1.5">
+              ERC6551
+            </span>
+            <span>+{nestedTokens.length} assets</span>
+          </div>
           <div className="ellipsis text-xs font-semibold my-1.5">
             {name || '--'}
           </div>
           <div className="flex items-center justify-between">
-            <div className="ellipsis flex flex-1 mr-2">
+            <div className="ellipsis flex flex-1 mr-2 font-normal">
               {ids.map((id, index) => (
                 <>
                   <span
@@ -237,11 +186,6 @@ export const TokenWithERC6551 = memo(function Token({
             </div>
           </div>
         </div>
-        {erc6551Accounts?.length > 0 && (
-          <div className="absolute bottom-0 z-0 w-full left-0 flex justify-center">
-            <FolderOverLay />
-          </div>
-        )}
       </div>
     </div>
   );
