@@ -35,7 +35,10 @@ import { sortByAddressByNonERC20First } from '../../utils/getNFTQueryForTokensHo
 export function TokenHolders() {
   const [{ address: tokenAddress, activeView, tokenFilters }, setData] =
     useSearchInput();
-  const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
+  const [{ tokens: overviewTokens, isERC6551 }] = useOverviewTokens([
+    'tokens',
+    'isERC6551'
+  ]);
 
   const addressRef = useRef<null | string[]>(null);
   const isHome = useMatch('/');
@@ -221,7 +224,7 @@ export function TokenHolders() {
             )}
             <div className="flex flex-col justify-center mt-7" key={query}>
               <HoldersOverview />
-              {!hasMulitpleERC20 && (
+              {!hasMulitpleERC20 && !isERC6551 && (
                 <>
                   {activeView && <OverviewDetails />}
                   {!activeView && (

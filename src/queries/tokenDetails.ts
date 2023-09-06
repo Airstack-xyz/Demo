@@ -46,7 +46,7 @@ export const tokenDetailsQuery = `query TokenDetails($tokenAddress: Address!, $t
   }
 }`;
 
-export const erc6551TokensQuery = `query MyQuery($tokenAddress: Address, $tokenId: String, $blockchain: TokenBlockchain!) {
+export const erc6551TokensQuery = `query AccountsQuery($tokenAddress: Address, $tokenId: String, $blockchain: TokenBlockchain!) {
   Accounts(
     input: {blockchain: $blockchain, filter: {tokenAddress: {_eq: $tokenAddress}, tokenId: {_eq: $tokenId}}}
   ) {
