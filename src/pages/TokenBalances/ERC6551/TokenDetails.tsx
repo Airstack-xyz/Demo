@@ -109,7 +109,8 @@ export function TokenDetails(props: {
         </div>
         <div className="flex items-center flex-1">
           <Icon name="table-view" height={20} width={20} className="mr-1" />{' '}
-          Details of {nft?.token?.name} (#{nft?.tokenId})
+          Details of {nft?.token?.name} (
+          <span className="max-w-[100px] ellipsis">#{nft?.tokenId}</span>)
         </div>
       </div>
       <div className="bg-glass border-solid-stroke rounded-18 flex p-5">
