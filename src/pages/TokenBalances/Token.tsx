@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { Fragment, memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '../../Components/Icon';
 import { formatDate } from '../../utils';
@@ -81,9 +81,8 @@ export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
         <div className="flex items-center justify-between font-bold ">
           <div className="ellipsis flex flex-1 mr-2">
             {ids.map((id, index) => (
-              <>
+              <Fragment key={id}>
                 <span
-                  key={id}
                   className={classNames('ellipsis', {
                     'max-w-[50%]': ids.length > 1
                   })}
@@ -92,7 +91,7 @@ export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
                   {id}
                 </span>
                 {index < ids.length - 1 && <span className="mr-1">,</span>}
-              </>
+              </Fragment>
             ))}
           </div>
           <div className="ellipsis text-right max-w-[50%]">{symbol || ''}</div>

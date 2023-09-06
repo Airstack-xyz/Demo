@@ -130,6 +130,7 @@ export function TokenHolders() {
     const requestFilters = getRequestFilters(tokenFilters);
     const _hasSocialFilters = Boolean(requestFilters?.socialFilters);
     const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
+    if (address.length === 0) return '';
     if (address.length === 1) {
       if (isSnapshotQuery) {
         return getNftOwnersSnapshotQueryWithFilters({
