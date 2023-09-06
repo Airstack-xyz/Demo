@@ -89,15 +89,15 @@ export function ERC6551TokenHolder({
   }, [socialDetails?.domains, socialDetails?.primaryDomain?.name]);
 
   return (
-    <div className="w-[955px] max-w-full">
+    <div className="w-[955px] max-w-[98vw]">
       <div className="text-sm rounded-18 overflow-hidden flex items-stretch bg-glass w-full">
-        <div className="m-2.5 p-6 border-solid-stroke rounded-18 bg-glass flex-1">
+        <div className="m-2.5 py-6 px-3 sm:px-6 sm:py-6 border-solid-stroke rounded-18 bg-glass overflow-hidden flex-1">
           <div>
             <span className="rounded-18 px-2.5 py-1 bg-glass-1-light border-solid-stroke">
               ERC6551
             </span>
           </div>
-          <div className="text-xl my-5 ellipsis max-w-[500px]">
+          <div className="text-xl my-5 ellipsis">
             <span className="mr-1.5 text-text-secondary">Holder</span>{' '}
             <span className="flex-1 ellipsis">{owner}</span>
           </div>
@@ -140,9 +140,12 @@ export function ERC6551TokenHolder({
           />
         </div>
         <div
-          className={classNames('overflow-hidden w-[422px] min-w-0', {
-            'skeleton-loader': loading
-          })}
+          className={classNames(
+            'overflow-hidden w-[422px] min-w-0 hidden sm:block ',
+            {
+              'skeleton-loader': loading
+            }
+          )}
           data-loader-type="block"
         >
           <Asset
