@@ -43,13 +43,7 @@ const SocialsAndERC20 = memo(function SocialsAndERC20() {
 
 export function TokenBalance() {
   const [
-    {
-      address,
-      tokenType,
-      blockchainType,
-      sortOrder,
-      tokenBalancesActiveViewInfo
-    },
+    { address, tokenType, blockchainType, sortOrder, activeTokenInfo },
     setData
   ] = useSearchInput();
   const query = address.length > 0 ? address[0] : '';
@@ -172,14 +166,14 @@ export function TokenBalance() {
 
   const token = useMemo(() => {
     const [tokenAddress, tokenId, blockchain, eventId] =
-      tokenBalancesActiveViewInfo.split(' ');
+      activeTokenInfo.split(' ');
     return {
       tokenAddress,
       tokenId,
       blockchain,
       eventId
     };
-  }, [tokenBalancesActiveViewInfo]);
+  }, [activeTokenInfo]);
 
   return (
     <Layout>
@@ -203,10 +197,11 @@ export function TokenBalance() {
             <div className="hidden sm:flex-col-center my-3">
               <GetAPIDropdown options={options} />
             </div>
-            {tokenBalancesActiveViewInfo ? (
+            {activeTokenInfo ? (
               <TokenDetails
                 {...token}
-                onClose={() => setData({ tokenBalancesActiveViewInfo: '' })}
+                key={activeTokenInfo}
+                onClose={() => setData({ activeTokenInfo: '' })}
               />
             ) : (
               <div className="flex justify-between px-5">

@@ -161,7 +161,7 @@ export const TokenWithERC6551 = memo(function Token({
       onClick={() => {
         setSearchData(
           {
-            tokenBalancesActiveViewInfo: `${address} ${
+            activeTokenInfo: `${address} ${
               isPoap ? eventId : tokenId
             } ${blockchain}`
           },

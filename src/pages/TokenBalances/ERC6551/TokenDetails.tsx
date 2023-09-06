@@ -8,11 +8,12 @@ import {
 import { ERC20Response, Nft, TokenTransfer } from '../erc20-types';
 import { NestedTokens } from './NestedTokens';
 import { useEffect } from 'react';
-import { useMatch } from 'react-router-dom';
+import { Link, useMatch } from 'react-router-dom';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { PoapData } from './types';
 import { PoapInfo } from './PoapInfo';
 import { NFTInfo } from './NFTInfo';
+import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
 
 function formatNFTData(data: ERC20Response) {
   if (!data) return {};
@@ -42,8 +43,8 @@ export function TokenDetails(props: {
   tokenAddress: string;
   tokenId: string;
   blockchain: string;
-  eventId: string;
-  onClose: () => void;
+  eventId?: string;
+  onClose?: () => void;
 }) {
   const { tokenAddress, tokenId, blockchain, eventId, onClose } = props;
   const [{ address }] = useSearchInput();
@@ -59,7 +60,9 @@ export function TokenDetails(props: {
     { dataFormatter: formatNFTData }
   );
 
-  const [fetchPoap, { data: poapData }] = useLazyQuery(
+  const nftData: ReturnType<typeof formatNFTData> = data;
+
+  const [fetchPoap, { data: _poapData }] = useLazyQuery(
     poapDetailsQuery,
     {
       tokenAddress,
@@ -67,6 +70,8 @@ export function TokenDetails(props: {
     },
     { dataFormatter: formatPoapData }
   );
+
+  const poapData: ReturnType<typeof formatPoapData> = _poapData;
 
   const isPoap = Boolean(eventId);
   const poap = poapData?.poap;
@@ -80,11 +85,9 @@ export function TokenDetails(props: {
     }
   }, [fetchPoap, fetchToken, isPoap, tokenAddress]);
 
-  // eslint-disable-next-line no-console
-  console.log('data', data, poap, { eventId });
-
-  const nft: Nft = data?.nft || {};
-  const transfterDetails: TokenTransfer = data?.transferDetails || {};
+  const nft: Nft = nftData?.nft || ({} as Nft);
+  const transfterDetails: TokenTransfer =
+    nftData?.transferDetails || ({} as TokenTransfer);
 
   const hasChildren = !isPoap && nft?.erc6551Accounts?.length > 0;
 
@@ -94,7 +97,9 @@ export function TokenDetails(props: {
         <div className="flex items-center w-[60%] sm:w-auto overflow-hidden mr-1">
           <div
             className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
-            onClick={onClose}
+            onClick={() => {
+              onClose?.();
+            }}
           >
             <Icon
               name={isTokenBalances ? 'token-balances' : 'token-holders'}
@@ -115,15 +120,26 @@ export function TokenDetails(props: {
       </div>
       <div className="bg-glass border-solid-stroke rounded-18 flex p-5">
         <div className="mr-7">
-          <Token token={poap || nft} />
+          <Token token={(poap || nft) as Nft} hideHoldersButton disabled />
           <div className="flex justify-center">
-            <button className="flex py-2 px-10 mt-7 bg-button-primary rounded-18">
+            <Link
+              className="flex py-2 px-10 mt-7 bg-button-primary rounded-18"
+              to={createTokenHolderUrl({
+                address: (isPoap ? poap?.eventId : nft.address) as string,
+                inputType: isPoap ? 'POAP' : 'ADDRESS',
+                type: isPoap ? 'POAP' : nft.type,
+                blockchain,
+                label:
+                  (isPoap ? poap?.poapEvent?.eventName : nft?.token?.name) ||
+                  '--'
+              })}
+            >
               <Icon name="token-holders-white" />
-              <span className="ml-1.5">View holders</span>
-            </button>
+              <span className="ml-1.5 font-medium">View holders</span>
+            </Link>
           </div>
         </div>
-        {isPoap ? (
+        {isPoap && poap ? (
           <PoapInfo poap={poap} transfterDetails={poapData.transferDetails} />
         ) : (
           <NFTInfo nft={nft} transfterDetails={transfterDetails} />

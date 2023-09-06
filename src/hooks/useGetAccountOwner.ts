@@ -11,7 +11,8 @@ export interface AccountsRequestData {
 }
 
 export interface Account {
-  standard: string;
+  tokenId: string;
+  blockchain: string;
   tokenAddress: string;
   address: {
     tokenBalances: TokenBalance[];
@@ -29,10 +30,12 @@ function formatData(data: AccountsRequestData) {
   const { ethereum, polygon } = data;
   const accounts = [...(ethereum.Account || []), ...(polygon.Account || [])];
   const account = accounts.find(account => account.tokenAddress);
-  return {
-    owner: account?.tokenAddress,
-    token: account?.address?.tokenBalances[0]
-  };
+  return account
+    ? {
+        ...account,
+        token: account?.address?.tokenBalances[0]
+      }
+    : null;
 }
 
 export function useGetAccountOwner(accountAddress: string) {

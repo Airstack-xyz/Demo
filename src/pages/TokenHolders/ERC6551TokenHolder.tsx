@@ -4,6 +4,7 @@ import { SocialQuery } from '../../queries';
 import { SocialsType } from '../TokenBalances/types';
 import { Asset } from '../../Components/Asset';
 import { Chain } from '@airstack/airstack-react/constants';
+import { useSearchInput } from '../../hooks/useSearchInput';
 
 function IconAndText({ icon, text }: { icon: string; text: ReactNode }) {
   return (
@@ -31,6 +32,7 @@ export function ERC6551TokenHolder({
     blockchain: string;
   };
 }) {
+  const setSearchInput = useSearchInput()[1];
   const { data } = useQuery(SocialQuery, {
     identity: owner
   });
@@ -115,7 +117,19 @@ export function ERC6551TokenHolder({
         </div>
       </div>
       <div className="mt-7 text-center">
-        <button className="px-11 py-3.5 rounded-full bg-button-primary font-semibold">
+        <button
+          className="px-11 py-3.5 rounded-full bg-button-primary font-semibold"
+          onClick={() => {
+            setSearchInput(
+              {
+                activeTokenInfo: `${token?.tokenAddress} ${token?.tokenId} ${token?.blockchain}`
+              },
+              {
+                updateQueryParams: true
+              }
+            );
+          }}
+        >
           See details of this ERC6551
         </button>
       </div>
