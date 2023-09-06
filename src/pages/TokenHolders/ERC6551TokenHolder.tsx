@@ -1,4 +1,9 @@
-import { ReactNode } from 'react';
+import { ReactNode, useMemo } from 'react';
+import { useQuery } from '@airstack/airstack-react';
+import { SocialQuery } from '../../queries';
+import { SocialsType } from '../TokenBalances/types';
+import { Asset } from '../../Components/Asset';
+import { Chain } from '@airstack/airstack-react/constants';
 
 function IconAndText({ icon, text }: { icon: string; text: ReactNode }) {
   return (
@@ -15,27 +20,73 @@ function IconAndText({ icon, text }: { icon: string; text: ReactNode }) {
   );
 }
 
-export function ERC6551TokenHolder() {
+export function ERC6551TokenHolder({
+  owner,
+  token
+}: {
+  owner: string;
+  token?: {
+    tokenId: string;
+    tokenAddress: string;
+    blockchain: string;
+  };
+}) {
+  const { data } = useQuery(SocialQuery, {
+    identity: owner
+  });
+
+  const socialDetails = (data?.Wallet || {}) as SocialsType['Wallet'];
+
+  const xmtpEnabled = useMemo(
+    () => socialDetails?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled),
+    [socialDetails?.xmtp]
+  );
+
+  const [lens, farcaster] = useMemo(() => {
+    let lens = '';
+    let farcaster = '';
+    const socials = socialDetails?.socials || [];
+    socials.forEach(({ dappName, profileName }) => {
+      if (dappName === 'lens') {
+        lens = profileName;
+      }
+      if (dappName === 'farcaster') {
+        farcaster = profileName;
+      }
+    });
+    return [lens, farcaster];
+  }, [socialDetails?.socials]);
+
+  const otherENS = useMemo(() => {
+    const domains = socialDetails?.domains || [];
+    const ens = domains.find(
+      domain => domain.name !== socialDetails?.primaryDomain?.name
+    );
+    return ens?.name;
+  }, [socialDetails?.domains, socialDetails?.primaryDomain?.name]);
+
   return (
     <div className="w-[955px] max-w-full">
-      <div className="text-sm rounded-18 overflow-hidden flex items-center bg-glass w-full">
+      <div className="text-sm rounded-18 overflow-hidden flex items-stretch bg-glass w-full">
         <div className="m-2.5 p-6 border-solid-stroke rounded-18 bg-glass flex-1">
           <div>
             <span className="rounded-18 px-2.5 py-1 bg-glass-1-light border-solid-stroke">
               ERC6551
             </span>
           </div>
-          <div className="text-xl my-5">
+          <div className="text-xl my-5 ellipsis">
             <span className="mr-1.5 text-text-secondary">Holder</span>{' '}
-            <span>0xa7Ca2C867...CC2b0Db22A</span>
+            <span className="flex-1 ellipsis">{owner}</span>
           </div>
-          <IconAndText icon="xmtp" text={<span>have xmtp messaging</span>} />
+          {xmtpEnabled && (
+            <IconAndText icon="xmtp" text={<span>have xmtp messaging</span>} />
+          )}
           <IconAndText
             icon="ens"
             text={
               <>
                 <span className="text-text-secondary mr-1.5">Primary ENS</span>{' '}
-                <span>emperor.eth</span>
+                <span>{socialDetails?.primaryDomain?.name || '--'}</span>
               </>
             }
           />
@@ -44,15 +95,23 @@ export function ERC6551TokenHolder() {
             text={
               <>
                 <span className="text-text-secondary mr-1.5">Other ENS</span>{' '}
-                <span>emperor123.eth</span>
+                <span>{otherENS || '--'}</span>
               </>
             }
           />
-          <IconAndText icon="lens" text={<span>emperor.lens</span>} />
-          <IconAndText icon="farcaster" text={<span>emperor</span>} />
+          <IconAndText icon="lens" text={<span>{lens || '--'}</span>} />
+          <IconAndText
+            icon="farcaster"
+            text={<span>{farcaster || '--'}</span>}
+          />
         </div>
-        <div className="rounded-18 overflow-hidden h-[422px] w-[422px]">
-          {/* <Asset/> */}
+        <div className=" overflow-hidden w-[422px]">
+          <Asset
+            address={token?.tokenAddress || ''}
+            tokenId={token?.tokenId || ''}
+            chain={token?.blockchain as Chain}
+            containerClassName="h-full w-full flex items-center [&>img]:w-full"
+          />
         </div>
       </div>
       <div className="mt-7 text-center">

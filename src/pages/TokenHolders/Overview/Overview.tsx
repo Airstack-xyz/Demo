@@ -15,6 +15,8 @@ import {
   useOverviewTokens
 } from '../../../store/tokenHoldersOverview';
 import { showToast } from '../../../utils/showToast';
+import { useGetAccountOwner } from '../../../hooks/useGetAccountOwner';
+import { ERC6551TokenHolder } from '../ERC6551TokenHolder';
 
 function Overview() {
   const [overViewData, setOverViewData] = useState<
@@ -29,11 +31,33 @@ function Overview() {
     xmtp: 0
   });
 
-  const [{ address, activeView }] = useSearchInput();
+  const [{ address, activeView }, setSearchInput] = useSearchInput();
 
   const isPoap = address.every(token => !token.startsWith('0x'));
 
-  const [fetchTokens, tokenDetails, loadingTokens] = useFetchTokens();
+  const [fetchTokens, tokens, loadingTokens] = useFetchTokens();
+  const [fetchAccountsOwner, ownerData, loadingOwner] = useGetAccountOwner(
+    address[0]
+  );
+
+  const setTokens = useOverviewTokens(['tokens', 'isERC6551'])[1];
+
+  const tokenDetails = useMemo(() => tokens || [], [tokens]);
+  const hasNoTokens = !loadingTokens && tokens && tokens.length === 0;
+  const addressIsAccount =
+    hasNoTokens && !loadingOwner && Boolean(ownerData?.owner);
+
+  useEffect(() => {
+    if (hasNoTokens) {
+      fetchAccountsOwner();
+    }
+  }, [fetchAccountsOwner, hasNoTokens]);
+
+  useEffect(() => {
+    setTokens({
+      isERC6551: Boolean(addressIsAccount)
+    });
+  }, [addressIsAccount, setSearchInput, setTokens]);
 
   const shouldFetchHoldersCount = useMemo(() => {
     // only fetch holders count if all tokens are of same type or all are NFTs
@@ -61,8 +85,6 @@ function Overview() {
     loading: loadingTokenOverview,
     error: tokenOverviewError
   } = useGetTokenOverview();
-
-  const setTokens = useOverviewTokens(['tokens'])[1];
 
   const [fetchTotalSupply, totalSupply, loadingSupply] = useTokensSupply();
 
@@ -286,6 +308,11 @@ function Overview() {
     );
   }, [tokenDetails, totalSupply]);
 
+  if (addressIsAccount && ownerData?.owner) {
+    return (
+      <ERC6551TokenHolder owner={ownerData?.owner} token={ownerData?.token} />
+    );
+  }
   if (isERC20 || activeView) return null;
 
   // eslint-disable-next-line
