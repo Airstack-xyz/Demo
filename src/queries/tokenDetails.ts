@@ -72,6 +72,9 @@ export const erc6551TokensQuery = `query AccountsQuery($tokenAddress: Address, $
                 medium
               }
             }
+            erc6551Accounts{
+              id
+            }
           }
         }
       }

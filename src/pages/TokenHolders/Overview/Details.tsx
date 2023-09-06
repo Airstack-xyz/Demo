@@ -18,7 +18,6 @@ export function Details() {
 
   return (
     <TokenDetails
-      key={activeTokenInfo}
       tokenAddress={token.tokenAddress}
       tokenId={token.tokenId}
       blockchain={token.blockchain}

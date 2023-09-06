@@ -33,6 +33,7 @@ export interface Token {
 
 export interface TokenNfts {
   contentValue: ContentValue;
+  erc6551Accounts: { id: string }[];
 }
 
 export interface ContentValue {
