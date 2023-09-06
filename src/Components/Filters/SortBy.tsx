@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { Dropdown, Option } from '../Dropdown';
 import { FilterOption } from './FilterOption';
@@ -24,7 +24,28 @@ export const sortOptions = [
 export const defaultSortOrder = SortOrderType.DESC;
 
 export function SortBy({ disabled }: { disabled?: boolean }) {
-  const [{ sortOrder }, setData] = useSearchInput();
+  const [
+    { snapshotBlockNumber, snapshotDate, snapshotTimestamp, sortOrder },
+    setData
+  ] = useSearchInput();
+
+  const isSnapshotQuery = Boolean(
+    snapshotBlockNumber || snapshotDate || snapshotTimestamp
+  );
+
+  const isFilterDisabled = disabled || isSnapshotQuery;
+
+  // Reset sort filter for snapshot query
+  useEffect(() => {
+    if (isFilterDisabled) {
+      setData(
+        {
+          sortOrder: defaultSortOrder
+        },
+        { updateQueryParams: true }
+      );
+    }
+  }, [isFilterDisabled, setData]);
 
   const handleChange = useCallback(
     (selected: Option[]) => {
@@ -47,15 +68,15 @@ export function SortBy({ disabled }: { disabled?: boolean }) {
   return (
     <Dropdown
       heading="Sort by"
-      disabled={disabled}
+      disabled={isFilterDisabled}
       selected={selected}
       onChange={handleChange}
       options={sortOptions}
       renderPlaceholder={(selected, isOpen, isDisabled) => (
         <FilterPlaceholder
-          isOpen={isOpen}
-          disabled={isDisabled}
           icon="sort"
+          isOpen={isOpen}
+          isDisabled={isDisabled}
           label={selected[0].label}
         />
       )}

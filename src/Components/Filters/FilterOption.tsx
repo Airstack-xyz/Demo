@@ -1,25 +1,28 @@
 import classNames from 'classnames';
 import { Icon } from '../Icon';
 
+const filterOptionClass =
+  'flex items-center py-1 px-2 rounded-full mb-1 text-left whitespace-nowrap disabled:hover:cursor-not-allowed disabled:opacity-50';
+
 type FilterOptionProps = {
   onClick: () => void;
+  isDisabled?: boolean;
   isSelected?: boolean;
   label: string;
 };
 
 export function FilterOption({
   onClick,
+  isDisabled,
   isSelected,
   label
 }: FilterOptionProps) {
   return (
-    <label
-      className={classNames(
-        'flex py-1 px-2 rounded-full hover:bg-glass mb-1 cursor-pointer text-left whitespace-nowrap',
-        {
-          'font-bold': isSelected
-        }
-      )}
+    <button
+      disabled={isDisabled}
+      className={classNames(filterOptionClass, {
+        'font-bold': isSelected
+      })}
       onClick={onClick}
     >
       <Icon
@@ -31,6 +34,6 @@ export function FilterOption({
         })}
       />
       {label}
-    </label>
+    </button>
   );
 }

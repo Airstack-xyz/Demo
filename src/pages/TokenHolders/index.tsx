@@ -82,7 +82,6 @@ export function TokenHolders() {
   const isSnapshotQuery = Boolean(
     snapshotBlockNumber || snapshotDate || snapshotTimestamp
   );
-  const isCombination = tokenAddress.length > 1;
   const hasSomePoap = tokenAddress.some(token => !token.startsWith('0x'));
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
@@ -329,7 +328,7 @@ export function TokenHolders() {
               <div className="m-3 flex-row-center">
                 <div className="flex justify-between w-[calc(100vw-20px)] sm:w-[645px]">
                   <div className="flex-row-center gap-1">
-                    {!hasSomePoap && !isCombination && <SnapshotFilter />}
+                    <SnapshotFilter disabled={hasSomePoap} />
                   </div>
                   <GetAPIDropdown
                     options={options}
