@@ -1,5 +1,6 @@
 import { Poap, TokenTransfer } from './types';
 import { KeyValue } from './KeyValue';
+import { formatDate } from '../../../utils';
 
 export function PoapInfo({
   poap,
@@ -14,8 +15,8 @@ export function PoapInfo({
   return (
     <div className="overflow-hidden text-sm">
       <KeyValue name="Event ID" value={poap.eventId} />
-      <KeyValue name="Start date" value={poapEvent.startDate} />
-      <KeyValue name="End date" value={poapEvent.endDate} />
+      <KeyValue name="Start date" value={formatDate(poapEvent.startDate)} />
+      <KeyValue name="End date" value={formatDate(poapEvent.endDate)} />
       <KeyValue name="Location" value={poapEvent.city} />
       <KeyValue name="Event url" value={metadata.home_url} />
       <KeyValue

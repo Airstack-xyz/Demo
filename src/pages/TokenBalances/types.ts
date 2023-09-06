@@ -6,6 +6,7 @@ export interface TokenType {
   formattedAmount: number;
   tokenNfts: TokenNfts;
   token: Token;
+  tokenId?: string;
   _tokenId?: string;
   _common_tokens?: TokenType[];
 }

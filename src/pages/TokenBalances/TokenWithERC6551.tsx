@@ -75,8 +75,8 @@ export const TokenWithERC6551 = memo(function Token({
         assets.push({
           image: '',
           address: token.tokenAddress,
-          tokenId: token.tokenNfts?.tokenId,
-          chain: token.blockchain
+          tokenId: token?.tokenId || '',
+          chain: blockchain
         });
       }
     });
@@ -92,7 +92,7 @@ export const TokenWithERC6551 = memo(function Token({
           tokenId={asset.tokenId}
           chain={asset.chain}
           preset="medium"
-          containerClassName="w-full h-full"
+          containerClassName="w-full h-full flex items-center"
         />
       </div>
     ));
@@ -100,7 +100,7 @@ export const TokenWithERC6551 = memo(function Token({
 
   return (
     <div
-      className="h-[300px] w-[300px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token"
+      className="group h-[300px] w-[300px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token"
       data-loader-type="block"
       onClick={() => {
         setSearchData(
@@ -131,7 +131,7 @@ export const TokenWithERC6551 = memo(function Token({
       </div>
       <div className="flex justify-between z-10">
         <Link
-          className="text-sm bg-white rounded-18 text-primary flex py-2 px-3 items-center"
+          className="text-sm bg-white rounded-18 text-primary flex py-2 px-3 items-center sm:invisible group-hover:visible border border-solid border-transparent hover:border-text-secondary"
           to={createTokenHolderUrl({
             address: isPoap && eventId ? eventId : address,
             inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
@@ -159,7 +159,9 @@ export const TokenWithERC6551 = memo(function Token({
             <span className="bg-[#5a8178] px-1.5 py-0.5 rounded-18 mr-1.5">
               ERC6551
             </span>
-            <span>+{nestedTokens.length} assets</span>
+            <span>
+              {nestedTokens.length} asset{nestedTokens.length > 1 ? 's' : ''}
+            </span>
           </div>
           <div className="ellipsis text-xs font-semibold my-1.5">
             {name || '--'}
