@@ -307,10 +307,14 @@ export const Search = memo(function Search() {
     ]
   );
 
+  const handleInputSubmit = useCallback((value: string) => {
+    setIsInputSectionFocused(false);
+    setValue(value);
+  }, []);
+
   const handleInputClear = useCallback(() => {
     setValue('');
-    handleDataChange({});
-  }, [handleDataChange]);
+  }, []);
 
   const getTabChangeHandler = useCallback(
     (tokenBalance: boolean) => {
@@ -326,6 +330,8 @@ export const Search = memo(function Search() {
     [isHome, navigate]
   );
 
+  const showPrefixIcon = isHome && (!isInputSectionFocused || !value);
+
   return (
     <div className="w-[105%] sm:w-full z-10">
       <div className="my-6 flex-col-center">
@@ -338,7 +344,7 @@ export const Search = memo(function Search() {
                   [activeClass]: isTokenBalances
                 })}
               >
-                <Icon name="token-balances" className="w-4 mr-1" /> Token
+                <Icon name="token-balances" className="w-4 mr-1.5" /> Token
                 balances
               </button>
               <button
@@ -359,10 +365,13 @@ export const Search = memo(function Search() {
           ref={inputSectionRef}
           className="flex items-center h-[50px] w-[calc(100vw-20px)] sm:w-[645px] border-solid-stroke rounded-18 bg-glass px-4 py-3"
         >
+          {showPrefixIcon && (
+            <Icon name="search" width={15} height={15} className="mr-1.5" />
+          )}
           <InputWithMention
             value={value}
             onChange={setValue}
-            onSubmit={setValue}
+            onSubmit={handleInputSubmit}
             placeholder={
               isTokenBalances
                 ? tokenBalancesPlaceholder

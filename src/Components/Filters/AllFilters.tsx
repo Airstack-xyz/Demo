@@ -1,18 +1,11 @@
 import classNames from 'classnames';
-import {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
 import { DatePicker, DateValue } from '../DatePicker';
 import { Icon } from '../Icon';
 import { FilterOption } from './FilterOption';
-import { filterButtonClass } from './FilterPlaceholder';
+import { filterPlaceholderClass } from './FilterPlaceholder';
 import {
   SnapshotFilterType,
   SnapshotToastMessage,
@@ -49,15 +42,19 @@ const getAppliedFilterCount = ({
   return count;
 };
 
+const sectionHeaderClass =
+  'font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap';
+
 export function AllFilters() {
   const [
     {
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp,
+      address,
       blockchainType,
       tokenType,
-      sortOrder
+      sortOrder,
+      snapshotBlockNumber,
+      snapshotDate,
+      snapshotTimestamp
     },
     setData
   ] = useSearchInput();
@@ -101,28 +98,55 @@ export function AllFilters() {
   const [timestamp, setTimestamp] = useState<TextValue>('');
   const [date, setDate] = useState<DateValue>(new Date());
 
+  const handleDropdownHide = useCallback(() => {
+    setIsDropdownVisible(false);
+    setIsDatePickerVisible(false);
+    setBlockNumber(snapshotBlockNumber);
+    setDate(snapshotDate ? new Date(snapshotDate) : new Date());
+    setTimestamp(snapshotTimestamp);
+    setCurrentSnapshotFilter(selectedSnapshotFilter);
+    setCurrentBlockchainFilter(selectedBlockchainFilter);
+    setCurrentSortOrder(selectedSortOrder);
+  }, [
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp,
+    selectedSnapshotFilter,
+    selectedBlockchainFilter,
+    selectedSortOrder
+  ]);
+
+  const dropdownContainerRef =
+    useOutsideClick<HTMLDivElement>(handleDropdownHide);
+
   const datePickerContainerRef = useOutsideClick<HTMLDivElement>(() =>
     setIsDatePickerVisible(false)
   );
 
-  const containerRef = useRef<HTMLDivElement>(null);
-
   const isSnapshotQuery = Boolean(
     snapshotBlockNumber || snapshotDate || snapshotTimestamp
   );
-  const isPoapFilterApplied = tokenType === 'POAP';
+  const isPoap = tokenType === 'POAP';
+  const isCombination = address.length > 1;
 
   useEffect(() => {
-    // If POAP filter is applied, reset blockchain filter
-    if (isPoapFilterApplied && blockchainType.length > 0) {
-      setData(
-        {
-          blockchainType: []
-        },
-        { updateQueryParams: true }
-      );
+    const filterValues: Partial<CachedQuery> = {};
+    // If snapshot query, reset sort filter
+    if (isSnapshotQuery) {
+      filterValues.sortOrder = defaultSortOrder;
     }
-  }, [blockchainType, isPoapFilterApplied, setData]);
+    // If POAP filter is applied, reset blockchain filter
+    if (isPoap) {
+      filterValues.blockchainType = [];
+    }
+    // If POAP and combinations, reset snapshot filter
+    if (isPoap || isCombination) {
+      filterValues.snapshotBlockNumber = undefined;
+      filterValues.snapshotDate = undefined;
+      filterValues.snapshotTimestamp = undefined;
+    }
+    setData(filterValues, { updateQueryParams: true });
+  }, [isSnapshotQuery, isPoap, isCombination, setData]);
 
   useEffect(() => {
     setCurrentSnapshotFilter(selectedSnapshotFilter);
@@ -140,22 +164,31 @@ export function AllFilters() {
     snapshotTimestamp
   ]);
 
-  const handleDropdownHide = useCallback(() => {
-    setIsDropdownVisible(false);
-    setBlockNumber(snapshotBlockNumber);
-    setDate(snapshotDate ? new Date(snapshotDate) : new Date());
-    setTimestamp(snapshotTimestamp);
-    setCurrentSnapshotFilter(selectedSnapshotFilter);
-    setCurrentBlockchainFilter(selectedBlockchainFilter);
-    setCurrentSortOrder(selectedSortOrder);
-  }, [
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp,
-    selectedSnapshotFilter,
-    selectedBlockchainFilter,
-    selectedSortOrder
-  ]);
+  const snackbarMessage = useMemo(
+    () =>
+      getSnackbarMessage({
+        selectedFilter: selectedSnapshotFilter,
+        snapshotBlockNumber,
+        snapshotDate,
+        snapshotTimestamp
+      }),
+    [
+      selectedSnapshotFilter,
+      snapshotBlockNumber,
+      snapshotDate,
+      snapshotTimestamp
+    ]
+  );
+
+  const appliedFilterCount = useMemo(
+    () =>
+      getAppliedFilterCount({
+        selectedSnapshotFilter,
+        selectedBlockchainFilter,
+        selectedSortOrder
+      }),
+    [selectedBlockchainFilter, selectedSnapshotFilter, selectedSortOrder]
+  );
 
   const handleDropdownToggle = useCallback(() => {
     setIsDropdownVisible(prevValue => !prevValue);
@@ -243,7 +276,7 @@ export function AllFilters() {
     }
 
     // For sort filter
-    // For snapshot query resetting sort order so that it is not counted in applied filters
+    // For snapshot query resetting sort order
     if (isSnapshotQuery) {
       filterValues.sortOrder = defaultSortOrder;
     } else {
@@ -254,31 +287,141 @@ export function AllFilters() {
     setData(filterValues, { updateQueryParams: true });
   };
 
-  const snackbarMessage = useMemo(
-    () =>
-      getSnackbarMessage({
-        selectedFilter: selectedSnapshotFilter,
-        snapshotBlockNumber,
-        snapshotDate,
-        snapshotTimestamp
-      }),
-    [
-      selectedSnapshotFilter,
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp
-    ]
-  );
+  const handleKeyboardKeyUp = (
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (event.key === 'Enter') {
+      handleApplyClick();
+    }
+  };
 
-  const appliedFilterCount = useMemo(
-    () =>
-      getAppliedFilterCount({
-        selectedSnapshotFilter,
-        selectedBlockchainFilter,
-        selectedSortOrder
-      }),
-    [selectedBlockchainFilter, selectedSnapshotFilter, selectedSortOrder]
-  );
+  const renderSnapshotSection = () => {
+    const isDisabled = isCombination || isPoap;
+    return (
+      <>
+        <div
+          className={classNames(sectionHeaderClass, {
+            'opacity-50': isDisabled
+          })}
+        >
+          Balance as of
+        </div>
+        <FilterOption
+          label="Today"
+          isDisabled={isDisabled}
+          isSelected={currentSnapshotFilter === SnapshotFilterType.TODAY}
+          onClick={handleSnapshotFilterOptionClick(SnapshotFilterType.TODAY)}
+        />
+        <FilterOption
+          label="Custom date"
+          isDisabled={isDisabled}
+          isSelected={currentSnapshotFilter === SnapshotFilterType.CUSTOM_DATE}
+          onClick={handleCustomDateOptionClick}
+        />
+        <div className="relative">
+          {currentSnapshotFilter === SnapshotFilterType.CUSTOM_DATE && (
+            <div
+              className="ml-10 mr-4 mb-2 cursor-pointer"
+              onClick={handleDatePickerShow}
+            >
+              {formattedDate}
+            </div>
+          )}
+          {isDatePickerVisible && (
+            <div ref={datePickerContainerRef} className="absolute left-2 z-20">
+              <DatePicker value={date} onChange={handleDateChange} />
+            </div>
+          )}
+        </div>
+        <FilterOption
+          label="Block number"
+          isDisabled={isDisabled}
+          isSelected={currentSnapshotFilter === SnapshotFilterType.BLOCK_NUMBER}
+          onClick={handleSnapshotFilterOptionClick(
+            SnapshotFilterType.BLOCK_NUMBER
+          )}
+        />
+        {currentSnapshotFilter === SnapshotFilterType.BLOCK_NUMBER && (
+          <input
+            autoFocus
+            type="text"
+            placeholder="enter block no."
+            className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none"
+            onChange={handleBlockNumberChange}
+            onKeyUp={handleKeyboardKeyUp}
+            value={blockNumber}
+          />
+        )}
+        <FilterOption
+          label="Timestamp"
+          isDisabled={isDisabled}
+          isSelected={currentSnapshotFilter === SnapshotFilterType.TIMESTAMP}
+          onClick={handleSnapshotFilterOptionClick(
+            SnapshotFilterType.TIMESTAMP
+          )}
+        />
+        {currentSnapshotFilter === SnapshotFilterType.TIMESTAMP && (
+          <input
+            autoFocus
+            type="text"
+            placeholder="epoch timestamp"
+            className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none"
+            onChange={handleTimestampChange}
+            onKeyUp={handleKeyboardKeyUp}
+            value={timestamp}
+          />
+        )}
+      </>
+    );
+  };
+
+  const renderBlockchainSection = () => {
+    const isDisabled = isPoap;
+    return (
+      <>
+        <div
+          className={classNames(sectionHeaderClass, {
+            'opacity-50': isDisabled
+          })}
+        >
+          Blockchain
+        </div>
+        {blockchainOptions.map(item => (
+          <FilterOption
+            key={item.value}
+            label={item.label}
+            isDisabled={isDisabled}
+            isSelected={currentBlockchainFilter === item.value}
+            onClick={handleBlockchainFilterOptionClick(item.value)}
+          />
+        ))}
+      </>
+    );
+  };
+
+  const renderSortSection = () => {
+    const isDisabled = isSnapshotQuery;
+    return (
+      <>
+        <div
+          className={classNames(sectionHeaderClass, {
+            'opacity-50': isDisabled
+          })}
+        >
+          Sort by
+        </div>
+        {sortOptions.map(item => (
+          <FilterOption
+            key={item.value}
+            label={item.label}
+            isDisabled={isDisabled}
+            isSelected={currentSortOrder === item.value}
+            onClick={handleSortOrderOptionClick(item.value)}
+          />
+        ))}
+      </>
+    );
+  };
 
   const formattedDate = date?.toLocaleString(undefined, {
     day: 'numeric',
@@ -290,10 +433,10 @@ export function AllFilters() {
     <>
       <div
         className="text-xs font-medium relative flex flex-col items-end"
-        ref={containerRef}
+        ref={dropdownContainerRef}
       >
         <button
-          className={classNames(filterButtonClass, {
+          className={classNames(filterPlaceholderClass, {
             'border-white': isDropdownVisible
           })}
           onClick={handleDropdownToggle}
@@ -302,105 +445,11 @@ export function AllFilters() {
           <Icon name="arrow-down" height={16} width={16} className="ml-1" />
         </button>
         {isDropdownVisible && (
-          <div className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute min-w-[200px] left-0 top-full z-10">
-            <div className="font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap">
-              Balance as of
-            </div>
-            <FilterOption
-              label="Today"
-              isSelected={currentSnapshotFilter === SnapshotFilterType.TODAY}
-              onClick={handleSnapshotFilterOptionClick(
-                SnapshotFilterType.TODAY
-              )}
-            />
-            <FilterOption
-              label="Custom date"
-              isSelected={
-                currentSnapshotFilter === SnapshotFilterType.CUSTOM_DATE
-              }
-              onClick={handleCustomDateOptionClick}
-            />
-            <div className="relative">
-              {currentSnapshotFilter === SnapshotFilterType.CUSTOM_DATE && (
-                <div
-                  className="ml-10 mr-4 mb-2 cursor-pointer"
-                  onClick={handleDatePickerShow}
-                >
-                  {formattedDate}
-                </div>
-              )}
-              {isDatePickerVisible && (
-                <div
-                  ref={datePickerContainerRef}
-                  className="absolute left-2 z-20"
-                >
-                  <DatePicker value={date} onChange={handleDateChange} />
-                </div>
-              )}
-            </div>
-            <FilterOption
-              label="Block number"
-              isSelected={
-                currentSnapshotFilter === SnapshotFilterType.BLOCK_NUMBER
-              }
-              onClick={handleSnapshotFilterOptionClick(
-                SnapshotFilterType.BLOCK_NUMBER
-              )}
-            />
-            {currentSnapshotFilter === SnapshotFilterType.BLOCK_NUMBER && (
-              <input
-                autoFocus
-                type="text"
-                placeholder="enter block no."
-                className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none"
-                onChange={handleBlockNumberChange}
-                value={blockNumber}
-              />
-            )}
-            <FilterOption
-              label="Timestamp"
-              isSelected={
-                currentSnapshotFilter === SnapshotFilterType.TIMESTAMP
-              }
-              onClick={handleSnapshotFilterOptionClick(
-                SnapshotFilterType.TIMESTAMP
-              )}
-            />
-            {currentSnapshotFilter === SnapshotFilterType.TIMESTAMP && (
-              <input
-                autoFocus
-                type="text"
-                placeholder="epoch timestamp"
-                className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none"
-                onChange={handleTimestampChange}
-                value={timestamp}
-              />
-            )}
-            <div className="font-bold mt-2 py-2 px-3.5 rounded-full text-left whitespace-nowrap">
-              Blockchain
-            </div>
-            {blockchainOptions.map(item => (
-              <FilterOption
-                label={item.label}
-                isSelected={currentBlockchainFilter === item.value}
-                onClick={handleBlockchainFilterOptionClick(item.value)}
-              />
-            ))}
-            {!isSnapshotQuery && (
-              <>
-                <div className="font-bold mt-2 py-2 px-3.5 rounded-full text-left whitespace-nowrap">
-                  Sort by
-                </div>
-                {sortOptions.map(item => (
-                  <FilterOption
-                    label={item.label}
-                    isSelected={currentSortOrder === item.value}
-                    onClick={handleSortOrderOptionClick(item.value)}
-                  />
-                ))}
-              </>
-            )}
-            <div className="p-2 mt-1 flex justify-between">
+          <div className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-10">
+            {renderSnapshotSection()}
+            {renderBlockchainSection()}
+            {renderSortSection()}
+            <div className="p-2 mt-1 flex justify-center gap-5">
               <button
                 type="button"
                 className="px-2.5 py-1 rounded-full bg-white backdrop-blur-[66.63px] text-primary hover:opacity-60"

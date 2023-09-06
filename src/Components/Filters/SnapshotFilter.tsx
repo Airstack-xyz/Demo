@@ -1,19 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
-import {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
+import { formatDate } from '../../utils';
 import { DatePicker, DateValue } from '../DatePicker';
 import { Icon, IconType } from '../Icon';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
-import { formatDate } from '../../utils';
 import { defaultSortOrder } from './SortBy';
 
 export const enum SnapshotFilterType {
@@ -90,8 +83,16 @@ export function SnapshotToastMessage({ message }: { message: string }) {
 export type TextValue = string | number | undefined;
 
 export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
-  const [{ snapshotBlockNumber, snapshotDate, snapshotTimestamp }, setData] =
-    useSearchInput();
+  const [
+    {
+      address,
+      tokenType,
+      snapshotBlockNumber,
+      snapshotDate,
+      snapshotTimestamp
+    },
+    setData
+  ] = useSearchInput();
 
   const selectedFilter = useMemo(() => {
     if (snapshotBlockNumber) return SnapshotFilterType.BLOCK_NUMBER;
@@ -109,11 +110,40 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   const [timestamp, setTimestamp] = useState<TextValue>('');
   const [date, setDate] = useState<DateValue>(new Date());
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  const handleDropdownHide = useCallback(() => {
+    setIsDropdownVisible(false);
+    setIsDatePickerVisible(false);
+    setBlockNumber(snapshotBlockNumber);
+    setDate(snapshotDate ? new Date(snapshotDate) : new Date());
+    setTimestamp(snapshotTimestamp);
+    setCurrentFilter(selectedFilter);
+  }, [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]);
+
+  const dropdownContainerRef =
+    useOutsideClick<HTMLDivElement>(handleDropdownHide);
 
   const datePickerContainerRef = useOutsideClick<HTMLDivElement>(() =>
     setIsDatePickerVisible(false)
   );
+
+  const isCombination = address.length > 1;
+  const isPoap = tokenType === 'POAP';
+
+  const isFilterDisabled = disabled || isCombination || isPoap;
+
+  // Reset snapshot filter for combinations and poaps
+  useEffect(() => {
+    if (isFilterDisabled) {
+      setData(
+        {
+          snapshotBlockNumber: undefined,
+          snapshotDate: undefined,
+          snapshotTimestamp: undefined
+        },
+        { updateQueryParams: true }
+      );
+    }
+  }, [isFilterDisabled, setData]);
 
   useEffect(() => {
     setBlockNumber(snapshotBlockNumber);
@@ -122,13 +152,27 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
     setCurrentFilter(selectedFilter);
   }, [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]);
 
-  const handleDropdownHide = useCallback(() => {
-    setIsDropdownVisible(false);
-    setBlockNumber(snapshotBlockNumber);
-    setDate(snapshotDate ? new Date(snapshotDate) : new Date());
-    setTimestamp(snapshotTimestamp);
-    setCurrentFilter(selectedFilter);
-  }, [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]);
+  const snackbarMessage = useMemo(
+    () =>
+      getSnackbarMessage({
+        selectedFilter,
+        snapshotBlockNumber,
+        snapshotDate,
+        snapshotTimestamp
+      }),
+    [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]
+  );
+
+  const { label, icon } = useMemo(
+    () =>
+      getLabelAndIcon({
+        selectedFilter,
+        snapshotBlockNumber,
+        snapshotDate,
+        snapshotTimestamp
+      }),
+    [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]
+  );
 
   const handleDropdownToggle = useCallback(() => {
     setIsDropdownVisible(prevValue => !prevValue);
@@ -172,7 +216,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   // Not enclosing in useCallback as its dependencies will change every time
   const handleApplyClick = () => {
     const filterValues: Partial<CachedQuery> = {
-      sortOrder: defaultSortOrder, // For snapshot query resetting sort order so that it is not counted in applied filters
+      sortOrder: defaultSortOrder, // For snapshot query resetting sort order
       snapshotBlockNumber: undefined,
       snapshotDate: undefined,
       snapshotTimestamp: undefined
@@ -198,27 +242,13 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
     setData(filterValues, { updateQueryParams: true });
   };
 
-  const snackbarMessage = useMemo(
-    () =>
-      getSnackbarMessage({
-        selectedFilter,
-        snapshotBlockNumber,
-        snapshotDate,
-        snapshotTimestamp
-      }),
-    [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]
-  );
-
-  const { label, icon } = useMemo(
-    () =>
-      getLabelAndIcon({
-        selectedFilter,
-        snapshotBlockNumber,
-        snapshotDate,
-        snapshotTimestamp
-      }),
-    [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]
-  );
+  const handleKeyboardKeyUp = (
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (event.key === 'Enter') {
+      handleApplyClick();
+    }
+  };
 
   const formattedDate = date?.toLocaleString(undefined, {
     day: 'numeric',
@@ -230,17 +260,17 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
     <>
       <div
         className="text-xs font-medium relative flex flex-col items-end"
-        ref={containerRef}
+        ref={dropdownContainerRef}
       >
         <FilterPlaceholder
-          disabled={disabled}
+          isDisabled={isFilterDisabled}
           isOpen={isDropdownVisible}
           label={label}
           icon={icon}
           onClick={handleDropdownToggle}
         />
         {isDropdownVisible && (
-          <div className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute min-w-[150px] left-0 top-full z-10">
+          <div className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-10">
             <div className="font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap">
               Balance as of
             </div>
@@ -282,8 +312,9 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
                 autoFocus
                 type="text"
                 placeholder="enter block no."
-                className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none"
+                className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none"
                 onChange={handleBlockNumberChange}
+                onKeyUp={handleKeyboardKeyUp}
                 value={blockNumber}
               />
             )}
@@ -297,12 +328,13 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
                 autoFocus
                 type="text"
                 placeholder="epoch timestamp"
-                className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none"
+                className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none"
                 onChange={handleTimestampChange}
+                onKeyUp={handleKeyboardKeyUp}
                 value={timestamp}
               />
             )}
-            <div className="p-2 mt-1 flex justify-between">
+            <div className="p-2 mt-1 flex justify-center gap-5">
               <button
                 type="button"
                 className="px-2.5 py-1 rounded-full bg-white backdrop-blur-[66.63px] text-primary hover:opacity-60"

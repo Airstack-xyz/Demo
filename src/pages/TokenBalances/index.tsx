@@ -286,9 +286,9 @@ export function TokenBalance() {
                     <AllFilters />
                   ) : (
                     <>
-                      {!isCombination && <SnapshotFilter />}
+                      <SnapshotFilter />
                       <BlockchainFilter />
-                      {!isSnapshotQuery && <SortBy />}
+                      <SortBy />
                     </>
                   )}
                 </div>
