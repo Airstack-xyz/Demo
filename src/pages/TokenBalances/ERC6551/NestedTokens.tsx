@@ -80,7 +80,7 @@ export function NestedTokens({
       };
 
   return (
-    <div className=" text-sm mt-5">
+    <div className=" text-sm mt-5 px-2 sm:px-0">
       <div className="tabs flex my-5 border-b-[5px] border-solid border-secondary tabs">
         {accounts?.map((_, index) => (
           <div
@@ -141,7 +141,7 @@ export function NestedTokens({
       </div>
       <div>
         <div className="font-bold my-5">Asset</div>
-        <div className="flex flex-wrap gap-x-6 gap-y-6">
+        <div className="flex flex-wrap gap-x-6 gap-y-6 justify-center sm:justify-start">
           {account?.tokens?.map((token, index) => {
             const key = `${token.tokenId}-${index}`;
             const hasERC6551 = token.tokenNfts?.erc6551Accounts?.length > 0;

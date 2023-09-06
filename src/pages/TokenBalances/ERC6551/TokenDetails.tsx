@@ -140,7 +140,7 @@ export function TokenDetails(props: {
   const hasChildren = !isPoap && nft?.erc6551Accounts?.length > 0;
 
   return (
-    <div className="max-w-[950px] text-sm m-auto w-screen">
+    <div className="max-w-[950px] text-sm m-auto w-[98vw]">
       <div className="flex items-center mb-7">
         <div className="flex items-center w-[60%] sm:w-auto overflow-hidden mr-1">
           <div
@@ -178,8 +178,8 @@ export function TokenDetails(props: {
           </span>
         </div>
       </div>
-      <div className="bg-glass border-solid-stroke rounded-18 flex p-5">
-        <div className="mr-7">
+      <div className="bg-glass border-solid-stroke rounded-18 flex p-5 flex-col md:flex-row">
+        <div className="flex flex-col items-center mr-0 sm:mr-7">
           <div
             className={classNames({
               'skeleton-loader': loading
