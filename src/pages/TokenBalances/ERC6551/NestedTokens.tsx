@@ -12,7 +12,7 @@ function formatData(data: AccountsResponse) {
       accounts: []
     };
   return {
-    accounts: data.Accounts.Account.map(account => ({
+    accounts: data?.Accounts?.Account?.map(account => ({
       standard: account.standard,
       blockchain: account?.address?.blockchain,
       tokens: account?.address?.tokenBalances,
