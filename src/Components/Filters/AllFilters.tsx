@@ -445,7 +445,7 @@ export function AllFilters() {
           <Icon name="arrow-down" height={16} width={16} className="ml-1" />
         </button>
         {isDropdownVisible && (
-          <div className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-10">
+          <div className="before:bg-glass before:absolute before:inset-0 before:-z-10 before:rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-10">
             {renderSnapshotSection()}
             {renderBlockchainSection()}
             {renderSortSection()}

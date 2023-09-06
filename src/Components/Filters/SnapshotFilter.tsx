@@ -270,7 +270,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
           onClick={handleDropdownToggle}
         />
         {isDropdownVisible && (
-          <div className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-10">
+          <div className="before:bg-glass before:absolute before:inset-0 before:-z-10 before:rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-10">
             <div className="font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap">
               Balance as of
             </div>
