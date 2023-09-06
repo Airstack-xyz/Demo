@@ -5,6 +5,21 @@ import { erc6551TokensQuery } from '../../../queries/tokenDetails';
 import { useState } from 'react';
 import { Icon } from '../../../Components/Icon';
 import classNames from 'classnames';
+import { TokenWithERC6551 } from '../TokenWithERC6551';
+
+const loaderData = Array(3).fill({ token: {}, tokenNfts: {} });
+
+function Loader() {
+  return (
+    <>
+      {loaderData.map((_, index) => (
+        <div className="skeleton-loader" key={index}>
+          <Token key={index} token={null} />
+        </div>
+      ))}
+    </>
+  );
+}
 
 function formatData(data: AccountsResponse) {
   if (!data)
@@ -43,7 +58,7 @@ export function NestedTokens({
   const [activeTab, setActiveTab] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
 
-  const { data } = useQuery(
+  const { data, loading } = useQuery(
     erc6551TokensQuery,
     {
       blockchain,
@@ -128,11 +143,19 @@ export function NestedTokens({
         <div className="font-bold my-5">Asset</div>
         <div className="flex flex-wrap gap-x-6 gap-y-6">
           {account?.tokens?.map((token, index) => {
+            const key = `${token.tokenId}-${index}`;
+            const hasERC6551 = token.tokenNfts?.erc6551Accounts?.length > 0;
+
+            if (hasERC6551) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              return <TokenWithERC6551 key={key} token={token as any} />;
+            }
             return (
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              <Token key={`${token.tokenId}-${index}`} token={token as any} />
+              <Token key={key} token={token as any} />
             );
           })}
+          {loading && <Loader />}
         </div>
       </div>
     </div>
