@@ -159,6 +159,7 @@ function SocialsComponent() {
           />
           {socials.map(({ dappName, profileName, profileNames }) => (
             <Social
+              key={dappName}
               name={dappName}
               values={profileNames || [profileName]}
               image={imagesMap[dappName?.trim()]}

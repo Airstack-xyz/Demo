@@ -277,6 +277,7 @@ export function ERC20Tokens() {
         >
           {tokens.map((token, index) => (
             <Link
+              key={index}
               data-address={token?.tokenAddress}
               to={createTokenHolderUrl({
                 address: token?.tokenAddress,
@@ -287,7 +288,6 @@ export function ERC20Tokens() {
               className="random-color-item"
             >
               <Token
-                key={index}
                 amount={isCombination ? null : token?.formattedAmount}
                 symbol={token?.token?.symbol}
                 type={token?.token?.name}

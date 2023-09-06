@@ -133,7 +133,7 @@ export function Token({
       >
         <div className="flex">
           {assets.map(asset => (
-            <div className="mr-1.5 last:!mr-0">
+            <div key={asset.tokenId} className="mr-1.5 last:!mr-0">
               <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden [&>div]:w-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center">
                 <Asset
                   address={asset.tokenAddress}

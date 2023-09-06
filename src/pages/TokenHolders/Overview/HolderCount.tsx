@@ -57,6 +57,7 @@ export function HolderCount({
         {images &&
           images.map((image, index) => (
             <div
+              key={index}
               style={{ left: 10 * index, zIndex: length - index }}
               className="absolute rounded-full min-w-[47px] w-[47px] h-[47px] overflow-hidden flex-row-center"
             >
