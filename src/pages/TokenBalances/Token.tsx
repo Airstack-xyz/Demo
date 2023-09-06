@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { memo, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '../../Components/Icon';
 import { formatDate } from '../../utils';
@@ -13,9 +13,15 @@ type Poap = PoapsType['Poaps']['Poap'][0];
 
 type TokenProps = {
   token: null | TokenType | Poap | Nft;
+  hideHoldersButton?: boolean;
+  disabled?: boolean;
 };
 
-export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
+export const Token = memo(function Token({
+  token: tokenProp,
+  hideHoldersButton,
+  disabled
+}: TokenProps) {
   const setSearchData = useSearchInput()[1];
 
   const token = (tokenProp || {}) as TokenType;
@@ -43,18 +49,27 @@ export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
   const eventId = poapEvent?.eventId || '';
   const tokenName = isPoap ? poapEvent?.eventName : token?.token?.name;
 
+  const handleClick = useCallback(() => {
+    if (disabled) return;
+    setSearchData(
+      {
+        activeTokenInfo: `${address} ${tokenId} ${blockchain} ${eventId}`
+      },
+      { updateQueryParams: true }
+    );
+  }, [address, blockchain, disabled, eventId, setSearchData, tokenId]);
+
   return (
     <div
-      className="h-[300px] w-[300px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token"
+      className={classNames(
+        'h-[300px] w-[300px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token',
+        {
+          'cursor-pointer': !disabled,
+          'hover:border-transparent': disabled
+        }
+      )}
       data-loader-type="block"
-      onClick={() => {
-        setSearchData(
-          {
-            tokenBalancesActiveViewInfo: `${address} ${tokenId} ${blockchain} ${eventId}`
-          },
-          { updateQueryParams: true }
-        );
-      }}
+      onClick={handleClick}
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
     >
       <div className="absolute inset-0 [&>div]:w-full [&>div]:h-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center">
@@ -70,19 +85,21 @@ export const Token = memo(function Token({ token: tokenProp }: TokenProps) {
         )}
       </div>
       <div className="flex justify-between z-10">
-        <Link
-          className="text-sm bg-white rounded-18 text-primary flex py-2 px-3 items-center"
-          to={createTokenHolderUrl({
-            address: isPoap && eventId ? eventId : address,
-            inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
-            type,
-            blockchain,
-            label: tokenName || '--'
-          })}
-        >
-          <Icon width={16} name="token-holders" />
-          <span className="ml-1.5">Holders</span>
-        </Link>
+        {!hideHoldersButton && (
+          <Link
+            className="text-sm bg-white rounded-18 text-primary flex py-2 px-3 items-center"
+            to={createTokenHolderUrl({
+              address: isPoap && eventId ? eventId : address,
+              inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
+              type,
+              blockchain,
+              label: tokenName || '--'
+            })}
+          >
+            <Icon width={16} name="token-holders" />
+            <span className="ml-1.5">Holders</span>
+          </Link>
+        )}
         <div className="flex">
           <div className="rounded-full h-9 w-9 bg-glass border-solid-light">
             <Icon name={blockchain} className="w-full" />

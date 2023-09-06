@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { Search } from '../../Components/Search';
 import { Layout } from '../../Components/layout';
 import { Tokens } from './Tokens/Tokens';
@@ -33,17 +39,21 @@ import {
 import { sortByAddressByNonERC20First } from '../../utils/getNFTQueryForTokensHolder';
 
 export function TokenHolders() {
-  const [{ address: tokenAddress, activeView, tokenFilters }, setData] =
-    useSearchInput();
-  const [{ tokens: overviewTokens, isERC6551 }] = useOverviewTokens([
-    'tokens',
-    'isERC6551'
-  ]);
+  const [
+    { address: tokenAddress, activeView, tokenFilters, activeTokenInfo },
+    setData
+  ] = useSearchInput();
+  const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
+  const [showTokensOrOverview, setShowTokensOrOverview] = useState(true);
 
   const addressRef = useRef<null | string[]>(null);
   const isHome = useMatch('/');
 
   const query = tokenAddress.length > 0 ? tokenAddress[0] : '';
+
+  useEffect(() => {
+    setShowTokensOrOverview(true);
+  }, [tokenAddress]);
 
   const tokenListKey = useMemo(() => {
     return tokenAddress.join(',');
@@ -193,7 +203,14 @@ export function TokenHolders() {
     return erc20Tokens.length > 1;
   }, [overviewTokens]);
 
+  const handleInvalidAddress = useCallback(() => {
+    setShowTokensOrOverview(false);
+  }, []);
+
   const showInCenter = isHome;
+
+  const showTokens =
+    showTokensOrOverview && !hasMulitpleERC20 && !activeTokenInfo;
 
   return (
     <Layout>
@@ -223,8 +240,8 @@ export function TokenHolders() {
               </div>
             )}
             <div className="flex flex-col justify-center mt-7" key={query}>
-              <HoldersOverview />
-              {!hasMulitpleERC20 && !isERC6551 && (
+              <HoldersOverview onAddress404={handleInvalidAddress} />
+              {showTokens && (
                 <>
                   {activeView && <OverviewDetails />}
                   {!activeView && (

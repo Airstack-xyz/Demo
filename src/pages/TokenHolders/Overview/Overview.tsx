@@ -16,35 +16,36 @@ import {
 import { showToast } from '../../../utils/showToast';
 import { useGetAccountOwner } from '../../../hooks/useGetAccountOwner';
 import { ERC6551TokenHolder } from '../ERC6551TokenHolder';
+import { Details } from './Details';
 
-function Overview() {
-  const [{ address, activeView }] = useSearchInput();
+function Overview({ onAddress404 }: { onAddress404?: () => void }) {
+  const [{ address, activeView, activeTokenInfo }] = useSearchInput();
 
   const isPoap = address.every(token => !token.startsWith('0x'));
 
   const [fetchTokens, tokens, loadingTokens] = useFetchTokens();
-  const [fetchAccountsOwner, ownerData, loadingOwner] = useGetAccountOwner(
+  const [fetchAccountsOwner, account, loadingAccount] = useGetAccountOwner(
     address[0]
   );
 
-  const setTokens = useOverviewTokens(['tokens', 'isERC6551'])[1];
+  const setTokens = useOverviewTokens(['tokens'])[1];
 
   const tokenDetails = useMemo(() => tokens || [], [tokens]);
   const hasNoTokens = !loadingTokens && tokens && tokens.length === 0;
   const addressIsAccount =
-    hasNoTokens && !loadingOwner && Boolean(ownerData?.owner);
+    hasNoTokens && !loadingAccount && Boolean(account?.tokenAddress);
+
+  useEffect(() => {
+    if (hasNoTokens && onAddress404) {
+      onAddress404();
+    }
+  }, [hasNoTokens, onAddress404, setTokens]);
 
   useEffect(() => {
     if (hasNoTokens) {
       fetchAccountsOwner();
     }
   }, [fetchAccountsOwner, hasNoTokens]);
-
-  useEffect(() => {
-    setTokens({
-      isERC6551: Boolean(addressIsAccount)
-    });
-  }, [addressIsAccount, setTokens]);
 
   const shouldFetchHoldersCount = useMemo(() => {
     return tokenDetails.every(token => {
@@ -201,10 +202,15 @@ function Overview() {
           tokenDetails[1] ? ` & ${tokenDetails[1]?.name}` : ''
         }`
       : '';
+  const noHoldersCount = !loadingTokens && !shouldFetchHoldersCount;
+  const loadingCount = noHoldersCount
+    ? false
+    : loadingAccount ||
+      loadingTokenOverview ||
+      (loadingTokens && shouldFetchHoldersCount);
 
   const holderCounts = useMemo(() => {
     return Object.keys(overViewData).map(key => {
-      const noHoldersCount = !loadingTokens && !shouldFetchHoldersCount;
       if (key === 'totalSupply' || (noHoldersCount && key === 'owners')) {
         return null;
       }
@@ -227,10 +233,6 @@ function Overview() {
         count = '';
       }
 
-      const loadingCount = noHoldersCount
-        ? false
-        : loadingTokenOverview || (loadingTokens && shouldFetchHoldersCount);
-
       return (
         <HolderCount
           key={key}
@@ -251,10 +253,9 @@ function Overview() {
       );
     });
   }, [
-    loadingTokenOverview,
-    loadingTokens,
+    loadingCount,
+    noHoldersCount,
     overViewData,
-    shouldFetchHoldersCount,
     tokenDetails,
     tokenImages,
     tokenName,
@@ -287,11 +288,19 @@ function Overview() {
     );
   }, [tokenDetails, totalSupply]);
 
-  if (addressIsAccount && ownerData?.owner) {
+  if (activeTokenInfo && account) {
+    return <Details />;
+  }
+
+  if (addressIsAccount && account?.tokenAddress) {
     return (
-      <ERC6551TokenHolder owner={ownerData?.owner} token={ownerData?.token} />
+      <ERC6551TokenHolder
+        owner={account?.tokenAddress}
+        token={account?.token}
+      />
     );
   }
+
   if (isERC20 || activeView) return null;
 
   // eslint-disable-next-line
@@ -326,7 +335,7 @@ function Overview() {
         className={classNames(
           'h-full flex-1 hidden [&>div]:h-full [&>div]:w-full sm:flex-col-center min-w-[421px] max-w-[421px] relative overflow-hidden',
           {
-            'skeleton-loader': loadingTokens
+            'skeleton-loader': loadingTokens || loadingAccount
           }
         )}
         data-loader-type="block"
