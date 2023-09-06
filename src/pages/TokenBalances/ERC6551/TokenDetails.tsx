@@ -7,13 +7,48 @@ import {
 } from '../../../queries/tokenDetails';
 import { ERC20Response, Nft, TokenTransfer } from '../erc20-types';
 import { NestedTokens } from './NestedTokens';
-import { useEffect } from 'react';
-import { Link, useMatch } from 'react-router-dom';
+import { useCallback, useEffect } from 'react';
+import {
+  Link,
+  createSearchParams,
+  useMatch,
+  useNavigate
+} from 'react-router-dom';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { PoapData } from './types';
 import { PoapInfo } from './PoapInfo';
 import { NFTInfo } from './NFTInfo';
 import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
+import classNames from 'classnames';
+
+function LoaderItem() {
+  return (
+    <div className=" flex">
+      <div
+        data-loader-type="block"
+        data-loader-height="30"
+        className="w-[20%] mr-5"
+      ></div>
+      <div
+        data-loader-type="block"
+        data-loader-width="50"
+        data-loader-height="30"
+      ></div>
+    </div>
+  );
+}
+
+function LoaderInfo() {
+  return (
+    <div className="skeleton-loader w-full [&>div]:h-8 [&>div]:mb-9">
+      <LoaderItem />
+      <LoaderItem />
+      <LoaderItem />
+      <LoaderItem />
+      <LoaderItem />
+    </div>
+  );
+}
 
 function formatNFTData(data: ERC20Response) {
   if (!data) return {};
@@ -47,10 +82,12 @@ export function TokenDetails(props: {
   onClose?: () => void;
 }) {
   const { tokenAddress, tokenId, blockchain, eventId, onClose } = props;
-  const [{ address }] = useSearchInput();
+
+  const [{ address, rawInput, inputType }] = useSearchInput();
+  const navigate = useNavigate();
   const isTokenBalances = !!useMatch('/token-balances');
 
-  const [fetchToken, { data }] = useLazyQuery(
+  const [fetchToken, { data, loading }] = useLazyQuery(
     tokenDetailsQuery,
     {
       tokenId,
@@ -59,7 +96,6 @@ export function TokenDetails(props: {
     },
     { dataFormatter: formatNFTData }
   );
-
   const nftData: ReturnType<typeof formatNFTData> = data;
 
   const [fetchPoap, { data: _poapData }] = useLazyQuery(
@@ -70,7 +106,6 @@ export function TokenDetails(props: {
     },
     { dataFormatter: formatPoapData }
   );
-
   const poapData: ReturnType<typeof formatPoapData> = _poapData;
 
   const isPoap = Boolean(eventId);
@@ -85,6 +120,19 @@ export function TokenDetails(props: {
     }
   }, [fetchPoap, fetchToken, isPoap, tokenAddress]);
 
+  const handleClose = useCallback(() => {
+    const searchData = {
+      address: address.join(','),
+      rawInput,
+      inputType: inputType || ''
+    };
+    onClose?.();
+    navigate({
+      pathname: isTokenBalances ? '/token-balances' : '/token-holders',
+      search: createSearchParams(searchData).toString()
+    });
+  }, [address, inputType, isTokenBalances, navigate, onClose, rawInput]);
+
   const nft: Nft = nftData?.nft || ({} as Nft);
   const transfterDetails: TokenTransfer =
     nftData?.transferDetails || ({} as TokenTransfer);
@@ -97,9 +145,7 @@ export function TokenDetails(props: {
         <div className="flex items-center w-[60%] sm:w-auto overflow-hidden mr-1">
           <div
             className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
-            onClick={() => {
-              onClose?.();
-            }}
+            onClick={handleClose}
           >
             <Icon
               name={isTokenBalances ? 'token-balances' : 'token-holders'}
@@ -112,18 +158,42 @@ export function TokenDetails(props: {
           </div>
           <span className="mr-2 text-text-secondary">/</span>
         </div>
-        <div className="flex items-center flex-1">
+        <div
+          className={classNames('flex items-center flex-1', {
+            'skeleton-loader': loading
+          })}
+        >
           <Icon name="table-view" height={20} width={20} className="mr-1" />{' '}
-          Details of {nft?.token?.name} (
-          <span className="max-w-[100px] ellipsis">#{nft?.tokenId}</span>)
+          <span
+            data-loader-type="block"
+            data-loader-width="50"
+            className="min-h-[20px]"
+          >
+            {!loading && (
+              <>
+                Details of {nft?.token?.name} (
+                <span className="max-w-[100px] ellipsis">#{nft?.tokenId}</span>)
+              </>
+            )}
+          </span>
         </div>
       </div>
       <div className="bg-glass border-solid-stroke rounded-18 flex p-5">
         <div className="mr-7">
-          <Token token={(poap || nft) as Nft} hideHoldersButton disabled />
+          <div
+            className={classNames({
+              'skeleton-loader': loading
+            })}
+          >
+            <Token token={(poap || nft) as Nft} hideHoldersButton disabled />
+          </div>
           <div className="flex justify-center">
             <Link
-              className="flex py-2 px-10 mt-7 bg-button-primary rounded-18"
+              className={classNames('flex py-2 px-10 mt-7  rounded-18', {
+                'bg-button-primary': !loading,
+                'skeleton-loader': loading
+              })}
+              data-loader-type="block"
               to={createTokenHolderUrl({
                 address: (isPoap ? poap?.eventId : nft.address) as string,
                 inputType: isPoap ? 'POAP' : 'ADDRESS',
@@ -139,11 +209,19 @@ export function TokenDetails(props: {
             </Link>
           </div>
         </div>
-        {isPoap && poap ? (
-          <PoapInfo poap={poap} transfterDetails={poapData.transferDetails} />
-        ) : (
-          <NFTInfo nft={nft} transfterDetails={transfterDetails} />
+        {!loading && (
+          <>
+            {isPoap && poap ? (
+              <PoapInfo
+                poap={poap}
+                transfterDetails={poapData.transferDetails}
+              />
+            ) : (
+              <NFTInfo nft={nft} transfterDetails={transfterDetails} />
+            )}
+          </>
         )}
+        {loading && <LoaderInfo />}
       </div>
       {hasChildren && <NestedTokens {...props} />}
     </div>

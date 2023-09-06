@@ -5,10 +5,23 @@ import { SocialsType } from '../TokenBalances/types';
 import { Asset } from '../../Components/Asset';
 import { Chain } from '@airstack/airstack-react/constants';
 import { useSearchInput } from '../../hooks/useSearchInput';
+import classNames from 'classnames';
 
-function IconAndText({ icon, text }: { icon: string; text: ReactNode }) {
+function IconAndText({
+  icon,
+  text,
+  loading
+}: {
+  icon: string;
+  text: ReactNode;
+  loading?: boolean;
+}) {
   return (
-    <div className="mb-6 flex items-center font-medium">
+    <div
+      className={classNames('mb-6 flex items-center font-medium', {
+        'skeleton-loader': loading
+      })}
+    >
       <img
         src={`/images/${icon}.svg`}
         alt=""
@@ -16,7 +29,15 @@ function IconAndText({ icon, text }: { icon: string; text: ReactNode }) {
         width={35}
         className="mr-3.5 rounded-full"
       />{' '}
-      {text}
+      {loading ? (
+        <div
+          data-loader-type="block"
+          data-loader-height="30"
+          data-loader-width="50"
+        ></div>
+      ) : (
+        text
+      )}
     </div>
   );
 }
@@ -33,7 +54,7 @@ export function ERC6551TokenHolder({
   };
 }) {
   const setSearchInput = useSearchInput()[1];
-  const { data } = useQuery(SocialQuery, {
+  const { data, loading } = useQuery(SocialQuery, {
     identity: owner
   });
 
@@ -76,14 +97,19 @@ export function ERC6551TokenHolder({
               ERC6551
             </span>
           </div>
-          <div className="text-xl my-5 ellipsis">
+          <div className="text-xl my-5 ellipsis max-w-[500px]">
             <span className="mr-1.5 text-text-secondary">Holder</span>{' '}
             <span className="flex-1 ellipsis">{owner}</span>
           </div>
-          {xmtpEnabled && (
-            <IconAndText icon="xmtp" text={<span>have xmtp messaging</span>} />
+          {(loading || xmtpEnabled) && (
+            <IconAndText
+              loading={loading}
+              icon="xmtp"
+              text={<span>have xmtp messaging</span>}
+            />
           )}
           <IconAndText
+            loading={loading}
             icon="ens"
             text={
               <>
@@ -93,6 +119,7 @@ export function ERC6551TokenHolder({
             }
           />
           <IconAndText
+            loading={loading}
             icon="ens"
             text={
               <>
@@ -101,13 +128,23 @@ export function ERC6551TokenHolder({
               </>
             }
           />
-          <IconAndText icon="lens" text={<span>{lens || '--'}</span>} />
           <IconAndText
+            loading={loading}
+            icon="lens"
+            text={<span>{lens || '--'}</span>}
+          />
+          <IconAndText
+            loading={loading}
             icon="farcaster"
             text={<span>{farcaster || '--'}</span>}
           />
         </div>
-        <div className=" overflow-hidden w-[422px]">
+        <div
+          className={classNames('overflow-hidden w-[422px] min-w-0', {
+            'skeleton-loader': loading
+          })}
+          data-loader-type="block"
+        >
           <Asset
             address={token?.tokenAddress || ''}
             tokenId={token?.tokenId || ''}
@@ -118,7 +155,12 @@ export function ERC6551TokenHolder({
       </div>
       <div className="mt-7 text-center">
         <button
-          className="px-11 py-3.5 rounded-full bg-button-primary font-semibold"
+          className={classNames('px-11 py-3.5 rounded-full font-semibold', {
+            'skeleton-loader text-transparent': loading,
+            'bg-button-primary': !loading
+          })}
+          data-loader-type="block"
+          disabled={loading}
           onClick={() => {
             setSearchInput(
               {
