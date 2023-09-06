@@ -140,9 +140,9 @@ export function TokenDetails(props: {
   const hasChildren = !isPoap && nft?.erc6551Accounts?.length > 0;
 
   return (
-    <div className="max-w-[950px] text-sm m-auto w-[98vw]">
+    <div className="max-w-[950px] text-sm m-auto w-[98vw] pt-10 sm:pt-0">
       <div className="flex items-center mb-7">
-        <div className="flex items-center w-[60%] sm:w-auto overflow-hidden mr-1">
+        <div className="flex items-center max-w-[60%] sm:w-auto overflow-hidden mr-1">
           <div
             className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
             onClick={handleClose}
@@ -159,7 +159,7 @@ export function TokenDetails(props: {
           <span className="mr-2 text-text-secondary">/</span>
         </div>
         <div
-          className={classNames('flex items-center flex-1', {
+          className={classNames('flex items-center flex-1 overflow-hidden', {
             'skeleton-loader': loading
           })}
         >
@@ -167,12 +167,19 @@ export function TokenDetails(props: {
           <span
             data-loader-type="block"
             data-loader-width="50"
-            className="min-h-[20px]"
+            className="min-h-[20px] flex items-center overflow-hidden"
           >
             {!loading && (
               <>
-                Details of {nft?.token?.name} (
-                <span className="max-w-[100px] ellipsis">#{nft?.tokenId}</span>)
+                <span className="mr-1 ellipsis">
+                  Details of{' '}
+                  {isPoap ? poap?.poapEvent.eventName : nft?.token?.name}
+                </span>
+                (
+                <span className="max-w-[100px] ellipsis">
+                  #{isPoap ? poap?.eventId : nft?.tokenId}
+                </span>
+                )
               </>
             )}
           </span>
