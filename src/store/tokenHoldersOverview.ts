@@ -10,10 +10,8 @@ export type TokenHolder = {
 
 const store: {
   tokens: TokenHolder[];
-  isERC6551: boolean;
 } = {
-  tokens: [],
-  isERC6551: false
+  tokens: []
 };
 
 export const useOverviewTokens = createStore(store);
