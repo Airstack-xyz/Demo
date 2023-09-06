@@ -7,6 +7,7 @@ export const tokenDetailsQuery = `query TokenDetails($tokenAddress: Address!, $t
     tokenId
     address
     type
+    blockchain
     lastTransferHash
     lastTransferBlock
     lastTransferTimestamp
@@ -72,8 +73,21 @@ export const erc6551TokensQuery = `query AccountsQuery($tokenAddress: Address, $
                 medium
               }
             }
-            erc6551Accounts{
-              id
+            erc6551Accounts {
+              address {
+                addresses
+                tokenBalances {
+                  tokenAddress
+                  tokenId
+                  tokenNfts {
+                    contentValue {
+                      image {
+                        medium
+                      }
+                    }
+                  }
+                }
+              }
             }
           }
         }
