@@ -344,7 +344,7 @@ export const Search = memo(function Search() {
                   [activeClass]: isTokenBalances
                 })}
               >
-                <Icon name="token-balances" className="w-4 mr-1.5" /> Token
+                <Icon name="token-balances" className="w-4 mr-1" /> Token
                 balances
               </button>
               <button
