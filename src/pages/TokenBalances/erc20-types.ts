@@ -13,6 +13,7 @@ export interface Nft {
   tokenId: string;
   address: string;
   tokenBalances: TokenBalance[];
+  tokenBalance?: TokenBalance;
   token: Token;
   type: string;
   blockchain: string;
@@ -33,12 +34,12 @@ export interface Attribute {
 
 export interface TokenBalance {
   tokenType: string;
+  owner: Owner;
 }
 
 export interface Token {
   name: string;
   symbol: string;
-  owner: Owner;
   tokenNfts: {
     tokenId: string;
   };
