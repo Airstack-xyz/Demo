@@ -63,6 +63,7 @@ export interface Poap {
 
 export interface PoapEvent {
   city: string;
+  country: string;
   contentValue: ContentValue;
   logo: Logo;
   eventName: string;
