@@ -21,6 +21,7 @@ export function Details() {
       tokenAddress={token.tokenAddress}
       tokenId={token.tokenId}
       blockchain={token.blockchain}
+      eventId={token.eventId}
       onClose={() => {
         setSearchInput({
           activeTokenInfo: ''
