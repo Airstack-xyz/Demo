@@ -2,22 +2,22 @@ import { useQuery } from '@airstack/airstack-react';
 import { Token } from '../Token';
 import { AccountsResponse, TokenBalance } from './types';
 import { erc6551TokensQuery } from '../../../queries/tokenDetails';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Icon } from '../../../Components/Icon';
 import classNames from 'classnames';
-import { TokenWithERC6551 } from '../TokenWithERC6551';
+import { Tokens } from '../Tokens';
 
 const loaderData = Array(3).fill({ token: {}, tokenNfts: {} });
 
 function Loader() {
   return (
-    <>
+    <div className="flex flex-wrap">
       {loaderData.map((_, index) => (
         <div className="skeleton-loader" key={index}>
           <Token key={index} token={null} />
         </div>
       ))}
-    </>
+    </div>
   );
 }
 
@@ -78,6 +78,15 @@ export function NestedTokens({
         tokens: [] as TokenBalance[],
         identity: ''
       };
+
+  const tokensProps = useMemo(() => {
+    return {
+      address: [account.identity],
+      tokenType: '',
+      blockchainType: [],
+      sortOrder: 'DESC'
+    };
+  }, [account.identity]);
 
   return (
     <div className=" text-sm mt-5 px-2 sm:px-0">
@@ -141,21 +150,13 @@ export function NestedTokens({
       </div>
       <div>
         <div className="font-bold my-5">Assets</div>
-        <div className="flex flex-wrap gap-x-6 gap-y-6 justify-center sm:justify-start">
-          {account?.tokens?.map((token, index) => {
-            const key = `${token.tokenId}-${index}`;
-            const hasERC6551 = token.tokenNfts?.erc6551Accounts?.length > 0;
-
-            if (hasERC6551) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              return <TokenWithERC6551 key={key} token={token as any} />;
-            }
-            return (
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              <Token key={key} token={token as any} />
-            );
-          })}
-          {loading && <Loader />}
+        <div className="[&>div>div]:!gap-x-6 [&>div>div]:!gap-y-6 [&>div>div]:justify-center sm:[&>div>div]:justify-start">
+          {!loading && account.identity && <Tokens {...tokensProps} />}
+          {loading && (
+            <div>
+              <Loader />
+            </div>
+          )}
         </div>
       </div>
     </div>
