@@ -54,6 +54,11 @@ export function getCommonPoapAndNftOwnersQuery(
                   small
                 }
               }
+              erc6551Accounts {
+                address {
+                  identity
+                }
+              }
             }
             owner {
               identity
