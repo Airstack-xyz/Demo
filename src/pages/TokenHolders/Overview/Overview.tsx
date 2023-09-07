@@ -309,14 +309,14 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
     );
   }, [tokenDetails, totalSupply]);
 
-  if (activeTokenInfo && account) {
+  if (activeTokenInfo) {
     return <Details />;
   }
 
   if (addressIsAccount && account?.tokenAddress) {
     return (
       <ERC6551TokenHolder
-        owner={account?.tokenAddress}
+        owner={account?.token?.owner?.identity}
         token={account?.token}
       />
     );

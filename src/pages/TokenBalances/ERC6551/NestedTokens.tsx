@@ -103,7 +103,7 @@ export function NestedTokens({
       </div>
       <div>
         <div className="flex items-center">
-          <span className="font-bold">Contract details</span>{' '}
+          <span className="font-bold">Account details</span>{' '}
           <button
             className="text-text-button text-xs ml-2.5 flex items-center justify-center"
             onClick={() => {
@@ -119,9 +119,9 @@ export function NestedTokens({
         {showDetails && (
           <div>
             <div className="flex my-3">
-              <div className="min-w-[120px] mr-5">Contract</div>
+              <div className="min-w-[120px] mr-5">Account Address</div>
               <div className="text-text-secondary">
-                {account.identity || '--'} NOTE: this IS identity not contract
+                {account.identity || '--'}
               </div>
             </div>
             <div className="flex my-3">
@@ -140,7 +140,7 @@ export function NestedTokens({
         )}
       </div>
       <div>
-        <div className="font-bold my-5">Asset</div>
+        <div className="font-bold my-5">Assets</div>
         <div className="flex flex-wrap gap-x-6 gap-y-6 justify-center sm:justify-start">
           {account?.tokens?.map((token, index) => {
             const key = `${token.tokenId}-${index}`;

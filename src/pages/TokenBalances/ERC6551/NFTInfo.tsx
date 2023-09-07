@@ -2,6 +2,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { CopyButton } from '../../../Components/CopyButton';
 import { KeyValue } from './KeyValue';
 import { Nft, TokenTransfer } from '../erc20-types';
+import { ERC20TokenDetailsResponse } from './types';
 
 const infoOptions: {
   name: string;
@@ -9,8 +10,8 @@ const infoOptions: {
   canCopy?: boolean;
 }[] = [
   {
-    name: 'Contract',
-    dataKey: 'contract',
+    name: 'Token Address',
+    dataKey: 'address',
     canCopy: true
   },
   {
@@ -64,10 +65,6 @@ export function NFTInfo({
     }
   }, [isERC7251WithoutAccounts]);
 
-  if (nft.type === 'ERC20') {
-    return <TokenERC20Info token={nft} />;
-  }
-
   function getValueFromKey(key: string): ReactNode {
     switch (key) {
       case 'holder':
@@ -120,8 +117,8 @@ export function NFTInfo({
             <div className="text-text-secondary">
               {nft?.metaData?.description || ' -- '}
             </div>
-            <KeyValue name="Contract" value="--" />
-            <KeyValue name="Total supply" value={nft?.token?.totalSupply} />
+            <KeyValue name="Contract" value={transfterDetails.tokenAddress} />
+            <KeyValue name="Total supply" value={nft?.totalSupply} />
             <KeyValue
               name="Last transfer time"
               value={transfterDetails.blockTimestamp}
@@ -159,20 +156,27 @@ export function NFTInfo({
   );
 }
 
-export function TokenERC20Info({ token }: { token: Nft }) {
+export function TokenERC20Info({
+  token
+}: {
+  token?: ERC20TokenDetailsResponse['Token'];
+}) {
   return (
     <div className="overflow-hidden text-sm">
-      <KeyValue name="Contract" value="--" />
-      <KeyValue name="Total supply" value={token.totalSupply} />
-      <KeyValue name="Last transfer time" value={token.lastTransferTimestamp} />
-      <KeyValue name="Last transfer block" value={token.lastTransferBlock} />
+      <KeyValue name="Token Address" value={token?.address} />
+      <KeyValue name="Total supply" value={token?.totalSupply} />
+      <KeyValue
+        name="Last transfer time"
+        value={token?.lastTransferTimestamp}
+      />
+      <KeyValue name="Last transfer block" value={token?.lastTransferBlock} />
       <KeyValue
         name="Last transfer hash"
         value={
           <>
-            <span className="ellipsis">{token.lastTransferHash}</span>
-            {token.lastTransferHash && (
-              <CopyButton value={token.lastTransferHash} />
+            <span className="ellipsis">{token?.lastTransferHash}</span>
+            {token?.lastTransferHash && (
+              <CopyButton value={token?.lastTransferHash} />
             )}
           </>
         }

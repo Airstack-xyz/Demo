@@ -2,6 +2,7 @@ import { useLazyQuery } from '@airstack/airstack-react';
 import { Icon } from '../../../Components/Icon';
 import { Token } from '../Token';
 import {
+  erc20TokenDetailsQuery,
   poapDetailsQuery,
   tokenDetailsQuery
 } from '../../../queries/tokenDetails';
@@ -17,7 +18,7 @@ import {
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { PoapData } from './types';
 import { PoapInfo } from './PoapInfo';
-import { NFTInfo } from './NFTInfo';
+import { NFTInfo, TokenERC20Info } from './NFTInfo';
 import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
 import classNames from 'classnames';
 
@@ -87,7 +88,7 @@ export function TokenDetails(props: {
   const navigate = useNavigate();
   const isTokenBalances = !!useMatch('/token-balances');
 
-  const [fetchToken, { data, loading }] = useLazyQuery(
+  const [fetchToken, { data, loading: loadingToken }] = useLazyQuery(
     tokenDetailsQuery,
     {
       tokenId,
@@ -96,9 +97,14 @@ export function TokenDetails(props: {
     },
     { dataFormatter: formatNFTData }
   );
-  const nftData: ReturnType<typeof formatNFTData> = data;
 
-  const [fetchPoap, { data: _poapData }] = useLazyQuery(
+  const [fetchERC20Token, { data: erc20Data, loading: loadingERC20 }] =
+    useLazyQuery(erc20TokenDetailsQuery, {
+      blockchain,
+      tokenAddress
+    });
+
+  const [fetchPoap, { data: _poapData, loading: loadingPoap }] = useLazyQuery(
     poapDetailsQuery,
     {
       tokenAddress,
@@ -106,6 +112,9 @@ export function TokenDetails(props: {
     },
     { dataFormatter: formatPoapData }
   );
+
+  const erc20Token = erc20Data?.Token;
+  const nftData: ReturnType<typeof formatNFTData> = data;
   const poapData: ReturnType<typeof formatPoapData> = _poapData;
 
   const isPoap = Boolean(eventId);
@@ -115,10 +124,12 @@ export function TokenDetails(props: {
     // is poap
     if (isPoap) {
       fetchPoap();
-    } else {
+    } else if (tokenId) {
       fetchToken();
+    } else {
+      fetchERC20Token();
     }
-  }, [fetchPoap, fetchToken, isPoap, tokenAddress]);
+  }, [fetchERC20Token, fetchPoap, fetchToken, isPoap, tokenAddress, tokenId]);
 
   const handleClose = useCallback(() => {
     const searchData = {
@@ -138,6 +149,7 @@ export function TokenDetails(props: {
     nftData?.transferDetails || ({} as TokenTransfer);
 
   const hasChildren = !isPoap && nft?.erc6551Accounts?.length > 0;
+  const loading = loadingToken || loadingERC20 || loadingPoap;
 
   return (
     <div className="max-w-[950px] text-sm m-auto w-[98vw] pt-10 sm:pt-0">
@@ -192,7 +204,11 @@ export function TokenDetails(props: {
               'skeleton-loader': loading
             })}
           >
-            <Token token={(poap || nft) as Nft} hideHoldersButton disabled />
+            <Token
+              token={(erc20Data?.Token || poap || nft) as Nft}
+              hideHoldersButton
+              disabled
+            />
           </div>
           <div className="flex justify-center">
             <Link
@@ -202,13 +218,16 @@ export function TokenDetails(props: {
               })}
               data-loader-type="block"
               to={createTokenHolderUrl({
-                address: (isPoap ? poap?.eventId : nft.address) as string,
+                address: (isPoap
+                  ? poap?.eventId
+                  : erc20Token?.address || nft.address) as string,
                 inputType: isPoap ? 'POAP' : 'ADDRESS',
-                type: isPoap ? 'POAP' : nft.type,
+                type: isPoap ? 'POAP' : erc20Token?.type || nft.type,
                 blockchain,
                 label:
-                  (isPoap ? poap?.poapEvent?.eventName : nft?.token?.name) ||
-                  '--'
+                  (isPoap
+                    ? poap?.poapEvent?.eventName
+                    : erc20Token?.name || nft?.token?.name) || '--'
               })}
             >
               <Icon name="token-holders-white" />
@@ -223,6 +242,8 @@ export function TokenDetails(props: {
                 poap={poap}
                 transfterDetails={poapData.transferDetails}
               />
+            ) : erc20Token ? (
+              <TokenERC20Info token={erc20Token} />
             ) : (
               <NFTInfo nft={nft} transfterDetails={transfterDetails} />
             )}

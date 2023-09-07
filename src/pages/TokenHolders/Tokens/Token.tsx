@@ -9,6 +9,7 @@ import { ListWithMoreOptions } from './ListWithMoreOptions';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 import { WalletAddress } from './WalletAddress';
 import classNames from 'classnames';
+import { useSearchInput } from '../../../hooks/useSearchInput';
 
 export function Token({
   token: tokenInProps,
@@ -86,6 +87,7 @@ export function Token({
 
   const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
   const navigate = useNavigate();
+  const setSearchData = useSearchInput()[1];
 
   const { lens, farcaster } = useMemo(() => {
     const social = owner?.socials || [];
@@ -123,6 +125,17 @@ export function Token({
     [navigate]
   );
 
+  const handleAssetClick = useCallback(() => {
+    setSearchData(
+      {
+        activeTokenInfo: `${tokenAddress} ${tokenId} ${token?.blockchain} ${poap?.eventId}`
+      },
+      { updateQueryParams: true }
+    );
+  }, [poap?.eventId, setSearchData, token?.blockchain, tokenAddress, tokenId]);
+
+  const has6551 = token?.tokenNfts?.erc6551Accounts?.length > 0;
+
   return (
     <>
       <td
@@ -134,18 +147,51 @@ export function Token({
         <div className="flex">
           {assets.map(asset => (
             <div className="mr-1.5 last:!mr-0">
-              <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden [&>div]:w-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center">
+              <div
+                className="relative token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden flex-col-center cursor-pointer"
+                onClick={handleAssetClick}
+              >
                 <Asset
                   address={asset.tokenAddress}
                   tokenId={asset.tokenId}
                   preset="small"
-                  containerClassName="token-img"
+                  containerClassName={classNames(
+                    'token-img w-full [&>img]:w-full [&>img]:min-w-full z-10 rounded-md overflow-hidden',
+                    {
+                      '!w-[32px]': has6551
+                    }
+                  )}
                   chain={asset.blockchain}
                   image={asset.image}
                   videoProps={{
                     controls: false
                   }}
                 />
+                {has6551 && (
+                  <div className="absolute z-20 bg-glass w-full rounded-md bottom-0 text-[8px] font-bold text-center border-solid-stroke">
+                    ERC6551
+                  </div>
+                )}
+                {has6551 && (
+                  <div className="absolute blur-md inset-0 flex-col-center">
+                    <Asset
+                      address={asset.tokenAddress}
+                      tokenId={asset.tokenId}
+                      preset="small"
+                      containerClassName={classNames(
+                        'token-img w-full [&>img]:w-full [&>img]:min-w-full rounded-md overflow-hidden',
+                        {
+                          '!w-40px': has6551
+                        }
+                      )}
+                      chain={asset.blockchain}
+                      image={asset.image}
+                      videoProps={{
+                        controls: false
+                      }}
+                    />
+                  </div>
+                )}
               </div>
               {isCombination && (
                 <div className="text-[10px] mt-1 text-center">

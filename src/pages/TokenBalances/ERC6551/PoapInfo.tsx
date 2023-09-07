@@ -23,7 +23,7 @@ export function PoapInfo({
         name="Last transfer block"
         value={transfterDetails.blockNumber}
       />
-      <KeyValue name="Total supply" value={poapEvent.tokenMints} />
+      <KeyValue name="Total mints" value={poapEvent.tokenMints} />
       <KeyValue name="Description" value={metadata.description} />
       <KeyValue name="Token URI" value={poap.tokenUri} />
       <KeyValue name="Image URl" value={metadata.image_url} />
