@@ -1,6 +1,6 @@
 import { useCallback, memo, useMemo, useState, useEffect } from 'react';
 import { PoapType, TokenType as TokenType } from './types';
-import { useSearchInput } from '../../hooks/useSearchInput';
+import { UserInputs } from '../../hooks/useSearchInput';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Token } from './Token';
 import { useGetTokensOfOwner } from '../../hooks/useGetTokensOfOwner';
@@ -25,10 +25,17 @@ function Loader() {
   );
 }
 
-function TokensComponent() {
-  const [
-    { address: owners, tokenType: tokenType = '', blockchainType, sortOrder }
-  ] = useSearchInput();
+type TokenProps = Pick<
+  UserInputs,
+  'address' | 'tokenType' | 'blockchainType' | 'sortOrder'
+>;
+function TokensComponent(props: TokenProps) {
+  const {
+    address: owners,
+    tokenType: tokenType = '',
+    blockchainType,
+    sortOrder
+  } = props;
   const [tokens, setTokens] = useState<(TokenType | PoapType)[]>([]);
 
   const handleTokens = useCallback((tokens: (TokenType | PoapType)[]) => {
@@ -106,9 +113,11 @@ function TokensComponent() {
 
   if (tokens.length === 0 && loading) {
     return (
-      <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">
-        <Loader />
-        {showStatusLoader && <TokenBalancesLoaderWithInfo />}
+      <div>
+        <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">
+          <Loader />
+          {showStatusLoader && <TokenBalancesLoaderWithInfo />}
+        </div>
       </div>
     );
   }
