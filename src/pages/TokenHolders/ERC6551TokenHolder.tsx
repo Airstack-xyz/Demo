@@ -101,13 +101,12 @@ export function ERC6551TokenHolder({
             <span className="mr-1.5 text-text-secondary">Holder</span>{' '}
             <span className="flex-1 ellipsis">{owner}</span>
           </div>
-          {(loading || xmtpEnabled) && (
-            <IconAndText
-              loading={loading}
-              icon="xmtp"
-              text={<span>have xmtp messaging</span>}
-            />
-          )}
+          <IconAndText
+            loading={loading}
+            icon="xmtp"
+            text={<span>xmtp is {!xmtpEnabled ? 'not' : ''} enabled</span>}
+          />
+
           <IconAndText
             loading={loading}
             icon="ens"
