@@ -120,6 +120,7 @@ export const Token = memo(function Token({
               blockchain,
               label: tokenName || '--'
             })}
+            onClick={e => e.stopPropagation()}
           >
             <Icon width={16} name="token-holders" />
             <span className="ml-1.5">Holders</span>
