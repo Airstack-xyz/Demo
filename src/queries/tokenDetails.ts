@@ -111,6 +111,7 @@ export const poapDetailsQuery = `query PoapDetails($eventId: [String!], $tokenAd
       tokenUri
       poapEvent {
         city
+        country
         contentValue {
           image {
             medium
