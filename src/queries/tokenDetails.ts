@@ -26,12 +26,14 @@ export const tokenDetailsQuery = `query TokenDetails($tokenAddress: Address!, $t
     erc6551Accounts {
       standard
     }
+    tokenBalances{
+      owner{
+        identity
+      }
+    }
     token {
       name
       symbol
-      owner {
-        identity
-      } 
     }
   }
   transfers: TokenTransfers(
