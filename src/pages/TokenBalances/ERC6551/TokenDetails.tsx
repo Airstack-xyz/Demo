@@ -54,7 +54,10 @@ function LoaderInfo() {
 function formatNFTData(data: ERC20Response) {
   if (!data) return {};
   return {
-    nft: data?.nft,
+    nft: {
+      ...data?.nft,
+      tokenBalance: data?.nft.tokenBalances?.[0]
+    },
     transferDetails: data?.transfers?.TokenTransfer[0]
   };
 }

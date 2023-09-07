@@ -68,7 +68,7 @@ export function NFTInfo({
   function getValueFromKey(key: string): ReactNode {
     switch (key) {
       case 'holder':
-        return nft?.token?.owner?.identity;
+        return nft?.tokenBalance?.owner?.identity;
       case 'tokenTraits':
         return (
           nft?.metaData?.attributes?.map(attribute => (
