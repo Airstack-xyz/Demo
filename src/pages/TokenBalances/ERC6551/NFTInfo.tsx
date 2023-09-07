@@ -1,53 +1,18 @@
-import { ReactNode, useEffect, useState } from 'react';
-import { CopyButton } from '../../../Components/CopyButton';
+import { useEffect, useState } from 'react';
+import { CopyButton as CopyBtn } from '../../../Components/CopyButton';
 import { KeyValue } from './KeyValue';
 import { Nft, TokenTransfer } from '../erc20-types';
 import { ERC20TokenDetailsResponse } from './types';
 import { Link } from 'react-router-dom';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 
-const infoOptions: {
-  name: string;
-  dataKey: string;
-  canCopy?: boolean;
-}[] = [
-  {
-    name: 'Token Address',
-    dataKey: 'address',
-    canCopy: true
-  },
-  {
-    name: 'Holder',
-    dataKey: 'holder',
-    canCopy: true
-  },
-  {
-    name: 'Assets included',
-    dataKey: 'assetsIncluded'
-  },
-  {
-    name: 'Traits',
-    dataKey: 'tokenTraits'
-  },
-  {
-    name: 'Last transfer time',
-    dataKey: 'lastTransferTimestamp'
-  },
-  {
-    name: 'Last transfer block',
-    dataKey: 'lastTransferBlock'
-  },
-  {
-    name: 'Last transfer hash',
-    dataKey: 'lastTransferHash',
-    canCopy: true
-  },
-  {
-    name: 'Token URI',
-    dataKey: 'tokenURI',
-    canCopy: true
-  }
-];
+function CopyButton({ value }: { value: string }) {
+  return (
+    <span className="ml-0.5">
+      <CopyBtn value={value} />
+    </span>
+  );
+}
 
 export function NFTInfo({
   nft,
@@ -67,62 +32,78 @@ export function NFTInfo({
     }
   }, [isERC7251WithoutAccounts]);
 
-  function getValueFromKey(key: string): ReactNode {
-    switch (key) {
-      case 'holder':
-        return nft?.tokenBalance?.owner?.identity;
-      case 'tokenTraits':
-        return (
-          nft?.metaData?.attributes?.map(attribute => (
-            <div key={attribute.trait_type}>
-              {attribute.trait_type}: {attribute.value}
-            </div>
-          )) || '--'
-        );
-    }
-    return '--';
-  }
+  const attributes = nft?.metaData?.attributes;
+  const holder = nft?.tokenBalance?.owner?.identity || '';
 
   return (
     <div className="overflow-hidden text-sm">
       <div>
-        {infoOptions.map(option => {
-          if (isERC7251WithoutAccounts && option.dataKey === 'assetsIncluded') {
-            return null;
+        <KeyValue
+          name="Token Address"
+          value={
+            <span className="ellipsis">
+              <>
+                <span className="ellipsis">{nft.address}</span>{' '}
+                <CopyButton value={nft.address} />
+              </>
+            </span>
           }
-
-          const value: ReactNode = nft
-            ? (nft[option.dataKey as keyof Nft] as string) ||
-              getValueFromKey(option.dataKey)
-            : '--';
-          return (
-            <KeyValue
-              key={option.dataKey}
-              name={option.name}
-              value={
-                <>
-                  {option.dataKey === 'holder' ? (
-                    <Link
-                      className="ellipsis"
-                      to={createTokenBalancesUrl({
-                        address: '' + value,
-                        blockchain: '',
-                        inputType: 'ADDRESS'
-                      })}
-                    >
-                      {value}
-                    </Link>
-                  ) : (
-                    <span className="ellipsis">{value}</span>
-                  )}
-                  {option.canCopy && value && value !== '--' && (
-                    <CopyButton value={value as string} />
-                  )}
-                </>
-              }
-            />
-          );
-        })}
+        />
+        <KeyValue
+          name="Holder"
+          value={
+            <>
+              <Link
+                className="ellipsis border border-solid border-transparent hover:border-solid-stroke hover:bg-glass rounded-18"
+                to={createTokenBalancesUrl({
+                  address: holder,
+                  blockchain: '',
+                  inputType: 'ADDRESS'
+                })}
+              >
+                {holder}
+              </Link>{' '}
+              <CopyButton value={holder} />
+            </>
+          }
+        />
+        {!isERC7251WithoutAccounts && (
+          <KeyValue name="Assets included" value="--" />
+        )}
+        <KeyValue
+          name="Traits"
+          value={
+            <span className="ellipsis">
+              {attributes
+                ? attributes.map(attribute => (
+                    <span className="flex" key={attribute.trait_type}>
+                      {attribute.trait_type}: {attribute.value}
+                    </span>
+                  ))
+                : '--'}
+            </span>
+          }
+        />
+        <KeyValue name="Last transfer time" value={nft.lastTransferTimestamp} />
+        <KeyValue name="Last transfer block" value={nft.lastTransferBlock} />
+        <KeyValue
+          name="Last transfer hash"
+          value={
+            <>
+              <span className="ellipsis">{nft.lastTransferHash}</span>
+              <CopyButton value={nft.lastTransferHash || ''} />
+            </>
+          }
+        />
+        <KeyValue
+          name="Token URI"
+          value={
+            <>
+              <span className="ellipsis">{nft.tokenURI}</span>
+              <CopyButton value={nft.tokenBalance?.owner?.identity || ''} />
+            </>
+          }
+        />
       </div>
       <div className="overflow-hidden mt-3">
         {showContactDetails && (
