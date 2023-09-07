@@ -4,6 +4,8 @@ const fields = `
         blockchain
         tokenAddress
         formattedAmount
+        tokenId
+        tokenAddress
         owner {
             addresses
         }

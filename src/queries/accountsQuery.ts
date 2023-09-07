@@ -11,6 +11,9 @@ export const accountOwnerQuery = `query AccountQuery($accountAddress: Identity) 
           tokenId
           blockchain
           tokenAddress
+          owner{
+            identity
+          }
         }
       }
     }
@@ -27,6 +30,9 @@ export const accountOwnerQuery = `query AccountQuery($accountAddress: Identity) 
           tokenId
           blockchain
           tokenAddress
+          owner{
+            identity
+          }
         }
       }
     }
