@@ -113,3 +113,30 @@ export interface TokenTransfer {
   tokenAddress: string;
   tokenId: string;
 }
+
+export interface ERC20TokenDetailsResponse {
+  Token: Token;
+  transfers: Transfers;
+}
+
+export interface Token {
+  totalSupply: string;
+  address: string;
+  type: string;
+  blockchain: string;
+  lastTransferHash: string;
+  lastTransferBlock: number;
+  lastTransferTimestamp: string;
+}
+
+export interface Transfers {
+  TokenTransfer: TokenTransfer[];
+}
+
+export interface TokenTransfer {
+  blockTimestamp: string;
+  blockNumber: number;
+  transactionHash: string;
+  tokenAddress: string;
+  tokenId: string;
+}

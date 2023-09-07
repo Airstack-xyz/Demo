@@ -23,6 +23,9 @@ export interface TokenBalance {
   tokenId: string;
   tokenAddress: string;
   blockchain: string;
+  owner: {
+    identity: string;
+  };
 }
 
 function formatData(data: AccountsRequestData) {

@@ -143,3 +143,23 @@ export const poapDetailsQuery = `query PoapDetails($eventId: [String!], $tokenAd
     }
   }
 }`;
+
+export const erc20TokenDetailsQuery = `query ERC20Details($tokenAddress: Address!, $blockchain: TokenBlockchain!) {
+  Token(input: {address: $tokenAddress, blockchain: $blockchain}) {
+    name
+    type
+    symbol
+    address
+    blockchain
+    totalSupply
+    lastTransferHash
+    lastTransferBlock
+    lastTransferTimestamp
+    logo{
+      medium
+    }
+    projectDetails{
+      imageUrl
+    }
+  } 
+}`;

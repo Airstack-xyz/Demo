@@ -11,8 +11,26 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 
 type Poap = PoapsType['Poaps']['Poap'][0];
 
+type ERC20 = {
+  totalSupply: string;
+  address: string;
+  type: string;
+  blockchain: string;
+  lastTransferHash: string;
+  lastTransferBlock: number;
+  lastTransferTimestamp: string;
+  name: string;
+  symbol: string;
+  logo: {
+    medium: string;
+  };
+  projectDetails: {
+    imageUrl: string;
+  };
+};
+
 type TokenProps = {
-  token: null | TokenType | Poap | Nft;
+  token: null | TokenType | Poap | Nft | ERC20;
   hideHoldersButton?: boolean;
   disabled?: boolean;
 };
@@ -27,6 +45,7 @@ export const Token = memo(function Token({
   const token = (tokenProp || {}) as TokenType;
   const poap = (tokenProp || {}) as Poap;
   const nft = (tokenProp || {}) as Nft;
+  const erc20 = (tokenProp || {}) as ERC20;
   const isPoap = Boolean(poap.poapEvent);
   const poapEvent = poap.poapEvent || {};
   const city = poapEvent.city || '';
@@ -39,13 +58,18 @@ export const Token = memo(function Token({
     return [tokenId, token?._tokenId].filter(Boolean);
   }, [isPoap, poapEvent?.eventName, token?._tokenId, tokenId]);
 
-  const symbol = token?.token?.symbol || '';
+  const symbol = erc20?.symbol || token?.token?.symbol || '';
   const type = nft.type || token?.tokenType || 'POAP';
+  const isERC20 = type === 'ERC20';
   const blockchain = token.blockchain || 'ethereum';
   const name = isPoap
     ? `${formatDate(poapEvent.startDate)}${city ? ` (${city})` : ''}`
-    : token?.token?.name;
-  const image = isPoap ? poapEvent?.logo?.image?.medium : '';
+    : erc20?.name || token?.token?.name;
+  const image = isPoap
+    ? poapEvent?.logo?.image?.medium
+    : isERC20
+    ? erc20.logo.medium || erc20.projectDetails.imageUrl
+    : '';
   const eventId = poapEvent?.eventId || '';
   const tokenName = isPoap ? poapEvent?.eventName : token?.token?.name;
 
@@ -115,22 +139,24 @@ export const Token = memo(function Token({
       <div className="h-14 rounded-3xl flex flex-col px-3.5 py-2 text-sm bg-glass border-solid-light">
         <div className="ellipsis text-xs mb-">{name || '--'}</div>
         <div className="flex items-center justify-between font-bold ">
-          <div className="ellipsis flex flex-1 mr-2">
-            {ids.map((id, index) => (
-              <>
-                <span
-                  key={id}
-                  className={classNames('ellipsis', {
-                    'max-w-[50%]': ids.length > 1
-                  })}
-                >
-                  {!isPoap && '#'}
-                  {id}
-                </span>
-                {index < ids.length - 1 && <span className="mr-1">,</span>}
-              </>
-            ))}
-          </div>
+          {type !== 'ERC20' && (
+            <div className="ellipsis flex flex-1 mr-2">
+              {ids.map((id, index) => (
+                <>
+                  <span
+                    key={id}
+                    className={classNames('ellipsis', {
+                      'max-w-[50%]': ids.length > 1
+                    })}
+                  >
+                    {!isPoap && '#'}
+                    {id}
+                  </span>
+                  {index < ids.length - 1 && <span className="mr-1">,</span>}
+                </>
+              ))}
+            </div>
+          )}
           <div className="ellipsis text-right max-w-[50%]">{symbol || ''}</div>
         </div>
       </div>
