@@ -199,7 +199,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
               videoProps={{
                 controls: false
               }}
-              containerClassName="[&>img]:w-full"
+              containerClassName="w-full [&>img]:w-full"
             />
           </div>
         );
