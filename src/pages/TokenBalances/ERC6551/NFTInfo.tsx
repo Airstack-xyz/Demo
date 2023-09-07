@@ -3,6 +3,8 @@ import { CopyButton } from '../../../Components/CopyButton';
 import { KeyValue } from './KeyValue';
 import { Nft, TokenTransfer } from '../erc20-types';
 import { ERC20TokenDetailsResponse } from './types';
+import { Link } from 'react-router-dom';
+import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 
 const infoOptions: {
   name: string;
@@ -99,7 +101,20 @@ export function NFTInfo({
               name={option.name}
               value={
                 <>
-                  <span className="ellipsis">{value}</span>
+                  {option.dataKey === 'holder' ? (
+                    <Link
+                      className="ellipsis"
+                      to={createTokenBalancesUrl({
+                        address: '' + value,
+                        blockchain: '',
+                        inputType: 'ADDRESS'
+                      })}
+                    >
+                      {value}
+                    </Link>
+                  ) : (
+                    <span className="ellipsis">{value}</span>
+                  )}
                   {option.canCopy && value && value !== '--' && (
                     <CopyButton value={value as string} />
                   )}
