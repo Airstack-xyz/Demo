@@ -222,10 +222,22 @@ export function TokenBalance() {
                     showSocials ? (
                       <SocialsAndERC20 />
                     ) : (
-                      <Tokens key={tokensKey} />
+                      <Tokens
+                        key={tokensKey}
+                        address={address}
+                        tokenType={tokenType}
+                        blockchainType={blockchainType}
+                        sortOrder={sortOrder}
+                      />
                     )
                   ) : (
-                    <Tokens key={tokensKey} />
+                    <Tokens
+                      key={tokensKey}
+                      address={address}
+                      tokenType={tokenType}
+                      blockchainType={blockchainType}
+                      sortOrder={sortOrder}
+                    />
                   )}
                 </div>
                 {!isMobile && <SocialsAndERC20 />}
