@@ -17,11 +17,8 @@ export function getCommonPoapAndNftOwnersQuery(
         poapEvent {
           contentValue {
             image {
-              original
-              medium
-              large
-              extraSmall
               small
+              medium
             }
             video
             audio
@@ -53,6 +50,7 @@ export function getCommonPoapAndNftOwnersQuery(
                 video
                 image {
                   small
+                  medium
                 }
               }
               erc6551Accounts {
