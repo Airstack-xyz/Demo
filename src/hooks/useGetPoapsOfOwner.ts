@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchInput } from './useSearchInput';
+import { UserInputs } from './useSearchInput';
 import { defaultSortOrder } from '../pages/TokenBalances/SortBy';
 import { CommonPoapType, PoapType } from '../pages/TokenBalances/types';
 import { poapsOfCommonOwnersQuery } from '../queries/poapsOfCommonOwnersQuery';
@@ -8,16 +8,20 @@ import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 const LIMIT = 20;
 const LIMIT_COMBINATIONS = 100;
 
+type Inputs = Pick<
+  UserInputs,
+  'address' | 'tokenType' | 'blockchainType' | 'sortOrder'
+>;
 export function useGetPoapsOfOwner(
+  inputs: Inputs,
   onDataReceived: (tokens: PoapType[]) => void,
   noFetch = false
 ) {
+  const { address: owners, tokenType = '', blockchainType, sortOrder } = inputs;
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const tokensRef = useRef<PoapType[]>([]);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
-  const [{ address: owners, tokenType = '', blockchainType, sortOrder }] =
-    useSearchInput();
   const isPoap = tokenType === 'POAP';
 
   const query = useMemo(() => {
