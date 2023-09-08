@@ -13,7 +13,9 @@ const LIMIT_COMBINATIONS = 100;
 type Inputs = Pick<
   UserInputs,
   'address' | 'tokenType' | 'blockchainType' | 'sortOrder'
->;
+> & {
+  includeERC20?: boolean;
+};
 export function useGetTokensOfOwner(
   inputs: Inputs,
   onDataReceived: (tokens: TokenType[]) => void
@@ -22,7 +24,8 @@ export function useGetTokensOfOwner(
     address: owners,
     tokenType: tokenType = '',
     blockchainType,
-    sortOrder
+    sortOrder,
+    includeERC20
   } = inputs;
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
@@ -60,7 +63,11 @@ export function useGetTokensOfOwner(
         tokenType:
           tokenType && tokenType.length > 0
             ? [tokenType]
-            : tokenTypes.filter(tokenType => tokenType !== 'POAP')
+            : tokenTypes.filter(
+                tokenType =>
+                  tokenType !== 'POAP' &&
+                  (includeERC20 ? true : tokenType !== 'ERC20')
+              )
       });
     }
 
@@ -68,6 +75,7 @@ export function useGetTokensOfOwner(
   }, [
     blockchainType,
     fetchTokens,
+    includeERC20,
     isPoap,
     owners.length,
     sortOrder,
