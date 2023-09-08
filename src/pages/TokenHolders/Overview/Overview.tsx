@@ -34,6 +34,16 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
   const hasNoTokens = !loadingTokens && tokens && tokens.length === 0;
   const addressIsAccount =
     hasNoTokens && !loadingAccount && Boolean(account?.tokenAddress);
+  const tokenWith6551 = useMemo(() => {
+    if (!account) return null;
+    const { tokenAddress, tokenId, blockchain } = account;
+    return {
+      tokenAddress,
+      tokenId,
+      blockchain,
+      eventId: ''
+    };
+  }, [account]);
 
   useEffect(() => {
     if (hasNoTokens && onAddress404) {
@@ -296,7 +306,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
     return (
       <ERC6551TokenHolder
         owner={account?.token?.owner?.identity}
-        token={account?.token}
+        token={tokenWith6551 || account?.token}
       />
     );
   }
