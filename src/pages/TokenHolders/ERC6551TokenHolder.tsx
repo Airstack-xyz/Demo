@@ -179,7 +179,7 @@ export function ERC6551TokenHolder({
             );
           }}
         >
-          See details of this ERC6551
+          See details of this ERC6551 account
         </button>
       </div>
     </div>
