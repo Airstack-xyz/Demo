@@ -6,7 +6,7 @@ export const accountOwnerQuery = `query AccountQuery($accountAddress: Identity) 
       tokenId
       blockchain
       tokenAddress
-      address {
+      nft {
         tokenBalances {
           tokenId
           blockchain
@@ -25,7 +25,7 @@ export const accountOwnerQuery = `query AccountQuery($accountAddress: Identity) 
       tokenId
       blockchain
       tokenAddress
-      address {
+      nft {
         tokenBalances {
           tokenId
           blockchain

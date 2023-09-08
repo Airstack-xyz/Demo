@@ -14,7 +14,7 @@ export interface Account {
   tokenId: string;
   blockchain: string;
   tokenAddress: string;
-  address: {
+  nft: {
     tokenBalances: TokenBalance[];
   };
 }
@@ -36,7 +36,7 @@ function formatData(data: AccountsRequestData) {
   return account
     ? {
         ...account,
-        token: account?.address?.tokenBalances[0]
+        token: account?.nft?.tokenBalances[0]
       }
     : null;
 }
