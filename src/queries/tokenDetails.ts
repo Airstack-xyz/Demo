@@ -24,7 +24,12 @@ export const tokenDetailsQuery = `query TokenDetails($tokenAddress: Address!, $t
       }
     }
     erc6551Accounts {
-      standard
+      address {
+        tokenBalances {
+          tokenAddress
+          tokenId
+        }
+      }
     }
     tokenBalances{
       owner{

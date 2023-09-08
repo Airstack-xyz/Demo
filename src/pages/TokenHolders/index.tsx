@@ -59,6 +59,27 @@ export function TokenHolders() {
     return tokenAddress.join(',');
   }, [tokenAddress]);
 
+  const tokenAddressString = tokenAddress.join(',');
+  const tokenAddressRef = useRef(tokenAddressString);
+
+  useEffect(() => {
+    if (
+      tokenAddressRef.current &&
+      tokenAddressRef.current !== tokenAddressString &&
+      activeTokenInfo
+    ) {
+      // remove activeTokenInfo if user input address has changed
+      setData(
+        {
+          activeTokenInfo: ''
+        },
+        {
+          updateQueryParams: true
+        }
+      );
+    }
+  }, [activeTokenInfo, setData, tokenAddressString]);
+
   useEffect(() => {
     // go to token-holders page if user input address has changed
     if (addressRef.current && addressRef.current !== tokenAddress) {
