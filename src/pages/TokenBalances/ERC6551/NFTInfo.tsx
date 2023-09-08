@@ -5,12 +5,56 @@ import { Attribute, Nft, TokenTransfer } from '../erc20-types';
 import { ERC20TokenDetailsResponse } from './types';
 import { Link } from 'react-router-dom';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
+import classNames from 'classnames';
 
 function CopyButton({ value }: { value: string }) {
   return (
     <span className="ml-0.5">
       <CopyBtn value={value} />
     </span>
+  );
+}
+
+const maxOwners = 3;
+function Owners({ tokens }: { tokens: Nft['tokenBalances'] }) {
+  const [showMax, setShowMax] = useState(false);
+  const items = useMemo(() => {
+    if (!showMax) {
+      return tokens?.slice(0, maxOwners);
+    }
+    return tokens;
+  }, [showMax, tokens]);
+
+  return (
+    <ul className="text-text-secondary overflow-hidden flex flex-col justify-center mr-1">
+      {items?.map((token, index) => (
+        <li key={index} className={classNames('mb-2.5 last:mb-0 flex')}>
+          <Link
+            className="ellipsis border border-solid border-transparent hover:border-solid-stroke hover:bg-glass rounded-18"
+            to={createTokenBalancesUrl({
+              address: token?.owner?.identity,
+              blockchain: '',
+              inputType: 'ADDRESS'
+            })}
+          >
+            {token?.owner?.identity}
+          </Link>{' '}
+          <CopyButton value={token?.owner?.identity} />
+        </li>
+      ))}
+      {tokens?.length > maxOwners && (
+        <li>
+          <span
+            onClick={() => {
+              setShowMax(show => !show);
+            }}
+            className="text-text-button font-bold cursor-pointer hover:bg-glass rounded-18"
+          >
+            see {showMax ? 'less' : 'more'}
+          </span>
+        </li>
+      )}
+    </ul>
   );
 }
 
@@ -34,7 +78,6 @@ export function NFTInfo({
   }, [expandDetails]);
 
   const attributes = nft?.metaData?.attributes;
-  const holder = nft?.tokenBalance?.owner?.identity || '';
 
   const traits = useMemo(() => {
     const _traits: Attribute[] = [];
@@ -65,22 +108,8 @@ export function NFTInfo({
           }
         />
         <KeyValue
-          name="Holder"
-          value={
-            <>
-              <Link
-                className="ellipsis border border-solid border-transparent hover:border-solid-stroke hover:bg-glass rounded-18"
-                to={createTokenBalancesUrl({
-                  address: holder,
-                  blockchain: '',
-                  inputType: 'ADDRESS'
-                })}
-              >
-                {holder}
-              </Link>{' '}
-              <CopyButton value={holder} />
-            </>
-          }
+          name={`Holder${nft?.tokenBalances?.length > 1 ? 's' : ''}`}
+          value={<Owners tokens={nft?.tokenBalances || []} />}
         />
         {!expandDetails && <KeyValue name="Assets included" value="--" />}
         <KeyValue
@@ -116,7 +145,7 @@ export function NFTInfo({
           value={
             <>
               <span className="ellipsis">{nft?.tokenURI}</span>
-              <CopyButton value={nft?.tokenBalance?.owner?.identity || ''} />
+              <CopyButton value={nft?.tokenURI || ''} />
             </>
           }
         />
