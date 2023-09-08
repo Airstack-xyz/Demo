@@ -10,6 +10,7 @@ import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 import { WalletAddress } from './WalletAddress';
 import classNames from 'classnames';
 import { useSearchInput } from '../../../hooks/useSearchInput';
+import { getActiveTokenInfoString } from '../../../utils/activeTokenInfoString';
 
 export function Token({
   token: tokenInProps,
@@ -136,9 +137,12 @@ export function Token({
     (token: (typeof assets)[0]) => {
       setSearchData(
         {
-          activeTokenInfo: `${token.tokenAddress} ${token.tokenId} ${
-            token?.blockchain
-          } ${token?.eventId || ''}`
+          activeTokenInfo: getActiveTokenInfoString(
+            token?.tokenAddress,
+            token?.tokenId,
+            token?.blockchain,
+            token?.eventId
+          )
         },
         { updateQueryParams: true }
       );

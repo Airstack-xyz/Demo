@@ -8,6 +8,7 @@ import { Asset } from '../../Components/Asset';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
 import { isMobileDevice } from '../../utils/isMobileDevice';
+import { getActiveTokenInfoString } from '../../utils/activeTokenInfoString';
 
 type TokenProps = {
   token: null | TokenType | PoapType;
@@ -37,7 +38,12 @@ function Token({
   const handleClick = useCallback(() => {
     setSearchData(
       {
-        activeTokenInfo: `${address} ${tokenId} ${blockchain} ${eventId}`
+        activeTokenInfo: getActiveTokenInfoString(
+          address,
+          tokenId,
+          blockchain,
+          eventId
+        )
       },
       { updateQueryParams: true }
     );
