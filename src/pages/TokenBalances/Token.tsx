@@ -8,6 +8,7 @@ import { Asset } from '../../Components/Asset';
 import classNames from 'classnames';
 import { Nft } from './erc20-types';
 import { useSearchInput } from '../../hooks/useSearchInput';
+import { getActiveTokenInfoString } from '../../utils/activeTokenInfoString';
 
 type Poap = PoapsType['Poaps']['Poap'][0];
 
@@ -77,7 +78,12 @@ export const Token = memo(function Token({
     if (disabled) return;
     setSearchData(
       {
-        activeTokenInfo: `${address} ${tokenId} ${blockchain} ${eventId}`
+        activeTokenInfo: getActiveTokenInfoString(
+          address,
+          tokenId,
+          blockchain,
+          eventId
+        )
       },
       { updateQueryParams: true }
     );

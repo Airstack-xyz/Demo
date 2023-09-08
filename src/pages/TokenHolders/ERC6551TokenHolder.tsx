@@ -6,6 +6,7 @@ import { Asset } from '../../Components/Asset';
 import { Chain } from '@airstack/airstack-react/constants';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
+import { getActiveTokenInfoString } from '../../utils/activeTokenInfoString';
 
 function IconAndText({
   icon,
@@ -166,7 +167,11 @@ export function ERC6551TokenHolder({
           onClick={() => {
             setSearchInput(
               {
-                activeTokenInfo: `${token?.tokenAddress} ${token?.tokenId} ${token?.blockchain}`
+                activeTokenInfo: getActiveTokenInfoString(
+                  token?.tokenAddress || '',
+                  token?.tokenId || '',
+                  token?.blockchain || ''
+                )
               },
               {
                 updateQueryParams: true

@@ -16,6 +16,7 @@ import { formatNumber } from '../../utils/formatNumber';
 import './erc20.styles.css';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { emit } from '../../utils/eventEmitter/eventEmitter';
+import { getActiveTokenInfoString } from '../../utils/activeTokenInfoString';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
@@ -230,7 +231,11 @@ export function ERC20Tokens() {
               onClick={() => {
                 setSearchData(
                   {
-                    activeTokenInfo: `${token.tokenAddress} ${token.tokenId} ${token.blockchain}`
+                    activeTokenInfo: getActiveTokenInfoString(
+                      token?.tokenAddress || '',
+                      token?.tokenId || '',
+                      token?.blockchain || ''
+                    )
                   },
                   { updateQueryParams: true }
                 );
