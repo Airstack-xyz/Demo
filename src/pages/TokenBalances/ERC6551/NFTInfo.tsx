@@ -3,9 +3,10 @@ import { CopyButton as CopyBtn } from '../../../Components/CopyButton';
 import { KeyValue } from './KeyValue';
 import { Attribute, Nft, TokenTransfer } from '../erc20-types';
 import { ERC20TokenDetailsResponse } from './types';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 import classNames from 'classnames';
+import { AddressesModal } from '../../../Components/AddressesModal';
 
 function CopyButton({ value }: { value: string }) {
   return (
@@ -15,46 +16,96 @@ function CopyButton({ value }: { value: string }) {
   );
 }
 
-const maxOwners = 3;
+const minOwners = 3;
+const maxOwners = 7;
 function Owners({ tokens }: { tokens: Nft['tokenBalances'] }) {
+  const [showModal, setShowModal] = useState(false);
   const [showMax, setShowMax] = useState(false);
+  const navigator = useNavigate();
   const items = useMemo(() => {
     if (!showMax) {
-      return tokens?.slice(0, maxOwners);
+      return tokens?.slice(0, minOwners);
     }
-    return tokens;
+    return tokens.slice(0, maxOwners);
+  }, [showMax, tokens]);
+
+  const modalValues = useMemo(() => {
+    const leftValues: string[] = [];
+    const rightValues: string[] = [];
+    if (!showMax) return { leftValues, rightValues };
+    tokens.forEach((token, index) => {
+      if (index % 2 === 0) {
+        leftValues.push(token?.owner?.identity);
+      } else {
+        rightValues.push(token?.owner?.identity);
+      }
+    });
+    return {
+      leftValues,
+      rightValues
+    };
   }, [showMax, tokens]);
 
   return (
-    <ul className="text-text-secondary overflow-hidden flex flex-col justify-center mr-1">
-      {items?.map((token, index) => (
-        <li key={index} className={classNames('mb-2.5 last:mb-0 flex')}>
-          <Link
-            className="ellipsis border border-solid border-transparent hover:border-solid-stroke hover:bg-glass rounded-18"
-            to={createTokenBalancesUrl({
-              address: token?.owner?.identity,
-              blockchain: '',
-              inputType: 'ADDRESS'
-            })}
-          >
-            {token?.owner?.identity}
-          </Link>{' '}
-          <CopyButton value={token?.owner?.identity} />
-        </li>
-      ))}
-      {tokens?.length > maxOwners && (
-        <li>
-          <span
+    <>
+      <ul className="text-text-secondary overflow-hidden flex flex-col justify-center mr-1">
+        {items?.map((token, index) => (
+          <li key={index} className={classNames('mb-2.5 last:mb-0 flex')}>
+            <Link
+              className="ellipsis border border-solid border-transparent hover:border-solid-stroke hover:bg-glass rounded-18"
+              to={createTokenBalancesUrl({
+                address: token?.owner?.identity,
+                blockchain: '',
+                inputType: 'ADDRESS'
+              })}
+            >
+              {token?.owner?.identity}
+            </Link>{' '}
+            <CopyButton value={token?.owner?.identity} />
+          </li>
+        ))}
+
+        {!showMax && tokens?.length > minOwners && (
+          <li
             onClick={() => {
               setShowMax(show => !show);
             }}
-            className="text-text-button font-bold cursor-pointer hover:bg-glass rounded-18"
+            className="text-text-button font-bold cursor-pointer"
           >
-            see {showMax ? 'less' : 'more'}
-          </span>
-        </li>
-      )}
-    </ul>
+            see more
+          </li>
+        )}
+        {showMax && tokens.length > maxOwners && (
+          <li
+            onClick={() => {
+              if (showMax && tokens.length > maxOwners) {
+                setShowModal(true);
+              }
+            }}
+            className="text-text-button font-bold cursor-pointer"
+          >
+            see all
+          </li>
+        )}
+      </ul>
+      <AddressesModal
+        heading="All Holders"
+        modalValues={modalValues}
+        isOpen={showModal}
+        onAddressClick={(address: string) => {
+          navigator(
+            createTokenBalancesUrl({
+              address,
+              blockchain: '',
+              inputType: 'ADDRESS'
+            })
+          );
+        }}
+        onRequestClose={() => {
+          setShowModal(false);
+        }}
+      />
+    </>
   );
 }
 
