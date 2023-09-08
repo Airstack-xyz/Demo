@@ -144,6 +144,19 @@ export function NFTInfo({
     return _traits;
   }, [attributes]);
 
+  const assetsCount = useMemo(() => {
+    if (!nft?.erc6551Accounts || nft?.erc6551Accounts?.length === 0) {
+      return 0;
+    }
+
+    return nft?.erc6551Accounts.reduce((sum = 0, token) => {
+      if (token?.address?.tokenBalances) {
+        return (token?.address?.tokenBalances?.length || 0) + sum;
+      }
+      return sum;
+    }, 0);
+  }, [nft?.erc6551Accounts]);
+
   return (
     <div className="overflow-hidden text-sm">
       <div>
@@ -162,7 +175,9 @@ export function NFTInfo({
           name={`Holder${nft?.tokenBalances?.length > 1 ? 's' : ''}`}
           value={<Owners tokens={nft?.tokenBalances || []} />}
         />
-        {!expandDetails && <KeyValue name="Assets included" value="--" />}
+        {!expandDetails && (
+          <KeyValue name="Assets included" value={assetsCount} />
+        )}
         <KeyValue
           name="Traits"
           value={

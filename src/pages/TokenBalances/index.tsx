@@ -238,12 +238,14 @@ export function TokenBalance() {
               <GetAPIDropdown options={options} />
             </div>
             {showTokenDetails ? (
-              <TokenDetails
-                {...token}
-                hideBackBreadcrumb={hideBackBreadcrumb}
-                key={activeTokenInfo}
-                onClose={() => setData({ activeTokenInfo: '' })}
-              />
+              <div key={activeTokenInfo}>
+                <TokenDetails
+                  {...token}
+                  hideBackBreadcrumb={hideBackBreadcrumb}
+                  key={activeTokenInfo}
+                  onClose={() => setData({ activeTokenInfo: '' })}
+                />
+              </div>
             ) : (
               <div className="flex justify-between px-5">
                 <div className="w-full h-full" key={query}>
