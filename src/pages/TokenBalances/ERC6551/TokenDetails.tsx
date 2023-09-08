@@ -167,8 +167,8 @@ export function TokenDetails(props: {
   const transfterDetails: TokenTransfer =
     nftData?.transferDetails || ({} as TokenTransfer);
 
-  const hasChildren = !isPoap && nft?.erc6551Accounts?.length > 0;
   const loading = loadingToken || loadingERC20 || loadingPoap;
+  const hasChildren = !loading && !isPoap && nft?.erc6551Accounts?.length > 0;
 
   return (
     <div className="max-w-[950px] text-sm m-auto w-[98vw] pt-10 sm:pt-0">
@@ -229,6 +229,7 @@ export function TokenDetails(props: {
             <Token
               token={(erc20Data?.Token || poap || nft) as Nft}
               hideHoldersButton
+              key={`${tokenAddress}-${tokenId}-${blockchain}`}
               disabled
             />
           </div>
@@ -273,7 +274,12 @@ export function TokenDetails(props: {
         )}
         {loading && <LoaderInfo />}
       </div>
-      {hasChildren && <NestedTokens {...props} />}
+      {hasChildren && (
+        <NestedTokens
+          {...props}
+          key={`${tokenAddress}-${tokenId}-${blockchain}`}
+        />
+      )}
     </div>
   );
 }
