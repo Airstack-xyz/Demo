@@ -13,7 +13,7 @@ import { TokenWithERC6551 } from './TokenWithERC6551';
 
 const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 
-function Loader() {
+export function TokensLoader() {
   return (
     <>
       {loaderData.map((_, index) => (
@@ -118,7 +118,7 @@ function TokensComponent(props: TokenProps) {
     return (
       <div>
         <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">
-          <Loader />
+          <TokensLoader />
           {showStatusLoader && <TokenBalancesLoaderWithInfo />}
         </div>
       </div>
@@ -157,7 +157,7 @@ function TokensComponent(props: TokenProps) {
             <Token key={`${index}-${id}`} token={token} />
           );
         })}
-        {loading && <Loader />}
+        {loading && <TokensLoader />}
       </InfiniteScroll>
       {showStatusLoader && <TokenBalancesLoaderWithInfo />}
     </>
