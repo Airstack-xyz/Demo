@@ -9,7 +9,8 @@ const LIMIT = 20;
 const LIMIT_COMBINATIONS = 100;
 
 export function useGetPoapsOfOwner(
-  onDataReceived: (tokens: PoapType[]) => void
+  onDataReceived: (tokens: PoapType[]) => void,
+  noFetch = false
 ) {
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
@@ -24,10 +25,11 @@ export function useGetPoapsOfOwner(
   }, [owners]);
 
   const canFetchPoap = useMemo(() => {
+    if (noFetch) return false;
     const hasPolygonChainFilter =
       blockchainType.length === 1 && blockchainType[0] === 'polygon';
     return !hasPolygonChainFilter && (!tokenType || isPoap);
-  }, [blockchainType, isPoap, tokenType]);
+  }, [blockchainType, isPoap, noFetch, tokenType]);
 
   const [
     fetchTokens,
@@ -49,7 +51,15 @@ export function useGetPoapsOfOwner(
       sortBy: sortOrder ? sortOrder : defaultSortOrder
     });
     setProcessedTokensCount(LIMIT);
-  }, [canFetchPoap, fetchTokens, owners, sortOrder, blockchainType, tokenType]);
+  }, [
+    canFetchPoap,
+    fetchTokens,
+    owners,
+    sortOrder,
+    blockchainType,
+    tokenType,
+    noFetch
+  ]);
 
   useEffect(() => {
     if (!tokensData) return;

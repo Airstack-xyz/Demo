@@ -28,13 +28,16 @@ function Loader() {
 type TokenProps = Pick<
   UserInputs,
   'address' | 'tokenType' | 'blockchainType' | 'sortOrder'
->;
+> & {
+  poapDisabled?: boolean;
+};
 function TokensComponent(props: TokenProps) {
   const {
     address: owners,
     tokenType: tokenType = '',
     blockchainType,
-    sortOrder
+    sortOrder,
+    poapDisabled
   } = props;
   const [tokens, setTokens] = useState<(TokenType | PoapType)[]>([]);
 
@@ -54,7 +57,7 @@ function TokensComponent(props: TokenProps) {
     getNext: getNextPoaps,
     processedTokensCount: processedPoapsCount,
     hasNextPage: hasNextPagePoaps
-  } = useGetPoapsOfOwner(handleTokens);
+  } = useGetPoapsOfOwner(handleTokens, poapDisabled);
 
   useEffect(() => {
     if (owners.length === 0) return;
