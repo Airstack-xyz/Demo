@@ -23,14 +23,15 @@ export function NFTInfo({
 }) {
   const [showContactDetails, setShowContactDetails] = useState(false);
 
-  const isERC7251WithoutAccounts =
-    nft?.type === 'ERC721' && nft?.erc6551Accounts?.length === 0;
+  const expandDetails =
+    nft.type === 'ERC1155' ||
+    (nft?.type === 'ERC721' && nft?.erc6551Accounts?.length === 0);
 
   useEffect(() => {
-    if (isERC7251WithoutAccounts) {
+    if (expandDetails) {
       setShowContactDetails(true);
     }
-  }, [isERC7251WithoutAccounts]);
+  }, [expandDetails]);
 
   const attributes = nft?.metaData?.attributes;
   const holder = nft?.tokenBalance?.owner?.identity || '';
@@ -67,9 +68,7 @@ export function NFTInfo({
             </>
           }
         />
-        {!isERC7251WithoutAccounts && (
-          <KeyValue name="Assets included" value="--" />
-        )}
+        {!expandDetails && <KeyValue name="Assets included" value="--" />}
         <KeyValue
           name="Traits"
           value={
