@@ -259,10 +259,12 @@ export function TokenHolders() {
           : erc20DetailsQueryLink
       });
 
-      options.push({
-        label: 'ERC6551 Accounts',
-        link: erc6551AccountsQueryLink
-      });
+      if (hasERC6551) {
+        options.push({
+          label: 'ERC6551 Accounts',
+          link: erc6551AccountsQueryLink
+        });
+      }
     }
 
     return options;
