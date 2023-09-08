@@ -246,7 +246,7 @@ export function TokenBalance() {
           </>
         )}
       </div>
-      <TokenBalancesLoaderWithInfo />
+      {!activeTokenInfo && <TokenBalancesLoaderWithInfo />}
     </Layout>
   );
 }

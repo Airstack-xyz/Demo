@@ -168,7 +168,8 @@ export function TokenDetails(props: {
               width={20}
             />{' '}
             <span className="ml-1.5 text-text-secondary break-all cursor-pointer max-w-[90%] sm:max-w-[500px] ellipsis">
-              Token {isTokenBalances ? 'balances' : 'holders'} of {address}
+              Token {isTokenBalances ? 'balances' : 'holders'} of{' '}
+              {address.join(', ')}
             </span>
           </div>
           <span className="mr-2 text-text-secondary">/</span>

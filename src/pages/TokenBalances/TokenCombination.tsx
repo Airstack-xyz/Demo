@@ -1,4 +1,4 @@
-import { memo, useMemo, useState } from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '../../Components/Icon';
 import { formatDate } from '../../utils';
@@ -20,6 +20,7 @@ function Token({
   token: TokenType | PoapType;
   ownerName: string;
 }) {
+  const setSearchData = useSearchInput()[1];
   const token = (tokenProp || {}) as TokenType;
   const poap = (tokenProp || {}) as PoapType;
   const isPoap = Boolean(poap.poapEvent);
@@ -32,17 +33,20 @@ function Token({
   const address = token.tokenAddress || poap.tokenAddress;
   const tokenId = token?.tokenNfts?.tokenId || poap.tokenId;
   const id = token?.tokenNfts?.tokenId || poap.tokenId || '';
+
+  const handleClick = useCallback(() => {
+    setSearchData(
+      {
+        activeTokenInfo: `${address} ${tokenId} ${blockchain} ${eventId}`
+      },
+      { updateQueryParams: true }
+    );
+  }, [address, blockchain, eventId, setSearchData, tokenId]);
   return (
-    <Link
-      className="h-[300px] w-[300px] sm:h-[200px] sm:w-[200px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token"
+    <div
+      className="group h-[300px] w-[300px] sm:h-[200px] sm:w-[200px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token cursor-pointer"
       data-loader-type="block"
-      to={createTokenHolderUrl({
-        address: isPoap && eventId ? eventId : address,
-        inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
-        type,
-        blockchain,
-        label: tokenName || '--'
-      })}
+      onClick={handleClick}
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
     >
       <div className="absolute inset-0 [&>div]:w-full [&>div]:h-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center">
@@ -55,14 +59,29 @@ function Token({
           useImageOnError={isPoap}
         />
       </div>
-      <div className="z-10 flex justify-end items-center text-xs">
-        <Icon name="holder-white" height={15} width={15} />
-        <span className="ml-0.5 text-xs">{ownerName}</span>
+      <div className="z-10 flex justify-between items-center text-xs relative">
+        <Link
+          className="left-0 top-1 text-sm bg-white rounded-18 text-primary flex py-2 px-3 items-center visible sm:invisible group-hover:visible border border-solid border-transparent hover:border-text-secondary"
+          to={createTokenHolderUrl({
+            address: isPoap && eventId ? eventId : address,
+            inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
+            type,
+            blockchain,
+            label: tokenName || '--'
+          })}
+          onClick={e => e.stopPropagation()}
+        >
+          <Icon width={16} name="token-holders" />
+        </Link>
+        <div className="flex items-center">
+          <Icon name="holder-white" height={15} width={15} />
+          <span className="ml-0.5 text-xs">{ownerName}</span>
+        </div>
       </div>
       <div className="flex items-center rounded-3xl px-3.5 py-2 text-xs bg-glass border-solid-light">
         <div className="ellipsis">#{id}</div>
       </div>
-    </Link>
+    </div>
   );
 }
 
