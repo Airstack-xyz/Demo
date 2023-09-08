@@ -92,7 +92,7 @@ export const Token = memo(function Token({
   return (
     <div
       className={classNames(
-        'group h-[300px] w-[300px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token',
+        'group h-[300px] w-[300px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative token',
         {
           'cursor-pointer': !disabled,
           'hover:border-transparent': disabled
