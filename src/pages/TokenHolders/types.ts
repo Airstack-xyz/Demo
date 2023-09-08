@@ -1,7 +1,7 @@
 import { TokenBalance, ContentValue } from '../TokenBalances/types';
 
 export type Token = TokenBalance &
-  Pick<Poap, '_poapEvent'> & {
+  Pick<Poap, '_poapEvent' | '_eventId'> & {
     _tokenNfts: TokenBalance['tokenNfts'];
     _token: TokenBalance['token'];
     _tokenAddress: string;
@@ -37,6 +37,7 @@ export type Poap = {
   eventId: string;
   poapEvent: PoapEvent;
   _poapEvent: PoapEvent;
+  _eventId: string;
   _blockchain: string;
   owner: Owner & {
     poaps: Poap[];

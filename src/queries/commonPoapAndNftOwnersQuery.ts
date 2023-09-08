@@ -13,6 +13,7 @@ export function getCommonPoapAndNftOwnersQuery(
         tokenId
         tokenAddress
         blockchain
+        eventId
         poapEvent {
           contentValue {
             image {
