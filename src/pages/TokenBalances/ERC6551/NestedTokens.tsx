@@ -97,7 +97,7 @@ export function NestedTokens({
             className={classNames(
               'flex w-[150px] items-center justify-center py-4 tab',
               {
-                active: index === activeTab,
+                'active pointer-events-none': index === activeTab,
                 'cursor-pointer hover:bg-tertiary': index !== activeTab
               }
             )}
@@ -106,7 +106,7 @@ export function NestedTokens({
               setShowDetails(false);
             }}
           >
-            <Icon name="stack" /> <span className="ml-1.5">TBA{index + 1}</span>
+            <Icon name="folder" /> <span className="ml-1">TBA{index + 1}</span>
           </div>
         ))}
       </div>
