@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { TokenDetails } from '../../TokenBalances/ERC6551/TokenDetails';
+import { TokenDetailsReset } from '../../../store/tokenDetails';
 
 export function Details() {
   const [{ activeTokenInfo }, setSearchInput] = useSearchInput();
@@ -17,16 +18,18 @@ export function Details() {
   }, [activeTokenInfo]);
 
   return (
-    <TokenDetails
-      tokenAddress={token.tokenAddress}
-      tokenId={token.tokenId}
-      blockchain={token.blockchain}
-      eventId={token.eventId}
-      onClose={() => {
-        setSearchInput({
-          activeTokenInfo: ''
-        });
-      }}
-    />
+    <TokenDetailsReset>
+      <TokenDetails
+        tokenAddress={token.tokenAddress}
+        tokenId={token.tokenId}
+        blockchain={token.blockchain}
+        eventId={token.eventId}
+        onClose={() => {
+          setSearchInput({
+            activeTokenInfo: ''
+          });
+        }}
+      />
+    </TokenDetailsReset>
   );
 }
