@@ -68,7 +68,7 @@ export const Token = memo(function Token({
   const image = isPoap
     ? poapEvent?.logo?.image?.medium
     : isERC20
-    ? erc20.logo.medium || erc20.projectDetails.imageUrl
+    ? erc20?.logo?.medium || erc20?.projectDetails?.imageUrl
     : '';
   const eventId = poapEvent?.eventId || '';
   const tokenName = isPoap ? poapEvent?.eventName : token?.token?.name;
