@@ -25,6 +25,7 @@ export function getCommonNftOwnersQuery(
             video
             image {
               small
+              medium
             }
           }
           erc6551Accounts {
@@ -51,6 +52,7 @@ export function getCommonNftOwnersQuery(
                 video
                 image {
                   small
+                  medium
                 }
               }
               erc6551Accounts {
@@ -103,6 +105,7 @@ export function getCommonNftOwnersQuery(
             video
             image {
               small
+              medium
             }
           }
           erc6551Accounts {
@@ -129,6 +132,7 @@ export function getCommonNftOwnersQuery(
                 video
                 image {
                   small
+                  medium
                 }
               }
               erc6551Accounts {
@@ -186,6 +190,7 @@ export function getNftOwnersQuery(token: string) {
             video
             image {
               small
+              medium
             }
           }
           erc6551Accounts {
@@ -236,6 +241,7 @@ export function getNftOwnersQuery(token: string) {
             video
             image {
               small
+              medium
             }
           }
           erc6551Accounts {
