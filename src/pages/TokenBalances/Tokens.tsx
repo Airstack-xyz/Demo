@@ -30,6 +30,7 @@ type TokenProps = Pick<
   'address' | 'tokenType' | 'blockchainType' | 'sortOrder'
 > & {
   poapDisabled?: boolean;
+  includeERC20?: boolean;
 };
 function TokensComponent(props: TokenProps) {
   const {
@@ -37,6 +38,7 @@ function TokensComponent(props: TokenProps) {
     tokenType: tokenType = '',
     blockchainType,
     sortOrder,
+    includeERC20,
     poapDisabled
   } = props;
   const [tokens, setTokens] = useState<(TokenType | PoapType)[]>([]);
@@ -49,7 +51,8 @@ function TokensComponent(props: TokenProps) {
     address: owners,
     tokenType,
     blockchainType,
-    sortOrder
+    sortOrder,
+    includeERC20
   };
 
   const {
