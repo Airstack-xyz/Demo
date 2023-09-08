@@ -24,7 +24,7 @@ export function NFTInfo({
   const [showContactDetails, setShowContactDetails] = useState(false);
 
   const expandDetails =
-    nft.type === 'ERC1155' ||
+    nft?.type === 'ERC1155' ||
     (nft?.type === 'ERC721' && nft?.erc6551Accounts?.length === 0);
 
   useEffect(() => {
@@ -58,8 +58,8 @@ export function NFTInfo({
           value={
             <span className="ellipsis">
               <>
-                <span className="ellipsis">{nft.address}</span>{' '}
-                <CopyButton value={nft.address} />
+                <span className="ellipsis">{nft?.address}</span>{' '}
+                <CopyButton value={nft?.address} />
               </>
             </span>
           }
@@ -97,14 +97,17 @@ export function NFTInfo({
             </span>
           }
         />
-        <KeyValue name="Last transfer time" value={nft.lastTransferTimestamp} />
-        <KeyValue name="Last transfer block" value={nft.lastTransferBlock} />
+        <KeyValue
+          name="Last transfer time"
+          value={nft?.lastTransferTimestamp}
+        />
+        <KeyValue name="Last transfer block" value={nft?.lastTransferBlock} />
         <KeyValue
           name="Last transfer hash"
           value={
             <>
-              <span className="ellipsis">{nft.lastTransferHash}</span>
-              <CopyButton value={nft.lastTransferHash || ''} />
+              <span className="ellipsis">{nft?.lastTransferHash}</span>
+              <CopyButton value={nft?.lastTransferHash || ''} />
             </>
           }
         />
@@ -112,8 +115,8 @@ export function NFTInfo({
           name="Token URI"
           value={
             <>
-              <span className="ellipsis">{nft.tokenURI}</span>
-              <CopyButton value={nft.tokenBalance?.owner?.identity || ''} />
+              <span className="ellipsis">{nft?.tokenURI}</span>
+              <CopyButton value={nft?.tokenBalance?.owner?.identity || ''} />
             </>
           }
         />
@@ -126,25 +129,31 @@ export function NFTInfo({
             <div className="text-text-secondary">
               {nft?.metaData?.description || ' -- '}
             </div>
-            <KeyValue name="Contract" value={transfterDetails.tokenAddress} />
-            <KeyValue name="Total supply" value={nft?.totalSupply} />
+            <KeyValue
+              name="Contract"
+              value={transfterDetails?.tokenAddress || '--'}
+            />
+            <KeyValue
+              name="Total supply"
+              value={nft?.token?.totalSupply || '--'}
+            />
             <KeyValue
               name="Last transfer time"
-              value={transfterDetails.blockTimestamp}
+              value={transfterDetails?.blockTimestamp}
             />
             <KeyValue
               name="Last transfer block"
-              value={transfterDetails.blockNumber}
+              value={transfterDetails?.blockNumber}
             />
             <KeyValue
               name="Last transfer hash"
               value={
                 <>
                   <span className="ellipsis">
-                    {transfterDetails.transactionHash}
+                    {transfterDetails?.transactionHash}
                   </span>
-                  {transfterDetails.transactionHash && (
-                    <CopyButton value={transfterDetails.transactionHash} />
+                  {transfterDetails?.transactionHash && (
+                    <CopyButton value={transfterDetails?.transactionHash} />
                   )}
                 </>
               }

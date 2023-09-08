@@ -40,6 +40,7 @@ export interface TokenBalance {
 export interface Token {
   name: string;
   symbol: string;
+  totalSupply: string;
   tokenNfts: {
     tokenId: string;
   };

@@ -34,6 +34,7 @@ export const tokenDetailsQuery = `query TokenDetails($tokenAddress: Address!, $t
     token {
       name
       symbol
+      totalSupply
     }
   }
   transfers: TokenTransfers(
