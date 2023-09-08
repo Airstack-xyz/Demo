@@ -20,7 +20,6 @@ import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenDetails } from './ERC6551/TokenDetails';
 import { useGetAccountOwner } from '../../hooks/useGetAccountOwner';
-import { getActiveTokenInfoString } from '../../utils/activeTokenInfoString';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
@@ -194,6 +193,15 @@ export function TokenBalance() {
   const showInCenter = isHome;
 
   const token = useMemo(() => {
+    if (account && !activeTokenInfo) {
+      const { tokenAddress, tokenId, blockchain } = account;
+      return {
+        tokenAddress,
+        tokenId,
+        blockchain,
+        eventId: ''
+      };
+    }
     const [tokenAddress, tokenId, blockchain, eventId] =
       activeTokenInfo.split(' ');
     return {
@@ -202,24 +210,10 @@ export function TokenBalance() {
       blockchain,
       eventId
     };
-  }, [activeTokenInfo]);
+  }, [account, activeTokenInfo]);
 
-  useEffect(() => {
-    if (account && !activeTokenInfo) {
-      // if address is of an account, set the active token info, to show the token details
-      const _activeTokenInfo = getActiveTokenInfoString(
-        account.tokenAddress,
-        account.tokenId,
-        account.blockchain
-      );
-      setData(
-        {
-          activeTokenInfo: _activeTokenInfo
-        },
-        { updateQueryParams: true }
-      );
-    }
-  }, [account, activeTokenInfo, setData]);
+  const showTokenDetails = activeTokenInfo || Boolean(account);
+  const hideBackBreadcrumb = Boolean(account);
 
   return (
     <Layout>
@@ -243,9 +237,10 @@ export function TokenBalance() {
             <div className="hidden sm:flex-col-center my-3">
               <GetAPIDropdown options={options} />
             </div>
-            {activeTokenInfo ? (
+            {showTokenDetails ? (
               <TokenDetails
                 {...token}
+                hideBackBreadcrumb={hideBackBreadcrumb}
                 key={activeTokenInfo}
                 onClose={() => setData({ activeTokenInfo: '' })}
               />
