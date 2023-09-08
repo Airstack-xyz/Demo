@@ -8,7 +8,7 @@ import {
 } from '../../../queries/tokenDetails';
 import { ERC20Response, Nft, TokenTransfer } from '../erc20-types';
 import { NestedTokens } from './NestedTokens';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import {
   Link,
   createSearchParams,
@@ -65,8 +65,8 @@ function formatNFTData(data: ERC20Response) {
 function formatPoapData(data: PoapData) {
   if (!data) return {};
   return {
-    poap: data?.poap.Poap[0],
-    transferDetails: data?.tokenTransfer.TokenTransfer[0]
+    poap: data?.poap?.Poap?.[0] || null,
+    transferDetails: data?.tokenTransfer?.TokenTransfer?.[0]
   };
 }
 
@@ -90,6 +90,7 @@ export function TokenDetails(props: {
   const [{ address, rawInput, inputType }] = useSearchInput();
   const navigate = useNavigate();
   const isTokenBalances = !!useMatch('/token-balances');
+  const addressRef = useRef(address.join(','));
 
   const [fetchToken, { data, loading: loadingToken }] = useLazyQuery(
     tokenDetailsQuery,
@@ -115,6 +116,13 @@ export function TokenDetails(props: {
     },
     { dataFormatter: formatPoapData }
   );
+
+  useEffect(() => {
+    // close if address changes
+    if (addressRef.current && addressRef.current !== address.join(',')) {
+      onClose?.();
+    }
+  }, [address, onClose]);
 
   const erc20Token = erc20Data?.Token;
   const nftData: ReturnType<typeof formatNFTData> = data;
