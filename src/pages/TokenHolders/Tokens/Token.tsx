@@ -128,7 +128,9 @@ export function Token({
   const handleAssetClick = useCallback(() => {
     setSearchData(
       {
-        activeTokenInfo: `${tokenAddress} ${tokenId} ${token?.blockchain} ${poap?.eventId}`
+        activeTokenInfo: `${tokenAddress} ${tokenId} ${token?.blockchain} ${
+          poap?.eventId || ''
+        }`
       },
       { updateQueryParams: true }
     );

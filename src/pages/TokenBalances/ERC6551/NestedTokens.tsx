@@ -151,7 +151,9 @@ export function NestedTokens({
       <div>
         <div className="font-bold my-5">Assets</div>
         <div className="[&>div>div]:!gap-x-6 [&>div>div]:!gap-y-6 [&>div>div]:justify-center sm:[&>div>div]:justify-start">
-          {!loading && account.identity && <Tokens {...tokensProps} />}
+          {!loading && account.identity && (
+            <Tokens {...tokensProps} poapDisabled />
+          )}
           {loading && (
             <div>
               <Loader />
