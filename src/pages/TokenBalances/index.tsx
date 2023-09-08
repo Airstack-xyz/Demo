@@ -20,6 +20,12 @@ import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenDetails } from './ERC6551/TokenDetails';
 import { useGetAccountOwner } from '../../hooks/useGetAccountOwner';
+import {
+  poapDetailsQuery,
+  tokenDetailsQuery,
+  erc6551TokensQuery,
+  erc20TokenDetailsQuery
+} from '../../queries/tokenDetails';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
@@ -74,6 +80,26 @@ export function TokenBalance() {
 
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
+
+  const token = useMemo(() => {
+    if (account && !activeTokenInfo) {
+      const { tokenAddress, tokenId, blockchain } = account;
+      return {
+        tokenAddress,
+        tokenId,
+        blockchain,
+        eventId: ''
+      };
+    }
+    const [tokenAddress, tokenId, blockchain, eventId] =
+      activeTokenInfo.split(' ');
+    return {
+      tokenAddress,
+      tokenId,
+      blockchain,
+      eventId
+    };
+  }, [account, activeTokenInfo]);
 
   useEffect(() => {
     if ((activeTokenInfo && address.length === 0) || address.length > 1) return;
@@ -131,20 +157,79 @@ export function TokenBalance() {
       });
     }
 
-    options.push({
-      label: 'Token Balances (ERC20)',
-      link: erc20Link
-    });
-
-    if (address.length === 1) {
+    if (!activeTokenInfo) {
       options.push({
-        label: 'Socials, Domains & XMTP',
-        link: socialLink
+        label: 'Token Balances (ERC20)',
+        link: erc20Link
+      });
+
+      if (address.length === 1) {
+        options.push({
+          label: 'Socials, Domains & XMTP',
+          link: socialLink
+        });
+      }
+    }
+
+    if (activeTokenInfo || account) {
+      const erc6551AccountsQueryLink = createAppUrlWithQuery(
+        erc6551TokensQuery,
+        {
+          tokenAddress: token.tokenAddress,
+          blockchain: token.blockchain,
+          tokenId: token.tokenId
+        }
+      );
+
+      const poapDetailsQueryLink = createAppUrlWithQuery(poapDetailsQuery, {
+        tokenAddress: token.tokenAddress,
+        eventId: token.eventId
+      });
+
+      const tokenDetailsQueryLink = createAppUrlWithQuery(tokenDetailsQuery, {
+        tokenAddress: token.tokenAddress,
+        blockchain: token.blockchain,
+        tokenId: token.tokenId
+      });
+
+      const erc20DetailsQueryLink = createAppUrlWithQuery(
+        erc20TokenDetailsQuery,
+        {
+          tokenAddress: token.tokenAddress,
+          blockchain: token.blockchain,
+          tokenId: token.tokenId
+        }
+      );
+
+      options.push({
+        label: token?.eventId ? 'POAP Details' : 'Token Details',
+        link: token?.eventId
+          ? poapDetailsQueryLink
+          : token?.tokenId
+          ? tokenDetailsQueryLink
+          : erc20DetailsQueryLink
+      });
+
+      options.push({
+        label: 'ERC6551 Accounts',
+        link: erc6551AccountsQueryLink
       });
     }
 
     return options;
-  }, [address, blockchainType, query, sortOrder, tokenType]);
+  }, [
+    account,
+    activeTokenInfo,
+    address,
+    blockchainType,
+    query,
+    sortOrder,
+    token.blockchain,
+    token.eventId,
+    token.tokenAddress,
+    token.tokenId,
+    tokenType
+  ]);
 
   const renderMobileTabs = useCallback(() => {
     return (
@@ -191,26 +276,6 @@ export function TokenBalance() {
     [address, blockchainType, sortOrder, tokenType]
   );
   const showInCenter = isHome;
-
-  const token = useMemo(() => {
-    if (account && !activeTokenInfo) {
-      const { tokenAddress, tokenId, blockchain } = account;
-      return {
-        tokenAddress,
-        tokenId,
-        blockchain,
-        eventId: ''
-      };
-    }
-    const [tokenAddress, tokenId, blockchain, eventId] =
-      activeTokenInfo.split(' ');
-    return {
-      tokenAddress,
-      tokenId,
-      blockchain,
-      eventId
-    };
-  }, [account, activeTokenInfo]);
 
   const showTokenDetails = activeTokenInfo || Boolean(account);
   const hideBackBreadcrumb = Boolean(account);
