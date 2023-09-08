@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { CopyButton as CopyBtn } from '../../../Components/CopyButton';
 import { KeyValue } from './KeyValue';
-import { Nft, TokenTransfer } from '../erc20-types';
+import { Attribute, Nft, TokenTransfer } from '../erc20-types';
 import { ERC20TokenDetailsResponse } from './types';
 import { Link } from 'react-router-dom';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
@@ -35,6 +35,20 @@ export function NFTInfo({
 
   const attributes = nft?.metaData?.attributes;
   const holder = nft?.tokenBalance?.owner?.identity || '';
+
+  const traits = useMemo(() => {
+    const _traits: Attribute[] = [];
+    if (!attributes) return _traits;
+    attributes.forEach(attribute => {
+      if (attribute && attribute.trait_type) {
+        _traits.push({
+          trait_type: attribute.trait_type,
+          value: attribute.value
+        });
+      }
+    });
+    return _traits;
+  }, [attributes]);
 
   return (
     <div className="overflow-hidden text-sm">
@@ -73,10 +87,10 @@ export function NFTInfo({
           name="Traits"
           value={
             <span className="ellipsis">
-              {attributes
-                ? attributes.map(attribute => (
+              {traits.length > 0
+                ? traits.map(attribute => (
                     <span className="flex" key={attribute.trait_type}>
-                      {attribute.trait_type}: {attribute.value}
+                      {attribute.trait_type}: {attribute.value || '--'}
                     </span>
                   ))
                 : '--'}
