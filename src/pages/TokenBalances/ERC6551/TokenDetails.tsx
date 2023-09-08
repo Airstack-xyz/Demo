@@ -79,13 +79,21 @@ function formatPoapData(data: PoapData) {
   */
 
 export function TokenDetails(props: {
-  tokenAddress: string;
   tokenId: string;
-  blockchain: string;
   eventId?: string;
+  blockchain: string;
+  tokenAddress: string;
+  hideBackBreadcrumb?: boolean;
   onClose?: () => void;
 }) {
-  const { tokenAddress, tokenId, blockchain, eventId, onClose } = props;
+  const {
+    tokenId,
+    eventId,
+    blockchain,
+    tokenAddress,
+    hideBackBreadcrumb,
+    onClose
+  } = props;
 
   const [{ address, rawInput, inputType }] = useSearchInput();
   const navigate = useNavigate();
@@ -165,23 +173,25 @@ export function TokenDetails(props: {
   return (
     <div className="max-w-[950px] text-sm m-auto w-[98vw] pt-10 sm:pt-0">
       <div className="flex items-center mb-7">
-        <div className="flex items-center max-w-[60%] sm:w-auto overflow-hidden mr-1">
-          <div
-            className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
-            onClick={handleClose}
-          >
-            <Icon
-              name={isTokenBalances ? 'token-balances' : 'token-holders'}
-              height={20}
-              width={20}
-            />{' '}
-            <span className="ml-1.5 text-text-secondary break-all cursor-pointer max-w-[90%] sm:max-w-[500px] ellipsis">
-              Token {isTokenBalances ? 'balances' : 'holders'} of{' '}
-              {address.join(', ')}
-            </span>
+        {!hideBackBreadcrumb && (
+          <div className="flex items-center max-w-[60%] sm:w-auto overflow-hidden mr-1">
+            <div
+              className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
+              onClick={handleClose}
+            >
+              <Icon
+                name={isTokenBalances ? 'token-balances' : 'token-holders'}
+                height={20}
+                width={20}
+              />{' '}
+              <span className="ml-1.5 text-text-secondary break-all cursor-pointer max-w-[90%] sm:max-w-[500px] ellipsis">
+                Token {isTokenBalances ? 'balances' : 'holders'} of{' '}
+                {address.join(', ')}
+              </span>
+            </div>
+            <span className="mr-2 text-text-secondary">/</span>
           </div>
-          <span className="mr-2 text-text-secondary">/</span>
-        </div>
+        )}
         <div
           className={classNames('flex items-center flex-1 overflow-hidden', {
             'skeleton-loader': loading
