@@ -1,4 +1,4 @@
-import { ReactNode, useMemo } from 'react';
+import { ReactNode, useEffect, useMemo } from 'react';
 import { useQuery } from '@airstack/airstack-react';
 import { SocialQuery } from '../../queries';
 import { SocialsType } from '../TokenBalances/types';
@@ -7,6 +7,7 @@ import { Chain } from '@airstack/airstack-react/constants';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
 import { getActiveTokenInfoString } from '../../utils/activeTokenInfoString';
+import { useTokenDetails } from '../../store/tokenDetails';
 
 function IconAndText({
   icon,
@@ -54,10 +55,18 @@ export function ERC6551TokenHolder({
     blockchain: string;
   };
 }) {
+  const setDetails = useTokenDetails(['hasERC6551', 'owner'])[1];
   const setSearchInput = useSearchInput()[1];
   const { data, loading } = useQuery(SocialQuery, {
     identity: owner
   });
+
+  useEffect(() => {
+    setDetails({
+      hasERC6551: Boolean(owner),
+      owner
+    });
+  }, [owner, setDetails]);
 
   const socialDetails = (data?.Wallet || {}) as SocialsType['Wallet'];
 
