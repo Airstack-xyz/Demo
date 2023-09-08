@@ -45,19 +45,26 @@ function TokensComponent(props: TokenProps) {
     setTokens(existingTokens => [...existingTokens, ...tokens]);
   }, []);
 
+  const inputs = {
+    address: owners,
+    tokenType,
+    blockchainType,
+    sortOrder
+  };
+
   const {
     loading: loadingTokens,
     hasNextPage: hasNextPageTokens,
     processedTokensCount,
     getNext: getNextTokens
-  } = useGetTokensOfOwner(handleTokens);
+  } = useGetTokensOfOwner(inputs, handleTokens);
 
   const {
     loading: loadingPoaps,
     getNext: getNextPoaps,
     processedTokensCount: processedPoapsCount,
     hasNextPage: hasNextPagePoaps
-  } = useGetPoapsOfOwner(handleTokens, poapDisabled);
+  } = useGetPoapsOfOwner(inputs, handleTokens, poapDisabled);
 
   useEffect(() => {
     if (owners.length === 0) return;
