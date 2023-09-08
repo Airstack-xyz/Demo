@@ -18,6 +18,7 @@ import { showToast } from '../../../utils/showToast';
 import { useGetAccountOwner } from '../../../hooks/useGetAccountOwner';
 import { ERC6551TokenHolder } from '../ERC6551TokenHolder';
 import { Details } from './Details';
+import { TokenDetailsReset } from '../../../store/tokenDetails';
 
 function Overview({ onAddress404 }: { onAddress404?: () => void }) {
   const [overViewData, setOverViewData] = useState<
@@ -325,10 +326,12 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
 
   if (addressIsAccount && account?.tokenAddress) {
     return (
-      <ERC6551TokenHolder
-        owner={account?.token?.owner?.identity}
-        token={tokenWith6551 || account?.token}
-      />
+      <TokenDetailsReset>
+        <ERC6551TokenHolder
+          owner={account?.token?.owner?.identity}
+          token={tokenWith6551 || account?.token}
+        />
+      </TokenDetailsReset>
     );
   }
 

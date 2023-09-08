@@ -26,6 +26,7 @@ import {
   erc6551TokensQuery,
   erc20TokenDetailsQuery
 } from '../../queries/tokenDetails';
+import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
@@ -80,6 +81,8 @@ export function TokenBalance() {
 
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
+
+  const [{ hasERC6551 }] = useTokenDetails(['hasERC6551']);
 
   const token = useMemo(() => {
     if (account && !activeTokenInfo) {
@@ -143,21 +146,23 @@ export function TokenBalance() {
 
     const options = [];
 
-    if (!tokenType || tokenType === 'POAP') {
+    const showingDetails = Boolean(activeTokenInfo || account);
+
+    if ((!tokenType || tokenType === 'POAP') && !showingDetails) {
       options.push({
         label: 'POAPs',
         link: poapLink
       });
     }
 
-    if (tokenType !== 'POAP') {
+    if (tokenType !== 'POAP' && (!showingDetails || hasERC6551)) {
       options.push({
         label: 'Token Balances (NFT)',
         link: nftLink
       });
     }
 
-    if (!activeTokenInfo) {
+    if (!showingDetails) {
       options.push({
         label: 'Token Balances (ERC20)',
         link: erc20Link
@@ -210,10 +215,12 @@ export function TokenBalance() {
           : erc20DetailsQueryLink
       });
 
-      options.push({
-        label: 'ERC6551 Accounts',
-        link: erc6551AccountsQueryLink
-      });
+      if (hasERC6551) {
+        options.push({
+          label: 'ERC6551 Accounts',
+          link: erc6551AccountsQueryLink
+        });
+      }
     }
 
     return options;
@@ -222,6 +229,7 @@ export function TokenBalance() {
     activeTokenInfo,
     address,
     blockchainType,
+    hasERC6551,
     query,
     sortOrder,
     token.blockchain,
@@ -282,70 +290,75 @@ export function TokenBalance() {
 
   return (
     <Layout>
-      <div
-        className={classNames(
-          'flex flex-col px-2 pt-5 w-[1440px] max-w-[100vw] sm:pt-8',
-          {
-            'flex-1 h-full w-full flex flex-col items-center !pt-[30%] text-center':
-              showInCenter
-          }
-        )}
-      >
-        <div className="flex flex-col items-center">
-          {showInCenter && (
-            <h1 className="text-[2rem]">Explore web3 identities</h1>
+      <TokenDetailsReset>
+        <div
+          className={classNames(
+            'flex flex-col px-2 pt-5 w-[1440px] max-w-[100vw] sm:pt-8',
+            {
+              'flex-1 h-full w-full flex flex-col items-center !pt-[30%] text-center':
+                showInCenter
+            }
           )}
-          <Search />
-        </div>
-        {query && query.length > 0 && (
-          <>
-            <div className="hidden sm:flex-col-center my-3">
-              <GetAPIDropdown options={options} />
-            </div>
-            {showTokenDetails ? (
-              <div key={activeTokenInfo}>
-                <TokenDetails
-                  {...token}
-                  hideBackBreadcrumb={hideBackBreadcrumb}
-                  key={activeTokenInfo}
-                  onClose={() => setData({ activeTokenInfo: '' })}
-                />
+        >
+          <div className="flex flex-col items-center">
+            {showInCenter && (
+              <h1 className="text-[2rem]">Explore web3 identities</h1>
+            )}
+            <Search />
+          </div>
+          {query && query.length > 0 && (
+            <>
+              <div className="hidden sm:flex-col-center my-3 z-[15]">
+                <GetAPIDropdown options={options} />
               </div>
-            ) : (
-              <div className="flex justify-between px-5">
-                <div className="w-full h-full" key={query}>
-                  <div className="hidden sm:block">
-                    <SectionHeader
-                      iconName="nft-flat"
-                      heading={`NFTs & POAPs${
-                        address.length > 1 ? ' in common' : ''
-                      }`}
-                    />
-                  </div>
-                  {isMobile && renderMobileTabs()}
-                  <div className="mt-3.5 mb-5">
-                    {(!isMobile || !showSocials) && <Filters />}
-                  </div>
-                  {isMobile ? (
-                    showSocials ? (
-                      <SocialsAndERC20 />
+              {showTokenDetails ? (
+                <div key={activeTokenInfo}>
+                  <TokenDetails
+                    {...token}
+                    hideBackBreadcrumb={hideBackBreadcrumb}
+                    key={activeTokenInfo}
+                    onClose={() => setData({ activeTokenInfo: '' })}
+                  />
+                </div>
+              ) : (
+                <div className="flex justify-between px-5">
+                  <div className="w-full h-full" key={query}>
+                    <div className="hidden sm:block">
+                      <SectionHeader
+                        iconName="nft-flat"
+                        heading={`NFTs & POAPs${
+                          address.length > 1 ? ' in common' : ''
+                        }`}
+                      />
+                    </div>
+                    {isMobile && renderMobileTabs()}
+                    <div className="mt-3.5 mb-5">
+                      {(!isMobile || !showSocials) && <Filters />}
+                    </div>
+                    {isMobile ? (
+                      showSocials ? (
+                        <SocialsAndERC20 />
+                      ) : (
+                        <TokenContainer
+                          key={tokensKey}
+                          loading={loadingAccount}
+                        />
+                      )
                     ) : (
                       <TokenContainer
                         key={tokensKey}
                         loading={loadingAccount}
                       />
-                    )
-                  ) : (
-                    <TokenContainer key={tokensKey} loading={loadingAccount} />
-                  )}
+                    )}
+                  </div>
+                  {!isMobile && <SocialsAndERC20 />}
                 </div>
-                {!isMobile && <SocialsAndERC20 />}
-              </div>
-            )}
-          </>
-        )}
-      </div>
-      {!activeTokenInfo && <TokenBalancesLoaderWithInfo />}
+              )}
+            </>
+          )}
+        </div>
+        {!activeTokenInfo && <TokenBalancesLoaderWithInfo />}
+      </TokenDetailsReset>
     </Layout>
   );
 }

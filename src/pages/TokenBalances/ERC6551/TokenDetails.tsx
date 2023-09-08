@@ -21,6 +21,7 @@ import { PoapInfo } from './PoapInfo';
 import { NFTInfo, TokenERC20Info } from './NFTInfo';
 import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
 import classNames from 'classnames';
+import { useTokenDetails } from '../../../store/tokenDetails';
 
 function LoaderItem() {
   return (
@@ -70,14 +71,6 @@ function formatPoapData(data: PoapData) {
   };
 }
 
-/* ERC 721 with 6551
-{
-      blockchain: 'ethereum',
-      tokenAddress: '0xBC4CA0EdA7647A8aB7C2061c2E118A18a936f13D',
-      tokenId: '6813'
-    },
-  */
-
 export function TokenDetails(props: {
   tokenId: string;
   eventId?: string;
@@ -99,6 +92,7 @@ export function TokenDetails(props: {
   const navigate = useNavigate();
   const isTokenBalances = !!useMatch('/token-balances');
   const addressRef = useRef(address.join(','));
+  const setDetails = useTokenDetails(['hasERC6551'])[1];
 
   const [fetchToken, { data, loading: loadingToken }] = useLazyQuery(
     tokenDetailsQuery,
@@ -166,6 +160,12 @@ export function TokenDetails(props: {
   const nft: Nft = nftData?.nft || ({} as Nft);
   const transfterDetails: TokenTransfer =
     nftData?.transferDetails || ({} as TokenTransfer);
+
+  useEffect(() => {
+    setDetails({
+      hasERC6551: !isPoap && nft?.erc6551Accounts?.length > 0
+    });
+  }, [isPoap, nft?.erc6551Accounts?.length, setDetails]);
 
   const loading = loadingToken || loadingERC20 || loadingPoap;
   const hasChildren = !loading && !isPoap && nft?.erc6551Accounts?.length > 0;
