@@ -11,7 +11,7 @@ import { Tokens } from './Tokens/Tokens';
 import { HoldersOverview } from './Overview/Overview';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
-import { TokenTotalSupplyQuery } from '../../queries';
+import { SocialQuery, TokenTotalSupplyQuery } from '../../queries';
 import classNames from 'classnames';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Icon } from '../../Components/Icon';
@@ -43,12 +43,14 @@ import {
   tokenDetailsQuery,
   erc20TokenDetailsQuery
 } from '../../queries/tokenDetails';
+import { useTokenDetails } from '../../store/tokenDetails';
 
 export function TokenHolders() {
   const [
     { address: tokenAddress, activeView, tokenFilters, activeTokenInfo },
     setData
   ] = useSearchInput();
+  const [{ hasERC6551, owner }] = useTokenDetails(['hasERC6551', 'owner']);
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
   const [showTokensOrOverview, setShowTokensOrOverview] = useState(true);
 
@@ -186,24 +188,35 @@ export function TokenHolders() {
       eventId: query
     });
 
-    const options = activeTokenInfo
-      ? []
-      : [
-          isPoap
-            ? {
-                label: 'POAP holders',
-                link: poapLink
-              }
-            : {
-                label: 'Token holders',
-                link: tokenLink
-              }
-        ];
+    const options =
+      hasERC6551 || activeTokenInfo
+        ? []
+        : [
+            isPoap
+              ? {
+                  label: 'POAP holders',
+                  link: poapLink
+                }
+              : {
+                  label: 'Token holders',
+                  link: tokenLink
+                }
+          ];
 
-    if (!activeTokenInfo) {
+    if (!activeTokenInfo && !hasERC6551) {
       options.push({
         label: isPoap ? 'POAP supply' : 'Token supply',
         link: isPoap ? poapSupplyLink : tokenSupplyLink
+      });
+    }
+
+    if (hasERC6551 && !activeTokenInfo) {
+      const socialLink = createAppUrlWithQuery(SocialQuery, {
+        identity: owner
+      });
+      options.push({
+        label: 'Socials, Domains & XMTP',
+        link: socialLink
       });
     }
 
@@ -257,7 +270,9 @@ export function TokenHolders() {
     activeTokenInfo,
     activeView,
     address,
+    hasERC6551,
     isPoap,
+    owner,
     query,
     token.blockchain,
     token.eventId,
