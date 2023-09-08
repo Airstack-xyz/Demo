@@ -44,14 +44,16 @@ export function Token({
       tokenId: string;
       tokenAddress: string;
       blockchain: Chain;
-      isPoap: boolean;
+      eventId: string | null;
+      has6551?: boolean;
     }[] = [
       {
         image,
         tokenId,
         tokenAddress,
-        isPoap: !!poap?.poapEvent,
-        blockchain: token?.blockchain as Chain
+        eventId: poap?.eventId,
+        blockchain: token?.blockchain as Chain,
+        has6551: token?.tokenNfts?.erc6551Accounts?.length > 0
       }
     ];
     const innerToken = token?._token;
@@ -66,8 +68,9 @@ export function Token({
         image: _image,
         tokenId: token?._tokenId || '',
         tokenAddress: token?._tokenAddress || '',
-        isPoap: !!token?._poapEvent,
-        blockchain: poap?._blockchain as Chain
+        eventId: token?._eventId,
+        blockchain: poap?._blockchain as Chain,
+        has6551: token?._tokenNfts?.erc6551Accounts?.length > 0
       });
     }
     return assetData;
@@ -75,14 +78,18 @@ export function Token({
     image,
     tokenId,
     tokenAddress,
-    poap?.poapEvent,
+    poap?.eventId,
     poap?._blockchain,
     token?.blockchain,
+    token?.tokenNfts?.erc6551Accounts?.length,
     token?._token,
     token?._tokenNfts?.contentValue?.image?.small,
-    token?._poapEvent,
+    token?._tokenNfts?.erc6551Accounts?.length,
+    token?._poapEvent?.contentValue?.image?.small,
+    token?._poapEvent?.logo?.image?.small,
     token?._tokenId,
-    token?._tokenAddress
+    token?._tokenAddress,
+    token?._eventId
   ]);
 
   const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
@@ -125,18 +132,19 @@ export function Token({
     [navigate]
   );
 
-  const handleAssetClick = useCallback(() => {
-    setSearchData(
-      {
-        activeTokenInfo: `${tokenAddress} ${tokenId} ${token?.blockchain} ${
-          poap?.eventId || ''
-        }`
-      },
-      { updateQueryParams: true }
-    );
-  }, [poap?.eventId, setSearchData, token?.blockchain, tokenAddress, tokenId]);
-
-  const has6551 = token?.tokenNfts?.erc6551Accounts?.length > 0;
+  const handleAssetClick = useCallback(
+    (token: (typeof assets)[0]) => {
+      setSearchData(
+        {
+          activeTokenInfo: `${token.tokenAddress} ${token.tokenId} ${
+            token?.blockchain
+          } ${token?.eventId || ''}`
+        },
+        { updateQueryParams: true }
+      );
+    },
+    [setSearchData]
+  );
 
   return (
     <>
@@ -147,61 +155,63 @@ export function Token({
         })}
       >
         <div className="flex">
-          {assets.map(asset => (
-            <div className="mr-1.5 last:!mr-0">
-              <div
-                className="relative token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden flex-col-center cursor-pointer"
-                onClick={handleAssetClick}
-              >
-                <Asset
-                  address={asset.tokenAddress}
-                  tokenId={asset.tokenId}
-                  preset="small"
-                  containerClassName={classNames(
-                    'token-img w-full [&>img]:w-full [&>img]:min-w-full z-10 rounded-md overflow-hidden',
-                    {
-                      '!w-[32px]': has6551
-                    }
-                  )}
-                  chain={asset.blockchain}
-                  image={asset.image}
-                  videoProps={{
-                    controls: false
+          {assets.map(
+            ({ tokenAddress, tokenId, blockchain, image, has6551 }, index) => (
+              <div className="mr-1.5 last:!mr-0">
+                <div
+                  className="relative token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden flex-col-center cursor-pointer"
+                  onClick={() => {
+                    handleAssetClick(assets[index]);
                   }}
-                />
-                {has6551 && (
-                  <div className="absolute z-20 bg-glass w-full rounded-md bottom-0 text-[8px] font-bold text-center border-solid-stroke">
-                    ERC6551
-                  </div>
-                )}
-                {has6551 && (
-                  <div className="absolute blur-md inset-0 flex-col-center">
-                    <Asset
-                      address={asset.tokenAddress}
-                      tokenId={asset.tokenId}
-                      preset="small"
-                      containerClassName={classNames(
-                        'token-img w-full [&>img]:w-full [&>img]:min-w-full rounded-md overflow-hidden',
-                        {
-                          '!w-40px': has6551
-                        }
-                      )}
-                      chain={asset.blockchain}
-                      image={asset.image}
-                      videoProps={{
-                        controls: false
-                      }}
-                    />
-                  </div>
+                >
+                  <Asset
+                    address={tokenAddress}
+                    tokenId={tokenId}
+                    preset="small"
+                    containerClassName={classNames(
+                      'token-img w-full [&>img]:w-full [&>img]:min-w-full z-10 rounded-md overflow-hidden',
+                      {
+                        '!w-[32px]': has6551
+                      }
+                    )}
+                    chain={blockchain}
+                    image={image}
+                    videoProps={{
+                      controls: false
+                    }}
+                  />
+                  {has6551 && (
+                    <div className="absolute z-20 bg-glass w-full rounded-md bottom-0 text-[8px] font-bold text-center border-solid-stroke">
+                      ERC6551
+                    </div>
+                  )}
+                  {has6551 && (
+                    <div className="absolute blur-md inset-0 flex-col-center">
+                      <Asset
+                        address={tokenAddress}
+                        tokenId={tokenId}
+                        preset="small"
+                        containerClassName={classNames(
+                          'token-img w-full [&>img]:w-full [&>img]:min-w-full rounded-md overflow-hidden',
+                          {
+                            '!w-40px': has6551
+                          }
+                        )}
+                        chain={blockchain}
+                        image={image}
+                        videoProps={{
+                          controls: false
+                        }}
+                      />
+                    </div>
+                  )}
+                </div>
+                {isCombination && (
+                  <div className="text-[10px] mt-1 text-center">#{tokenId}</div>
                 )}
               </div>
-              {isCombination && (
-                <div className="text-[10px] mt-1 text-center">
-                  #{asset.tokenId}
-                </div>
-              )}
-            </div>
-          ))}
+            )
+          )}
         </div>
       </td>
       <td className="ellipsis">

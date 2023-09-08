@@ -200,7 +200,7 @@ export function TokenDetails(props: {
                   {isPoap ? poap?.poapEvent.eventName : nft?.token?.name}
                 </span>
                 (
-                <span className="max-w-[100px] ellipsis">
+                <span className="min-w-[20px] max-w-[100px] ellipsis">
                   #{isPoap ? poap?.eventId : nft?.tokenId}
                 </span>
                 )
