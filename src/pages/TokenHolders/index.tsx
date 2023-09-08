@@ -37,6 +37,12 @@ import {
   TokenHolder as TokenAndHolder
 } from '../../store/tokenHoldersOverview';
 import { sortByAddressByNonERC20First } from '../../utils/getNFTQueryForTokensHolder';
+import {
+  erc6551TokensQuery,
+  poapDetailsQuery,
+  tokenDetailsQuery,
+  erc20TokenDetailsQuery
+} from '../../queries/tokenDetails';
 
 export function TokenHolders() {
   const [
@@ -141,6 +147,17 @@ export function TokenHolders() {
     );
   }, [address, hasSomePoap, tokenFilters]);
 
+  const token = useMemo(() => {
+    const [tokenAddress, tokenId, blockchain, eventId] =
+      activeTokenInfo.split(' ');
+    return {
+      tokenAddress,
+      tokenId,
+      blockchain,
+      eventId
+    };
+  }, [activeTokenInfo]);
+
   const options = useMemo(() => {
     if (address.length === 0) return [];
 
@@ -189,29 +206,83 @@ export function TokenHolders() {
       eventId: query
     });
 
-    const options = [
-      isPoap
-        ? {
-            label: 'POAP holders',
-            link: poapLink
-          }
-        : {
-            label: 'Token holders',
-            link: tokenLink
-          }
-    ];
+    const options = activeTokenInfo
+      ? []
+      : [
+          isPoap
+            ? {
+                label: 'POAP holders',
+                link: poapLink
+              }
+            : {
+                label: 'Token holders',
+                link: tokenLink
+              }
+        ];
 
-    options.push({
-      label: isPoap ? 'POAP supply' : 'Token supply',
-      link: isPoap ? poapSupplyLink : tokenSupplyLink
-    });
+    if (!activeTokenInfo) {
+      options.push({
+        label: isPoap ? 'POAP supply' : 'Token supply',
+        link: isPoap ? poapSupplyLink : tokenSupplyLink
+      });
+    }
+
+    if (activeTokenInfo) {
+      const erc6551AccountsQueryLink = createAppUrlWithQuery(
+        erc6551TokensQuery,
+        {
+          tokenAddress: token.tokenAddress,
+          blockchain: token.blockchain,
+          tokenId: token.tokenId
+        }
+      );
+
+      const poapDetailsQueryLink = createAppUrlWithQuery(poapDetailsQuery, {
+        tokenAddress: token.tokenAddress,
+        eventId: token.eventId
+      });
+
+      const tokenDetailsQueryLink = createAppUrlWithQuery(tokenDetailsQuery, {
+        tokenAddress: token.tokenAddress,
+        blockchain: token.blockchain,
+        tokenId: token.tokenId
+      });
+
+      const erc20DetailsQueryLink = createAppUrlWithQuery(
+        erc20TokenDetailsQuery,
+        {
+          tokenAddress: token.tokenAddress,
+          blockchain: token.blockchain,
+          tokenId: token.tokenId
+        }
+      );
+
+      options.push({
+        label: token?.eventId ? 'POAP Details' : 'Token Details',
+        link: token?.eventId
+          ? poapDetailsQueryLink
+          : token?.tokenId
+          ? tokenDetailsQueryLink
+          : erc20DetailsQueryLink
+      });
+
+      options.push({
+        label: 'ERC6551 Accounts',
+        link: erc6551AccountsQueryLink
+      });
+    }
 
     return options;
   }, [
+    activeTokenInfo,
     activeView,
     address,
     isPoap,
     query,
+    token.blockchain,
+    token.eventId,
+    token.tokenAddress,
+    token.tokenId,
     tokenFilters,
     tokenOwnersQuery,
     tokensQueryWithFilter
@@ -254,10 +325,7 @@ export function TokenHolders() {
           <>
             {!hasMulitpleERC20 && (
               <div className="hidden sm:flex-col-center my-3">
-                <GetAPIDropdown
-                  options={options}
-                  disabled={overviewTokens.length === 0}
-                />
+                <GetAPIDropdown options={options} />
               </div>
             )}
             <div className="flex flex-col justify-center mt-7" key={query}>
