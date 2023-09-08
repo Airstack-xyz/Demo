@@ -1,4 +1,4 @@
-export function activeTokenInfoString(
+export function getActiveTokenInfoString(
   tokenAddress: string,
   tokenId: string,
   blockchain: string,

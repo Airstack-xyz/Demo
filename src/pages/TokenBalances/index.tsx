@@ -20,7 +20,7 @@ import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenDetails } from './ERC6551/TokenDetails';
 import { useGetAccountOwner } from '../../hooks/useGetAccountOwner';
-import { activeTokenInfoString } from '../../utils/activeTokenInfoString';
+import { getActiveTokenInfoString } from '../../utils/activeTokenInfoString';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
@@ -207,7 +207,7 @@ export function TokenBalance() {
   useEffect(() => {
     if (account && !activeTokenInfo) {
       // if address is of an account, set the active token info, to show the token details
-      const _activeTokenInfo = activeTokenInfoString(
+      const _activeTokenInfo = getActiveTokenInfoString(
         account.tokenAddress,
         account.tokenId,
         account.blockchain
