@@ -1,8 +1,8 @@
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Search } from '../../Components/Search';
 import { Layout } from '../../Components/layout';
 import { Socials } from './Socials';
-import { Tokens } from './Tokens';
+import { Tokens, TokensLoader } from './Tokens';
 import { ERC20Tokens } from './ERC20Tokens';
 import { Filters } from './Filters';
 import { SectionHeader } from './SectionHeader';
@@ -19,6 +19,8 @@ import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery
 import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenDetails } from './ERC6551/TokenDetails';
+import { useGetAccountOwner } from '../../hooks/useGetAccountOwner';
+import { activeTokenInfoString } from '../../utils/activeTokenInfoString';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
@@ -41,16 +43,43 @@ const SocialsAndERC20 = memo(function SocialsAndERC20() {
   );
 });
 
+function TokenContainer({ loading }: { loading: boolean }) {
+  const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
+  if (!loading) {
+    <div>
+      <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">
+        <TokensLoader />
+      </div>
+    </div>;
+  }
+  return (
+    <Tokens
+      address={address}
+      tokenType={tokenType}
+      blockchainType={blockchainType}
+      sortOrder={sortOrder}
+    />
+  );
+}
+
 export function TokenBalance() {
   const [
     { address, tokenType, blockchainType, sortOrder, activeTokenInfo },
     setData
   ] = useSearchInput();
+  const [fetchAccountsOwner, account, loadingAccount] = useGetAccountOwner(
+    address[0]
+  );
   const query = address.length > 0 ? address[0] : '';
   const isHome = useMatch('/');
 
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
+
+  useEffect(() => {
+    if ((activeTokenInfo && address.length === 0) || address.length > 1) return;
+    fetchAccountsOwner();
+  }, [activeTokenInfo, address, fetchAccountsOwner]);
 
   const options = useMemo(() => {
     if (address.length === 0) return [];
@@ -175,6 +204,23 @@ export function TokenBalance() {
     };
   }, [activeTokenInfo]);
 
+  useEffect(() => {
+    if (account && !activeTokenInfo) {
+      // if address is of an account, set the active token info, to show the token details
+      const _activeTokenInfo = activeTokenInfoString(
+        account.tokenAddress,
+        account.tokenId,
+        account.blockchain
+      );
+      setData(
+        {
+          activeTokenInfo: _activeTokenInfo
+        },
+        { updateQueryParams: true }
+      );
+    }
+  }, [account, activeTokenInfo, setData]);
+
   return (
     <Layout>
       <div
@@ -222,22 +268,13 @@ export function TokenBalance() {
                     showSocials ? (
                       <SocialsAndERC20 />
                     ) : (
-                      <Tokens
+                      <TokenContainer
                         key={tokensKey}
-                        address={address}
-                        tokenType={tokenType}
-                        blockchainType={blockchainType}
-                        sortOrder={sortOrder}
+                        loading={loadingAccount}
                       />
                     )
                   ) : (
-                    <Tokens
-                      key={tokensKey}
-                      address={address}
-                      tokenType={tokenType}
-                      blockchainType={blockchainType}
-                      sortOrder={sortOrder}
-                    />
+                    <TokenContainer key={tokensKey} loading={loadingAccount} />
                   )}
                 </div>
                 {!isMobile && <SocialsAndERC20 />}
