@@ -8,6 +8,7 @@ import { Nft } from './erc20-types';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { createTokenHolderUrl } from '../../utils/createTokenUrl';
 import { Link } from 'react-router-dom';
+import { getActiveTokenInfoString } from '../../utils/activeTokenInfoString';
 
 type Poap = PoapsType['Poaps']['Poap'][0];
 
@@ -105,9 +106,12 @@ export const TokenWithERC6551 = memo(function Token({
       onClick={() => {
         setSearchData(
           {
-            activeTokenInfo: `${address} ${
-              isPoap ? eventId : tokenId
-            } ${blockchain}`
+            activeTokenInfo: getActiveTokenInfoString(
+              address,
+              tokenId,
+              blockchain,
+              eventId
+            )
           },
           { updateQueryParams: true }
         );
