@@ -38,14 +38,6 @@ function formatData(data: AccountsResponse) {
 
 type Accounts = ReturnType<typeof formatData>['accounts'];
 
-/* working token
-{
-      blockchain: 'polygon',
-      tokenAddress: '0x99d3fd2f1cf2e99c43f95083b98033d191f4eabb',
-      tokenId: '10'
-    }
-*/
-
 export function NestedTokens({
   tokenId,
   blockchain,
