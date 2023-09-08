@@ -84,7 +84,7 @@ export const TokenWithERC6551 = memo(function Token({
     return assets.map((asset, index) => (
       <div
         key={index}
-        className="w-[173px] h-[173px] absolute rounded-18 overflow-hidden shadow-md bg-tertiary"
+        className="w-[173px] h-[173px] absolute rounded-18 overflow-hidden shadow-md bg-secondary"
         style={{ rotate: `${index * 10}deg`, zIndex: assets.length - index }}
       >
         <Asset
