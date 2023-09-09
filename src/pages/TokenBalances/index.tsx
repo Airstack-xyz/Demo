@@ -245,7 +245,7 @@ export function TokenBalance() {
         <div
           onClick={() => setShowSocials(false)}
           className={classNames(
-            'pb-2 flex-1 flex justify-center border-b-4 border-solid border-text-secondary -mb-1',
+            'pb-2 flex-1 flex justify-center border-b-4 border-solid border-text-secondary -mb-1 ellipsis',
             {
               '!border-transparent [&>div]:font-normal  text-text-secondary':
                 showSocials
