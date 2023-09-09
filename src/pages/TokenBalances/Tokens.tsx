@@ -154,6 +154,11 @@ function TokensComponent(props: TokenProps) {
           const id =
             (token as PoapType)?.tokenId ||
             (token as TokenType)?.tokenNfts?.tokenId;
+
+          if (hasCombination) {
+            return <TokenCombination key={`${index}-${id}`} token={token} />;
+          }
+
           const hasERC6551 =
             (token as TokenType)?.tokenNfts?.erc6551Accounts?.length > 0;
 
@@ -161,11 +166,7 @@ function TokensComponent(props: TokenProps) {
             return <TokenWithERC6551 key={`${index}-${id}`} token={token} />;
           }
 
-          return hasCombination ? (
-            <TokenCombination key={`${index}-${id}`} token={token} />
-          ) : (
-            <Token key={`${index}-${id}`} token={token} />
-          );
+          return <Token key={`${index}-${id}`} token={token} />;
         })}
         {loading && <TokensLoader />}
       </InfiniteScroll>
