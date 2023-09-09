@@ -1,9 +1,8 @@
-import { useState, useEffect, useCallback, useMemo, memo } from 'react';
+import { useEffect, useCallback, useMemo, memo } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { HolderCount } from './HolderCount';
 import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
-import { OverviewBlockchainData, OverviewData } from '../types';
 import { useGetTokenOverview } from '../../../hooks/useGetTokenOverview';
 import { Chain } from '@airstack/airstack-react/constants';
 import { imageAndSubTextMap } from './imageAndSubTextMap';
@@ -21,18 +20,6 @@ import { Details } from './Details';
 import { TokenDetailsReset } from '../../../store/tokenDetails';
 
 function Overview({ onAddress404 }: { onAddress404?: () => void }) {
-  const [overViewData, setOverViewData] = useState<
-    Record<string, string | number>
-  >({
-    totalSupply: 0,
-    owners: 0,
-    ens: 0,
-    primaryEns: 0,
-    lens: 0,
-    farcaster: 0,
-    xmtp: 0
-  });
-
   const [{ address, activeView, activeTokenInfo }] = useSearchInput();
 
   const isPoap = address.every(token => !token.startsWith('0x'));
@@ -102,14 +89,35 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
 
   useEffect(() => {
     if (shouldFetchHoldersCount && tokenDetails.length > 0) {
-      fetchTokenOverview(address, isPoap);
+      const polygonTokens: string[] = [];
+      const ethereumTokens: string[] = [];
+      const eventIds: string[] = [];
+
+      tokenDetails.forEach(token => {
+        if (token.eventId) {
+          eventIds.push(token.eventId);
+          return;
+        }
+        if (token.blockchain === 'polygon') {
+          polygonTokens.push(token.tokenAddress);
+        } else {
+          ethereumTokens.push(token.tokenAddress);
+        }
+      });
+
+      fetchTokenOverview({
+        ethereumTokens,
+        polygonTokens,
+        eventIds
+      });
     }
   }, [
     fetchTokenOverview,
     address,
     shouldFetchHoldersCount,
     isPoap,
-    tokenDetails.length
+    tokenDetails.length,
+    tokenDetails
   ]);
 
   const hasMulitpleERC20 = useMemo(() => {
@@ -160,34 +168,19 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
     }
   }, [activeView, address, fetchTokens, fetchTotalSupply, isPoap]);
 
-  const updateOverviewData = useCallback((overview: OverviewBlockchainData) => {
-    setOverViewData(_overview => {
-      return {
-        ..._overview,
-        owners: overview?.totalHolders || 0,
-        ens: overview?.ensUsersCount || 0,
-        primaryEns: overview?.primaryEnsUsersCount || 0,
-        lens: overview?.lensProfileCount || 0,
-        farcaster: overview?.farcasterProfileCount || 0,
-        xmtp:
-          overview?.xmtpUsersCount === null
-            ? '--'
-            : overview?.xmtpUsersCount || 0
-      };
-    });
-  }, []);
-
-  useEffect(() => {
-    if (isERC20 || !tokenOverviewData) return;
-
-    const _overview = tokenOverviewData as OverviewData;
-
-    if (_overview?.ethereum?.totalHolders) {
-      updateOverviewData(_overview.ethereum);
-    } else if (_overview?.polygon) {
-      updateOverviewData(_overview?.polygon);
-    }
-  }, [tokenOverviewData, isERC20, updateOverviewData]);
+  const overViewData = useMemo(() => {
+    return {
+      owners: tokenOverviewData?.totalHolders || 0,
+      ens: tokenOverviewData?.ensUsersCount || 0,
+      primaryEns: tokenOverviewData?.primaryEnsUsersCount || 0,
+      lens: tokenOverviewData?.lensProfileCount || 0,
+      farcaster: tokenOverviewData?.farcasterProfileCount || 0,
+      xmtp:
+        tokenOverviewData?.xmtpUsersCount === null
+          ? '--'
+          : tokenOverviewData?.xmtpUsersCount || 0
+    };
+  }, [tokenOverviewData]);
 
   const tokenImages = useMemo(() => {
     if (!tokenDetails) return null;

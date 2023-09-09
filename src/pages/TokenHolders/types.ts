@@ -94,18 +94,17 @@ export interface Supply {
 }
 
 export type OverviewData = {
-  ethereum: OverviewBlockchainData;
-  polygon: OverviewBlockchainData;
+  TokenHolders: TokenHolders;
 };
 
-export type OverviewBlockchainData = {
-  ensUsersCount: number;
+export interface TokenHolders {
   farcasterProfileCount: number;
-  lensProfileCount: number;
   primaryEnsUsersCount: number;
   totalHolders: number;
   xmtpUsersCount: number;
-};
+  lensProfileCount: number;
+  ensUsersCount: number;
+}
 
 export interface TotalPoapsSupply {
   PoapEvents: PoapEvents;
