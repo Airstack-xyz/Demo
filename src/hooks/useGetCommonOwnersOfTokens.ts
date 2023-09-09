@@ -15,18 +15,18 @@ import { sortAddressByPoapFirst } from '../utils/sortAddressByPoapFirst';
 type Token = TokenType & {
   _poapEvent?: Poap['poapEvent'];
   _blockchain?: string;
+  eventId?: string;
 };
 
 type NextedTokenBalance = (Pick<
   Token,
   'tokenAddress' | 'tokenId' | 'token' | 'tokenNfts'
 > &
-  Pick<Poap, 'poapEvent'> & {
+  Pick<Poap, 'poapEvent' | 'eventId'> & {
     owner: {
       tokenBalances: Token[];
     };
     poapEvent?: Poap['poapEvent'];
-    eventId?: string;
     blockchain?: string;
   })[];
 
@@ -119,7 +119,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
               _token: token.token,
               _tokenNfts: token.tokenNfts,
               _poapEvent: token.poapEvent,
-              _poapEventId: token.eventId,
+              _eventId: token.eventId,
               _blockchain: token.blockchain
             }
           ],

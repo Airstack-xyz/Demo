@@ -332,7 +332,7 @@ export function TokenBalance() {
                       />
                     </div>
                     {isMobile && renderMobileTabs()}
-                    <div className="mt-3.5 mb-5">
+                    <div className="mt-3.5 mb-5 z-[15] relative">
                       {(!isMobile || !showSocials) && <Filters />}
                     </div>
                     {isMobile ? (
