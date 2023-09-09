@@ -31,7 +31,7 @@ export interface TokenBalance {
 function formatData(data: AccountsRequestData) {
   if (!data) return null;
   const { ethereum, polygon } = data;
-  const accounts = [...(ethereum.Account || []), ...(polygon.Account || [])];
+  const accounts = [...(ethereum?.Account || []), ...(polygon?.Account || [])];
   const account = accounts.find(account => account.tokenAddress);
   return account
     ? {
