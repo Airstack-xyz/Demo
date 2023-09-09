@@ -142,7 +142,7 @@ export function TokensComponent() {
     [modalValues.dataType, navigator]
   );
 
-  const { hasNextPage, getNextPage } = isPoap
+  const { hasNextPage, getNextPage } = shouldFetchPoaps
     ? paginationPoaps
     : paginationTokens;
 
