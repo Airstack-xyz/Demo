@@ -136,7 +136,7 @@ function Token({
         </div>
       )}
       <div className="absolute inset-0 flex-col-center">{assets}</div>
-      <div className="z-10 flex justify-between items-center text-xs relative">
+      <div className="z-10 flex justify-between items-start text-xs relative">
         <Link
           className="left-0 top-1 text-sm bg-white rounded-18 text-primary flex py-2 px-3 items-center visible sm:invisible group-hover:visible border border-solid border-transparent hover:border-text-secondary"
           to={createTokenHolderUrl({
@@ -150,9 +150,9 @@ function Token({
         >
           <Icon width={16} name="token-holders" />
         </Link>
-        <div className="flex items-center">
+        <div className="flex items-center max-w-[70%] ellipsis">
           <Icon name="holder-white" height={15} width={15} />
-          <span className="ml-0.5 text-xs">{ownerName}</span>
+          <span className="ml-0.5 text-xs ellipsis">{ownerName}</span>
         </div>
       </div>
       {!hasERC6551 && (
@@ -164,7 +164,7 @@ function Token({
         <div className="z-10 rounded-2xl flex flex-col px-2.5 py-2 text-sm bg-glass border-solid-light font-medium">
           <div className="flex flex-col text-sm z-10">
             <div className="flex items-center text-[10px]">
-              <span className="bg-[#5a8178] pl-1 pr-2 py-0.5 rounded-2xl mr-1.5 flex items-center">
+              <span className="bg-[#5a8178] pl-1 pr-2 py-0 rounded-2xl mr-1.5 flex items-center">
                 <Icon
                   name="folder-gray"
                   className="ml-1 mr-1"
