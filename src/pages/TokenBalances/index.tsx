@@ -315,8 +315,9 @@ export function TokenBalance() {
                 <div key={activeTokenInfo}>
                   <TokenDetails
                     {...token}
-                    hideBackBreadcrumb={hideBackBreadcrumb}
                     key={activeTokenInfo}
+                    showLoader={loadingAccount}
+                    hideBackBreadcrumb={hideBackBreadcrumb}
                     onClose={() => setData({ activeTokenInfo: '' })}
                   />
                 </div>

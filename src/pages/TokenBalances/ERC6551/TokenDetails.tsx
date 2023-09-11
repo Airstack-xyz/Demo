@@ -78,10 +78,12 @@ export function TokenDetails(props: {
   tokenAddress: string;
   hideBackBreadcrumb?: boolean;
   onClose?: () => void;
+  showLoader?: boolean;
 }) {
   const {
     tokenId,
     eventId,
+    showLoader,
     blockchain,
     tokenAddress,
     hideBackBreadcrumb,
@@ -167,7 +169,7 @@ export function TokenDetails(props: {
     });
   }, [isPoap, nft?.erc6551Accounts?.length, setDetails]);
 
-  const loading = loadingToken || loadingERC20 || loadingPoap;
+  const loading = showLoader || loadingToken || loadingERC20 || loadingPoap;
   const hasChildren = !loading && !isPoap && nft?.erc6551Accounts?.length > 0;
 
   return (
