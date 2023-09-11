@@ -11,11 +11,23 @@ const recursiveFields = `
     tokenId
     contentValue {
       image {
-        small
-        large
-        extraSmall
         medium
-        original
+      }
+    }
+    erc6551Accounts {
+      address {
+        addresses
+        tokenBalances {
+          tokenAddress
+          tokenId
+          tokenNfts {
+            contentValue {
+              image {
+                medium
+              }
+            }
+          }
+        }
       }
     }
   }
@@ -66,6 +78,22 @@ const fields = `
     contentValue {
       image {
         medium
+      }
+    }
+    erc6551Accounts {
+      address {
+        addresses
+        tokenBalances {
+          tokenAddress
+          tokenId
+          tokenNfts {
+            contentValue {
+              image {
+                medium
+              }
+            }
+          }
+        }
       }
     }
   }

@@ -67,6 +67,12 @@ function getCommonNftOwnersSubQueryForBlockchain({
                 video
                 image {
                   small
+                  medium
+                }
+              }
+              erc6551Accounts {
+                address {
+                  identity
                 }
               }
             }
@@ -186,6 +192,12 @@ function getNftOwnersSubQueryForBlockchain({
             video
             image {
               small
+              medium
+            }
+          }
+          erc6551Accounts {
+            address {
+              identity
             }
           }
         }
