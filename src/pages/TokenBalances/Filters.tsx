@@ -25,7 +25,10 @@ export const Filters = memo(function Filters() {
     [existingTokenType, setData]
   );
 
-  const filters = useMemo(() => ['All', ...tokenTypes], []);
+  const filters = useMemo(
+    () => ['All', ...tokenTypes.filter(type => type !== 'ERC20')],
+    []
+  );
 
   return (
     <div className="flex justify-between items-center">

@@ -76,7 +76,7 @@ export function Dropdown({
       </div>
       {show && (
         <div
-          className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute z-10 min-w-[110%] left-0 top-full"
+          className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute z-20 min-w-[110%] left-0 top-full"
           onClick={() => setShow(false)}
         >
           {!!heading && (

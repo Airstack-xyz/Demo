@@ -4,11 +4,12 @@ import { Poap, TokenAddress } from '../pages/TokenHolders/types';
 import { createCommonOwnersPOAPsQuery } from '../queries/commonOwnersPOAPsQuery';
 
 type Token = Poap;
-type NextedTokenBalance = {
+type NestedTokenBalance = {
   owner: {
     poaps: Token[];
   };
   poapEvent: Token['_poapEvent'];
+  eventId: string;
   tokenId: string;
   tokenAddress: string;
   blockchain: string;
@@ -16,7 +17,7 @@ type NextedTokenBalance = {
 
 type CommonOwner = {
   Poaps: {
-    Poap: NextedTokenBalance | Token[];
+    Poap: NestedTokenBalance | Token[];
   };
 };
 
@@ -51,7 +52,7 @@ export function useGetCommonOwnersOfPoaps(eventIds: TokenAddress[]) {
     if (fetchSingleToken) {
       tokens = poaps as Token[];
     } else {
-      tokens = (poaps as NextedTokenBalance)
+      tokens = (poaps as NestedTokenBalance)
         .filter(token => Boolean(token?.owner?.poaps?.length))
         .reduce(
           (tokens, token) => [
@@ -61,6 +62,7 @@ export function useGetCommonOwnersOfPoaps(eventIds: TokenAddress[]) {
               _tokenId: token.tokenId,
               _tokenAddress: token.tokenAddress,
               _poapEvent: token.poapEvent,
+              _eventId: token?.eventId,
               _blockchain: token.blockchain
             }
           ],

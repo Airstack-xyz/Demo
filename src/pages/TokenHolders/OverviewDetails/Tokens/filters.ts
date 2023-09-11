@@ -82,7 +82,7 @@ export function removeDuplicateOwners(
   const visitedTokensSet = new Set();
   return tokens.filter(token => {
     const address =
-      token.owner.identity ||
+      token?.owner?.identity ||
       (Array.isArray(token.owner.addresses)
         ? token.owner.addresses[0]
         : token.owner.addresses);

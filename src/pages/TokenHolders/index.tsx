@@ -1,11 +1,17 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { Search } from '../../Components/Search';
 import { Layout } from '../../Components/layout';
 import { Tokens } from './Tokens/Tokens';
 import { HoldersOverview } from './Overview/Overview';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
-import { TokenTotalSupplyQuery } from '../../queries';
+import { SocialQuery, TokenTotalSupplyQuery } from '../../queries';
 import classNames from 'classnames';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Icon } from '../../Components/Icon';
@@ -31,7 +37,13 @@ import {
   TokenHolder
 } from '../../store/tokenHoldersOverview';
 import { sortByAddressByNonERC20First } from '../../utils/getNFTQueryForTokensHolder';
-import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
+import {
+  erc6551TokensQuery,
+  poapDetailsQuery,
+  tokenDetailsQuery,
+  erc20TokenDetailsQuery
+} from '../../queries/tokenDetails';
+import { useTokenDetails } from '../../store/tokenDetails';
 import {
   getCommonNftOwnersSnapshotQuery,
   getNftOwnersSnapshotQuery
@@ -40,6 +52,7 @@ import {
   getCommonNftOwnersSnapshotQueryWithFilters,
   getNftOwnersSnapshotQueryWithFilters
 } from '../../queries/commonNftOwnersSnapshotQueryWithFilters';
+import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 
 export function TokenHolders() {
   const [
@@ -49,16 +62,23 @@ export function TokenHolders() {
       tokenFilters,
       snapshotBlockNumber,
       snapshotDate,
-      snapshotTimestamp
+      snapshotTimestamp,
+      activeTokenInfo
     },
     setData
   ] = useSearchInput();
+  const [{ hasERC6551, owner }] = useTokenDetails(['hasERC6551', 'owner']);
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
+  const [showTokensOrOverview, setShowTokensOrOverview] = useState(true);
 
   const addressRef = useRef<null | string[]>(null);
   const isHome = useMatch('/');
 
   const query = tokenAddress.length > 0 ? tokenAddress[0] : '';
+
+  useEffect(() => {
+    setShowTokensOrOverview(true);
+  }, [tokenAddress]);
 
   const tokenListKey = useMemo(() => {
     return tokenAddress.join(',');
@@ -69,7 +89,8 @@ export function TokenHolders() {
     if (addressRef.current && addressRef.current !== tokenAddress) {
       setData(
         {
-          activeView: ''
+          activeView: '',
+          activeTokenInfo: ''
         },
         {
           updateQueryParams: true
@@ -183,6 +204,17 @@ export function TokenHolders() {
     snapshotTimestamp
   ]);
 
+  const token = useMemo(() => {
+    const [tokenAddress, tokenId, blockchain, eventId] =
+      activeTokenInfo.split(' ');
+    return {
+      tokenAddress,
+      tokenId,
+      blockchain,
+      eventId
+    };
+  }, [activeTokenInfo]);
+
   const options = useMemo(() => {
     if (address.length === 0) return [];
 
@@ -227,73 +259,142 @@ export function TokenHolders() {
 
     const options = [];
 
-    if (hasPoap) {
-      const poapsQuery = createCommonOwnersPOAPsQuery(address);
+    if (!activeTokenInfo && !hasERC6551) {
+      if (hasPoap) {
+        const poapsQuery = createCommonOwnersPOAPsQuery(address);
 
-      const poapLink = createAppUrlWithQuery(poapsQuery, {
-        limit: 20
-      });
-
-      const poapSupplyLink = createAppUrlWithQuery(POAPSupplyQuery, {
-        eventId: query
-      });
-
-      options.push({
-        label: 'POAP holders',
-        link: poapLink
-      });
-
-      options.push({
-        label: 'POAP supply',
-        link: poapSupplyLink
-      });
-    } else {
-      if (isSnapshotQuery) {
-        const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
-          limit: 20,
-          blockNumber: snapshotBlockNumber,
-          date: snapshotDate,
-          timestamp: snapshotTimestamp
-        });
-
-        options.push({
-          label: 'Token holders',
-          link: tokenLink
-        });
-      } else {
-        const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
+        const poapLink = createAppUrlWithQuery(poapsQuery, {
           limit: 20
         });
 
-        options.push({
-          label: 'Token holders',
-          link: tokenLink
-        });
-
-        const tokenSupplyLink = createAppUrlWithQuery(TokenTotalSupplyQuery, {
-          tokenAddress: query
+        const poapSupplyLink = createAppUrlWithQuery(POAPSupplyQuery, {
+          eventId: query
         });
 
         options.push({
-          label: 'Token supply',
-          link: tokenSupplyLink
+          label: 'POAP holders',
+          link: poapLink
+        });
+
+        options.push({
+          label: 'POAP supply',
+          link: poapSupplyLink
+        });
+      } else {
+        if (isSnapshotQuery) {
+          const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
+            limit: 20,
+            blockNumber: snapshotBlockNumber,
+            date: snapshotDate,
+            timestamp: snapshotTimestamp
+          });
+
+          options.push({
+            label: 'Token holders',
+            link: tokenLink
+          });
+        } else {
+          const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
+            limit: 20
+          });
+
+          options.push({
+            label: 'Token holders',
+            link: tokenLink
+          });
+
+          const tokenSupplyLink = createAppUrlWithQuery(TokenTotalSupplyQuery, {
+            tokenAddress: query
+          });
+
+          options.push({
+            label: 'Token supply',
+            link: tokenSupplyLink
+          });
+        }
+      }
+    }
+
+    if (hasERC6551 && !activeTokenInfo) {
+      const socialLink = createAppUrlWithQuery(SocialQuery, {
+        identity: owner
+      });
+      options.push({
+        label: 'Socials, Domains & XMTP',
+        link: socialLink
+      });
+    }
+
+    if (activeTokenInfo) {
+      const erc6551AccountsQueryLink = createAppUrlWithQuery(
+        erc6551TokensQuery,
+        {
+          tokenAddress: token.tokenAddress,
+          blockchain: token.blockchain,
+          tokenId: token.tokenId
+        }
+      );
+
+      const poapDetailsQueryLink = createAppUrlWithQuery(poapDetailsQuery, {
+        tokenAddress: token.tokenAddress,
+        eventId: token.eventId
+      });
+
+      const tokenDetailsQueryLink = createAppUrlWithQuery(tokenDetailsQuery, {
+        tokenAddress: token.tokenAddress,
+        blockchain: token.blockchain,
+        tokenId: token.tokenId
+      });
+
+      const erc20DetailsQueryLink = createAppUrlWithQuery(
+        erc20TokenDetailsQuery,
+        {
+          tokenAddress: token.tokenAddress,
+          blockchain: token.blockchain,
+          tokenId: token.tokenId
+        }
+      );
+
+      if (token?.eventId) {
+        options.push({
+          label: 'POAP Details',
+          link: poapDetailsQueryLink
+        });
+      } else {
+        options.push({
+          label: 'Token Details',
+          link: token?.tokenId ? tokenDetailsQueryLink : erc20DetailsQueryLink
+        });
+      }
+
+      if (hasERC6551) {
+        options.push({
+          label: 'ERC6551 Accounts',
+          link: erc6551AccountsQueryLink
         });
       }
     }
 
     return options;
   }, [
-    activeView,
     address,
+    activeView,
     hasPoap,
-    query,
+    hasERC6551,
+    activeTokenInfo,
     tokenFilters,
-    tokenOwnersQuery,
-    tokensQueryWithFilter,
     isSnapshotQuery,
+    tokensQueryWithFilter,
     snapshotBlockNumber,
     snapshotDate,
-    snapshotTimestamp
+    snapshotTimestamp,
+    query,
+    tokenOwnersQuery,
+    owner,
+    token.tokenAddress,
+    token.blockchain,
+    token.tokenId,
+    token.eventId
   ]);
 
   const hasMultipleERC20 = useMemo(() => {
@@ -303,7 +404,14 @@ export function TokenHolders() {
     return erc20Tokens.length > 1;
   }, [overviewTokens]);
 
+  const handleInvalidAddress = useCallback(() => {
+    setShowTokensOrOverview(false);
+  }, []);
+
   const showInCenter = isHome;
+
+  const showTokens =
+    showTokensOrOverview && !hasMultipleERC20 && !activeTokenInfo;
 
   return (
     <Layout>
@@ -338,8 +446,8 @@ export function TokenHolders() {
               </div>
             )}
             <div className="flex flex-col justify-center mt-7" key={query}>
-              {!isSnapshotQuery && <HoldersOverview />}
-              {!hasMultipleERC20 && (
+              <HoldersOverview onAddress404={handleInvalidAddress} />
+              {showTokens && (
                 <>
                   {activeView && <OverviewDetails />}
                   {!activeView && (

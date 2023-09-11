@@ -61,7 +61,7 @@ export function GetAPIDropdown({
         </button>
         {isDropdownVisible && (
           <div
-            className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute min-w-[214px] top-9 z-10"
+            className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute min-w-[214px] top-9 z-20"
             onClick={handleDropdownClose}
           >
             {options.map(({ label, link }) => (

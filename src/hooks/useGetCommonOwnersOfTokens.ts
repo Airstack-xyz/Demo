@@ -20,13 +20,14 @@ import {
 type Token = TokenType & {
   _poapEvent?: Poap['poapEvent'];
   _blockchain?: string;
+  eventId?: string;
 };
 
 type NestedTokenBalance = (Pick<
   Token,
   'tokenAddress' | 'tokenId' | 'token' | 'tokenNfts'
 > &
-  Pick<Poap, 'poapEvent'> & {
+  Pick<Poap, 'poapEvent' | 'eventId'> & {
     owner: {
       tokenBalances: Token[];
     };
@@ -152,6 +153,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
               _token: token.token,
               _tokenNfts: token.tokenNfts,
               _poapEvent: token.poapEvent,
+              _eventId: token.eventId,
               _blockchain: token.blockchain
             }
           ],

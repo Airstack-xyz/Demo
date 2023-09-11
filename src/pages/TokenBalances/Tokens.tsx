@@ -1,6 +1,6 @@
 import { useCallback, memo, useMemo, useState, useEffect } from 'react';
 import { PoapType, TokenType as TokenType } from './types';
-import { useSearchInput } from '../../hooks/useSearchInput';
+import { UserInputs } from '../../hooks/useSearchInput';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Token } from './Token';
 import { useGetTokensOfOwner } from '../../hooks/useGetTokensOfOwner';
@@ -9,10 +9,11 @@ import { emit } from '../../utils/eventEmitter/eventEmitter';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenCombination } from './TokenCombination';
 import classNames from 'classnames';
+import { TokenWithERC6551 } from './TokenWithERC6551';
 
 const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 
-function Loader() {
+export function TokensLoader() {
   return (
     <>
       {loaderData.map((_, index) => (
@@ -24,29 +25,61 @@ function Loader() {
   );
 }
 
-function TokensComponent() {
-  const [
-    { address: owners, tokenType: tokenType = '', blockchainType, sortOrder }
-  ] = useSearchInput();
+type TokenProps = Pick<
+  UserInputs,
+  | 'address'
+  | 'tokenType'
+  | 'blockchainType'
+  | 'sortOrder'
+  | 'snapshotBlockNumber'
+  | 'snapshotDate'
+  | 'snapshotTimestamp'
+> & {
+  poapDisabled?: boolean;
+  includeERC20?: boolean;
+};
+function TokensComponent(props: TokenProps) {
+  const {
+    address: owners,
+    tokenType: tokenType = '',
+    blockchainType,
+    sortOrder,
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp,
+    includeERC20,
+    poapDisabled
+  } = props;
   const [tokens, setTokens] = useState<(TokenType | PoapType)[]>([]);
 
   const handleTokens = useCallback((tokens: (TokenType | PoapType)[]) => {
     setTokens(existingTokens => [...existingTokens, ...tokens]);
   }, []);
 
+  const inputs = {
+    address: owners,
+    tokenType,
+    blockchainType,
+    sortOrder,
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp,
+    includeERC20
+  };
+
   const {
     loading: loadingTokens,
     hasNextPage: hasNextPageTokens,
     processedTokensCount,
     getNext: getNextTokens
-  } = useGetTokensOfOwner(handleTokens);
+  } = useGetTokensOfOwner(inputs, handleTokens);
 
   const {
     loading: loadingPoaps,
     getNext: getNextPoaps,
     processedTokensCount: processedPoapsCount,
     hasNextPage: hasNextPagePoaps
-  } = useGetPoapsOfOwner(handleTokens);
+  } = useGetPoapsOfOwner(inputs, handleTokens, poapDisabled);
 
   useEffect(() => {
     if (owners.length === 0) return;
@@ -105,9 +138,11 @@ function TokensComponent() {
 
   if (tokens.length === 0 && loading) {
     return (
-      <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">
-        <Loader />
-        {showStatusLoader && <TokenBalancesLoaderWithInfo />}
+      <div>
+        <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">
+          <TokensLoader />
+          {showStatusLoader && <TokenBalancesLoaderWithInfo />}
+        </div>
       </div>
     );
   }
@@ -131,13 +166,21 @@ function TokensComponent() {
           const id =
             (token as PoapType)?.tokenId ||
             (token as TokenType)?.tokenNfts?.tokenId;
-          return hasCombination ? (
-            <TokenCombination key={`${index}-${id}`} token={token} />
-          ) : (
-            <Token key={`${index}-${id}`} token={token} />
-          );
+
+          if (hasCombination) {
+            return <TokenCombination key={`${index}-${id}`} token={token} />;
+          }
+
+          const hasERC6551 =
+            (token as TokenType)?.tokenNfts?.erc6551Accounts?.length > 0;
+
+          if (hasERC6551) {
+            return <TokenWithERC6551 key={`${index}-${id}`} token={token} />;
+          }
+
+          return <Token key={`${index}-${id}`} token={token} />;
         })}
-        {loading && <Loader />}
+        {loading && <TokensLoader />}
       </InfiniteScroll>
       {showStatusLoader && <TokenBalancesLoaderWithInfo />}
     </>

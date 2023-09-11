@@ -1,8 +1,8 @@
 import { config } from '@airstack/airstack-react/config';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createNftWithCommonOwnersQuery } from '../queries/nftWithCommonOwnersQuery';
-import { useSearchInput } from './useSearchInput';
 import { defaultSortOrder } from '../Components/Filters/SortBy';
+import { UserInputs } from './useSearchInput';
 import { tokenTypes } from '../pages/TokenBalances/constants';
 import { CommonTokenType, TokenType } from '../pages/TokenBalances/types';
 import { createNftWithCommonOwnersSnapshotQuery } from '../queries/nftWithCommonOwnersSnapshotQuery';
@@ -11,24 +11,36 @@ import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 const LIMIT = 20;
 const LIMIT_COMBINATIONS = 100;
 
+type Inputs = Pick<
+  UserInputs,
+  | 'address'
+  | 'tokenType'
+  | 'blockchainType'
+  | 'sortOrder'
+  | 'snapshotBlockNumber'
+  | 'snapshotDate'
+  | 'snapshotTimestamp'
+> & {
+  includeERC20?: boolean;
+};
 export function useGetTokensOfOwner(
+  inputs: Inputs,
   onDataReceived: (tokens: TokenType[]) => void
 ) {
+  const {
+    address: owners,
+    tokenType: tokenType = '',
+    blockchainType,
+    sortOrder,
+    snapshotBlockNumber,
+    snapshotDate,
+    snapshotTimestamp,
+    includeERC20
+  } = inputs;
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
   const tokensRef = useRef<TokenType[]>([]);
-  const [
-    {
-      address: owners,
-      tokenType: tokenType = '',
-      blockchainType,
-      sortOrder,
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp
-    }
-  ] = useSearchInput();
 
   const isSnapshotQuery = Boolean(
     snapshotBlockNumber || snapshotDate || snapshotTimestamp
@@ -81,7 +93,11 @@ export function useGetTokensOfOwner(
       const _tokenType =
         tokenType && tokenType.length > 0
           ? [tokenType]
-          : tokenTypes.filter(tokenType => tokenType !== 'POAP');
+          : tokenTypes.filter(
+              tokenType =>
+                tokenType !== 'POAP' &&
+                (includeERC20 ? true : tokenType !== 'ERC20')
+            );
 
       // For snapshots different variables are being passed
       if (isSnapshotQuery) {
@@ -104,6 +120,7 @@ export function useGetTokensOfOwner(
     setProcessedTokensCount(LIMIT);
   }, [
     fetchTokens,
+    includeERC20,
     owners.length,
     blockchainType,
     sortOrder,

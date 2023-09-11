@@ -17,6 +17,7 @@ export type CachedQuery = {
   activeViewToken: string;
   activeViewCount: string;
   blockchainType: string[];
+  activeTokenInfo: string;
   sortOrder: string;
   snapshotDate: string | undefined; // Format: YYYY-MM-DD
   snapshotBlockNumber: number | undefined;
@@ -138,9 +139,9 @@ export function useSearchInput(
   );
 
   return useMemo(() => {
-    const _snapshotDate = getData('snapshotDate');
-    const _snapshotBlockNumber = getData('snapshotBlockNumber');
-    const _snapshotTimestamp = getData('snapshotTimestamp');
+    const _snapshotDate = searchParams.get('snapshotDate');
+    const _snapshotBlockNumber = searchParams.get('snapshotBlockNumber');
+    const _snapshotTimestamp = searchParams.get('snapshotTimestamp');
 
     const data = {
       address: getData('address', true),
@@ -149,7 +150,8 @@ export function useSearchInput(
       inputType: !isTokenBalances
         ? (getData('inputType') as CachedQuery['inputType'])
         : null,
-      activeView: isTokenBalances ? '' : getData('activeView'),
+      activeView: isTokenBalances ? '' : searchParams.get('activeView') || '',
+      activeTokenInfo: searchParams.get('activeTokenInfo') || '',
       tokenFilters: !isTokenBalances ? getData('tokenFilters', true) : [],
       activeViewToken: isTokenBalances ? '' : getData('activeViewToken'),
       activeViewCount: isTokenBalances ? '' : getData('activeViewCount'),
@@ -167,5 +169,5 @@ export function useSearchInput(
     setData(data);
 
     return [data, setData, setSearchParams];
-  }, [getData, isTokenBalances, setData, setSearchParams]);
+  }, [isTokenBalances, searchParams, getData, setData, setSearchParams]);
 }

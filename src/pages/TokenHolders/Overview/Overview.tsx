@@ -14,13 +14,49 @@ import {
   useOverviewTokens
 } from '../../../store/tokenHoldersOverview';
 import { showToast } from '../../../utils/showToast';
+import { useGetAccountOwner } from '../../../hooks/useGetAccountOwner';
+import { ERC6551TokenHolder } from '../ERC6551TokenHolder';
+import { Details } from './Details';
+import { TokenDetailsReset } from '../../../store/tokenDetails';
 
-function Overview() {
-  const [{ address, activeView }] = useSearchInput();
+function Overview({ onAddress404 }: { onAddress404?: () => void }) {
+  const [{ address, activeView, activeTokenInfo }] = useSearchInput();
 
   const isPoap = address.every(token => !token.startsWith('0x'));
 
-  const [fetchTokens, tokenDetails, loadingTokens] = useFetchTokens();
+  const [fetchTokens, tokens, loadingTokens] = useFetchTokens();
+  const [fetchAccountsOwner, account, loadingAccount] = useGetAccountOwner(
+    address[0]
+  );
+
+  const setTokens = useOverviewTokens(['tokens'])[1];
+
+  const tokenDetails = useMemo(() => tokens || [], [tokens]);
+  const hasNoTokens = !loadingTokens && tokens && tokens.length === 0;
+  const addressIsAccount =
+    hasNoTokens && !loadingAccount && Boolean(account?.tokenAddress);
+  const tokenWith6551 = useMemo(() => {
+    if (!account) return null;
+    const { tokenAddress, tokenId, blockchain } = account;
+    return {
+      tokenAddress,
+      tokenId,
+      blockchain,
+      eventId: ''
+    };
+  }, [account]);
+
+  useEffect(() => {
+    if (hasNoTokens && onAddress404) {
+      onAddress404();
+    }
+  }, [hasNoTokens, onAddress404, setTokens]);
+
+  useEffect(() => {
+    if (hasNoTokens) {
+      fetchAccountsOwner();
+    }
+  }, [fetchAccountsOwner, hasNoTokens]);
 
   const shouldFetchHoldersCount = useMemo(() => {
     return tokenDetails.every(token => {
@@ -34,8 +70,6 @@ function Overview() {
     loading: loadingTokenOverview,
     error: tokenOverviewError
   } = useGetTokenOverview();
-
-  const setTokens = useOverviewTokens(['tokens'])[1];
 
   const [fetchTotalSupply, totalSupply, loadingSupply] = useTokensSupply();
 
@@ -155,7 +189,7 @@ function Overview() {
               videoProps={{
                 controls: false
               }}
-              containerClassName="[&>img]:w-full"
+              containerClassName="w-full [&>img]:w-full"
             />
           </div>
         );
@@ -179,10 +213,15 @@ function Overview() {
           tokenDetails[1] ? ` & ${tokenDetails[1]?.name}` : ''
         }`
       : '';
+  const noHoldersCount = !loadingTokens && !shouldFetchHoldersCount;
+  const loadingCount = noHoldersCount
+    ? false
+    : loadingAccount ||
+      loadingTokenOverview ||
+      (loadingTokens && shouldFetchHoldersCount);
 
   const holderCounts = useMemo(() => {
     return Object.keys(overViewData).map(key => {
-      const noHoldersCount = !loadingTokens && !shouldFetchHoldersCount;
       if (key === 'totalSupply' || (noHoldersCount && key === 'owners')) {
         return null;
       }
@@ -205,10 +244,6 @@ function Overview() {
         count = '';
       }
 
-      const loadingCount = noHoldersCount
-        ? false
-        : loadingTokenOverview || (loadingTokens && shouldFetchHoldersCount);
-
       return (
         <HolderCount
           key={key}
@@ -229,10 +264,9 @@ function Overview() {
       );
     });
   }, [
-    loadingTokenOverview,
-    loadingTokens,
+    loadingCount,
+    noHoldersCount,
     overViewData,
-    shouldFetchHoldersCount,
     tokenDetails,
     tokenImages,
     tokenName,
@@ -264,6 +298,21 @@ function Overview() {
       </>
     );
   }, [tokenDetails, totalSupply]);
+
+  if (activeTokenInfo) {
+    return <Details />;
+  }
+
+  if (addressIsAccount && account?.tokenAddress) {
+    return (
+      <TokenDetailsReset>
+        <ERC6551TokenHolder
+          owner={account?.token?.owner?.identity}
+          token={tokenWith6551 || account?.token}
+        />
+      </TokenDetailsReset>
+    );
+  }
 
   if (isERC20 || activeView) return null;
 
@@ -299,7 +348,7 @@ function Overview() {
         className={classNames(
           'h-full flex-1 hidden [&>div]:h-full [&>div]:w-full sm:flex-col-center min-w-[421px] max-w-[421px] relative overflow-hidden',
           {
-            'skeleton-loader': loadingTokens
+            'skeleton-loader': loadingTokens || loadingAccount
           }
         )}
         data-loader-type="block"
