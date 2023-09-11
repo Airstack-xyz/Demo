@@ -18,7 +18,7 @@ export function StatusLoader({
     );
   }, []);
   return (
-    <div className="fixed inset-5 sm:inset-10 flex justify-center items-end pointer-events-none">
+    <div className="fixed inset-5 sm:inset-10 flex justify-center items-end pointer-events-none z-[15px]">
       <div className="bg-glass rounded-18 p-9 border-solid-stroke max-w-[90%] sm:max-w-[500px]">
         <div className="mb-4 flex items-center">
           {loader}

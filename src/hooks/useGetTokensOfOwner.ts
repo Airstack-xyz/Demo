@@ -1,7 +1,7 @@
 import { config } from '@airstack/airstack-react/config';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createNftWithCommonOwnersQuery } from '../queries/nftWithCommonOwnersQuery';
-import { useSearchInput } from './useSearchInput';
+import { UserInputs } from './useSearchInput';
 import { defaultSortOrder } from '../pages/TokenBalances/SortBy';
 import { tokenTypes } from '../pages/TokenBalances/constants';
 import { CommonTokenType, TokenType } from '../pages/TokenBalances/types';
@@ -10,16 +10,27 @@ import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 const LIMIT = 20;
 const LIMIT_COMBINATIONS = 100;
 
+type Inputs = Pick<
+  UserInputs,
+  'address' | 'tokenType' | 'blockchainType' | 'sortOrder'
+> & {
+  includeERC20?: boolean;
+};
 export function useGetTokensOfOwner(
+  inputs: Inputs,
   onDataReceived: (tokens: TokenType[]) => void
 ) {
+  const {
+    address: owners,
+    tokenType: tokenType = '',
+    blockchainType,
+    sortOrder,
+    includeERC20
+  } = inputs;
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
   const tokensRef = useRef<TokenType[]>([]);
-  const [
-    { address: owners, tokenType: tokenType = '', blockchainType, sortOrder }
-  ] = useSearchInput();
   const fetchAllBlockchains =
     blockchainType.length === 2 || blockchainType.length === 0;
 
@@ -52,7 +63,11 @@ export function useGetTokensOfOwner(
         tokenType:
           tokenType && tokenType.length > 0
             ? [tokenType]
-            : tokenTypes.filter(tokenType => tokenType !== 'POAP')
+            : tokenTypes.filter(
+                tokenType =>
+                  tokenType !== 'POAP' &&
+                  (includeERC20 ? true : tokenType !== 'ERC20')
+              )
       });
     }
 
@@ -60,6 +75,7 @@ export function useGetTokensOfOwner(
   }, [
     blockchainType,
     fetchTokens,
+    includeERC20,
     isPoap,
     owners.length,
     sortOrder,

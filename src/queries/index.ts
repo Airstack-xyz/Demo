@@ -316,6 +316,9 @@ export const PoapOwnerQuery = `query GetPoapHolders($eventId: [String!], $limit:
         }
         blockchain
         eventName
+        endDate
+        endDate
+        city
       }
       owner {
         identity

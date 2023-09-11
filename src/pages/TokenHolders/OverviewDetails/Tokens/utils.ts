@@ -27,7 +27,8 @@ export function getPoapList(
     .map(token => {
       return {
         ...token.owner.poaps[0],
-        _poapEvent: token.poapEvent
+        _poapEvent: token.poapEvent,
+        _eventId: token.eventId
       };
     });
   return [poapsWithValues, poaps.length];

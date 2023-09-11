@@ -4,6 +4,8 @@ const fields = `
         blockchain
         tokenAddress
         formattedAmount
+        tokenId
+        tokenAddress
         owner {
             addresses
         }
@@ -11,12 +13,24 @@ const fields = `
             tokenId
             contentValue {
                 image {
-                small
-                large
-                extraSmall
-                medium
-                original
+                  medium
                 }
+            }
+            erc6551Accounts {
+              address {
+                addresses
+                tokenBalances {
+                  tokenAddress
+                  tokenId
+                  tokenNfts {
+                    contentValue {
+                      image {
+                        medium
+                      }
+                    }
+                  }
+                }
+              }
             }
         }
         token {
@@ -66,6 +80,22 @@ tokenNfts {
       image {
         medium
       }
+  }
+  erc6551Accounts {
+    address {
+      addresses
+      tokenBalances {
+        tokenAddress
+        tokenId
+        tokenNfts {
+          contentValue {
+            image {
+              medium
+            }
+          }
+        }
+      }
+    }
   }
 }
 token {
