@@ -98,7 +98,11 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
     }
     socials {
       dappName
+      dappSlug
+      blockchain
       profileName
+      followerCount
+      followingCount
     }
     xmtp {
       isXMTPEnabled

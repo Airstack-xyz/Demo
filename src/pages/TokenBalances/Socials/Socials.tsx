@@ -10,12 +10,14 @@ import { XMTP } from './XMTP';
 import { AddressesModal } from '../../../Components/AddressesModal';
 
 type SocialType = SocialsType['Wallet'];
+
 const imagesMap: Record<string, string> = {
   lens: '/images/lens.svg',
   farcaster: '/images/farcaster.svg',
   xmtp: '/images/xmtp.svg',
   ens: '/images/ens.svg'
 };
+
 function SocialsComponent() {
   const [modalValues, setModalValues] = useState<{
     leftValues: string[];
@@ -157,13 +159,25 @@ function SocialsComponent() {
             }}
             image={imagesMap['ens']}
           />
-          {socials.map(({ dappName, profileName, profileNames }) => (
-            <Social
-              name={dappName}
-              values={profileNames || [profileName]}
-              image={imagesMap[dappName?.trim()]}
-            />
-          ))}
+          {socials.map(
+            ({
+              dappName,
+              dappSlug,
+              profileName,
+              profileNames,
+              followerCount,
+              followingCount
+            }) => (
+              <Social
+                name={dappName}
+                slug={dappSlug}
+                followerCount={followerCount}
+                followingCount={followingCount}
+                values={profileNames || [profileName]}
+                image={imagesMap[dappName?.trim()]}
+              />
+            )
+          )}
           <Social
             name="XMTP"
             values={xmtpEnabled ? [<XMTP />] : ['--']}

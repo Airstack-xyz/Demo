@@ -98,8 +98,11 @@ export interface Domain {
 }
 
 export interface Social {
+  dappSlug: string;
   dappName: string;
   profileName: string;
+  followerCount: number;
+  followingCount: number;
 }
 
 export interface Xmtp {
