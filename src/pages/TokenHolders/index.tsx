@@ -53,6 +53,7 @@ import {
   getNftOwnersSnapshotQueryWithFilters
 } from '../../queries/commonNftOwnersSnapshotQueryWithFilters';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
+import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
 
 export function TokenHolders() {
   const [
@@ -60,9 +61,7 @@ export function TokenHolders() {
       address: tokenAddress,
       activeView,
       tokenFilters,
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp,
+      activeSnapshotInfo,
       activeTokenInfo
     },
     setData
@@ -80,9 +79,12 @@ export function TokenHolders() {
     setShowTokensOrOverview(true);
   }, [tokenAddress]);
 
-  const tokenListKey = useMemo(() => {
-    return tokenAddress.join(',');
-  }, [tokenAddress]);
+  const tokenKey = useMemo(() => tokenAddress.join(','), [tokenAddress]);
+
+  const snapshot = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
 
   useEffect(() => {
     // go to token-holders page if user input address has changed
@@ -100,9 +102,6 @@ export function TokenHolders() {
     addressRef.current = tokenAddress;
   }, [tokenAddress, setData]);
 
-  const isSnapshotQuery = Boolean(
-    snapshotBlockNumber || snapshotDate || snapshotTimestamp
-  );
   const hasSomePoap = tokenAddress.some(token => !token.startsWith('0x'));
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
@@ -113,12 +112,12 @@ export function TokenHolders() {
   const tokenOwnersQuery = useMemo(() => {
     if (address.length === 0) return '';
     if (address.length === 1) {
-      if (isSnapshotQuery) {
+      if (snapshot.isApplicable) {
         return getNftOwnersSnapshotQuery({
           address: address[0].address,
-          blockNumber: snapshotBlockNumber,
-          date: snapshotDate,
-          timestamp: snapshotTimestamp
+          blockNumber: snapshot.blockNumber,
+          date: snapshot.date,
+          timestamp: snapshot.timestamp
         });
       }
       return getNftOwnersQuery(address[0].address);
@@ -127,23 +126,23 @@ export function TokenHolders() {
       const tokens = sortAddressByPoapFirst(address);
       return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
     }
-    if (isSnapshotQuery) {
+    if (snapshot.isApplicable) {
       return getCommonNftOwnersSnapshotQuery({
         address1: address[0],
         address2: address[1],
-        blockNumber: snapshotBlockNumber,
-        date: snapshotDate,
-        timestamp: snapshotTimestamp
+        blockNumber: snapshot.blockNumber,
+        date: snapshot.date,
+        timestamp: snapshot.timestamp
       });
     }
     return getCommonNftOwnersQuery(address[0], address[1]);
   }, [
     address,
     hasSomePoap,
-    isSnapshotQuery,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    snapshot.isApplicable,
+    snapshot.blockNumber,
+    snapshot.date,
+    snapshot.timestamp
   ]);
 
   const tokensQueryWithFilter = useMemo(() => {
@@ -152,12 +151,12 @@ export function TokenHolders() {
     const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
     if (address.length === 0) return '';
     if (address.length === 1) {
-      if (isSnapshotQuery) {
+      if (snapshot.isApplicable) {
         return getNftOwnersSnapshotQueryWithFilters({
           address: address[0].address,
-          blockNumber: snapshotBlockNumber,
-          date: snapshotDate,
-          timestamp: snapshotTimestamp,
+          blockNumber: snapshot.blockNumber,
+          date: snapshot.date,
+          timestamp: snapshot.timestamp,
           hasSocialFilters: _hasSocialFilters,
           hasPrimaryDomain: _hasPrimaryDomain
         });
@@ -177,13 +176,13 @@ export function TokenHolders() {
         _hasPrimaryDomain
       );
     }
-    if (isSnapshotQuery) {
+    if (snapshot.isApplicable) {
       return getCommonNftOwnersSnapshotQueryWithFilters({
         address1: address[0],
         address2: address[1],
-        blockNumber: snapshotBlockNumber,
-        date: snapshotDate,
-        timestamp: snapshotTimestamp,
+        blockNumber: snapshot.blockNumber,
+        date: snapshot.date,
+        timestamp: snapshot.timestamp,
         hasSocialFilters: _hasSocialFilters,
         hasPrimaryDomain: _hasPrimaryDomain
       });
@@ -195,13 +194,13 @@ export function TokenHolders() {
       _hasPrimaryDomain
     );
   }, [
-    address,
     tokenFilters,
+    address,
     hasSomePoap,
-    isSnapshotQuery,
-    snapshotDate,
-    snapshotBlockNumber,
-    snapshotTimestamp
+    snapshot.isApplicable,
+    snapshot.blockNumber,
+    snapshot.date,
+    snapshot.timestamp
   ]);
 
   const token = useMemo(() => {
@@ -234,12 +233,12 @@ export function TokenHolders() {
           ...requestFilters
         });
       } else {
-        if (isSnapshotQuery) {
+        if (snapshot.isApplicable) {
           combinationsQueryLink = createAppUrlWithQuery(tokensQueryWithFilter, {
             limit: 200,
-            blockNumber: snapshotBlockNumber,
-            date: snapshotDate,
-            timestamp: snapshotTimestamp,
+            blockNumber: snapshot.blockNumber,
+            date: snapshot.date,
+            timestamp: snapshot.timestamp,
             ...requestFilters
           });
         } else {
@@ -281,12 +280,12 @@ export function TokenHolders() {
           link: poapSupplyLink
         });
       } else {
-        if (isSnapshotQuery) {
+        if (snapshot.isApplicable) {
           const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
             limit: 20,
-            blockNumber: snapshotBlockNumber,
-            date: snapshotDate,
-            timestamp: snapshotTimestamp
+            blockNumber: snapshot.blockNumber,
+            date: snapshot.date,
+            timestamp: snapshot.timestamp
           });
 
           options.push({
@@ -379,17 +378,17 @@ export function TokenHolders() {
   }, [
     address,
     activeView,
-    hasPoap,
-    hasERC6551,
     activeTokenInfo,
+    hasERC6551,
     tokenFilters,
-    isSnapshotQuery,
-    tokensQueryWithFilter,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp,
-    query,
+    hasPoap,
     tokenOwnersQuery,
+    tokensQueryWithFilter,
+    snapshot.isApplicable,
+    snapshot.blockNumber,
+    snapshot.date,
+    snapshot.timestamp,
+    query,
     owner,
     token.tokenAddress,
     token.blockchain,
@@ -451,7 +450,7 @@ export function TokenHolders() {
                 <>
                   {activeView && <OverviewDetails />}
                   {!activeView && (
-                    <div key={tokenListKey}>
+                    <div key={tokenKey}>
                       <div className="flex mb-4">
                         <Icon name="token-holders" height={20} width={20} />{' '}
                         <span className="font-bold ml-1.5 text-sm">

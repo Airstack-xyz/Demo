@@ -7,6 +7,7 @@ import { tokenTypes } from '../pages/TokenBalances/constants';
 import { CommonTokenType, TokenType } from '../pages/TokenBalances/types';
 import { createNftWithCommonOwnersSnapshotQuery } from '../queries/nftWithCommonOwnersSnapshotQuery';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { getActiveSnapshotInfo } from '../utils/activeSnapshotInfoString';
 
 const LIMIT = 20;
 const LIMIT_COMBINATIONS = 100;
@@ -17,9 +18,7 @@ type Inputs = Pick<
   | 'tokenType'
   | 'blockchainType'
   | 'sortOrder'
-  | 'snapshotBlockNumber'
-  | 'snapshotDate'
-  | 'snapshotTimestamp'
+  | 'activeSnapshotInfo'
 > & {
   includeERC20?: boolean;
 };
@@ -32,9 +31,7 @@ export function useGetTokensOfOwner(
     tokenType: tokenType = '',
     blockchainType,
     sortOrder,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp,
+    activeSnapshotInfo,
     includeERC20
   } = inputs;
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
@@ -42,8 +39,9 @@ export function useGetTokensOfOwner(
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
   const tokensRef = useRef<TokenType[]>([]);
 
-  const isSnapshotQuery = Boolean(
-    snapshotBlockNumber || snapshotDate || snapshotTimestamp
+  const snapshot = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
   );
 
   const query = useMemo(() => {
@@ -52,23 +50,23 @@ export function useGetTokensOfOwner(
 
     const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
-    if (isSnapshotQuery) {
+    if (snapshot.isApplicable) {
       return createNftWithCommonOwnersSnapshotQuery({
         owners,
         blockchain: _blockchain,
-        blockNumber: snapshotBlockNumber,
-        date: snapshotDate,
-        timestamp: snapshotTimestamp
+        blockNumber: snapshot.blockNumber,
+        date: snapshot.date,
+        timestamp: snapshot.timestamp
       });
     }
     return createNftWithCommonOwnersQuery(owners, _blockchain);
   }, [
-    owners,
     blockchainType,
-    isSnapshotQuery,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    owners,
+    snapshot.isApplicable,
+    snapshot.blockNumber,
+    snapshot.date,
+    snapshot.timestamp
   ]);
 
   const [
@@ -100,13 +98,13 @@ export function useGetTokensOfOwner(
             );
 
       // For snapshots different variables are being passed
-      if (isSnapshotQuery) {
+      if (snapshot.isApplicable) {
         fetchTokens({
           limit: _limit,
           tokenType: _tokenType,
-          blockNumber: snapshotBlockNumber,
-          date: snapshotDate,
-          timestamp: snapshotTimestamp
+          blockNumber: snapshot.blockNumber,
+          date: snapshot.date,
+          timestamp: snapshot.timestamp
         });
       } else {
         fetchTokens({
@@ -125,10 +123,10 @@ export function useGetTokensOfOwner(
     blockchainType,
     sortOrder,
     tokenType,
-    isSnapshotQuery,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    snapshot.isApplicable,
+    snapshot.blockNumber,
+    snapshot.date,
+    snapshot.timestamp
   ]);
 
   useEffect(() => {

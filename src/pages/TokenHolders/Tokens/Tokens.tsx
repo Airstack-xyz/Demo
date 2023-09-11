@@ -14,6 +14,7 @@ import {
   useOverviewTokens
 } from '../../../store/tokenHoldersOverview';
 import { sortByAddressByNonERC20First } from '../../../utils/getNFTQueryForTokensHolder';
+import { getActiveSnapshotInfo } from '../../../utils/activeSnapshotInfoString';
 
 const loaderData = Array(6).fill({});
 
@@ -38,19 +39,14 @@ function Loader() {
 
 export function TokensComponent() {
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
-  const [
-    { address, inputType, snapshotBlockNumber, snapshotDate, snapshotTimestamp }
-  ] = useSearchInput();
-
-  const isSnapshotQuery = Boolean(
-    snapshotBlockNumber || snapshotDate || snapshotTimestamp
-  );
+  const [{ address, inputType, activeSnapshotInfo }] = useSearchInput();
 
   const shouldFetchPoaps = useMemo(() => {
+    const snapshot = getActiveSnapshotInfo(activeSnapshotInfo);
     const hasSomeToken = address.some(a => a.startsWith('0x'));
     // Don't fetch Poaps for snapshot query
-    return !hasSomeToken && !isSnapshotQuery;
-  }, [address, isSnapshotQuery]);
+    return !hasSomeToken && !snapshot.isApplicable;
+  }, [address, activeSnapshotInfo]);
 
   const hasMultipleERC20 = useMemo(() => {
     const erc20Tokens = overviewTokens.filter(

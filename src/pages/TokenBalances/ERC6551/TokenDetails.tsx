@@ -88,16 +88,8 @@ export function TokenDetails(props: {
     onClose
   } = props;
 
-  const [
-    {
-      address,
-      rawInput,
-      inputType,
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp
-    }
-  ] = useSearchInput();
+  const [{ address, rawInput, inputType, activeSnapshotInfo }] =
+    useSearchInput();
   const navigate = useNavigate();
   const isTokenBalances = !!useMatch('/token-balances');
   const [, setDetails] = useTokenDetails(['hasERC6551']);
@@ -180,7 +172,7 @@ export function TokenDetails(props: {
   const loading = loadingToken || loadingERC20 || loadingPoap;
   const hasChildren = !loading && !isPoap && nft?.erc6551Accounts?.length > 0;
 
-  const tokenKey = `${tokenAddress}-${tokenId}-${blockchain}-${snapshotBlockNumber}-${snapshotDate}-${snapshotTimestamp}`;
+  const tokenKey = `${tokenAddress}-${tokenId}-${blockchain}-${activeSnapshotInfo}`;
 
   return (
     <div className="max-w-[950px] text-sm m-auto w-[98vw] pt-10 sm:pt-0">
@@ -289,9 +281,7 @@ export function TokenDetails(props: {
       {hasChildren && (
         <NestedTokens
           {...props}
-          snapshotDate={snapshotDate}
-          snapshotBlockNumber={snapshotBlockNumber}
-          snapshotTimestamp={snapshotTimestamp}
+          activeSnapshotInfo={activeSnapshotInfo}
           key={tokenKey}
         />
       )}

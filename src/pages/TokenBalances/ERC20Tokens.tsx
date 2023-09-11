@@ -18,6 +18,7 @@ import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwner
 import { emit } from '../../utils/eventEmitter/eventEmitter';
 import { createNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
 import { getActiveTokenInfoString } from '../../utils/activeTokenInfoString';
+import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
@@ -99,37 +100,37 @@ export function ERC20Tokens() {
       tokenType,
       blockchainType,
       sortOrder,
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp
+      activeSnapshotInfo
     },
     setSearchData
   ] = useSearchInput();
   const tokensRef = useRef<TokenType[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const isSnapshotQuery = Boolean(
-    snapshotBlockNumber || snapshotDate || snapshotTimestamp
-  );
   const isCombination = owners.length > 1;
 
+  const snapshot = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
+
   const query = useMemo(() => {
-    if (isSnapshotQuery) {
+    if (snapshot.isApplicable) {
       return createNftWithCommonOwnersSnapshotQuery({
         owners,
         blockchain: null,
-        blockNumber: snapshotBlockNumber,
-        date: snapshotDate,
-        timestamp: snapshotTimestamp
+        blockNumber: snapshot.blockNumber,
+        date: snapshot.date,
+        timestamp: snapshot.timestamp
       });
     }
     return createNftWithCommonOwnersQuery(owners, null);
   }, [
     owners,
-    isSnapshotQuery,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    snapshot.isApplicable,
+    snapshot.blockNumber,
+    snapshot.date,
+    snapshot.timestamp
   ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -187,13 +188,13 @@ export function ERC20Tokens() {
 
       const _limit = owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT;
 
-      if (isSnapshotQuery) {
+      if (snapshot.isApplicable) {
         fetch({
           limit: _limit,
           tokenType: ['ERC20'],
-          blockNumber: snapshotBlockNumber,
-          date: snapshotDate,
-          timestamp: snapshotTimestamp
+          blockNumber: snapshot.blockNumber,
+          date: snapshot.date,
+          timestamp: snapshot.timestamp
         });
       } else {
         fetch({
@@ -213,10 +214,10 @@ export function ERC20Tokens() {
     tokenType,
     blockchainType,
     sortOrder,
-    isSnapshotQuery,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    snapshot.isApplicable,
+    snapshot.blockNumber,
+    snapshot.date,
+    snapshot.timestamp
   ]);
 
   useEffect(() => {

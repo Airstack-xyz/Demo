@@ -19,24 +19,28 @@ import {
   blockchainOptions,
   defaultBlockchainFilter
 } from './BlockchainFilter';
+import {
+  getActiveSnapshotInfoString,
+  getActiveSnapshotInfo
+} from '../../utils/activeSnapshotInfoString';
 
 const getAppliedFilterCount = ({
-  selectedSnapshotFilter,
-  selectedBlockchainFilter,
-  selectedSortOrder
+  appliedSnapshotFilter,
+  appliedBlockchainFilter,
+  appliedSortOrder
 }: {
-  selectedSnapshotFilter: SnapshotFilterType;
-  selectedBlockchainFilter: BlockchainFilterType;
-  selectedSortOrder: SortOrderType;
+  appliedSnapshotFilter: SnapshotFilterType;
+  appliedBlockchainFilter: BlockchainFilterType;
+  appliedSortOrder: SortOrderType;
 }) => {
   let count = 0;
-  if (selectedSnapshotFilter != defaultSnapshotFilter) {
+  if (appliedSnapshotFilter != defaultSnapshotFilter) {
     count += 1;
   }
-  if (selectedBlockchainFilter != defaultBlockchainFilter) {
+  if (appliedBlockchainFilter != defaultBlockchainFilter) {
     count += 1;
   }
-  if (selectedSortOrder != defaultSortOrder) {
+  if (appliedSortOrder != defaultSortOrder) {
     count += 1;
   }
   return count;
@@ -47,26 +51,16 @@ const sectionHeaderClass =
 
 export function AllFilters() {
   const [
-    {
-      address,
-      blockchainType,
-      tokenType,
-      sortOrder,
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp
-    },
+    { address, blockchainType, tokenType, sortOrder, activeSnapshotInfo },
     setData
   ] = useSearchInput();
 
-  const selectedSnapshotFilter = useMemo(() => {
-    if (snapshotBlockNumber) return SnapshotFilterType.BLOCK_NUMBER;
-    if (snapshotDate) return SnapshotFilterType.CUSTOM_DATE;
-    if (snapshotTimestamp) return SnapshotFilterType.TIMESTAMP;
-    return defaultSnapshotFilter;
-  }, [snapshotBlockNumber, snapshotDate, snapshotTimestamp]);
+  const snapshot = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
 
-  const selectedBlockchainFilter = useMemo(() => {
+  const appliedBlockchainFilter = useMemo(() => {
     const filterValue = blockchainType[0];
     if (
       filterValue === BlockchainFilterType.ETHEREUM ||
@@ -77,19 +71,19 @@ export function AllFilters() {
     return defaultBlockchainFilter;
   }, [blockchainType]);
 
-  const selectedSortOrder = useMemo(() => {
+  const appliedSortOrder = useMemo(() => {
     return sortOrder === SortOrderType.ASC
       ? SortOrderType.ASC
       : defaultSortOrder;
   }, [sortOrder]);
 
   const [currentSnapshotFilter, setCurrentSnapshotFilter] = useState(
-    selectedSnapshotFilter
+    snapshot.appliedFilter
   );
   const [currentBlockchainFilter, setCurrentBlockchainFilter] = useState(
-    selectedBlockchainFilter
+    appliedBlockchainFilter
   );
-  const [currentSortOrder, setCurrentSortOrder] = useState(selectedSortOrder);
+  const [currentSortOrder, setCurrentSortOrder] = useState(appliedSortOrder);
 
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
@@ -101,19 +95,19 @@ export function AllFilters() {
   const handleDropdownHide = useCallback(() => {
     setIsDropdownVisible(false);
     setIsDatePickerVisible(false);
-    setBlockNumber(snapshotBlockNumber);
-    setDate(snapshotDate ? new Date(snapshotDate) : new Date());
-    setTimestamp(snapshotTimestamp);
-    setCurrentSnapshotFilter(selectedSnapshotFilter);
-    setCurrentBlockchainFilter(selectedBlockchainFilter);
-    setCurrentSortOrder(selectedSortOrder);
+    setBlockNumber(snapshot.blockNumber);
+    setDate(snapshot.date ? new Date(snapshot.date) : new Date());
+    setTimestamp(snapshot.timestamp);
+    setCurrentSnapshotFilter(snapshot.appliedFilter);
+    setCurrentBlockchainFilter(appliedBlockchainFilter);
+    setCurrentSortOrder(appliedSortOrder);
   }, [
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp,
-    selectedSnapshotFilter,
-    selectedBlockchainFilter,
-    selectedSortOrder
+    snapshot.blockNumber,
+    snapshot.date,
+    snapshot.timestamp,
+    snapshot.appliedFilter,
+    appliedBlockchainFilter,
+    appliedSortOrder
   ]);
 
   const dropdownContainerRef =
@@ -123,16 +117,13 @@ export function AllFilters() {
     setIsDatePickerVisible(false)
   );
 
-  const isSnapshotQuery = Boolean(
-    snapshotBlockNumber || snapshotDate || snapshotTimestamp
-  );
   const isPoap = tokenType === 'POAP';
   const isCombination = address.length > 1;
 
   useEffect(() => {
     const filterValues: Partial<CachedQuery> = {};
     // If snapshot query, reset sort filter
-    if (isSnapshotQuery) {
+    if (snapshot.isApplicable) {
       filterValues.sortOrder = defaultSortOrder;
     }
     // If POAP filter is applied, reset blockchain filter
@@ -141,53 +132,40 @@ export function AllFilters() {
     }
     // If POAP and combinations, reset snapshot filter
     if (isPoap || isCombination) {
-      filterValues.snapshotBlockNumber = undefined;
-      filterValues.snapshotDate = undefined;
-      filterValues.snapshotTimestamp = undefined;
+      filterValues.activeSnapshotInfo = undefined;
     }
     setData(filterValues, { updateQueryParams: true });
-  }, [isSnapshotQuery, isPoap, isCombination, setData]);
+  }, [snapshot.isApplicable, isPoap, isCombination, setData]);
 
   useEffect(() => {
-    setCurrentSnapshotFilter(selectedSnapshotFilter);
-    setCurrentBlockchainFilter(selectedBlockchainFilter);
-    setCurrentSortOrder(selectedSortOrder);
-    setBlockNumber(snapshotBlockNumber);
-    setDate(snapshotDate ? new Date(snapshotDate) : new Date());
-    setTimestamp(snapshotTimestamp);
+    setCurrentSnapshotFilter(snapshot.appliedFilter);
+    setCurrentBlockchainFilter(appliedBlockchainFilter);
+    setCurrentSortOrder(appliedSortOrder);
+    setBlockNumber(snapshot.blockNumber);
+    setDate(snapshot.date ? new Date(snapshot.date) : new Date());
+    setTimestamp(snapshot.timestamp);
   }, [
-    selectedSnapshotFilter,
-    selectedBlockchainFilter,
-    selectedSortOrder,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    appliedBlockchainFilter,
+    appliedSortOrder,
+    snapshot.appliedFilter,
+    snapshot.blockNumber,
+    snapshot.date,
+    snapshot.timestamp
   ]);
 
   const snackbarMessage = useMemo(
-    () =>
-      getSnackbarMessage({
-        selectedFilter: selectedSnapshotFilter,
-        snapshotBlockNumber,
-        snapshotDate,
-        snapshotTimestamp
-      }),
-    [
-      selectedSnapshotFilter,
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp
-    ]
+    () => getSnackbarMessage(snapshot),
+    [snapshot]
   );
 
   const appliedFilterCount = useMemo(
     () =>
       getAppliedFilterCount({
-        selectedSnapshotFilter,
-        selectedBlockchainFilter,
-        selectedSortOrder
+        appliedSnapshotFilter: snapshot.appliedFilter,
+        appliedBlockchainFilter: appliedBlockchainFilter,
+        appliedSortOrder: appliedSortOrder
       }),
-    [selectedBlockchainFilter, selectedSnapshotFilter, selectedSortOrder]
+    [snapshot.appliedFilter, appliedBlockchainFilter, appliedSortOrder]
   );
 
   const handleDropdownToggle = useCallback(() => {
@@ -245,28 +223,24 @@ export function AllFilters() {
 
   // Not enclosing in useCallback as its dependencies will change every time
   const handleApplyClick = () => {
-    const filterValues: Partial<CachedQuery> = {
-      snapshotBlockNumber: undefined,
-      snapshotDate: undefined,
-      snapshotTimestamp: undefined
-    };
+    const snapshotValues: Record<string, unknown> = {};
 
     // For snapshot filter
     switch (currentSnapshotFilter) {
       case SnapshotFilterType.BLOCK_NUMBER:
-        filterValues.snapshotBlockNumber = blockNumber
-          ? Number(blockNumber)
-          : undefined;
+        snapshotValues.blockNumber = blockNumber;
         break;
       case SnapshotFilterType.CUSTOM_DATE:
-        filterValues.snapshotDate = (date as Date).toISOString().split('T')[0];
+        snapshotValues.date = (date as Date).toISOString().split('T')[0];
         break;
       case SnapshotFilterType.TIMESTAMP:
-        filterValues.snapshotTimestamp = timestamp
-          ? Number(timestamp)
-          : undefined;
+        snapshotValues.timestamp = timestamp;
         break;
     }
+
+    const filterValues: Partial<CachedQuery> = {
+      activeSnapshotInfo: getActiveSnapshotInfoString(snapshotValues)
+    };
 
     // For blockchain filter
     if (currentBlockchainFilter === defaultBlockchainFilter) {
@@ -277,7 +251,7 @@ export function AllFilters() {
 
     // For sort filter
     // For snapshot query resetting sort order
-    if (isSnapshotQuery) {
+    if (snapshot.isApplicable) {
       filterValues.sortOrder = defaultSortOrder;
     } else {
       filterValues.sortOrder = currentSortOrder || defaultSortOrder;
@@ -400,7 +374,7 @@ export function AllFilters() {
   };
 
   const renderSortSection = () => {
-    const isDisabled = isSnapshotQuery;
+    const isDisabled = snapshot.isApplicable;
     return (
       <>
         <div
@@ -468,7 +442,7 @@ export function AllFilters() {
           </div>
         )}
       </div>
-      {selectedSnapshotFilter !== defaultSnapshotFilter && snackbarMessage && (
+      {snapshot.appliedFilter !== defaultSnapshotFilter && snackbarMessage && (
         <SnapshotToastMessage message={snackbarMessage} />
       )}
     </>

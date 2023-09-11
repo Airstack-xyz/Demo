@@ -4,6 +4,7 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 import { Dropdown, Option } from '../Dropdown';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
+import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
 
 export const enum SortOrderType {
   DESC = 'DESC',
@@ -24,16 +25,14 @@ export const sortOptions = [
 export const defaultSortOrder = SortOrderType.DESC;
 
 export function SortBy({ disabled }: { disabled?: boolean }) {
-  const [
-    { snapshotBlockNumber, snapshotDate, snapshotTimestamp, sortOrder },
-    setData
-  ] = useSearchInput();
+  const [{ sortOrder, activeSnapshotInfo }, setData] = useSearchInput();
 
-  const isSnapshotQuery = Boolean(
-    snapshotBlockNumber || snapshotDate || snapshotTimestamp
+  const snapshot = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
   );
 
-  const isFilterDisabled = disabled || isSnapshotQuery;
+  const isFilterDisabled = disabled || snapshot.isApplicable;
 
   // Reset sort filter for snapshot query
   useEffect(() => {

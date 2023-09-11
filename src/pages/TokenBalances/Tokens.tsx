@@ -31,9 +31,7 @@ type TokenProps = Pick<
   | 'tokenType'
   | 'blockchainType'
   | 'sortOrder'
-  | 'snapshotBlockNumber'
-  | 'snapshotDate'
-  | 'snapshotTimestamp'
+  | 'activeSnapshotInfo'
 > & {
   poapDisabled?: boolean;
   includeERC20?: boolean;
@@ -44,9 +42,7 @@ function TokensComponent(props: TokenProps) {
     tokenType: tokenType = '',
     blockchainType,
     sortOrder,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp,
+    activeSnapshotInfo,
     includeERC20,
     poapDisabled
   } = props;
@@ -61,9 +57,7 @@ function TokensComponent(props: TokenProps) {
     tokenType,
     blockchainType,
     sortOrder,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp,
+    activeSnapshotInfo,
     includeERC20
   };
 
@@ -92,8 +86,8 @@ function TokensComponent(props: TokenProps) {
   const canFetchPoap = useMemo(() => {
     const hasPolygonChainFilter =
       blockchainType.length === 1 && blockchainType[0] === 'polygon';
-    return !hasPolygonChainFilter && (!tokenType || isPoap);
-  }, [blockchainType, isPoap, tokenType]);
+    return !hasPolygonChainFilter && !poapDisabled && (!tokenType || isPoap);
+  }, [blockchainType, isPoap, poapDisabled, tokenType]);
 
   const handleNext = useCallback(() => {
     if (!loadingTokens && !isPoap && hasNextPageTokens) {

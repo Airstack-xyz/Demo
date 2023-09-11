@@ -21,6 +21,7 @@ import {
 import { showToast } from '../../utils/showToast';
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
 import { addAndRemoveCombinationPlaceholder } from './utils';
+import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
 
 const tokenHoldersPlaceholder =
   'Use @ mention or enter any token contract address';
@@ -65,10 +66,8 @@ export const Search = memo(function Search() {
 
   const isTokenBalances = isHome ? isTokenBalanceActive : isTokenBalancesPage;
 
-  const [
-    { rawInput, snapshotBlockNumber, snapshotDate, snapshotTimestamp },
-    setData
-  ] = useSearchInput(isTokenBalances);
+  const [{ rawInput, activeSnapshotInfo }, setData] =
+    useSearchInput(isTokenBalances);
   const navigate = useNavigate();
 
   const [value, setValue] = useState(rawInput || '');
@@ -77,8 +76,9 @@ export const Search = memo(function Search() {
   const inputSectionRef = useRef<HTMLDivElement>(null);
   const buttonSectionRef = useRef<HTMLDivElement>(null);
 
-  const isSnapshotQuery = Boolean(
-    snapshotBlockNumber || snapshotDate || snapshotTimestamp
+  const snapshot = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
   );
 
   useEffect(() => {
@@ -177,7 +177,7 @@ export const Search = memo(function Search() {
         return;
       }
 
-      if (isSnapshotQuery && address.length > 1) {
+      if (snapshot.isApplicable && address.length > 1) {
         showToast(
           'You can only search for snapshots for 1 identity at a time',
           'negative'
@@ -200,7 +200,7 @@ export const Search = memo(function Search() {
       setValue(rawTextWithMentions.trim() + padding);
       handleDataChange(searchData);
     },
-    [handleDataChange, isSnapshotQuery]
+    [snapshot.isApplicable, handleDataChange]
   );
 
   const handleTokenHoldersSearch = useCallback(
@@ -270,10 +270,10 @@ export const Search = memo(function Search() {
   );
 
   const shouldShowCombinationPlaceholder = useMemo(() => {
-    if (!rawInput || isSnapshotQuery) return false;
+    if (!rawInput || snapshot.isApplicable) return false;
     const [mentions] = getAllMentionDetails(value);
     return mentions.length === 1 && rawInput === value.trim();
-  }, [isSnapshotQuery, rawInput, value]);
+  }, [snapshot.isApplicable, rawInput, value]);
 
   useEffect(() => {
     return addAndRemoveCombinationPlaceholder(

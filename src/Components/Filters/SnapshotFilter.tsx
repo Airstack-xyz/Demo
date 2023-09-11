@@ -1,13 +1,17 @@
 /* eslint-disable react-refresh/only-export-components */
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
-import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
+import { useSearchInput } from '../../hooks/useSearchInput';
 import { formatDate } from '../../utils';
 import { DatePicker, DateValue } from '../DatePicker';
 import { Icon, IconType } from '../Icon';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 import { defaultSortOrder } from './SortBy';
+import {
+  getActiveSnapshotInfoString,
+  getActiveSnapshotInfo
+} from '../../utils/activeSnapshotInfoString';
 
 export const enum SnapshotFilterType {
   TODAY = 'TODAY',
@@ -19,52 +23,52 @@ export const enum SnapshotFilterType {
 export const defaultSnapshotFilter = SnapshotFilterType.TODAY;
 
 type FunctionParams = {
-  selectedFilter: SnapshotFilterType;
-  snapshotBlockNumber?: number;
-  snapshotDate?: string;
-  snapshotTimestamp?: number;
+  appliedFilter: SnapshotFilterType;
+  blockNumber?: number;
+  date?: string;
+  timestamp?: number;
 };
 
 export const getSnackbarMessage = ({
-  selectedFilter,
-  snapshotBlockNumber,
-  snapshotDate,
-  snapshotTimestamp
+  appliedFilter,
+  blockNumber,
+  date,
+  timestamp
 }: FunctionParams) => {
   let message = '';
-  switch (selectedFilter) {
+  switch (appliedFilter) {
     case SnapshotFilterType.BLOCK_NUMBER:
-      message = `Viewing balances as of block no. ${snapshotBlockNumber}`;
+      message = `Viewing balances as of block no. ${blockNumber}`;
       break;
     case SnapshotFilterType.CUSTOM_DATE:
-      message = `Viewing holders as of ${formatDate(snapshotDate)}`;
+      message = `Viewing holders as of ${formatDate(date)}`;
       break;
     case SnapshotFilterType.TIMESTAMP:
-      message = `Viewing balances as of timestamp ${snapshotTimestamp}`;
+      message = `Viewing balances as of timestamp ${timestamp}`;
       break;
   }
   return message;
 };
 
 const getLabelAndIcon = ({
-  selectedFilter,
-  snapshotBlockNumber,
-  snapshotDate,
-  snapshotTimestamp
+  appliedFilter,
+  blockNumber,
+  date,
+  timestamp
 }: FunctionParams) => {
   let label = 'Today';
   let icon: IconType = 'calendar';
-  switch (selectedFilter) {
+  switch (appliedFilter) {
     case SnapshotFilterType.BLOCK_NUMBER:
-      label = String(snapshotBlockNumber);
+      label = String(blockNumber);
       icon = 'block';
       break;
     case SnapshotFilterType.CUSTOM_DATE:
-      label = formatDate(snapshotDate);
+      label = formatDate(date);
       icon = 'calendar';
       break;
     case SnapshotFilterType.TIMESTAMP:
-      label = String(snapshotTimestamp);
+      label = String(timestamp);
       icon = 'clock';
       break;
   }
@@ -83,25 +87,15 @@ export function SnapshotToastMessage({ message }: { message: string }) {
 export type TextValue = string | number | undefined;
 
 export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
-  const [
-    {
-      address,
-      tokenType,
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp
-    },
-    setData
-  ] = useSearchInput();
+  const [{ address, tokenType, activeSnapshotInfo }, setData] =
+    useSearchInput();
 
-  const selectedFilter = useMemo(() => {
-    if (snapshotBlockNumber) return SnapshotFilterType.BLOCK_NUMBER;
-    if (snapshotDate) return SnapshotFilterType.CUSTOM_DATE;
-    if (snapshotTimestamp) return SnapshotFilterType.TIMESTAMP;
-    return defaultSnapshotFilter;
-  }, [snapshotBlockNumber, snapshotDate, snapshotTimestamp]);
+  const snapshot = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
 
-  const [currentFilter, setCurrentFilter] = useState(selectedFilter);
+  const [currentFilter, setCurrentFilter] = useState(snapshot.appliedFilter);
 
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
@@ -113,11 +107,16 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   const handleDropdownHide = useCallback(() => {
     setIsDropdownVisible(false);
     setIsDatePickerVisible(false);
-    setBlockNumber(snapshotBlockNumber);
-    setDate(snapshotDate ? new Date(snapshotDate) : new Date());
-    setTimestamp(snapshotTimestamp);
-    setCurrentFilter(selectedFilter);
-  }, [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]);
+    setBlockNumber(snapshot.blockNumber);
+    setDate(snapshot.date ? new Date(snapshot.date) : new Date());
+    setTimestamp(snapshot.timestamp);
+    setCurrentFilter(snapshot.appliedFilter);
+  }, [
+    snapshot.appliedFilter,
+    snapshot.blockNumber,
+    snapshot.date,
+    snapshot.timestamp
+  ]);
 
   const dropdownContainerRef =
     useOutsideClick<HTMLDivElement>(handleDropdownHide);
@@ -136,9 +135,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
     if (isFilterDisabled) {
       setData(
         {
-          snapshotBlockNumber: undefined,
-          snapshotDate: undefined,
-          snapshotTimestamp: undefined
+          activeSnapshotInfo: undefined
         },
         { updateQueryParams: true }
       );
@@ -146,33 +143,23 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   }, [isFilterDisabled, setData]);
 
   useEffect(() => {
-    setBlockNumber(snapshotBlockNumber);
-    setDate(snapshotDate ? new Date(snapshotDate) : new Date());
-    setTimestamp(snapshotTimestamp);
-    setCurrentFilter(selectedFilter);
-  }, [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]);
+    setBlockNumber(snapshot.blockNumber);
+    setDate(snapshot.date ? new Date(snapshot.date) : new Date());
+    setTimestamp(snapshot.timestamp);
+    setCurrentFilter(snapshot.appliedFilter);
+  }, [
+    snapshot.appliedFilter,
+    snapshot.blockNumber,
+    snapshot.date,
+    snapshot.timestamp
+  ]);
 
   const snackbarMessage = useMemo(
-    () =>
-      getSnackbarMessage({
-        selectedFilter,
-        snapshotBlockNumber,
-        snapshotDate,
-        snapshotTimestamp
-      }),
-    [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]
+    () => getSnackbarMessage(snapshot),
+    [snapshot]
   );
 
-  const { label, icon } = useMemo(
-    () =>
-      getLabelAndIcon({
-        selectedFilter,
-        snapshotBlockNumber,
-        snapshotDate,
-        snapshotTimestamp
-      }),
-    [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]
-  );
+  const { label, icon } = useMemo(() => getLabelAndIcon(snapshot), [snapshot]);
 
   const handleDropdownToggle = useCallback(() => {
     setIsDropdownVisible(prevValue => !prevValue);
@@ -215,31 +202,28 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
 
   // Not enclosing in useCallback as its dependencies will change every time
   const handleApplyClick = () => {
-    const filterValues: Partial<CachedQuery> = {
-      sortOrder: defaultSortOrder, // For snapshot query resetting sort order
-      snapshotBlockNumber: undefined,
-      snapshotDate: undefined,
-      snapshotTimestamp: undefined
-    };
+    const snapshotValues: Record<string, unknown> = {};
 
     switch (currentFilter) {
       case SnapshotFilterType.BLOCK_NUMBER:
-        filterValues.snapshotBlockNumber = blockNumber
-          ? Number(blockNumber)
-          : undefined;
+        snapshotValues.blockNumber = blockNumber;
         break;
       case SnapshotFilterType.CUSTOM_DATE:
-        filterValues.snapshotDate = (date as Date).toISOString().split('T')[0];
+        snapshotValues.date = (date as Date).toISOString().split('T')[0];
         break;
       case SnapshotFilterType.TIMESTAMP:
-        filterValues.snapshotTimestamp = timestamp
-          ? Number(timestamp)
-          : undefined;
+        snapshotValues.timestamp = timestamp;
         break;
     }
 
     setIsDropdownVisible(false);
-    setData(filterValues, { updateQueryParams: true });
+    setData(
+      {
+        sortOrder: defaultSortOrder, // for snapshot query resetting sort order
+        activeSnapshotInfo: getActiveSnapshotInfoString(snapshotValues)
+      },
+      { updateQueryParams: true }
+    );
   };
 
   const handleKeyboardKeyUp = (
@@ -353,7 +337,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
           </div>
         )}
       </div>
-      {selectedFilter !== defaultSnapshotFilter && snackbarMessage && (
+      {snapshot.appliedFilter !== defaultSnapshotFilter && snackbarMessage && (
         <SnapshotToastMessage message={snackbarMessage} />
       )}
     </>

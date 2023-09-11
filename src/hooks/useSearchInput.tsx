@@ -17,11 +17,9 @@ export type CachedQuery = {
   activeViewToken: string;
   activeViewCount: string;
   blockchainType: string[];
-  activeTokenInfo: string;
   sortOrder: string;
-  snapshotDate: string | undefined; // Format: YYYY-MM-DD
-  snapshotBlockNumber: number | undefined;
-  snapshotTimestamp: number | undefined;
+  activeTokenInfo: string;
+  activeSnapshotInfo: string;
 };
 
 export type UserInputs = CachedQuery;
@@ -139,10 +137,6 @@ export function useSearchInput(
   );
 
   return useMemo(() => {
-    const _snapshotDate = searchParams.get('snapshotDate');
-    const _snapshotBlockNumber = searchParams.get('snapshotBlockNumber');
-    const _snapshotTimestamp = searchParams.get('snapshotTimestamp');
-
     const data = {
       address: getData('address', true),
       tokenType: getData('tokenType'),
@@ -152,18 +146,12 @@ export function useSearchInput(
         : null,
       activeView: isTokenBalances ? '' : searchParams.get('activeView') || '',
       activeTokenInfo: searchParams.get('activeTokenInfo') || '',
+      activeSnapshotInfo: searchParams.get('activeSnapshotInfo') || '',
       tokenFilters: !isTokenBalances ? getData('tokenFilters', true) : [],
       activeViewToken: isTokenBalances ? '' : getData('activeViewToken'),
       activeViewCount: isTokenBalances ? '' : getData('activeViewCount'),
       blockchainType: getData('blockchainType', true),
-      sortOrder: getData('sortOrder'),
-      snapshotDate: _snapshotDate || undefined,
-      snapshotBlockNumber: _snapshotBlockNumber
-        ? Number(_snapshotBlockNumber)
-        : undefined,
-      snapshotTimestamp: _snapshotTimestamp
-        ? Number(_snapshotTimestamp)
-        : undefined
+      sortOrder: getData('sortOrder')
     };
 
     setData(data);

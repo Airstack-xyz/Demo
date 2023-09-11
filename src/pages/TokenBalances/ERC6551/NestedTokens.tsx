@@ -42,16 +42,12 @@ export function NestedTokens({
   tokenId,
   blockchain,
   tokenAddress,
-  snapshotDate,
-  snapshotBlockNumber,
-  snapshotTimestamp
+  activeSnapshotInfo
 }: {
   tokenAddress: string;
   tokenId: string;
   blockchain: string;
-  snapshotDate?: string;
-  snapshotBlockNumber?: number;
-  snapshotTimestamp?: number;
+  activeSnapshotInfo?: string;
 }) {
   const [activeTab, setActiveTab] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
@@ -83,11 +79,9 @@ export function NestedTokens({
       tokenType: '',
       blockchainType: [],
       sortOrder: 'DESC',
-      snapshotDate,
-      snapshotBlockNumber,
-      snapshotTimestamp
+      activeSnapshotInfo: activeSnapshotInfo || ''
     };
-  }, [account.identity, snapshotBlockNumber, snapshotDate, snapshotTimestamp]);
+  }, [account.identity, activeSnapshotInfo]);
 
   return (
     <div className=" text-sm mt-5 px-2 sm:px-0">

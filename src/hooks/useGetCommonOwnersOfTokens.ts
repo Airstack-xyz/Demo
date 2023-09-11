@@ -16,6 +16,7 @@ import {
   getCommonNftOwnersSnapshotQuery,
   getNftOwnersSnapshotQuery
 } from '../queries/commonNftOwnersSnapshotQuery';
+import { getActiveSnapshotInfo } from '../utils/activeSnapshotInfoString';
 
 type Token = TokenType & {
   _poapEvent?: Poap['poapEvent'];
@@ -54,22 +55,23 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
 
-  const [{ snapshotBlockNumber, snapshotDate, snapshotTimestamp }] =
-    useSearchInput();
+  const [{ activeSnapshotInfo }] = useSearchInput();
 
-  const isSnapshotQuery = Boolean(
-    snapshotBlockNumber || snapshotDate || snapshotTimestamp
-  );
   const hasPoap = tokenAddress.some(token => !token.address.startsWith('0x'));
+
+  const snapshot = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
 
   const query = useMemo(() => {
     if (tokenAddress.length === 1) {
-      if (isSnapshotQuery) {
+      if (snapshot.isApplicable) {
         return getNftOwnersSnapshotQuery({
           address: tokenAddress[0].address,
-          blockNumber: snapshotBlockNumber,
-          date: snapshotDate,
-          timestamp: snapshotTimestamp
+          blockNumber: snapshot.blockNumber,
+          date: snapshot.date,
+          timestamp: snapshot.timestamp
         });
       }
       return getNftOwnersQuery(tokenAddress[0].address);
@@ -78,23 +80,23 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
       const tokens = sortAddressByPoapFirst(tokenAddress);
       return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
     }
-    if (isSnapshotQuery) {
+    if (snapshot.isApplicable) {
       return getCommonNftOwnersSnapshotQuery({
         address1: tokenAddress[0],
         address2: tokenAddress[1],
-        blockNumber: snapshotBlockNumber,
-        date: snapshotDate,
-        timestamp: snapshotTimestamp
+        blockNumber: snapshot.blockNumber,
+        date: snapshot.date,
+        timestamp: snapshot.timestamp
       });
     }
     return getCommonNftOwnersQuery(tokenAddress[0], tokenAddress[1]);
   }, [
-    hasPoap,
     tokenAddress,
-    isSnapshotQuery,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    hasPoap,
+    snapshot.isApplicable,
+    snapshot.blockNumber,
+    snapshot.date,
+    snapshot.timestamp
   ]);
 
   const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
@@ -200,12 +202,12 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
 
     const _limit = fetchSingleToken ? MIN_LIMIT : LIMIT;
 
-    if (isSnapshotQuery) {
+    if (snapshot.isApplicable) {
       fetch({
         limit: _limit,
-        blockNumber: snapshotBlockNumber,
-        date: snapshotDate,
-        timestamp: snapshotTimestamp
+        blockNumber: snapshot.blockNumber,
+        date: snapshot.date,
+        timestamp: snapshot.timestamp
       });
     } else {
       fetch({
@@ -216,12 +218,12 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     setProcessedTokensCount(LIMIT);
   }, [
     fetch,
-    fetchSingleToken,
     tokenAddress.length,
-    isSnapshotQuery,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    fetchSingleToken,
+    snapshot.isApplicable,
+    snapshot.blockNumber,
+    snapshot.date,
+    snapshot.timestamp
   ]);
 
   return {
