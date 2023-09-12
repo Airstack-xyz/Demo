@@ -82,7 +82,10 @@ export function TokenBalance() {
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
 
-  const [{ hasERC6551 }] = useTokenDetails(['hasERC6551']);
+  const [{ hasERC6551, accountAddress }] = useTokenDetails([
+    'hasERC6551',
+    'accountAddress'
+  ]);
 
   const token = useMemo(() => {
     if (account && !activeTokenInfo) {
@@ -111,11 +114,12 @@ export function TokenBalance() {
 
   const options = useMemo(() => {
     if (address.length === 0) return [];
+    const detailTokensVisible = hasERC6551 && accountAddress;
     const fetchAllBlockchains =
       blockchainType.length === 2 || blockchainType.length === 0;
 
     const tokensQuery = createNftWithCommonOwnersQuery(
-      address,
+      detailTokensVisible ? [accountAddress] : address,
       fetchAllBlockchains ? null : blockchainType[0]
     );
 
@@ -155,7 +159,7 @@ export function TokenBalance() {
       });
     }
 
-    if (tokenType !== 'POAP' && (!showingDetails || hasERC6551)) {
+    if (tokenType !== 'POAP' && (!showingDetails || detailTokensVisible)) {
       options.push({
         label: 'Token Balances (NFT)',
         link: nftLink
@@ -226,6 +230,7 @@ export function TokenBalance() {
     return options;
   }, [
     account,
+    accountAddress,
     activeTokenInfo,
     address,
     blockchainType,

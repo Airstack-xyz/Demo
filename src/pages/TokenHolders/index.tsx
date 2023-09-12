@@ -44,13 +44,21 @@ import {
   erc20TokenDetailsQuery
 } from '../../queries/tokenDetails';
 import { useTokenDetails } from '../../store/tokenDetails';
+import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { defaultSortOrder } from '../TokenBalances/SortBy';
+import { tokenTypes } from '../TokenBalances/constants';
+import { accountOwnerQuery } from '../../queries/accountsQuery';
 
 export function TokenHolders() {
   const [
     { address: tokenAddress, activeView, tokenFilters, activeTokenInfo },
     setData
   ] = useSearchInput();
-  const [{ hasERC6551, owner }] = useTokenDetails(['hasERC6551', 'owner']);
+  const [{ hasERC6551, owner, accountAddress }] = useTokenDetails([
+    'hasERC6551',
+    'owner',
+    'accountAddress'
+  ]);
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
   const [showTokensOrOverview, setShowTokensOrOverview] = useState(true);
 
@@ -218,6 +226,15 @@ export function TokenHolders() {
         label: 'Socials, Domains & XMTP',
         link: socialLink
       });
+
+      const accountHolderLink = createAppUrlWithQuery(accountOwnerQuery, {
+        accountAddress: tokenAddress[0]
+      });
+
+      options.push({
+        label: 'Account Holder',
+        link: accountHolderLink
+      });
     }
 
     if (activeTokenInfo) {
@@ -264,11 +281,28 @@ export function TokenHolders() {
           label: 'ERC6551 Accounts',
           link: erc6551AccountsQueryLink
         });
+
+        const tokensQuery = createNftWithCommonOwnersQuery(
+          [accountAddress],
+          null
+        );
+
+        const nftLink = createAppUrlWithQuery(tokensQuery, {
+          limit: 10,
+          sortBy: defaultSortOrder,
+          tokenType: tokenTypes.filter(token => token !== 'POAP')
+        });
+
+        options.push({
+          label: 'Token Balances (NFT)',
+          link: nftLink
+        });
       }
     }
 
     return options;
   }, [
+    accountAddress,
     activeTokenInfo,
     activeView,
     address,
@@ -280,6 +314,7 @@ export function TokenHolders() {
     token.eventId,
     token.tokenAddress,
     token.tokenId,
+    tokenAddress,
     tokenFilters,
     tokenOwnersQuery,
     tokensQueryWithFilter
