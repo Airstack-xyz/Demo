@@ -121,3 +121,12 @@ body {
 }
 
 /* skeleton loader end*/
+
+/* tab */
+.tabs .tab {
+  position: relative;
+}
+.tabs .tab.active::after {
+  content: '';
+  @apply bg-text-secondary absolute -bottom-[5px] left-0 w-full h-[5px] rounded-18;
+}

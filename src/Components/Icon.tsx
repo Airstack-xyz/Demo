@@ -31,7 +31,17 @@ export type IconType =
   | 'sort'
   | 'blockchain-filter'
   | 'check-mark'
-  | 'holder-white';
+  | 'search'
+  | 'tools'
+  | 'calendar'
+  | 'clock'
+  | 'block'
+  | 'eye'
+  | 'holder-white'
+  | 'stack'
+  | 'token-holders-white'
+  | 'folder'
+  | 'folder-gray';
 
 export type IconProps = {
   name: IconType;

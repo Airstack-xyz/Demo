@@ -11,13 +11,12 @@ import { SectionHeader } from './SectionHeader';
 import { CommonTokenType, TokenType } from './types';
 import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
-import { createTokenHolderUrl } from '../../utils/createTokenUrl';
-import { Link } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { formatNumber } from '../../utils/formatNumber';
 import './erc20.styles.css';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { emit } from '../../utils/eventEmitter/eventEmitter';
+import { getActiveTokenInfoString } from '../../utils/activeTokenInfoString';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
@@ -93,8 +92,10 @@ const MIN_LIMIT = 10;
 export function ERC20Tokens() {
   const [totalProcessedTokens, setTotalProcessedTokens] = useState(0);
   const [tokens, setTokens] = useState<TokenType[]>([]);
-  const [{ address: owners, tokenType, blockchainType, sortOrder }] =
-    useSearchInput();
+  const [
+    { address: owners, tokenType, blockchainType, sortOrder },
+    setSearchData
+  ] = useSearchInput();
   const tokensRef = useRef<TokenType[]>([]);
   const [loading, setLoading] = useState(false);
   const query = useMemo(() => {
@@ -224,15 +225,21 @@ export function ERC20Tokens() {
           loader={null}
         >
           {tokens.map((token, index) => (
-            <Link
+            <div
               data-address={token?.tokenAddress}
-              to={createTokenHolderUrl({
-                address: token?.tokenAddress,
-                type: 'ERC20',
-                blockchain: token.blockchain,
-                label: token?.token?.name
-              })}
-              className="random-color-item"
+              className="random-color-item cursor-pointer"
+              onClick={() => {
+                setSearchData(
+                  {
+                    activeTokenInfo: getActiveTokenInfoString(
+                      token?.tokenAddress || '',
+                      token?.tokenId || '',
+                      token?.blockchain || ''
+                    )
+                  },
+                  { updateQueryParams: true }
+                );
+              }}
             >
               <Token
                 key={index}
@@ -244,7 +251,7 @@ export function ERC20Tokens() {
                   token?.token?.projectDetails?.imageUrl
                 }
               />
-            </Link>
+            </div>
           ))}
           {loading && <Loader />}
         </InfiniteScroll>

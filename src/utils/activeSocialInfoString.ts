@@ -9,3 +9,9 @@ export const getActiveSocialInfoString = ({
 }) => {
   return `${dappName} ${dappSlug} ${activeTab || ''}`;
 };
+
+export const getActiveSocialInfo = (activeSocialInfo?: string) => {
+  const [dappName, dappSlug, activeTab] = activeSocialInfo?.split(' ') ?? [];
+
+  return { isApplicable: Boolean(dappSlug), dappName, dappSlug, activeTab };
+};

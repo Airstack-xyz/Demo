@@ -1,4 +1,5 @@
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useState } from 'react';
+import { useOutsideClick } from '../hooks/useOutsideClick';
 
 export type Option = {
   label: string;
@@ -13,12 +14,17 @@ export function Dropdown({
   renderOption,
   renderPlaceholder,
   onChange,
-  disabled
+  disabled,
+  heading
 }: {
   options: Option[];
   selected?: Option[];
   closeOnSelect?: boolean;
-  renderPlaceholder: (option: Option[], isOpen: boolean) => ReactNode;
+  renderPlaceholder: (
+    option: Option[],
+    isOpen: boolean,
+    isDisabled?: boolean
+  ) => ReactNode;
   renderOption: (params: {
     option: Option;
     selected: Option[];
@@ -27,25 +33,14 @@ export function Dropdown({
   }) => ReactNode;
   onChange: (selected: Option[]) => void;
   disabled?: boolean;
+  heading?: string;
 }) {
   const [_selected, setSelected] = useState<Option[]>([]);
-  const ref = useRef<HTMLDivElement>(null);
   const [show, setShow] = useState(false);
 
-  useEffect(() => {
-    // eslint-disable-next-line
-    const handleClickOutside = (event: any) => {
-      if (ref.current && !ref.current.contains(event.target)) {
-        setShow(false);
-      }
-    };
-    document.addEventListener('click', handleClickOutside, true);
-    return () => {
-      document.removeEventListener('click', handleClickOutside, true);
-    };
-  }, []);
+  const containerRef = useOutsideClick<HTMLDivElement>(() => setShow(false));
 
-  const handleSelction = useCallback(
+  const handleSelection = useCallback(
     (newSelection: Option[]) => {
       if (selected === undefined) {
         setSelected(newSelection);
@@ -63,22 +58,27 @@ export function Dropdown({
   return (
     <div
       className="text-xs font-medium relative inline-flex flex-col items-center"
-      ref={ref}
+      ref={containerRef}
     >
       <div onClick={() => setShow(show => (disabled ? false : !show))}>
-        {renderPlaceholder(actualSelected, show)}
+        {renderPlaceholder(actualSelected, show, disabled)}
       </div>
       {show && (
         <div
-          className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute z-10 min-w-[120%] top-full"
+          className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute z-20 min-w-[110%] left-0 top-full"
           onClick={() => setShow(false)}
         >
+          {!!heading && (
+            <div className="font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap">
+              {heading}
+            </div>
+          )}
           {options.map((option, index) => (
             <div key={index}>
               {renderOption({
                 option,
                 selected: actualSelected,
-                setSelected: handleSelction,
+                setSelected: handleSelection,
                 isSelected:
                   actualSelected.findIndex(
                     item => item.value === option.value
