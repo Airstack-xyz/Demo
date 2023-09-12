@@ -26,7 +26,7 @@ export const Filters = memo(function Filters() {
     [existingTokenType, setData]
   );
 
-  const filters = ['All', ...tokenTypes];
+  const filters = ['All', ...tokenTypes.filter(type => type !== 'ERC20')];
 
   const buttonClass =
     'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light';
