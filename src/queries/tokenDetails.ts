@@ -172,3 +172,17 @@ export const erc20TokenDetailsQuery = `query ERC20Details($tokenAddress: Address
     }
   } 
 }`;
+
+export const accountHolderQuery = `query AccountHolderAddress($address: Identity, $blockchain: TokenBlockchain!) {
+  Accounts(input: {filter: {address: {_eq: $address}}, blockchain: $blockchain}) {
+    Account {
+      nft {
+        tokenBalances {
+          owner {
+            identity
+          }
+        }
+      }
+    }
+  }
+}`;

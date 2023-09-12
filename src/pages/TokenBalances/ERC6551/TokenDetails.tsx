@@ -2,11 +2,18 @@ import { useLazyQuery } from '@airstack/airstack-react';
 import { Icon } from '../../../Components/Icon';
 import { Token } from '../Token';
 import {
+  accountHolderQuery,
   erc20TokenDetailsQuery,
   poapDetailsQuery,
   tokenDetailsQuery
 } from '../../../queries/tokenDetails';
-import { ERC20Response, Nft, TokenTransfer } from '../erc20-types';
+import {
+  AccountHolderResponse,
+  ERC20Response,
+  Nft,
+  TokenBalance,
+  TokenTransfer
+} from '../erc20-types';
 import { NestedTokens } from './NestedTokens';
 import { useCallback, useEffect, useRef } from 'react';
 import {
@@ -71,6 +78,23 @@ function formatPoapData(data: PoapData) {
   };
 }
 
+function formatAccountHolderData(data: AccountHolderResponse) {
+  if (!data) return null;
+
+  const accounts = data?.Accounts?.Account;
+
+  if (!accounts) return null;
+
+  const owners = accounts.reduce((identities: TokenBalance[], account) => {
+    const ids = (account?.nft?.tokenBalances || [])
+      ?.map(tokenBalance => tokenBalance)
+      .filter(Boolean);
+
+    return [...identities, ...ids];
+  }, []);
+  return owners;
+}
+
 export function TokenDetails(props: {
   tokenId: string;
   eventId?: string;
@@ -111,6 +135,17 @@ export function TokenDetails(props: {
       blockchain,
       tokenAddress
     });
+
+  const [
+    fetchAccoutHolders,
+    { data: accountHolders, loading: loadingAccountHolder }
+  ] = useLazyQuery(
+    accountHolderQuery,
+    {},
+    {
+      dataFormatter: formatAccountHolderData
+    }
+  );
 
   const [fetchPoap, { data: _poapData, loading: loadingPoap }] = useLazyQuery(
     poapDetailsQuery,
@@ -159,9 +194,21 @@ export function TokenDetails(props: {
     });
   }, [address, inputType, isTokenBalances, navigate, onClose, rawInput]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const nft: Nft = nftData?.nft || ({} as Nft);
   const transfterDetails: TokenTransfer =
     nftData?.transferDetails || ({} as TokenTransfer);
+
+  useEffect(() => {
+    if (!nft?.tokenBalance) return;
+    const ownerId = nft?.tokenBalance?.owner?.identity;
+    if (ownerId) {
+      fetchAccoutHolders({
+        blockchain,
+        address: ownerId
+      });
+    }
+  }, [blockchain, fetchAccoutHolders, nft]);
 
   useEffect(() => {
     setDetails({
@@ -270,7 +317,12 @@ export function TokenDetails(props: {
             ) : erc20Token ? (
               <TokenERC20Info token={erc20Token} />
             ) : (
-              <NFTInfo nft={nft} transfterDetails={transfterDetails} />
+              <NFTInfo
+                nft={nft}
+                transfterDetails={transfterDetails}
+                holders={!loadingAccountHolder ? accountHolders : null}
+                loadingHolder={loadingAccountHolder}
+              />
             )}
           </>
         )}

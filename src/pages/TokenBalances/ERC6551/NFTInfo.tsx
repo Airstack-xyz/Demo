@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { CopyButton as CopyBtn } from '../../../Components/CopyButton';
 import { KeyValue } from './KeyValue';
-import { Attribute, Nft, TokenTransfer } from '../erc20-types';
+import { Attribute, Nft, TokenBalance, TokenTransfer } from '../erc20-types';
 import { ERC20TokenDetailsResponse } from './types';
 import { Link, useNavigate } from 'react-router-dom';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
@@ -109,11 +109,25 @@ function Owners({ tokens }: { tokens: Nft['tokenBalances'] }) {
   );
 }
 
+function LoaderItem() {
+  return (
+    <div
+      className="skeleton-loader h-5"
+      data-loader-type="block"
+      data-loader-width="50"
+    ></div>
+  );
+}
+
 export function NFTInfo({
   nft,
-  transfterDetails
+  transfterDetails,
+  holders,
+  loadingHolder
 }: {
   nft: Nft;
+  holders: TokenBalance[] | null;
+  loadingHolder: boolean;
   transfterDetails: TokenTransfer;
 }) {
   const [showContactDetails, setShowContactDetails] = useState(false);
@@ -171,10 +185,23 @@ export function NFTInfo({
             </span>
           }
         />
+
         <KeyValue
           name={`Holder${nft?.tokenBalances?.length > 1 ? 's' : ''}`}
-          value={<Owners tokens={nft?.tokenBalances || []} />}
+          value={
+            loadingHolder ? (
+              <LoaderItem />
+            ) : (
+              <Owners tokens={holders ? holders : nft?.tokenBalances || []} />
+            )
+          }
         />
+        {holders && (
+          <KeyValue
+            name="Parent 6551"
+            value={<Owners tokens={nft?.tokenBalances || []} />}
+          />
+        )}
         {!expandDetails && (
           <KeyValue name="Assets included" value={assetsCount} />
         )}

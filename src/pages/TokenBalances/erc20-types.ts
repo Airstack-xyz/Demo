@@ -109,3 +109,14 @@ export interface Erc6551Account {
 export interface Address2 {
   addresses: string[];
 }
+
+export interface AccountHolderResponse {
+  Accounts: {
+    Account: Account[];
+  };
+}
+export interface Account {
+  nft: {
+    tokenBalances: TokenBalance[];
+  };
+}
