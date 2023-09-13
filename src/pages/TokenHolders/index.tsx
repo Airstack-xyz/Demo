@@ -48,6 +48,7 @@ import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwner
 import { defaultSortOrder } from '../TokenBalances/SortBy';
 import { tokenTypes } from '../TokenBalances/constants';
 import { accountOwnerQuery } from '../../queries/accountsQuery';
+import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
 
 export function TokenHolders() {
   const [
@@ -138,8 +139,8 @@ export function TokenHolders() {
   }, [address, hasSomePoap, tokenFilters]);
 
   const token = useMemo(() => {
-    const [tokenAddress, tokenId, blockchain, eventId] =
-      activeTokenInfo.split(' ');
+    const { tokenAddress, tokenId, blockchain, eventId } =
+      getActiveTokenInfo(activeTokenInfo);
     return {
       tokenAddress,
       tokenId,

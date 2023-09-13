@@ -8,7 +8,7 @@ import { Asset } from '../../Components/Asset';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
 import { isMobileDevice } from '../../utils/isMobileDevice';
-import { getActiveTokenInfoString } from '../../utils/activeTokenInfoString';
+import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
 
 type TokenProps = {
   token: null | TokenType | PoapType;
@@ -21,7 +21,7 @@ function Token({
   token: TokenType | PoapType;
   ownerName: string;
 }) {
-  const setSearchData = useSearchInput()[1];
+  const [{ activeTokenInfo }, setSearchData] = useSearchInput();
   const token = (tokenProp || {}) as TokenType;
   const poap = (tokenProp || {}) as PoapType;
   const isPoap = Boolean(poap.poapEvent);
@@ -53,16 +53,14 @@ function Token({
   const handleClick = useCallback(() => {
     setSearchData(
       {
-        activeTokenInfo: getActiveTokenInfoString(
-          address,
-          tokenId,
-          blockchain,
-          eventId
+        activeTokenInfo: addToActiveTokenInfo(
+          { tokenAddress: address, tokenId, blockchain, eventId },
+          activeTokenInfo
         )
       },
       { updateQueryParams: true }
     );
-  }, [address, blockchain, eventId, setSearchData, tokenId]);
+  }, [activeTokenInfo, address, blockchain, eventId, setSearchData, tokenId]);
 
   const assets = useMemo(() => {
     if (!address || !tokenId) return null;

@@ -29,6 +29,7 @@ import { NFTInfo, TokenERC20Info } from './NFTInfo';
 import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
 import classNames from 'classnames';
 import { useTokenDetails } from '../../../store/tokenDetails';
+import { getActiveTokensInfoFromArray } from '../../../utils/activeTokenInfoString';
 
 function LoaderItem() {
   return (
@@ -95,26 +96,24 @@ function formatAccountHolderData(data: AccountHolderResponse) {
   return owners;
 }
 
-export function TokenDetails(props: {
+type Token = {
   tokenId: string;
   eventId?: string;
   blockchain: string;
   tokenAddress: string;
+};
+
+export function TokenDetails(props: {
   hideBackBreadcrumb?: boolean;
   onClose?: () => void;
   showLoader?: boolean;
+  activeTokens: Token[];
 }) {
-  const {
-    tokenId,
-    eventId,
-    showLoader,
-    blockchain,
-    tokenAddress,
-    hideBackBreadcrumb,
-    onClose
-  } = props;
+  const { showLoader, activeTokens, hideBackBreadcrumb, onClose } = props;
+  const { tokenId, eventId, blockchain, tokenAddress } =
+    activeTokens[activeTokens.length - 1];
 
-  const [{ address, rawInput, inputType }] = useSearchInput();
+  const [{ address, rawInput, inputType }, setSearchData] = useSearchInput();
   const navigate = useNavigate();
   const isTokenBalances = !!useMatch('/token-balances');
   const addressRef = useRef(address.join(','));
@@ -216,6 +215,23 @@ export function TokenDetails(props: {
     });
   }, [isPoap, nft?.erc6551Accounts?.length, setDetails]);
 
+  const handleBreadcrumbClick = useCallback(
+    (index: number) => {
+      const updatedTokens = activeTokens.slice(0, index + 1);
+      setSearchData(
+        {
+          activeTokenInfo: getActiveTokensInfoFromArray(updatedTokens)
+        },
+        {
+          updateQueryParams: true
+        }
+      );
+    },
+    [activeTokens, setSearchData]
+  );
+
+  const activeTokenId = isPoap ? poap?.eventId : nft?.tokenId;
+
   const loading = showLoader || loadingToken || loadingERC20 || loadingPoap;
   const hasChildren = !loading && !isPoap && nft?.erc6551Accounts?.length > 0;
 
@@ -241,32 +257,50 @@ export function TokenDetails(props: {
             <span className="mr-2 text-text-secondary">/</span>
           </div>
         )}
-        <div
-          className={classNames('flex items-center flex-1 overflow-hidden', {
-            'skeleton-loader': loading
-          })}
-        >
-          <Icon name="table-view" height={20} width={20} className="mr-1" />{' '}
-          <span
-            data-loader-type="block"
-            data-loader-width="50"
-            className="min-h-[20px] flex items-center overflow-hidden"
-          >
-            {!loading && (
-              <>
-                <span className="mr-1 ellipsis">
-                  Details of{' '}
-                  {isPoap ? poap?.poapEvent.eventName : nft?.token?.name}
-                </span>
-                (
-                <span className="min-w-[20px] max-w-[100px] ellipsis">
-                  #{isPoap ? poap?.eventId : nft?.tokenId}
-                </span>
-                )
-              </>
-            )}
-          </span>
-        </div>
+        {activeTokens.map((token, index) => {
+          const _tokenId = token.tokenId || token.eventId;
+          return (
+            <div
+              className={classNames('flex items-center overflow-hidden', {
+                'skeleton-loader': loading,
+                'flex-1': activeTokenId === _tokenId
+              })}
+            >
+              <Icon name="table-view" height={20} width={20} />{' '}
+              <span
+                data-loader-type="block"
+                data-loader-width="50"
+                className="min-h-[20px] flex items-center overflow-hidden"
+              >
+                {!loading && activeTokenId === _tokenId ? (
+                  <>
+                    <span className="mx-1 ellipsis">
+                      Details of{' '}
+                      {isPoap ? poap?.poapEvent.eventName : nft?.token?.name}
+                    </span>
+                    (
+                    <span className="min-w-[20px] max-w-[100px] ellipsis">
+                      #{activeTokenId}
+                    </span>
+                    )
+                  </>
+                ) : (
+                  <span
+                    className="hover:bg-glass-1-light px-1 rounded-18 cursor-pointer"
+                    onClick={() => {
+                      handleBreadcrumbClick(index);
+                    }}
+                  >
+                    #{_tokenId}
+                  </span>
+                )}
+              </span>
+              {index !== activeTokens.length - 1 && (
+                <span className="mx-1 text-text-secondary">/</span>
+              )}
+            </div>
+          );
+        })}
       </div>
       <div className="bg-glass border-solid-stroke rounded-18 flex p-5 flex-col md:flex-row">
         <div className="flex flex-col items-center mr-0 sm:mr-7">
@@ -330,7 +364,9 @@ export function TokenDetails(props: {
       </div>
       {hasChildren && (
         <NestedTokens
-          {...props}
+          tokenId={tokenId}
+          blockchain={blockchain}
+          tokenAddress={tokenAddress}
           key={`${tokenAddress}-${tokenId}-${blockchain}`}
         />
       )}

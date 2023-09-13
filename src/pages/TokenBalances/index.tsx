@@ -27,6 +27,7 @@ import {
   erc20TokenDetailsQuery
 } from '../../queries/tokenDetails';
 import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
+import { getAllActiveTokenInfo } from '../../utils/activeTokenInfoString';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
@@ -87,25 +88,22 @@ export function TokenBalance() {
     'accountAddress'
   ]);
 
-  const token = useMemo(() => {
+  const activeTokens = useMemo(() => {
     if (account && !activeTokenInfo) {
       const { tokenAddress, tokenId, blockchain } = account;
-      return {
-        tokenAddress,
-        tokenId,
-        blockchain,
-        eventId: ''
-      };
+      return [
+        {
+          tokenAddress,
+          tokenId,
+          blockchain,
+          eventId: ''
+        }
+      ];
     }
-    const [tokenAddress, tokenId, blockchain, eventId] =
-      activeTokenInfo.split(' ');
-    return {
-      tokenAddress,
-      tokenId,
-      blockchain,
-      eventId
-    };
+    return getAllActiveTokenInfo(activeTokenInfo);
   }, [account, activeTokenInfo]);
+
+  const token = activeTokens[activeTokens.length - 1];
 
   useEffect(() => {
     if ((activeTokenInfo && address.length === 0) || address.length > 1) return;
@@ -319,7 +317,7 @@ export function TokenBalance() {
               {showTokenDetails ? (
                 <div key={activeTokenInfo}>
                   <TokenDetails
-                    {...token}
+                    activeTokens={activeTokens}
                     key={activeTokenInfo}
                     showLoader={loadingAccount}
                     hideBackBreadcrumb={hideBackBreadcrumb}
