@@ -19,6 +19,7 @@ import { emit } from '../../utils/eventEmitter/eventEmitter';
 import { createNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
 import { getActiveTokenInfoString } from '../../utils/activeTokenInfoString';
 import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
+import { defaultSortOrder } from '../../Components/Filters/SortBy';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
@@ -115,22 +116,28 @@ export function ERC20Tokens() {
   );
 
   const query = useMemo(() => {
+    const fetchAllBlockchains =
+      blockchainType.length === 2 || blockchainType.length === 0;
+
+    const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
+
     if (snapshot.isApplicable) {
       return createNftWithCommonOwnersSnapshotQuery({
         owners,
-        blockchain: null,
+        blockchain: _blockchain,
         blockNumber: snapshot.blockNumber,
         date: snapshot.date,
         timestamp: snapshot.timestamp
       });
     }
-    return createNftWithCommonOwnersQuery(owners, null);
+    return createNftWithCommonOwnersQuery(owners, _blockchain);
   }, [
-    owners,
+    blockchainType,
     snapshot.isApplicable,
     snapshot.blockNumber,
     snapshot.date,
-    snapshot.timestamp
+    snapshot.timestamp,
+    owners
   ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -199,7 +206,8 @@ export function ERC20Tokens() {
       } else {
         fetch({
           limit: _limit,
-          tokenType: ['ERC20']
+          tokenType: ['ERC20'],
+          sortBy: sortOrder ? sortOrder : defaultSortOrder
         });
       }
     }

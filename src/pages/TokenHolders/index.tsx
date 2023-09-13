@@ -6,7 +6,7 @@ import React, {
   useState
 } from 'react';
 import { Search } from '../../Components/Search';
-import { Layout } from '../../Components/layout';
+import { Layout } from '../../Components/Layout';
 import { Tokens } from './Tokens/Tokens';
 import { HoldersOverview } from './Overview/Overview';
 import { useSearchInput } from '../../hooks/useSearchInput';
@@ -79,7 +79,7 @@ export function TokenHolders() {
     setShowTokensOrOverview(true);
   }, [tokenAddress]);
 
-  const tokenKey = useMemo(() => tokenAddress.join(','), [tokenAddress]);
+  const tokensKey = useMemo(() => tokenAddress.join(','), [tokenAddress]);
 
   const snapshot = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
@@ -407,10 +407,30 @@ export function TokenHolders() {
     setShowTokensOrOverview(false);
   }, []);
 
-  const showInCenter = isHome;
-
   const showTokens =
     showTokensOrOverview && !hasMultipleERC20 && !activeTokenInfo;
+
+  const renderFilterContent = () => {
+    if (activeTokenInfo) {
+      return (
+        <div className="flex justify-center w-[calc(100vw-20px)] sm:w-[645px]">
+          <GetAPIDropdown options={options} />
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex justify-between w-[calc(100vw-20px)] sm:w-[645px]">
+        <div className="flex-row-center gap-1">
+          <SnapshotFilter disabled={hasSomePoap} />
+        </div>
+        <GetAPIDropdown
+          options={options}
+          disabled={overviewTokens.length === 0}
+        />
+      </div>
+    );
+  };
 
   return (
     <Layout>
@@ -419,30 +439,18 @@ export function TokenHolders() {
           'flex flex-col px-2 pt-5 w-[955px] max-w-[100vw] sm:pt-8',
           {
             'flex-1 h-full w-full flex flex-col items-center !pt-[30%] text-center':
-              showInCenter
+              isHome
           }
         )}
       >
         <div className="flex flex-col items-center">
-          {showInCenter && (
-            <h1 className="text-[2rem]">Explore web3 identities</h1>
-          )}
+          {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
           <Search />
         </div>
         {query && query.length > 0 && (
           <>
             {!hasMultipleERC20 && (
-              <div className="m-3 flex-row-center">
-                <div className="flex justify-between w-[calc(100vw-20px)] sm:w-[645px]">
-                  <div className="flex-row-center gap-1">
-                    <SnapshotFilter disabled={hasSomePoap} />
-                  </div>
-                  <GetAPIDropdown
-                    options={options}
-                    disabled={overviewTokens.length === 0}
-                  />
-                </div>
-              </div>
+              <div className="m-3 flex-row-center">{renderFilterContent()}</div>
             )}
             <div className="flex flex-col justify-center mt-7" key={query}>
               <HoldersOverview onAddress404={handleInvalidAddress} />
@@ -450,7 +458,7 @@ export function TokenHolders() {
                 <>
                   {activeView && <OverviewDetails />}
                   {!activeView && (
-                    <div key={tokenKey}>
+                    <div key={tokensKey}>
                       <div className="flex mb-4">
                         <Icon name="token-holders" height={20} width={20} />{' '}
                         <span className="font-bold ml-1.5 text-sm">

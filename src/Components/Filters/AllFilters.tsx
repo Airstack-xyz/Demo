@@ -49,6 +49,8 @@ const getAppliedFilterCount = ({
 const sectionHeaderClass =
   'font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap';
 
+const currentDate = new Date();
+
 export function AllFilters() {
   const [
     { address, blockchainType, tokenType, sortOrder, activeSnapshotInfo },
@@ -303,7 +305,11 @@ export function AllFilters() {
           )}
           {isDatePickerVisible && (
             <div ref={datePickerContainerRef} className="absolute left-2 z-20">
-              <DatePicker value={date} onChange={handleDateChange} />
+              <DatePicker
+                value={date}
+                maxDate={currentDate}
+                onChange={handleDateChange}
+              />
             </div>
           )}
         </div>

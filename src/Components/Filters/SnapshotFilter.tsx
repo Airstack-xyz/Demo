@@ -86,6 +86,8 @@ export function SnapshotToastMessage({ message }: { message: string }) {
 
 export type TextValue = string | number | undefined;
 
+const currentDate = new Date();
+
 export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   const [{ address, tokenType, activeSnapshotInfo }, setData] =
     useSearchInput();
@@ -282,7 +284,11 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
                   ref={datePickerContainerRef}
                   className="absolute left-2 z-20"
                 >
-                  <DatePicker value={date} onChange={handleDateChange} />
+                  <DatePicker
+                    value={date}
+                    maxDate={currentDate}
+                    onChange={handleDateChange}
+                  />
                 </div>
               )}
             </div>

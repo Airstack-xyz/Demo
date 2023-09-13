@@ -40,6 +40,7 @@ type AIInputProps = {
   placeholder: string;
   value: string;
   disableSuggestions?: boolean;
+  blurOnEnter?: boolean;
 };
 
 const mentionTypeMap: Record<MentionType, string> = {
@@ -55,7 +56,8 @@ export function InputWithMention({
   value,
   onSubmit,
   placeholder,
-  disableSuggestions
+  disableSuggestions,
+  blurOnEnter
 }: AIInputProps) {
   const [showInputFor, setShowInputFor] = useState<
     'ID_ADDRESS' | 'ID_POAP' | null
@@ -125,8 +127,9 @@ export function InputWithMention({
   const handleKeypress: KeyboardEventHandler<HTMLTextAreaElement> = useCallback(
     event => {
       if (event.key === 'Enter') {
-        // need to blur input, when enter is pressed
-        inputRef.current?.blur();
+        if (blurOnEnter) {
+          inputRef.current?.blur();
+        }
         // prevent submission when user is selecting a suggestion from the dropdown menu with Enter key
         if (!allowSubmitRef.current) {
           allowSubmitRef.current = true;
@@ -136,7 +139,7 @@ export function InputWithMention({
         onSubmit(value);
       }
     },
-    [onSubmit, value]
+    [blurOnEnter, onSubmit, value]
   );
 
   const onAddSuggestion = useCallback((id: string) => {

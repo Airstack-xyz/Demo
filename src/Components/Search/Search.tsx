@@ -21,7 +21,6 @@ import {
 import { showToast } from '../../utils/showToast';
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
 import { addAndRemoveCombinationPlaceholder } from './utils';
-import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
 
 const tokenHoldersPlaceholder =
   'Use @ mention or enter any token contract address';
@@ -66,8 +65,7 @@ export const Search = memo(function Search() {
 
   const isTokenBalances = isHome ? isTokenBalanceActive : isTokenBalancesPage;
 
-  const [{ rawInput, activeSnapshotInfo }, setData] =
-    useSearchInput(isTokenBalances);
+  const [{ rawInput }, setData] = useSearchInput(isTokenBalances);
   const navigate = useNavigate();
 
   const [value, setValue] = useState(rawInput || '');
@@ -75,11 +73,6 @@ export const Search = memo(function Search() {
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
   const inputSectionRef = useRef<HTMLDivElement>(null);
   const buttonSectionRef = useRef<HTMLDivElement>(null);
-
-  const snapshot = useMemo(
-    () => getActiveSnapshotInfo(activeSnapshotInfo),
-    [activeSnapshotInfo]
-  );
 
   useEffect(() => {
     setValue(rawInput ? rawInput.trim() + padding : '');
@@ -177,14 +170,6 @@ export const Search = memo(function Search() {
         return;
       }
 
-      if (snapshot.isApplicable && address.length > 1) {
-        showToast(
-          'You can only search for snapshots for 1 identity at a time',
-          'negative'
-        );
-        return;
-      }
-
       if (address.length > 2) {
         showToast('You can only compare 2 identities at a time', 'negative');
         return;
@@ -200,7 +185,7 @@ export const Search = memo(function Search() {
       setValue(rawTextWithMentions.trim() + padding);
       handleDataChange(searchData);
     },
-    [snapshot.isApplicable, handleDataChange]
+    [handleDataChange]
   );
 
   const handleTokenHoldersSearch = useCallback(
@@ -270,10 +255,10 @@ export const Search = memo(function Search() {
   );
 
   const shouldShowCombinationPlaceholder = useMemo(() => {
-    if (!rawInput || snapshot.isApplicable) return false;
+    if (!rawInput) return false;
     const [mentions] = getAllMentionDetails(value);
     return mentions.length === 1 && rawInput === value.trim();
-  }, [snapshot.isApplicable, rawInput, value]);
+  }, [rawInput, value]);
 
   useEffect(() => {
     return addAndRemoveCombinationPlaceholder(
@@ -378,6 +363,7 @@ export const Search = memo(function Search() {
                 : tokenHoldersPlaceholder
             }
             disableSuggestions={isTokenBalances}
+            blurOnEnter={isTokenBalances}
           />
           <div ref={buttonSectionRef} className="flex justify-end pl-3">
             {isInputSectionFocused && value && (
