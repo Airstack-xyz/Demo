@@ -308,7 +308,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
       <TokenDetailsReset>
         <ERC6551TokenHolder
           owner={account?.token?.owner?.identity}
-          token={tokenWith6551 || account?.token}
+          token={tokenWith6551 || account?.token || null}
         />
       </TokenDetailsReset>
     );

@@ -49,7 +49,7 @@ export function ERC6551TokenHolder({
   token
 }: {
   owner: string;
-  token?: {
+  token: null | {
     tokenId: string;
     tokenAddress: string;
     blockchain: string;
@@ -176,8 +176,15 @@ export function ERC6551TokenHolder({
           onClick={() => {
             setSearchInput(
               {
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                activeTokenInfo: addToActiveTokenInfo(token!, activeTokenInfo)
+                activeTokenInfo: addToActiveTokenInfo(
+                  {
+                    tokenAddress: token?.tokenAddress || '',
+                    tokenId: token?.tokenId || '',
+                    blockchain: token?.blockchain || '',
+                    walletAddress: owner || ''
+                  },
+                  activeTokenInfo
+                )
               },
               {
                 updateQueryParams: true

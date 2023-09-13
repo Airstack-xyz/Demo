@@ -54,13 +54,27 @@ function Token({
     setSearchData(
       {
         activeTokenInfo: addToActiveTokenInfo(
-          { tokenAddress: address, tokenId, blockchain, eventId },
+          {
+            tokenAddress: address,
+            tokenId,
+            blockchain,
+            eventId,
+            walletAddress: ownerName
+          },
           activeTokenInfo
         )
       },
       { updateQueryParams: true }
     );
-  }, [activeTokenInfo, address, blockchain, eventId, setSearchData, tokenId]);
+  }, [
+    activeTokenInfo,
+    address,
+    blockchain,
+    eventId,
+    ownerName,
+    setSearchData,
+    tokenId
+  ]);
 
   const assets = useMemo(() => {
     if (!address || !tokenId) return null;

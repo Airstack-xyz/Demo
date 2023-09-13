@@ -1,60 +1,67 @@
+type Token = {
+  tokenAddress: string;
+  tokenId: string;
+  blockchain: string;
+  eventId?: string | null;
+  walletAddress?: string;
+};
+
 export function getActiveTokenInfoString(
   tokenAddress: string,
   tokenId: string,
   blockchain: string,
-  eventId?: string | null
+  eventId?: string | null,
+  walletAddress?: string
 ) {
-  return `${tokenAddress}_${tokenId}_${blockchain}_${eventId || ''}`;
+  return `${tokenAddress}_${tokenId}_${blockchain}_${eventId || ''}_${
+    walletAddress || ''
+  }`;
 }
 
-export function addToActiveTokenInfo(
-  token: {
-    tokenAddress: string;
-    tokenId: string;
-    blockchain: string;
-    eventId?: string | null;
-  },
-  activeTokenInfo = ''
-) {
+export function addToActiveTokenInfo(token: Token, activeTokenInfo = '') {
   return `${
     activeTokenInfo ? `${activeTokenInfo} ` : ''
   }${getActiveTokenInfoString(
     token.tokenAddress,
     token.tokenId,
     token.blockchain,
-    token.eventId
+    token.eventId,
+    token.walletAddress
   )}`;
 }
 
-export function getActiveTokenInfo(info: string) {
+export function getActiveTokenInfo(info: string): Token {
   const tokens = getAllActiveTokenInfo(info);
   return tokens[tokens.length - 1];
 }
 
-export function getAllActiveTokenInfo(info: string) {
+export function getAllActiveTokenInfo(info: string): Token[] {
   const tokenStrings = info.split(' ');
   const tokens = tokenStrings.map(token => {
-    const [tokenAddress, tokenId, blockchain, eventId] = token.split('_');
+    const [tokenAddress, tokenId, blockchain, eventId, walletAddress] =
+      token.split('_');
     return {
-      tokenAddress,
+      eventId,
       tokenId,
       blockchain,
-      eventId
+      tokenAddress,
+      walletAddress
     };
   });
   return tokens;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function getActiveTokensInfoFromArray(tokens: any[]) {
+export function getActiveTokensInfoFromArray(tokens: Token[]) {
   return tokens
     .map(token => {
-      const { tokenAddress, tokenId, blockchain, eventId } = token;
+      const { tokenAddress, tokenId, blockchain, eventId, walletAddress } =
+        token;
       return getActiveTokenInfoString(
         tokenAddress,
         tokenId,
         blockchain,
-        eventId
+        eventId,
+        walletAddress
       );
     })
     .join(' ');

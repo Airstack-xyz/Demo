@@ -100,8 +100,13 @@ export function TokenBalance() {
         }
       ];
     }
-    return getAllActiveTokenInfo(activeTokenInfo);
-  }, [account, activeTokenInfo]);
+    return getAllActiveTokenInfo(activeTokenInfo).map(token => {
+      if (!token.walletAddress) {
+        token.walletAddress = address[0];
+      }
+      return token;
+    });
+  }, [account, activeTokenInfo, address]);
 
   const token = activeTokens[activeTokens.length - 1];
 

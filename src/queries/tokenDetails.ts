@@ -1,45 +1,48 @@
-export const tokenDetailsQuery = `query TokenDetails($tokenAddress: Address!, $tokenId: String!, $blockchain: TokenBlockchain!) {
-  nft: TokenNft(
-    input: {address: $tokenAddress, tokenId: $tokenId, blockchain: $blockchain}
+export const tokenDetailsQuery = `query TokenDetails($walletAddress: Identity, $tokenAddress: Address!, $tokenId: String!, $blockchain: TokenBlockchain!) {
+  nft: TokenBalances(
+    input: {filter: {owner: {_eq: $walletAddress}, tokenId: {_eq: $tokenId}, tokenAddress: {_eq: $tokenAddress}}, blockchain: $blockchain}
   ) {
-    totalSupply 
-    tokenURI
-    tokenId
-    address
-    type
-    blockchain
-    lastTransferHash
-    lastTransferBlock
-    lastTransferTimestamp
-    contentValue {
-      image {
-        medium
+    TokenBalance {
+      token {
+        name
+        symbol
+        totalSupply
       }
-    }
-    metaData {
-      description
-      attributes {
-        trait_type
-        value
+      owner {
+        identity
+        addresses
       }
-    }
-    erc6551Accounts {
-      address {
-        tokenBalances {
-          tokenAddress
-          tokenId
+      tokenNfts {
+        totalSupply
+        tokenURI
+        tokenId
+        address
+        type
+        blockchain
+        lastTransferHash
+        lastTransferBlock
+        lastTransferTimestamp
+        contentValue {
+          image {
+            medium
+          }
+        }
+        metaData {
+          description
+          attributes {
+            trait_type
+            value
+          }
+        }
+        erc6551Accounts {
+          address {
+            tokenBalances {
+              tokenAddress
+              tokenId
+            }
+          }
         }
       }
-    }
-    tokenBalances{
-      owner{
-        identity
-      }
-    }
-    token {
-      name
-      symbol
-      totalSupply
     }
   }
   transfers: TokenTransfers(
