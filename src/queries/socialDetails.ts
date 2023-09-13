@@ -4,13 +4,16 @@ export const socialDetailsQuery = `query GetSocials($identities: [Identity!], $d
     ) {
       Social {
         id
+        blockchain
         dappName
         dappSlug
         profileName
         profileImage
         profileTokenId
+        profileTokenAddress
         followerCount
         followingCount
+        userAddress
         userCreatedAtBlockTimestamp
         userCreatedAtBlockNumber
       }

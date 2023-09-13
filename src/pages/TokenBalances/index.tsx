@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useState } from 'react';
 import { Search } from '../../Components/Search';
-import { Layout } from '../../Components/layout';
+import { Layout } from '../../Components/Layout';
 import { Socials } from './Socials';
 import { Tokens, TokensLoader } from './Tokens';
 import { ERC20Tokens } from './ERC20Tokens';
@@ -28,8 +28,11 @@ import {
   erc20TokenDetailsQuery
 } from '../../queries/tokenDetails';
 import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
-import { IconType } from '../../Components/Icon';
 import { SocialDetails } from './SocialDetails/SocialDetails';
+import { Tab, TabContainer } from '../../Components/Tab';
+import { getActiveSocialInfo } from '../../utils/activeSocialInfoString';
+import { socialDetailsQuery } from '../../queries/socialDetails';
+import { capitalizeFirstLetter } from '../../utils';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -85,32 +88,6 @@ function TokenContainer({
   );
 }
 
-function MobileTab({
-  icon,
-  header,
-  active,
-  onClick
-}: {
-  icon: IconType;
-  header: string;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <div
-      onClick={onClick}
-      className={classNames(
-        'pb-2 flex-1 flex justify-center border-b-4 border-solid border-text-secondary -mb-1',
-        {
-          '!border-transparent [&>div]:font-normal text-text-secondary': active
-        }
-      )}
-    >
-      <SectionHeader iconName={icon} heading={header} />
-    </div>
-  );
-}
-
 export function TokenBalance() {
   const [
     {
@@ -137,9 +114,13 @@ export function TokenBalance() {
 
   const isCombination = address.length > 1;
 
-  const showSocialDetails = Boolean(activeSocialInfo);
   const showTokenDetails = Boolean(activeTokenInfo || account);
   const hideBackBreadcrumb = Boolean(account);
+
+  const socialInfo = useMemo(
+    () => getActiveSocialInfo(activeSocialInfo),
+    [activeSocialInfo]
+  );
 
   useEffect(() => {
     if ((activeTokenInfo && address.length === 0) || address.length > 1) return;
@@ -180,7 +161,11 @@ export function TokenBalance() {
 
     const options = [];
 
-    if (!showTokenDetails && (!tokenType || tokenType === 'POAP')) {
+    if (
+      !showTokenDetails &&
+      !socialInfo.isApplicable &&
+      (!tokenType || tokenType === 'POAP')
+    ) {
       const poapsQuery = poapsOfCommonOwnersQuery(address);
 
       const poapLink = createAppUrlWithQuery(poapsQuery, {
@@ -211,14 +196,18 @@ export function TokenBalance() {
       tokenType: ['ERC20']
     });
 
-    if ((!showTokenDetails || hasERC6551) && tokenType !== 'POAP') {
+    if (
+      (!showTokenDetails || hasERC6551) &&
+      !socialInfo.isApplicable &&
+      tokenType !== 'POAP'
+    ) {
       options.push({
         label: 'Token Balances (NFT)',
         link: nftLink
       });
     }
 
-    if (!showTokenDetails) {
+    if (!showTokenDetails && !socialInfo.isApplicable) {
       const socialLink = createAppUrlWithQuery(SocialQuery, {
         identity: query
       });
@@ -286,6 +275,18 @@ export function TokenBalance() {
       }
     }
 
+    if (socialInfo.isApplicable) {
+      const socialDetailsLink = createAppUrlWithQuery(socialDetailsQuery, {
+        identities: address,
+        dappSlug: socialInfo.dappSlug
+      });
+
+      options.push({
+        label: `${capitalizeFirstLetter(socialInfo.dappName)} profile details`,
+        link: socialDetailsLink
+      });
+    }
+
     return options;
   }, [
     address,
@@ -293,6 +294,9 @@ export function TokenBalance() {
     tokenType,
     sortOrder,
     showTokenDetails,
+    socialInfo.isApplicable,
+    socialInfo.dappSlug,
+    socialInfo.dappName,
     hasERC6551,
     query,
     token.tokenAddress,
@@ -316,7 +320,7 @@ export function TokenBalance() {
   );
 
   const renderFilterContent = () => {
-    if (showTokenDetails || showSocialDetails) {
+    if (showTokenDetails || socialInfo.isApplicable) {
       return (
         <div className="flex justify-center w-[calc(100vw-20px)] sm:w-[645px]">
           <GetAPIDropdown options={options} />
@@ -353,8 +357,15 @@ export function TokenBalance() {
       );
     }
 
-    if (showSocialDetails) {
-      return <SocialDetails key={activeSocialInfo} />;
+    if (socialInfo.isApplicable) {
+      return (
+        <SocialDetails
+          key={activeSocialInfo}
+          identities={address}
+          socialInfo={socialInfo}
+          setQueryData={setData}
+        />
+      );
     }
 
     return (
@@ -364,20 +375,20 @@ export function TokenBalance() {
             <SectionHeader iconName="nft-flat" heading={tab1Header} />
           </div>
           {isMobile && (
-            <div className="mt-5 flex gap-5 mb-5 text-center sm:hidden border-b-4 border-solid border-stroke-color text-sm">
-              <MobileTab
+            <TabContainer className="sm:hidden">
+              <Tab
                 icon="nft-flat"
                 header={tab1Header}
-                active={showSocials}
+                active={!showSocials}
                 onClick={() => setShowSocials(false)}
               />
-              <MobileTab
+              <Tab
                 icon="erc20"
                 header={tab2Header}
-                active={!showSocials}
+                active={showSocials}
                 onClick={() => setShowSocials(true)}
               />
-            </div>
+            </TabContainer>
           )}
           <div className="mt-3.5 mb-5 z-[15] relative">
             {(!isMobile || !showSocials) && <Filters />}

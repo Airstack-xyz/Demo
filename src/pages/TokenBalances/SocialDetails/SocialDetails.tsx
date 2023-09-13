@@ -1,38 +1,47 @@
 import { useLazyQuery } from '@airstack/airstack-react';
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Icon } from '../../../Components/Icon';
-import { useSearchInput } from '../../../hooks/useSearchInput';
+import { Tab, TabContainer } from '../../../Components/Tab';
+import { UpdateUserInputs } from '../../../hooks/useSearchInput';
 import { socialDetailsQuery } from '../../../queries/socialDetails';
-import { getActiveSocialInfo } from '../../../utils/activeSocialInfoString';
+import { SocialInfo } from '../../../utils/activeSocialInfoString';
+import { Filters } from './Filters';
+import { SocialCard, SocialCardLoader } from './SocialCard';
 import { Social } from './types';
-import { SocialCard } from './SocialCard';
 
-export function SocialDetails() {
-  const [{ address, activeSocialInfo }, setData] = useSearchInput();
+type SocialDetailsProps = {
+  identities: string[];
+  socialInfo: SocialInfo;
+  setQueryData: UpdateUserInputs;
+};
 
-  const social = useMemo(
-    () => getActiveSocialInfo(activeSocialInfo),
-    [activeSocialInfo]
+export function SocialDetails({
+  identities,
+  socialInfo,
+  setQueryData
+}: SocialDetailsProps) {
+  const [followerTabActive, setFollowerTabActive] = useState(
+    socialInfo.followerTab
   );
 
   const [fetchDetails, { data: detailsData, loading: detailsLoading }] =
     useLazyQuery(socialDetailsQuery, {
-      identities: address,
-      dappSlug: social.dappSlug
+      identities,
+      dappSlug: socialInfo.dappSlug
     });
-
-  const handleClose = () => {
-    setData(
-      {
-        activeSocialInfo: undefined
-      },
-      { updateQueryParams: true }
-    );
-  };
 
   useEffect(() => {
     fetchDetails();
   }, [fetchDetails]);
+
+  const handleClose = useCallback(() => {
+    setQueryData(
+      {
+        activeSocialInfo: ''
+      },
+      { updateQueryParams: true }
+    );
+  }, [setQueryData]);
 
   const socialDetailList: Social[] = detailsData?.Socials?.Social;
 
@@ -44,9 +53,9 @@ export function SocialDetails() {
             className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
             onClick={handleClose}
           >
-            <Icon name="token-balances" height={20} width={20} />
+            <Icon name="token-holders" height={20} width={20} />
             <span className="ml-1.5 text-text-secondary break-all cursor-pointer max-w-[90%] sm:max-w-[500px] ellipsis">
-              Token balances of {address.join(', ')}
+              Token balances of {identities.join(', ')}
             </span>
           </div>
           <span className="mr-2 text-text-secondary">/</span>
@@ -54,15 +63,33 @@ export function SocialDetails() {
         <div className="flex items-center flex-1">
           <Icon name="table-view" height={20} width={20} className="mr-2" />
           <span className="text-text-primary">
-            <span className="capitalize">{social.dappName}</span> details
+            <span className="capitalize">{socialInfo.dappName}</span> details
           </span>
         </div>
       </div>
       <div className="mt-2 flex">
         {!detailsLoading &&
           socialDetailList?.map(item => (
-            <SocialCard key={item.id} social={item} />
+            <SocialCard key={item.id} item={item} />
           ))}
+        {detailsLoading && <SocialCardLoader />}
+      </div>
+      <TabContainer>
+        <Tab
+          icon="nft-flat"
+          header={`${socialInfo.followerCount} followers`}
+          active={followerTabActive}
+          onClick={() => setFollowerTabActive(true)}
+        />
+        <Tab
+          icon="erc20"
+          header={`${socialInfo.followingCount} following`}
+          active={!followerTabActive}
+          onClick={() => setFollowerTabActive(false)}
+        />
+      </TabContainer>
+      <div className="flex items-center justify-end my-3">
+        <Filters />
       </div>
     </div>
   );

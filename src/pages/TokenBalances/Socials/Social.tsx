@@ -64,11 +64,13 @@ export function Social({
   );
 
   const getSocialClickHandler = useCallback(
-    (tab?: string) => () => {
+    (followerTab?: boolean) => () => {
       const activeSocialInfoString = getActiveSocialInfoString({
         dappName: name,
         dappSlug: slug || '',
-        activeTab: tab
+        followerCount: followerCount || 0,
+        followingCount: followingCount || 0,
+        followerTab
       });
       setData(
         {
@@ -77,7 +79,7 @@ export function Social({
         { updateQueryParams: true }
       );
     },
-    [name, slug, setData]
+    [name, slug, followerCount, followingCount, setData]
   );
 
   const showFollowerFollowingInfo =
@@ -138,7 +140,7 @@ export function Social({
             <div className="flex-1">Followers</div>
             <button
               className="flex-1 px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
-              onClick={getSocialClickHandler('followers')}
+              onClick={getSocialClickHandler(true)}
             >
               {followerCount}
             </button>
@@ -147,14 +149,14 @@ export function Social({
             <div className="flex-1">Following</div>
             <button
               className="flex-1 px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
-              onClick={getSocialClickHandler('following')}
+              onClick={getSocialClickHandler(false)}
             >
               {followingCount}
             </button>
           </div>
           <button
             className="text-text-button font-bold mt-2"
-            onClick={getSocialClickHandler('followers')}
+            onClick={getSocialClickHandler(true)}
           >
             See all {name} info
           </button>

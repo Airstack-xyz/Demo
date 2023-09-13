@@ -29,7 +29,7 @@ export const userInputCache = {
   tokenHolder: {} as UserInputs
 };
 
-type UpdateUserInputs = (
+export type UpdateUserInputs = (
   data: Partial<UserInputs>,
   config?: { reset?: boolean; updateQueryParams?: boolean; redirectTo?: string }
 ) => void;

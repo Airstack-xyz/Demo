@@ -6,7 +6,7 @@ import React, {
   useState
 } from 'react';
 import { Search } from '../../Components/Search';
-import { Layout } from '../../Components/layout';
+import { Layout } from '../../Components/Layout';
 import { Tokens } from './Tokens/Tokens';
 import { HoldersOverview } from './Overview/Overview';
 import { useSearchInput } from '../../hooks/useSearchInput';

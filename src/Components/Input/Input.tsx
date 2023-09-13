@@ -12,7 +12,6 @@ import { MentionsInput, Mention } from './react-mentions';
 import './input-styles.css';
 import {
   generateId,
-  capitalizeFirstLetter,
   highlightMention,
   ID_REGEX,
   REGEX_LAST_WORD_STARTS_WITH_AT,
@@ -25,7 +24,7 @@ import {
 import { AddressInput } from './AddressInput';
 import { ADDRESS_OPTION_ID, MENTION_COUNT, POAP_OPTION_ID } from './constants';
 import { Icon } from '../Icon';
-import { pluralize } from '../../utils';
+import { capitalizeFirstLetter, pluralize } from '../../utils';
 
 type Option = SearchAIMentions_SearchAIMentions & {
   id: string;
@@ -40,6 +39,7 @@ type AIInputProps = {
   placeholder: string;
   value: string;
   disableSuggestions?: boolean;
+  blurOnEnter?: boolean;
 };
 
 const mentionTypeMap: Record<MentionType, string> = {
@@ -55,7 +55,8 @@ export function InputWithMention({
   value,
   onSubmit,
   placeholder,
-  disableSuggestions
+  disableSuggestions,
+  blurOnEnter
 }: AIInputProps) {
   const [showInputFor, setShowInputFor] = useState<
     'ID_ADDRESS' | 'ID_POAP' | null
@@ -125,8 +126,9 @@ export function InputWithMention({
   const handleKeypress: KeyboardEventHandler<HTMLTextAreaElement> = useCallback(
     event => {
       if (event.key === 'Enter') {
-        // need to blur input, when enter is pressed
-        inputRef.current?.blur();
+        if (blurOnEnter) {
+          inputRef.current?.blur();
+        }
         // prevent submission when user is selecting a suggestion from the dropdown menu with Enter key
         if (!allowSubmitRef.current) {
           allowSubmitRef.current = true;
@@ -136,7 +138,7 @@ export function InputWithMention({
         onSubmit(value);
       }
     },
-    [onSubmit, value]
+    [blurOnEnter, onSubmit, value]
   );
 
   const onAddSuggestion = useCallback((id: string) => {

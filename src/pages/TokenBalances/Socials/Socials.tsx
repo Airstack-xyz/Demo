@@ -169,6 +169,7 @@ function SocialsComponent() {
               followingCount
             }) => (
               <Social
+                key={dappSlug}
                 name={dappName}
                 slug={dappSlug}
                 followerCount={followerCount}
