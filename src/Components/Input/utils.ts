@@ -132,10 +132,6 @@ export function highlightMention(el: HTMLTextAreaElement | null) {
   };
 }
 
-export function capitalizeFirstLetter(str: string) {
-  const capitalized = str.charAt(0).toUpperCase() + str.slice(1);
-  return capitalized;
-}
 // id format: <address> <token type> <blockchain>
 export function generateId(mention: SearchAIMentions_SearchAIMentions) {
   return `${mention.address} ${mention.type} ${mention.blockchain} ${mention.eventId}`;

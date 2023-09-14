@@ -12,7 +12,6 @@ import { MentionsInput, Mention } from './react-mentions';
 import './input-styles.css';
 import {
   generateId,
-  capitalizeFirstLetter,
   highlightMention,
   ID_REGEX,
   REGEX_LAST_WORD_STARTS_WITH_AT,
@@ -25,7 +24,7 @@ import {
 import { AddressInput } from './AddressInput';
 import { ADDRESS_OPTION_ID, MENTION_COUNT, POAP_OPTION_ID } from './constants';
 import { Icon } from '../Icon';
-import { pluralize } from '../../utils';
+import { capitalizeFirstLetter, pluralize } from '../../utils';
 
 type Option = SearchAIMentions_SearchAIMentions & {
   id: string;

@@ -75,6 +75,18 @@ const getLabelAndIcon = ({
   return { label, icon };
 };
 
+const getTooltipMessage = ({
+  forCombination,
+  forPoap
+}: {
+  forCombination?: boolean;
+  forPoap?: boolean;
+}) => {
+  if (forCombination) return 'Snapshots is disabled for combinations';
+  if (forPoap) return 'Snapshots is disabled for POAP';
+  return '';
+};
+
 export function SnapshotToastMessage({ message }: { message: string }) {
   return (
     <div className="fixed bottom-10 left-1/2 -translate-x-1/2 rounded-[30px] w-max py-2 px-5 flex bg-[#5398FF] text-sm font-semibold z-50">
@@ -105,6 +117,16 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   const [blockNumber, setBlockNumber] = useState<TextValue>('');
   const [timestamp, setTimestamp] = useState<TextValue>('');
   const [date, setDate] = useState<DateValue>(new Date());
+
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+
+  const handleTooltipShow = useCallback(() => {
+    setIsTooltipVisible(true);
+  }, []);
+
+  const handleTooltipHide = useCallback(() => {
+    setIsTooltipVisible(false);
+  }, []);
 
   const handleDropdownHide = useCallback(() => {
     setIsDropdownVisible(false);
@@ -247,6 +269,8 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
       <div
         className="text-xs font-medium relative flex flex-col items-end"
         ref={dropdownContainerRef}
+        onMouseEnter={isFilterDisabled ? handleTooltipShow : undefined}
+        onMouseLeave={isFilterDisabled ? handleTooltipHide : undefined}
       >
         <FilterPlaceholder
           isDisabled={isFilterDisabled}
@@ -255,6 +279,17 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
           icon={icon}
           onClick={handleDropdownToggle}
         />
+        {isFilterDisabled && isTooltipVisible && (
+          <div className="absolute left-4 top-4 z-20">
+            <img src="images/cursor.svg" height={30} width={30} />
+            <div className="bg-glass-1 rounded-[16px] py-1.5 px-3 w-max text-text-secondary">
+              {getTooltipMessage({
+                forCombination: isCombination,
+                forPoap: isPoap
+              })}
+            </div>
+          </div>
+        )}
         {isDropdownVisible && (
           <div className="before:bg-glass before:absolute before:inset-0 before:-z-10 before:rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">
             <div className="font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap">
