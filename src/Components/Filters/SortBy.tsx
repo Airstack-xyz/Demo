@@ -27,12 +27,12 @@ export const defaultSortOrder = SortOrderType.DESC;
 export function SortBy({ disabled }: { disabled?: boolean }) {
   const [{ sortOrder, activeSnapshotInfo }, setData] = useSearchInput();
 
-  const snapshot = useMemo(
+  const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
     [activeSnapshotInfo]
   );
 
-  const isFilterDisabled = disabled || snapshot.isApplicable;
+  const isFilterDisabled = disabled || snapshotInfo.isApplicable;
 
   // Reset sort filter for snapshot query
   useEffect(() => {

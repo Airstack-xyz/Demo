@@ -100,23 +100,28 @@ export type TextValue = string | number | undefined;
 
 const currentDate = new Date();
 
+const filterInputClass =
+  'bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none';
+
 export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   const [{ address, tokenType, activeSnapshotInfo }, setData] =
     useSearchInput();
 
-  const snapshot = useMemo(
+  const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
     [activeSnapshotInfo]
   );
 
-  const [currentFilter, setCurrentFilter] = useState(snapshot.appliedFilter);
+  const [currentFilter, setCurrentFilter] = useState(
+    snapshotInfo.appliedFilter
+  );
 
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
 
   const [blockNumber, setBlockNumber] = useState<TextValue>('');
   const [timestamp, setTimestamp] = useState<TextValue>('');
-  const [date, setDate] = useState<DateValue>(new Date());
+  const [date, setDate] = useState<DateValue>(currentDate);
 
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
 
@@ -131,15 +136,15 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   const handleDropdownHide = useCallback(() => {
     setIsDropdownVisible(false);
     setIsDatePickerVisible(false);
-    setBlockNumber(snapshot.blockNumber);
-    setDate(snapshot.date ? new Date(snapshot.date) : new Date());
-    setTimestamp(snapshot.timestamp);
-    setCurrentFilter(snapshot.appliedFilter);
+    setBlockNumber(snapshotInfo.blockNumber);
+    setDate(snapshotInfo.date ? new Date(snapshotInfo.date) : new Date());
+    setTimestamp(snapshotInfo.timestamp);
+    setCurrentFilter(snapshotInfo.appliedFilter);
   }, [
-    snapshot.appliedFilter,
-    snapshot.blockNumber,
-    snapshot.date,
-    snapshot.timestamp
+    snapshotInfo.appliedFilter,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   const dropdownContainerRef =
@@ -167,23 +172,26 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   }, [isFilterDisabled, setData]);
 
   useEffect(() => {
-    setBlockNumber(snapshot.blockNumber);
-    setDate(snapshot.date ? new Date(snapshot.date) : new Date());
-    setTimestamp(snapshot.timestamp);
-    setCurrentFilter(snapshot.appliedFilter);
+    setBlockNumber(snapshotInfo.blockNumber);
+    setDate(snapshotInfo.date ? new Date(snapshotInfo.date) : new Date());
+    setTimestamp(snapshotInfo.timestamp);
+    setCurrentFilter(snapshotInfo.appliedFilter);
   }, [
-    snapshot.appliedFilter,
-    snapshot.blockNumber,
-    snapshot.date,
-    snapshot.timestamp
+    snapshotInfo.appliedFilter,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   const snackbarMessage = useMemo(
-    () => getSnackbarMessage(snapshot),
-    [snapshot]
+    () => getSnackbarMessage(snapshotInfo),
+    [snapshotInfo]
   );
 
-  const { label, icon } = useMemo(() => getLabelAndIcon(snapshot), [snapshot]);
+  const { label, icon } = useMemo(
+    () => getLabelAndIcon(snapshotInfo),
+    [snapshotInfo]
+  );
 
   const handleDropdownToggle = useCallback(() => {
     setIsDropdownVisible(prevValue => !prevValue);
@@ -337,7 +345,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
                 autoFocus
                 type="text"
                 placeholder="enter block no."
-                className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none"
+                className={filterInputClass}
                 onChange={handleBlockNumberChange}
                 onKeyUp={handleKeyboardKeyUp}
                 value={blockNumber}
@@ -353,7 +361,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
                 autoFocus
                 type="text"
                 placeholder="epoch timestamp"
-                className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none"
+                className={filterInputClass}
                 onChange={handleTimestampChange}
                 onKeyUp={handleKeyboardKeyUp}
                 value={timestamp}
@@ -378,9 +386,8 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
           </div>
         )}
       </div>
-      {snapshot.appliedFilter !== defaultSnapshotFilter && snackbarMessage && (
-        <SnapshotToastMessage message={snackbarMessage} />
-      )}
+      {snapshotInfo.appliedFilter !== defaultSnapshotFilter &&
+        snackbarMessage && <SnapshotToastMessage message={snackbarMessage} />}
     </>
   );
 }

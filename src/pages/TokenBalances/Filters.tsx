@@ -11,7 +11,7 @@ export const Filters = memo(function Filters() {
   const [{ tokenType: existingTokenType = '', activeSnapshotInfo }, setData] =
     useSearchInput();
 
-  const snapshot = useMemo(
+  const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
     [activeSnapshotInfo]
   );
@@ -34,13 +34,13 @@ export const Filters = memo(function Filters() {
 
   const filters = useMemo(() => {
     let _filters = null;
-    if (snapshot.isApplicable) {
+    if (snapshotInfo.isApplicable) {
       _filters = tokenTypes.filter(type => type !== 'ERC20' && type !== 'POAP');
     } else {
       _filters = tokenTypes.filter(type => type !== 'ERC20');
     }
     return ['All', ..._filters];
-  }, [snapshot.isApplicable]);
+  }, [snapshotInfo.isApplicable]);
 
   return (
     <div className="flex justify-between items-center">

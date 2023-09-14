@@ -39,7 +39,7 @@ export function useGetTokensOfOwner(
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
   const tokensRef = useRef<TokenType[]>([]);
 
-  const snapshot = useMemo(
+  const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
     [activeSnapshotInfo]
   );
@@ -50,23 +50,23 @@ export function useGetTokensOfOwner(
 
     const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
-    if (snapshot.isApplicable) {
+    if (snapshotInfo.isApplicable) {
       return createNftWithCommonOwnersSnapshotQuery({
         owners,
         blockchain: _blockchain,
-        blockNumber: snapshot.blockNumber,
-        date: snapshot.date,
-        timestamp: snapshot.timestamp
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp
       });
     }
     return createNftWithCommonOwnersQuery(owners, _blockchain);
   }, [
     blockchainType,
     owners,
-    snapshot.isApplicable,
-    snapshot.blockNumber,
-    snapshot.date,
-    snapshot.timestamp
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   const [
@@ -98,13 +98,13 @@ export function useGetTokensOfOwner(
             );
 
       // For snapshots different variables are being passed
-      if (snapshot.isApplicable) {
+      if (snapshotInfo.isApplicable) {
         fetchTokens({
           limit: _limit,
           tokenType: _tokenType,
-          blockNumber: snapshot.blockNumber,
-          date: snapshot.date,
-          timestamp: snapshot.timestamp
+          blockNumber: snapshotInfo.blockNumber,
+          date: snapshotInfo.date,
+          timestamp: snapshotInfo.timestamp
         });
       } else {
         fetchTokens({
@@ -123,10 +123,10 @@ export function useGetTokensOfOwner(
     blockchainType,
     sortOrder,
     tokenType,
-    snapshot.isApplicable,
-    snapshot.blockNumber,
-    snapshot.date,
-    snapshot.timestamp
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   useEffect(() => {

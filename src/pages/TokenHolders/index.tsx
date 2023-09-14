@@ -81,7 +81,7 @@ export function TokenHolders() {
 
   const tokensKey = useMemo(() => tokenAddress.join(','), [tokenAddress]);
 
-  const snapshot = useMemo(
+  const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
     [activeSnapshotInfo]
   );
@@ -112,12 +112,12 @@ export function TokenHolders() {
   const tokenOwnersQuery = useMemo(() => {
     if (address.length === 0) return '';
     if (address.length === 1) {
-      if (snapshot.isApplicable) {
+      if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQuery({
           address: address[0].address,
-          blockNumber: snapshot.blockNumber,
-          date: snapshot.date,
-          timestamp: snapshot.timestamp
+          blockNumber: snapshotInfo.blockNumber,
+          date: snapshotInfo.date,
+          timestamp: snapshotInfo.timestamp
         });
       }
       return getNftOwnersQuery(address[0].address);
@@ -126,23 +126,23 @@ export function TokenHolders() {
       const tokens = sortAddressByPoapFirst(address);
       return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
     }
-    if (snapshot.isApplicable) {
+    if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQuery({
         address1: address[0],
         address2: address[1],
-        blockNumber: snapshot.blockNumber,
-        date: snapshot.date,
-        timestamp: snapshot.timestamp
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp
       });
     }
     return getCommonNftOwnersQuery(address[0], address[1]);
   }, [
     address,
     hasSomePoap,
-    snapshot.isApplicable,
-    snapshot.blockNumber,
-    snapshot.date,
-    snapshot.timestamp
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   const tokensQueryWithFilter = useMemo(() => {
@@ -151,12 +151,12 @@ export function TokenHolders() {
     const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
     if (address.length === 0) return '';
     if (address.length === 1) {
-      if (snapshot.isApplicable) {
+      if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQueryWithFilters({
           address: address[0].address,
-          blockNumber: snapshot.blockNumber,
-          date: snapshot.date,
-          timestamp: snapshot.timestamp,
+          blockNumber: snapshotInfo.blockNumber,
+          date: snapshotInfo.date,
+          timestamp: snapshotInfo.timestamp,
           hasSocialFilters: _hasSocialFilters,
           hasPrimaryDomain: _hasPrimaryDomain
         });
@@ -176,13 +176,13 @@ export function TokenHolders() {
         _hasPrimaryDomain
       );
     }
-    if (snapshot.isApplicable) {
+    if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQueryWithFilters({
         address1: address[0],
         address2: address[1],
-        blockNumber: snapshot.blockNumber,
-        date: snapshot.date,
-        timestamp: snapshot.timestamp,
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp,
         hasSocialFilters: _hasSocialFilters,
         hasPrimaryDomain: _hasPrimaryDomain
       });
@@ -197,10 +197,10 @@ export function TokenHolders() {
     tokenFilters,
     address,
     hasSomePoap,
-    snapshot.isApplicable,
-    snapshot.blockNumber,
-    snapshot.date,
-    snapshot.timestamp
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   const token = useMemo(() => {
@@ -233,12 +233,12 @@ export function TokenHolders() {
           ...requestFilters
         });
       } else {
-        if (snapshot.isApplicable) {
+        if (snapshotInfo.isApplicable) {
           combinationsQueryLink = createAppUrlWithQuery(tokensQueryWithFilter, {
             limit: 200,
-            blockNumber: snapshot.blockNumber,
-            date: snapshot.date,
-            timestamp: snapshot.timestamp,
+            blockNumber: snapshotInfo.blockNumber,
+            date: snapshotInfo.date,
+            timestamp: snapshotInfo.timestamp,
             ...requestFilters
           });
         } else {
@@ -280,12 +280,12 @@ export function TokenHolders() {
           link: poapSupplyLink
         });
       } else {
-        if (snapshot.isApplicable) {
+        if (snapshotInfo.isApplicable) {
           const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
             limit: 20,
-            blockNumber: snapshot.blockNumber,
-            date: snapshot.date,
-            timestamp: snapshot.timestamp
+            blockNumber: snapshotInfo.blockNumber,
+            date: snapshotInfo.date,
+            timestamp: snapshotInfo.timestamp
           });
 
           options.push({
@@ -384,10 +384,10 @@ export function TokenHolders() {
     hasPoap,
     tokenOwnersQuery,
     tokensQueryWithFilter,
-    snapshot.isApplicable,
-    snapshot.blockNumber,
-    snapshot.date,
-    snapshot.timestamp,
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp,
     query,
     owner,
     token.tokenAddress,

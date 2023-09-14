@@ -59,19 +59,19 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
 
   const hasPoap = tokenAddress.some(token => !token.address.startsWith('0x'));
 
-  const snapshot = useMemo(
+  const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
     [activeSnapshotInfo]
   );
 
   const query = useMemo(() => {
     if (tokenAddress.length === 1) {
-      if (snapshot.isApplicable) {
+      if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQuery({
           address: tokenAddress[0].address,
-          blockNumber: snapshot.blockNumber,
-          date: snapshot.date,
-          timestamp: snapshot.timestamp
+          blockNumber: snapshotInfo.blockNumber,
+          date: snapshotInfo.date,
+          timestamp: snapshotInfo.timestamp
         });
       }
       return getNftOwnersQuery(tokenAddress[0].address);
@@ -80,23 +80,23 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
       const tokens = sortAddressByPoapFirst(tokenAddress);
       return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
     }
-    if (snapshot.isApplicable) {
+    if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQuery({
         address1: tokenAddress[0],
         address2: tokenAddress[1],
-        blockNumber: snapshot.blockNumber,
-        date: snapshot.date,
-        timestamp: snapshot.timestamp
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp
       });
     }
     return getCommonNftOwnersQuery(tokenAddress[0], tokenAddress[1]);
   }, [
     tokenAddress,
     hasPoap,
-    snapshot.isApplicable,
-    snapshot.blockNumber,
-    snapshot.date,
-    snapshot.timestamp
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
@@ -202,12 +202,12 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
 
     const _limit = fetchSingleToken ? MIN_LIMIT : LIMIT;
 
-    if (snapshot.isApplicable) {
+    if (snapshotInfo.isApplicable) {
       fetch({
         limit: _limit,
-        blockNumber: snapshot.blockNumber,
-        date: snapshot.date,
-        timestamp: snapshot.timestamp
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp
       });
     } else {
       fetch({
@@ -220,10 +220,10 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     fetch,
     tokenAddress.length,
     fetchSingleToken,
-    snapshot.isApplicable,
-    snapshot.blockNumber,
-    snapshot.date,
-    snapshot.timestamp
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   return {

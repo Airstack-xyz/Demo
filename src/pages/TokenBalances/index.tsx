@@ -151,7 +151,7 @@ export function TokenBalance() {
   const showTokenDetails = Boolean(activeTokenInfo || account);
   const hideBackBreadcrumb = Boolean(account);
 
-  const snapshot = useMemo(
+  const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
     [activeSnapshotInfo]
   );
@@ -196,7 +196,7 @@ export function TokenBalance() {
     const options = [];
 
     if (
-      !snapshot.isApplicable &&
+      !snapshotInfo.isApplicable &&
       !showTokenDetails &&
       (!tokenType || tokenType === 'POAP')
     ) {
@@ -216,29 +216,29 @@ export function TokenBalance() {
     let nftLink = '';
     let erc20Link = '';
 
-    if (snapshot.isApplicable) {
+    if (snapshotInfo.isApplicable) {
       const tokensQuery = createNftWithCommonOwnersSnapshotQuery({
         owners: address,
         blockchain: _blockchain,
-        blockNumber: snapshot.blockNumber,
-        date: snapshot.date,
-        timestamp: snapshot.timestamp
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp
       });
 
       nftLink = createAppUrlWithQuery(tokensQuery, {
         limit: 10,
         tokenType: _limit,
-        blockNumber: snapshot.blockNumber,
-        date: snapshot.date,
-        timestamp: snapshot.timestamp
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp
       });
 
       erc20Link = createAppUrlWithQuery(tokensQuery, {
         limit: 50,
         tokenType: ['ERC20'],
-        blockNumber: snapshot.blockNumber,
-        date: snapshot.date,
-        timestamp: snapshot.timestamp
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp
       });
     } else {
       const tokensQuery = createNftWithCommonOwnersQuery(address, _blockchain);
@@ -263,7 +263,7 @@ export function TokenBalance() {
       });
     }
 
-    if (!snapshot.isApplicable && !showTokenDetails) {
+    if (!snapshotInfo.isApplicable && !showTokenDetails) {
       const socialLink = createAppUrlWithQuery(SocialQuery, {
         identity: query
       });
@@ -337,10 +337,10 @@ export function TokenBalance() {
     blockchainType,
     tokenType,
     sortOrder,
-    snapshot.isApplicable,
-    snapshot.blockNumber,
-    snapshot.date,
-    snapshot.timestamp,
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp,
     showTokenDetails,
     hasERC6551,
     query,
@@ -351,14 +351,14 @@ export function TokenBalance() {
   ]);
 
   const { tab1Header, tab2Header } = useMemo(() => {
-    const tab1Header = `${snapshot.isApplicable ? 'NFTs' : 'NFTs & POAPs'}${
+    const tab1Header = `${snapshotInfo.isApplicable ? 'NFTs' : 'NFTs & POAPs'}${
       isCombination ? ' in common' : ''
     }`;
     const tab2Header = `${
-      snapshot.isApplicable || !isCombination ? 'ERC20' : 'Socials & ERC20'
+      snapshotInfo.isApplicable || !isCombination ? 'ERC20' : 'Socials & ERC20'
     }${isCombination ? ' in common' : ''}`;
     return { tab1Header, tab2Header };
-  }, [snapshot.isApplicable, isCombination]);
+  }, [snapshotInfo.isApplicable, isCombination]);
 
   // force the component to re-render when any of the search input change, so that the tokens are reset and refetch
   const tokensKey = useMemo(

@@ -110,7 +110,7 @@ export function ERC20Tokens() {
 
   const isCombination = owners.length > 1;
 
-  const snapshot = useMemo(
+  const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
     [activeSnapshotInfo]
   );
@@ -121,22 +121,22 @@ export function ERC20Tokens() {
 
     const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
-    if (snapshot.isApplicable) {
+    if (snapshotInfo.isApplicable) {
       return createNftWithCommonOwnersSnapshotQuery({
         owners,
         blockchain: _blockchain,
-        blockNumber: snapshot.blockNumber,
-        date: snapshot.date,
-        timestamp: snapshot.timestamp
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp
       });
     }
     return createNftWithCommonOwnersQuery(owners, _blockchain);
   }, [
     blockchainType,
-    snapshot.isApplicable,
-    snapshot.blockNumber,
-    snapshot.date,
-    snapshot.timestamp,
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp,
     owners
   ]);
 
@@ -195,13 +195,13 @@ export function ERC20Tokens() {
 
       const _limit = owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT;
 
-      if (snapshot.isApplicable) {
+      if (snapshotInfo.isApplicable) {
         fetch({
           limit: _limit,
           tokenType: ['ERC20'],
-          blockNumber: snapshot.blockNumber,
-          date: snapshot.date,
-          timestamp: snapshot.timestamp
+          blockNumber: snapshotInfo.blockNumber,
+          date: snapshotInfo.date,
+          timestamp: snapshotInfo.timestamp
         });
       } else {
         fetch({
@@ -222,10 +222,10 @@ export function ERC20Tokens() {
     tokenType,
     blockchainType,
     sortOrder,
-    snapshot.isApplicable,
-    snapshot.blockNumber,
-    snapshot.date,
-    snapshot.timestamp
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   useEffect(() => {

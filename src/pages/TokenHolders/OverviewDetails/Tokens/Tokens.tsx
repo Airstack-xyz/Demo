@@ -114,7 +114,7 @@ export function TokensComponent() {
     return getRequestFilters(filters);
   }, [filters]);
 
-  const snapshot = useMemo(
+  const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
     [activeSnapshotInfo]
   );
@@ -130,12 +130,12 @@ export function TokensComponent() {
     const _hasSocialFilters = Boolean(requestFilters?.socialFilters);
     const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
     if (address.length === 1) {
-      if (snapshot.isApplicable) {
+      if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQueryWithFilters({
           address: address[0].address,
-          blockNumber: snapshot.blockNumber,
-          date: snapshot.date,
-          timestamp: snapshot.timestamp,
+          blockNumber: snapshotInfo.blockNumber,
+          date: snapshotInfo.date,
+          timestamp: snapshotInfo.timestamp,
           hasSocialFilters: _hasSocialFilters,
           hasPrimaryDomain: _hasPrimaryDomain
         });
@@ -155,13 +155,13 @@ export function TokensComponent() {
         _hasPrimaryDomain
       );
     }
-    if (snapshot.isApplicable) {
+    if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQueryWithFilters({
         address1: address[0],
         address2: address[1],
-        blockNumber: snapshot.blockNumber,
-        date: snapshot.date,
-        timestamp: snapshot.timestamp,
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp,
         hasSocialFilters: _hasSocialFilters,
         hasPrimaryDomain: _hasPrimaryDomain
       });
@@ -177,10 +177,10 @@ export function TokensComponent() {
     requestFilters?.hasPrimaryDomain,
     address,
     hasSomePoap,
-    snapshot.isApplicable,
-    snapshot.blockNumber,
-    snapshot.date,
-    snapshot.timestamp
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   const poapsQuery = useMemo(() => {
@@ -284,12 +284,12 @@ export function TokensComponent() {
         return;
       }
 
-      if (snapshot.isApplicable) {
+      if (snapshotInfo.isApplicable) {
         fetchTokens({
           limit: LIMIT,
-          blockNumber: snapshot.blockNumber,
-          date: snapshot.date,
-          timestamp: snapshot.timestamp,
+          blockNumber: snapshotInfo.blockNumber,
+          date: snapshotInfo.date,
+          timestamp: snapshotInfo.timestamp,
           ...requestFilters
         });
       } else {
@@ -306,10 +306,10 @@ export function TokensComponent() {
     hasPoap,
     requestFilters,
     shouldFetchTokens,
-    snapshot.isApplicable,
-    snapshot.blockNumber,
-    snapshot.date,
-    snapshot.timestamp
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   const { hasNextPage, getNextPage } = hasPoap
