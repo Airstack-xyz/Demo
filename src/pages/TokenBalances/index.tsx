@@ -91,26 +91,6 @@ export function TokenBalance() {
     'accountAddress'
   ]);
 
-  useEffect(() => {
-    if (account && !activeTokenInfo) {
-      const { tokenAddress, tokenId, blockchain } = account;
-      setData(
-        {
-          activeTokenInfo: addToActiveTokenInfo(
-            {
-              tokenAddress,
-              tokenId,
-              blockchain,
-              eventId: ''
-            },
-            activeTokenInfo
-          )
-        },
-        { updateQueryParams: true, replace: true }
-      );
-    }
-  }, [account, activeTokenInfo, setData]);
-
   const activeTokens = useMemo(() => {
     if (activeTokenInfo) {
       return getAllActiveTokenInfo(activeTokenInfo);
@@ -119,6 +99,32 @@ export function TokenBalance() {
   }, [activeTokenInfo]);
 
   const token = activeTokens[activeTokens.length - 1];
+
+  useEffect(() => {
+    if (account) {
+      const { tokenAddress, tokenId, blockchain } = account;
+      // if the token is already in the activeTokenInfo, don't add it again
+      if (
+        token &&
+        token.tokenAddress === tokenAddress &&
+        token.tokenId === tokenId &&
+        token.blockchain === blockchain
+      ) {
+        return;
+      }
+      setData(
+        {
+          activeTokenInfo: addToActiveTokenInfo({
+            tokenAddress,
+            tokenId,
+            blockchain,
+            eventId: ''
+          })
+        },
+        { updateQueryParams: true, replace: true }
+      );
+    }
+  }, [account, activeTokenInfo, setData, token]);
 
   useEffect(() => {
     if ((activeTokenInfo && address.length === 0) || address.length > 1) return;
