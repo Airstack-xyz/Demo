@@ -27,7 +27,10 @@ import {
   erc20TokenDetailsQuery
 } from '../../queries/tokenDetails';
 import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
-import { getAllActiveTokenInfo } from '../../utils/activeTokenInfoString';
+import {
+  addToActiveTokenInfo,
+  getAllActiveTokenInfo
+} from '../../utils/activeTokenInfoString';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
@@ -88,20 +91,32 @@ export function TokenBalance() {
     'accountAddress'
   ]);
 
-  const activeTokens = useMemo(() => {
+  useEffect(() => {
     if (account && !activeTokenInfo) {
       const { tokenAddress, tokenId, blockchain } = account;
-      return [
+      setData(
         {
-          tokenAddress,
-          tokenId,
-          blockchain,
-          eventId: ''
-        }
-      ];
+          activeTokenInfo: addToActiveTokenInfo(
+            {
+              tokenAddress,
+              tokenId,
+              blockchain,
+              eventId: ''
+            },
+            activeTokenInfo
+          )
+        },
+        { updateQueryParams: true, replace: true }
+      );
     }
-    return getAllActiveTokenInfo(activeTokenInfo);
-  }, [account, activeTokenInfo]);
+  }, [account, activeTokenInfo, setData]);
+
+  const activeTokens = useMemo(() => {
+    if (activeTokenInfo) {
+      return getAllActiveTokenInfo(activeTokenInfo);
+    }
+    return [];
+  }, [activeTokenInfo]);
 
   const token = activeTokens[activeTokens.length - 1];
 
@@ -176,7 +191,7 @@ export function TokenBalance() {
       }
     }
 
-    if (activeTokenInfo || account) {
+    if ((activeTokenInfo || account) && token) {
       const erc6551AccountsQueryLink = createAppUrlWithQuery(
         erc6551TokensQuery,
         {
@@ -233,10 +248,7 @@ export function TokenBalance() {
     hasERC6551,
     query,
     sortOrder,
-    token.blockchain,
-    token.eventId,
-    token.tokenAddress,
-    token.tokenId,
+    token,
     tokenType
   ]);
 
@@ -286,7 +298,7 @@ export function TokenBalance() {
   );
   const showInCenter = isHome;
 
-  const showTokenDetails = activeTokenInfo || Boolean(account);
+  const showTokenDetails = activeTokenInfo || token;
   const hideBackBreadcrumb = Boolean(account);
 
   return (
