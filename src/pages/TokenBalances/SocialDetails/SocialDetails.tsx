@@ -2,17 +2,43 @@ import { useLazyQuery } from '@airstack/airstack-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Icon } from '../../../Components/Icon';
 import { Tab, TabContainer } from '../../../Components/Tab';
-import { UpdateUserInputs } from '../../../hooks/useSearchInput';
 import { socialDetailsQuery } from '../../../queries/socialDetails';
-import { SocialInfo } from '../../../utils/activeSocialInfoString';
-import { Filters } from './Filters';
 import { SocialCard, SocialCardLoader } from './SocialCard';
 import { Social } from './types';
+import { MentionInput, MentionOutput } from './MentionInput';
+import { showToast } from '../../../utils/showToast';
+import { Filters } from './Filters';
+import { UpdateUserInputs } from '../../../hooks/useSearchInput';
+import {
+  SocialInfo,
+  getActiveSocialInfoString
+} from '../../../utils/activeSocialInfoString';
 
 type SocialDetailsProps = {
   identities: string[];
   socialInfo: SocialInfo;
   setQueryData: UpdateUserInputs;
+};
+
+const mentionValidationFn = ({ mentions }: MentionOutput) => {
+  if (mentions.length === 0) {
+    showToast('Please use @ to add token, NFT, or POAP', 'negative');
+    return false;
+  }
+  if (mentions.length > 1) {
+    showToast("Filter can't work with more than one entities", 'negative');
+    return false;
+  }
+  return true;
+};
+
+const thresholdValidationFn = ({ text }: MentionOutput) => {
+  const value = Number(text);
+  if (!(Number.isInteger(value) && value > 0)) {
+    showToast('Please enter positive integer', 'negative');
+    return false;
+  }
+  return true;
 };
 
 export function SocialDetails({
@@ -42,6 +68,60 @@ export function SocialDetails({
       { updateQueryParams: true }
     );
   }, [setQueryData]);
+
+  const handleMentionSubmit = useCallback(
+    ({ rawText }: MentionOutput) => {
+      setQueryData(
+        {
+          activeSocialInfo: getActiveSocialInfoString({
+            ...socialInfo,
+            mentionRawText: rawText
+          })
+        },
+        { updateQueryParams: true }
+      );
+    },
+    [setQueryData, socialInfo]
+  );
+
+  const handleMentionClear = useCallback(() => {
+    setQueryData(
+      {
+        activeSocialInfo: getActiveSocialInfoString({
+          ...socialInfo,
+          mentionRawText: ''
+        })
+      },
+      { updateQueryParams: true }
+    );
+  }, [setQueryData, socialInfo]);
+
+  const handleThresholdSubmit = useCallback(
+    ({ rawText }: MentionOutput) => {
+      setQueryData(
+        {
+          activeSocialInfo: getActiveSocialInfoString({
+            ...socialInfo,
+            thresholdRawText: rawText
+          })
+        },
+        { updateQueryParams: true }
+      );
+    },
+    [setQueryData, socialInfo]
+  );
+
+  const handleThresholdClear = useCallback(() => {
+    setQueryData(
+      {
+        activeSocialInfo: getActiveSocialInfoString({
+          ...socialInfo,
+          thresholdRawText: ''
+        })
+      },
+      { updateQueryParams: true }
+    );
+  }, [setQueryData, socialInfo]);
 
   const socialDetailList: Social[] = detailsData?.Socials?.Social;
 
@@ -88,7 +168,27 @@ export function SocialDetails({
           onClick={() => setFollowerTabActive(false)}
         />
       </TabContainer>
-      <div className="flex items-center justify-end my-3">
+      <div className="flex items-center justify-between my-3">
+        <div className="flex flex-wrap gap-5">
+          <MentionInput
+            blurOnEnter
+            defaultValue={socialInfo.mentionRawText}
+            placeholder="Enter a token, NFT, or POAP to view overlap"
+            className="w-[350px]"
+            validationFn={mentionValidationFn}
+            onSubmit={handleMentionSubmit}
+            onClear={handleMentionClear}
+          />
+          <MentionInput
+            blurOnEnter
+            defaultValue={socialInfo.thresholdRawText}
+            placeholder="Enter threshold amount"
+            validationFn={thresholdValidationFn}
+            onSubmit={handleThresholdSubmit}
+            onClear={handleThresholdClear}
+            disableSuggestions={true}
+          />
+        </div>
         <Filters />
       </div>
     </div>
