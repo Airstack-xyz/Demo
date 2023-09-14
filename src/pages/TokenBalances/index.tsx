@@ -124,9 +124,7 @@ export function TokenBalance() {
     const nftLink = createAppUrlWithQuery(tokensQuery, {
       limit: 10,
       sortBy: sortOrder ? sortOrder : defaultSortOrder,
-      tokenType: tokenType
-        ? [tokenType]
-        : tokenTypes.filter(tokenType => tokenType !== 'POAP')
+      tokenType: tokenType ? [tokenType] : tokenTypes
     });
 
     const erc20Link = createAppUrlWithQuery(tokensQuery, {

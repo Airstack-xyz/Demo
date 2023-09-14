@@ -291,7 +291,7 @@ export function TokenHolders() {
         const nftLink = createAppUrlWithQuery(tokensQuery, {
           limit: 10,
           sortBy: defaultSortOrder,
-          tokenType: tokenTypes.filter(token => token !== 'POAP')
+          tokenType: tokenTypes
         });
 
         options.push({

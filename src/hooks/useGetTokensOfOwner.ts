@@ -42,6 +42,8 @@ export function useGetTokensOfOwner(
   }, [blockchainType, fetchAllBlockchains, owners]);
 
   const isPoap = tokenType === 'POAP';
+  const is6551 = tokenType === 'ERC6551';
+
   const [
     fetchTokens,
     {
@@ -61,12 +63,10 @@ export function useGetTokensOfOwner(
         limit: owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT,
         sortBy: sortOrder ? sortOrder : defaultSortOrder,
         tokenType:
-          tokenType && tokenType.length > 0
+          tokenType && tokenType.length > 0 && !is6551
             ? [tokenType]
             : tokenTypes.filter(
-                tokenType =>
-                  tokenType !== 'POAP' &&
-                  (includeERC20 ? true : tokenType !== 'ERC20')
+                tokenType => includeERC20 || tokenType !== 'ERC20'
               )
       });
     }
@@ -76,6 +76,7 @@ export function useGetTokensOfOwner(
     blockchainType,
     fetchTokens,
     includeERC20,
+    is6551,
     isPoap,
     owners,
     sortOrder,
@@ -110,7 +111,14 @@ export function useGetTokensOfOwner(
           return token;
         }, []);
     }
-    const tokens = [...ethTokens, ...maticTokens];
+    let tokens = [...ethTokens, ...maticTokens];
+
+    if (is6551) {
+      tokens = tokens.filter((token: CommonTokenType) => {
+        return token.tokenNfts.erc6551Accounts.length > 0;
+      });
+    }
+
     tokensRef.current = [...tokensRef.current, ...tokens];
     onDataReceived(tokens);
 
@@ -121,7 +129,7 @@ export function useGetTokensOfOwner(
     }
     setLoading(false);
     tokensRef.current = [];
-  }, [getNextPage, hasNextPage, onDataReceived, tokensData]);
+  }, [getNextPage, hasNextPage, is6551, onDataReceived, tokensData]);
 
   const getNext = useCallback(() => {
     if (!hasNextPage) return;
