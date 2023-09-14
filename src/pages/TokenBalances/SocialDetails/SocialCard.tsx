@@ -65,7 +65,7 @@ export function SocialCard({ item }: SocialCardProps) {
             {item.userCreatedAtBlockNumber}
           </div>
           <div>User address</div>
-          <div className="text-text-secondary flex sm:w-[140px] gap-1">
+          <div className="text-text-secondary flex sm:w-[140px]">
             <span className="ellipsis">{item.userAddress}</span>
             <span>
               <CopyButton value={item.userAddress} />

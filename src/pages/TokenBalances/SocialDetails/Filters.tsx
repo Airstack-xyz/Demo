@@ -1,15 +1,9 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { useSearchInput } from '../../../hooks/useSearchInput';
-import { Icon } from '../../../Components/Icon';
-import classNames from 'classnames';
-import { useLoaderContext } from '../../../hooks/useLoader';
+import { FilterPlaceholder } from '../../../Components/Filters/FilterPlaceholder';
+import { FilterCheckbox } from '../../../Components/Filters/FilterCheckbox';
+import { useOutsideClick } from '../../../hooks/useOutsideClick';
+import { useState, useCallback, ChangeEvent, useMemo, useEffect } from 'react';
 
-type View = 'owners' | 'primaryEns' | 'ens' | 'lens' | 'farcaster' | 'xmtp';
-
-const options: Array<{
-  label: string;
-  value: View;
-}> = [
+const options = [
   {
     label: 'has primary ENS',
     value: 'primaryEns'
@@ -32,24 +26,85 @@ const options: Array<{
   }
 ];
 
-export function Filters() {
-  const [{ tokenFilters: filters, activeView }, setFilters] = useSearchInput();
-  const { isLoading } = useLoaderContext();
-  const [selected, setSelected] = useState<string[]>([]);
-  const [show, setShow] = useState(false);
+const farcasterFollowOption = {
+  label: 'also follows on farcaster',
+  value: 'followsOnFarcaster'
+};
+
+const lensFollowOption = {
+  label: 'also follows on lens',
+  value: 'followsOnLens'
+};
+
+type FilterProps = {
+  dappName?: string;
+  selectedFilters: string[];
+  onApply: (filters: string[]) => void;
+};
+
+const getSelectedFiltersInfo = (filters: string[]) => {
+  const currentFilters: string[] = [];
+  let followerCount = null;
+  filters.forEach(filter => {
+    if (filter.startsWith('moreThanNFollowers')) {
+      const [, count] = filter.split(':');
+      followerCount = count;
+    } else {
+      currentFilters.push(filter);
+    }
+  });
+  return { currentFilters, followerCount };
+};
+
+export function Filters({ dappName, selectedFilters, onApply }: FilterProps) {
+  const [currentFilters, setCurrentFilters] = useState<string[]>([]);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
+  const [followerCount, setFollowerCount] = useState<string | null>(null);
+
+  const selectedFiltersInfo = useMemo(
+    () => getSelectedFiltersInfo(selectedFilters),
+    [selectedFilters]
+  );
 
   useEffect(() => {
-    setSelected(filters);
-  }, [filters, show]);
+    setCurrentFilters(selectedFiltersInfo.currentFilters);
+    setFollowerCount(selectedFiltersInfo.followerCount);
+  }, [selectedFiltersInfo]);
 
-  const handleClose = useCallback(() => {
-    setShow(false);
-    setSelected([]);
+  const filterOptions = useMemo(() => {
+    if (dappName === 'lens') return [farcasterFollowOption, ...options];
+    if (dappName === 'farcaster') return [lensFollowOption, ...options];
+    return options;
+  }, [dappName]);
+
+  const handleDropdownHide = useCallback(() => {
+    setIsDropdownVisible(false);
+    setCurrentFilters(selectedFiltersInfo.currentFilters);
+    setFollowerCount(selectedFiltersInfo.followerCount);
+  }, [selectedFiltersInfo]);
+
+  const dropdownContainerRef =
+    useOutsideClick<HTMLDivElement>(handleDropdownHide);
+
+  const handleDropdownToggle = useCallback(() => {
+    setIsDropdownVisible(prevValue => !prevValue);
   }, []);
 
-  const getFilterSetter = useCallback(
+  const handleFollowerCountToggle = useCallback(() => {
+    setFollowerCount(prev => (prev === null ? '1' : null));
+  }, []);
+
+  const handleFollowerCountChange = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      setFollowerCount(event.target.value);
+    },
+    []
+  );
+
+  const handleFilterCheckboxChange = useCallback(
     (filter: string) => () => {
-      setSelected(prev => {
+      setCurrentFilters(prev => {
         if (prev.includes(filter)) {
           return prev.filter(item => item !== filter);
         }
@@ -59,78 +114,71 @@ export function Filters() {
     []
   );
 
-  const newFiltersApplied = useMemo(() => {
-    return (
-      Boolean(selected.find(filter => !filters.includes(filter))) ||
-      selected.length !== filters.length
-    );
-  }, [filters, selected]);
+  const handleApplyClick = () => {
+    const _selectedFilters = currentFilters;
+    if (followerCount != null) {
+      _selectedFilters.push(`moreThanNFollowers:${followerCount}`);
+    }
+    onApply(_selectedFilters);
+  };
 
-  const appliedFiltersCount = useMemo(() => {
-    return filters.length > 1 ? filters.length - 1 : 0;
-  }, [filters]);
+  const appliedFiltersCount = selectedFilters?.length;
 
   return (
-    <div className="relative">
-      <button
-        className={classNames(
-          'rounded-18 px-3 py-1.5 bg-glass-1 hover:bg-glass-1-light border-solid-stroke flex-row-center disabled:opacity-75 disabled:cursor-not-allowed disabled:hover:bg-glass-1',
-          {
-            '!border-white': show
-          }
-        )}
-        disabled={isLoading}
-        onClick={() => {
-          setShow(prev => !prev);
-        }}
-      >
-        <Icon name="filter" height={12} width={12} />{' '}
-        <span className="ml-1.5 text-[13px]">
-          Filters {appliedFiltersCount ? `(${appliedFiltersCount})` : ''}
-        </span>
-      </button>
-      {show && (
-        <ul className="absolute top-full right-0 z-10 bg-glass p-3 rounded-18 border-solid-stroke mt-1 text-xs [&>li]:mb-1.5 ">
-          {options.map(({ label, value }) => {
-            if (value === activeView) return null;
-
-            return (
-              <li key={value} className="-mx-3">
-                <label className="whitespace-nowrap flex items-center py-1.5 px-3 cursor-pointer hover:bg-glass">
-                  <input
-                    type="checkbox"
-                    checked={selected.includes(value)}
-                    onChange={getFilterSetter(value)}
-                    className="mr-1.5 bg-transparent"
-                  />
-                  {label}
-                </label>
-              </li>
-            );
-          })}
-          <li className="flex items-center mt-3 !mb-0">
+    <div
+      ref={dropdownContainerRef}
+      className="text-xs font-medium relative flex flex-col items-end"
+    >
+      <FilterPlaceholder
+        isOpen={isDropdownVisible}
+        label={
+          appliedFiltersCount ? `Filters (${appliedFiltersCount})` : 'Filters'
+        }
+        icon="filter"
+        onClick={handleDropdownToggle}
+      />
+      {isDropdownVisible && (
+        <div className="bg-glass rounded-18 p-2 mt-1 flex flex-col absolute min-w-[202px] right-0 top-full z-20">
+          <FilterCheckbox
+            label="has more than 'n' followers"
+            isSelected={followerCount !== null}
+            onChange={handleFollowerCountToggle}
+          />
+          {followerCount != null && (
+            <input
+              autoFocus
+              type="text"
+              placeholder="enter value for n"
+              className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none"
+              onChange={handleFollowerCountChange}
+              value={followerCount}
+            />
+          )}
+          {filterOptions.map(item => (
+            <FilterCheckbox
+              key={item.value}
+              label={item.label}
+              isSelected={currentFilters.includes(item.value)}
+              onChange={handleFilterCheckboxChange(item.value)}
+            />
+          ))}
+          <div className="p-2 mt-1 flex justify-center gap-5">
             <button
-              className="rounded-18 bg-button-primary px-3 py-1.5 mr-4 disabled:opacity-75 disabled:cursor-not-allowed"
-              onClick={() => {
-                setFilters(
-                  {
-                    tokenFilters: selected
-                  },
-                  {
-                    updateQueryParams: true
-                  }
-                );
-                handleClose();
-              }}
-              disabled={!newFiltersApplied}
+              type="button"
+              className="px-2.5 py-1 rounded-full bg-white backdrop-blur-[66.63px] text-primary hover:opacity-60"
+              onClick={handleApplyClick}
             >
               Apply
             </button>
-            <button className="px-3 py-1.5" onClick={handleClose}>
+            <button
+              type="button"
+              className="px-2.5 py-1 rounded-full hover:opacity-60"
+              onClick={handleDropdownHide}
+            >
               Close
             </button>
-          </li>
-        </ul>
+          </div>
+        </div>
       )}
     </div>
   );

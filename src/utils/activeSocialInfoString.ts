@@ -8,7 +8,7 @@ export const getActiveSocialInfoString = ({
   followerTab,
   mentionRawText,
   thresholdRawText,
-  filterString
+  filters
 }: {
   dappName: string;
   dappSlug: string;
@@ -17,11 +17,13 @@ export const getActiveSocialInfoString = ({
   followerTab?: boolean;
   mentionRawText?: string;
   thresholdRawText?: string;
-  filterString?: string;
+  filters?: string[];
 }) => {
   return `${dappName}│${dappSlug}│${followerCount}│${followingCount}│${
     followerTab ? '1' : '0'
-  }│${mentionRawText || ''}│${thresholdRawText || ''}│${filterString || ''}`;
+  }│${mentionRawText || ''}│${thresholdRawText || ''}│${
+    filters?.join(',') || ''
+  }`;
 };
 
 export const getActiveSocialInfo = (activeSocialInfo?: string) => {
@@ -37,7 +39,7 @@ export const getActiveSocialInfo = (activeSocialInfo?: string) => {
   ] = activeSocialInfo?.split('│') ?? [];
 
   let activeMention = null;
-  let thresholdValue = null;
+  let thresholdAmount = null;
   let filters: string[] = [];
 
   if (mentionRawText) {
@@ -47,7 +49,7 @@ export const getActiveSocialInfo = (activeSocialInfo?: string) => {
 
   if (thresholdRawText) {
     const thresholdData = getAllWordsAndMentions(thresholdRawText);
-    thresholdValue = Number(thresholdData[0].mention?.address);
+    thresholdAmount = Number(thresholdData[0].mention?.address);
   }
 
   if (filterString) {
@@ -63,9 +65,9 @@ export const getActiveSocialInfo = (activeSocialInfo?: string) => {
     followerTab: followerTab === '1',
     mentionRawText,
     thresholdRawText,
-    activeMention: activeMention,
-    thresholdValue: thresholdValue,
-    filters: filters
+    activeMention,
+    thresholdAmount,
+    filters
   };
 };
 
