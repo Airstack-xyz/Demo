@@ -77,7 +77,7 @@ export function useGetTokensOfOwner(
     fetchTokens,
     includeERC20,
     isPoap,
-    owners.length,
+    owners,
     sortOrder,
     tokenType
   ]);

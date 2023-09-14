@@ -311,7 +311,7 @@ export function TokenBalance() {
           </div>
           {query && query.length > 0 && (
             <>
-              <div className="hidden sm:flex-col-center my-3 z-[15]">
+              <div className="hidden sm:flex-col-center my-3 z-20">
                 <GetAPIDropdown options={options} />
               </div>
               {showTokenDetails ? (
