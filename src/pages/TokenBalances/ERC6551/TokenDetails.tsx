@@ -254,47 +254,58 @@ export function TokenDetails(props: {
                 {address.join(', ')}
               </span>
             </div>
-            <span className="mr-2 text-text-secondary">/</span>
+            <span className="text-text-secondary">/</span>
           </div>
         )}
         {activeTokens.map((token, index) => {
           const _tokenId = token.tokenId || token.eventId;
+          const isActiveToken = activeTokenId === _tokenId;
           return (
             <div
               className={classNames('flex items-center overflow-hidden', {
                 'skeleton-loader': loading,
-                'flex-1': activeTokenId === _tokenId
+                'flex-1': isActiveToken
               })}
             >
-              <Icon name="table-view" height={20} width={20} />{' '}
-              <span
-                data-loader-type="block"
-                data-loader-width="50"
-                className="min-h-[20px] flex items-center overflow-hidden"
+              <button
+                className={classNames('flex cursor-auto px-1 py-0.5', {
+                  'hover:bg-glass-1-light rounded-18 !cursor-pointer':
+                    !isActiveToken
+                })}
+                onClick={() => {
+                  if (!isActiveToken) {
+                    handleBreadcrumbClick(index);
+                  }
+                }}
               >
-                {!loading && activeTokenId === _tokenId ? (
-                  <>
-                    <span className="mx-1 ellipsis">
-                      Details of{' '}
-                      {isPoap ? poap?.poapEvent.eventName : nft?.token?.name}
-                    </span>
-                    (
-                    <span className="min-w-[20px] max-w-[100px] ellipsis">
-                      #{activeTokenId}
-                    </span>
-                    )
-                  </>
-                ) : (
-                  <span
-                    className="hover:bg-glass-1-light px-1 rounded-18 cursor-pointer"
-                    onClick={() => {
-                      handleBreadcrumbClick(index);
-                    }}
-                  >
-                    #{_tokenId}
-                  </span>
-                )}
-              </span>
+                <Icon
+                  name="table-view"
+                  height={20}
+                  width={20}
+                  className="mr-1"
+                />{' '}
+                <span
+                  data-loader-type="block"
+                  data-loader-width="50"
+                  className="min-h-[20px] flex items-center overflow-hidden"
+                >
+                  {!loading && isActiveToken ? (
+                    <>
+                      <span className=" ellipsis">
+                        Details of{' '}
+                        {isPoap ? poap?.poapEvent.eventName : nft?.token?.name}
+                      </span>
+                      (
+                      <span className="min-w-[20px] max-w-[100px] ellipsis">
+                        #{activeTokenId}
+                      </span>
+                      )
+                    </>
+                  ) : (
+                    <span>#{_tokenId}</span>
+                  )}
+                </span>
+              </button>
               {index !== activeTokens.length - 1 && (
                 <span className="mx-1 text-text-secondary">/</span>
               )}
