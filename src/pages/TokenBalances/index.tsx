@@ -379,7 +379,7 @@ export function TokenBalance() {
     }
     return (
       <div className="flex justify-between w-[calc(100vw-20px)] sm:w-[645px]">
-        <div className="flex-row-center gap-1">
+        <div className="flex-row-center gap-3.5">
           {isMobile ? (
             <AllFilters />
           ) : (
