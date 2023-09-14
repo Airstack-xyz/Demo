@@ -137,18 +137,12 @@ export function Token({
     (token: (typeof assets)[0]) => {
       setSearchData(
         {
-          activeTokenInfo: addToActiveTokenInfo(
-            {
-              ...token,
-              walletAddress
-            },
-            activeTokenInfo
-          )
+          activeTokenInfo: addToActiveTokenInfo(token, activeTokenInfo)
         },
         { updateQueryParams: true }
       );
     },
-    [activeTokenInfo, setSearchData, walletAddress]
+    [activeTokenInfo, setSearchData]
   );
 
   return (

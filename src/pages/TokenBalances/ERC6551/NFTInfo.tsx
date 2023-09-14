@@ -1,12 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { CopyButton as CopyBtn } from '../../../Components/CopyButton';
 import { KeyValue } from './KeyValue';
-import {
-  Attribute,
-  TokenBalance,
-  TokenBalancesNFT,
-  TokenTransfer
-} from '../erc20-types';
+import { Attribute, Nft, TokenBalance, TokenTransfer } from '../erc20-types';
 import { ERC20TokenDetailsResponse } from './types';
 import { Link, useNavigate } from 'react-router-dom';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
@@ -23,15 +18,7 @@ function CopyButton({ value }: { value: string }) {
 
 const minOwners = 3;
 const maxOwners = 7;
-function Owners({
-  tokens
-}: {
-  tokens: {
-    owner: {
-      identity: string;
-    };
-  }[];
-}) {
+function Owners({ tokens }: { tokens: Nft['tokenBalances'] }) {
   const [showModal, setShowModal] = useState(false);
   const [showMax, setShowMax] = useState(false);
   const navigator = useNavigate();
@@ -133,19 +120,17 @@ function LoaderItem() {
 }
 
 export function NFTInfo({
-  nft: token,
+  nft,
   transfterDetails,
   holders,
   loadingHolder
 }: {
-  nft: TokenBalancesNFT;
+  nft: Nft;
   holders: TokenBalance[] | null;
   loadingHolder: boolean;
   transfterDetails: TokenTransfer;
 }) {
   const [showContactDetails, setShowContactDetails] = useState(false);
-
-  const nft = token.tokenNfts;
 
   const expandDetails =
     nft?.type === 'ERC1155' ||
@@ -193,26 +178,28 @@ export function NFTInfo({
           name="Token Address"
           value={
             <span className="ellipsis">
-              <span className="ellipsis">{nft?.address}</span>{' '}
-              <CopyButton value={nft?.address} />
+              <>
+                <span className="ellipsis">{nft?.address}</span>{' '}
+                <CopyButton value={nft?.address} />
+              </>
             </span>
           }
         />
 
         <KeyValue
-          name="Holder"
+          name={`Holder${nft?.tokenBalances?.length > 1 ? 's' : ''}`}
           value={
             loadingHolder ? (
               <LoaderItem />
             ) : (
-              <Owners tokens={holders ? holders : [token] || []} />
+              <Owners tokens={holders ? holders : nft?.tokenBalances || []} />
             )
           }
         />
         {holders && (
           <KeyValue
             name="Parent 6551"
-            value={<Owners tokens={[token] || []} />}
+            value={<Owners tokens={nft?.tokenBalances || []} />}
           />
         )}
         {!expandDetails && (
@@ -260,7 +247,7 @@ export function NFTInfo({
         {showContactDetails && (
           <div>
             <div className="my-3">Collection details</div>
-            <div className="font-bold text-base">{token?.token?.name}</div>
+            <div className="font-bold text-base">{nft?.token?.name}</div>
             <div className="text-text-secondary">
               {nft?.metaData?.description || ' -- '}
             </div>
@@ -270,7 +257,7 @@ export function NFTInfo({
             />
             <KeyValue
               name="Total supply"
-              value={token?.token?.totalSupply || '--'}
+              value={nft?.token?.totalSupply || '--'}
             />
             <KeyValue
               name="Last transfer time"

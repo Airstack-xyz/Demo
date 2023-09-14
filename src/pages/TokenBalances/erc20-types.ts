@@ -4,32 +4,21 @@ export interface ERC20Response {
 }
 
 export interface Nft {
-  TokenBalance: TokenBalancesNFT[];
+  totalSupply: string;
+  metaData: MetaData;
+  lastTransferTimestamp: string;
+  lastTransferBlock: number;
+  lastTransferHash: string;
+  tokenURI: string;
+  tokenId: string;
+  address: string;
+  tokenBalances: TokenBalance[];
+  tokenBalance?: TokenBalance;
+  token: Token;
+  type: string;
+  blockchain: string;
+  erc6551Accounts: ERC6551Account[];
 }
-
-export type TokenBalancesNFT = {
-  token: {
-    name: string;
-    symbol: string;
-    totalSupply: string;
-  };
-  owner: {
-    identity: string;
-  };
-  tokenNfts: {
-    totalSupply: string;
-    tokenURI: string;
-    tokenId: string;
-    address: string;
-    type: string;
-    blockchain: string;
-    lastTransferHash: string;
-    lastTransferBlock: number;
-    lastTransferTimestamp: string;
-    metaData: MetaData;
-    erc6551Accounts: ERC6551Account[];
-  };
-};
 
 interface ERC6551Account {
   address: {

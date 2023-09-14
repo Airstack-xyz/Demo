@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export function Header() {
   return (
-    <header className="fixed bg-secondary py-4 w-full z-30 flex justify-center top-0">
+    <header className="fixed bg-secondary py-4 w-full z-20 flex justify-center top-0">
       <div className="w-[1440px] max-w-[100vw] flex items-center justify-center sm:justify-between px-8">
         <div className="text-xl flex-row-center">
           <Link to="https://app.airstack.xyz" className="" target="_blank">

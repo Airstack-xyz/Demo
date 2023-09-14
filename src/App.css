@@ -28,7 +28,7 @@ body {
 
 .modal-overlay {
   background-color: rgb(14 14 18 / 90%) !important;
-  z-index: 100;
+  z-index: 20;
 }
 
 .code {

@@ -2,9 +2,6 @@ const fields = `id
 blockchain
 tokenId
 tokenAddress
-owner{
-  identity
-}
 poapEvent {
   city
   eventName
@@ -22,9 +19,6 @@ const parentFields = `id
 blockchain
 tokenId
 tokenAddress
-owner{
-  identity
-}
 poapEvent {
   city
   eventName

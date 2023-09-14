@@ -4,6 +4,7 @@ import { formatDate } from '../../utils';
 import { PoapsType, TokenType as TokenType } from './types';
 import { Asset } from '../../Components/Asset';
 import classNames from 'classnames';
+import { Nft } from './erc20-types';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { createTokenHolderUrl } from '../../utils/createTokenUrl';
 import { Link } from 'react-router-dom';
@@ -12,7 +13,7 @@ import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
 type Poap = PoapsType['Poaps']['Poap'][0];
 
 type TokenProps = {
-  token: null | TokenType | Poap;
+  token: null | TokenType | Poap | Nft;
 };
 
 export const TokenWithERC6551 = memo(function Token({
@@ -27,9 +28,7 @@ export const TokenWithERC6551 = memo(function Token({
 
   const address = token.tokenAddress || poap.tokenAddress;
   const tokenId =
-    // eslint-disable-next-line
-    // @ts-ignore
-    tokenProp?.tokenId || token?.tokenNfts?.tokenId || poap.tokenId;
+    (tokenProp as Nft)?.tokenId || token?.tokenNfts?.tokenId || poap.tokenId;
   const ids = useMemo(() => {
     if (isPoap) return [poapEvent?.eventName];
     return [tokenId, token?._tokenId].filter(Boolean);

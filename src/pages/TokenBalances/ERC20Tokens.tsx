@@ -236,8 +236,7 @@ export function ERC20Tokens() {
                         tokenAddress: token?.tokenAddress,
                         tokenId: token?.tokenId || '',
                         blockchain: token?.blockchain,
-                        eventId: '',
-                        walletAddress: token?.owner?.identity
+                        eventId: ''
                       },
                       activeTokenInfo
                     )

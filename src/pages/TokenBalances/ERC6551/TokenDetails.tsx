@@ -10,7 +10,7 @@ import {
 import {
   AccountHolderResponse,
   ERC20Response,
-  TokenBalancesNFT,
+  Nft,
   TokenBalance,
   TokenTransfer
 } from '../erc20-types';
@@ -63,8 +63,11 @@ function LoaderInfo() {
 function formatNFTData(data: ERC20Response) {
   if (!data) return {};
   return {
-    nft: data?.nft?.TokenBalance?.[0],
-    transferDetails: data?.transfers?.TokenTransfer?.[0]
+    nft: {
+      ...data?.nft,
+      tokenBalance: data?.nft.tokenBalances?.[0]
+    },
+    transferDetails: data?.transfers?.TokenTransfer[0]
   };
 }
 
@@ -95,13 +98,11 @@ function formatAccountHolderData(data: AccountHolderResponse) {
 
 type Token = {
   tokenId: string;
-  eventId?: string | null;
+  eventId?: string;
   blockchain: string;
   tokenAddress: string;
-  walletAddress?: string;
 };
 
-type Nft = TokenBalancesNFT;
 export function TokenDetails(props: {
   hideBackBreadcrumb?: boolean;
   onClose?: () => void;
@@ -109,7 +110,7 @@ export function TokenDetails(props: {
   activeTokens: Token[];
 }) {
   const { showLoader, activeTokens, hideBackBreadcrumb, onClose } = props;
-  const { tokenId, eventId, blockchain, tokenAddress, walletAddress } =
+  const { tokenId, eventId, blockchain, tokenAddress } =
     activeTokens[activeTokens.length - 1];
 
   const [{ address, rawInput, inputType }, setSearchData] = useSearchInput();
@@ -123,8 +124,7 @@ export function TokenDetails(props: {
     {
       tokenId,
       blockchain,
-      tokenAddress,
-      walletAddress
+      tokenAddress
     },
     { dataFormatter: formatNFTData }
   );
@@ -198,11 +198,9 @@ export function TokenDetails(props: {
   const transfterDetails: TokenTransfer =
     nftData?.transferDetails || ({} as TokenTransfer);
 
-  const token = nft?.tokenNfts;
-
   useEffect(() => {
-    if (!nft) return;
-    const ownerId = nft?.owner?.identity;
+    if (!nft?.tokenBalance) return;
+    const ownerId = nft?.tokenBalance?.owner?.identity;
     if (ownerId) {
       fetchAccoutHolders({
         blockchain,
@@ -213,9 +211,9 @@ export function TokenDetails(props: {
 
   useEffect(() => {
     setDetails({
-      hasERC6551: !isPoap && nft?.tokenNfts?.erc6551Accounts?.length > 0
+      hasERC6551: !isPoap && nft?.erc6551Accounts?.length > 0
     });
-  }, [isPoap, nft?.tokenNfts?.erc6551Accounts?.length, setDetails]);
+  }, [isPoap, nft?.erc6551Accounts?.length, setDetails]);
 
   const handleBreadcrumbClick = useCallback(
     (index: number) => {
@@ -232,10 +230,10 @@ export function TokenDetails(props: {
     [activeTokens, setSearchData]
   );
 
-  const activeTokenId = isPoap ? poap?.eventId : token?.tokenId;
+  const activeTokenId = isPoap ? poap?.eventId : nft?.tokenId;
 
   const loading = showLoader || loadingToken || loadingERC20 || loadingPoap;
-  const hasChildren = !loading && !isPoap && token?.erc6551Accounts?.length > 0;
+  const hasChildren = !loading && !isPoap && nft?.erc6551Accounts?.length > 0;
 
   return (
     <div className="max-w-[950px] text-sm m-auto w-[98vw] pt-10 sm:pt-0">
@@ -328,11 +326,9 @@ export function TokenDetails(props: {
               to={createTokenHolderUrl({
                 address: (isPoap
                   ? poap?.eventId
-                  : erc20Token?.address || nft?.tokenNfts?.address) as string,
+                  : erc20Token?.address || nft.address) as string,
                 inputType: isPoap ? 'POAP' : 'ADDRESS',
-                type: isPoap
-                  ? 'POAP'
-                  : erc20Token?.type || nft?.tokenNfts?.type,
+                type: isPoap ? 'POAP' : erc20Token?.type || nft.type,
                 blockchain,
                 label:
                   (isPoap
