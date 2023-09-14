@@ -353,9 +353,12 @@ export function TokenDetails(props: {
             ) : (
               <NFTInfo
                 nft={nft}
+                tokenId={tokenId}
+                blockchain={blockchain}
+                tokenAddress={tokenAddress}
                 transfterDetails={transfterDetails}
-                holders={!loadingAccountHolder ? accountHolders : null}
                 loadingHolder={loadingAccountHolder}
+                holders={!loadingAccountHolder ? accountHolders : null}
               />
             )}
           </>

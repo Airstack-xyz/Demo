@@ -186,3 +186,15 @@ export const accountHolderQuery = `query AccountHolderAddress($address: Identity
     }
   }
 }`;
+
+export const tokenHoldersQuery = `query TokenHolders($tokenAddress: Address, $tokenId: String, $blockchain: TokenBlockchain!, $limit: Int) {
+  TokenBalances(
+    input: {filter: {tokenAddress: {_eq: $tokenAddress}, tokenId: {_eq: $tokenId}}, blockchain: $blockchain, limit: $limit}
+  ) {
+    TokenBalance {
+      owner {
+        identity
+      }
+    }
+  }
+}`;
