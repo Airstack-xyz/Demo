@@ -62,7 +62,7 @@ export const Token = memo(function Token({
   }, [isPoap, poapEvent?.eventName, token?._tokenId, tokenId]);
 
   const symbol = erc20?.symbol || token?.token?.symbol || '';
-  const type = nft?.tokenNfts?.type || token?.tokenType || 'POAP';
+  const type = nft?.tokenNfts?.type || token?.tokenType || erc20.type || 'POAP';
   const isERC20 = type === 'ERC20';
   const blockchain = token?.blockchain || 'ethereum';
   const name = isPoap
@@ -73,8 +73,10 @@ export const Token = memo(function Token({
     : isERC20
     ? erc20?.logo?.medium || erc20?.projectDetails?.imageUrl
     : '';
+
   const eventId = poapEvent?.eventId || '';
   const tokenName = isPoap ? poapEvent?.eventName : token?.token?.name;
+  const walletAddress = token?.owner?.identity;
 
   const handleClick = useCallback(() => {
     if (disabled) return;
@@ -85,7 +87,8 @@ export const Token = memo(function Token({
             tokenAddress: address,
             tokenId,
             blockchain,
-            eventId
+            eventId,
+            walletAddress
           },
           activeTokenInfo
         )
@@ -99,7 +102,8 @@ export const Token = memo(function Token({
     disabled,
     eventId,
     setSearchData,
-    tokenId
+    tokenId,
+    walletAddress
   ]);
 
   return (

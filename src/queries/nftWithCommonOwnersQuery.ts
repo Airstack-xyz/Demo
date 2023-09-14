@@ -7,7 +7,7 @@ const fields = `
         tokenId
         tokenAddress
         owner {
-            addresses
+          identity
         }
         tokenNfts {
             tokenId
@@ -74,6 +74,9 @@ function getQueryWithFiter(
 const tokenId = `blockchain
 tokenAddress
 tokenType
+owner {
+  identity
+}
 tokenNfts {
   tokenId
   contentValue {

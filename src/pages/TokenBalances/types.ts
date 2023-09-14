@@ -5,6 +5,9 @@ export interface TokenType {
   tokenAddress: string;
   formattedAmount: number;
   tokenNfts: TokenNfts;
+  owner: {
+    identity: string;
+  };
   token: Token;
   tokenId?: string;
   _tokenId?: string;
@@ -59,6 +62,9 @@ export type PoapsType = {
       blockchain: string;
       tokenId: string;
       tokenAddress: string;
+      owner: {
+        identity: string;
+      };
       poapEvent: {
         city: string;
         eventName: string;

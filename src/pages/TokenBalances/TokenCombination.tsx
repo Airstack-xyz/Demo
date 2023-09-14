@@ -36,6 +36,7 @@ function Token({
   const id = token?.tokenNfts?.tokenId || poap.tokenId || '';
   const hasERC6551 = token.tokenNfts?.erc6551Accounts?.length > 0;
   const erc6551Accounts = token.tokenNfts?.erc6551Accounts;
+  const walletAddress = token?.owner?.identity || '';
 
   const nestedTokens = useMemo(() => {
     if (!erc6551Accounts || erc6551Accounts?.length === 0) {
@@ -59,7 +60,7 @@ function Token({
             tokenId,
             blockchain,
             eventId,
-            walletAddress: ownerName
+            walletAddress: walletAddress
           },
           activeTokenInfo
         )
@@ -71,9 +72,9 @@ function Token({
     address,
     blockchain,
     eventId,
-    ownerName,
     setSearchData,
-    tokenId
+    tokenId,
+    walletAddress
   ]);
 
   const assets = useMemo(() => {
