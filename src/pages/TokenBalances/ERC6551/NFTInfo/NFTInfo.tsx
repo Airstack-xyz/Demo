@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { KeyValue } from '../KeyValue';
-import { Attribute, Nft, TokenBalance, TokenTransfer } from '../../erc20-types';
+import { Attribute, Nft, TokenTransfer } from '../../erc20-types';
 import { ERC20TokenDetailsResponse } from '../types';
 import { LoaderItem } from './LoaderItem';
 import { CopyButton } from './CopyButton';
@@ -9,7 +9,7 @@ import { useTokenHolders } from '../../../../hooks/useTokenHolders';
 
 export function NFTInfo({
   nft,
-  holders,
+  holderData,
   tokenId,
   blockchain,
   tokenAddress,
@@ -20,7 +20,10 @@ export function NFTInfo({
   tokenAddress: string;
   blockchain: string;
   nft: Nft;
-  holders: TokenBalance[] | null;
+  holderData: {
+    ownerAddress: string;
+    hasParent: boolean;
+  } | null;
   loadingHolder: boolean;
   transfterDetails: TokenTransfer;
 }) {
@@ -38,10 +41,10 @@ export function NFTInfo({
   });
 
   useEffect(() => {
-    if (!loadingHolder && !holders) {
+    if (holderData?.hasParent || !holderData?.ownerAddress) {
       fetchHolders();
     }
-  }, [fetchHolders, holders, loadingHolder]);
+  }, [fetchHolders, holderData]);
 
   const expandDetails =
     nft?.type === 'ERC1155' ||
@@ -69,20 +72,6 @@ export function NFTInfo({
     return _traits;
   }, [attributes]);
 
-  // hide assetsCount for now as we are not able to get the accurate count
-  // const assetsCount = useMemo(() => {
-  //   if (!nft?.erc6551Accounts || nft?.erc6551Accounts?.length === 0) {
-  //     return 0;
-  //   }
-
-  //   return nft?.erc6551Accounts.reduce((sum = 0, token) => {
-  //     if (token?.address?.tokenBalances) {
-  //       return (token?.address?.tokenBalances?.length || 0) + sum;
-  //     }
-  //     return sum;
-  //   }, 0);
-  // }, [nft?.erc6551Accounts]);
-
   return (
     <div className="overflow-hidden text-sm">
       <div>
@@ -101,11 +90,15 @@ export function NFTInfo({
         <KeyValue
           name={`Holder${nft?.tokenBalances?.length > 1 ? 's' : ''}`}
           value={
-            loading ? (
+            loading || loadingHolder ? (
               <LoaderItem />
             ) : (
               <Owners
-                owners={owners || []}
+                owners={
+                  holderData?.ownerAddress
+                    ? [holderData?.ownerAddress]
+                    : owners || []
+                }
                 token={{
                   tokenId,
                   blockchain,
@@ -115,16 +108,21 @@ export function NFTInfo({
             )
           }
         />
-        {/* {holders && (
+        {holderData && holderData.hasParent && (
           <KeyValue
             name="Parent 6551"
-            value={<Owners owners={nft?.tokenBalances || []} />}
+            value={
+              <Owners
+                owners={owners || []}
+                token={{
+                  tokenId,
+                  blockchain,
+                  tokenAddress
+                }}
+              />
+            }
           />
-        )} */}
-        {/* hide Asset included for now as we are not able to get the accurate count */}
-        {/* {!expandDetails && (
-          <KeyValue name="Assets included" value={assetsCount} />
-        )} */}
+        )}
         <KeyValue
           name="Traits"
           value={

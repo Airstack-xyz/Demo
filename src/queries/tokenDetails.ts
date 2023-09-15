@@ -177,9 +177,39 @@ export const accountHolderQuery = `query AccountHolderAddress($address: Identity
   Accounts(input: {filter: {address: {_eq: $address}}, blockchain: $blockchain}) {
     Account {
       nft {
+        address
+        tokenId
         tokenBalances {
           owner {
             identity
+            accounts {
+              nft {
+                address
+                tokenId
+                tokenBalances {
+                  owner {
+                    identity
+                    accounts {
+                      nft {
+                        address
+                        tokenId
+                        tokenBalances {
+                          owner {
+                            identity
+                            accounts {
+                              nft {
+                                address
+                                tokenId
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
           }
         }
       }

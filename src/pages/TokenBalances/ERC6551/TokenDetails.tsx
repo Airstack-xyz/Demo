@@ -8,10 +8,10 @@ import {
   tokenDetailsQuery
 } from '../../../queries/tokenDetails';
 import {
+  Account,
   AccountHolderResponse,
   ERC20Response,
   Nft,
-  TokenBalance,
   TokenTransfer
 } from '../erc20-types';
 import { NestedTokens } from './NestedTokens';
@@ -85,15 +85,33 @@ function formatAccountHolderData(data: AccountHolderResponse) {
   const accounts = data?.Accounts?.Account;
 
   if (!accounts) return null;
+  let depth = 1;
+  function getOwner(accounts: Account[]): string {
+    depth++;
+    for (let i = 0; i < accounts.length; i++) {
+      const account = accounts[i];
+      if (account?.nft?.tokenBalances?.length > 0) {
+        account?.nft?.tokenBalances.forEach(token => {
+          token.owner.accounts.length > 0;
+        });
+        for (let i = 0; i < account?.nft?.tokenBalances?.length; i++) {
+          const token = account?.nft?.tokenBalances[i];
+          if (token?.owner?.accounts.length === 0) {
+            return token?.owner?.identity;
+          } else {
+            return getOwner(token?.owner?.accounts);
+          }
+        }
+      }
+    }
+    return '';
+  }
+  const ownerAddress = getOwner(accounts);
 
-  const owners = accounts.reduce((identities: TokenBalance[], account) => {
-    const ids = (account?.nft?.tokenBalances || [])
-      ?.map(tokenBalance => tokenBalance)
-      .filter(Boolean);
-
-    return [...identities, ...ids];
-  }, []);
-  return owners;
+  return {
+    ownerAddress,
+    hasParent: depth > 2
+  };
 }
 
 type Token = {
@@ -137,7 +155,7 @@ export function TokenDetails(props: {
 
   const [
     fetchAccoutHolders,
-    { data: accountHolders, loading: loadingAccountHolder }
+    { data: _accountHoldersData, loading: loadingAccountHolder }
   ] = useLazyQuery(
     accountHolderQuery,
     {},
@@ -145,6 +163,10 @@ export function TokenDetails(props: {
       dataFormatter: formatAccountHolderData
     }
   );
+
+  const accountHoldersData = _accountHoldersData as ReturnType<
+    typeof formatAccountHolderData
+  >;
 
   const [fetchPoap, { data: _poapData, loading: loadingPoap }] = useLazyQuery(
     poapDetailsQuery,
@@ -193,7 +215,7 @@ export function TokenDetails(props: {
     });
   }, [address, inputType, isTokenBalances, navigate, onClose, rawInput]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // eslint-disable-next-line
   const nft: Nft = nftData?.nft || ({} as Nft);
   const transfterDetails: TokenTransfer =
     nftData?.transferDetails || ({} as TokenTransfer);
@@ -369,7 +391,7 @@ export function TokenDetails(props: {
                 tokenAddress={tokenAddress}
                 transfterDetails={transfterDetails}
                 loadingHolder={loadingAccountHolder}
-                holders={!loadingAccountHolder ? accountHolders : null}
+                holderData={!loadingAccountHolder ? accountHoldersData : null}
               />
             )}
           </>

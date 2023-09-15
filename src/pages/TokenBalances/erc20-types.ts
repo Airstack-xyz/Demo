@@ -117,6 +117,15 @@ export interface AccountHolderResponse {
 }
 export interface Account {
   nft: {
-    tokenBalances: TokenBalance[];
+    address: string;
+    tokenId: string;
+    tokenBalances: AccountTokenBalance[];
+  };
+}
+
+export interface AccountTokenBalance {
+  owner: {
+    identity: string;
+    accounts: Account[];
   };
 }
