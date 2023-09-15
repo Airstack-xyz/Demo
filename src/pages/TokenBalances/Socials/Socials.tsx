@@ -19,59 +19,48 @@ const imagesMap: Record<string, string> = {
 };
 
 function SocialsComponent() {
-  const [modalValues, setModalValues] = useState<{
-    leftValues: string[];
-    rightValues: string[];
+  const [modalData, setModalData] = useState<{
+    isOpen: boolean;
+    addresses: string[];
   }>({
-    leftValues: [],
-    rightValues: []
+    isOpen: false,
+    addresses: []
   });
-  const [showModal, setShowModal] = useState(false);
-  const [fetch, { data, loading }] = useLazyQuery(SocialQuery);
-  const [{ address: owner }, setData] = useSearchInput();
 
-  const socialDetails = (data?.Wallet || {}) as SocialType;
+  const [{ address }, setData] = useSearchInput();
+  const [fetchData, { data, loading }] = useLazyQuery(SocialQuery);
+
+  const wallet = (data?.Wallet || {}) as SocialType;
 
   useEffect(() => {
-    if (owner.length > 0) {
-      fetch({
-        identity: owner[0]
+    if (address.length > 0) {
+      fetchData({
+        identity: address[0]
       });
     }
-  }, [fetch, owner]);
+  }, [fetchData, address]);
 
   const domainsList = useMemo(
-    () => socialDetails?.domains?.map(({ name }) => name),
-    [socialDetails?.domains]
+    () => wallet?.domains?.map(({ name }) => name),
+    [wallet?.domains]
   );
 
   const xmtpEnabled = useMemo(
-    () => socialDetails?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled),
-    [socialDetails?.xmtp]
+    () => wallet?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled),
+    [wallet?.xmtp]
   );
 
   const handleShowMore = useCallback((values: string[]) => {
-    const leftValues: string[] = [];
-    const rightValues: string[] = [];
-    values.forEach((value, index) => {
-      if (index % 2 === 0) {
-        leftValues.push(value);
-      } else {
-        rightValues.push(value);
-      }
+    setModalData({
+      isOpen: true,
+      addresses: values
     });
-    setModalValues({
-      leftValues,
-      rightValues
-    });
-    setShowModal(true);
   }, []);
 
   const closeModal = useCallback(() => {
-    setShowModal(false);
-    setModalValues({
-      leftValues: [],
-      rightValues: []
+    setModalData({
+      isOpen: false,
+      addresses: []
     });
   }, []);
 
@@ -91,7 +80,7 @@ function SocialsComponent() {
   );
 
   const socials = useMemo(() => {
-    const _socials = socialDetails?.socials || [];
+    const _socials = wallet?.socials || [];
 
     type Social = SocialType['socials'][0] & {
       profileNames?: string[];
@@ -124,7 +113,7 @@ function SocialsComponent() {
       map['lens'] = { dappName: 'lens', profileNames: ['--'] };
     }
     return Object.values(map);
-  }, [socialDetails?.socials]);
+  }, [wallet?.socials]);
 
   return (
     <div className="w-full sm:w-auto">
@@ -146,7 +135,7 @@ function SocialsComponent() {
         >
           <Social
             name="Primary ENS"
-            values={[socialDetails?.primaryDomain?.name || '--']}
+            values={[wallet?.primaryDomain?.name || '--']}
             image={imagesMap['ens']}
           />
           <Social
@@ -162,16 +151,14 @@ function SocialsComponent() {
           {socials.map(
             ({
               dappName,
-              dappSlug,
               profileName,
               profileNames,
               followerCount,
               followingCount
             }) => (
               <Social
-                key={dappSlug}
+                key={dappName}
                 name={dappName}
-                slug={dappSlug}
                 followerCount={followerCount}
                 followingCount={followingCount}
                 values={profileNames || [profileName]}
@@ -187,10 +174,10 @@ function SocialsComponent() {
         </div>
       </div>
       <AddressesModal
-        heading="All ENS names of vitalik.eth"
-        isOpen={showModal}
+        heading={`All ENS names of ${address[0]}`}
+        isOpen={modalData.isOpen}
+        addresses={modalData.addresses}
         onRequestClose={closeModal}
-        modalValues={modalValues}
         onAddressClick={handleAddressClick}
       />
     </div>

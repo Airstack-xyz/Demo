@@ -1,14 +1,8 @@
 import { Asset } from '../../../Components/Asset';
-import { CopyButton } from '../../../Components/CopyButton';
+import { WalletAddress } from '../../../Components/WalletAddress';
 import { Social } from './types';
 
-type SocialCardProps = {
-  item: Social;
-};
-
-const PLACEHOLDER_IMAGE = 'images/placeholder.svg';
-
-export function SocialCardLoader() {
+export function CardLoader() {
   return (
     <div className="skeleton-loader w-full flex max-sm:flex-col items-center">
       <div
@@ -34,7 +28,9 @@ export function SocialCardLoader() {
   );
 }
 
-export function SocialCard({ item }: SocialCardProps) {
+const PLACEHOLDER_IMAGE = 'images/placeholder.svg';
+
+export function Card({ item }: { item: Social }) {
   return (
     <div className="flex max-sm:flex-col items-center">
       <img
@@ -43,13 +39,17 @@ export function SocialCard({ item }: SocialCardProps) {
       />
       <div className="m-6">
         <div className="flex items-center">
-          <Asset
-            preset="extraSmall"
-            containerClassName="w-6 h-6 rounded"
-            chain={item.blockchain}
-            tokenId={item.profileTokenId}
-            address={item.profileTokenAddress}
-          />
+          {item.dappName === 'lens' ? (
+            <Asset
+              preset="extraSmall"
+              containerClassName="w-6 h-6 rounded"
+              chain={item.blockchain}
+              tokenId={item.profileTokenId}
+              address={item.profileTokenAddress}
+            />
+          ) : (
+            <img className="w-6 h-6 rounded" src={PLACEHOLDER_IMAGE} />
+          )}
           <div className="pl-2 pr-1 text-base">{item.profileName}</div>
           <div className="text-text-secondary text-sm">
             #{item.profileTokenId}
@@ -65,11 +65,8 @@ export function SocialCard({ item }: SocialCardProps) {
             {item.userCreatedAtBlockNumber}
           </div>
           <div>User address</div>
-          <div className="text-text-secondary flex sm:w-[140px]">
-            <span className="ellipsis">{item.userAddress}</span>
-            <span>
-              <CopyButton value={item.userAddress} />
-            </span>
+          <div className="text-text-secondary sm:w-[140px]">
+            <WalletAddress address={item.userAddress} />
           </div>
         </div>
       </div>

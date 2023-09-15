@@ -4,10 +4,10 @@ import { formatDate } from '../../../utils';
 
 export function PoapInfo({
   poap,
-  transfterDetails
+  transferDetails
 }: {
   poap: Poap;
-  transfterDetails: TokenTransfer;
+  transferDetails: TokenTransfer;
 }) {
   const metadata = poap?.poapEvent?.metadata || {};
   const poapEvent = poap?.poapEvent || {};
@@ -28,7 +28,7 @@ export function PoapInfo({
       <KeyValue name="Event url" value={metadata.home_url} />
       <KeyValue
         name="Last transfer block"
-        value={transfterDetails.blockNumber}
+        value={transferDetails.blockNumber}
       />
       <KeyValue name="Total mints" value={poapEvent.tokenMints} />
       <KeyValue name="Description" value={metadata.description} />

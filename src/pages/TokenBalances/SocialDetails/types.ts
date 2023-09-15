@@ -1,11 +1,9 @@
 import { Chain } from '@airstack/airstack-react/constants';
 
-export type SocialDetailsResponse = {
-  Socials: Socials;
-};
-
-export type Socials = {
-  Socials: Social[];
+export type SocialsResponse = {
+  Socials: {
+    Social: Social[];
+  };
 };
 
 export type Social = {
@@ -22,4 +20,48 @@ export type Social = {
   userAddress: string;
   userCreatedAtBlockTimestamp: string;
   userCreatedAtBlockNumber: number;
+};
+
+export type SocialFollowResponse = {
+  SocialFollowers: {
+    Follower: Follow[];
+  };
+  SocialFollowings: {
+    Following: Follow[];
+  };
+};
+
+export type Follow = {
+  id: string;
+  blockchain: Chain;
+  dappName: string;
+  dappSlug: string;
+  followerProfileId: string;
+  followerTokenId: string;
+  followingProfileId: string;
+  followerAddress: Wallet;
+  followingAddress: Wallet;
+};
+
+export type Wallet = {
+  identity: string;
+  addresses: string[];
+  socials: {
+    blockchain: Chain;
+    dappName: string;
+    dappSlug: string;
+    profileName: string;
+    profileTokenId: string;
+    profileTokenAddress: string;
+  }[];
+  primaryDomain: {
+    name: string;
+  };
+  domains: {
+    name: string;
+    dappName: string;
+  }[];
+  xmtp: {
+    isXMTPEnabled: boolean;
+  }[];
 };

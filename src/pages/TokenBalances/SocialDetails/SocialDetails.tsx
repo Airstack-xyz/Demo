@@ -1,16 +1,10 @@
-import { useLazyQuery } from '@airstack/airstack-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Icon } from '../../../Components/Icon';
-import { Tab, TabContainer } from '../../../Components/Tab';
 import { UpdateUserInputs } from '../../../hooks/useSearchInput';
-import { socialDetailsQuery } from '../../../queries/socialDetails';
-import {
-  SocialInfo,
-  getActiveSocialInfoString
-} from '../../../utils/activeSocialInfoString';
-import { Filters } from './Filters';
-import { SocialCard, SocialCardLoader } from './SocialCard';
-import { Social } from './types';
+import { SocialInfo } from '../../../utils/activeSocialInfoString';
+import { DetailsSection } from './DetailsSection';
+import { TableSection } from './TableSection';
+import { TabContainer, Tab } from '../../../Components/Tab';
 
 type SocialDetailsProps = {
   identities: string[];
@@ -23,45 +17,18 @@ export function SocialDetails({
   socialInfo,
   setQueryData
 }: SocialDetailsProps) {
-  const [followerTabActive, setFollowerTabActive] = useState(
+  const [isFollowerQuery, setIsFollowerQuery] = useState(
     socialInfo.followerTab
   );
 
-  const [fetchDetails, { data: detailsData, loading: detailsLoading }] =
-    useLazyQuery(socialDetailsQuery, {
-      identities,
-      dappSlug: socialInfo.dappSlug
-    });
-
-  useEffect(() => {
-    fetchDetails();
-  }, [fetchDetails]);
-
-  const handleClose = useCallback(() => {
+  const handleClose = () => {
     setQueryData(
       {
         activeSocialInfo: ''
       },
       { updateQueryParams: true }
     );
-  }, [setQueryData]);
-
-  const handleFiltersApply = useCallback(
-    (filters: string[]) => {
-      setQueryData(
-        {
-          activeSocialInfo: getActiveSocialInfoString({
-            ...socialInfo,
-            filters: filters
-          })
-        },
-        { updateQueryParams: true }
-      );
-    },
-    [setQueryData, socialInfo]
-  );
-
-  const socials: Social[] = detailsData?.Socials?.Social;
+  };
 
   return (
     <div className="max-w-[950px] text-sm m-auto w-[98vw] pt-10 sm:pt-0">
@@ -85,32 +52,30 @@ export function SocialDetails({
           </span>
         </div>
       </div>
-      <div className="mt-2 flex">
-        {!detailsLoading &&
-          socials?.map(item => <SocialCard key={item.id} item={item} />)}
-        {detailsLoading && <SocialCardLoader />}
-      </div>
+      <DetailsSection identities={identities} socialInfo={socialInfo} />
       <TabContainer>
         <Tab
           icon="nft-flat"
           header={`${socialInfo.followerCount} followers`}
-          active={followerTabActive}
-          onClick={() => setFollowerTabActive(true)}
+          active={isFollowerQuery}
+          onClick={() => setIsFollowerQuery(true)}
         />
         <Tab
           icon="erc20"
           header={`${socialInfo.followingCount} following`}
-          active={!followerTabActive}
-          onClick={() => setFollowerTabActive(false)}
+          active={!isFollowerQuery}
+          onClick={() => setIsFollowerQuery(false)}
         />
       </TabContainer>
-      <div className="flex items-center justify-end my-3">
-        <Filters
-          dappName={socialInfo.dappName}
-          selectedFilters={socialInfo.filters}
-          onApply={handleFiltersApply}
-        />
-      </div>
+      <TableSection
+        key={
+          isFollowerQuery ? 'follower-table-section' : 'following-table-section'
+        }
+        identities={identities}
+        socialInfo={socialInfo}
+        isFollowerQuery={isFollowerQuery}
+        setQueryData={setQueryData}
+      />
     </div>
   );
 }

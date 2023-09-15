@@ -226,6 +226,7 @@ export function ERC20Tokens() {
         >
           {tokens.map((token, index) => (
             <div
+              key={index}
               data-address={token?.tokenAddress}
               className="random-color-item cursor-pointer"
               onClick={() => {
@@ -242,7 +243,6 @@ export function ERC20Tokens() {
               }}
             >
               <Token
-                key={index}
                 amount={isCombination ? null : token?.formattedAmount}
                 symbol={token?.token?.symbol}
                 type={token?.token?.name}

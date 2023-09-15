@@ -18,10 +18,13 @@ function CopyButton({ value }: { value: string }) {
 
 const minOwners = 3;
 const maxOwners = 7;
+
 function Owners({ tokens }: { tokens: Nft['tokenBalances'] }) {
   const [showModal, setShowModal] = useState(false);
   const [showMax, setShowMax] = useState(false);
+
   const navigator = useNavigate();
+
   const items = useMemo(() => {
     if (!showMax) {
       return tokens?.slice(0, minOwners);
@@ -29,21 +32,13 @@ function Owners({ tokens }: { tokens: Nft['tokenBalances'] }) {
     return tokens.slice(0, maxOwners);
   }, [showMax, tokens]);
 
-  const modalValues = useMemo(() => {
-    const leftValues: string[] = [];
-    const rightValues: string[] = [];
-    if (!showMax) return { leftValues, rightValues };
-    tokens.forEach((token, index) => {
-      if (index % 2 === 0) {
-        leftValues.push(token?.owner?.identity);
-      } else {
-        rightValues.push(token?.owner?.identity);
-      }
+  const addresses = useMemo(() => {
+    const _addresses: string[] = [];
+    if (!showMax) return _addresses;
+    tokens.forEach(token => {
+      _addresses.push(token?.owner?.identity);
     });
-    return {
-      leftValues,
-      rightValues
-    };
+    return _addresses;
   }, [showMax, tokens]);
 
   return (
@@ -90,7 +85,7 @@ function Owners({ tokens }: { tokens: Nft['tokenBalances'] }) {
       </ul>
       <AddressesModal
         heading="All Holders"
-        modalValues={modalValues}
+        addresses={addresses}
         isOpen={showModal}
         onAddressClick={(address: string) => {
           navigator(
@@ -111,10 +106,10 @@ function Owners({ tokens }: { tokens: Nft['tokenBalances'] }) {
 
 export function NFTInfo({
   nft,
-  transfterDetails
+  transferDetails
 }: {
   nft: Nft;
-  transfterDetails: TokenTransfer;
+  transferDetails: TokenTransfer;
 }) {
   const [showContactDetails, setShowContactDetails] = useState(false);
 
@@ -226,7 +221,7 @@ export function NFTInfo({
             </div>
             <KeyValue
               name="Contract"
-              value={transfterDetails?.tokenAddress || '--'}
+              value={transferDetails?.tokenAddress || '--'}
             />
             <KeyValue
               name="Total supply"
@@ -234,21 +229,21 @@ export function NFTInfo({
             />
             <KeyValue
               name="Last transfer time"
-              value={transfterDetails?.blockTimestamp}
+              value={transferDetails?.blockTimestamp}
             />
             <KeyValue
               name="Last transfer block"
-              value={transfterDetails?.blockNumber}
+              value={transferDetails?.blockNumber}
             />
             <KeyValue
               name="Last transfer hash"
               value={
                 <>
                   <span className="ellipsis">
-                    {transfterDetails?.transactionHash}
+                    {transferDetails?.transactionHash}
                   </span>
-                  {transfterDetails?.transactionHash && (
-                    <CopyButton value={transfterDetails?.transactionHash} />
+                  {transferDetails?.transactionHash && (
+                    <CopyButton value={transferDetails?.transactionHash} />
                   )}
                 </>
               }

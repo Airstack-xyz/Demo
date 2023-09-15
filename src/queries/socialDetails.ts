@@ -1,21 +1,21 @@
-export const socialDetailsQuery = `query GetSocials($identities: [Identity!], $dappSlug: SocialDappSlug) {
-    Socials(
-      input: {filter: {identity: {_in: $identities}, dappSlug: {_eq: $dappSlug}}, blockchain: ethereum}
-    ) {
-      Social {
-        id
-        blockchain
-        dappName
-        dappSlug
-        profileName
-        profileImage
-        profileTokenId
-        profileTokenAddress
-        followerCount
-        followingCount
-        userAddress
-        userCreatedAtBlockTimestamp
-        userCreatedAtBlockNumber
-      }
+export const socialDetailsQuery = `query SocialDetails($identities: [Identity!], $dappName: SocialDappName) {
+  Socials(
+    input: {filter: {identity: {_in: $identities}, dappName: {_eq: $dappName}}, blockchain: ethereum}
+  ) {
+    Social {
+      id
+      blockchain
+      dappName
+      dappSlug
+      profileName
+      profileImage
+      profileTokenId
+      profileTokenAddress
+      followerCount
+      followingCount
+      userAddress
+      userCreatedAtBlockTimestamp
+      userCreatedAtBlockNumber
     }
-  }`;
+  }
+}`;

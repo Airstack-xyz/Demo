@@ -2,7 +2,6 @@ import { getAllWordsAndMentions } from '../Components/Input/utils';
 
 export const getActiveSocialInfoString = ({
   dappName,
-  dappSlug,
   followerCount,
   followingCount,
   followerTab,
@@ -11,7 +10,6 @@ export const getActiveSocialInfoString = ({
   filters
 }: {
   dappName: string;
-  dappSlug: string;
   followerCount: number;
   followingCount: number;
   followerTab?: boolean;
@@ -19,7 +17,7 @@ export const getActiveSocialInfoString = ({
   thresholdRawText?: string;
   filters?: string[];
 }) => {
-  return `${dappName}│${dappSlug}│${followerCount}│${followingCount}│${
+  return `${dappName}│${followerCount}│${followingCount}│${
     followerTab ? '1' : '0'
   }│${mentionRawText || ''}│${thresholdRawText || ''}│${
     filters?.join(',') || ''
@@ -29,7 +27,6 @@ export const getActiveSocialInfoString = ({
 export const getActiveSocialInfo = (activeSocialInfo?: string) => {
   const [
     dappName,
-    dappSlug,
     followerCount,
     followingCount,
     followerTab,
@@ -57,9 +54,8 @@ export const getActiveSocialInfo = (activeSocialInfo?: string) => {
   }
 
   return {
-    isApplicable: Boolean(dappSlug),
+    isApplicable: Boolean(dappName),
     dappName,
-    dappSlug,
     followerCount: Number(followerCount),
     followingCount: Number(followingCount),
     followerTab: followerTab === '1',

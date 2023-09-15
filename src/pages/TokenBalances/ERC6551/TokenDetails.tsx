@@ -158,7 +158,7 @@ export function TokenDetails(props: {
   }, [address, inputType, isTokenBalances, navigate, onClose, rawInput]);
 
   const nft: Nft = nftData?.nft || ({} as Nft);
-  const transfterDetails: TokenTransfer =
+  const transferDetails: TokenTransfer =
     nftData?.transferDetails || ({} as TokenTransfer);
 
   useEffect(() => {
@@ -263,12 +263,12 @@ export function TokenDetails(props: {
             {isPoap && poap ? (
               <PoapInfo
                 poap={poap}
-                transfterDetails={poapData.transferDetails}
+                transferDetails={poapData.transferDetails}
               />
             ) : erc20Token ? (
               <TokenERC20Info token={erc20Token} />
             ) : (
-              <NFTInfo nft={nft} transfterDetails={transfterDetails} />
+              <NFTInfo nft={nft} transferDetails={transferDetails} />
             )}
           </>
         )}

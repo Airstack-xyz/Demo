@@ -33,6 +33,8 @@ import { Tab, TabContainer } from '../../Components/Tab';
 import { getActiveSocialInfo } from '../../utils/activeSocialInfoString';
 import { socialDetailsQuery } from '../../queries/socialDetails';
 import { capitalizeFirstLetter } from '../../utils';
+import { socialFollowersDetailsQuery } from '../../queries/commonSocialFollowersQuery';
+import { socialFollowingDetailsQuery } from '../../queries/commonSocialFollowingQuery';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -276,13 +278,43 @@ export function TokenBalance() {
     }
 
     if (socialInfo.isApplicable) {
+      const formattedDappName = capitalizeFirstLetter(socialInfo.dappName);
+
+      const followersDetailsLink = createAppUrlWithQuery(
+        socialFollowersDetailsQuery,
+        {
+          identity: address[0],
+          dappName: socialInfo.dappName,
+          limit: 10
+        }
+      );
+
+      const followingDetailsLink = createAppUrlWithQuery(
+        socialFollowingDetailsQuery,
+        {
+          identity: address[0],
+          dappName: socialInfo.dappName,
+          limit: 10
+        }
+      );
+
       const socialDetailsLink = createAppUrlWithQuery(socialDetailsQuery, {
         identities: address,
-        dappSlug: socialInfo.dappSlug
+        dappName: socialInfo.dappName
       });
 
       options.push({
-        label: `${capitalizeFirstLetter(socialInfo.dappName)} profile details`,
+        label: `${formattedDappName} followers`,
+        link: followersDetailsLink
+      });
+
+      options.push({
+        label: `${formattedDappName} following`,
+        link: followingDetailsLink
+      });
+
+      options.push({
+        label: `${formattedDappName} profile details`,
         link: socialDetailsLink
       });
     }
@@ -295,7 +327,6 @@ export function TokenBalance() {
     sortOrder,
     showTokenDetails,
     socialInfo.isApplicable,
-    socialInfo.dappSlug,
     socialInfo.dappName,
     hasERC6551,
     query,

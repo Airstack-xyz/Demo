@@ -4,8 +4,67 @@ import classNames from 'classnames';
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
 import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
 
-const maxSocials = 7;
-const minSocials = 2;
+function SocialFollowInfo({
+  dappName,
+  followerCount,
+  followingCount
+}: {
+  dappName: string;
+  followerCount?: number;
+  followingCount?: number;
+}) {
+  const [, setData] = useSearchInput();
+
+  const getSocialClickHandler = useCallback(
+    (followerTab?: boolean) => () => {
+      const activeSocialInfoString = getActiveSocialInfoString({
+        dappName,
+        followerCount: followerCount || 0,
+        followingCount: followingCount || 0,
+        followerTab
+      });
+      setData(
+        {
+          activeSocialInfo: activeSocialInfoString
+        },
+        { updateQueryParams: true }
+      );
+    },
+    [dappName, followerCount, followingCount, setData]
+  );
+
+  return (
+    <div className="ml-[34px]">
+      <div className="flex mt-2">
+        <div className="flex-1">Followers</div>
+        <button
+          className="flex-1 px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
+          onClick={getSocialClickHandler(true)}
+        >
+          {followerCount}
+        </button>
+      </div>
+      <div className="flex mt-2">
+        <div className="flex-1">Following</div>
+        <button
+          className="flex-1 px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
+          onClick={getSocialClickHandler(false)}
+        >
+          {followingCount}
+        </button>
+      </div>
+      <button
+        className="text-text-button font-bold mt-2"
+        onClick={getSocialClickHandler(true)}
+      >
+        See all {dappName} info
+      </button>
+    </div>
+  );
+}
+
+const maxCount = 7;
+const minCount = 2;
 
 type SocialProps = {
   name: string;
@@ -19,7 +78,6 @@ type SocialProps = {
 
 export function Social({
   name,
-  slug,
   followerCount,
   followingCount,
   values,
@@ -32,14 +90,14 @@ export function Social({
 
   const items = useMemo(() => {
     if (!showMax) {
-      return values?.slice(0, minSocials);
+      return values?.slice(0, minCount);
     }
-    return values?.slice(0, maxSocials);
+    return values?.slice(0, maxCount);
   }, [showMax, values]);
 
   const getItemClickHandler = useCallback(
     (value: ReactNode) => () => {
-      if (typeof value !== 'string') return;
+      if (typeof value !== 'string' || value == '--') return;
 
       const isFarcaster = name.includes('farcaster');
       const farcasterId = `fc_fname:${value}`;
@@ -63,27 +121,8 @@ export function Social({
     [name, setData]
   );
 
-  const getSocialClickHandler = useCallback(
-    (followerTab?: boolean) => () => {
-      const activeSocialInfoString = getActiveSocialInfoString({
-        dappName: name,
-        dappSlug: slug || '',
-        followerCount: followerCount || 0,
-        followingCount: followingCount || 0,
-        followerTab
-      });
-      setData(
-        {
-          activeSocialInfo: activeSocialInfoString
-        },
-        { updateQueryParams: true }
-      );
-    },
-    [name, slug, followerCount, followingCount, setData]
-  );
-
-  const showFollowerFollowingInfo =
-    followerCount !== undefined || followingCount !== undefined;
+  const showSocialFollowInfo =
+    followerCount != undefined || followingCount !== undefined;
 
   return (
     <div className="text-sm mb-7 last:mb-0">
@@ -109,7 +148,7 @@ export function Social({
               </div>
             </li>
           ))}
-          {!showMax && values?.length > minSocials && (
+          {!showMax && values?.length > minCount && (
             <li
               onClick={() => {
                 setShowMax(show => !show);
@@ -119,10 +158,10 @@ export function Social({
               see more
             </li>
           )}
-          {showMax && values.length > maxSocials && (
+          {showMax && values.length > maxCount && (
             <li
               onClick={() => {
-                if (showMax && values.length > maxSocials) {
+                if (showMax && values.length > maxCount) {
                   onShowMore?.();
                   return;
                 }
@@ -134,33 +173,12 @@ export function Social({
           )}
         </ul>
       </div>
-      {showFollowerFollowingInfo && (
-        <div className="ml-[34px]">
-          <div className="flex mt-2">
-            <div className="flex-1">Followers</div>
-            <button
-              className="flex-1 px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
-              onClick={getSocialClickHandler(true)}
-            >
-              {followerCount}
-            </button>
-          </div>
-          <div className="flex mt-2">
-            <div className="flex-1">Following</div>
-            <button
-              className="flex-1 px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
-              onClick={getSocialClickHandler(false)}
-            >
-              {followingCount}
-            </button>
-          </div>
-          <button
-            className="text-text-button font-bold mt-2"
-            onClick={getSocialClickHandler(true)}
-          >
-            See all {name} info
-          </button>
-        </div>
+      {showSocialFollowInfo && (
+        <SocialFollowInfo
+          dappName={name}
+          followerCount={followerCount}
+          followingCount={followingCount}
+        />
       )}
     </div>
   );
