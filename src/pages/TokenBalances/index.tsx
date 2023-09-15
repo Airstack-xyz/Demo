@@ -369,7 +369,7 @@ export function TokenBalance() {
                       />
                     )}
                   </div>
-                  {!isMobile && <SocialsAndERC20 />}
+                  {!isMobile && !loadingAccount && <SocialsAndERC20 />}
                 </div>
               )}
             </>
