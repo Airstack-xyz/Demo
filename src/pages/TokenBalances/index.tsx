@@ -19,7 +19,10 @@ import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery
 import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenDetails } from './ERC6551/TokenDetails';
-import { useGetAccountOwner } from '../../hooks/useGetAccountOwner';
+import {
+  AccountOwner,
+  useGetAccountOwner
+} from '../../hooks/useGetAccountOwner';
 import {
   poapDetailsQuery,
   tokenDetailsQuery,
@@ -77,10 +80,32 @@ export function TokenBalance() {
     { address, tokenType, blockchainType, sortOrder, activeTokenInfo },
     setData
   ] = useSearchInput();
-  const [fetchAccountsOwner, account, loadingAccount] = useGetAccountOwner(
-    address[0]
+
+  const handleAccountData = useCallback(
+    (account: AccountOwner) => {
+      if (!account) return;
+      const { tokenAddress, tokenId, blockchain } = account;
+      setData(
+        {
+          activeTokenInfo: addToActiveTokenInfo({
+            tokenAddress,
+            tokenId,
+            blockchain,
+            eventId: ''
+          })
+        },
+        { updateQueryParams: true, replace: true }
+      );
+    },
+    [setData]
   );
-  const query = address.length > 0 ? address[0] : '';
+
+  const firstAddress = address[0];
+  const [fetchAccountsOwner, account, loadingAccount] = useGetAccountOwner(
+    firstAddress,
+    handleAccountData
+  );
+  const query = address.length > 0 ? firstAddress : '';
   const isHome = useMatch('/');
 
   const [showSocials, setShowSocials] = useState(false);
@@ -101,35 +126,10 @@ export function TokenBalance() {
   const token = activeTokens[activeTokens.length - 1];
 
   useEffect(() => {
-    if (account) {
-      const { tokenAddress, tokenId, blockchain } = account;
-      // if the token is already in the activeTokenInfo, don't add it again
-      if (
-        token &&
-        token.tokenAddress === tokenAddress &&
-        token.tokenId === tokenId &&
-        token.blockchain === blockchain
-      ) {
-        return;
-      }
-      setData(
-        {
-          activeTokenInfo: addToActiveTokenInfo({
-            tokenAddress,
-            tokenId,
-            blockchain,
-            eventId: ''
-          })
-        },
-        { updateQueryParams: true, replace: true }
-      );
+    if (!activeTokenInfo) {
+      fetchAccountsOwner();
     }
-  }, [account, activeTokenInfo, setData, token]);
-
-  useEffect(() => {
-    if ((activeTokenInfo && address.length === 0) || address.length > 1) return;
-    fetchAccountsOwner();
-  }, [activeTokenInfo, address, fetchAccountsOwner]);
+  }, [activeTokenInfo, activeTokens, fetchAccountsOwner]);
 
   const options = useMemo(() => {
     if (address.length === 0) return [];

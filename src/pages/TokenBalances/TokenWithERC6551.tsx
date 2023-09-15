@@ -163,9 +163,6 @@ export const TokenWithERC6551 = memo(function Token({
               <Icon name="folder-gray" className="ml-1 mr-1.5" />
               <span>ERC6551</span>
             </span>
-            <span>
-              {nestedTokens.length} asset{nestedTokens.length > 1 ? 's' : ''}
-            </span>
           </div>
           <div className="ellipsis text-xs font-semibold my-1.5">
             {name || '--'}

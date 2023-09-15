@@ -171,9 +171,6 @@ function Token({
                 />
                 <span>ERC6551</span>
               </span>
-              <span>
-                {nestedTokens.length} asset{nestedTokens.length > 1 ? 's' : ''}
-              </span>
             </div>
             <div className="ellipsis flex flex-1 mr-2 text-xs mt-1.5 font-medium">
               #{id}
