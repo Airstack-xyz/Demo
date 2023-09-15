@@ -41,10 +41,10 @@ export function NFTInfo({
   });
 
   useEffect(() => {
-    if (holderData?.hasParent || !holderData?.ownerAddress) {
+    if (!loadingHolder || holderData) {
       fetchHolders();
     }
-  }, [fetchHolders, holderData]);
+  }, [fetchHolders, holderData, loadingHolder]);
 
   const expandDetails =
     nft?.type === 'ERC1155' ||

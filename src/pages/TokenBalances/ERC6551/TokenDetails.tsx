@@ -85,7 +85,7 @@ function formatAccountHolderData(data: AccountHolderResponse) {
   const accounts = data?.Accounts?.Account;
 
   if (!accounts) return null;
-  let depth = 1;
+  let depth = 0;
   function getOwner(accounts: Account[]): string {
     depth++;
     for (let i = 0; i < accounts.length; i++) {
@@ -110,7 +110,7 @@ function formatAccountHolderData(data: AccountHolderResponse) {
 
   return {
     ownerAddress,
-    hasParent: depth > 2
+    hasParent: depth > 0
   };
 }
 
@@ -122,12 +122,11 @@ type Token = {
 };
 
 export function TokenDetails(props: {
-  hideBackBreadcrumb?: boolean;
   onClose?: () => void;
   showLoader?: boolean;
   activeTokens: Token[];
 }) {
-  const { showLoader, activeTokens, hideBackBreadcrumb, onClose } = props;
+  const { showLoader, activeTokens, onClose } = props;
   const { tokenId, eventId, blockchain, tokenAddress } =
     activeTokens[activeTokens.length - 1];
 
@@ -260,25 +259,23 @@ export function TokenDetails(props: {
   return (
     <div className="max-w-[950px] text-sm m-auto w-[98vw] pt-10 sm:pt-0">
       <div className="flex items-center mb-7">
-        {!hideBackBreadcrumb && (
-          <div className="flex items-center max-w-[60%] sm:w-auto overflow-hidden mr-1">
-            <div
-              className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
-              onClick={handleClose}
-            >
-              <Icon
-                name={isTokenBalances ? 'token-balances' : 'token-holders'}
-                height={20}
-                width={20}
-              />{' '}
-              <span className="ml-1.5 text-text-secondary break-all cursor-pointer max-w-[90%] sm:max-w-[500px] ellipsis">
-                Token {isTokenBalances ? 'balances' : 'holders'} of{' '}
-                {address.join(', ')}
-              </span>
-            </div>
-            <span className="text-text-secondary">/</span>
+        <div className="flex items-center max-w-[60%] sm:w-auto overflow-hidden mr-1">
+          <div
+            className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
+            onClick={handleClose}
+          >
+            <Icon
+              name={isTokenBalances ? 'token-balances' : 'token-holders'}
+              height={20}
+              width={20}
+            />{' '}
+            <span className="ml-1.5 text-text-secondary break-all cursor-pointer max-w-[90%] sm:max-w-[500px] ellipsis">
+              Token {isTokenBalances ? 'balances' : 'holders'} of{' '}
+              {address.join(', ')}
+            </span>
           </div>
-        )}
+          <span className="text-text-secondary">/</span>
+        </div>
         {activeTokens.map((token, index) => {
           const _tokenId = token.tokenId || token.eventId;
           const isActiveToken = activeTokenId === _tokenId;

@@ -305,7 +305,6 @@ export function TokenBalance() {
   const showInCenter = isHome;
 
   const showTokenDetails = activeTokenInfo || token;
-  const hideBackBreadcrumb = Boolean(account);
 
   return (
     <Layout>
@@ -336,7 +335,6 @@ export function TokenBalance() {
                     activeTokens={activeTokens}
                     key={activeTokenInfo}
                     showLoader={loadingAccount}
-                    hideBackBreadcrumb={hideBackBreadcrumb}
                     onClose={() => setData({ activeTokenInfo: '' })}
                   />
                 </div>
