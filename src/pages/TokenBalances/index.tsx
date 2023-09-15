@@ -101,10 +101,26 @@ export function TokenBalance() {
   );
 
   const firstAddress = address[0];
-  const [fetchAccountsOwner, account, loadingAccount] = useGetAccountOwner(
+  // show loader if there is no activeTokenInfo and we are fetching the account
+  const [loadingAccount, setLoadingAccount] = useState(!activeTokenInfo);
+  const [fetchAccountsOwner, account] = useGetAccountOwner(
     firstAddress,
-    handleAccountData
+    data => {
+      handleAccountData(data);
+      setLoadingAccount(false);
+    },
+    () => {
+      setLoadingAccount(false);
+    }
   );
+
+  useEffect(() => {
+    if (!activeTokenInfo) {
+      setLoadingAccount(true);
+      fetchAccountsOwner();
+    }
+  }, [activeTokenInfo, fetchAccountsOwner]);
+
   const query = address.length > 0 ? firstAddress : '';
   const isHome = useMatch('/');
 
@@ -124,12 +140,6 @@ export function TokenBalance() {
   }, [activeTokenInfo]);
 
   const token = activeTokens[activeTokens.length - 1];
-
-  useEffect(() => {
-    if (!activeTokenInfo) {
-      fetchAccountsOwner();
-    }
-  }, [activeTokenInfo, activeTokens, fetchAccountsOwner]);
 
   const options = useMemo(() => {
     if (address.length === 0) return [];
@@ -305,6 +315,7 @@ export function TokenBalance() {
   const showInCenter = isHome;
 
   const showTokenDetails = activeTokenInfo || token;
+  const hideBackBreadcrumb = Boolean(account);
 
   return (
     <Layout>
@@ -336,6 +347,7 @@ export function TokenBalance() {
                     key={activeTokenInfo}
                     showLoader={loadingAccount}
                     onClose={() => setData({ activeTokenInfo: '' })}
+                    hideBackBreadcrumb={hideBackBreadcrumb}
                   />
                 </div>
               ) : (
@@ -369,7 +381,7 @@ export function TokenBalance() {
                       />
                     )}
                   </div>
-                  {!isMobile && !loadingAccount && <SocialsAndERC20 />}
+                  {!isMobile && <SocialsAndERC20 />}
                 </div>
               )}
             </>
