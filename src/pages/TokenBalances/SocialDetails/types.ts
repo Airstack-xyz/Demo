@@ -37,13 +37,18 @@ export type Follow = {
   dappName: string;
   dappSlug: string;
   followerProfileId: string;
-  followerTokenId: string;
   followingProfileId: string;
   followerAddress: Wallet;
   followingAddress: Wallet;
 };
 
 export type Wallet = {
+  socialFollowers: {
+    Follower: Follow[];
+  };
+  socialFollowings: {
+    Following: Follow[];
+  };
   identity: string;
   addresses: string[];
   socials: {
@@ -64,4 +69,16 @@ export type Wallet = {
   xmtp: {
     isXMTPEnabled: boolean;
   }[];
+};
+
+export type SocialFollowQueryFilters = {
+  hasPrimaryDomain?: boolean;
+  followerCount?: number;
+  followerDappNames?: string[];
+  followingCount?: number;
+  followingDappNames?: string[];
+};
+
+export type SocialFollowLogicalFilters = {
+  alsoFollowOn?: string;
 };

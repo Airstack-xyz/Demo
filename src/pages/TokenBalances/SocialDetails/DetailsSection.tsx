@@ -1,5 +1,4 @@
-import React from 'react';
-import { SocialInfo } from '../../../utils/activeSocialInfoString';
+import React, { memo } from 'react';
 import { useQuery } from '@airstack/airstack-react';
 import { socialDetailsQuery } from '../../../queries/socialDetails';
 import { Social } from './types';
@@ -7,16 +6,16 @@ import { Card, CardLoader } from './Card';
 
 type DetailsSectionProps = {
   identities: string[];
-  socialInfo: SocialInfo;
+  dappName: string;
 };
 
-export function DetailsSection({
+function DetailsSectionComponent({
   identities,
-  socialInfo
+  dappName
 }: DetailsSectionProps) {
   const { data, loading } = useQuery(socialDetailsQuery, {
     identities,
-    dappName: socialInfo.dappName
+    dappName
   });
 
   const socialItems: Social[] = data?.Socials?.Social;
@@ -28,3 +27,15 @@ export function DetailsSection({
     </div>
   );
 }
+
+function arePropsEqual(
+  prevProps: DetailsSectionProps,
+  nextProps: DetailsSectionProps
+) {
+  return (
+    prevProps.identities.join(',') === nextProps.identities.join(',') &&
+    prevProps.dappName === nextProps.dappName
+  );
+}
+
+export const DetailsSection = memo(DetailsSectionComponent, arePropsEqual);

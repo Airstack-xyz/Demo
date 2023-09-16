@@ -33,8 +33,9 @@ import { Tab, TabContainer } from '../../Components/Tab';
 import { getActiveSocialInfo } from '../../utils/activeSocialInfoString';
 import { socialDetailsQuery } from '../../queries/socialDetails';
 import { capitalizeFirstLetter } from '../../utils';
-import { socialFollowersDetailsQuery } from '../../queries/commonSocialFollowersQuery';
-import { socialFollowingDetailsQuery } from '../../queries/commonSocialFollowingQuery';
+import { getSocialFollowFilterData } from './SocialDetails/utils';
+import { getSocialFollowersQuery } from '../../queries/socialFollowersQuery';
+import { getSocialFollowingsQuery } from '../../queries/socialFollowingQuery';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -279,22 +280,39 @@ export function TokenBalance() {
 
     if (socialInfo.isApplicable) {
       const formattedDappName = capitalizeFirstLetter(socialInfo.dappName);
+      const socialFollowersFilterData = getSocialFollowFilterData({
+        filters: socialInfo.filters,
+        isFollowerQuery: true
+      });
+      const socialFollowingsFilterData = getSocialFollowFilterData({
+        filters: socialInfo.filters,
+        isFollowerQuery: false
+      });
 
-      const followersDetailsLink = createAppUrlWithQuery(
+      const socialFollowersDetailsQuery = getSocialFollowersQuery(
+        socialFollowersFilterData
+      );
+      const socialFollowingDetailsQuery = getSocialFollowingsQuery(
+        socialFollowingsFilterData
+      );
+
+      const socialFollowersDetailsLink = createAppUrlWithQuery(
         socialFollowersDetailsQuery,
         {
           identity: address[0],
           dappName: socialInfo.dappName,
-          limit: 10
+          limit: 10,
+          ...socialFollowersFilterData.queryFilters
         }
       );
 
-      const followingDetailsLink = createAppUrlWithQuery(
+      const socialFollowingDetailsLink = createAppUrlWithQuery(
         socialFollowingDetailsQuery,
         {
           identity: address[0],
           dappName: socialInfo.dappName,
-          limit: 10
+          limit: 10,
+          ...socialFollowingsFilterData.queryFilters
         }
       );
 
@@ -305,12 +323,12 @@ export function TokenBalance() {
 
       options.push({
         label: `${formattedDappName} followers`,
-        link: followersDetailsLink
+        link: socialFollowersDetailsLink
       });
 
       options.push({
         label: `${formattedDappName} following`,
-        link: followingDetailsLink
+        link: socialFollowingDetailsLink
       });
 
       options.push({
@@ -328,6 +346,7 @@ export function TokenBalance() {
     showTokenDetails,
     socialInfo.isApplicable,
     socialInfo.dappName,
+    socialInfo.filters,
     hasERC6551,
     query,
     token.tokenAddress,

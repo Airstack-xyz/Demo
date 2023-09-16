@@ -52,7 +52,7 @@ export function SocialDetails({
           </span>
         </div>
       </div>
-      <DetailsSection identities={identities} socialInfo={socialInfo} />
+      <DetailsSection identities={identities} dappName={socialInfo.dappName} />
       <TabContainer>
         <Tab
           icon="nft-flat"

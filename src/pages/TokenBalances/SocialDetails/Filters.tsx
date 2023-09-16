@@ -2,6 +2,7 @@ import { FilterPlaceholder } from '../../../Components/Filters/FilterPlaceholder
 import { FilterCheckbox } from '../../../Components/Filters/FilterCheckbox';
 import { useOutsideClick } from '../../../hooks/useOutsideClick';
 import { useState, useCallback, ChangeEvent, useMemo, useEffect } from 'react';
+import { ALSO_FOLLOW_ON_FILTER, MORE_THAN_N_FOLLOW_FILTER } from './utils';
 
 const options = [
   {
@@ -26,41 +27,49 @@ const options = [
   }
 ];
 
-const farcasterFollowOption = {
+const alsoFollowOnFarcasterOption = {
   label: 'also follows on farcaster',
-  value: 'followsOnFarcaster'
+  value: `${ALSO_FOLLOW_ON_FILTER}:farcaster`
 };
 
-const lensFollowOption = {
+const alsoFollowOnLensOption = {
   label: 'also follows on lens',
-  value: 'followsOnLens'
+  value: `${ALSO_FOLLOW_ON_FILTER}:lens`
+};
+
+const getSelectedFiltersInfo = (filters: string[]) => {
+  const currentFilters: string[] = [];
+  let followCount = null;
+  filters.forEach(filter => {
+    if (filter.startsWith(MORE_THAN_N_FOLLOW_FILTER)) {
+      const [, count] = filter.split(':');
+      followCount = count;
+    } else {
+      currentFilters.push(filter);
+    }
+  });
+  return { currentFilters, followCount };
 };
 
 type FilterProps = {
   dappName?: string;
   selectedFilters: string[];
+  isFollowerQuery?: boolean;
+  disabled?: boolean;
   onApply: (filters: string[]) => void;
 };
 
-const getSelectedFiltersInfo = (filters: string[]) => {
-  const currentFilters: string[] = [];
-  let followerCount = null;
-  filters.forEach(filter => {
-    if (filter.startsWith('moreThanNFollowers')) {
-      const [, count] = filter.split(':');
-      followerCount = count;
-    } else {
-      currentFilters.push(filter);
-    }
-  });
-  return { currentFilters, followerCount };
-};
-
-export function Filters({ dappName, selectedFilters, onApply }: FilterProps) {
+export function Filters({
+  dappName,
+  selectedFilters,
+  isFollowerQuery,
+  disabled,
+  onApply
+}: FilterProps) {
   const [currentFilters, setCurrentFilters] = useState<string[]>([]);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
-  const [followerCount, setFollowerCount] = useState<string | null>(null);
+  const [followCount, setFollowCount] = useState<string | null>(null);
 
   const selectedFiltersInfo = useMemo(
     () => getSelectedFiltersInfo(selectedFilters),
@@ -69,19 +78,19 @@ export function Filters({ dappName, selectedFilters, onApply }: FilterProps) {
 
   useEffect(() => {
     setCurrentFilters(selectedFiltersInfo.currentFilters);
-    setFollowerCount(selectedFiltersInfo.followerCount);
+    setFollowCount(selectedFiltersInfo.followCount);
   }, [selectedFiltersInfo]);
 
   const filterOptions = useMemo(() => {
-    if (dappName === 'lens') return [farcasterFollowOption, ...options];
-    if (dappName === 'farcaster') return [lensFollowOption, ...options];
+    if (dappName === 'lens') return [alsoFollowOnFarcasterOption, ...options];
+    if (dappName === 'farcaster') return [alsoFollowOnLensOption, ...options];
     return options;
   }, [dappName]);
 
   const handleDropdownHide = useCallback(() => {
     setIsDropdownVisible(false);
     setCurrentFilters(selectedFiltersInfo.currentFilters);
-    setFollowerCount(selectedFiltersInfo.followerCount);
+    setFollowCount(selectedFiltersInfo.followCount);
   }, [selectedFiltersInfo]);
 
   const dropdownContainerRef =
@@ -91,13 +100,13 @@ export function Filters({ dappName, selectedFilters, onApply }: FilterProps) {
     setIsDropdownVisible(prevValue => !prevValue);
   }, []);
 
-  const handleFollowerCountToggle = useCallback(() => {
-    setFollowerCount(prev => (prev === null ? '1' : null));
+  const handleFollowCountToggle = useCallback(() => {
+    setFollowCount(prev => (prev === null ? '1' : null));
   }, []);
 
-  const handleFollowerCountChange = useCallback(
+  const handleFollowCountChange = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
-      setFollowerCount(event.target.value);
+      setFollowCount(event.target.value);
     },
     []
   );
@@ -116,8 +125,8 @@ export function Filters({ dappName, selectedFilters, onApply }: FilterProps) {
 
   const handleApplyClick = () => {
     const _selectedFilters = currentFilters;
-    if (followerCount != null) {
-      _selectedFilters.push(`moreThanNFollowers:${followerCount}`);
+    if (followCount != null) {
+      _selectedFilters.push(`${MORE_THAN_N_FOLLOW_FILTER}:${followCount}`);
     }
     onApply(_selectedFilters);
   };
@@ -130,6 +139,7 @@ export function Filters({ dappName, selectedFilters, onApply }: FilterProps) {
       className="text-xs font-medium relative flex flex-col items-end"
     >
       <FilterPlaceholder
+        isDisabled={disabled}
         isOpen={isDropdownVisible}
         label={
           appliedFiltersCount ? `Filters (${appliedFiltersCount})` : 'Filters'
@@ -140,18 +150,22 @@ export function Filters({ dappName, selectedFilters, onApply }: FilterProps) {
       {isDropdownVisible && (
         <div className="bg-glass rounded-18 p-2 mt-1 flex flex-col absolute min-w-[202px] right-0 top-full z-20">
           <FilterCheckbox
-            label="has more than 'n' followers"
-            isSelected={followerCount !== null}
-            onChange={handleFollowerCountToggle}
+            label={
+              isFollowerQuery
+                ? "has more than 'n' followers"
+                : "has more than 'n' followings"
+            }
+            isSelected={followCount !== null}
+            onChange={handleFollowCountToggle}
           />
-          {followerCount != null && (
+          {followCount != null && (
             <input
               autoFocus
               type="text"
               placeholder="enter value for n"
               className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none"
-              onChange={handleFollowerCountChange}
-              value={followerCount}
+              onChange={handleFollowCountChange}
+              value={followCount}
             />
           )}
           {filterOptions.map(item => (

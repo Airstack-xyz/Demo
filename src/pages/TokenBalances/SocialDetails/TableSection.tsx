@@ -1,24 +1,27 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { useNavigate } from 'react-router-dom';
+import { AddressesModal } from '../../../Components/AddressesModal';
 import { UpdateUserInputs } from '../../../hooks/useSearchInput';
+import { getSocialFollowersQuery } from '../../../queries/socialFollowersQuery';
+import { getSocialFollowingsQuery } from '../../../queries/socialFollowingQuery';
 import {
   SocialInfo,
   getActiveSocialInfoString
 } from '../../../utils/activeSocialInfoString';
-import { Filters } from './Filters';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { TableRow, TableRowLoader } from './TableRow';
-import { useLazyQueryWithPagination } from '@airstack/airstack-react';
-import { socialFollowersDetailsQuery } from '../../../queries/commonSocialFollowersQuery';
-import { Follow, SocialFollowResponse } from './types';
-import { AddressesModal } from '../../../Components/AddressesModal';
-import { useNavigate } from 'react-router-dom';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
-import { socialFollowingDetailsQuery } from '../../../queries/commonSocialFollowingQuery';
+import { Filters } from './Filters';
+import { TableRow, TableRowLoader } from './TableRow';
+import { Follow, SocialFollowResponse } from './types';
+import { filterTableItems, getSocialFollowFilterData } from './utils';
+import { StatusLoader } from '../../../Components/StatusLoader';
 
 const LOADING_ROW_COUNT = 6;
 
+const loaderItems = Array(LOADING_ROW_COUNT).fill(0);
+
 function TableLoader() {
-  const loaderItems = Array(LOADING_ROW_COUNT).fill(0);
   return (
     <div className="w-auto sm:w-full">
       {loaderItems.map((_, index) => (
@@ -37,11 +40,12 @@ type ModalData = {
 type TableSectionProps = {
   identities: string[];
   socialInfo: SocialInfo;
-  isFollowerQuery?: boolean;
+  isFollowerQuery: boolean;
   setQueryData: UpdateUserInputs;
 };
 
-const LIMIT = 20;
+const MAX_LIMIT = 200;
+const MIN_LIMIT = 20;
 
 export function TableSection({
   identities,
@@ -52,31 +56,55 @@ export function TableSection({
   const navigate = useNavigate();
 
   const [tableItems, setTableItems] = useState<Follow[]>([]);
+  const tableItemsRef = useRef<Follow[]>([]);
 
   const [modalData, setModalData] = useState<ModalData>({
     isOpen: false,
     dataType: '',
     addresses: []
   });
-  //   const [loaderData, setLoaderData] = useState({
-  //     isVisible: false,
-  //     total: LIMIT,
-  //     matching: 0
-  //   });
+  const [loaderData, setLoaderData] = useState({
+    isVisible: false,
+    total: MAX_LIMIT,
+    matching: 0
+  });
+
+  const filterData = useMemo(
+    () =>
+      getSocialFollowFilterData({
+        filters: socialInfo.filters,
+        isFollowerQuery
+      }),
+    [isFollowerQuery, socialInfo.filters]
+  );
 
   const query = useMemo(() => {
-    if (isFollowerQuery) return socialFollowersDetailsQuery;
-    return socialFollowingDetailsQuery;
-  }, [isFollowerQuery]);
+    if (isFollowerQuery) return getSocialFollowersQuery(filterData);
+    return getSocialFollowingsQuery(filterData);
+  }, [isFollowerQuery, filterData]);
 
   const handleData = useCallback(
     (data: SocialFollowResponse) => {
-      const items = isFollowerQuery
-        ? data?.SocialFollowers?.Follower
-        : data?.SocialFollowings?.Following;
-      setTableItems(prev => [...prev, ...items]);
+      const items =
+        data?.SocialFollowers?.Follower || // when follower query
+        data?.SocialFollowings?.Following || // when following query
+        [];
+
+      const filteredItems = filterTableItems({
+        items,
+        filters: socialInfo.filters
+      });
+
+      setLoaderData(prev => ({
+        ...prev,
+        total: prev.total + items.length,
+        matching: prev.matching + filteredItems.length
+      }));
+
+      tableItemsRef.current = [...tableItemsRef.current, ...filteredItems];
+      setTableItems(prev => [...prev, ...filteredItems]);
     },
-    [isFollowerQuery]
+    [socialInfo.filters]
   );
 
   const [fetchData, { loading, pagination }] = useLazyQueryWithPagination(
@@ -91,9 +119,23 @@ export function TableSection({
     fetchData({
       identity: identities[0],
       dappName: socialInfo.dappName,
-      limit: LIMIT
+      limit: MAX_LIMIT,
+      ...filterData.queryFilters
     });
-  }, [fetchData, identities, socialInfo.dappName]);
+  }, [fetchData, identities, filterData.queryFilters, socialInfo.dappName]);
+
+  useEffect(() => {
+    if (!tableItems || loading) return;
+    if (tableItemsRef.current.length < MIN_LIMIT && hasNextPage) {
+      getNextPage();
+    } else {
+      tableItemsRef.current = [];
+      setLoaderData(prev => ({
+        ...prev,
+        isVisible: false
+      }));
+    }
+  }, [tableItems, loading, hasNextPage, getNextPage]);
 
   const handleFiltersApply = useCallback(
     (filters: string[]) => {
@@ -153,6 +195,8 @@ export function TableSection({
         <Filters
           dappName={socialInfo.dappName}
           selectedFilters={socialInfo.filters}
+          isFollowerQuery={isFollowerQuery}
+          disabled={loading}
           onApply={handleFiltersApply}
         />
       </div>
@@ -181,7 +225,6 @@ export function TableSection({
                 <TableRow
                   key={index}
                   item={item}
-                  isFollowerQuery={isFollowerQuery}
                   isLensDapp={isLensDapp}
                   onShowMoreClick={handleShowMoreClick}
                   onAddressClick={handleAddressClick}
@@ -205,6 +248,9 @@ export function TableSection({
         onRequestClose={handleModalClose}
         onAddressClick={handleAddressClick}
       />
+      {(loading || loaderData.isVisible) && (
+        <StatusLoader total={loaderData.total} matching={loaderData.matching} />
+      )}
     </>
   );
 }

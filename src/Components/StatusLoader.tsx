@@ -26,7 +26,7 @@ export function StatusLoader({
           </span>
         </div>
         <div
-          className={classNames('flex ellipsis', {
+          className={classNames('flex items-center ellipsis', {
             'text-text-secondary': !matching
           })}
         >

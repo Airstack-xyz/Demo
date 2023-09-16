@@ -16,24 +16,18 @@ const PLACEHOLDER_IMAGE = 'images/placeholder.svg';
 
 export function TableRow({
   item,
-  isFollowerQuery,
   isLensDapp,
   onShowMoreClick,
   onAddressClick
 }: {
   item: Follow;
-  isFollowerQuery?: boolean;
   isLensDapp?: boolean;
   onShowMoreClick: (values: string[], dataType?: string) => void;
   onAddressClick: (address: string, dataType?: string) => void;
 }) {
-  const _wallet = isFollowerQuery
-    ? item.followerAddress
-    : item.followingAddress;
+  const _wallet = item.followerAddress || item.followingAddress;
 
-  const _tokenId = isFollowerQuery
-    ? item.followerProfileId
-    : item.followingProfileId;
+  const _tokenId = item.followerProfileId || item.followingProfileId;
 
   const getShowMoreHandler = (values: string[], type: string) => () =>
     onShowMoreClick(values, type);
