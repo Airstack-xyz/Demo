@@ -40,15 +40,20 @@ function formatData(data: AccountsRequestData) {
       }
     : null;
 }
+export type AccountOwner = ReturnType<typeof formatData>;
 
-export function useGetAccountOwner(accountAddress: string) {
+export function useGetAccountOwner(
+  accountAddress: string,
+  onCompleted?: (data: AccountOwner) => void,
+  onError?: () => void
+) {
   const [fetch, { data, loading }] = useLazyQuery(
     accountOwnerQuery,
     {
       accountAddress
     },
-    { dataFormatter: formatData }
+    { dataFormatter: formatData, onCompleted, onError }
   );
 
-  return [fetch, data as ReturnType<typeof formatData>, loading] as const;
+  return [fetch, data as AccountOwner, loading] as const;
 }

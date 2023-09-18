@@ -2,10 +2,11 @@ import { useQuery } from '@airstack/airstack-react';
 import { Token } from '../Token';
 import { AccountsResponse, TokenBalance } from './types';
 import { erc6551TokensQuery } from '../../../queries/tokenDetails';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Icon } from '../../../Components/Icon';
 import classNames from 'classnames';
 import { Tokens } from '../Tokens';
+import { useTokenDetails } from '../../../store/tokenDetails';
 
 const loaderData = Array(3).fill({ token: {}, tokenNfts: {} });
 
@@ -49,6 +50,7 @@ export function NestedTokens({
 }) {
   const [activeTab, setActiveTab] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
+  const setDetails = useTokenDetails(['accountAddress'])[1];
 
   const { data, loading } = useQuery(
     erc6551TokensQuery,
@@ -70,6 +72,14 @@ export function NestedTokens({
         tokens: [] as TokenBalance[],
         identity: ''
       };
+
+  useEffect(() => {
+    if (account.identity) {
+      setDetails({
+        accountAddress: account.identity
+      });
+    }
+  }, [account.identity, setDetails]);
 
   const tokensProps = useMemo(() => {
     return {
