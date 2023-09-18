@@ -399,8 +399,8 @@ function TokenBalancePage() {
 }
 
 export function TokenBalance() {
-  const { address, activeTokenInfo } = useSearchInput()[0];
+  const { address } = useSearchInput()[0];
   // always remount the component when the address changes or when the activeTokenInfo gets added or removed
-  const key = `${address.join(',')}_${Boolean(activeTokenInfo)}`;
+  const key = `${address.join(',')}`;
   return <TokenBalancePage key={key} />;
 }
