@@ -10,18 +10,21 @@ export const getActiveSocialInfoString = ({
   filters
 }: {
   dappName: string;
-  followerCount?: number | string;
-  followingCount?: number | string;
+  followerCount?: string | number;
+  followingCount?: string | number;
   followerTab?: boolean;
   mentionRawText?: string;
   thresholdRawText?: string;
   filters?: string[];
 }) => {
-  return `${dappName}│${followerCount || ''}│${followingCount || ''}│${
-    followerTab ? '1' : '0'
-  }│${mentionRawText || ''}│${thresholdRawText || ''}│${
-    filters?.join(',') || ''
-  }`;
+  const socialInfo: (string | number)[] = [dappName];
+  socialInfo.push(followerCount != undefined ? followerCount : '');
+  socialInfo.push(followingCount != undefined ? followingCount : '');
+  socialInfo.push(followerTab ? '1' : '0');
+  socialInfo.push(mentionRawText || '');
+  socialInfo.push(thresholdRawText || '');
+  socialInfo.push(filters ? filters.join(',') : '');
+  return socialInfo.join('│');
 };
 
 export const getActiveSocialInfo = (activeSocialInfo?: string) => {
