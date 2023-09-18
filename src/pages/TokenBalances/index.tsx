@@ -103,7 +103,7 @@ export function TokenBalance() {
   const firstAddress = address[0];
   // show loader if there is no activeTokenInfo and we are fetching the account
   const [loadingAccount, setLoadingAccount] = useState(!activeTokenInfo);
-  const [fetchAccountsOwner, account] = useGetAccountOwner(
+  const [fetchAccountsOwner, accountData] = useGetAccountOwner(
     firstAddress,
     data => {
       handleAccountData(data);
@@ -114,8 +114,11 @@ export function TokenBalance() {
     }
   );
 
+  // if there is only one address, we can show the account details
+  const account = address.length === 1 ? accountData : null;
+
   useEffect(() => {
-    if (!activeTokenInfo) {
+    if (!activeTokenInfo && address.length === 1) {
       setLoadingAccount(true);
       fetchAccountsOwner();
     }
