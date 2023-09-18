@@ -119,7 +119,7 @@ export function TokenBalance() {
       setLoadingAccount(true);
       fetchAccountsOwner();
     }
-  }, [activeTokenInfo, fetchAccountsOwner]);
+  }, [activeTokenInfo, fetchAccountsOwner, address]);
 
   const query = address.length > 0 ? firstAddress : '';
   const isHome = useMatch('/');
