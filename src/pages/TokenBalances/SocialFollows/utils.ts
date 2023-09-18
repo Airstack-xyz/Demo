@@ -82,6 +82,12 @@ function filterByXmtp(items: Follow[]) {
   });
 }
 
+function filterByMoreThanNFollow(items: Follow[]) {
+  return items?.filter(item => {
+    return (item.followerAddress || item.followingAddress)?.socials?.length > 0;
+  });
+}
+
 function filterByAlsoFollowOn(items: Follow[]) {
   return items?.filter(item => {
     return (
@@ -115,6 +121,9 @@ export const filterTableItems = ({
     }
     if (filter === 'xmtp') {
       filteredItems = filterByXmtp(filteredItems);
+    }
+    if (filter.startsWith(MORE_THAN_N_FOLLOW_FILTER)) {
+      filteredItems = filterByMoreThanNFollow(filteredItems);
     }
     if (filter.startsWith(ALSO_FOLLOW_ON_FILTER)) {
       filteredItems = filterByAlsoFollowOn(filteredItems);
