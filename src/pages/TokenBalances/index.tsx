@@ -28,7 +28,7 @@ import {
   erc20TokenDetailsQuery
 } from '../../queries/tokenDetails';
 import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
-import { SocialDetails } from './SocialFollows/SocialFollows';
+import { SocialFollows } from './SocialFollows/SocialFollows';
 import { Tab, TabContainer } from '../../Components/Tab';
 import { getActiveSocialInfo } from '../../utils/activeSocialInfoString';
 import { socialDetailsQuery } from '../../queries/socialDetails';
@@ -409,7 +409,7 @@ export function TokenBalance() {
 
     if (socialInfo.isApplicable) {
       return (
-        <SocialDetails
+        <SocialFollows
           key={activeSocialInfo}
           identities={address}
           socialInfo={socialInfo}

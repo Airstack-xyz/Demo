@@ -6,17 +6,17 @@ import { DetailsSection } from './DetailsSection';
 import { TableSection } from './TableSection';
 import { TabContainer, Tab } from '../../../Components/Tab';
 
-type SocialDetailsProps = {
+type SocialFollowsProps = {
   identities: string[];
   socialInfo: SocialInfo;
   setQueryData: UpdateUserInputs;
 };
 
-export function SocialDetails({
+export function SocialFollows({
   identities,
   socialInfo,
   setQueryData
-}: SocialDetailsProps) {
+}: SocialFollowsProps) {
   const [isFollowerQuery, setIsFollowerQuery] = useState(
     socialInfo.followerTab
   );
