@@ -1,122 +1,50 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CopyButton as CopyBtn } from '../../../Components/CopyButton';
-import { KeyValue } from './KeyValue';
-import { Attribute, Nft, TokenTransfer } from '../erc20-types';
-import { ERC20TokenDetailsResponse } from './types';
-import { Link, useNavigate } from 'react-router-dom';
-import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
-import classNames from 'classnames';
-import { AddressesModal } from '../../../Components/AddressesModal';
-
-function CopyButton({ value }: { value: string }) {
-  return (
-    <span className="ml-0.5">
-      <CopyBtn value={value} />
-    </span>
-  );
-}
-
-const minOwners = 3;
-const maxOwners = 7;
-function Owners({ tokens }: { tokens: Nft['tokenBalances'] }) {
-  const [showModal, setShowModal] = useState(false);
-  const [showMax, setShowMax] = useState(false);
-  const navigator = useNavigate();
-  const items = useMemo(() => {
-    if (!showMax) {
-      return tokens?.slice(0, minOwners);
-    }
-    return tokens.slice(0, maxOwners);
-  }, [showMax, tokens]);
-
-  const modalValues = useMemo(() => {
-    const leftValues: string[] = [];
-    const rightValues: string[] = [];
-    if (!showMax) return { leftValues, rightValues };
-    tokens.forEach((token, index) => {
-      if (index % 2 === 0) {
-        leftValues.push(token?.owner?.identity);
-      } else {
-        rightValues.push(token?.owner?.identity);
-      }
-    });
-    return {
-      leftValues,
-      rightValues
-    };
-  }, [showMax, tokens]);
-
-  return (
-    <>
-      <ul className="text-text-secondary overflow-hidden flex flex-col justify-center mr-1">
-        {items?.map((token, index) => (
-          <li key={index} className={classNames('mb-2.5 last:mb-0 flex')}>
-            <Link
-              className="ellipsis border border-solid border-transparent hover:border-solid-stroke hover:bg-glass rounded-18"
-              to={createTokenBalancesUrl({
-                address: token?.owner?.identity,
-                blockchain: '',
-                inputType: 'ADDRESS'
-              })}
-            >
-              {token?.owner?.identity}
-            </Link>{' '}
-            <CopyButton value={token?.owner?.identity} />
-          </li>
-        ))}
-
-        {!showMax && tokens?.length > minOwners && (
-          <li
-            onClick={() => {
-              setShowMax(show => !show);
-            }}
-            className="text-text-button font-bold cursor-pointer"
-          >
-            see more
-          </li>
-        )}
-        {showMax && tokens.length > maxOwners && (
-          <li
-            onClick={() => {
-              if (showMax && tokens.length > maxOwners) {
-                setShowModal(true);
-              }
-            }}
-            className="text-text-button font-bold cursor-pointer"
-          >
-            see all
-          </li>
-        )}
-      </ul>
-      <AddressesModal
-        heading="All Holders"
-        modalValues={modalValues}
-        isOpen={showModal}
-        onAddressClick={(address: string) => {
-          navigator(
-            createTokenBalancesUrl({
-              address,
-              blockchain: '',
-              inputType: 'ADDRESS'
-            })
-          );
-        }}
-        onRequestClose={() => {
-          setShowModal(false);
-        }}
-      />
-    </>
-  );
-}
+import { KeyValue } from '../KeyValue';
+import { Attribute, Nft, TokenTransfer } from '../../erc20-types';
+import { ERC20TokenDetailsResponse } from '../types';
+import { LoaderItem } from './LoaderItem';
+import { CopyButton } from './CopyButton';
+import { Owners } from './Owners';
+import { useTokenHolders } from '../../../../hooks/useTokenHolders';
 
 export function NFTInfo({
   nft,
+  holderData,
+  tokenId,
+  blockchain,
+  tokenAddress,
+  loadingHolder,
   transfterDetails
 }: {
+  tokenId: string;
+  tokenAddress: string;
+  blockchain: string;
   nft: Nft;
+  holderData: {
+    ownerAddress: string;
+    hasParent: boolean;
+  } | null;
+  loadingHolder: boolean;
   transfterDetails: TokenTransfer;
 }) {
   const [showContactDetails, setShowContactDetails] = useState(false);
+
+  const {
+    fetchHolders,
+    data: owners,
+    loading
+  } = useTokenHolders({
+    tokenId,
+    tokenAddress,
+    blockchain,
+    limit: 10
+  });
+
+  useEffect(() => {
+    if (!loadingHolder || holderData) {
+      fetchHolders();
+    }
+  }, [fetchHolders, holderData, loadingHolder]);
 
   const expandDetails =
     nft?.type === 'ERC1155' ||
@@ -144,19 +72,6 @@ export function NFTInfo({
     return _traits;
   }, [attributes]);
 
-  const assetsCount = useMemo(() => {
-    if (!nft?.erc6551Accounts || nft?.erc6551Accounts?.length === 0) {
-      return 0;
-    }
-
-    return nft?.erc6551Accounts.reduce((sum = 0, token) => {
-      if (token?.address?.tokenBalances) {
-        return (token?.address?.tokenBalances?.length || 0) + sum;
-      }
-      return sum;
-    }, 0);
-  }, [nft?.erc6551Accounts]);
-
   return (
     <div className="overflow-hidden text-sm">
       <div>
@@ -171,12 +86,42 @@ export function NFTInfo({
             </span>
           }
         />
+
         <KeyValue
           name={`Holder${nft?.tokenBalances?.length > 1 ? 's' : ''}`}
-          value={<Owners tokens={nft?.tokenBalances || []} />}
+          value={
+            loading || loadingHolder ? (
+              <LoaderItem />
+            ) : (
+              <Owners
+                owners={
+                  holderData?.ownerAddress
+                    ? [holderData?.ownerAddress]
+                    : owners || []
+                }
+                token={{
+                  tokenId,
+                  blockchain,
+                  tokenAddress
+                }}
+              />
+            )
+          }
         />
-        {!expandDetails && (
-          <KeyValue name="Assets included" value={assetsCount} />
+        {holderData && holderData.hasParent && (
+          <KeyValue
+            name="Parent 6551"
+            value={
+              <Owners
+                owners={owners || []}
+                token={{
+                  tokenId,
+                  blockchain,
+                  tokenAddress
+                }}
+              />
+            }
+          />
         )}
         <KeyValue
           name="Traits"

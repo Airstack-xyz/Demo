@@ -30,7 +30,12 @@ export const userInputCache = {
 
 type UpdateUserInputs = (
   data: Partial<UserInputs>,
-  config?: { reset?: boolean; updateQueryParams?: boolean; redirectTo?: string }
+  config?: {
+    reset?: boolean;
+    updateQueryParams?: boolean;
+    redirectTo?: string;
+    replace?: boolean;
+  }
 ) => void;
 
 const arrayTypes = ['address', 'blockchainType', 'tokenFilters'];
@@ -58,8 +63,9 @@ export function useSearchInput(
     (data: Partial<CachedQuery>, config) => {
       let inputs = data;
       const shouldReplaceFilters =
-        data?.tokenFilters &&
-        userInputCache.tokenHolder?.tokenFilters?.length > 0;
+        config?.replace ||
+        (data?.tokenFilters &&
+          userInputCache.tokenHolder?.tokenFilters?.length > 0);
 
       if (isTokenBalances) {
         inputs = {

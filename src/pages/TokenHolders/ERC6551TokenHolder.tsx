@@ -6,7 +6,7 @@ import { Asset } from '../../Components/Asset';
 import { Chain } from '@airstack/airstack-react/constants';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
-import { getActiveTokenInfoString } from '../../utils/activeTokenInfoString';
+import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
 import { useTokenDetails } from '../../store/tokenDetails';
 
 function IconAndText({
@@ -56,7 +56,7 @@ export function ERC6551TokenHolder({
   };
 }) {
   const setDetails = useTokenDetails(['hasERC6551', 'owner'])[1];
-  const setSearchInput = useSearchInput()[1];
+  const [{ activeTokenInfo }, setSearchInput] = useSearchInput();
   const { data, loading } = useQuery(SocialQuery, {
     identity: owner
   });
@@ -176,11 +176,8 @@ export function ERC6551TokenHolder({
           onClick={() => {
             setSearchInput(
               {
-                activeTokenInfo: getActiveTokenInfoString(
-                  token?.tokenAddress || '',
-                  token?.tokenId || '',
-                  token?.blockchain || ''
-                )
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                activeTokenInfo: addToActiveTokenInfo(token!, activeTokenInfo)
               },
               {
                 updateQueryParams: true
