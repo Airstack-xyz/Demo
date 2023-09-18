@@ -1,22 +1,29 @@
-import React, { memo } from 'react';
-import { useQuery } from '@airstack/airstack-react';
+import React, { memo, useEffect } from 'react';
+import { useLazyQuery } from '@airstack/airstack-react';
 import { socialDetailsQuery } from '../../../queries/socialDetails';
 import { Social } from './types';
 import { Card, CardLoader } from './Card';
 
 type DetailsSectionProps = {
   identities: string[];
+  profileNames: string[];
   dappName: string;
 };
 
 function DetailsSectionComponent({
   identities,
+  profileNames,
   dappName
 }: DetailsSectionProps) {
-  const { data, loading } = useQuery(socialDetailsQuery, {
-    identities,
-    dappName
-  });
+  const [fetchData, { data, loading }] = useLazyQuery(socialDetailsQuery);
+
+  useEffect(() => {
+    fetchData({
+      identities,
+      profileNames,
+      dappName
+    });
+  }, [fetchData, profileNames, dappName, identities]);
 
   const socialItems: Social[] = data?.Socials?.Social;
 
@@ -34,6 +41,7 @@ function arePropsEqual(
 ) {
   return (
     prevProps.identities.join(',') === nextProps.identities.join(',') &&
+    prevProps.profileNames.join(',') === nextProps.profileNames.join(',') &&
     prevProps.dappName === nextProps.dappName
   );
 }

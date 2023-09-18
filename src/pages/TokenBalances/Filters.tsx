@@ -28,26 +28,23 @@ export const Filters = memo(function Filters() {
   const filters = useMemo(() => ['All', ...tokenTypesForFilter], []);
 
   return (
-    <div className="flex justify-between items-center">
-      <div>
-        {filters.map(tokenType => {
-          return (
-            <button
-              className={classNames(buttonClass, {
-                '!border-white bg-secondary font-bold !text-text-primary':
-                  tokenType === 'All'
-                    ? !existingTokenType
-                    : existingTokenType.toLowerCase() ===
-                      tokenType.toLowerCase()
-              })}
-              key={tokenType}
-              onClick={getFilterHandler(tokenType)}
-            >
-              {tokenType}
-            </button>
-          );
-        })}
-      </div>
+    <div className="flex items-center scroll-shadow-r">
+      {filters.map(tokenType => {
+        return (
+          <button
+            className={classNames(buttonClass, {
+              '!border-white bg-secondary font-bold !text-text-primary':
+                tokenType === 'All'
+                  ? !existingTokenType
+                  : existingTokenType.toLowerCase() === tokenType.toLowerCase()
+            })}
+            key={tokenType}
+            onClick={getFilterHandler(tokenType)}
+          >
+            {tokenType}
+          </button>
+        );
+      })}
     </div>
   );
 });

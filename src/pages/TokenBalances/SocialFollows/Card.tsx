@@ -9,7 +9,7 @@ export function CardLoader() {
         data-loader-type="block"
         className="w-[180px] h-[180px] shrink-0 rounded-2xl"
       />
-      <div className="p-6 w-full">
+      <div className="p-6 w-full flex flex-col max-sm:items-center">
         <div data-loader-type="block" className="h-6 w-[200px]" />
         <div
           data-loader-type="block"
@@ -38,19 +38,17 @@ export function Card({ item }: { item: Social }) {
         src={item.profileImage || PLACEHOLDER_IMAGE}
       />
       <div className="m-6">
-        <div className="flex items-center">
-          {item.dappName === 'lens' ? (
+        <div className="flex items-center max-sm:justify-center">
+          {item.dappName === 'lens' && (
             <Asset
               preset="extraSmall"
-              containerClassName="w-6 h-6 rounded"
+              containerClassName="w-6 h-6 mr-2 rounded"
               chain={item.blockchain}
               tokenId={item.profileTokenId}
               address={item.profileTokenAddress}
             />
-          ) : (
-            <img className="w-6 h-6 rounded" src={PLACEHOLDER_IMAGE} />
           )}
-          <div className="pl-2 pr-1 text-base">{item.profileName}</div>
+          <div className="mr-1 text-base">{item.profileName}</div>
           <div className="text-text-secondary text-sm">
             #{item.profileTokenId}
           </div>

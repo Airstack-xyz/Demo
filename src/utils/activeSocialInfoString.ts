@@ -1,72 +1,111 @@
 import { getAllWordsAndMentions } from '../Components/Input/utils';
 
 export const getActiveSocialInfoString = ({
+  profileNames,
   dappName,
-  followerCount,
-  followingCount,
   followerTab,
-  mentionRawText,
-  thresholdRawText,
-  filters
+  followerCount,
+  followerMentionRawText,
+  followerThresholdRawText,
+  followerFilters,
+  followingCount,
+  followingMentionRawText,
+  followingThresholdRawText,
+  followingFilters
 }: {
+  profileNames: string[];
   dappName: string;
-  followerCount?: string | number;
-  followingCount?: string | number;
   followerTab?: boolean;
-  mentionRawText?: string;
-  thresholdRawText?: string;
-  filters?: string[];
+  followerCount?: string | number;
+  followerMentionRawText?: string;
+  followerThresholdRawText?: string;
+  followerFilters?: string[];
+  followingCount?: string | number;
+  followingMentionRawText?: string;
+  followingThresholdRawText?: string;
+  followingFilters?: string[];
 }) => {
-  const socialInfo: (string | number)[] = [dappName];
+  const socialInfo: (string | number)[] = [profileNames.join(','), dappName];
+
+  socialInfo.push(followerTab === false ? '0' : '1');
+
   socialInfo.push(followerCount != undefined ? followerCount : '');
+  socialInfo.push(followerMentionRawText || '');
+  socialInfo.push(followerThresholdRawText || '');
+  socialInfo.push(followerFilters ? followerFilters.join(',') : '');
+
   socialInfo.push(followingCount != undefined ? followingCount : '');
-  socialInfo.push(followerTab ? '1' : '0');
-  socialInfo.push(mentionRawText || '');
-  socialInfo.push(thresholdRawText || '');
-  socialInfo.push(filters ? filters.join(',') : '');
+  socialInfo.push(followingMentionRawText || '');
+  socialInfo.push(followingThresholdRawText || '');
+  socialInfo.push(followingFilters ? followingFilters.join(',') : '');
+
   return socialInfo.join('│');
 };
 
 export const getActiveSocialInfo = (activeSocialInfo?: string) => {
   const [
+    profileNamesString,
     dappName,
-    followerCount,
-    followingCount,
     followerTab,
-    mentionRawText,
-    thresholdRawText,
-    filterString
+    followerCount,
+    followerMentionRawText,
+    followerThresholdRawText,
+    followerFiltersString,
+    followingCount,
+    followingMentionRawText,
+    followingThresholdRawText,
+    followingFiltersString
   ] = activeSocialInfo?.split('│') ?? [];
 
-  let activeMention = null;
-  let thresholdAmount = null;
-  let filters: string[] = [];
+  let followerActiveMention = null;
+  let followerThresholdAmount = null;
+  let followerFilters: string[] = [];
+  let followingActiveMention = null;
+  let followingThresholdAmount = null;
+  let followingFilters: string[] = [];
 
-  if (mentionRawText) {
-    const mentionData = getAllWordsAndMentions(mentionRawText);
-    activeMention = mentionData[0].mention;
+  if (followerMentionRawText) {
+    const mentionData = getAllWordsAndMentions(followerMentionRawText);
+    followerActiveMention = mentionData[0].mention;
+  }
+  if (followingActiveMention) {
+    const mentionData = getAllWordsAndMentions(followingMentionRawText);
+    followingActiveMention = mentionData[0].mention;
   }
 
-  if (thresholdRawText) {
-    const thresholdData = getAllWordsAndMentions(thresholdRawText);
-    thresholdAmount = Number(thresholdData[0].mention?.address);
+  if (followerThresholdRawText) {
+    const thresholdData = getAllWordsAndMentions(followerThresholdRawText);
+    followerThresholdAmount = Number(thresholdData[0].mention?.address);
+  }
+  if (followingThresholdRawText) {
+    const thresholdData = getAllWordsAndMentions(followingThresholdRawText);
+    followingThresholdAmount = Number(thresholdData[0].mention?.address);
   }
 
-  if (filterString) {
-    filters = filterString?.split(',');
+  if (followerFiltersString) {
+    followerFilters = followerFiltersString?.split(',');
+  }
+  if (followingFiltersString) {
+    followingFilters = followingFiltersString?.split(',');
   }
 
   return {
     isApplicable: Boolean(dappName),
+    profileNames: profileNamesString.split(','),
     dappName,
-    followerCount,
-    followingCount,
     followerTab: followerTab === '1',
-    mentionRawText,
-    thresholdRawText,
-    activeMention,
-    thresholdAmount,
-    filters
+    followerCount,
+    followerMentionRawText,
+    followerThresholdRawText,
+    followerActiveMention,
+    followerThresholdAmount,
+    followerFilters,
+    followingCount,
+    followingMentionRawText,
+    followingThresholdRawText,
+    followingActiveMention,
+    followingThresholdAmount,
+    followingFilters
   };
 };
 

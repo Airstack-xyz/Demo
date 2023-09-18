@@ -1,131 +1,34 @@
-import { useState, useMemo, ReactNode, useCallback } from 'react';
-import { useSearchInput } from '../../../hooks/useSearchInput';
 import classNames from 'classnames';
-import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
-import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
+import { ReactNode, useMemo, useState } from 'react';
 
-function SocialFollowInfo({
-  dappName,
-  followerCount,
-  followingCount
-}: {
-  dappName: string;
-  followerCount?: number;
-  followingCount?: number;
-}) {
-  const [, setData] = useSearchInput();
-
-  const getSocialClickHandler = useCallback(
-    (followerTab?: boolean) => () => {
-      setData(
-        {
-          activeSocialInfo: getActiveSocialInfoString({
-            dappName,
-            followerCount,
-            followingCount,
-            followerTab
-          })
-        },
-        { updateQueryParams: true }
-      );
-    },
-    [dappName, followerCount, followingCount, setData]
-  );
-
-  return (
-    <div className="ml-[34px]">
-      {Number.isInteger(followerCount) && (
-        <div className="flex mt-2">
-          <div className="flex-1">Followers</div>
-          <button
-            className="flex-1 px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
-            onClick={getSocialClickHandler(true)}
-          >
-            {followerCount}
-          </button>
-        </div>
-      )}
-      {Number.isInteger(followingCount) && (
-        <div className="flex mt-2">
-          <div className="flex-1">Following</div>
-          <button
-            className="flex-1 px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
-            onClick={getSocialClickHandler(false)}
-          >
-            {followingCount}
-          </button>
-        </div>
-      )}
-      <button
-        className="text-text-button font-bold mt-2"
-        onClick={getSocialClickHandler(true)}
-      >
-        See all {dappName} info
-      </button>
-    </div>
-  );
-}
-
-const maxCount = 7;
-const minCount = 2;
+const maxItemCount = 7;
+const minItemCount = 2;
 
 type SocialProps = {
   name: string;
-  slug?: string;
-  followerCount?: number;
-  followingCount?: number;
+  type?: string;
   values: ReactNode[];
   image: string;
-  onShowMore?: () => void;
+  onAddressClick?: (value: unknown, type?: string) => void;
+  onShowMoreClick?: (values: string[], type?: string) => void;
 };
 
 export function Social({
   name,
-  followerCount,
-  followingCount,
+  type,
   values,
   image,
-  onShowMore
+  onAddressClick,
+  onShowMoreClick
 }: SocialProps) {
-  const [, setData] = useSearchInput();
-
   const [showMax, setShowMax] = useState(false);
 
   const items = useMemo(() => {
     if (!showMax) {
-      return values?.slice(0, minCount);
+      return values?.slice(0, minItemCount);
     }
-    return values?.slice(0, maxCount);
+    return values?.slice(0, maxItemCount);
   }, [showMax, values]);
-
-  const getItemClickHandler = useCallback(
-    (value: ReactNode) => () => {
-      if (typeof value !== 'string' || value == '--') return;
-
-      const isFarcaster = name.includes('farcaster');
-      const farcasterId = `fc_fname:${value}`;
-
-      const rawInput = createFormattedRawInput({
-        type: 'ADDRESS',
-        address: isFarcaster ? farcasterId : value,
-        label: isFarcaster ? farcasterId : value,
-        blockchain: 'ethereum'
-      });
-
-      setData(
-        {
-          rawInput: rawInput,
-          address: isFarcaster ? [farcasterId] : [value],
-          inputType: 'ADDRESS'
-        },
-        { updateQueryParams: true }
-      );
-    },
-    [name, setData]
-  );
-
-  const showSocialFollowInfo =
-    followerCount != undefined || followingCount !== undefined;
 
   return (
     <div className="text-sm mb-7 last:mb-0">
@@ -145,27 +48,27 @@ export function Social({
                 className={classNames('px-3 py-1 rounded-18 ellipsis', {
                   'hover:bg-glass cursor-pointer': typeof value !== 'object'
                 })}
-                onClick={getItemClickHandler(value)}
+                onClick={() => onAddressClick?.(value, type)}
               >
                 {value}
               </div>
             </li>
           ))}
-          {!showMax && values?.length > minCount && (
+          {!showMax && values?.length > minItemCount && (
             <li
               onClick={() => {
-                setShowMax(show => !show);
+                setShowMax(prev => !prev);
               }}
               className="text-text-button font-bold cursor-pointer px-3"
             >
               see more
             </li>
           )}
-          {showMax && values.length > maxCount && (
+          {showMax && values.length > maxItemCount && (
             <li
               onClick={() => {
-                if (showMax && values.length > maxCount) {
-                  onShowMore?.();
+                if (showMax && values.length > maxItemCount) {
+                  onShowMoreClick?.(values as string[], type);
                   return;
                 }
               }}
@@ -176,13 +79,6 @@ export function Social({
           )}
         </ul>
       </div>
-      {showSocialFollowInfo && (
-        <SocialFollowInfo
-          dappName={name}
-          followerCount={followerCount}
-          followingCount={followingCount}
-        />
-      )}
     </div>
   );
 }

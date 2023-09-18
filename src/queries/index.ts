@@ -101,6 +101,7 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
       dappSlug
       blockchain
       profileName
+      profileTokenId
       followerCount
       followingCount
     }

@@ -43,6 +43,7 @@ import {
   addToActiveTokenInfo,
   getAllActiveTokenInfo
 } from '../../utils/activeTokenInfoString';
+import { AllFilters } from '../../Components/Filters/AllFilters';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -319,11 +320,11 @@ function TokenBalancePage() {
     if (socialInfo.isApplicable) {
       const formattedDappName = capitalizeFirstLetter(socialInfo.dappName);
       const socialFollowersFilterData = getSocialFollowFilterData({
-        filters: socialInfo.filters,
+        filters: socialInfo.followerFilters,
         isFollowerQuery: true
       });
       const socialFollowingsFilterData = getSocialFollowFilterData({
-        filters: socialInfo.filters,
+        filters: socialInfo.followingFilters,
         isFollowerQuery: false
       });
 
@@ -356,6 +357,7 @@ function TokenBalancePage() {
 
       const socialDetailsLink = createAppUrlWithQuery(socialDetailsQuery, {
         identities: address,
+        profileNames: socialInfo.profileNames,
         dappName: socialInfo.dappName
       });
 
@@ -377,23 +379,25 @@ function TokenBalancePage() {
 
     return options;
   }, [
-    accountAddress,
     address,
+    hasERC6551,
+    accountAddress,
     blockchainType,
-    tokenType,
     sortOrder,
     showTokenDetails,
     socialInfo.isApplicable,
     socialInfo.dappName,
-    socialInfo.filters,
-    hasERC6551,
-    query,
-    token
+    socialInfo.followerFilters,
+    socialInfo.followingFilters,
+    socialInfo.profileNames,
+    tokenType,
+    token,
+    query
   ]);
 
   const { tab1Header, tab2Header } = useMemo(() => {
     const tab1Header = `NFTs & POAPs${isCombination ? ' in common' : ''}`;
-    const tab2Header = `${!isCombination ? 'ERC20' : 'Socials & ERC20'}${
+    const tab2Header = `${isCombination ? 'ERC20' : 'Socials & ERC20'}${
       isCombination ? ' in common' : ''
     }`;
     return { tab1Header, tab2Header };
@@ -409,15 +413,15 @@ function TokenBalancePage() {
     if (showTokenDetails || socialInfo.isApplicable) {
       return (
         <div className="flex justify-center w-[calc(100vw-20px)] sm:w-[645px]">
-          <GetAPIDropdown options={options} />
+          <GetAPIDropdown options={options} dropdownAlignment="center" />
         </div>
       );
     }
     return (
       <div className="flex justify-between w-[calc(100vw-20px)] sm:w-[645px]">
-        <div className="flex-row-center gap-1">
+        <div className="flex-row-center gap-3.5">
           {isMobile ? (
-            <>{/*  <AllFilters />  */}</>
+            <AllFilters />
           ) : (
             <>
               {/* <SnapshotFilter /> */}
@@ -426,7 +430,7 @@ function TokenBalancePage() {
             </>
           )}
         </div>
-        <GetAPIDropdown options={options} />
+        <GetAPIDropdown options={options} dropdownAlignment="right" />
       </div>
     );
   };

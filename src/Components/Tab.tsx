@@ -43,7 +43,7 @@ export function Tab({
       )}
     >
       <div className="flex items-center">
-        <Icon name={icon} className="h-5 mr-1.5" />
+        <Icon name={icon} className="h-5 mr-2" />
         <span className="ellipsis">{header}</span>
       </div>
     </div>

@@ -165,8 +165,10 @@ export interface Poap {
 
 export interface Social {
   blockchain: string;
+  dappName: string;
   dappSlug: string;
   profileName: string;
+  profileTokenId: string;
 }
 
 export interface PrimaryDomain {

@@ -1,17 +1,24 @@
 import { useLazyQuery } from '@airstack/airstack-react';
+import classNames from 'classnames';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { AddressesModal } from '../../../Components/AddressesModal';
+import { useSearchInput } from '../../../hooks/useSearchInput';
 import { SocialQuery } from '../../../queries';
+import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
+import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
 import { SectionHeader } from '../SectionHeader';
 import { SocialsType } from '../types';
-import classNames from 'classnames';
-import { useSearchInput } from '../../../hooks/useSearchInput';
+import { Follow, SocialParams } from './Follow';
 import { Social } from './Social';
 import { XMTP } from './XMTP';
-import { AddressesModal } from '../../../Components/AddressesModal';
 
-type SocialType = SocialsType['Wallet'];
+type WalletType = SocialsType['Wallet'];
 
-const imagesMap: Record<string, string> = {
+type SocialType = WalletType['socials'][0] & {
+  profileNames?: string[];
+};
+
+const iconMap: Record<string, string> = {
   lens: '/images/lens.svg',
   farcaster: '/images/farcaster.svg',
   xmtp: '/images/xmtp.svg',
@@ -21,16 +28,18 @@ const imagesMap: Record<string, string> = {
 function SocialsComponent() {
   const [modalData, setModalData] = useState<{
     isOpen: boolean;
+    dataType?: string;
     addresses: string[];
   }>({
     isOpen: false,
+    dataType: '',
     addresses: []
   });
 
   const [{ address }, setData] = useSearchInput();
   const [fetchData, { data, loading }] = useLazyQuery(SocialQuery);
 
-  const wallet = (data?.Wallet || {}) as SocialType;
+  const wallet = (data?.Wallet || {}) as WalletType;
 
   useEffect(() => {
     if (address.length > 0) {
@@ -50,70 +59,115 @@ function SocialsComponent() {
     [wallet?.xmtp]
   );
 
-  const handleShowMore = useCallback((values: string[]) => {
+  const handleShowMoreClick = useCallback((values: string[], type?: string) => {
     setModalData({
       isOpen: true,
+      dataType: type,
       addresses: values
     });
   }, []);
 
-  const closeModal = useCallback(() => {
+  const handleModalClose = useCallback(() => {
     setModalData({
       isOpen: false,
+      dataType: '',
       addresses: []
     });
   }, []);
 
-  const handleAddressClick = useCallback(
-    (value: string) => {
+  const handleSocialValue = useCallback(
+    ({
+      profileName,
+      dappName,
+      followerCount,
+      followingCount,
+      followerTab
+    }: SocialParams) => {
+      if (!profileName || !dappName) {
+        return;
+      }
       setData(
         {
-          rawInput: value,
-          address: [value],
+          activeSocialInfo: getActiveSocialInfoString({
+            profileNames: [profileName],
+            dappName,
+            followerCount,
+            followingCount,
+            followerTab
+          })
+        },
+        { updateQueryParams: true }
+      );
+    },
+    [setData]
+  );
+
+  const handleAddressValue = useCallback(
+    (value: unknown, type?: string) => {
+      if (typeof value !== 'string' || value == '--') return;
+
+      const isFarcaster = type?.includes('farcaster');
+      const farcasterId = `fc_fname:${value}`;
+
+      const rawInput = createFormattedRawInput({
+        type: 'ADDRESS',
+        address: isFarcaster ? farcasterId : value,
+        label: isFarcaster ? farcasterId : value,
+        blockchain: 'ethereum'
+      });
+
+      setData(
+        {
+          rawInput: rawInput,
+          address: isFarcaster ? [farcasterId] : [value],
           inputType: 'ADDRESS'
         },
         { updateQueryParams: true }
       );
-      closeModal();
     },
-    [closeModal, setData]
+    [setData]
+  );
+
+  const handleAddressClick = useCallback(
+    (value: string, type?: string) => {
+      handleAddressValue(value, type);
+      handleModalClose();
+    },
+    [handleModalClose, handleAddressValue]
   );
 
   const socials = useMemo(() => {
     const _socials = wallet?.socials || [];
 
-    type Social = SocialType['socials'][0] & {
-      profileNames?: string[];
-    };
-
-    const map: Record<string, Social> = {};
+    const socialMap: Record<string, Partial<SocialType>> = {};
 
     _socials.forEach(social => {
-      const existing = map[social.dappName];
-      if (existing) {
-        existing.profileNames?.push(social.profileName);
+      if (socialMap[social.dappName]) {
+        socialMap[social.dappName].profileNames?.push(social.profileName);
         return;
       } else {
-        map[social.dappName] = {
+        socialMap[social.dappName] = {
           ...social,
           profileNames: [social.profileName]
         };
       }
     });
 
-    if (!map['farcaster']) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      map['farcaster'] = { dappName: 'farcaster', profileNames: ['--'] };
+    if (!socialMap['farcaster']) {
+      socialMap['farcaster'] = { dappName: 'farcaster', profileNames: ['--'] };
+    }
+    if (!socialMap['lens']) {
+      socialMap['lens'] = { dappName: 'lens', profileNames: ['--'] };
     }
 
-    if (!map['lens']) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      map['lens'] = { dappName: 'lens', profileNames: ['--'] };
-    }
-    return Object.values(map);
+    return Object.values(socialMap);
   }, [wallet?.socials]);
+
+  const _primaryEnsValues = wallet?.primaryDomain?.name
+    ? [wallet.primaryDomain.name]
+    : ['--'];
+  const _ensValues =
+    domainsList && domainsList.length > 0 ? domainsList : ['--'];
 
   return (
     <div className="w-full sm:w-auto">
@@ -135,41 +189,34 @@ function SocialsComponent() {
         >
           <Social
             name="Primary ENS"
-            values={[wallet?.primaryDomain?.name || '--']}
-            image={imagesMap['ens']}
+            type="ens"
+            values={_primaryEnsValues}
+            image={iconMap['ens']}
+            onAddressClick={handleAddressValue}
           />
           <Social
             name="ENS names"
-            values={
-              domainsList && domainsList.length > 0 ? domainsList : ['--']
-            }
-            onShowMore={() => {
-              handleShowMore(domainsList || []);
-            }}
-            image={imagesMap['ens']}
+            values={_ensValues}
+            image={iconMap['ens']}
+            onAddressClick={handleAddressValue}
+            onShowMoreClick={handleShowMoreClick}
           />
-          {socials.map(
-            ({
-              dappName,
-              profileName,
-              profileNames,
-              followerCount,
-              followingCount
-            }) => (
-              <Social
-                key={dappName}
-                name={dappName}
-                followerCount={followerCount}
-                followingCount={followingCount}
-                values={profileNames || [profileName]}
-                image={imagesMap[dappName?.trim()]}
-              />
-            )
-          )}
+          {socials.map((item, index) => (
+            <Follow
+              key={index}
+              dappName={item.dappName}
+              followerCount={item.followerCount}
+              followingCount={item.followingCount}
+              values={item.profileNames ? item.profileNames : ['--']}
+              image={item.dappName ? iconMap[item.dappName] : ''}
+              onSocialClick={handleSocialValue}
+              onShowMoreClick={handleShowMoreClick}
+            />
+          ))}
           <Social
             name="XMTP"
             values={xmtpEnabled ? [<XMTP />] : ['--']}
-            image={imagesMap['xmtp']}
+            image={iconMap['xmtp']}
           />
         </div>
       </div>
@@ -177,7 +224,7 @@ function SocialsComponent() {
         heading={`All ENS names of ${address[0]}`}
         isOpen={modalData.isOpen}
         addresses={modalData.addresses}
-        onRequestClose={closeModal}
+        onRequestClose={handleModalClose}
         onAddressClick={handleAddressClick}
       />
     </div>

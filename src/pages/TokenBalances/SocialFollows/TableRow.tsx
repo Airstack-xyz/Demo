@@ -6,8 +6,8 @@ import { Follow } from './types';
 
 export function TableRowLoader() {
   return (
-    <div className="skeleton-loader px-9 py-5">
-      <div data-loader-type="block" className="min-h-[54px]" />
+    <div className="skeleton-loader px-9 py-3">
+      <div data-loader-type="block" className="h-[50px]" />
     </div>
   );
 }
@@ -76,8 +76,8 @@ export function TableRow({
   );
 
   return (
-    <tr className="[&>td]:px-2 [&>td]:py-5 [&>td]:align-middle min-h-[54px]">
-      <td className="!pl-9">
+    <tr>
+      <td>
         {_social && _social.dappName === 'lens' ? (
           <Asset
             preset="small"
@@ -90,9 +90,9 @@ export function TableRow({
           <img className="w-[50px] h-[50px] rounded" src={PLACEHOLDER_IMAGE} />
         )}
       </td>
-      <td className="ellipsis">{isLensDapp ? lensCell : farcasterCell}</td>
+      <td>{isLensDapp ? lensCell : farcasterCell}</td>
       <td>#{_tokenId}</td>
-      <td className="ellipsis">
+      <td>
         <ListWithMoreOptions
           list={[_primaryEns]}
           listFor="ens"
@@ -100,7 +100,7 @@ export function TableRow({
           onItemClick={onAddressClick}
         />
       </td>
-      <td className="ellipsis">
+      <td>
         <ListWithMoreOptions
           list={_ens}
           listFor="ens"
@@ -115,8 +115,8 @@ export function TableRow({
           onClick={onAddressClick}
         />
       </td>
-      <td className="ellipsis">{isLensDapp ? farcasterCell : lensCell}</td>
-      <td className="!pr-9">
+      <td>{isLensDapp ? farcasterCell : lensCell}</td>
+      <td>
         {_xmtpEnabled ? <Icon name="xmtp" height={14} width={14} /> : '--'}
       </td>
     </tr>

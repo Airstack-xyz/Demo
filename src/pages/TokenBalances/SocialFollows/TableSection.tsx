@@ -15,7 +15,8 @@ import { Filters } from './Filters';
 import { TableRow, TableRowLoader } from './TableRow';
 import { Follow, SocialFollowResponse } from './types';
 import { filterTableItems, getSocialFollowFilterData } from './utils';
-import { StatusLoader } from '../../../Components/StatusLoader';
+
+import './styles.css';
 
 const LOADING_ROW_COUNT = 6;
 
@@ -23,7 +24,7 @@ const loaderItems = Array(LOADING_ROW_COUNT).fill(0);
 
 function TableLoader() {
   return (
-    <div className="w-auto sm:w-full">
+    <div className="w-auto sm:w-full py-3">
       {loaderItems.map((_, index) => (
         <TableRowLoader key={index} />
       ))}
@@ -63,19 +64,19 @@ export function TableSection({
     dataType: '',
     addresses: []
   });
-  const [loaderData, setLoaderData] = useState({
-    isVisible: false,
-    total: MAX_LIMIT,
-    matching: 0
-  });
+
+  const _filtersKey = isFollowerQuery ? 'followerFilters' : 'followingFilters';
+  const _filters = isFollowerQuery
+    ? socialInfo.followerFilters
+    : socialInfo.followingFilters;
 
   const filterData = useMemo(
     () =>
       getSocialFollowFilterData({
-        filters: socialInfo.filters,
+        filters: _filters,
         isFollowerQuery
       }),
-    [isFollowerQuery, socialInfo.filters]
+    [_filters, isFollowerQuery]
   );
 
   const query = useMemo(() => {
@@ -92,19 +93,13 @@ export function TableSection({
 
       const filteredItems = filterTableItems({
         items,
-        filters: socialInfo.filters
+        filters: _filters
       });
-
-      setLoaderData(prev => ({
-        ...prev,
-        total: prev.total + items.length,
-        matching: prev.matching + filteredItems.length
-      }));
 
       tableItemsRef.current = [...tableItemsRef.current, ...filteredItems];
       setTableItems(prev => [...prev, ...filteredItems]);
     },
-    [socialInfo.filters]
+    [_filters]
   );
 
   const [fetchData, { loading, pagination }] = useLazyQueryWithPagination(
@@ -130,10 +125,6 @@ export function TableSection({
       getNextPage();
     } else {
       tableItemsRef.current = [];
-      setLoaderData(prev => ({
-        ...prev,
-        isVisible: false
-      }));
     }
   }, [tableItems, loading, hasNextPage, getNextPage]);
 
@@ -143,13 +134,14 @@ export function TableSection({
         {
           activeSocialInfo: getActiveSocialInfoString({
             ...socialInfo,
-            filters: filters
+            followerTab: isFollowerQuery,
+            [_filtersKey]: filters
           })
         },
         { updateQueryParams: true }
       );
     },
-    [setQueryData, socialInfo]
+    [_filtersKey, isFollowerQuery, setQueryData, socialInfo]
   );
 
   const handleAddressClick = useCallback(
@@ -191,33 +183,31 @@ export function TableSection({
 
   return (
     <>
-      <div className="flex items-center justify-end my-3">
-        <Filters
-          dappName={socialInfo.dappName}
-          selectedFilters={socialInfo.filters}
-          isFollowerQuery={isFollowerQuery}
-          disabled={loading}
-          onApply={handleFiltersApply}
-        />
-      </div>
-      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto mb-5">
+      <Filters
+        dappName={socialInfo.dappName}
+        selectedFilters={_filters}
+        isFollowerQuery={isFollowerQuery}
+        disabled={loading}
+        onApply={handleFiltersApply}
+      />
+      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden overflow-y-auto mb-5">
         <InfiniteScroll
           next={handleNext}
           dataLength={tableItems.length}
           hasMore={hasNextPage}
           loader={null}
         >
-          <table className="w-auto text-xs table-fixed sm:w-full">
-            <thead className="bg-glass rounded-2xl">
-              <tr className="[&>th]:text-xs [&>th]:font-bold [&>th]:text-left [&>th]:py-5 [&>th]:px-2 [&>th]:whitespace-nowrap">
-                <th className="!pl-9">Token</th>
+          <table className="social-follow-table">
+            <thead>
+              <tr>
+                <th>Token</th>
                 <th>{isLensDapp ? 'Lens' : 'Farcaster'}</th>
                 <th>Token ID</th>
                 <th>Primary ENS</th>
                 <th>ENS</th>
                 <th>Wallet address</th>
                 <th>{isLensDapp ? 'Farcaster' : 'Lens'}</th>
-                <th className="!pr-9">XMTP </th>
+                <th>XMTP </th>
               </tr>
             </thead>
             <tbody>
@@ -233,7 +223,7 @@ export function TableSection({
             </tbody>
           </table>
           {!loading && tableItems.length === 0 && (
-            <div className="flex flex-1 justify-center text-xs font-semibold mt-5">
+            <div className="flex flex-1 justify-center text-xs font-semibold my-5">
               No data found!
             </div>
           )}
@@ -248,9 +238,6 @@ export function TableSection({
         onRequestClose={handleModalClose}
         onAddressClick={handleAddressClick}
       />
-      {(loading || loaderData.isVisible) && (
-        <StatusLoader total={loaderData.total} matching={loaderData.matching} />
-      )}
     </>
   );
 }

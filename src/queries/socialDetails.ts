@@ -1,6 +1,6 @@
-export const socialDetailsQuery = `query SocialDetails($identities: [Identity!], $dappName: SocialDappName) {
+export const socialDetailsQuery = `query SocialDetails($identities: [Identity!], $profileNames: [String!], $dappName: SocialDappName) {
   Socials(
-    input: {filter: {identity: {_in: $identities}, dappName: {_eq: $dappName}}, blockchain: ethereum}
+    input: {filter: {identity: {_in: $identities}, profileName: {_in: $profileNames}, dappName: {_eq: $dappName}}, blockchain: ethereum}
   ) {
     Social {
       id

@@ -72,7 +72,7 @@ export function TokenHolders() {
     setShowTokensOrOverview(true);
   }, [tokenAddress]);
 
-  const tokenKey = useMemo(() => tokenAddress.join(','), [tokenAddress]);
+  const tokensKey = useMemo(() => tokenAddress.join(','), [tokenAddress]);
 
   useEffect(() => {
     // go to token-holders page if user input address has changed
@@ -367,13 +367,11 @@ export function TokenHolders() {
           <>
             {!hasMultipleERC20 && (
               <div className="m-3 flex-row-center">
-                <div className="flex justify-between w-[calc(100vw-20px)] sm:w-[645px]">
-                  <div className="flex-row-center gap-1">
-                    {/* <SnapshotFilter disabled={hasSomePoap} /> */}
-                  </div>
+                <div className="flex justify-center w-[calc(100vw-20px)] sm:w-[645px]">
                   <GetAPIDropdown
                     options={options}
                     disabled={overviewTokens.length === 0}
+                    dropdownAlignment="center"
                   />
                 </div>
               </div>
@@ -384,7 +382,7 @@ export function TokenHolders() {
                 <>
                   {activeView && <OverviewDetails />}
                   {!activeView && (
-                    <div key={tokenKey}>
+                    <div key={tokensKey}>
                       <div className="flex mb-4">
                         <Icon name="token-holders" height={20} width={20} />{' '}
                         <span className="font-bold ml-1.5 text-sm">

@@ -35,7 +35,7 @@ export const getSocialFollowingsQuery = ({
   const _socialFiltersString = _socialFilters.join(',');
   const _domainFiltersString = _domainFilters.join(',');
 
-  return `query SocialFollowersDetails(${_variablesString}) {
+  return `query SocialFollowingsDetails(${_variablesString}) {
     SocialFollowings(
       input: {filter: {identity: {_eq: $identity}, dappName: {_eq: $dappName}}, blockchain: ALL, limit: $limit}
     ) {
