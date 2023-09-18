@@ -1,7 +1,7 @@
 import {
   SocialFollowLogicalFilters,
   SocialFollowQueryFilters
-} from '../pages/TokenBalances/SocialDetails/types';
+} from '../pages/TokenBalances/SocialFollows/types';
 
 export const getSocialFollowingsQuery = ({
   queryFilters,
@@ -26,9 +26,9 @@ export const getSocialFollowingsQuery = ({
     _variables.push('$followingCount: Int');
     _socialFilters.push('followingCount: {_gt: $followingCount}');
   }
-  if (queryFilters.hasPrimaryDomain) {
-    _variables.push('$hasPrimaryDomain: Boolean');
-    _domainFilters.push('isPrimary: {_eq: $hasPrimaryDomain}');
+  if (queryFilters.followingPrimaryDomain) {
+    _variables.push('$followingPrimaryDomain: Boolean');
+    _domainFilters.push('isPrimary: {_eq: $followingPrimaryDomain}');
   }
 
   const _variablesString = _variables.join(',');
@@ -73,6 +73,16 @@ export const getSocialFollowingsQuery = ({
           }
           xmtp {
             isXMTPEnabled
+          }
+          ${
+            logicalFilters.alsoFollowOn
+              ? `socialFollowings(input: {filter: {identity: {_eq: $identity}, dappName: {_eq: ${logicalFilters.alsoFollowOn}}}, limit: 1}) {
+            Following {
+              id
+              followingProfileId
+            }
+          }`
+              : ''
           }
         }
       }

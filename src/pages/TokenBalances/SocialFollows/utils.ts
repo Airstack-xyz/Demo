@@ -27,7 +27,10 @@ export const getSocialFollowFilterData = ({
       queryFilters[key]?.push(filter);
     }
     if (filter === 'primaryEns') {
-      queryFilters['hasPrimaryDomain'] = true;
+      const key = isFollowerQuery
+        ? 'followerPrimaryDomain'
+        : 'followingPrimaryDomain';
+      queryFilters[key] = true;
     }
     if (filter.startsWith(MORE_THAN_N_FOLLOW_FILTER)) {
       const key = isFollowerQuery ? 'followerCount' : 'followingCount';
@@ -79,6 +82,15 @@ function filterByXmtp(items: Follow[]) {
   });
 }
 
+function filterByAlsoFollowOn(items: Follow[]) {
+  return items?.filter(item => {
+    return (
+      (item.followerAddress || item.followingAddress)?.socialFollowings
+        ?.Following?.length > 0
+    );
+  });
+}
+
 export const filterTableItems = ({
   items,
   filters
@@ -103,6 +115,9 @@ export const filterTableItems = ({
     }
     if (filter === 'xmtp') {
       filteredItems = filterByXmtp(filteredItems);
+    }
+    if (filter.startsWith(ALSO_FOLLOW_ON_FILTER)) {
+      filteredItems = filterByAlsoFollowOn(filteredItems);
     }
   });
 

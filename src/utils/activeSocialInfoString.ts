@@ -10,14 +10,14 @@ export const getActiveSocialInfoString = ({
   filters
 }: {
   dappName: string;
-  followerCount: number;
-  followingCount: number;
+  followerCount?: number | string;
+  followingCount?: number | string;
   followerTab?: boolean;
   mentionRawText?: string;
   thresholdRawText?: string;
   filters?: string[];
 }) => {
-  return `${dappName}│${followerCount}│${followingCount}│${
+  return `${dappName}│${followerCount || ''}│${followingCount || ''}│${
     followerTab ? '1' : '0'
   }│${mentionRawText || ''}│${thresholdRawText || ''}│${
     filters?.join(',') || ''
@@ -56,8 +56,8 @@ export const getActiveSocialInfo = (activeSocialInfo?: string) => {
   return {
     isApplicable: Boolean(dappName),
     dappName,
-    followerCount: Number(followerCount),
-    followingCount: Number(followingCount),
+    followerCount,
+    followingCount,
     followerTab: followerTab === '1',
     mentionRawText,
     thresholdRawText,

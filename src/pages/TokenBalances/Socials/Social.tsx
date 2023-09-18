@@ -17,15 +17,14 @@ function SocialFollowInfo({
 
   const getSocialClickHandler = useCallback(
     (followerTab?: boolean) => () => {
-      const activeSocialInfoString = getActiveSocialInfoString({
-        dappName,
-        followerCount: followerCount || 0,
-        followingCount: followingCount || 0,
-        followerTab
-      });
       setData(
         {
-          activeSocialInfo: activeSocialInfoString
+          activeSocialInfo: getActiveSocialInfoString({
+            dappName,
+            followerCount,
+            followingCount,
+            followerTab
+          })
         },
         { updateQueryParams: true }
       );
@@ -35,24 +34,28 @@ function SocialFollowInfo({
 
   return (
     <div className="ml-[34px]">
-      <div className="flex mt-2">
-        <div className="flex-1">Followers</div>
-        <button
-          className="flex-1 px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
-          onClick={getSocialClickHandler(true)}
-        >
-          {followerCount}
-        </button>
-      </div>
-      <div className="flex mt-2">
-        <div className="flex-1">Following</div>
-        <button
-          className="flex-1 px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
-          onClick={getSocialClickHandler(false)}
-        >
-          {followingCount}
-        </button>
-      </div>
+      {Number.isInteger(followerCount) && (
+        <div className="flex mt-2">
+          <div className="flex-1">Followers</div>
+          <button
+            className="flex-1 px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
+            onClick={getSocialClickHandler(true)}
+          >
+            {followerCount}
+          </button>
+        </div>
+      )}
+      {Number.isInteger(followingCount) && (
+        <div className="flex mt-2">
+          <div className="flex-1">Following</div>
+          <button
+            className="flex-1 px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
+            onClick={getSocialClickHandler(false)}
+          >
+            {followingCount}
+          </button>
+        </div>
+      )}
       <button
         className="text-text-button font-bold mt-2"
         onClick={getSocialClickHandler(true)}

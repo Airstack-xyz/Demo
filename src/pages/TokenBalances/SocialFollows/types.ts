@@ -72,9 +72,10 @@ export type Wallet = {
 };
 
 export type SocialFollowQueryFilters = {
-  hasPrimaryDomain?: boolean;
+  followerPrimaryDomain?: boolean;
   followerCount?: number;
   followerDappNames?: string[];
+  followingPrimaryDomain?: boolean;
   followingCount?: number;
   followingDappNames?: string[];
 };

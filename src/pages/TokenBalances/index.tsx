@@ -28,12 +28,12 @@ import {
   erc20TokenDetailsQuery
 } from '../../queries/tokenDetails';
 import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
-import { SocialDetails } from './SocialDetails/SocialDetails';
+import { SocialDetails } from './SocialFollows/SocialFollows';
 import { Tab, TabContainer } from '../../Components/Tab';
 import { getActiveSocialInfo } from '../../utils/activeSocialInfoString';
 import { socialDetailsQuery } from '../../queries/socialDetails';
 import { capitalizeFirstLetter } from '../../utils';
-import { getSocialFollowFilterData } from './SocialDetails/utils';
+import { getSocialFollowFilterData } from './SocialFollows/utils';
 import { getSocialFollowersQuery } from '../../queries/socialFollowersQuery';
 import { getSocialFollowingsQuery } from '../../queries/socialFollowingQuery';
 
