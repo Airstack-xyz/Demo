@@ -75,7 +75,7 @@ function TokenContainer({ loading }: { loading: boolean }) {
   );
 }
 
-export function TokenBalance() {
+function TokenBalancePage() {
   const [
     { address, tokenType, blockchainType, sortOrder, activeTokenInfo },
     setData
@@ -101,8 +101,10 @@ export function TokenBalance() {
   );
 
   const firstAddress = address[0];
-  // show loader if there is no activeTokenInfo and we are fetching the account
+  // show loader immediately if there is no activeTokenInfo and we awill fetch the account
+  // this prevents the tokens from loading, showing and then disappearing
   const [loadingAccount, setLoadingAccount] = useState(!activeTokenInfo);
+
   const [fetchAccountsOwner, accountData] = useGetAccountOwner(
     firstAddress,
     data => {
@@ -394,4 +396,11 @@ export function TokenBalance() {
       </TokenDetailsReset>
     </Layout>
   );
+}
+
+export function TokenBalance() {
+  const { address, activeTokenInfo } = useSearchInput()[0];
+  // always remount the component when the address changes or when the activeTokenInfo gets added or removed
+  const key = `${address.join(',')}_${Boolean(activeTokenInfo)}`;
+  return <TokenBalancePage key={key} />;
 }
