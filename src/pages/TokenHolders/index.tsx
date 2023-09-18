@@ -1,11 +1,17 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { Search } from '../../Components/Search';
 import { Layout } from '../../Components/layout';
 import { Tokens } from './Tokens/Tokens';
 import { HoldersOverview } from './Overview/Overview';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
-import { TokenTotalSupplyQuery } from '../../queries';
+import { SocialQuery, TokenTotalSupplyQuery } from '../../queries';
 import classNames from 'classnames';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Icon } from '../../Components/Icon';
@@ -31,16 +37,31 @@ import {
   TokenHolder as TokenAndHolder
 } from '../../store/tokenHoldersOverview';
 import { sortByAddressByNonERC20First } from '../../utils/getNFTQueryForTokensHolder';
+import {
+  erc6551TokensQuery,
+  poapDetailsQuery,
+  tokenDetailsQuery,
+  erc20TokenDetailsQuery
+} from '../../queries/tokenDetails';
+import { useTokenDetails } from '../../store/tokenDetails';
 
 export function TokenHolders() {
-  const [{ address: tokenAddress, activeView, tokenFilters }, setData] =
-    useSearchInput();
+  const [
+    { address: tokenAddress, activeView, tokenFilters, activeTokenInfo },
+    setData
+  ] = useSearchInput();
+  const [{ hasERC6551, owner }] = useTokenDetails(['hasERC6551', 'owner']);
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
+  const [showTokensOrOverview, setShowTokensOrOverview] = useState(true);
 
   const addressRef = useRef<null | string[]>(null);
   const isHome = useMatch('/');
 
   const query = tokenAddress.length > 0 ? tokenAddress[0] : '';
+
+  useEffect(() => {
+    setShowTokensOrOverview(true);
+  }, [tokenAddress]);
 
   const tokenListKey = useMemo(() => {
     return tokenAddress.join(',');
@@ -51,7 +72,8 @@ export function TokenHolders() {
     if (addressRef.current && addressRef.current !== tokenAddress) {
       setData(
         {
-          activeView: ''
+          activeView: '',
+          activeTokenInfo: ''
         },
         {
           updateQueryParams: true
@@ -107,6 +129,17 @@ export function TokenHolders() {
     );
   }, [address, hasSomePoap, tokenFilters]);
 
+  const token = useMemo(() => {
+    const [tokenAddress, tokenId, blockchain, eventId] =
+      activeTokenInfo.split(' ');
+    return {
+      tokenAddress,
+      tokenId,
+      blockchain,
+      eventId
+    };
+  }, [activeTokenInfo]);
+
   const options = useMemo(() => {
     if (address.length === 0) return [];
 
@@ -155,29 +188,98 @@ export function TokenHolders() {
       eventId: query
     });
 
-    const options = [
-      isPoap
-        ? {
-            label: 'POAP holders',
-            link: poapLink
-          }
-        : {
-            label: 'Token holders',
-            link: tokenLink
-          }
-    ];
+    const options =
+      hasERC6551 || activeTokenInfo
+        ? []
+        : [
+            isPoap
+              ? {
+                  label: 'POAP holders',
+                  link: poapLink
+                }
+              : {
+                  label: 'Token holders',
+                  link: tokenLink
+                }
+          ];
 
-    options.push({
-      label: isPoap ? 'POAP supply' : 'Token supply',
-      link: isPoap ? poapSupplyLink : tokenSupplyLink
-    });
+    if (!activeTokenInfo && !hasERC6551) {
+      options.push({
+        label: isPoap ? 'POAP supply' : 'Token supply',
+        link: isPoap ? poapSupplyLink : tokenSupplyLink
+      });
+    }
+
+    if (hasERC6551 && !activeTokenInfo) {
+      const socialLink = createAppUrlWithQuery(SocialQuery, {
+        identity: owner
+      });
+      options.push({
+        label: 'Socials, Domains & XMTP',
+        link: socialLink
+      });
+    }
+
+    if (activeTokenInfo) {
+      const erc6551AccountsQueryLink = createAppUrlWithQuery(
+        erc6551TokensQuery,
+        {
+          tokenAddress: token.tokenAddress,
+          blockchain: token.blockchain,
+          tokenId: token.tokenId
+        }
+      );
+
+      const poapDetailsQueryLink = createAppUrlWithQuery(poapDetailsQuery, {
+        tokenAddress: token.tokenAddress,
+        eventId: token.eventId
+      });
+
+      const tokenDetailsQueryLink = createAppUrlWithQuery(tokenDetailsQuery, {
+        tokenAddress: token.tokenAddress,
+        blockchain: token.blockchain,
+        tokenId: token.tokenId
+      });
+
+      const erc20DetailsQueryLink = createAppUrlWithQuery(
+        erc20TokenDetailsQuery,
+        {
+          tokenAddress: token.tokenAddress,
+          blockchain: token.blockchain,
+          tokenId: token.tokenId
+        }
+      );
+
+      options.push({
+        label: token?.eventId ? 'POAP Details' : 'Token Details',
+        link: token?.eventId
+          ? poapDetailsQueryLink
+          : token?.tokenId
+          ? tokenDetailsQueryLink
+          : erc20DetailsQueryLink
+      });
+
+      if (hasERC6551) {
+        options.push({
+          label: 'ERC6551 Accounts',
+          link: erc6551AccountsQueryLink
+        });
+      }
+    }
 
     return options;
   }, [
+    activeTokenInfo,
     activeView,
     address,
+    hasERC6551,
     isPoap,
+    owner,
     query,
+    token.blockchain,
+    token.eventId,
+    token.tokenAddress,
+    token.tokenId,
     tokenFilters,
     tokenOwnersQuery,
     tokensQueryWithFilter
@@ -190,7 +292,14 @@ export function TokenHolders() {
     return erc20Tokens.length > 1;
   }, [overviewTokens]);
 
+  const handleInvalidAddress = useCallback(() => {
+    setShowTokensOrOverview(false);
+  }, []);
+
   const showInCenter = isHome;
+
+  const showTokens =
+    showTokensOrOverview && !hasMulitpleERC20 && !activeTokenInfo;
 
   return (
     <Layout>
@@ -213,15 +322,12 @@ export function TokenHolders() {
           <>
             {!hasMulitpleERC20 && (
               <div className="hidden sm:flex-col-center my-3">
-                <GetAPIDropdown
-                  options={options}
-                  disabled={overviewTokens.length === 0}
-                />
+                <GetAPIDropdown options={options} />
               </div>
             )}
             <div className="flex flex-col justify-center mt-7" key={query}>
-              <HoldersOverview />
-              {!hasMulitpleERC20 && (
+              <HoldersOverview onAddress404={handleInvalidAddress} />
+              {showTokens && (
                 <>
                   {activeView && <OverviewDetails />}
                   {!activeView && (

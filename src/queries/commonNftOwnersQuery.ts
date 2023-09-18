@@ -25,6 +25,12 @@ export function getCommonNftOwnersQuery(
             video
             image {
               small
+              medium
+            }
+          }
+          erc6551Accounts {
+            address {
+              identity
             }
           }
         }
@@ -46,6 +52,12 @@ export function getCommonNftOwnersQuery(
                 video
                 image {
                   small
+                  medium
+                }
+              }
+              erc6551Accounts {
+                address {
+                  identity
                 }
               }
             }
@@ -88,6 +100,20 @@ export function getCommonNftOwnersQuery(
             imageUrl
           }
         }
+        tokenNfts {
+          contentValue {
+            video
+            image {
+              small
+              medium
+            }
+          }
+          erc6551Accounts {
+            address {
+              identity
+            }
+          }
+        }
         owner {
           tokenBalances(input: {filter: {tokenAddress: {_eq: "${token2.address}"}}, blockchain: ${token2.blockchain}}) {
             tokenId
@@ -99,6 +125,20 @@ export function getCommonNftOwnersQuery(
               }
               projectDetails {
                 imageUrl
+              }
+            }
+            tokenNfts {
+              contentValue {
+                video
+                image {
+                  small
+                  medium
+                }
+              }
+              erc6551Accounts {
+                address {
+                  identity
+                }
               }
             }
             owner {
@@ -150,6 +190,12 @@ export function getNftOwnersQuery(token: string) {
             video
             image {
               small
+              medium
+            }
+          }
+          erc6551Accounts {
+            address {
+              identity
             }
           }
         }
@@ -195,6 +241,12 @@ export function getNftOwnersQuery(token: string) {
             video
             image {
               small
+              medium
+            }
+          }
+          erc6551Accounts {
+            address {
+              identity
             }
           }
         }

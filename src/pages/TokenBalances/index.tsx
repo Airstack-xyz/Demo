@@ -1,8 +1,8 @@
-import { memo, useCallback, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Search } from '../../Components/Search';
 import { Layout } from '../../Components/layout';
 import { Socials } from './Socials';
-import { Tokens } from './Tokens';
+import { Tokens, TokensLoader } from './Tokens';
 import { ERC20Tokens } from './ERC20Tokens';
 import { Filters } from './Filters';
 import { SectionHeader } from './SectionHeader';
@@ -18,6 +18,15 @@ import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwner
 import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
 import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
+import { TokenDetails } from './ERC6551/TokenDetails';
+import { useGetAccountOwner } from '../../hooks/useGetAccountOwner';
+import {
+  poapDetailsQuery,
+  tokenDetailsQuery,
+  erc6551TokensQuery,
+  erc20TokenDetailsQuery
+} from '../../queries/tokenDetails';
+import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20() {
   const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
@@ -40,13 +49,65 @@ const SocialsAndERC20 = memo(function SocialsAndERC20() {
   );
 });
 
-export function TokenBalance() {
+function TokenContainer({ loading }: { loading: boolean }) {
   const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
+  if (!loading) {
+    <div>
+      <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">
+        <TokensLoader />
+      </div>
+    </div>;
+  }
+  return (
+    <Tokens
+      address={address}
+      tokenType={tokenType}
+      blockchainType={blockchainType}
+      sortOrder={sortOrder}
+    />
+  );
+}
+
+export function TokenBalance() {
+  const [
+    { address, tokenType, blockchainType, sortOrder, activeTokenInfo },
+    setData
+  ] = useSearchInput();
+  const [fetchAccountsOwner, account, loadingAccount] = useGetAccountOwner(
+    address[0]
+  );
   const query = address.length > 0 ? address[0] : '';
   const isHome = useMatch('/');
 
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
+
+  const [{ hasERC6551 }] = useTokenDetails(['hasERC6551']);
+
+  const token = useMemo(() => {
+    if (account && !activeTokenInfo) {
+      const { tokenAddress, tokenId, blockchain } = account;
+      return {
+        tokenAddress,
+        tokenId,
+        blockchain,
+        eventId: ''
+      };
+    }
+    const [tokenAddress, tokenId, blockchain, eventId] =
+      activeTokenInfo.split(' ');
+    return {
+      tokenAddress,
+      tokenId,
+      blockchain,
+      eventId
+    };
+  }, [account, activeTokenInfo]);
+
+  useEffect(() => {
+    if ((activeTokenInfo && address.length === 0) || address.length > 1) return;
+    fetchAccountsOwner();
+  }, [activeTokenInfo, address, fetchAccountsOwner]);
 
   const options = useMemo(() => {
     if (address.length === 0) return [];
@@ -85,34 +146,98 @@ export function TokenBalance() {
 
     const options = [];
 
-    if (!tokenType || tokenType === 'POAP') {
+    const showingDetails = Boolean(activeTokenInfo || account);
+
+    if ((!tokenType || tokenType === 'POAP') && !showingDetails) {
       options.push({
         label: 'POAPs',
         link: poapLink
       });
     }
 
-    if (tokenType !== 'POAP') {
+    if (tokenType !== 'POAP' && (!showingDetails || hasERC6551)) {
       options.push({
         label: 'Token Balances (NFT)',
         link: nftLink
       });
     }
 
-    options.push({
-      label: 'Token Balances (ERC20)',
-      link: erc20Link
-    });
-
-    if (address.length === 1) {
+    if (!showingDetails) {
       options.push({
-        label: 'Socials, Domains & XMTP',
-        link: socialLink
+        label: 'Token Balances (ERC20)',
+        link: erc20Link
       });
+
+      if (address.length === 1) {
+        options.push({
+          label: 'Socials, Domains & XMTP',
+          link: socialLink
+        });
+      }
+    }
+
+    if (activeTokenInfo || account) {
+      const erc6551AccountsQueryLink = createAppUrlWithQuery(
+        erc6551TokensQuery,
+        {
+          tokenAddress: token.tokenAddress,
+          blockchain: token.blockchain,
+          tokenId: token.tokenId
+        }
+      );
+
+      const poapDetailsQueryLink = createAppUrlWithQuery(poapDetailsQuery, {
+        tokenAddress: token.tokenAddress,
+        eventId: token.eventId
+      });
+
+      const tokenDetailsQueryLink = createAppUrlWithQuery(tokenDetailsQuery, {
+        tokenAddress: token.tokenAddress,
+        blockchain: token.blockchain,
+        tokenId: token.tokenId
+      });
+
+      const erc20DetailsQueryLink = createAppUrlWithQuery(
+        erc20TokenDetailsQuery,
+        {
+          tokenAddress: token.tokenAddress,
+          blockchain: token.blockchain,
+          tokenId: token.tokenId
+        }
+      );
+
+      options.push({
+        label: token?.eventId ? 'POAP Details' : 'Token Details',
+        link: token?.eventId
+          ? poapDetailsQueryLink
+          : token?.tokenId
+          ? tokenDetailsQueryLink
+          : erc20DetailsQueryLink
+      });
+
+      if (hasERC6551) {
+        options.push({
+          label: 'ERC6551 Accounts',
+          link: erc6551AccountsQueryLink
+        });
+      }
     }
 
     return options;
-  }, [address, blockchainType, query, sortOrder, tokenType]);
+  }, [
+    account,
+    activeTokenInfo,
+    address,
+    blockchainType,
+    hasERC6551,
+    query,
+    sortOrder,
+    token.blockchain,
+    token.eventId,
+    token.tokenAddress,
+    token.tokenId,
+    tokenType
+  ]);
 
   const renderMobileTabs = useCallback(() => {
     return (
@@ -160,58 +285,80 @@ export function TokenBalance() {
   );
   const showInCenter = isHome;
 
+  const showTokenDetails = activeTokenInfo || Boolean(account);
+  const hideBackBreadcrumb = Boolean(account);
+
   return (
     <Layout>
-      <div
-        className={classNames(
-          'flex flex-col px-2 pt-5 w-[1440px] max-w-[100vw] sm:pt-8',
-          {
-            'flex-1 h-full w-full flex flex-col items-center !pt-[30%] text-center':
-              showInCenter
-          }
-        )}
-      >
-        <div className="flex flex-col items-center">
-          {showInCenter && (
-            <h1 className="text-[2rem]">Explore web3 identities</h1>
+      <TokenDetailsReset>
+        <div
+          className={classNames(
+            'flex flex-col px-2 pt-5 w-[1440px] max-w-[100vw] sm:pt-8',
+            {
+              'flex-1 h-full w-full flex flex-col items-center !pt-[30%] text-center':
+                showInCenter
+            }
           )}
-          <Search />
-        </div>
-        {query && query.length > 0 && (
-          <>
-            <div className="hidden sm:flex-col-center my-3">
-              <GetAPIDropdown options={options} />
-            </div>
-            <div className="flex justify-between px-2 sm:px-5">
-              <div className="w-full h-full" key={query}>
-                <div className="hidden sm:block">
-                  <SectionHeader
-                    iconName="nft-flat"
-                    heading={`NFTs & POAPs${
-                      address.length > 1 ? ' in common' : ''
-                    }`}
+        >
+          <div className="flex flex-col items-center">
+            {showInCenter && (
+              <h1 className="text-[2rem]">Explore web3 identities</h1>
+            )}
+            <Search />
+          </div>
+          {query && query.length > 0 && (
+            <>
+              <div className="hidden sm:flex-col-center my-3 z-[15]">
+                <GetAPIDropdown options={options} />
+              </div>
+              {showTokenDetails ? (
+                <div key={activeTokenInfo}>
+                  <TokenDetails
+                    {...token}
+                    hideBackBreadcrumb={hideBackBreadcrumb}
+                    key={activeTokenInfo}
+                    onClose={() => setData({ activeTokenInfo: '' })}
                   />
                 </div>
-                {isMobile && renderMobileTabs()}
-                <div className="mt-3.5 mb-5">
-                  {(!isMobile || !showSocials) && <Filters />}
+              ) : (
+                <div className="flex justify-between px-5">
+                  <div className="w-full h-full" key={query}>
+                    <div className="hidden sm:block">
+                      <SectionHeader
+                        iconName="nft-flat"
+                        heading={`NFTs & POAPs${
+                          address.length > 1 ? ' in common' : ''
+                        }`}
+                      />
+                    </div>
+                    {isMobile && renderMobileTabs()}
+                    <div className="mt-3.5 mb-5 z-[15] relative">
+                      {(!isMobile || !showSocials) && <Filters />}
+                    </div>
+                    {isMobile ? (
+                      showSocials ? (
+                        <SocialsAndERC20 />
+                      ) : (
+                        <TokenContainer
+                          key={tokensKey}
+                          loading={loadingAccount}
+                        />
+                      )
+                    ) : (
+                      <TokenContainer
+                        key={tokensKey}
+                        loading={loadingAccount}
+                      />
+                    )}
+                  </div>
+                  {!isMobile && <SocialsAndERC20 />}
                 </div>
-                {isMobile ? (
-                  showSocials ? (
-                    <SocialsAndERC20 />
-                  ) : (
-                    <Tokens key={tokensKey} />
-                  )
-                ) : (
-                  <Tokens key={tokensKey} />
-                )}
-              </div>
-              {!isMobile && <SocialsAndERC20 />}
-            </div>
-          </>
-        )}
-      </div>
-      <TokenBalancesLoaderWithInfo />
+              )}
+            </>
+          )}
+        </div>
+        {!activeTokenInfo && <TokenBalancesLoaderWithInfo />}
+      </TokenDetailsReset>
     </Layout>
   );
 }

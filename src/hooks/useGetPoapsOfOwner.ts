@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchInput } from './useSearchInput';
+import { UserInputs } from './useSearchInput';
 import { defaultSortOrder } from '../pages/TokenBalances/SortBy';
 import { CommonPoapType, PoapType } from '../pages/TokenBalances/types';
 import { poapsOfCommonOwnersQuery } from '../queries/poapsOfCommonOwnersQuery';
@@ -8,15 +8,20 @@ import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 const LIMIT = 20;
 const LIMIT_COMBINATIONS = 100;
 
+type Inputs = Pick<
+  UserInputs,
+  'address' | 'tokenType' | 'blockchainType' | 'sortOrder'
+>;
 export function useGetPoapsOfOwner(
-  onDataReceived: (tokens: PoapType[]) => void
+  inputs: Inputs,
+  onDataReceived: (tokens: PoapType[]) => void,
+  noFetch = false
 ) {
+  const { address: owners, tokenType = '', blockchainType, sortOrder } = inputs;
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const tokensRef = useRef<PoapType[]>([]);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
-  const [{ address: owners, tokenType = '', blockchainType, sortOrder }] =
-    useSearchInput();
   const isPoap = tokenType === 'POAP';
 
   const query = useMemo(() => {
@@ -24,10 +29,11 @@ export function useGetPoapsOfOwner(
   }, [owners]);
 
   const canFetchPoap = useMemo(() => {
+    if (noFetch) return false;
     const hasPolygonChainFilter =
       blockchainType.length === 1 && blockchainType[0] === 'polygon';
     return !hasPolygonChainFilter && (!tokenType || isPoap);
-  }, [blockchainType, isPoap, tokenType]);
+  }, [blockchainType, isPoap, noFetch, tokenType]);
 
   const [
     fetchTokens,
@@ -49,7 +55,15 @@ export function useGetPoapsOfOwner(
       sortBy: sortOrder ? sortOrder : defaultSortOrder
     });
     setProcessedTokensCount(LIMIT);
-  }, [canFetchPoap, fetchTokens, owners, sortOrder, blockchainType, tokenType]);
+  }, [
+    canFetchPoap,
+    fetchTokens,
+    owners,
+    sortOrder,
+    blockchainType,
+    tokenType,
+    noFetch
+  ]);
 
   useEffect(() => {
     if (!tokensData) return;
