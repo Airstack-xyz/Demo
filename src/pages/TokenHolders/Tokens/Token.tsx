@@ -10,7 +10,7 @@ import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 import { WalletAddress } from '../../../Components/WalletAddress';
 import classNames from 'classnames';
 import { useSearchInput } from '../../../hooks/useSearchInput';
-import { getActiveTokenInfoString } from '../../../utils/activeTokenInfoString';
+import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
 
 export function Token({
   token: tokenInProps,
@@ -95,7 +95,7 @@ export function Token({
 
   const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
   const navigate = useNavigate();
-  const setSearchData = useSearchInput()[1];
+  const [{ activeTokenInfo }, setSearchData] = useSearchInput();
 
   const { lens, farcaster } = useMemo(() => {
     const social = owner?.socials || [];
@@ -137,17 +137,12 @@ export function Token({
     (token: (typeof assets)[0]) => {
       setSearchData(
         {
-          activeTokenInfo: getActiveTokenInfoString(
-            token?.tokenAddress,
-            token?.tokenId,
-            token?.blockchain,
-            token?.eventId
-          )
+          activeTokenInfo: addToActiveTokenInfo(token, activeTokenInfo)
         },
         { updateQueryParams: true }
       );
     },
-    [setSearchData]
+    [activeTokenInfo, setSearchData]
   );
 
   return (

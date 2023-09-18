@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
-import { tokenTypes } from './constants';
+import { tokenTypesForFilter } from './constants';
 import { memo, useCallback, useMemo } from 'react';
 
 const buttonClass =
@@ -25,10 +25,7 @@ export const Filters = memo(function Filters() {
     [existingTokenType, setData]
   );
 
-  const filters = useMemo(
-    () => ['All', ...tokenTypes.filter(type => type !== 'ERC20')],
-    []
-  );
+  const filters = useMemo(() => ['All', ...tokenTypesForFilter], []);
 
   return (
     <div className="flex justify-between items-center">

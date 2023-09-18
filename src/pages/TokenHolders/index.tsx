@@ -44,13 +44,22 @@ import {
   erc20TokenDetailsQuery
 } from '../../queries/tokenDetails';
 import { useTokenDetails } from '../../store/tokenDetails';
+import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { tokenTypes } from '../TokenBalances/constants';
+import { accountOwnerQuery } from '../../queries/accountsQuery';
+import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
+import { defaultSortOrder } from '../../Components/Filters/SortBy';
 
 export function TokenHolders() {
   const [
     { address: tokenAddress, activeView, tokenFilters, activeTokenInfo },
     setData
   ] = useSearchInput();
-  const [{ hasERC6551, owner }] = useTokenDetails(['hasERC6551', 'owner']);
+  const [{ hasERC6551, owner, accountAddress }] = useTokenDetails([
+    'hasERC6551',
+    'owner',
+    'accountAddress'
+  ]);
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
   const [showTokensOrOverview, setShowTokensOrOverview] = useState(true);
 
@@ -130,8 +139,8 @@ export function TokenHolders() {
   }, [tokenFilters, address, hasSomePoap]);
 
   const token = useMemo(() => {
-    const [tokenAddress, tokenId, blockchain, eventId] =
-      activeTokenInfo.split(' ');
+    const { tokenAddress, tokenId, blockchain, eventId } =
+      getActiveTokenInfo(activeTokenInfo);
     return {
       tokenAddress,
       tokenId,
@@ -224,6 +233,15 @@ export function TokenHolders() {
         label: 'Socials, Domains & XMTP',
         link: socialLink
       });
+
+      const accountHolderLink = createAppUrlWithQuery(accountOwnerQuery, {
+        accountAddress: tokenAddress[0]
+      });
+
+      options.push({
+        label: 'Account Holder',
+        link: accountHolderLink
+      });
     }
 
     if (activeTokenInfo) {
@@ -273,25 +291,43 @@ export function TokenHolders() {
           label: 'ERC6551 Accounts',
           link: erc6551AccountsQueryLink
         });
+
+        const tokensQuery = createNftWithCommonOwnersQuery(
+          [accountAddress],
+          null
+        );
+
+        const nftLink = createAppUrlWithQuery(tokensQuery, {
+          limit: 10,
+          sortBy: defaultSortOrder,
+          tokenType: tokenTypes
+        });
+
+        options.push({
+          label: 'Token Balances (NFT)',
+          link: nftLink
+        });
       }
     }
 
     return options;
   }, [
-    address,
-    activeView,
+    accountAddress,
     activeTokenInfo,
+    activeView,
+    address,
     hasERC6551,
+    owner,
+    query,
+    token.blockchain,
+    token.eventId,
+    token.tokenAddress,
+    token.tokenId,
+    tokenAddress,
     tokenFilters,
     hasPoap,
     tokenOwnersQuery,
-    tokensQueryWithFilter,
-    query,
-    owner,
-    token.tokenAddress,
-    token.blockchain,
-    token.tokenId,
-    token.eventId
+    tokensQueryWithFilter
   ]);
 
   const hasMultipleERC20 = useMemo(() => {

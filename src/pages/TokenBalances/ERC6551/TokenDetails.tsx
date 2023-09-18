@@ -2,11 +2,18 @@ import { useLazyQuery } from '@airstack/airstack-react';
 import { Icon } from '../../../Components/Icon';
 import { Token } from '../Token';
 import {
+  accountHolderQuery,
   erc20TokenDetailsQuery,
   poapDetailsQuery,
   tokenDetailsQuery
 } from '../../../queries/tokenDetails';
-import { ERC20Response, Nft, TokenTransfer } from '../erc20-types';
+import {
+  Account,
+  AccountHolderResponse,
+  ERC20Response,
+  Nft,
+  TokenTransfer
+} from '../erc20-types';
 import { NestedTokens } from './NestedTokens';
 import { useCallback, useEffect, useRef } from 'react';
 import {
@@ -22,6 +29,7 @@ import { NFTInfo, TokenERC20Info } from './NFTInfo';
 import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
 import classNames from 'classnames';
 import { useTokenDetails } from '../../../store/tokenDetails';
+import { getActiveTokensInfoFromArray } from '../../../utils/activeTokenInfoString';
 
 function LoaderItem() {
   return (
@@ -71,24 +79,59 @@ function formatPoapData(data: PoapData) {
   };
 }
 
-export function TokenDetails(props: {
+function formatAccountHolderData(data: AccountHolderResponse) {
+  if (!data) return null;
+
+  const accounts = data?.Accounts?.Account;
+
+  if (!accounts) return null;
+  let depth = 0;
+  function getOwner(accounts: Account[]): string {
+    depth++;
+    for (let i = 0; i < accounts.length; i++) {
+      const account = accounts[i];
+      if (account?.nft?.tokenBalances?.length > 0) {
+        account?.nft?.tokenBalances.forEach(token => {
+          token.owner.accounts.length > 0;
+        });
+        for (let i = 0; i < account?.nft?.tokenBalances?.length; i++) {
+          const token = account?.nft?.tokenBalances[i];
+          if (token?.owner?.accounts.length === 0) {
+            return token?.owner?.identity;
+          } else {
+            return getOwner(token?.owner?.accounts);
+          }
+        }
+      }
+    }
+    return '';
+  }
+  const ownerAddress = getOwner(accounts);
+
+  return {
+    ownerAddress,
+    hasParent: depth > 0
+  };
+}
+
+type Token = {
   tokenId: string;
   eventId?: string;
   blockchain: string;
   tokenAddress: string;
-  hideBackBreadcrumb?: boolean;
-  onClose?: () => void;
-}) {
-  const {
-    tokenId,
-    eventId,
-    blockchain,
-    tokenAddress,
-    hideBackBreadcrumb,
-    onClose
-  } = props;
+};
 
-  const [{ address, rawInput, inputType }] = useSearchInput();
+export function TokenDetails(props: {
+  onClose?: () => void;
+  showLoader?: boolean;
+  activeTokens: Token[];
+  hideBackBreadcrumb?: boolean;
+}) {
+  const { showLoader, activeTokens, onClose, hideBackBreadcrumb } = props;
+  const { tokenId, eventId, blockchain, tokenAddress } =
+    activeTokens[activeTokens.length - 1];
+
+  const [{ address, rawInput, inputType }, setSearchData] = useSearchInput();
   const navigate = useNavigate();
   const isTokenBalances = !!useMatch('/token-balances');
   const addressRef = useRef(address.join(','));
@@ -109,6 +152,21 @@ export function TokenDetails(props: {
       blockchain,
       tokenAddress
     });
+
+  const [
+    fetchAccountHolders,
+    { data: _accountHoldersData, loading: loadingAccountHolder }
+  ] = useLazyQuery(
+    accountHolderQuery,
+    {},
+    {
+      dataFormatter: formatAccountHolderData
+    }
+  );
+
+  const accountHoldersData = _accountHoldersData as ReturnType<
+    typeof formatAccountHolderData
+  >;
 
   const [fetchPoap, { data: _poapData, loading: loadingPoap }] = useLazyQuery(
     poapDetailsQuery,
@@ -157,9 +215,21 @@ export function TokenDetails(props: {
     });
   }, [address, inputType, isTokenBalances, navigate, onClose, rawInput]);
 
+  // eslint-disable-next-line
   const nft: Nft = nftData?.nft || ({} as Nft);
   const transferDetails: TokenTransfer =
     nftData?.transferDetails || ({} as TokenTransfer);
+
+  useEffect(() => {
+    if (!nft?.tokenBalance) return;
+    const ownerId = nft?.tokenBalance?.owner?.identity;
+    if (ownerId) {
+      fetchAccountHolders({
+        blockchain,
+        address: ownerId
+      });
+    }
+  }, [blockchain, fetchAccountHolders, nft]);
 
   useEffect(() => {
     setDetails({
@@ -167,11 +237,35 @@ export function TokenDetails(props: {
     });
   }, [isPoap, nft?.erc6551Accounts?.length, setDetails]);
 
-  const loading = loadingToken || loadingERC20 || loadingPoap;
+  const handleBreadcrumbClick = useCallback(
+    (index: number) => {
+      const updatedTokens = activeTokens.slice(0, index + 1);
+      setSearchData(
+        {
+          activeTokenInfo: getActiveTokensInfoFromArray(updatedTokens)
+        },
+        {
+          updateQueryParams: true
+        }
+      );
+    },
+    [activeTokens, setSearchData]
+  );
+
+  const activeTokenId = isPoap ? poap?.eventId : nft?.tokenId;
+
+  const loading = showLoader || loadingToken || loadingERC20 || loadingPoap;
   const hasChildren = !loading && !isPoap && nft?.erc6551Accounts?.length > 0;
 
   return (
-    <div className="max-w-[950px] text-sm m-auto w-[98vw] pt-10 sm:pt-0">
+    <div
+      className={classNames(
+        'max-w-[950px] text-sm m-auto w-[98vw] pt-10 sm:pt-0',
+        {
+          'pb-10': !hasChildren
+        }
+      )}
+    >
       <div className="flex items-center mb-7">
         {!hideBackBreadcrumb && (
           <div className="flex items-center max-w-[60%] sm:w-auto overflow-hidden mr-1">
@@ -189,35 +283,64 @@ export function TokenDetails(props: {
                 {address.join(', ')}
               </span>
             </div>
-            <span className="mr-2 text-text-secondary">/</span>
+            <span className="text-text-secondary">/</span>
           </div>
         )}
-        <div
-          className={classNames('flex items-center flex-1 overflow-hidden', {
-            'skeleton-loader': loading
-          })}
-        >
-          <Icon name="table-view" height={20} width={20} className="mr-1" />{' '}
-          <span
-            data-loader-type="block"
-            data-loader-width="50"
-            className="min-h-[20px] flex items-center overflow-hidden"
-          >
-            {!loading && (
-              <>
-                <span className="mr-1 ellipsis">
-                  Details of{' '}
-                  {isPoap ? poap?.poapEvent.eventName : nft?.token?.name}
+        {activeTokens.map((token, index) => {
+          const _tokenId = token.tokenId || token.eventId;
+          const isActiveToken = index === activeTokens.length - 1;
+          return (
+            <div
+              className={classNames('flex items-center overflow-hidden', {
+                'skeleton-loader': loading,
+                'flex-1': isActiveToken
+              })}
+            >
+              <button
+                className={classNames('flex cursor-auto px-1 py-0.5', {
+                  'hover:bg-glass-1-light rounded-18 !cursor-pointer':
+                    !isActiveToken
+                })}
+                onClick={() => {
+                  if (!isActiveToken) {
+                    handleBreadcrumbClick(index);
+                  }
+                }}
+              >
+                <Icon
+                  name="table-view"
+                  height={20}
+                  width={20}
+                  className="mr-1"
+                />{' '}
+                <span
+                  data-loader-type="block"
+                  data-loader-width="50"
+                  className="min-h-[20px] flex items-center overflow-hidden"
+                >
+                  {!loading && isActiveToken ? (
+                    <>
+                      <span className=" ellipsis">
+                        Details of{' '}
+                        {isPoap ? poap?.poapEvent.eventName : nft?.token?.name}
+                      </span>
+                      (
+                      <span className="min-w-[20px] max-w-[100px] ellipsis">
+                        #{activeTokenId}
+                      </span>
+                      )
+                    </>
+                  ) : (
+                    <span>#{_tokenId}</span>
+                  )}
                 </span>
-                (
-                <span className="min-w-[20px] max-w-[100px] ellipsis">
-                  #{isPoap ? poap?.eventId : nft?.tokenId}
-                </span>
-                )
-              </>
-            )}
-          </span>
-        </div>
+              </button>
+              {index !== activeTokens.length - 1 && (
+                <span className="mx-1 text-text-secondary">/</span>
+              )}
+            </div>
+          );
+        })}
       </div>
       <div className="bg-glass border-solid-stroke rounded-18 flex p-5 flex-col md:flex-row">
         <div className="flex flex-col items-center mr-0 sm:mr-7">
@@ -268,7 +391,15 @@ export function TokenDetails(props: {
             ) : erc20Token ? (
               <TokenERC20Info token={erc20Token} />
             ) : (
-              <NFTInfo nft={nft} transferDetails={transferDetails} />
+              <NFTInfo
+                nft={nft}
+                tokenId={tokenId}
+                blockchain={blockchain}
+                tokenAddress={tokenAddress}
+                transferDetails={transferDetails}
+                loadingHolder={loadingAccountHolder}
+                holderData={!loadingAccountHolder ? accountHoldersData : null}
+              />
             )}
           </>
         )}
@@ -276,7 +407,9 @@ export function TokenDetails(props: {
       </div>
       {hasChildren && (
         <NestedTokens
-          {...props}
+          tokenId={tokenId}
+          blockchain={blockchain}
+          tokenAddress={tokenAddress}
           key={`${tokenAddress}-${tokenId}-${blockchain}`}
         />
       )}

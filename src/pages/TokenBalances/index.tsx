@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { Search } from '../../Components/Search';
 import { Layout } from '../../Components/Layout';
 import { Socials } from './Socials';
@@ -20,7 +20,10 @@ import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { BlockchainFilter } from '../../Components/Filters/BlockchainFilter';
 import { TokenDetails } from './ERC6551/TokenDetails';
-import { useGetAccountOwner } from '../../hooks/useGetAccountOwner';
+import {
+  AccountOwner,
+  useGetAccountOwner
+} from '../../hooks/useGetAccountOwner';
 import {
   poapDetailsQuery,
   tokenDetailsQuery,
@@ -36,6 +39,10 @@ import { capitalizeFirstLetter } from '../../utils';
 import { getSocialFollowFilterData } from './SocialFollows/utils';
 import { getSocialFollowersQuery } from '../../queries/socialFollowersQuery';
 import { getSocialFollowingsQuery } from '../../queries/socialFollowingQuery';
+import {
+  addToActiveTokenInfo,
+  getAllActiveTokenInfo
+} from '../../utils/activeTokenInfoString';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -91,7 +98,7 @@ function TokenContainer({
   );
 }
 
-export function TokenBalance() {
+function TokenBalancePage() {
   const [
     {
       address,
@@ -104,62 +111,93 @@ export function TokenBalance() {
     setData
   ] = useSearchInput();
 
-  const query = address.length > 0 ? address[0] : '';
+  const handleAccountData = useCallback(
+    (account: AccountOwner) => {
+      if (!account) return;
+      const { tokenAddress, tokenId, blockchain } = account;
+      setData(
+        {
+          activeTokenInfo: addToActiveTokenInfo({
+            tokenAddress,
+            tokenId,
+            blockchain,
+            eventId: ''
+          })
+        },
+        { updateQueryParams: true, replace: true }
+      );
+    },
+    [setData]
+  );
 
-  const [fetchAccountsOwner, account, loadingAccount] =
-    useGetAccountOwner(query);
+  const firstAddress = address[0];
+  const canFetchAccount = !activeTokenInfo && address.length === 1;
 
+  // show loader immediately if there is no activeTokenInfo and we will fetch the account
+  // this prevents the tokens from loading, showing and then disappearing
+  const [loadingAccount, setLoadingAccount] = useState(canFetchAccount);
+
+  const [fetchAccountsOwner, accountData] = useGetAccountOwner(
+    firstAddress,
+    data => {
+      handleAccountData(data);
+      setLoadingAccount(false);
+    },
+    () => {
+      setLoadingAccount(false);
+    }
+  );
+
+  // if there is only one address, we can show the account details
+  const account = address.length === 1 ? accountData : null;
+
+  useEffect(() => {
+    if (canFetchAccount) {
+      setLoadingAccount(true);
+      fetchAccountsOwner();
+    }
+  }, [activeTokenInfo, fetchAccountsOwner, address, canFetchAccount]);
+
+  const query = address.length > 0 ? firstAddress : '';
   const isHome = useMatch('/');
+
   const [showSocials, setShowSocials] = useState(false);
   const isMobile = isMobileDevice();
 
-  const [{ hasERC6551 }] = useTokenDetails(['hasERC6551']);
+  const [{ hasERC6551, accountAddress }] = useTokenDetails([
+    'hasERC6551',
+    'accountAddress'
+  ]);
 
-  const isCombination = address.length > 1;
-
-  const showTokenDetails = Boolean(activeTokenInfo || account);
-  const hideBackBreadcrumb = Boolean(account);
+  const activeTokens = useMemo(() => {
+    if (activeTokenInfo) {
+      return getAllActiveTokenInfo(activeTokenInfo);
+    }
+    return [];
+  }, [activeTokenInfo]);
 
   const socialInfo = useMemo(
     () => getActiveSocialInfo(activeSocialInfo),
     [activeSocialInfo]
   );
 
-  useEffect(() => {
-    if ((activeTokenInfo && address.length === 0) || address.length > 1) return;
-    fetchAccountsOwner();
-  }, [activeTokenInfo, address, fetchAccountsOwner]);
+  const token = activeTokens[activeTokens.length - 1];
 
-  const token = useMemo(() => {
-    if (account && !activeTokenInfo) {
-      const { tokenAddress, tokenId, blockchain } = account;
-      return {
-        tokenAddress,
-        tokenId,
-        blockchain,
-        eventId: ''
-      };
-    }
-    const [tokenAddress, tokenId, blockchain, eventId] =
-      activeTokenInfo.split(' ');
-    return {
-      tokenAddress,
-      tokenId,
-      blockchain,
-      eventId
-    };
-  }, [account, activeTokenInfo]);
+  const isCombination = address.length > 1;
+
+  const showTokenDetails = Boolean(activeTokenInfo || account);
+  const hideBackBreadcrumb = Boolean(account);
 
   const options = useMemo(() => {
     if (address.length === 0) return [];
 
+    const detailTokensVisible = hasERC6551 && accountAddress;
+
     const fetchAllBlockchains =
       blockchainType.length === 2 || blockchainType.length === 0;
 
+    const _owners = detailTokensVisible ? [accountAddress] : address;
     const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
-    const _limit = tokenType
-      ? [tokenType]
-      : tokenTypes.filter(tokenType => tokenType !== 'POAP');
     const _sortBy = sortOrder ? sortOrder : defaultSortOrder;
 
     const options = [];
@@ -185,12 +223,12 @@ export function TokenBalance() {
     let nftLink = '';
     let erc20Link = '';
 
-    const tokensQuery = createNftWithCommonOwnersQuery(address, _blockchain);
+    const tokensQuery = createNftWithCommonOwnersQuery(_owners, _blockchain);
 
     nftLink = createAppUrlWithQuery(tokensQuery, {
       limit: 10,
       sortBy: _sortBy,
-      tokenType: _limit
+      tokenType: tokenType ? [tokenType] : tokenTypes
     });
 
     erc20Link = createAppUrlWithQuery(tokensQuery, {
@@ -200,7 +238,7 @@ export function TokenBalance() {
     });
 
     if (
-      (!showTokenDetails || hasERC6551) &&
+      (!showTokenDetails || detailTokensVisible) &&
       !socialInfo.isApplicable &&
       tokenType !== 'POAP'
     ) {
@@ -228,7 +266,7 @@ export function TokenBalance() {
       }
     }
 
-    if (showTokenDetails) {
+    if (showTokenDetails && token) {
       const erc6551AccountsQueryLink = createAppUrlWithQuery(
         erc6551TokensQuery,
         {
@@ -339,6 +377,7 @@ export function TokenBalance() {
 
     return options;
   }, [
+    accountAddress,
     address,
     blockchainType,
     tokenType,
@@ -349,10 +388,7 @@ export function TokenBalance() {
     socialInfo.filters,
     hasERC6551,
     query,
-    token.tokenAddress,
-    token.blockchain,
-    token.tokenId,
-    token.eventId
+    token
   ]);
 
   const { tab1Header, tab2Header } = useMemo(() => {
@@ -399,10 +435,11 @@ export function TokenBalance() {
     if (showTokenDetails) {
       return (
         <TokenDetails
-          {...token}
-          hideBackBreadcrumb={hideBackBreadcrumb}
+          activeTokens={activeTokens}
           key={activeTokenInfo}
+          showLoader={loadingAccount}
           onClose={() => setData({ activeTokenInfo: '' })}
+          hideBackBreadcrumb={hideBackBreadcrumb}
         />
       );
     }
@@ -485,4 +522,11 @@ export function TokenBalance() {
       </TokenDetailsReset>
     </Layout>
   );
+}
+
+export function TokenBalance() {
+  const { address } = useSearchInput()[0];
+  // always remount the component when the address changes or when the activeTokenInfo gets added or removed
+  const key = `${address.join(',')}`;
+  return <TokenBalancePage key={key} />;
 }

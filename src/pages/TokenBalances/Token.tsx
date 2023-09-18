@@ -8,7 +8,7 @@ import { Asset } from '../../Components/Asset';
 import classNames from 'classnames';
 import { Nft } from './erc20-types';
 import { useSearchInput } from '../../hooks/useSearchInput';
-import { getActiveTokenInfoString } from '../../utils/activeTokenInfoString';
+import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
 
 type Poap = PoapsType['Poaps']['Poap'][0];
 
@@ -41,7 +41,7 @@ export const Token = memo(function Token({
   hideHoldersButton,
   disabled
 }: TokenProps) {
-  const setSearchData = useSearchInput()[1];
+  const [{ activeTokenInfo }, setSearchData] = useSearchInput();
 
   const token = (tokenProp || {}) as TokenType;
   const poap = (tokenProp || {}) as Poap;
@@ -78,16 +78,27 @@ export const Token = memo(function Token({
     if (disabled) return;
     setSearchData(
       {
-        activeTokenInfo: getActiveTokenInfoString(
-          address,
-          tokenId,
-          blockchain,
-          eventId
+        activeTokenInfo: addToActiveTokenInfo(
+          {
+            tokenAddress: address,
+            tokenId,
+            blockchain,
+            eventId
+          },
+          activeTokenInfo
         )
       },
       { updateQueryParams: true }
     );
-  }, [address, blockchain, disabled, eventId, setSearchData, tokenId]);
+  }, [
+    activeTokenInfo,
+    address,
+    blockchain,
+    disabled,
+    eventId,
+    setSearchData,
+    tokenId
+  ]);
 
   return (
     <div
