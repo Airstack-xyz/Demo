@@ -101,9 +101,10 @@ function TokenBalancePage() {
   );
 
   const firstAddress = address[0];
+  const canFetchAccount = !activeTokenInfo && address.length === 1;
   // show loader immediately if there is no activeTokenInfo and we awill fetch the account
   // this prevents the tokens from loading, showing and then disappearing
-  const [loadingAccount, setLoadingAccount] = useState(!activeTokenInfo);
+  const [loadingAccount, setLoadingAccount] = useState(canFetchAccount);
 
   const [fetchAccountsOwner, accountData] = useGetAccountOwner(
     firstAddress,
@@ -120,11 +121,11 @@ function TokenBalancePage() {
   const account = address.length === 1 ? accountData : null;
 
   useEffect(() => {
-    if (!activeTokenInfo && address.length === 1) {
+    if (canFetchAccount) {
       setLoadingAccount(true);
       fetchAccountsOwner();
     }
-  }, [activeTokenInfo, fetchAccountsOwner, address]);
+  }, [activeTokenInfo, fetchAccountsOwner, address, canFetchAccount]);
 
   const query = address.length > 0 ? firstAddress : '';
   const isHome = useMatch('/');

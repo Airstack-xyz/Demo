@@ -115,7 +115,13 @@ export function useGetTokensOfOwner(
 
     if (is6551) {
       tokens = tokens.filter((token: CommonTokenType) => {
-        return token.tokenNfts.erc6551Accounts.length > 0;
+        const commonTokens = token?._common_tokens || [];
+        return (
+          token?.tokenNfts?.erc6551Accounts?.length > 0 ||
+          commonTokens?.find(
+            _token => _token?.tokenNfts?.erc6551Accounts?.length > 0
+          )
+        );
       });
     }
 

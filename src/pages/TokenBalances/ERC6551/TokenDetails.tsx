@@ -258,7 +258,14 @@ export function TokenDetails(props: {
   const hasChildren = !loading && !isPoap && nft?.erc6551Accounts?.length > 0;
 
   return (
-    <div className="max-w-[950px] text-sm m-auto w-[98vw] pt-10 sm:pt-0">
+    <div
+      className={classNames(
+        'max-w-[950px] text-sm m-auto w-[98vw] pt-10 sm:pt-0',
+        {
+          'pb-10': !hasChildren
+        }
+      )}
+    >
       <div className="flex items-center mb-7">
         {!hideBackBreadcrumb && (
           <div className="flex items-center max-w-[60%] sm:w-auto overflow-hidden mr-1">
