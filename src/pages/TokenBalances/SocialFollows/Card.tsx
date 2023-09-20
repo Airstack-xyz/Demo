@@ -21,7 +21,7 @@ export function CardLoader() {
         />
         <div
           data-loader-type="block"
-          className="h-5 w-[246px] max-sm:w-full mt-3"
+          className="h-5 w-[246px] max-sm:w-full mt-3 mb-2"
         />
       </div>
     </div>
@@ -37,7 +37,7 @@ export function Card({ item }: { item: Social }) {
         className="w-[180px] h-[180px] object-cover rounded-2xl"
         src={item.profileImage || PLACEHOLDER_IMAGE}
       />
-      <div className="m-6">
+      <div className="p-6">
         <div className="flex items-center max-sm:justify-center">
           {item.dappName === 'lens' && (
             <Asset

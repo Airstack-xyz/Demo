@@ -49,7 +49,7 @@ export function GetAPIDropdown({
       >
         <button
           className={classNames(
-            'py-2 px-4 text-text-button bg-secondary rounded-full text-xs font-medium flex-row-center border border-solid border-transparent',
+            'py-2 px-4 text-text-button bg-glass-1 rounded-full text-xs font-medium flex-row-center border border-solid border-transparent',
             {
               'border-white': isDropdownVisible,
               'cursor-not-allowed pointer-events-none opacity-80': disabled

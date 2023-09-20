@@ -172,42 +172,44 @@ export function Filters({
 
   return (
     <div className="flex my-4">
-      <div className="flex-1 flex gap-2.5 scroll-shadow-r">
-        {selectedFiltersInfo.followCount != null && (
-          <div className="py-1 px-3 flex-shrink-0 bg-glass-1 rounded-[15px]">
-            {isFollowerQuery
-              ? `has more than ${selectedFiltersInfo.followCount} followers`
-              : `has more than ${selectedFiltersInfo.followCount} followings`}
-            <button
-              className="ml-2.5"
-              onClick={() =>
-                handleFilterRemove(
-                  `${MORE_THAN_N_FOLLOW_FILTER}:${selectedFiltersInfo.followCount}`
-                )
-              }
+      <div className="flex-1 text-xs text-text-secondary scroll-shadow-r">
+        <div className="flex gap-2.5 overflow-auto">
+          {selectedFiltersInfo.followCount != null && (
+            <div className="py-[7px] px-3 flex-shrink-0 bg-glass-1 rounded-full">
+              {isFollowerQuery
+                ? `has more than ${selectedFiltersInfo.followCount} followers`
+                : `has more than ${selectedFiltersInfo.followCount} followings`}
+              <button
+                className="ml-2.5"
+                onClick={() =>
+                  handleFilterRemove(
+                    `${MORE_THAN_N_FOLLOW_FILTER}:${selectedFiltersInfo.followCount}`
+                  )
+                }
+              >
+                <Icon name="close" height={10} width={10} />
+              </button>
+            </div>
+          )}
+          {chipOptions.map((item, index) => (
+            <div
+              className="py-[7px] px-3 flex-shrink-0 bg-glass-1 rounded-full"
+              key={index}
             >
-              <Icon name="close" height={10} width={10} />
-            </button>
-          </div>
-        )}
-        {chipOptions.map((item, index) => (
-          <div
-            className="py-1 px-3 flex-shrink-0 bg-glass-1 rounded-[15px]"
-            key={index}
-          >
-            {item.label}
-            <button
-              className="ml-2.5"
-              onClick={() => handleFilterRemove(item.value)}
-            >
-              <Icon name="close" height={10} width={10} />
-            </button>
-          </div>
-        ))}
+              {item.label}
+              <button
+                className="ml-2.5"
+                onClick={() => handleFilterRemove(item.value)}
+              >
+                <Icon name="close" height={10} width={10} />
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
       <div
         ref={dropdownContainerRef}
-        className="ml-2 text-xs font-medium relative flex flex-col items-end"
+        className="ml-2 flex-shrink-0 relative flex flex-col items-end"
       >
         <FilterPlaceholder
           isDisabled={disabled}

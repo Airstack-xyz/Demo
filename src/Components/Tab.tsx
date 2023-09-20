@@ -25,21 +25,24 @@ export function Tab({
   icon,
   header,
   active,
+  className,
   onClick
 }: {
   icon: IconType;
   header: string;
   active: boolean;
+  className?: string;
   onClick: () => void;
 }) {
   return (
     <div
       onClick={onClick}
       className={classNames(
-        'pb-3 flex min-w-[168px] max-sm:flex-1 justify-center border-b-4 border-solid border-transparent -mb-1 cursor-pointer',
+        'pb-3 px-3 flex max-sm:flex-1 justify-center border-b-4 border-solid border-transparent -mb-1 cursor-pointer',
         {
           '!border-text-secondary font-bold': active
-        }
+        },
+        className
       )}
     >
       <div className="flex items-center">

@@ -28,7 +28,7 @@ function DetailsSectionComponent({
   const socialItems: Social[] = data?.Socials?.Social;
 
   return (
-    <div className="mt-2 flex">
+    <div className="my-7 flex">
       {!loading && socialItems?.map(item => <Card key={item.id} item={item} />)}
       {loading && <CardLoader />}
     </div>

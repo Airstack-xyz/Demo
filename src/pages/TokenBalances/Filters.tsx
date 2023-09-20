@@ -29,22 +29,25 @@ export const Filters = memo(function Filters() {
 
   return (
     <div className="flex items-center scroll-shadow-r">
-      {filters.map(tokenType => {
-        return (
-          <button
-            className={classNames(buttonClass, {
-              '!border-white bg-secondary font-bold !text-text-primary':
-                tokenType === 'All'
-                  ? !existingTokenType
-                  : existingTokenType.toLowerCase() === tokenType.toLowerCase()
-            })}
-            key={tokenType}
-            onClick={getFilterHandler(tokenType)}
-          >
-            {tokenType}
-          </button>
-        );
-      })}
+      <div className="flex overflow-auto">
+        {filters.map(tokenType => {
+          return (
+            <button
+              className={classNames(buttonClass, {
+                '!border-white bg-secondary font-bold !text-text-primary':
+                  tokenType === 'All'
+                    ? !existingTokenType
+                    : existingTokenType.toLowerCase() ===
+                      tokenType.toLowerCase()
+              })}
+              key={tokenType}
+              onClick={getFilterHandler(tokenType)}
+            >
+              {tokenType}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 });

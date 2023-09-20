@@ -4,6 +4,17 @@
 :root {
   @apply !bg-primary;
 }
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: black;
+  border-radius: 7px;
+}
+
 body {
   font-family: 'Inter';
   font-style: normal;
@@ -12,6 +23,7 @@ body {
   color: white;
   background-color: #0e0e12;
 }
+
 #root {
   width: 100%;
 }
@@ -137,11 +149,10 @@ body {
 
 .scroll-shadow-r {
     position: relative;
-    overflow-x: auto;
 }
 
 .scroll-shadow-r::after {
     content: '';
-    @apply absolute right-0 h-full w-[50px] bg-gradient-to-r from-transparent to-primary;
+    @apply absolute right-0 top-0 h-full w-[100px] bg-gradient-to-r from-transparent to-primary pointer-events-none;
 }
 

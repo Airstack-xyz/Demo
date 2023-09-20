@@ -318,7 +318,7 @@ export const Search = memo(function Search() {
   const showPrefixIcon = isHome && (!isInputSectionFocused || !value);
 
   return (
-    <div className="w-[105%] sm:w-full z-10">
+    <div className="z-10">
       <div className="my-6 flex-col-center">
         <div className="bg-glass bg-secondary border flex p-1 rounded-full">
           {isHome && (

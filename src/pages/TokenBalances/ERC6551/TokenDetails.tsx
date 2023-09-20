@@ -268,7 +268,7 @@ export function TokenDetails(props: {
     >
       <div className="flex items-center mb-7">
         {!hideBackBreadcrumb && (
-          <div className="flex items-center max-w-[60%] sm:w-auto overflow-hidden mr-1">
+          <div className="flex items-center sm:w-auto overflow-hidden mr-1">
             <div
               className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
               onClick={handleClose}
@@ -278,7 +278,7 @@ export function TokenDetails(props: {
                 height={20}
                 width={20}
               />{' '}
-              <span className="ml-1.5 text-text-secondary break-all cursor-pointer max-w-[90%] sm:max-w-[500px] ellipsis">
+              <span className="ml-1.5 text-text-secondary break-all cursor-pointer ellipsis">
                 Token {isTokenBalances ? 'balances' : 'holders'} of{' '}
                 {address.join(', ')}
               </span>
@@ -292,8 +292,7 @@ export function TokenDetails(props: {
           return (
             <div
               className={classNames('flex items-center overflow-hidden', {
-                'skeleton-loader': loading,
-                'flex-1': isActiveToken
+                'skeleton-loader': loading
               })}
             >
               <button
