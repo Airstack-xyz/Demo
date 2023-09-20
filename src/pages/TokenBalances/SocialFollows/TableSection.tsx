@@ -15,6 +15,7 @@ import { Filters } from './Filters';
 import { TableRow, TableRowLoader } from './TableRow';
 import { Follow, SocialFollowResponse } from './types';
 import { filterTableItems, getSocialFollowFilterData } from './utils';
+import { StatusLoader } from '../../../Components/StatusLoader';
 
 import './styles.css';
 
@@ -64,6 +65,11 @@ export function TableSection({
     dataType: '',
     addresses: []
   });
+  const [loaderData, setLoaderData] = useState({
+    isVisible: false,
+    total: MAX_LIMIT,
+    matching: 0
+  });
 
   const _filtersKey = isFollowerQuery ? 'followerFilters' : 'followingFilters';
   const _filters = isFollowerQuery
@@ -87,19 +93,26 @@ export function TableSection({
   const handleData = useCallback(
     (data: SocialFollowResponse) => {
       const items =
-        data?.SocialFollowers?.Follower || // when follower query
-        data?.SocialFollowings?.Following || // when following query
-        [];
+        (isFollowerQuery
+          ? data?.SocialFollowers?.Follower
+          : data?.SocialFollowings?.Following) || [];
 
       const filteredItems = filterTableItems({
         items,
-        filters: _filters
+        filters: _filters,
+        isFollowerQuery
       });
+
+      setLoaderData(prev => ({
+        ...prev,
+        total: prev.total + items.length,
+        matching: prev.matching + filteredItems.length
+      }));
 
       tableItemsRef.current = [...tableItemsRef.current, ...filteredItems];
       setTableItems(prev => [...prev, ...filteredItems]);
     },
-    [_filters]
+    [_filters, isFollowerQuery]
   );
 
   const [fetchData, { loading, pagination }] = useLazyQueryWithPagination(
@@ -125,6 +138,10 @@ export function TableSection({
       getNextPage();
     } else {
       tableItemsRef.current = [];
+      setLoaderData(prev => ({
+        ...prev,
+        isVisible: false
+      }));
     }
   }, [tableItems, loading, hasNextPage, getNextPage]);
 
@@ -200,9 +217,9 @@ export function TableSection({
           <table className="social-follow-table">
             <thead>
               <tr>
-                <th>Token</th>
+                <th>Profile image</th>
                 <th>{isLensDapp ? 'Lens' : 'Farcaster'}</th>
-                <th>Token ID</th>
+                <th>{isLensDapp ? 'Token ID' : 'FID'}</th>
                 <th>Primary ENS</th>
                 <th>ENS</th>
                 <th>Wallet address</th>
@@ -238,6 +255,9 @@ export function TableSection({
         onRequestClose={handleModalClose}
         onAddressClick={handleAddressClick}
       />
+      {(loading || loaderData.isVisible) && (
+        <StatusLoader total={loaderData.total} matching={loaderData.matching} />
+      )}
     </>
   );
 }

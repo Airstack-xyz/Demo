@@ -8,6 +8,8 @@ export const socialDetailsQuery = `query SocialDetails($identities: [Identity!],
       dappName
       dappSlug
       profileName
+      profileDisplayName
+      profileBio
       profileImage
       profileTokenId
       profileTokenAddress

@@ -7,15 +7,16 @@ import { SocialQuery } from '../../../queries';
 import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
 import { SectionHeader } from '../SectionHeader';
-import { SocialsType } from '../types';
+import { Wallet as WalletType } from '../types';
 import { Follow, SocialParams } from './Follow';
 import { Social } from './Social';
 import { XMTP } from './XMTP';
 
-type WalletType = SocialsType['Wallet'];
-
-type SocialType = WalletType['socials'][0] & {
-  profileNames?: string[];
+type SocialType = {
+  dappName: string;
+  profileNames: string[];
+  followerCount: number;
+  followingCount: number;
 };
 
 const iconMap: Record<string, string> = {
@@ -139,25 +140,35 @@ function SocialsComponent() {
   const socials = useMemo(() => {
     const _socials = wallet?.socials || [];
 
-    const socialMap: Record<string, Partial<SocialType>> = {};
+    const socialMap: Record<string, SocialType> = {};
 
-    _socials.forEach(social => {
-      if (socialMap[social.dappName]) {
-        socialMap[social.dappName].profileNames?.push(social.profileName);
-        return;
+    _socials.forEach(item => {
+      if (socialMap[item.dappName]) {
+        const _social = socialMap[item.dappName];
+        _social.profileNames.push(item.profileName);
       } else {
-        socialMap[social.dappName] = {
-          ...social,
-          profileNames: [social.profileName]
+        socialMap[item.dappName] = {
+          ...item,
+          profileNames: [item.profileName]
         };
       }
     });
 
     if (!socialMap['farcaster']) {
-      socialMap['farcaster'] = { dappName: 'farcaster', profileNames: ['--'] };
+      socialMap['farcaster'] = {
+        dappName: 'farcaster',
+        profileNames: ['--'],
+        followerCount: 0,
+        followingCount: 0
+      };
     }
     if (!socialMap['lens']) {
-      socialMap['lens'] = { dappName: 'lens', profileNames: ['--'] };
+      socialMap['lens'] = {
+        dappName: 'lens',
+        profileNames: ['--'],
+        followerCount: 0,
+        followingCount: 0
+      };
     }
 
     return Object.values(socialMap);
@@ -203,12 +214,9 @@ function SocialsComponent() {
           />
           {socials.map((item, index) => (
             <Follow
+              {...item}
               key={index}
-              dappName={item.dappName}
-              followerCount={item.followerCount}
-              followingCount={item.followingCount}
-              values={item.profileNames ? item.profileNames : ['--']}
-              image={item.dappName ? iconMap[item.dappName] : ''}
+              image={iconMap[item.dappName]}
               onSocialClick={handleSocialValue}
               onShowMoreClick={handleShowMoreClick}
             />

@@ -1,4 +1,4 @@
-import { Asset } from '../../../Components/Asset';
+import { Image } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
 import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
 import { WalletAddress } from '../../../Components/WalletAddress';
@@ -11,8 +11,6 @@ export function TableRowLoader() {
     </div>
   );
 }
-
-const PLACEHOLDER_IMAGE = 'images/placeholder.svg';
 
 export function TableRow({
   item,
@@ -78,20 +76,13 @@ export function TableRow({
   return (
     <tr>
       <td>
-        {_social && _social.dappName === 'lens' ? (
-          <Asset
-            preset="small"
-            containerClassName="w-[50px] h-[50px] rounded"
-            chain={_social?.blockchain}
-            tokenId={_social?.profileTokenId}
-            address={_social?.profileTokenAddress}
-          />
-        ) : (
-          <img className="w-[50px] h-[50px] rounded" src={PLACEHOLDER_IMAGE} />
-        )}
+        <Image
+          className="w-[50px] h-[50px] rounded"
+          src={_social?.profileImage}
+        />
       </td>
       <td>{isLensDapp ? lensCell : farcasterCell}</td>
-      <td>#{_tokenId}</td>
+      <td>{isLensDapp ? `#${_tokenId}` : `#${_social?.userId}`}</td>
       <td>
         <ListWithMoreOptions
           list={[_primaryEns]}

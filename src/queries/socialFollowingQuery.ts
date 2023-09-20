@@ -53,10 +53,12 @@ export const getSocialFollowingsQuery = ({
               ? `(input: {filter: {${_socialFiltersString}}})`
               : ''
           } {
+            userId
             blockchain
             dappName
             dappSlug
             profileName
+            profileImage
             profileTokenId
             profileTokenAddress
           }
@@ -75,11 +77,11 @@ export const getSocialFollowingsQuery = ({
             isXMTPEnabled
           }
           ${
-            logicalFilters.alsoFollowOn
-              ? `socialFollowings(input: {filter: {identity: {_eq: $identity}, dappName: {_eq: ${logicalFilters.alsoFollowOn}}}, limit: 1}) {
-            Following {
+            logicalFilters.mutualFollow
+              ? `socialFollowers(input: {filter: {identity: {_eq: $identity}, dappName: {_eq: $dappName}}, limit: 1}) {
+            Follower {
               id
-              followingProfileId
+              followerProfileId
             }
           }`
               : ''

@@ -16,7 +16,7 @@ type FollowProps = {
   dappName?: string;
   followerCount?: number;
   followingCount?: number;
-  values: string[];
+  profileNames: string[];
   image: string;
   onSocialClick?: (params: SocialParams) => void;
   onShowMoreClick?: (values: string[], type?: string) => void;
@@ -26,7 +26,7 @@ export function Follow({
   dappName,
   followerCount,
   followingCount,
-  values,
+  profileNames,
   image,
   onSocialClick,
   onShowMoreClick
@@ -35,10 +35,10 @@ export function Follow({
 
   const items = useMemo(() => {
     if (!showMax) {
-      return values?.slice(0, minItemCount);
+      return profileNames?.slice(0, minItemCount);
     }
-    return values?.slice(0, maxItemCount);
-  }, [showMax, values]);
+    return profileNames?.slice(0, maxItemCount);
+  }, [showMax, profileNames]);
 
   const getSocialClickHandler = (name: string, follow?: boolean) => () => {
     onSocialClick?.({
@@ -59,7 +59,7 @@ export function Follow({
         <div className="flex flex-1 items-start">
           <div className="flex items-center">
             <div className="rounded-full h-[25px] w-[25px] border mr-2 overflow-hidden flex-row-center">
-              {<img src={image} className="w-full" />}
+              <img src={image} className="w-full" />
             </div>
             <span className="first-letter:uppercase">{dappName}</span>
           </div>
@@ -77,7 +77,7 @@ export function Follow({
               </div>
             </li>
           ))}
-          {!showMax && values?.length > minItemCount && (
+          {!showMax && profileNames?.length > minItemCount && (
             <li
               onClick={() => {
                 setShowMax(show => !show);
@@ -87,11 +87,11 @@ export function Follow({
               see more
             </li>
           )}
-          {showMax && values.length > maxItemCount && (
+          {showMax && profileNames.length > maxItemCount && (
             <li
               onClick={() => {
-                if (showMax && values.length > maxItemCount) {
-                  onShowMoreClick?.(values, dappName);
+                if (showMax && profileNames.length > maxItemCount) {
+                  onShowMoreClick?.(profileNames, dappName);
                   return;
                 }
               }}
@@ -109,7 +109,7 @@ export function Follow({
             <div className="w-1/2">
               <button
                 className="px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
-                onClick={getSocialClickHandler(values[0], true)}
+                onClick={getSocialClickHandler(profileNames[0], true)}
               >
                 {followerCount}
               </button>
@@ -121,7 +121,7 @@ export function Follow({
             <div className="w-1/2">
               <button
                 className="px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
-                onClick={getSocialClickHandler(values[0], false)}
+                onClick={getSocialClickHandler(profileNames[0], false)}
               >
                 {followingCount}
               </button>

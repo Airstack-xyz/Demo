@@ -1,5 +1,4 @@
-import { Asset } from '../../../Components/Asset';
-import { WalletAddress } from '../../../Components/WalletAddress';
+import { Asset, Image } from '../../../Components/Asset';
 import { Social } from './types';
 
 export function CardLoader() {
@@ -21,23 +20,25 @@ export function CardLoader() {
         />
         <div
           data-loader-type="block"
-          className="h-5 w-[246px] max-sm:w-full mt-3 mb-2"
+          className="h-5 w-[246px] max-sm:w-full mt-3"
+        />
+        <div
+          data-loader-type="block"
+          className="h-5 w-[246px] max-sm:w-full mt-3"
         />
       </div>
     </div>
   );
 }
 
-const PLACEHOLDER_IMAGE = 'images/placeholder.svg';
-
 export function Card({ item }: { item: Social }) {
   return (
-    <div className="flex max-sm:flex-col items-center">
-      <img
+    <div className="flex-1 flex max-sm:flex-col items-center">
+      <Image
         className="w-[180px] h-[180px] object-cover rounded-2xl"
-        src={item.profileImage || PLACEHOLDER_IMAGE}
+        src={item.profileImage}
       />
-      <div className="p-6">
+      <div className="p-6 w-full">
         <div className="flex items-center max-sm:justify-center">
           {item.dappName === 'lens' && (
             <Asset
@@ -53,19 +54,15 @@ export function Card({ item }: { item: Social }) {
             #{item.profileTokenId}
           </div>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-x-2 gap-y-3 text-sm">
+        <div className="mt-4 grid grid-cols-[auto_1fr] [&>div:nth-child(even)]:text-text-secondary gap-x-4 gap-y-3 text-sm">
+          <div>Display name</div>
+          <div>{item.profileDisplayName}</div>
+          <div>Bio</div>
+          <div>{item.profileBio}</div>
           <div>Created date</div>
-          <div className="text-text-secondary">
-            {item.userCreatedAtBlockTimestamp}
-          </div>
+          <div>{item.userCreatedAtBlockTimestamp}</div>
           <div>Created at (block)</div>
-          <div className="text-text-secondary">
-            {item.userCreatedAtBlockNumber}
-          </div>
-          <div>User address</div>
-          <div className="text-text-secondary sm:w-[140px]">
-            <WalletAddress address={item.userAddress} />
-          </div>
+          <div>{item.userCreatedAtBlockNumber}</div>
         </div>
       </div>
     </div>

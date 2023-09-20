@@ -12,6 +12,8 @@ export type Social = {
   dappName: string;
   dappSlug: string;
   profileName: string;
+  profileDisplayName: string;
+  profileBio: string;
   profileImage: string;
   profileTokenId: string;
   profileTokenAddress: string;
@@ -52,10 +54,12 @@ export type Wallet = {
   identity: string;
   addresses: string[];
   socials: {
+    userId: string;
     blockchain: Chain;
     dappName: string;
     dappSlug: string;
     profileName: string;
+    profileImage: string;
     profileTokenId: string;
     profileTokenAddress: string;
   }[];
@@ -81,5 +85,6 @@ export type SocialFollowQueryFilters = {
 };
 
 export type SocialFollowLogicalFilters = {
-  alsoFollowOn?: string;
+  alsoFollow?: string;
+  mutualFollow?: boolean;
 };

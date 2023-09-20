@@ -4,9 +4,11 @@ import {
   SocialFollowQueryFilters
 } from './types';
 
-export const MORE_THAN_N_FOLLOW_FILTER = 'moreThanNFollow';
+export const MORE_THAN_N_FOLLOW_FILTER = '>n_follow';
 
-export const ALSO_FOLLOW_ON_FILTER = 'alsoFollowOn';
+export const ALSO_FOLLOW_FILTER = 'also_follow';
+
+export const MUTUAL_FOLLOW_FILTER = 'mutual_follow';
 
 export const getSocialFollowFilterData = ({
   filters,
@@ -37,9 +39,8 @@ export const getSocialFollowFilterData = ({
       const [, count] = filter.split(':');
       queryFilters[key] = Number(count);
     }
-    if (filter.startsWith(ALSO_FOLLOW_ON_FILTER)) {
-      const [, dappName] = filter.split(':');
-      logicalFilters.alsoFollowOn = dappName;
+    if (filter.startsWith(MUTUAL_FOLLOW_FILTER)) {
+      logicalFilters.mutualFollow = true;
     }
   });
 
@@ -88,21 +89,24 @@ function filterByMoreThanNFollow(items: Follow[]) {
   });
 }
 
-function filterByAlsoFollowOn(items: Follow[]) {
+function filterByMutualFollow(items: Follow[], isFollowerQuery: boolean) {
+  if (isFollowerQuery)
+    return items?.filter(item => {
+      return item.followerAddress?.socialFollowings?.Following?.length > 0;
+    });
   return items?.filter(item => {
-    return (
-      (item.followerAddress || item.followingAddress)?.socialFollowings
-        ?.Following?.length > 0
-    );
+    return item.followingAddress?.socialFollowers?.Follower?.length > 0;
   });
 }
 
 export const filterTableItems = ({
   items,
-  filters
+  filters,
+  isFollowerQuery
 }: {
   items: Follow[];
   filters: string[];
+  isFollowerQuery: boolean;
 }) => {
   let filteredItems = items;
 
@@ -125,8 +129,8 @@ export const filterTableItems = ({
     if (filter.startsWith(MORE_THAN_N_FOLLOW_FILTER)) {
       filteredItems = filterByMoreThanNFollow(filteredItems);
     }
-    if (filter.startsWith(ALSO_FOLLOW_ON_FILTER)) {
-      filteredItems = filterByAlsoFollowOn(filteredItems);
+    if (filter.startsWith(MUTUAL_FOLLOW_FILTER)) {
+      filteredItems = filterByMutualFollow(filteredItems, isFollowerQuery);
     }
   });
 

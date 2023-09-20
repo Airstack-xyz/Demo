@@ -108,9 +108,11 @@ export interface Domain {
 }
 
 export interface Social {
-  dappSlug: string;
+  blockchain: string;
   dappName: string;
+  dappSlug: string;
   profileName: string;
+  profileTokenId: string;
   followerCount: number;
   followingCount: number;
 }
@@ -161,14 +163,6 @@ export interface Poap {
   tokenUri: string;
   tokenAddress: string;
   tokenId: string;
-}
-
-export interface Social {
-  blockchain: string;
-  dappName: string;
-  dappSlug: string;
-  profileName: string;
-  profileTokenId: string;
 }
 
 export interface PrimaryDomain {
