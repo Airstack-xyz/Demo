@@ -1,111 +1,61 @@
-import { getAllWordsAndMentions } from '../Components/Input/utils';
-
 export const getActiveSocialInfoString = ({
-  profileNames,
   dappName,
+  profileNames,
+  profileTokenIds,
   followerTab,
   followerCount,
-  followerMentionRawText,
-  followerThresholdRawText,
   followerFilters,
   followingCount,
-  followingMentionRawText,
-  followingThresholdRawText,
   followingFilters
 }: {
-  profileNames: string[];
   dappName: string;
+  profileNames: string[];
+  profileTokenIds: string[];
   followerTab?: boolean;
   followerCount?: string | number;
-  followerMentionRawText?: string;
-  followerThresholdRawText?: string;
   followerFilters?: string[];
   followingCount?: string | number;
-  followingMentionRawText?: string;
-  followingThresholdRawText?: string;
   followingFilters?: string[];
 }) => {
-  const socialInfo: (string | number)[] = [profileNames.join(','), dappName];
+  const socialInfo: (string | number)[] = [
+    dappName,
+    profileNames?.join(',') || '',
+    profileTokenIds?.join(',') || ''
+  ];
 
   socialInfo.push(followerTab === false ? '0' : '1');
 
   socialInfo.push(followerCount != undefined ? followerCount : '');
-  socialInfo.push(followerMentionRawText || '');
-  socialInfo.push(followerThresholdRawText || '');
-  socialInfo.push(followerFilters ? followerFilters.join(',') : '');
+  socialInfo.push(followerFilters?.join(',') || '');
 
   socialInfo.push(followingCount != undefined ? followingCount : '');
-  socialInfo.push(followingMentionRawText || '');
-  socialInfo.push(followingThresholdRawText || '');
-  socialInfo.push(followingFilters ? followingFilters.join(',') : '');
+  socialInfo.push(followingFilters?.join(',') || '');
 
   return socialInfo.join('│');
 };
 
 export const getActiveSocialInfo = (activeSocialInfo?: string) => {
   const [
-    profileNamesString,
     dappName,
+    profileNamesString,
+    profileTokenIdsString,
     followerTab,
     followerCount,
-    followerMentionRawText,
-    followerThresholdRawText,
     followerFiltersString,
     followingCount,
-    followingMentionRawText,
-    followingThresholdRawText,
     followingFiltersString
   ] = activeSocialInfo?.split('│') ?? [];
 
-  let followerActiveMention = null;
-  let followerThresholdAmount = null;
-  let followerFilters: string[] = [];
-  let followingActiveMention = null;
-  let followingThresholdAmount = null;
-  let followingFilters: string[] = [];
-
-  if (followerMentionRawText) {
-    const mentionData = getAllWordsAndMentions(followerMentionRawText);
-    followerActiveMention = mentionData[0].mention;
-  }
-  if (followingActiveMention) {
-    const mentionData = getAllWordsAndMentions(followingMentionRawText);
-    followingActiveMention = mentionData[0].mention;
-  }
-
-  if (followerThresholdRawText) {
-    const thresholdData = getAllWordsAndMentions(followerThresholdRawText);
-    followerThresholdAmount = Number(thresholdData[0].mention?.address);
-  }
-  if (followingThresholdRawText) {
-    const thresholdData = getAllWordsAndMentions(followingThresholdRawText);
-    followingThresholdAmount = Number(thresholdData[0].mention?.address);
-  }
-
-  if (followerFiltersString) {
-    followerFilters = followerFiltersString?.split(',');
-  }
-  if (followingFiltersString) {
-    followingFilters = followingFiltersString?.split(',');
-  }
-
   return {
     isApplicable: Boolean(dappName),
-    profileNames: profileNamesString.split(','),
     dappName,
+    profileNames: profileNamesString?.split(',') || [],
+    profileTokenIds: profileTokenIdsString?.split(',') || [],
     followerTab: followerTab === '1',
     followerCount,
-    followerMentionRawText,
-    followerThresholdRawText,
-    followerActiveMention,
-    followerThresholdAmount,
-    followerFilters,
+    followerFilters: followerFiltersString?.split(',') || [],
     followingCount,
-    followingMentionRawText,
-    followingThresholdRawText,
-    followingActiveMention,
-    followingThresholdAmount,
-    followingFilters
+    followingFilters: followingFiltersString?.split(',') || []
   };
 };
 

@@ -8,15 +8,82 @@ import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
 import { SectionHeader } from '../SectionHeader';
 import { Wallet as WalletType } from '../types';
-import { Follow, SocialParams } from './Follow';
+import { Follow, FollowParams } from './Follow';
 import { Social } from './Social';
 import { XMTP } from './XMTP';
 
-type SocialType = {
+type FollowType = {
   dappName: string;
-  profileNames: string[];
-  followerCount: number;
-  followingCount: number;
+  sections: {
+    profileNames: string[];
+    profileTokenId?: string;
+    followerCount?: number;
+    followingCount?: number;
+  }[];
+};
+
+const getFollowInfo = (socials: WalletType['socials']) => {
+  const followMap: Record<string, FollowType> = {
+    farcaster: {
+      dappName: 'farcaster',
+      sections: []
+    },
+    lens: {
+      dappName: 'lens',
+      sections: []
+    }
+  };
+
+  const farcasterSocials = socials.filter(
+    item => item.dappName === 'farcaster'
+  );
+  const lensSocials = socials.filter(item => item.dappName === 'lens');
+
+  // For farcaster:
+  if (farcasterSocials?.length > 0) {
+    followMap['farcaster'].sections = farcasterSocials.map(item => ({
+      profileNames: [item.profileName],
+      profileTokenId: item.profileTokenId,
+      followerCount: item.followerCount,
+      followingCount: item.followingCount
+    }));
+  } else {
+    followMap['farcaster'].sections = [
+      {
+        profileNames: ['--'],
+        followerCount: 0,
+        followingCount: 0
+      }
+    ];
+  }
+
+  // For lens:
+  // Find lens profile based on which follower/following are formed
+  const relevantLensSocial =
+    lensSocials.find(
+      item => item.isDefault || item.followerCount || item.followingCount
+    ) || lensSocials[0];
+
+  if (relevantLensSocial) {
+    followMap['lens'].sections = [
+      {
+        profileNames: lensSocials.map(item => item.profileName),
+        profileTokenId: relevantLensSocial.profileTokenId,
+        followerCount: relevantLensSocial.followerCount,
+        followingCount: relevantLensSocial.followingCount
+      }
+    ];
+  } else {
+    followMap['lens'].sections = [
+      {
+        profileNames: ['--'],
+        followerCount: 0,
+        followingCount: 0
+      }
+    ];
+  }
+
+  return Object.values(followMap);
 };
 
 const iconMap: Record<string, string> = {
@@ -76,21 +143,23 @@ function SocialsComponent() {
     });
   }, []);
 
-  const handleSocialValue = useCallback(
+  const handleFollowValue = useCallback(
     ({
       profileName,
+      profileTokenId,
       dappName,
       followerCount,
       followingCount,
       followerTab
-    }: SocialParams) => {
-      if (!profileName || !dappName) {
+    }: FollowParams) => {
+      if (!profileName || !profileTokenId) {
         return;
       }
       setData(
         {
           activeSocialInfo: getActiveSocialInfoString({
             profileNames: [profileName],
+            profileTokenIds: [profileTokenId],
             dappName,
             followerCount,
             followingCount,
@@ -137,42 +206,10 @@ function SocialsComponent() {
     [handleModalClose, handleAddressValue]
   );
 
-  const socials = useMemo(() => {
-    const _socials = wallet?.socials || [];
-
-    const socialMap: Record<string, SocialType> = {};
-
-    _socials.forEach(item => {
-      if (socialMap[item.dappName]) {
-        const _social = socialMap[item.dappName];
-        _social.profileNames.push(item.profileName);
-      } else {
-        socialMap[item.dappName] = {
-          ...item,
-          profileNames: [item.profileName]
-        };
-      }
-    });
-
-    if (!socialMap['farcaster']) {
-      socialMap['farcaster'] = {
-        dappName: 'farcaster',
-        profileNames: ['--'],
-        followerCount: 0,
-        followingCount: 0
-      };
-    }
-    if (!socialMap['lens']) {
-      socialMap['lens'] = {
-        dappName: 'lens',
-        profileNames: ['--'],
-        followerCount: 0,
-        followingCount: 0
-      };
-    }
-
-    return Object.values(socialMap);
-  }, [wallet?.socials]);
+  const follows = useMemo(
+    () => getFollowInfo(wallet?.socials || []),
+    [wallet?.socials]
+  );
 
   const _primaryEnsValues = wallet?.primaryDomain?.name
     ? [wallet.primaryDomain.name]
@@ -212,13 +249,12 @@ function SocialsComponent() {
             onAddressClick={handleAddressValue}
             onShowMoreClick={handleShowMoreClick}
           />
-          {socials.map((item, index) => (
+          {follows.map((item, index) => (
             <Follow
               {...item}
               key={index}
               image={iconMap[item.dappName]}
-              onSocialClick={handleSocialValue}
-              onShowMoreClick={handleShowMoreClick}
+              onFollowClick={handleFollowValue}
             />
           ))}
           <Social

@@ -15,60 +15,62 @@ export function TableRowLoader() {
 export function TableRow({
   item,
   isLensDapp,
+  isFollowerQuery,
   onShowMoreClick,
   onAddressClick
 }: {
   item: Follow;
-  isLensDapp?: boolean;
+  isFollowerQuery: boolean;
+  isLensDapp: boolean;
   onShowMoreClick: (values: string[], dataType?: string) => void;
   onAddressClick: (address: string, dataType?: string) => void;
 }) {
-  const _wallet = item.followerAddress || item.followingAddress;
+  const wallet = isFollowerQuery ? item.followerAddress : item.followingAddress;
 
-  const _tokenId = item.followerProfileId || item.followingProfileId;
+  const tokenId = isFollowerQuery
+    ? item.followerProfileId
+    : item.followingProfileId;
 
   const getShowMoreHandler = (values: string[], type: string) => () =>
     onShowMoreClick(values, type);
 
-  const _social = _wallet?.socials?.find(
-    val => val.profileTokenId === _tokenId
-  );
+  const social = wallet?.socials?.find(val => val.profileTokenId === tokenId);
 
-  const _lensAddresses =
-    _wallet?.socials
+  const lensAddresses =
+    wallet?.socials
       ?.filter(val => val.dappName === 'lens')
       .map(val => val.profileName) || [];
-  const _farcasterAddresses =
-    _wallet?.socials
+  const farcasterAddresses =
+    wallet?.socials
       ?.filter(val => val.dappName === 'farcaster')
       .map(val => val.profileName) || [];
 
-  const _primaryEns = _wallet?.primaryDomain?.name || '';
+  const primaryEns = wallet?.primaryDomain?.name || '';
 
-  const _ens = _wallet?.domains?.map(val => val.name) || [];
+  const ens = wallet?.domains?.map(val => val.name) || [];
 
-  const _walletAddress = _wallet?.identity
-    ? _wallet.identity
-    : Array.isArray(_wallet?.addresses)
-    ? _wallet?.addresses[0]
+  const walletAddress = wallet?.identity
+    ? wallet.identity
+    : Array.isArray(wallet?.addresses)
+    ? wallet?.addresses[0]
     : '';
 
-  const _xmtpEnabled = _wallet?.xmtp?.find(val => val.isXMTPEnabled);
+  const xmtpEnabled = wallet?.xmtp?.find(val => val.isXMTPEnabled);
 
   const lensCell = (
     <ListWithMoreOptions
-      list={_lensAddresses}
+      list={lensAddresses}
       listFor="lens"
-      onShowMore={getShowMoreHandler(_lensAddresses, 'lens')}
+      onShowMore={getShowMoreHandler(lensAddresses, 'lens')}
       onItemClick={onAddressClick}
     />
   );
 
   const farcasterCell = (
     <ListWithMoreOptions
-      list={_farcasterAddresses}
+      list={farcasterAddresses}
       listFor="farcaster"
-      onShowMore={getShowMoreHandler(_farcasterAddresses, 'farcaster')}
+      onShowMore={getShowMoreHandler(farcasterAddresses, 'farcaster')}
       onItemClick={onAddressClick}
     />
   );
@@ -78,37 +80,37 @@ export function TableRow({
       <td>
         <Image
           className="w-[50px] h-[50px] rounded"
-          src={_social?.profileImage}
+          src={social?.profileImage}
         />
       </td>
       <td>{isLensDapp ? lensCell : farcasterCell}</td>
-      <td>{isLensDapp ? `#${_tokenId}` : `#${_social?.userId}`}</td>
+      <td>{isLensDapp ? `#${tokenId}` : `#${social?.userId}`}</td>
       <td>
         <ListWithMoreOptions
-          list={[_primaryEns]}
+          list={[primaryEns]}
           listFor="ens"
-          onShowMore={getShowMoreHandler([_primaryEns], 'ens')}
+          onShowMore={getShowMoreHandler([primaryEns], 'ens')}
           onItemClick={onAddressClick}
         />
       </td>
       <td>
         <ListWithMoreOptions
-          list={_ens}
+          list={ens}
           listFor="ens"
-          onShowMore={getShowMoreHandler(_ens, 'ens')}
+          onShowMore={getShowMoreHandler(ens, 'ens')}
           onItemClick={onAddressClick}
         />
       </td>
       <td>
         <WalletAddress
-          address={_walletAddress}
+          address={walletAddress}
           dataType={item.dappName}
           onClick={onAddressClick}
         />
       </td>
       <td>{isLensDapp ? farcasterCell : lensCell}</td>
       <td>
-        {_xmtpEnabled ? <Icon name="xmtp" height={14} width={14} /> : '--'}
+        {xmtpEnabled ? <Icon name="xmtp" height={14} width={14} /> : '--'}
       </td>
     </tr>
   );

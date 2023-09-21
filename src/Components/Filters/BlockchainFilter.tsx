@@ -5,26 +5,27 @@ import { Dropdown, Option } from '../Dropdown';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 
-export const enum BlockchainFilterType {
-  ALL = '*',
-  ETHEREUM = 'ethereum',
-  POLYGON = 'polygon'
-}
+export type BlockchainFilterType = 'all' | 'ethereum' | 'polygon';
 
-export const defaultBlockchainFilter = BlockchainFilterType.ALL;
+export const defaultBlockchainFilter = 'all';
 
-export const blockchainOptions = [
+type BlockchainOption = {
+  label: string;
+  value: BlockchainFilterType;
+};
+
+export const blockchainOptions: BlockchainOption[] = [
   {
     label: 'All chains',
-    value: BlockchainFilterType.ALL
+    value: 'all'
   },
   {
     label: 'Ethereum',
-    value: BlockchainFilterType.ETHEREUM
+    value: 'ethereum'
   },
   {
     label: 'Polygon',
-    value: BlockchainFilterType.POLYGON
+    value: 'polygon'
   }
 ];
 
@@ -64,10 +65,10 @@ export function BlockchainFilter({ disabled }: { disabled?: boolean }) {
 
   const selected = useMemo(() => {
     const filterValue = blockchainType[0];
-    if (filterValue === BlockchainFilterType.ETHEREUM) {
+    if (filterValue === 'ethereum') {
       return [blockchainOptions[1]];
     }
-    if (filterValue === BlockchainFilterType.POLYGON) {
+    if (filterValue === 'polygon') {
       return [blockchainOptions[2]];
     }
     return [blockchainOptions[0]];
@@ -80,11 +81,11 @@ export function BlockchainFilter({ disabled }: { disabled?: boolean }) {
       onChange={handleChange}
       options={blockchainOptions}
       disabled={isFilterDisabled}
-      renderPlaceholder={(selected, isOpen, isDisabled) => (
+      renderPlaceholder={(selected, isOpen) => (
         <FilterPlaceholder
           icon="blockchain-filter"
           isOpen={isOpen}
-          isDisabled={isDisabled}
+          isDisabled={isFilterDisabled}
           label={selected[0].label}
         />
       )}

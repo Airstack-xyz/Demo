@@ -111,14 +111,14 @@ export function TokenHolders() {
 
   const tokensQueryWithFilter = useMemo(() => {
     const requestFilters = getRequestFilters(tokenFilters);
-    const _hasSocialFilters = Boolean(requestFilters?.socialFilters);
-    const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
+    const hasSocialFilters = Boolean(requestFilters?.socialFilters);
+    const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
     if (address.length === 0) return '';
     if (address.length === 1) {
       return getNftOwnersQueryWithFilters(
         address[0].address,
-        _hasSocialFilters,
-        _hasPrimaryDomain
+        hasSocialFilters,
+        hasPrimaryDomain
       );
     }
     if (hasSomePoap) {
@@ -126,15 +126,15 @@ export function TokenHolders() {
       return getCommonPoapAndNftOwnersQueryWithFilters(
         tokens[0],
         tokens[1],
-        _hasSocialFilters,
-        _hasPrimaryDomain
+        hasSocialFilters,
+        hasPrimaryDomain
       );
     }
     return getCommonNftOwnersQueryWithFilters(
       address[0],
       address[1],
-      _hasSocialFilters,
-      _hasPrimaryDomain
+      hasSocialFilters,
+      hasPrimaryDomain
     );
   }, [tokenFilters, address, hasSomePoap]);
 
@@ -154,14 +154,14 @@ export function TokenHolders() {
 
     if (activeView) {
       const requestFilters = getRequestFilters(tokenFilters);
-      const _hasSocialFilters = Boolean(requestFilters?.socialFilters);
-      const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
+      const hasSocialFilters = Boolean(requestFilters?.socialFilters);
+      const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
       let combinationsQueryLink = '';
       if (hasPoap) {
         const combinationsQuery = getFilterablePoapsQuery(
           address,
-          _hasSocialFilters,
-          _hasPrimaryDomain
+          hasSocialFilters,
+          hasPrimaryDomain
         );
         combinationsQueryLink = createAppUrlWithQuery(combinationsQuery, {
           limit: 200,

@@ -108,6 +108,7 @@ export interface Domain {
 }
 
 export interface Social {
+  isDefault: boolean;
   blockchain: string;
   dappName: string;
   dappSlug: string;

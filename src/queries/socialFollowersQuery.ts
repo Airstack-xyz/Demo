@@ -10,32 +10,32 @@ export const getSocialFollowersQuery = ({
   queryFilters: SocialFollowQueryFilters;
   logicalFilters: SocialFollowLogicalFilters;
 }) => {
-  const _variables = [
+  const variables = [
     '$identity: Identity!',
     '$dappName: SocialFollowDappName',
     '$limit: Int'
   ];
-  const _socialFilters = [];
-  const _domainFilters = [];
+  const socialFilters = [];
+  const domainFilters = [];
 
   if (queryFilters.followerDappNames) {
-    _variables.push('$followerDappNames: [SocialDappName!]');
-    _socialFilters.push('dappName: {_in: $followerDappNames}');
+    variables.push('$followerDappNames: [SocialDappName!]');
+    socialFilters.push('dappName: {_in: $followerDappNames}');
   }
   if (queryFilters.followerCount) {
-    _variables.push('$followerCount: Int');
-    _socialFilters.push('followerCount: {_gt: $followerCount}');
+    variables.push('$followerCount: Int');
+    socialFilters.push('followerCount: {_gt: $followerCount}');
   }
   if (queryFilters.followerPrimaryDomain) {
-    _variables.push('$followerPrimaryDomain: Boolean');
-    _domainFilters.push('isPrimary: {_eq: $followerPrimaryDomain}');
+    variables.push('$followerPrimaryDomain: Boolean');
+    domainFilters.push('isPrimary: {_eq: $followerPrimaryDomain}');
   }
 
-  const _variablesString = _variables.join(',');
-  const _socialFiltersString = _socialFilters.join(',');
-  const _domainFiltersString = _domainFilters.join(',');
+  const variablesString = variables.join(',');
+  const socialFiltersString = socialFilters.join(',');
+  const domainFiltersString = domainFilters.join(',');
 
-  return `query SocialFollowersDetails(${_variablesString}) {
+  return `query SocialFollowersDetails(${variablesString}) {
     SocialFollowers(
       input: {filter: {identity: {_eq: $identity}, dappName: {_eq: $dappName}}, blockchain: ALL, limit: $limit}
     ) {
@@ -45,12 +45,13 @@ export const getSocialFollowersQuery = ({
         dappName
         dappSlug
         followerProfileId
+        followingProfileId
         followerAddress {
           identity
           addresses
           socials${
-            _socialFiltersString
-              ? `(input: {filter: {${_socialFiltersString}}})`
+            socialFiltersString
+              ? `(input: {filter: {${socialFiltersString}}})`
               : ''
           } {
             userId
@@ -66,8 +67,8 @@ export const getSocialFollowersQuery = ({
             name
           }
           domains${
-            _domainFiltersString
-              ? `(input: {filter: {${_domainFiltersString}}})`
+            domainFiltersString
+              ? `(input: {filter: {${domainFiltersString}}})`
               : ''
           } {
             dappName

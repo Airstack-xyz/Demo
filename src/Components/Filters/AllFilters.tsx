@@ -38,19 +38,14 @@ export function AllFilters() {
 
   const appliedBlockchainFilter = useMemo(() => {
     const filterValue = blockchainType[0];
-    if (
-      filterValue === BlockchainFilterType.ETHEREUM ||
-      filterValue === BlockchainFilterType.POLYGON
-    ) {
+    if (filterValue === 'ethereum' || filterValue === 'polygon') {
       return filterValue;
     }
     return defaultBlockchainFilter;
   }, [blockchainType]);
 
   const appliedSortOrder = useMemo(() => {
-    return sortOrder === SortOrderType.ASC
-      ? SortOrderType.ASC
-      : defaultSortOrder;
+    return sortOrder === 'ASC' ? 'ASC' : defaultSortOrder;
   }, [sortOrder]);
 
   const [currentBlockchainFilter, setCurrentBlockchainFilter] = useState(

@@ -99,16 +99,39 @@ function filterByMutualFollow(items: Follow[], isFollowerQuery: boolean) {
   });
 }
 
+function filterByProfileTokenIds(
+  items: Follow[],
+  profileTokenIds: string[],
+  isFollowerQuery: boolean
+) {
+  if (isFollowerQuery)
+    return items?.filter(item => {
+      return profileTokenIds.includes(item.followingProfileId);
+    });
+  return items?.filter(item => {
+    return profileTokenIds.includes(item.followerProfileId);
+  });
+}
+
 export const filterTableItems = ({
   items,
   filters,
+  profileTokenIds,
   isFollowerQuery
 }: {
   items: Follow[];
   filters: string[];
+  profileTokenIds: string[];
   isFollowerQuery: boolean;
 }) => {
   let filteredItems = items;
+
+  // Filter by profile token ids in order to follower/following of particular profile
+  filteredItems = filterByProfileTokenIds(
+    filteredItems,
+    profileTokenIds,
+    isFollowerQuery
+  );
 
   filters.forEach(filter => {
     if (filter === 'primaryEns') {

@@ -43,7 +43,10 @@ export function GetAPIDropdown({
 
   return (
     <>
-      <div className="relative flex flex-col items-end" ref={containerRef}>
+      <div
+        className="text-xs font-medium relative flex flex-col items-end"
+        ref={containerRef}
+      >
         <button
           className={classNames(
             'py-1.5 px-3 text-text-button bg-glass-1 rounded-full text-xs font-medium flex-row-center border border-solid border-transparent',

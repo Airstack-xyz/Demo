@@ -100,19 +100,20 @@ export function TableSection({
       const filteredItems = filterTableItems({
         items,
         filters: _filters,
+        profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery
       });
 
+      tableItemsRef.current = [...tableItemsRef.current, ...filteredItems];
+
+      setTableItems(prev => [...prev, ...filteredItems]);
       setLoaderData(prev => ({
         ...prev,
         total: prev.total + items.length,
         matching: prev.matching + filteredItems.length
       }));
-
-      tableItemsRef.current = [...tableItemsRef.current, ...filteredItems];
-      setTableItems(prev => [...prev, ...filteredItems]);
     },
-    [_filters, isFollowerQuery]
+    [_filters, isFollowerQuery, socialInfo.profileTokenIds]
   );
 
   const [fetchData, { loading, pagination }] = useLazyQueryWithPagination(
@@ -124,16 +125,7 @@ export function TableSection({
   const { hasNextPage, getNextPage } = pagination;
 
   useEffect(() => {
-    fetchData({
-      identity: identities[0],
-      dappName: socialInfo.dappName,
-      limit: MAX_LIMIT,
-      ...filterData.queryFilters
-    });
-  }, [fetchData, identities, filterData.queryFilters, socialInfo.dappName]);
-
-  useEffect(() => {
-    if (!tableItems || loading) return;
+    if (loading) return;
     if (tableItemsRef.current.length < MIN_LIMIT && hasNextPage) {
       getNextPage();
     } else {
@@ -143,7 +135,16 @@ export function TableSection({
         isVisible: false
       }));
     }
-  }, [tableItems, loading, hasNextPage, getNextPage]);
+  }, [loading, hasNextPage, getNextPage]);
+
+  useEffect(() => {
+    fetchData({
+      identity: identities[0],
+      dappName: socialInfo.dappName,
+      limit: MAX_LIMIT,
+      ...filterData.queryFilters
+    });
+  }, [fetchData, identities, filterData.queryFilters, socialInfo.dappName]);
 
   const handleFiltersApply = useCallback(
     (filters: string[]) => {
@@ -232,6 +233,7 @@ export function TableSection({
                 <TableRow
                   key={index}
                   item={item}
+                  isFollowerQuery={isFollowerQuery}
                   isLensDapp={isLensDapp}
                   onShowMoreClick={handleShowMoreClick}
                   onAddressClick={handleAddressClick}

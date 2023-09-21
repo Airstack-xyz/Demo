@@ -97,6 +97,7 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
       name
     }
     socials {
+      isDefault
       dappName
       dappSlug
       blockchain

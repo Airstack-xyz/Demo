@@ -10,32 +10,32 @@ export const getSocialFollowingsQuery = ({
   queryFilters: SocialFollowQueryFilters;
   logicalFilters: SocialFollowLogicalFilters;
 }) => {
-  const _variables = [
+  const variables = [
     '$identity: Identity!',
     '$dappName: SocialFollowDappName',
     '$limit: Int'
   ];
-  const _socialFilters = [];
-  const _domainFilters = [];
+  const socialFilters = [];
+  const domainFilters = [];
 
   if (queryFilters.followingDappNames) {
-    _variables.push('$followingDappNames: [SocialDappName!]');
-    _socialFilters.push('dappName: {_in: $followingDappNames}');
+    variables.push('$followingDappNames: [SocialDappName!]');
+    socialFilters.push('dappName: {_in: $followingDappNames}');
   }
   if (queryFilters.followingCount) {
-    _variables.push('$followingCount: Int');
-    _socialFilters.push('followingCount: {_gt: $followingCount}');
+    variables.push('$followingCount: Int');
+    socialFilters.push('followingCount: {_gt: $followingCount}');
   }
   if (queryFilters.followingPrimaryDomain) {
-    _variables.push('$followingPrimaryDomain: Boolean');
-    _domainFilters.push('isPrimary: {_eq: $followingPrimaryDomain}');
+    variables.push('$followingPrimaryDomain: Boolean');
+    domainFilters.push('isPrimary: {_eq: $followingPrimaryDomain}');
   }
 
-  const _variablesString = _variables.join(',');
-  const _socialFiltersString = _socialFilters.join(',');
-  const _domainFiltersString = _domainFilters.join(',');
+  const variablesString = variables.join(',');
+  const socialFiltersString = socialFilters.join(',');
+  const domainFiltersString = domainFilters.join(',');
 
-  return `query SocialFollowingsDetails(${_variablesString}) {
+  return `query SocialFollowingsDetails(${variablesString}) {
     SocialFollowings(
       input: {filter: {identity: {_eq: $identity}, dappName: {_eq: $dappName}}, blockchain: ALL, limit: $limit}
     ) {
@@ -44,13 +44,14 @@ export const getSocialFollowingsQuery = ({
         blockchain
         dappName
         dappSlug
+        followerProfileId
         followingProfileId
         followingAddress {
           identity
           addresses
           socials${
-            _socialFiltersString
-              ? `(input: {filter: {${_socialFiltersString}}})`
+            socialFiltersString
+              ? `(input: {filter: {${socialFiltersString}}})`
               : ''
           } {
             userId
@@ -66,8 +67,8 @@ export const getSocialFollowingsQuery = ({
             name
           }
           domains${
-            _domainFiltersString
-              ? `(input: {filter: {${_domainFiltersString}}})`
+            domainFiltersString
+              ? `(input: {filter: {${domainFiltersString}}})`
               : ''
           } {
             dappName
