@@ -116,22 +116,26 @@ function filterByProfileTokenIds(
 export const filterTableItems = ({
   items,
   filters,
+  dappName,
   profileTokenIds,
   isFollowerQuery
 }: {
   items: Follow[];
   filters: string[];
+  dappName: string;
   profileTokenIds: string[];
   isFollowerQuery: boolean;
 }) => {
   let filteredItems = items;
 
-  // Filter by profile token ids in order to follower/following of particular profile
-  filteredItems = filterByProfileTokenIds(
-    filteredItems,
-    profileTokenIds,
-    isFollowerQuery
-  );
+  // filter by profile token ids for farcaster and lens (follower query only)
+  if (dappName === 'farcaster' || (dappName === 'lens' && isFollowerQuery)) {
+    filteredItems = filterByProfileTokenIds(
+      filteredItems,
+      profileTokenIds,
+      isFollowerQuery
+    );
+  }
 
   filters.forEach(filter => {
     if (filter === 'primaryEns') {

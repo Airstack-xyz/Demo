@@ -8,19 +8,9 @@ import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
 import { SectionHeader } from '../SectionHeader';
 import { Wallet as WalletType } from '../types';
-import { Follow, FollowParams } from './Follow';
+import { Follow, FollowParams, FollowType } from './Follow';
 import { Social } from './Social';
 import { XMTP } from './XMTP';
-
-type FollowType = {
-  dappName: string;
-  sections: {
-    profileNames: string[];
-    profileTokenId?: string;
-    followerCount?: number;
-    followingCount?: number;
-  }[];
-};
 
 const getFollowInfo = (socials: WalletType['socials']) => {
   const followMap: Record<string, FollowType> = {
@@ -42,7 +32,7 @@ const getFollowInfo = (socials: WalletType['socials']) => {
   // For farcaster:
   if (farcasterSocials?.length > 0) {
     followMap['farcaster'].sections = farcasterSocials.map(item => ({
-      profileNames: [item.profileName],
+      profileName: item.profileName,
       profileTokenId: item.profileTokenId,
       followerCount: item.followerCount,
       followingCount: item.followingCount
@@ -50,7 +40,7 @@ const getFollowInfo = (socials: WalletType['socials']) => {
   } else {
     followMap['farcaster'].sections = [
       {
-        profileNames: ['--'],
+        profileName: '--',
         followerCount: 0,
         followingCount: 0
       }
@@ -58,25 +48,35 @@ const getFollowInfo = (socials: WalletType['socials']) => {
   }
 
   // For lens:
-  // Find lens profile based on which follower/following are formed
-  const relevantLensSocial =
-    lensSocials.find(
-      item => item.isDefault || item.followerCount || item.followingCount
-    ) || lensSocials[0];
+  if (lensSocials.length > 0) {
+    // find default lens profile based on:
+    const defaultProfile =
+      lensSocials.find(item => item.isDefault) ||
+      lensSocials.find(item => item.followingCount > 0) ||
+      lensSocials[0];
 
-  if (relevantLensSocial) {
-    followMap['lens'].sections = [
-      {
-        profileNames: lensSocials.map(item => item.profileName),
-        profileTokenId: relevantLensSocial.profileTokenId,
-        followerCount: relevantLensSocial.followerCount,
-        followingCount: relevantLensSocial.followingCount
+    followMap['lens'].sections.push({
+      profileName: defaultProfile.profileName,
+      profileTokenId: defaultProfile.profileTokenId,
+      followerCount: defaultProfile.followerCount,
+      followingCount: defaultProfile.followingCount
+    });
+    lensSocials.forEach(item => {
+      if (item.profileName === defaultProfile.profileName) {
+        return;
       }
-    ];
+      followMap['lens'].sections.push({
+        profileName: item.profileName,
+        profileTokenId: item.profileTokenId,
+        followerCount: item.followerCount,
+        followingCount: defaultProfile.followingCount,
+        hideFollowingCount: true
+      });
+    });
   } else {
     followMap['lens'].sections = [
       {
-        profileNames: ['--'],
+        profileName: '--',
         followerCount: 0,
         followingCount: 0
       }

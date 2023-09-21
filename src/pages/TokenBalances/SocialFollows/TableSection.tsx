@@ -100,6 +100,7 @@ export function TableSection({
       const filteredItems = filterTableItems({
         items,
         filters: _filters,
+        dappName: socialInfo.dappName,
         profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery
       });
@@ -113,7 +114,7 @@ export function TableSection({
         matching: prev.matching + filteredItems.length
       }));
     },
-    [_filters, isFollowerQuery, socialInfo.profileTokenIds]
+    [_filters, isFollowerQuery, socialInfo.dappName, socialInfo.profileTokenIds]
   );
 
   const [fetchData, { loading, pagination }] = useLazyQueryWithPagination(
