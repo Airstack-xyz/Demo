@@ -52,6 +52,14 @@ export type Wallet = {
   socialFollowings: {
     Following: Follow[];
   };
+  alsoFollow: {
+    Follower: Follow[];
+    Following: Follow[];
+  };
+  mutualFollow: {
+    Follower: Follow[];
+    Following: Follow[];
+  };
   identity: string;
   addresses: string[];
   socials: {

@@ -2,7 +2,11 @@ import { FilterPlaceholder } from '../../../Components/Filters/FilterPlaceholder
 import { FilterCheckbox } from '../../../Components/Filters/FilterCheckbox';
 import { useOutsideClick } from '../../../hooks/useOutsideClick';
 import { useState, useCallback, ChangeEvent, useMemo, useEffect } from 'react';
-import { MORE_THAN_N_FOLLOW_FILTER, MUTUAL_FOLLOW_FILTER } from './utils';
+import {
+  ALSO_FOLLOW_FILTER,
+  MORE_THAN_N_FOLLOW_FILTER,
+  MUTUAL_FOLLOW_FILTER
+} from './utils';
 import { showToast } from '../../../utils/showToast';
 import { Icon } from '../../../Components/Icon';
 
@@ -83,6 +87,10 @@ export function Filters({
           label: `has mutual ${followText}`,
           value: MUTUAL_FOLLOW_FILTER
         },
+        {
+          label: `also ${followText} on farcaster`,
+          value: `${ALSO_FOLLOW_FILTER}:farcaster`
+        },
         hasFarcasterOption,
         ...options
       ];
@@ -91,6 +99,10 @@ export function Filters({
         {
           label: `has mutual ${followText}`,
           value: MUTUAL_FOLLOW_FILTER
+        },
+        {
+          label: `also ${followText} on lens`,
+          value: `${ALSO_FOLLOW_FILTER}:lens`
         },
         hasLensOption,
         ...options
