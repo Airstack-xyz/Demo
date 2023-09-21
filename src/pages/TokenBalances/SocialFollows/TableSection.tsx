@@ -59,6 +59,7 @@ export function TableSection({
 
   const [tableItems, setTableItems] = useState<Follow[]>([]);
   const tableItemsRef = useRef<Follow[]>([]);
+  const tableIdsSetRef = useRef<Set<string>>(new Set());
 
   const [modalData, setModalData] = useState<ModalData>({
     isOpen: false,
@@ -103,6 +104,13 @@ export function TableSection({
         dappName: socialInfo.dappName,
         profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery
+      }).filter(item => {
+        const id = `${item.followerProfileId}-${item.followingProfileId}`;
+        if (tableIdsSetRef.current.has(id)) {
+          return false;
+        }
+        tableIdsSetRef.current.add(id);
+        return true;
       });
 
       tableItemsRef.current = [...tableItemsRef.current, ...filteredItems];
@@ -120,7 +128,7 @@ export function TableSection({
   const [fetchData, { loading, pagination }] = useLazyQueryWithPagination(
     query,
     {},
-    { onCompleted: handleData }
+    { onCompleted: handleData, cache: false }
   );
 
   const { hasNextPage, getNextPage } = pagination;
@@ -139,6 +147,9 @@ export function TableSection({
   }, [loading, hasNextPage, getNextPage]);
 
   useEffect(() => {
+    tableItemsRef.current = [];
+    tableIdsSetRef.current = new Set();
+    setTableItems([]);
     fetchData({
       identity: identities[0],
       dappName: socialInfo.dappName,
