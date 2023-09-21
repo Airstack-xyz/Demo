@@ -31,6 +31,8 @@ export function SocialFollows({
     );
   };
 
+  const tableKey = `${identities}-${socialInfo.dappName}-${socialInfo.profileNames}-${socialInfo.profileTokenIds}-${socialInfo.followerFilters}-${socialInfo.followingFilters}-${isFollowerQuery}`;
+
   return (
     <div className="max-w-[950px] text-sm m-auto w-[98vw] pt-10 sm:pt-0">
       <div className="flex items-center">
@@ -78,9 +80,7 @@ export function SocialFollows({
         />
       </TabContainer>
       <TableSection
-        key={
-          isFollowerQuery ? 'follower-table-section' : 'following-table-section'
-        }
+        key={tableKey}
         identities={identities}
         socialInfo={socialInfo}
         isFollowerQuery={isFollowerQuery}

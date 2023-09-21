@@ -1,4 +1,6 @@
 import { Asset, Image } from '../../../Components/Asset';
+import { Icon } from '../../../Components/Icon';
+import { formatDate } from '../../../utils';
 import { Social } from './types';
 
 export function CardLoader({ isLensDapp }: { isLensDapp: boolean }) {
@@ -66,8 +68,20 @@ export function Card({
         <div className="mt-4 grid grid-cols-[auto_1fr] [&>div:nth-child(even)]:text-text-secondary gap-x-4 gap-y-3 text-sm">
           {isLensDapp ? (
             <>
-              <div>Default profile</div>
-              <div>{item.isDefault ? 'yes' : 'no'}</div>
+              {item.isDefault ? (
+                <>
+                  <div className="flex items-center">
+                    <Icon
+                      name="check-mark-circle"
+                      className="mr-1.5"
+                      height={14}
+                      width={14}
+                    />
+                    Default profile
+                  </div>
+                  <div />
+                </>
+              ) : null}
             </>
           ) : (
             <>
@@ -78,7 +92,11 @@ export function Card({
             </>
           )}
           <div>Created date</div>
-          <div>{item.profileCreatedAtBlockTimestamp || '--'}</div>
+          <div>
+            {item.profileCreatedAtBlockTimestamp
+              ? formatDate(item.profileCreatedAtBlockTimestamp)
+              : '--'}
+          </div>
           <div>Created at (block)</div>
           <div>{item.profileCreatedAtBlockNumber || '--'}</div>
         </div>

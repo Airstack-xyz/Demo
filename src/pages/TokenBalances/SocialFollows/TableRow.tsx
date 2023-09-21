@@ -57,6 +57,8 @@ export function TableRow({
 
   const xmtpEnabled = wallet?.xmtp?.find(val => val.isXMTPEnabled);
 
+  const tokenOrFarcasterId = isLensDapp ? tokenId : social?.userId;
+
   const lensCell = (
     <ListWithMoreOptions
       list={lensAddresses}
@@ -94,7 +96,7 @@ export function TableRow({
         )}
       </td>
       <td>{isLensDapp ? lensCell : farcasterCell}</td>
-      <td>{isLensDapp ? `#${tokenId}` : `#${social?.userId}`}</td>
+      <td>{tokenOrFarcasterId ? `#${tokenOrFarcasterId}` : '--'}</td>
       <td>
         <ListWithMoreOptions
           list={[primaryEns]}
@@ -112,11 +114,7 @@ export function TableRow({
         />
       </td>
       <td>
-        <WalletAddress
-          address={walletAddress}
-          dataType={item.dappName}
-          onClick={onAddressClick}
-        />
+        <WalletAddress address={walletAddress} onClick={onAddressClick} />
       </td>
       <td>{isLensDapp ? farcasterCell : lensCell}</td>
       <td>
