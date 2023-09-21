@@ -14,7 +14,7 @@ export function NFTInfo({
   blockchain,
   tokenAddress,
   loadingHolder,
-  transfterDetails
+  transferDetails
 }: {
   tokenId: string;
   tokenAddress: string;
@@ -25,7 +25,7 @@ export function NFTInfo({
     hasParent: boolean;
   } | null;
   loadingHolder: boolean;
-  transfterDetails: TokenTransfer;
+  transferDetails: TokenTransfer;
 }) {
   const [showContactDetails, setShowContactDetails] = useState(false);
 
@@ -171,7 +171,7 @@ export function NFTInfo({
             </div>
             <KeyValue
               name="Contract"
-              value={transfterDetails?.tokenAddress || '--'}
+              value={transferDetails?.tokenAddress || '--'}
             />
             <KeyValue
               name="Total supply"
@@ -179,21 +179,21 @@ export function NFTInfo({
             />
             <KeyValue
               name="Last transfer time"
-              value={transfterDetails?.blockTimestamp}
+              value={transferDetails?.blockTimestamp}
             />
             <KeyValue
               name="Last transfer block"
-              value={transfterDetails?.blockNumber}
+              value={transferDetails?.blockNumber}
             />
             <KeyValue
               name="Last transfer hash"
               value={
                 <>
                   <span className="ellipsis">
-                    {transfterDetails?.transactionHash}
+                    {transferDetails?.transactionHash}
                   </span>
-                  {transfterDetails?.transactionHash && (
-                    <CopyButton value={transfterDetails?.transactionHash} />
+                  {transferDetails?.transactionHash && (
+                    <CopyButton value={transferDetails?.transactionHash} />
                   )}
                 </>
               }

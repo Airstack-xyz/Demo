@@ -108,8 +108,14 @@ export interface Domain {
 }
 
 export interface Social {
+  isDefault: boolean;
+  blockchain: string;
   dappName: string;
+  dappSlug: string;
   profileName: string;
+  profileTokenId: string;
+  followerCount: number;
+  followingCount: number;
 }
 
 export interface Xmtp {
@@ -158,12 +164,6 @@ export interface Poap {
   tokenUri: string;
   tokenAddress: string;
   tokenId: string;
-}
-
-export interface Social {
-  blockchain: string;
-  dappSlug: string;
-  profileName: string;
 }
 
 export interface PrimaryDomain {

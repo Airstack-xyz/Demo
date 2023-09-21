@@ -1,0 +1,27 @@
+.social-follow-table {
+    @apply w-auto text-xs table-fixed sm:w-full;
+}
+
+.social-follow-table thead {
+    @apply bg-glass rounded-2xl;
+}
+
+.social-follow-table th {
+    @apply py-5 px-2 text-xs font-bold text-left whitespace-nowrap;
+}
+
+.social-follow-table :is(th, td):first-child {
+    @apply pl-9
+}
+
+.social-follow-table :is(th, td):first-child {
+    @apply pr-9
+}
+
+.social-follow-table td {
+    @apply py-3 px-2 h-[50px] align-middle ellipsis;
+}
+
+.social-follow-table > tbody > tr:is(:first-child, :last-child) > td {
+    @apply pt-5;
+}

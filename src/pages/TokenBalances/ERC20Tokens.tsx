@@ -17,6 +17,7 @@ import './erc20.styles.css';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { emit } from '../../utils/eventEmitter/eventEmitter';
 import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
+import { defaultSortOrder } from '../../Components/Filters/SortBy';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
@@ -98,9 +99,15 @@ export function ERC20Tokens() {
   ] = useSearchInput();
   const tokensRef = useRef<TokenType[]>([]);
   const [loading, setLoading] = useState(false);
+
   const query = useMemo(() => {
-    return createNftWithCommonOwnersQuery(owners, null);
-  }, [owners]);
+    const fetchAllBlockchains =
+      blockchainType.length === 2 || blockchainType.length === 0;
+
+    const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
+
+    return createNftWithCommonOwnersQuery(owners, _blockchain);
+  }, [blockchainType, owners]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onData = useCallback((data: any) => {
@@ -156,9 +163,12 @@ export function ERC20Tokens() {
       // eslint-disable-next-line react-hooks/exhaustive-deps
       data = null;
 
+      const _limit = owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT;
+
       fetch({
-        limit: owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT,
-        tokenType: ['ERC20']
+        limit: _limit,
+        tokenType: ['ERC20'],
+        sortBy: sortOrder ? sortOrder : defaultSortOrder
       });
     }
     /*
@@ -166,7 +176,7 @@ export function ERC20Tokens() {
       Without this, the tokens list would be unable to fetch additional pages since the window scroll height would be too great (too many ERC20 items).
       InfiniteScroll depends on the window scroll height, if the height is too high, user will have to scroll to the bottom to initiate a pagination call.
     */
-  }, [fetch, owners, tokenType, blockchainType, sortOrder]);
+  }, [fetch, owners.length, tokenType, blockchainType, sortOrder]);
 
   useEffect(() => {
     if (!data) return;
@@ -226,6 +236,7 @@ export function ERC20Tokens() {
         >
           {tokens.map((token, index) => (
             <div
+              key={index}
               data-address={token?.tokenAddress}
               className="random-color-item cursor-pointer"
               onClick={() => {
@@ -246,7 +257,6 @@ export function ERC20Tokens() {
               }}
             >
               <Token
-                key={index}
                 amount={isCombination ? null : token?.formattedAmount}
                 symbol={token?.token?.symbol}
                 type={token?.token?.name}

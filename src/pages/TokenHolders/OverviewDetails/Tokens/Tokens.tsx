@@ -16,7 +16,7 @@ import { Poap, Token as TokenType, TokensData } from '../../types';
 import { filterTokens, getRequestFilters } from './filters';
 import { Token } from './Token';
 import classNames from 'classnames';
-import { StatusLoader } from './StatusLoader';
+import { StatusLoader } from '../../../../Components/StatusLoader';
 import { useLoaderContext } from '../../../../hooks/useLoader';
 import { getFilterablePoapsQuery } from '../../../../queries/overviewDetailsPoap';
 import {

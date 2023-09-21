@@ -12,7 +12,6 @@ import { MentionsInput, Mention } from './react-mentions';
 import './input-styles.css';
 import {
   generateId,
-  capitalizeFirstLetter,
   highlightMention,
   ID_REGEX,
   REGEX_LAST_WORD_STARTS_WITH_AT,
@@ -25,7 +24,7 @@ import {
 import { AddressInput } from './AddressInput';
 import { ADDRESS_OPTION_ID, MENTION_COUNT, POAP_OPTION_ID } from './constants';
 import { Icon } from '../Icon';
-import { pluralize } from '../../utils';
+import { capitalizeFirstLetter, pluralize } from '../../utils';
 
 type Option = SearchAIMentions_SearchAIMentions & {
   id: string;
@@ -40,6 +39,7 @@ type AIInputProps = {
   placeholder: string;
   value: string;
   disableSuggestions?: boolean;
+  blurOnEnter?: boolean;
 };
 
 const mentionTypeMap: Record<MentionType, string> = {
@@ -55,12 +55,13 @@ export function InputWithMention({
   value,
   onSubmit,
   placeholder,
-  disableSuggestions
+  disableSuggestions,
+  blurOnEnter
 }: AIInputProps) {
   const [showInputFor, setShowInputFor] = useState<
     'ID_ADDRESS' | 'ID_POAP' | null
   >(null);
-  const [inputPositon, setInputPositon] = useState({
+  const [inputPosition, setInputPosition] = useState({
     top: 'auto',
     left: 'auto',
     right: 'auto'
@@ -68,7 +69,7 @@ export function InputWithMention({
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const allowSubmitRef = useRef(true);
   const valueRef = useRef(value);
-  const lastPositionOfCarretRef = useRef(0);
+  const lastPositionOfCaretRef = useRef(0);
   const [loading, setLoading] = useState(false);
 
   // const [getMentions, { loading }] = useLazyQuery(MentionsQuery);
@@ -125,7 +126,10 @@ export function InputWithMention({
   const handleKeypress: KeyboardEventHandler<HTMLTextAreaElement> = useCallback(
     event => {
       if (event.key === 'Enter') {
-        // prevent sumbmition when user is selecting a suggestion from the dropdown menu with Enter key
+        if (blurOnEnter) {
+          inputRef.current?.blur();
+        }
+        // prevent submission when user is selecting a suggestion from the dropdown menu with Enter key
         if (!allowSubmitRef.current) {
           allowSubmitRef.current = true;
           return;
@@ -134,11 +138,11 @@ export function InputWithMention({
         onSubmit(value);
       }
     },
-    [onSubmit, value]
+    [blurOnEnter, onSubmit, value]
   );
 
   const onAddSuggestion = useCallback((id: string) => {
-    // this prevents submition if user is selecting a suggestion from the dropdown menu with enter key
+    // this prevents submission if user is selecting a suggestion from the dropdown menu with enter key
     allowSubmitRef.current = false;
 
     if (id === ADDRESS_OPTION_ID || id === POAP_OPTION_ID) {
@@ -163,13 +167,13 @@ export function InputWithMention({
           ? `${inputRef.current.offsetWidth - 290}px`
           : left;
       }
-      setInputPositon({
+      setInputPosition({
         top: top,
         left: left,
         right: right
       });
       setShowInputFor(id);
-      lastPositionOfCarretRef.current = inputRef.current?.selectionStart || 0;
+      lastPositionOfCaretRef.current = inputRef.current?.selectionStart || 0;
 
       return false; // don't add the mention to input
     }
@@ -188,27 +192,25 @@ export function InputWithMention({
 
       let extraLengthTakenByMention = 0;
 
-      const mentionMakups = value.match(ID_REGEX);
+      const mentionMarkups = value.match(ID_REGEX);
       // find out how many characters the mention markup is longer than the id
-      // so we can adjust the carret position accordingly
+      // so we can adjust the caret position accordingly
       // the mention markup is longer than the id because it contains the display name
-      mentionMakups?.forEach(mention => {
+      mentionMarkups?.forEach(mention => {
         extraLengthTakenByMention +=
           mention.trimEnd().length - getNameFromMarkup(mention).length;
       });
 
-      const actualCarretPosition =
-        lastPositionOfCarretRef.current + extraLengthTakenByMention;
+      const actualCaretPosition =
+        lastPositionOfCaretRef.current + extraLengthTakenByMention;
 
-      let textBeforeCarret = value.slice(0, actualCarretPosition);
-      const remainingText = value.slice(actualCarretPosition);
-      const startsWithAt = textBeforeCarret[0] === '@';
+      let textBeforeCaret = value.slice(0, actualCaretPosition);
+      const remainingText = value.slice(actualCaretPosition);
+      const startsWithAt = textBeforeCaret[0] === '@';
       // add space in front of the mention if it doesn't start with @, otherwise the regex won't match
-      textBeforeCarret = startsWithAt
-        ? ' ' + textBeforeCarret
-        : textBeforeCarret;
+      textBeforeCaret = startsWithAt ? ' ' + textBeforeCaret : textBeforeCaret;
 
-      textBeforeCarret = textBeforeCarret
+      textBeforeCaret = textBeforeCaret
         .trimEnd()
         .replace(
           REGEX_LAST_WORD_STARTS_WITH_AT,
@@ -217,10 +219,10 @@ export function InputWithMention({
 
       if (startsWithAt) {
         // remove the space we added in front of the mention
-        textBeforeCarret = textBeforeCarret.substring(1);
+        textBeforeCaret = textBeforeCaret.substring(1);
       }
 
-      const newValue = textBeforeCarret + remainingText.trimStart();
+      const newValue = textBeforeCaret + remainingText.trimStart();
       handleUserInput({ target: { value: newValue } });
     },
     [handleUserInput, showInputFor, value]
@@ -246,7 +248,7 @@ export function InputWithMention({
     [getMentions]
   );
 
-  const deboucedFetch = useMemo(
+  const debouncedFetch = useMemo(
     () => debouncePromise(fetchMentions),
     [fetchMentions]
   );
@@ -254,7 +256,7 @@ export function InputWithMention({
   const getData = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (query: string, callback: any) => {
-      const data = await deboucedFetch(query);
+      const data = await debouncedFetch(query);
       const dataWithAddressOption = [
         ...(data || []),
         { id: ADDRESS_OPTION_ID },
@@ -262,7 +264,7 @@ export function InputWithMention({
       ];
       callback(dataWithAddressOption);
     },
-    [deboucedFetch]
+    [debouncedFetch]
   );
 
   return (
@@ -284,7 +286,7 @@ export function InputWithMention({
         customChildren={
           showInputFor ? (
             <AddressInput
-              {...inputPositon}
+              {...inputPosition}
               placeholder={
                 showInputFor === ADDRESS_OPTION_ID
                   ? 'Enter contract address here'

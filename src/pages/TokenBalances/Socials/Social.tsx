@@ -1,101 +1,84 @@
-import { useState, useMemo, ReactNode, useCallback } from 'react';
-import { useSearchInput } from '../../../hooks/useSearchInput';
 import classNames from 'classnames';
-import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
+import { ReactNode, useMemo, useState } from 'react';
 
-const maxSocials = 7;
-const minSocials = 2;
+const maxItemCount = 7;
+const minItemCount = 2;
 
 type SocialProps = {
   name: string;
+  type?: string;
   values: ReactNode[];
   image: string;
-  onShowMore?: () => void;
+  onAddressClick?: (value: unknown, type?: string) => void;
+  onShowMoreClick?: (values: string[], type?: string) => void;
 };
 
-export function Social({ name, values, image, onShowMore }: SocialProps) {
+export function Social({
+  name,
+  type,
+  values,
+  image,
+  onAddressClick,
+  onShowMoreClick
+}: SocialProps) {
   const [showMax, setShowMax] = useState(false);
+
   const items = useMemo(() => {
     if (!showMax) {
-      return values?.slice(0, minSocials);
+      return values?.slice(0, minItemCount);
     }
-    return values?.slice(0, maxSocials);
+    return values?.slice(0, maxItemCount);
   }, [showMax, values]);
 
-  const setData = useSearchInput()[1];
-
-  const getItemClickHandler = useCallback(
-    (value: ReactNode) => () => {
-      if (typeof value !== 'string') return;
-
-      const isFarcaster = name.includes('farcaster');
-      const farcasterId = `fc_fname:${value}`;
-
-      const rawInput = createFormattedRawInput({
-        type: 'ADDRESS',
-        address: isFarcaster ? farcasterId : value,
-        label: isFarcaster ? farcasterId : value,
-        blockchain: 'ethereum'
-      });
-      setData(
-        {
-          rawInput: rawInput,
-          address: isFarcaster ? [farcasterId] : [value],
-          inputType: 'ADDRESS'
-        },
-        { updateQueryParams: true }
-      );
-    },
-    [name, setData]
-  );
-
   return (
-    <div className="flex text-sm mb-7 last:mb-0">
-      <div className="flex flex-1 items-start">
-        <div className="flex items-center">
-          <div className="rounded-full h-[25px] w-[25px] border mr-2 overflow-hidden flex-row-center">
-            <img src={image} className="w-full" />
-          </div>
-          <span className="first-letter:uppercase">{name}</span>
-        </div>
-      </div>
-      <ul className="text-text-secondary w-1/2 overflow-hidden flex flex-col justify-center">
-        {items?.map((value, index) => (
-          <li key={index} className={classNames('mb-2.5 last:mb-0 flex')}>
-            <div
-              className={classNames('px-3 py-1 rounded-18 ellipsis', {
-                'hover:bg-glass cursor-pointer': typeof value !== 'object'
-              })}
-              onClick={getItemClickHandler(value)}
-            >
-              {value}
+    <div className="text-sm mb-7 last:mb-0">
+      <div className="flex">
+        <div className="flex flex-1 items-start">
+          <div className="flex items-center">
+            <div className="rounded-full h-[25px] w-[25px] border mr-2 overflow-hidden flex-row-center">
+              <img src={image} className="w-full" />
             </div>
-          </li>
-        ))}
-        {!showMax && values?.length > minSocials && (
-          <li
-            onClick={() => {
-              setShowMax(show => !show);
-            }}
-            className="text-text-button font-bold cursor-pointer px-3"
-          >
-            see more
-          </li>
-        )}
-        {showMax && values.length > maxSocials && (
-          <li
-            onClick={() => {
-              if (showMax && values.length > maxSocials) {
-                onShowMore?.();
-                return;
-              }
-            }}
-            className="text-text-button font-bold cursor-pointer px-3"
-          >
-            see all
-          </li>
-        )}
-      </ul>
+            <span className="first-letter:uppercase">{name}</span>
+          </div>
+        </div>
+        <ul className="text-text-secondary w-1/2 overflow-hidden flex flex-col justify-center">
+          {items?.map((value, index) => (
+            <li key={index} className="mb-2.5 last:mb-0 flex">
+              <div
+                className={classNames('px-3 py-1 rounded-18 ellipsis', {
+                  'hover:bg-glass cursor-pointer': typeof value !== 'object'
+                })}
+                onClick={() => onAddressClick?.(value, type)}
+              >
+                {value}
+              </div>
+            </li>
+          ))}
+          {!showMax && values?.length > minItemCount && (
+            <li
+              onClick={() => {
+                setShowMax(prev => !prev);
+              }}
+              className="text-text-button font-bold cursor-pointer px-3"
+            >
+              see more
+            </li>
+          )}
+          {showMax && values.length > maxItemCount && (
+            <li
+              onClick={() => {
+                if (showMax && values.length > maxItemCount) {
+                  onShowMoreClick?.(values as string[], type);
+                  return;
+                }
+              }}
+              className="text-text-button font-bold cursor-pointer px-3"
+            >
+              see all
+            </li>
+          )}
+        </ul>
+      </div>
     </div>
   );
 }
