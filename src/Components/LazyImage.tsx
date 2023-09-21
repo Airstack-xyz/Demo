@@ -1,38 +1,38 @@
 import { ComponentProps, useState } from 'react';
 
-const PLACEHOLDER_URL = 'images/placeholder.svg';
+type LazyImageStatusType = 'loading' | 'loaded' | 'error';
 
 const LazyImage = ({
   src,
-  placeholderSrc,
   alt,
   ...rest
 }: {
   src?: string;
-  placeholderSrc?: string;
   alt?: string;
 } & ComponentProps<'img'>) => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [isError, setIsError] = useState(false);
-
-  const showPlaceholder = isLoading || isError;
-
+  const [status, setStatus] = useState<LazyImageStatusType>('error');
   return (
     <>
-      {showPlaceholder && (
-        <img
-          {...rest}
-          src={placeholderSrc || PLACEHOLDER_URL}
-          alt="placeholder-img"
-        />
+      {status === 'error' && (
+        <img {...rest} src="images/placeholder.svg" alt="placeholder-img" />
+      )}
+      {status === 'loading' && (
+        <div className="skeleton-loader">
+          <div
+            data-loader-type="block"
+            style={{ height: rest.height, width: rest.width }}
+            className={rest.className}
+          />
+        </div>
       )}
       <img
         {...rest}
         src={src}
         alt={alt}
-        style={showPlaceholder ? { display: 'none' } : undefined}
-        onLoad={() => setIsLoading(false)}
-        onError={() => setIsError(true)}
+        style={status !== 'loaded' ? { display: 'none' } : undefined}
+        onLoadStart={() => setStatus('loading')}
+        onLoad={() => setStatus('loaded')}
+        onError={() => setStatus('error')}
       />
     </>
   );
