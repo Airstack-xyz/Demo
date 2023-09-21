@@ -218,7 +218,7 @@ export function TableSection({
           <table className="social-follow-table">
             <thead>
               <tr>
-                <th>Profile image</th>
+                <th>{isLensDapp ? 'Token image' : 'Profile image'}</th>
                 <th>{isLensDapp ? 'Lens' : 'Farcaster'}</th>
                 <th>{isLensDapp ? 'Token ID' : 'FID'}</th>
                 <th>Primary ENS</th>
