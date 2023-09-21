@@ -12,7 +12,7 @@ export const getSocialFollowingsQuery = ({
 }) => {
   const variables = [
     '$identity: Identity!',
-    '$dappName: SocialFollowDappName',
+    '$dappName: SocialDappName',
     '$limit: Int'
   ];
   const socialFilters = [];
