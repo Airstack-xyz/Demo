@@ -96,7 +96,7 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
     domains {
       name
     }
-    socials {
+    socials(input: {limit: 200}) {
       isDefault
       dappName
       dappSlug
