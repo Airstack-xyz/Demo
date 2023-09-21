@@ -1,5 +1,6 @@
-import { Asset, Image } from '../../../Components/Asset';
+import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
+import LazyImage from '../../../Components/LazyImage';
 import { formatDate } from '../../../utils';
 import { Social } from './types';
 
@@ -53,7 +54,7 @@ export function Card({
           address={item.profileTokenAddress}
         />
       ) : (
-        <Image
+        <LazyImage
           className="w-[180px] h-[180px] object-cover rounded-2xl"
           src={item.profileImage}
         />
