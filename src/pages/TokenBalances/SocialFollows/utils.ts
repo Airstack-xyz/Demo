@@ -42,6 +42,10 @@ export const getSocialFollowFilterData = ({
     if (filter.startsWith(MUTUAL_FOLLOW_FILTER)) {
       logicalFilters.mutualFollow = true;
     }
+    if (filter.startsWith(ALSO_FOLLOW_FILTER)) {
+      const [, dappName] = filter.split(':');
+      logicalFilters.alsoFollow = dappName;
+    }
   });
 
   return { queryFilters, logicalFilters };
@@ -92,10 +96,20 @@ function filterByMoreThanNFollow(items: Follow[]) {
 function filterByMutualFollow(items: Follow[], isFollowerQuery: boolean) {
   if (isFollowerQuery)
     return items?.filter(item => {
-      return item.followerAddress?.socialFollowings?.Following?.length > 0;
+      return item.followerAddress?.mutualFollow?.Following?.length > 0;
     });
   return items?.filter(item => {
-    return item.followingAddress?.socialFollowers?.Follower?.length > 0;
+    return item.followingAddress?.mutualFollow?.Follower?.length > 0;
+  });
+}
+
+function filterByAlsoFollow(items: Follow[], isFollowerQuery: boolean) {
+  if (isFollowerQuery)
+    return items?.filter(item => {
+      return item.followerAddress?.alsoFollow?.Follower?.length > 0;
+    });
+  return items?.filter(item => {
+    return item.followingAddress?.alsoFollow?.Following?.length > 0;
   });
 }
 
@@ -158,6 +172,9 @@ export const filterTableItems = ({
     }
     if (filter.startsWith(MUTUAL_FOLLOW_FILTER)) {
       filteredItems = filterByMutualFollow(filteredItems, isFollowerQuery);
+    }
+    if (filter.startsWith(ALSO_FOLLOW_FILTER)) {
+      filteredItems = filterByAlsoFollow(filteredItems, isFollowerQuery);
     }
   });
 

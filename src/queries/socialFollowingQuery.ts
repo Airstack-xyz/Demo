@@ -79,10 +79,20 @@ export const getSocialFollowingsQuery = ({
           }
           ${
             logicalFilters.mutualFollow
-              ? `socialFollowers(input: {filter: {identity: {_eq: $identity}, dappName: {_eq: $dappName}}, limit: 1}) {
+              ? `mutualFollow: socialFollowers(input: {filter: {identity: {_eq: $identity}, dappName: {_eq: $dappName}}, limit: 1}) {
             Follower {
               id
               followerProfileId
+            }
+          }`
+              : ''
+          }
+          ${
+            logicalFilters.alsoFollow
+              ? `alsoFollow: socialFollowings(input: {filter: {identity: {_eq: $identity}, dappName: {_eq: ${logicalFilters.alsoFollow}}}, limit: 1}) {
+            Following {
+              id
+              followingProfileId
             }
           }`
               : ''
