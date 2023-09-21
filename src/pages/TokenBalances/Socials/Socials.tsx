@@ -40,9 +40,7 @@ const getFollowInfo = (socials: WalletType['socials']) => {
   } else {
     followMap['farcaster'].sections = [
       {
-        profileName: '--',
-        followerCount: 0,
-        followingCount: 0
+        profileName: '--'
       }
     ];
   }
@@ -62,23 +60,20 @@ const getFollowInfo = (socials: WalletType['socials']) => {
       followingCount: defaultProfile.followingCount
     });
     lensSocials.forEach(item => {
-      if (item.profileName === defaultProfile.profileName) {
-        return;
+      if (item.profileName !== defaultProfile.profileName) {
+        followMap['lens'].sections.push({
+          profileName: item.profileName,
+          profileTokenId: item.profileTokenId,
+          followerCount: item.followerCount,
+          followingCount: defaultProfile.followingCount,
+          hideFollowingCount: true
+        });
       }
-      followMap['lens'].sections.push({
-        profileName: item.profileName,
-        profileTokenId: item.profileTokenId,
-        followerCount: item.followerCount,
-        followingCount: defaultProfile.followingCount,
-        hideFollowingCount: true
-      });
     });
   } else {
     followMap['lens'].sections = [
       {
-        profileName: '--',
-        followerCount: 0,
-        followingCount: 0
+        profileName: '--'
       }
     ];
   }
