@@ -29,7 +29,13 @@ export function WalletAddress({
     >
       <span className="ellipsis">{address || '--'}</span>
       {address && (
-        <Icon name="copy" height={16} width={16} onClick={handleCopy} />
+        <Icon
+          name="copy"
+          className="ml-1"
+          height={16}
+          width={16}
+          onClick={handleCopy}
+        />
       )}
     </div>
   );

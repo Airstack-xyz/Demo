@@ -1,5 +1,6 @@
-import { Asset, Image } from '../../../Components/Asset';
+import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
+import LazyImage from '../../../Components/LazyImage';
 import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
 import { WalletAddress } from '../../../Components/WalletAddress';
 import { Follow } from './types';
@@ -89,9 +90,11 @@ export function TableRow({
             address={social.profileTokenAddress}
           />
         ) : (
-          <Image
-            className="w-[50px] h-[50px] rounded"
+          <LazyImage
+            className="rounded"
             src={social?.profileImage}
+            width={50}
+            height={50}
           />
         )}
       </td>
