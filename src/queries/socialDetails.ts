@@ -4,6 +4,7 @@ export const socialDetailsQuery = `query SocialDetails($identities: [Identity!],
   ) {
     Social {
       id
+      isDefault
       blockchain
       dappName
       dappSlug
@@ -16,8 +17,8 @@ export const socialDetailsQuery = `query SocialDetails($identities: [Identity!],
       followerCount
       followingCount
       userAddress
-      userCreatedAtBlockTimestamp
-      userCreatedAtBlockNumber
+      profileCreatedAtBlockTimestamp
+      profileCreatedAtBlockNumber
     }
   }
 }`;

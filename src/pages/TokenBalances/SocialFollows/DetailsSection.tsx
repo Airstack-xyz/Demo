@@ -27,10 +27,15 @@ function DetailsSectionComponent({
 
   const socialItems: Social[] = data?.Socials?.Social;
 
+  const isLensDapp = dappName === 'lens';
+
   return (
     <div className="my-5 mb-[30px] flex">
-      {!loading && socialItems?.map(item => <Card key={item.id} item={item} />)}
-      {loading && <CardLoader />}
+      {!loading &&
+        socialItems?.map(item => (
+          <Card key={item.id} item={item} isLensDapp={isLensDapp} />
+        ))}
+      {loading && <CardLoader isLensDapp={isLensDapp} />}
     </div>
   );
 }

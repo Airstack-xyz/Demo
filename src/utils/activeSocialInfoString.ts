@@ -19,8 +19,8 @@ export const getActiveSocialInfoString = ({
 }) => {
   const socialInfo: (string | number)[] = [
     dappName,
-    profileNames?.join(',') || '',
-    profileTokenIds?.join(',') || ''
+    profileNames?.join(','),
+    profileTokenIds?.join(',')
   ];
 
   socialInfo.push(followerTab === false ? '0' : '1');
@@ -49,13 +49,19 @@ export const getActiveSocialInfo = (activeSocialInfo?: string) => {
   return {
     isApplicable: Boolean(dappName),
     dappName,
-    profileNames: profileNamesString?.split(',') || [],
-    profileTokenIds: profileTokenIdsString?.split(',') || [],
+    profileNames: profileNamesString ? profileNamesString.split(',') : [],
+    profileTokenIds: profileTokenIdsString
+      ? profileTokenIdsString.split(',')
+      : [],
     followerTab: followerTab === '1',
     followerCount,
-    followerFilters: followerFiltersString?.split(',') || [],
+    followerFilters: followerFiltersString
+      ? followerFiltersString.split(',')
+      : [],
     followingCount,
-    followingFilters: followingFiltersString?.split(',') || []
+    followingFilters: followingFiltersString
+      ? followingFiltersString?.split(',')
+      : []
   };
 };
 

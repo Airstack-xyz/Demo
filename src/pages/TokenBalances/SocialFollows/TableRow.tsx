@@ -1,4 +1,4 @@
-import { Image } from '../../../Components/Asset';
+import { Asset, Image } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
 import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
 import { WalletAddress } from '../../../Components/WalletAddress';
@@ -78,10 +78,20 @@ export function TableRow({
   return (
     <tr>
       <td>
-        <Image
-          className="w-[50px] h-[50px] rounded"
-          src={social?.profileImage}
-        />
+        {isLensDapp && social ? (
+          <Asset
+            preset="extraSmall"
+            containerClassName="w-[50px] h-[50px] [&>img]:w-[50px] [&>img]:max-w-[50px]"
+            chain={social.blockchain}
+            tokenId={social.profileTokenId}
+            address={social.profileTokenAddress}
+          />
+        ) : (
+          <Image
+            className="w-[50px] h-[50px] rounded"
+            src={social?.profileImage}
+          />
+        )}
       </td>
       <td>{isLensDapp ? lensCell : farcasterCell}</td>
       <td>{isLensDapp ? `#${tokenId}` : `#${social?.userId}`}</td>
