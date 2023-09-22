@@ -118,8 +118,11 @@ export function useSearchInput(
     ): T extends true ? string[] : string => {
       const { tokenBalance, tokenHolder } = userInputCache;
       const valueString = searchParams.get(key) || '';
+      const addressString = searchParams.get('address');
+
       const savedValue =
-        (isTokenBalances ? tokenBalance[key] : tokenHolder[key]) ||
+        (!addressString && // don't pick from cache if there is address in search params
+          (isTokenBalances ? tokenBalance[key] : tokenHolder[key])) ||
         (isArray ? [] : '');
 
       let value = isArray
