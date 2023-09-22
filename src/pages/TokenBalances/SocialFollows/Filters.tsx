@@ -185,7 +185,7 @@ export function Filters({
   return (
     <div className="flex my-4">
       <div className="flex-1 text-xs text-text-secondary scroll-shadow-r">
-        <div className="flex gap-2.5 overflow-auto no-scrollbar">
+        <div className="flex gap-2.5 overflow-auto pr-[50px] no-scrollbar">
           {selectedFiltersInfo.followCount != null && (
             <div className="py-[7px] px-3 flex-shrink-0 bg-glass-1 rounded-full">
               {isFollowerQuery
