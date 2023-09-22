@@ -50,9 +50,7 @@ export function TableRow({
 
   const ens = wallet?.domains?.map(val => val.name) || [];
 
-  const walletAddress = wallet?.identity
-    ? wallet.identity
-    : Array.isArray(wallet?.addresses)
+  const walletAddress = Array.isArray(wallet?.addresses)
     ? wallet?.addresses[0]
     : '';
 
