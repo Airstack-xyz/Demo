@@ -17,8 +17,8 @@ import './erc20.styles.css';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { emit } from '../../utils/eventEmitter/eventEmitter';
 import { createNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
-import { getActiveTokenInfoString } from '../../utils/activeTokenInfoString';
 import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
+import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
 import { defaultSortOrder } from '../../Components/Filters/SortBy';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
@@ -101,6 +101,7 @@ export function ERC20Tokens() {
       tokenType,
       blockchainType,
       sortOrder,
+      activeTokenInfo,
       activeSnapshotInfo
     },
     setSearchData
@@ -119,18 +120,18 @@ export function ERC20Tokens() {
     const fetchAllBlockchains =
       blockchainType.length === 2 || blockchainType.length === 0;
 
-    const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
+    const blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
     if (snapshotInfo.isApplicable) {
       return createNftWithCommonOwnersSnapshotQuery({
         owners,
-        blockchain: _blockchain,
+        blockchain: blockchain,
         blockNumber: snapshotInfo.blockNumber,
         date: snapshotInfo.date,
         timestamp: snapshotInfo.timestamp
       });
     }
-    return createNftWithCommonOwnersQuery(owners, _blockchain);
+    return createNftWithCommonOwnersQuery(owners, blockchain);
   }, [
     blockchainType,
     snapshotInfo.isApplicable,
@@ -193,11 +194,11 @@ export function ERC20Tokens() {
       // eslint-disable-next-line react-hooks/exhaustive-deps
       data = null;
 
-      const _limit = owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT;
+      const limit = owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT;
 
       if (snapshotInfo.isApplicable) {
         fetch({
-          limit: _limit,
+          limit: limit,
           tokenType: ['ERC20'],
           blockNumber: snapshotInfo.blockNumber,
           date: snapshotInfo.date,
@@ -205,7 +206,7 @@ export function ERC20Tokens() {
         });
       } else {
         fetch({
-          limit: _limit,
+          limit: limit,
           tokenType: ['ERC20'],
           sortBy: sortOrder ? sortOrder : defaultSortOrder
         });
@@ -292,10 +293,14 @@ export function ERC20Tokens() {
               onClick={() => {
                 setSearchData(
                   {
-                    activeTokenInfo: getActiveTokenInfoString(
-                      token?.tokenAddress || '',
-                      token?.tokenId || '',
-                      token?.blockchain || ''
+                    activeTokenInfo: addToActiveTokenInfo(
+                      {
+                        tokenAddress: token?.tokenAddress,
+                        tokenId: token?.tokenId || '',
+                        blockchain: token?.blockchain,
+                        eventId: ''
+                      },
+                      activeTokenInfo
                     )
                   },
                   { updateQueryParams: true }

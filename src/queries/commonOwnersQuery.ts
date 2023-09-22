@@ -25,6 +25,7 @@ owner {
   identity
   addresses
   socials {
+    dappName
     dappSlug
     profileName
   }

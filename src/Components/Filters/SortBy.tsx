@@ -6,26 +6,31 @@ import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
 
-export const enum SortOrderType {
-  DESC = 'DESC',
-  ASC = 'ASC'
-}
+export type SortOrderType = 'DESC' | 'ASC';
 
-export const sortOptions = [
+export const defaultSortOrder: SortOrderType = 'DESC';
+
+type SortOption = {
+  label: string;
+  value: SortOrderType;
+};
+
+export const sortOptions: SortOption[] = [
   {
     label: 'Newest transfer first',
-    value: SortOrderType.DESC
+    value: 'DESC'
   },
   {
     label: 'Oldest transfer first',
-    value: SortOrderType.ASC
+    value: 'ASC'
   }
 ];
 
-export const defaultSortOrder = SortOrderType.DESC;
-
 export function SortBy({ disabled }: { disabled?: boolean }) {
-  const [{ sortOrder, activeSnapshotInfo }, setData] = useSearchInput();
+  const [searchInputs, setData] = useSearchInput();
+
+  const activeSnapshotInfo = searchInputs.activeSnapshotInfo;
+  const sortOrder = searchInputs.sortOrder as SortOrderType;
 
   const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
@@ -59,9 +64,7 @@ export function SortBy({ disabled }: { disabled?: boolean }) {
   );
 
   const selected = useMemo(() => {
-    return sortOrder === SortOrderType.ASC
-      ? [sortOptions[1]]
-      : [sortOptions[0]];
+    return sortOrder === 'ASC' ? [sortOptions[1]] : [sortOptions[0]];
   }, [sortOrder]);
 
   return (
@@ -71,11 +74,11 @@ export function SortBy({ disabled }: { disabled?: boolean }) {
       selected={selected}
       onChange={handleChange}
       options={sortOptions}
-      renderPlaceholder={(selected, isOpen, isDisabled) => (
+      renderPlaceholder={(selected, isOpen) => (
         <FilterPlaceholder
           icon="sort"
           isOpen={isOpen}
-          isDisabled={isDisabled}
+          isDisabled={isFilterDisabled}
           label={selected[0].label}
         />
       )}

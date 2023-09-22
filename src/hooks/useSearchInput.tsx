@@ -20,6 +20,7 @@ export type CachedQuery = {
   sortOrder: string;
   activeTokenInfo: string;
   activeSnapshotInfo: string;
+  activeSocialInfo: string;
 };
 
 export type UserInputs = CachedQuery;
@@ -29,9 +30,14 @@ export const userInputCache = {
   tokenHolder: {} as UserInputs
 };
 
-type UpdateUserInputs = (
+export type UpdateUserInputs = (
   data: Partial<UserInputs>,
-  config?: { reset?: boolean; updateQueryParams?: boolean; redirectTo?: string }
+  config?: {
+    reset?: boolean;
+    updateQueryParams?: boolean;
+    redirectTo?: string;
+    replace?: boolean;
+  }
 ) => void;
 
 const arrayTypes = ['address', 'blockchainType', 'tokenFilters'];
@@ -59,8 +65,9 @@ export function useSearchInput(
     (data: Partial<CachedQuery>, config) => {
       let inputs = data;
       const shouldReplaceFilters =
-        data?.tokenFilters &&
-        userInputCache.tokenHolder?.tokenFilters?.length > 0;
+        config?.replace ||
+        (data?.tokenFilters &&
+          userInputCache.tokenHolder?.tokenFilters?.length > 0);
 
       if (isTokenBalances) {
         inputs = {
@@ -112,6 +119,7 @@ export function useSearchInput(
     ): T extends true ? string[] : string => {
       const { tokenBalance, tokenHolder } = userInputCache;
       const valueString = searchParams.get(key) || '';
+
       const savedValue =
         (isTokenBalances ? tokenBalance[key] : tokenHolder[key]) ||
         (isArray ? [] : '');
@@ -151,11 +159,12 @@ export function useSearchInput(
       activeViewToken: isTokenBalances ? '' : getData('activeViewToken'),
       activeViewCount: isTokenBalances ? '' : getData('activeViewCount'),
       blockchainType: getData('blockchainType', true),
-      sortOrder: getData('sortOrder')
+      sortOrder: getData('sortOrder'),
+      activeSocialInfo: searchParams.get('activeSocialInfo') || ''
     };
 
     setData(data);
 
     return [data, setData, setSearchParams];
-  }, [isTokenBalances, searchParams, getData, setData, setSearchParams]);
+  }, [getData, isTokenBalances, setData, searchParams, setSearchParams]);
 }

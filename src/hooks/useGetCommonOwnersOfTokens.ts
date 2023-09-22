@@ -200,18 +200,18 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     setTokens([]);
     ownersSetRef.current = new Set();
 
-    const _limit = fetchSingleToken ? MIN_LIMIT : LIMIT;
+    const limit = fetchSingleToken ? MIN_LIMIT : LIMIT;
 
     if (snapshotInfo.isApplicable) {
       fetch({
-        limit: _limit,
+        limit: limit,
         blockNumber: snapshotInfo.blockNumber,
         date: snapshotInfo.date,
         timestamp: snapshotInfo.timestamp
       });
     } else {
       fetch({
-        limit: _limit
+        limit: limit
       });
     }
 

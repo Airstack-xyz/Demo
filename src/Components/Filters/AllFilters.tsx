@@ -55,10 +55,13 @@ const filterInputClass =
 const currentDate = new Date();
 
 export function AllFilters() {
-  const [
-    { address, blockchainType, tokenType, sortOrder, activeSnapshotInfo },
-    setData
-  ] = useSearchInput();
+  const [searchInputs, setData] = useSearchInput();
+
+  const address = searchInputs.address;
+  const tokenType = searchInputs.tokenType;
+  const activeSnapshotInfo = searchInputs.activeSnapshotInfo;
+  const blockchainType = searchInputs.blockchainType as BlockchainFilterType[];
+  const sortOrder = searchInputs.sortOrder as SortOrderType;
 
   const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
@@ -67,19 +70,14 @@ export function AllFilters() {
 
   const appliedBlockchainFilter = useMemo(() => {
     const filterValue = blockchainType[0];
-    if (
-      filterValue === BlockchainFilterType.ETHEREUM ||
-      filterValue === BlockchainFilterType.POLYGON
-    ) {
+    if (filterValue === 'ethereum' || filterValue === 'polygon') {
       return filterValue;
     }
     return defaultBlockchainFilter;
   }, [blockchainType]);
 
   const appliedSortOrder = useMemo(() => {
-    return sortOrder === SortOrderType.ASC
-      ? SortOrderType.ASC
-      : defaultSortOrder;
+    return sortOrder === 'ASC' ? 'ASC' : defaultSortOrder;
   }, [sortOrder]);
 
   const [currentSnapshotFilter, setCurrentSnapshotFilter] = useState(
@@ -199,7 +197,7 @@ export function AllFilters() {
   );
 
   const handleCustomDateOptionClick = useCallback(() => {
-    setCurrentSnapshotFilter(SnapshotFilterType.CUSTOM_DATE);
+    setCurrentSnapshotFilter('customDate');
     setIsDatePickerVisible(true);
   }, []);
 
@@ -232,13 +230,13 @@ export function AllFilters() {
 
     // For snapshot filter
     switch (currentSnapshotFilter) {
-      case SnapshotFilterType.BLOCK_NUMBER:
+      case 'blockNumber':
         snapshotValues.blockNumber = blockNumber;
         break;
-      case SnapshotFilterType.CUSTOM_DATE:
+      case 'customDate':
         snapshotValues.date = (date as Date).toISOString().split('T')[0];
         break;
-      case SnapshotFilterType.TIMESTAMP:
+      case 'timestamp':
         snapshotValues.timestamp = timestamp;
         break;
     }
@@ -288,17 +286,17 @@ export function AllFilters() {
         <FilterOption
           label="Today"
           isDisabled={isDisabled}
-          isSelected={currentSnapshotFilter === SnapshotFilterType.TODAY}
-          onClick={handleSnapshotFilterOptionClick(SnapshotFilterType.TODAY)}
+          isSelected={currentSnapshotFilter === 'today'}
+          onClick={handleSnapshotFilterOptionClick('today')}
         />
         <FilterOption
           label="Custom date"
           isDisabled={isDisabled}
-          isSelected={currentSnapshotFilter === SnapshotFilterType.CUSTOM_DATE}
+          isSelected={currentSnapshotFilter === 'customDate'}
           onClick={handleCustomDateOptionClick}
         />
         <div className="relative">
-          {currentSnapshotFilter === SnapshotFilterType.CUSTOM_DATE && (
+          {currentSnapshotFilter === 'customDate' && (
             <div
               className="ml-10 mr-4 mb-2 cursor-pointer"
               onClick={handleDatePickerShow}
@@ -319,12 +317,10 @@ export function AllFilters() {
         <FilterOption
           label="Block number"
           isDisabled={isDisabled}
-          isSelected={currentSnapshotFilter === SnapshotFilterType.BLOCK_NUMBER}
-          onClick={handleSnapshotFilterOptionClick(
-            SnapshotFilterType.BLOCK_NUMBER
-          )}
+          isSelected={currentSnapshotFilter === 'blockNumber'}
+          onClick={handleSnapshotFilterOptionClick('blockNumber')}
         />
-        {currentSnapshotFilter === SnapshotFilterType.BLOCK_NUMBER && (
+        {currentSnapshotFilter === 'blockNumber' && (
           <input
             autoFocus
             type="text"
@@ -338,12 +334,10 @@ export function AllFilters() {
         <FilterOption
           label="Timestamp"
           isDisabled={isDisabled}
-          isSelected={currentSnapshotFilter === SnapshotFilterType.TIMESTAMP}
-          onClick={handleSnapshotFilterOptionClick(
-            SnapshotFilterType.TIMESTAMP
-          )}
+          isSelected={currentSnapshotFilter === 'timestamp'}
+          onClick={handleSnapshotFilterOptionClick('timestamp')}
         />
-        {currentSnapshotFilter === SnapshotFilterType.TIMESTAMP && (
+        {currentSnapshotFilter === 'timestamp' && (
           <input
             autoFocus
             type="text"

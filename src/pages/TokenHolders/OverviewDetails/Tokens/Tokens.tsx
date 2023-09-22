@@ -8,7 +8,6 @@ import {
   useState
 } from 'react';
 import { useSearchInput } from '../../../../hooks/useSearchInput';
-import { Modal } from '../../../../Components/Modal';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { Header } from './Header';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -16,7 +15,7 @@ import { Poap, Token as TokenType, TokensData } from '../../types';
 import { filterTokens, getRequestFilters } from './filters';
 import { Token } from './Token';
 import classNames from 'classnames';
-import { StatusLoader } from './StatusLoader';
+import { StatusLoader } from '../../../../Components/StatusLoader';
 import { useLoaderContext } from '../../../../hooks/useLoader';
 import { getFilterablePoapsQuery } from '../../../../queries/overviewDetailsPoap';
 import {
@@ -33,14 +32,23 @@ import { useOverviewTokens } from '../../../../store/tokenHoldersOverview';
 import { getPoapList, getTokenList } from './utils';
 import { sortAddressByPoapFirst } from '../../../../utils/sortAddressByPoapFirst';
 import { getActiveSnapshotInfo } from '../../../../utils/activeSnapshotInfoString';
+import { AddressesModal } from '../../../../Components/AddressesModal';
+import { createTokenBalancesUrl } from '../../../../utils/createTokenUrl';
+import { useNavigate } from 'react-router-dom';
 
-const LIMIT = 200;
+const MAX_LIMIT = 200;
 const MIN_LIMIT = 20;
 
 const loaderData = Array(6).fill({});
 
 type TableRowProps = ComponentProps<'tr'> & {
   isLoader?: boolean;
+};
+
+type ModalData = {
+  isOpen: boolean;
+  dataType?: string;
+  addresses: string[];
 };
 
 function TableRow({ isLoader, children, ...props }: TableRowProps) {
@@ -104,11 +112,18 @@ export function TokensComponent() {
       activeSnapshotInfo
     }
   ] = useSearchInput();
-  const [showStatusLoader, setShowStatusLoader] = useState(false);
-  const [loaderStats, setLoaderStats] = useState({
-    total: LIMIT,
+  const [modalData, setModalData] = useState<ModalData>({
+    isOpen: false,
+    dataType: '',
+    addresses: []
+  });
+  const [loaderData, setLoaderData] = useState({
+    isVisible: false,
+    total: MAX_LIMIT,
     matching: 0
   });
+
+  const navigate = useNavigate();
 
   const requestFilters = useMemo(() => {
     return getRequestFilters(filters);
@@ -127,8 +142,8 @@ export function TokensComponent() {
   }, [hasPoap, tokenAddress, overviewTokens]);
 
   const tokensQuery = useMemo(() => {
-    const _hasSocialFilters = Boolean(requestFilters?.socialFilters);
-    const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
+    const hasSocialFilters = Boolean(requestFilters?.socialFilters);
+    const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
     if (address.length === 1) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQueryWithFilters({
@@ -136,14 +151,14 @@ export function TokensComponent() {
           blockNumber: snapshotInfo.blockNumber,
           date: snapshotInfo.date,
           timestamp: snapshotInfo.timestamp,
-          hasSocialFilters: _hasSocialFilters,
-          hasPrimaryDomain: _hasPrimaryDomain
+          hasSocialFilters: hasSocialFilters,
+          hasPrimaryDomain: hasPrimaryDomain
         });
       }
       return getNftOwnersQueryWithFilters(
         address[0].address,
-        _hasSocialFilters,
-        _hasPrimaryDomain
+        hasSocialFilters,
+        hasPrimaryDomain
       );
     }
     if (hasSomePoap) {
@@ -151,8 +166,8 @@ export function TokensComponent() {
       return getCommonPoapAndNftOwnersQueryWithFilters(
         tokens[0],
         tokens[1],
-        _hasSocialFilters,
-        _hasPrimaryDomain
+        hasSocialFilters,
+        hasPrimaryDomain
       );
     }
     if (snapshotInfo.isApplicable) {
@@ -162,15 +177,15 @@ export function TokensComponent() {
         blockNumber: snapshotInfo.blockNumber,
         date: snapshotInfo.date,
         timestamp: snapshotInfo.timestamp,
-        hasSocialFilters: _hasSocialFilters,
-        hasPrimaryDomain: _hasPrimaryDomain
+        hasSocialFilters: hasSocialFilters,
+        hasPrimaryDomain: hasPrimaryDomain
       });
     }
     return getCommonNftOwnersQueryWithFilters(
       address[0],
       address[1],
-      _hasSocialFilters,
-      _hasPrimaryDomain
+      hasSocialFilters,
+      hasPrimaryDomain
     );
   }, [
     requestFilters?.socialFilters,
@@ -184,13 +199,9 @@ export function TokensComponent() {
   ]);
 
   const poapsQuery = useMemo(() => {
-    const _hasSocialFilters = Boolean(requestFilters?.socialFilters);
-    const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
-    return getFilterablePoapsQuery(
-      address,
-      _hasSocialFilters,
-      _hasPrimaryDomain
-    );
+    const hasSocialFilters = Boolean(requestFilters?.socialFilters);
+    const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
+    return getFilterablePoapsQuery(address, hasSocialFilters, hasPrimaryDomain);
   }, [
     address,
     requestFilters?.hasPrimaryDomain,
@@ -207,8 +218,7 @@ export function TokensComponent() {
         ? getPoapList(tokensData, hasMultipleTokens)
         : getTokenList(tokensData, hasMultipleTokens, hasSomePoap);
 
-      let filteredTokens = filterTokens(filters, tokens);
-      filteredTokens = filteredTokens.filter(token => {
+      const filteredTokens = filterTokens(filters, tokens).filter(token => {
         const address = token?.owner?.identity;
         if (!address) return false;
         if (ownersSetRef.current.has(address)) return false;
@@ -216,12 +226,14 @@ export function TokensComponent() {
         return true;
       });
 
-      setLoaderStats(({ total, matching }) => ({
-        total: total + (size || 0),
-        matching: matching + filteredTokens.length
-      }));
       tokensRef.current = [...tokensRef.current, ...filteredTokens];
-      setTokens(existingTokens => [...existingTokens, ...filteredTokens]);
+
+      setLoaderData(prev => ({
+        ...prev,
+        total: prev.total + (size || 0),
+        matching: prev.matching + filteredTokens.length
+      }));
+      setTokens(prev => [...prev, ...filteredTokens]);
     },
     [filters, hasMultipleTokens, hasPoap, hasSomePoap]
   );
@@ -252,17 +264,6 @@ export function TokensComponent() {
   // and fetch next data call will not be made
   let tokensData = data || poapsData || null;
 
-  const [showModal, setShowModal] = useState(false);
-  const [modalValues, setModalValues] = useState<{
-    leftValues: string[];
-    rightValues: string[];
-    dataType: string;
-  }>({
-    leftValues: [],
-    rightValues: [],
-    dataType: ''
-  });
-
   useEffect(() => {
     if (shouldFetchTokens) {
       // eslint-disable-next-line
@@ -270,15 +271,15 @@ export function TokensComponent() {
       tokensRef.current = [];
       ownersSetRef.current = new Set();
       setTokens([]);
-      setShowStatusLoader(true);
-      setLoaderStats({
-        total: LIMIT,
+      setLoaderData({
+        isVisible: true,
+        total: MAX_LIMIT,
         matching: 0
       });
 
       if (hasPoap) {
         fetchPoap({
-          limit: LIMIT,
+          limit: MAX_LIMIT,
           ...requestFilters
         });
         return;
@@ -286,7 +287,7 @@ export function TokensComponent() {
 
       if (snapshotInfo.isApplicable) {
         fetchTokens({
-          limit: LIMIT,
+          limit: MAX_LIMIT,
           blockNumber: snapshotInfo.blockNumber,
           date: snapshotInfo.date,
           timestamp: snapshotInfo.timestamp,
@@ -294,7 +295,7 @@ export function TokensComponent() {
         });
       } else {
         fetchTokens({
-          limit: LIMIT,
+          limit: MAX_LIMIT,
           ...requestFilters
         });
       }
@@ -329,28 +330,40 @@ export function TokensComponent() {
     if (tokensRef.current.length < MIN_LIMIT && hasNextPage) {
       getNextPage();
     } else {
-      setShowStatusLoader(false);
       tokensRef.current = [];
+      setLoaderData(prev => ({ ...prev, isVisible: false }));
     }
   }, [tokensData, loading, hasNextPage, getNextPage]);
 
-  const handleShowMore = useCallback((values: string[], dataType: string) => {
-    const leftValues: string[] = [];
-    const rightValues: string[] = [];
-    values.forEach((value, index) => {
-      if (index % 2 === 0) {
-        leftValues.push(value);
-      } else {
-        rightValues.push(value);
-      }
+  const handleShowMoreClick = useCallback((values: string[], type?: string) => {
+    setModalData({
+      isOpen: true,
+      dataType: type || 'ens',
+      addresses: values
     });
-    setModalValues({
-      leftValues,
-      rightValues,
-      dataType
-    });
-    setShowModal(true);
   }, []);
+
+  const handleModalClose = () => {
+    setModalData({
+      isOpen: false,
+      dataType: '',
+      addresses: []
+    });
+  };
+
+  const handleAddressClick = useCallback(
+    (address: string, type = '') => {
+      const isFarcaster = type?.includes('farcaster');
+      navigate(
+        createTokenBalancesUrl({
+          address: isFarcaster ? `fc_fname:${address}` : address,
+          blockchain: 'ethereum',
+          inputType: 'ADDRESS'
+        })
+      );
+    },
+    [navigate]
+  );
 
   const handleNext = useCallback(() => {
     if (!loading && hasNextPage && getNextPage) {
@@ -365,8 +378,8 @@ export function TokensComponent() {
           <Loader />
         </div>
         <StatusLoader
-          total={loaderStats.total}
-          matching={loaderStats.matching}
+          total={loaderData.total}
+          matching={loaderData.matching}
           tokenName={activeViewToken || ''}
         />
       </>
@@ -387,7 +400,11 @@ export function TokensComponent() {
             <tbody>
               {tokens.map((token, index) => (
                 <TableRow key={index}>
-                  <Token token={token} onShowMore={handleShowMore} />
+                  <Token
+                    token={token}
+                    onShowMoreClick={handleShowMoreClick}
+                    onAddressClick={handleAddressClick}
+                  />
                 </TableRow>
               ))}
             </tbody>
@@ -399,40 +416,18 @@ export function TokensComponent() {
           )}
           {loading && <Loader />}
         </InfiniteScroll>
-        <Modal
-          heading={`All ${modalValues.dataType} names of ${address.join(', ')}`}
-          isOpen={showModal}
-          onRequestClose={() => {
-            setShowModal(false);
-            setModalValues({
-              leftValues: [],
-              rightValues: [],
-              dataType: ''
-            });
-          }}
-        >
-          <div className="w-[600px] max-h-[60vh] h-auto bg-primary rounded-xl p-5 overflow-auto flex">
-            <div className="flex-1">
-              {modalValues.leftValues.map((value, index) => (
-                <div className="mb-8" key={index}>
-                  {value}
-                </div>
-              ))}
-            </div>
-            <div className="border-l border-solid border-stroke-color flex-1 pl-5">
-              {modalValues.rightValues.map((value, index) => (
-                <div className="mb-8" key={index}>
-                  {value}
-                </div>
-              ))}
-            </div>
-          </div>
-        </Modal>
       </div>
-      {(loading || showStatusLoader) && (
+      <AddressesModal
+        heading={`All ${modalData.dataType} names of ${address.join(', ')}`}
+        isOpen={modalData.isOpen}
+        addresses={modalData.addresses}
+        onRequestClose={handleModalClose}
+        onAddressClick={handleAddressClick}
+      />
+      {(loading || loaderData.isVisible) && (
         <StatusLoader
-          total={loaderStats.total}
-          matching={loaderStats.matching}
+          total={loaderData.total}
+          matching={loaderData.matching}
           tokenName={activeViewToken || ''}
         />
       )}

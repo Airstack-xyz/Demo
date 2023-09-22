@@ -172,3 +172,59 @@ export const erc20TokenDetailsQuery = `query ERC20Details($tokenAddress: Address
     }
   } 
 }`;
+
+export const accountHolderQuery = `query AccountHolderAddress($address: Identity, $blockchain: TokenBlockchain!) {
+  Accounts(input: {filter: {address: {_eq: $address}}, blockchain: $blockchain}) {
+    Account {
+      nft {
+        address
+        tokenId
+        tokenBalances {
+          owner {
+            identity
+            accounts {
+              nft {
+                address
+                tokenId
+                tokenBalances {
+                  owner {
+                    identity
+                    accounts {
+                      nft {
+                        address
+                        tokenId
+                        tokenBalances {
+                          owner {
+                            identity
+                            accounts {
+                              nft {
+                                address
+                                tokenId
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}`;
+
+export const tokenHoldersQuery = `query TokenHolders($tokenAddress: Address, $tokenId: String, $blockchain: TokenBlockchain!, $limit: Int) {
+  TokenBalances(
+    input: {filter: {tokenAddress: {_eq: $tokenAddress}, tokenId: {_eq: $tokenId}}, blockchain: $blockchain, limit: $limit}
+  ) {
+    TokenBalance {
+      owner {
+        identity
+      }
+    }
+  }
+}`;

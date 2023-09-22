@@ -9,23 +9,23 @@ export function getActiveSnapshotInfoString({
   date?: string;
   timestamp?: string | number;
 }) {
-  return `${blockNumber || ''} ${date || ''} ${timestamp || ''}`;
+  return `${blockNumber || ''}│${date || ''}│${timestamp || ''}`;
 }
 
 export function getActiveSnapshotInfo(activeTokenInfo?: string) {
-  const [blockNumber, date, timestamp] = activeTokenInfo?.split(' ') ?? [];
+  const [blockNumber, date, timestamp] = activeTokenInfo?.split('│') ?? [];
 
-  let appliedFilter = SnapshotFilterType.TODAY;
+  let appliedFilter: SnapshotFilterType = 'today';
   if (blockNumber) {
-    appliedFilter = SnapshotFilterType.BLOCK_NUMBER;
+    appliedFilter = 'blockNumber';
   } else if (date) {
-    appliedFilter = SnapshotFilterType.CUSTOM_DATE;
+    appliedFilter = 'customDate';
   } else if (timestamp) {
-    appliedFilter = SnapshotFilterType.TIMESTAMP;
+    appliedFilter = 'timestamp';
   }
 
   return {
-    isApplicable: appliedFilter !== SnapshotFilterType.TODAY,
+    isApplicable: appliedFilter !== 'today',
     appliedFilter,
     blockNumber: blockNumber ? Number(blockNumber) : undefined,
     date: date || undefined,

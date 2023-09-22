@@ -1,9 +1,9 @@
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { UserInputs } from './useSearchInput';
+import { defaultSortOrder } from '../Components/Filters/SortBy';
 import { CommonPoapType, PoapType } from '../pages/TokenBalances/types';
 import { poapsOfCommonOwnersQuery } from '../queries/poapsOfCommonOwnersQuery';
-import { useLazyQueryWithPagination } from '@airstack/airstack-react';
-import { defaultSortOrder } from '../Components/Filters/SortBy';
+import { UserInputs } from './useSearchInput';
 
 const LIMIT = 20;
 const LIMIT_COMBINATIONS = 100;

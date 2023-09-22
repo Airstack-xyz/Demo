@@ -96,9 +96,15 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
     domains {
       name
     }
-    socials {
+    socials(input: {limit: 200}) {
+      isDefault
       dappName
+      dappSlug
+      blockchain
       profileName
+      profileTokenId
+      followerCount
+      followingCount
     }
     xmtp {
       isXMTPEnabled
@@ -210,6 +216,7 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
         addresses
         socials {
           blockchain
+          dappName
           dappSlug
           profileName
         }
@@ -265,6 +272,7 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
         addresses
         socials {
           blockchain
+          dappName
           dappSlug
           profileName
         }
@@ -325,6 +333,7 @@ export const PoapOwnerQuery = `query GetPoapHolders($eventId: [String!], $limit:
         addresses
         socials {
           blockchain
+          dappName
           dappSlug
           profileName
         }

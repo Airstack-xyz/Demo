@@ -1,8 +1,8 @@
 import classNames from 'classnames';
-import { useSearchInput } from '../../hooks/useSearchInput';
-import { tokenTypes } from './constants';
 import { memo, useCallback, useMemo } from 'react';
+import { useSearchInput } from '../../hooks/useSearchInput';
 import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
+import { tokenTypes, tokenTypesForFilter } from './constants';
 
 const buttonClass =
   'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light';
@@ -33,18 +33,15 @@ export const Filters = memo(function Filters() {
   );
 
   const filters = useMemo(() => {
-    let _filters = null;
     if (snapshotInfo.isApplicable) {
-      _filters = tokenTypes.filter(type => type !== 'ERC20' && type !== 'POAP');
-    } else {
-      _filters = tokenTypes.filter(type => type !== 'ERC20');
+      return ['All', ...tokenTypes];
     }
-    return ['All', ..._filters];
+    return ['All', ...tokenTypesForFilter];
   }, [snapshotInfo.isApplicable]);
 
   return (
-    <div className="flex justify-between items-center">
-      <div>
+    <div className="flex items-center scroll-shadow-r">
+      <div className="flex overflow-auto pr-[50px] no-scrollbar">
         {filters.map(tokenType => {
           return (
             <button

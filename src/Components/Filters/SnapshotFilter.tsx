@@ -13,14 +13,13 @@ import {
   getActiveSnapshotInfo
 } from '../../utils/activeSnapshotInfoString';
 
-export const enum SnapshotFilterType {
-  TODAY = 'TODAY',
-  CUSTOM_DATE = 'CUSTOM_DATE',
-  BLOCK_NUMBER = 'BLOCK_NUMBER',
-  TIMESTAMP = 'TIMESTAMP'
-}
+export type SnapshotFilterType =
+  | 'today'
+  | 'customDate'
+  | 'blockNumber'
+  | 'timestamp';
 
-export const defaultSnapshotFilter = SnapshotFilterType.TODAY;
+export const defaultSnapshotFilter: SnapshotFilterType = 'today';
 
 type FunctionParams = {
   appliedFilter: SnapshotFilterType;
@@ -37,13 +36,13 @@ export const getSnackbarMessage = ({
 }: FunctionParams) => {
   let message = '';
   switch (appliedFilter) {
-    case SnapshotFilterType.BLOCK_NUMBER:
+    case 'blockNumber':
       message = `Viewing balances as of block no. ${blockNumber}`;
       break;
-    case SnapshotFilterType.CUSTOM_DATE:
+    case 'customDate':
       message = `Viewing holders as of ${formatDate(date)}`;
       break;
-    case SnapshotFilterType.TIMESTAMP:
+    case 'timestamp':
       message = `Viewing balances as of timestamp ${timestamp}`;
       break;
   }
@@ -59,15 +58,15 @@ const getLabelAndIcon = ({
   let label = 'Today';
   let icon: IconType = 'calendar';
   switch (appliedFilter) {
-    case SnapshotFilterType.BLOCK_NUMBER:
+    case 'blockNumber':
       label = String(blockNumber);
       icon = 'block';
       break;
-    case SnapshotFilterType.CUSTOM_DATE:
+    case 'customDate':
       label = formatDate(date);
       icon = 'calendar';
       break;
-    case SnapshotFilterType.TIMESTAMP:
+    case 'timestamp':
       label = String(timestamp);
       icon = 'clock';
       break;
@@ -112,7 +111,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
     [activeSnapshotInfo]
   );
 
-  const [currentFilter, setCurrentFilter] = useState(
+  const [currentFilter, setCurrentFilter] = useState<SnapshotFilterType>(
     snapshotInfo.appliedFilter
   );
 
@@ -205,7 +204,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   );
 
   const handleCustomDateOptionClick = useCallback(() => {
-    setCurrentFilter(SnapshotFilterType.CUSTOM_DATE);
+    setCurrentFilter('customDate');
     setIsDatePickerVisible(true);
   }, []);
 
@@ -237,13 +236,13 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
     const snapshotValues: Record<string, unknown> = {};
 
     switch (currentFilter) {
-      case SnapshotFilterType.BLOCK_NUMBER:
+      case 'blockNumber':
         snapshotValues.blockNumber = blockNumber;
         break;
-      case SnapshotFilterType.CUSTOM_DATE:
+      case 'customDate':
         snapshotValues.date = (date as Date).toISOString().split('T')[0];
         break;
-      case SnapshotFilterType.TIMESTAMP:
+      case 'timestamp':
         snapshotValues.timestamp = timestamp;
         break;
     }
@@ -305,16 +304,16 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
             </div>
             <FilterOption
               label="Today"
-              isSelected={currentFilter === SnapshotFilterType.TODAY}
-              onClick={handleFilterOptionClick(SnapshotFilterType.TODAY)}
+              isSelected={currentFilter === 'today'}
+              onClick={handleFilterOptionClick('today')}
             />
             <FilterOption
               label="Custom date"
-              isSelected={currentFilter === SnapshotFilterType.CUSTOM_DATE}
+              isSelected={currentFilter === 'customDate'}
               onClick={handleCustomDateOptionClick}
             />
             <div className="relative">
-              {currentFilter === SnapshotFilterType.CUSTOM_DATE && (
+              {currentFilter === 'customDate' && (
                 <div
                   className="ml-10 mr-4 mb-2 cursor-pointer"
                   onClick={handleDatePickerShow}
@@ -337,10 +336,10 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
             </div>
             <FilterOption
               label="Block number"
-              isSelected={currentFilter === SnapshotFilterType.BLOCK_NUMBER}
-              onClick={handleFilterOptionClick(SnapshotFilterType.BLOCK_NUMBER)}
+              isSelected={currentFilter === 'blockNumber'}
+              onClick={handleFilterOptionClick('blockNumber')}
             />
-            {currentFilter === SnapshotFilterType.BLOCK_NUMBER && (
+            {currentFilter === 'blockNumber' && (
               <input
                 autoFocus
                 type="text"
@@ -353,10 +352,10 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
             )}
             <FilterOption
               label="Timestamp"
-              isSelected={currentFilter === SnapshotFilterType.TIMESTAMP}
-              onClick={handleFilterOptionClick(SnapshotFilterType.TIMESTAMP)}
+              isSelected={currentFilter === 'timestamp'}
+              onClick={handleFilterOptionClick('timestamp')}
             />
-            {currentFilter === SnapshotFilterType.TIMESTAMP && (
+            {currentFilter === 'timestamp' && (
               <input
                 autoFocus
                 type="text"

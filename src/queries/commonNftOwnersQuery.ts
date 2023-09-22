@@ -66,6 +66,7 @@ export function getCommonNftOwnersQuery(
               addresses
               socials {
                 blockchain
+                dappName
                 dappSlug
                 profileName
               }
@@ -146,6 +147,7 @@ export function getCommonNftOwnersQuery(
               addresses
               socials {
                 blockchain
+                dappName
                 dappSlug
                 profileName
               }
@@ -204,6 +206,7 @@ export function getNftOwnersQuery(token: string) {
           addresses
           socials {
             blockchain
+            dappName
             dappSlug
             profileName
           }
@@ -255,6 +258,7 @@ export function getNftOwnersQuery(token: string) {
           addresses
           socials {
             blockchain
+            dappName
             dappSlug
             profileName
           }

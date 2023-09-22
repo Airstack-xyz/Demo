@@ -1,25 +1,33 @@
 import { Chain } from '@airstack/airstack-react/constants';
-import { useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Icon } from '../../../Components/Icon';
-import { Asset } from '../../../Components/Asset';
-import { getDAppType } from '../utils';
-import { Poap, Token as TokenType } from '../types';
-import { ListWithMoreOptions } from './ListWithMoreOptions';
-import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
-import { WalletAddress } from './WalletAddress';
 import classNames from 'classnames';
-import { useSearchInput } from '../../../hooks/useSearchInput';
-import { getActiveTokenInfoString } from '../../../utils/activeTokenInfoString';
+import { useCallback, useMemo } from 'react';
+import { Asset } from '../../../Components/Asset';
+import { Icon } from '../../../Components/Icon';
+import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
+import { WalletAddress } from '../../../Components/WalletAddress';
+import { Poap, Token as TokenType } from '../types';
+
+export type AssetType = {
+  image: string;
+  tokenId: string;
+  tokenAddress: string;
+  blockchain: Chain;
+  eventId: string | null;
+  has6551?: boolean;
+};
 
 export function Token({
   token: tokenInProps,
   isCombination,
-  onShowMore
+  onShowMoreClick,
+  onAddressClick,
+  onAssetClick
 }: {
   token: TokenType | Poap | null;
-  onShowMore?: (value: string[], dataType: string) => void;
   isCombination: boolean;
+  onShowMoreClick?: (values: string[], dataType?: string) => void;
+  onAddressClick?: (address: string, type?: string) => void;
+  onAssetClick?: (asset: AssetType) => void;
 }) {
   const owner = tokenInProps?.owner;
   const walletAddresses = owner?.addresses || '';
@@ -40,14 +48,7 @@ export function Token({
     poap?.poapEvent?.logo?.image?.small;
 
   const assets = useMemo(() => {
-    const assetData: {
-      image: string;
-      tokenId: string;
-      tokenAddress: string;
-      blockchain: Chain;
-      eventId: string | null;
-      has6551?: boolean;
-    }[] = [
+    const assetData: AssetType[] = [
       {
         image,
         tokenId,
@@ -94,60 +95,21 @@ export function Token({
   ]);
 
   const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
-  const navigate = useNavigate();
-  const setSearchData = useSearchInput()[1];
 
-  const { lens, farcaster } = useMemo(() => {
-    const social = owner?.socials || [];
-    const result = { lens: [], farcaster: [] };
-    social.forEach(({ dappSlug, profileName }) => {
-      const type = getDAppType(dappSlug);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const list = result[type];
-      if (list) {
-        list.push(profileName);
-      }
-    });
-    return result;
-  }, [owner?.socials]);
+  const lensAddresses =
+    owner?.socials
+      ?.filter(item => item.dappName === 'lens')
+      .map(item => item.profileName) || [];
+  const farcasterAddresses =
+    owner?.socials
+      ?.filter(item => item.dappName === 'farcaster')
+      .map(item => item.profileName) || [];
 
   const getShowMoreHandler = useCallback(
     (items: string[], type: string) => () => {
-      onShowMore?.(items, type);
+      onShowMoreClick?.(items, type);
     },
-    [onShowMore]
-  );
-
-  const handleAddressClick = useCallback(
-    (address: string, type = '') => {
-      const isFarcaster = type?.includes('farcaster');
-      navigate(
-        createTokenBalancesUrl({
-          address: isFarcaster ? `fc_fname:${address}` : address,
-          blockchain: 'ethereum',
-          inputType: 'ADDRESS'
-        })
-      );
-    },
-    [navigate]
-  );
-
-  const handleAssetClick = useCallback(
-    (token: (typeof assets)[0]) => {
-      setSearchData(
-        {
-          activeTokenInfo: getActiveTokenInfoString(
-            token?.tokenAddress,
-            token?.tokenId,
-            token?.blockchain,
-            token?.eventId
-          )
-        },
-        { updateQueryParams: true }
-      );
-    },
-    [setSearchData]
+    [onShowMoreClick]
   );
 
   return (
@@ -165,7 +127,7 @@ export function Token({
                 <div
                   className="relative token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden flex-col-center cursor-pointer"
                   onClick={() => {
-                    handleAssetClick(assets[index]);
+                    onAssetClick?.(assets[index]);
                   }}
                 >
                   <Asset
@@ -219,7 +181,7 @@ export function Token({
         </div>
       </td>
       <td className="ellipsis">
-        <WalletAddress address={walletAddress} onClick={handleAddressClick} />
+        <WalletAddress address={walletAddress} onClick={onAddressClick} />
       </td>
       {!isCombination && (
         <td className="ellipsis">
@@ -231,36 +193,35 @@ export function Token({
         </td>
       )}
       <td className="ellipsis">
-        {}
         <ListWithMoreOptions
           list={[primaryEns || '']}
-          onShowMore={getShowMoreHandler(ens, 'ens')}
           listFor="ens"
-          onItemClick={handleAddressClick}
+          onShowMore={getShowMoreHandler(ens, 'ens')}
+          onItemClick={onAddressClick}
         />
       </td>
       <td>
         <ListWithMoreOptions
           list={ens}
-          onShowMore={getShowMoreHandler(ens, 'ens')}
           listFor="ens"
-          onItemClick={handleAddressClick}
+          onShowMore={getShowMoreHandler(ens, 'ens')}
+          onItemClick={onAddressClick}
         />
       </td>
       <td>
         <ListWithMoreOptions
-          list={lens}
-          onShowMore={getShowMoreHandler(lens, 'lens')}
+          list={lensAddresses}
           listFor="lens"
-          onItemClick={handleAddressClick}
+          onShowMore={getShowMoreHandler(lensAddresses, 'lens')}
+          onItemClick={onAddressClick}
         />
       </td>
       <td>
         <ListWithMoreOptions
-          list={farcaster}
-          onShowMore={getShowMoreHandler(farcaster, 'farcaster')}
+          list={farcasterAddresses}
           listFor="farcaster"
-          onItemClick={handleAddressClick}
+          onShowMore={getShowMoreHandler(farcasterAddresses, 'farcaster')}
+          onItemClick={onAddressClick}
         />
       </td>
       <td>

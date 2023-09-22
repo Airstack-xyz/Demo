@@ -56,6 +56,7 @@ function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
 }
 
 const padding = '  ';
+
 export const Search = memo(function Search() {
   const [isTokenBalanceActive, setIsTokenBalanceActive] = useState(true);
   const isHome = useMatch('/');
@@ -270,6 +271,8 @@ export const Search = memo(function Search() {
   const handleSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
+      setIsInputSectionFocused(false);
+
       const trimmedValue = value.trim();
 
       if (searchParams.get('rawInput') === trimmedValue) {
@@ -318,7 +321,7 @@ export const Search = memo(function Search() {
   const showPrefixIcon = isHome && (!isInputSectionFocused || !value);
 
   return (
-    <div className="w-[105%] sm:w-full z-10">
+    <div className="z-10">
       <div className="my-6 flex-col-center">
         <div className="bg-glass bg-secondary border flex p-1 rounded-full">
           {isHome && (
@@ -363,7 +366,6 @@ export const Search = memo(function Search() {
                 : tokenHoldersPlaceholder
             }
             disableSuggestions={isTokenBalances}
-            blurOnEnter={isTokenBalances}
           />
           <div ref={buttonSectionRef} className="flex justify-end pl-3">
             {isInputSectionFocused && value && (

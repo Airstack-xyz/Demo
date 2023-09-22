@@ -54,6 +54,11 @@ import {
 } from '../../queries/commonNftOwnersSnapshotQueryWithFilters';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
+import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { tokenTypes } from '../TokenBalances/constants';
+import { accountOwnerQuery } from '../../queries/accountsQuery';
+import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
+import { defaultSortOrder } from '../../Components/Filters/SortBy';
 
 export function TokenHolders() {
   const [
@@ -66,7 +71,11 @@ export function TokenHolders() {
     },
     setData
   ] = useSearchInput();
-  const [{ hasERC6551, owner }] = useTokenDetails(['hasERC6551', 'owner']);
+  const [{ hasERC6551, owner, accountAddress }] = useTokenDetails([
+    'hasERC6551',
+    'owner',
+    'accountAddress'
+  ]);
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
   const [showTokensOrOverview, setShowTokensOrOverview] = useState(true);
 
@@ -147,8 +156,8 @@ export function TokenHolders() {
 
   const tokensQueryWithFilter = useMemo(() => {
     const requestFilters = getRequestFilters(tokenFilters);
-    const _hasSocialFilters = Boolean(requestFilters?.socialFilters);
-    const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
+    const hasSocialFilters = Boolean(requestFilters?.socialFilters);
+    const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
     if (address.length === 0) return '';
     if (address.length === 1) {
       if (snapshotInfo.isApplicable) {
@@ -157,14 +166,14 @@ export function TokenHolders() {
           blockNumber: snapshotInfo.blockNumber,
           date: snapshotInfo.date,
           timestamp: snapshotInfo.timestamp,
-          hasSocialFilters: _hasSocialFilters,
-          hasPrimaryDomain: _hasPrimaryDomain
+          hasSocialFilters,
+          hasPrimaryDomain
         });
       }
       return getNftOwnersQueryWithFilters(
         address[0].address,
-        _hasSocialFilters,
-        _hasPrimaryDomain
+        hasSocialFilters,
+        hasPrimaryDomain
       );
     }
     if (hasSomePoap) {
@@ -172,8 +181,8 @@ export function TokenHolders() {
       return getCommonPoapAndNftOwnersQueryWithFilters(
         tokens[0],
         tokens[1],
-        _hasSocialFilters,
-        _hasPrimaryDomain
+        hasSocialFilters,
+        hasPrimaryDomain
       );
     }
     if (snapshotInfo.isApplicable) {
@@ -183,15 +192,15 @@ export function TokenHolders() {
         blockNumber: snapshotInfo.blockNumber,
         date: snapshotInfo.date,
         timestamp: snapshotInfo.timestamp,
-        hasSocialFilters: _hasSocialFilters,
-        hasPrimaryDomain: _hasPrimaryDomain
+        hasSocialFilters,
+        hasPrimaryDomain
       });
     }
     return getCommonNftOwnersQueryWithFilters(
       address[0],
       address[1],
-      _hasSocialFilters,
-      _hasPrimaryDomain
+      hasSocialFilters,
+      hasPrimaryDomain
     );
   }, [
     tokenFilters,
@@ -204,8 +213,8 @@ export function TokenHolders() {
   ]);
 
   const token = useMemo(() => {
-    const [tokenAddress, tokenId, blockchain, eventId] =
-      activeTokenInfo.split(' ');
+    const { tokenAddress, tokenId, blockchain, eventId } =
+      getActiveTokenInfo(activeTokenInfo);
     return {
       tokenAddress,
       tokenId,
@@ -219,14 +228,14 @@ export function TokenHolders() {
 
     if (activeView) {
       const requestFilters = getRequestFilters(tokenFilters);
-      const _hasSocialFilters = Boolean(requestFilters?.socialFilters);
-      const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
+      const hasSocialFilters = Boolean(requestFilters?.socialFilters);
+      const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
       let combinationsQueryLink = '';
       if (hasPoap) {
         const combinationsQuery = getFilterablePoapsQuery(
           address,
-          _hasSocialFilters,
-          _hasPrimaryDomain
+          hasSocialFilters,
+          hasPrimaryDomain
         );
         combinationsQueryLink = createAppUrlWithQuery(combinationsQuery, {
           limit: 200,
@@ -322,6 +331,15 @@ export function TokenHolders() {
         label: 'Socials, Domains & XMTP',
         link: socialLink
       });
+
+      const accountHolderLink = createAppUrlWithQuery(accountOwnerQuery, {
+        accountAddress: tokenAddress[0]
+      });
+
+      options.push({
+        label: 'Account Holder',
+        link: accountHolderLink
+      });
     }
 
     if (activeTokenInfo) {
@@ -371,15 +389,39 @@ export function TokenHolders() {
           label: 'ERC6551 Accounts',
           link: erc6551AccountsQueryLink
         });
+
+        const tokensQuery = createNftWithCommonOwnersQuery(
+          [accountAddress],
+          null
+        );
+
+        const nftLink = createAppUrlWithQuery(tokensQuery, {
+          limit: 10,
+          sortBy: defaultSortOrder,
+          tokenType: tokenTypes
+        });
+
+        options.push({
+          label: 'Token Balances (NFT)',
+          link: nftLink
+        });
       }
     }
 
     return options;
   }, [
-    address,
-    activeView,
+    accountAddress,
     activeTokenInfo,
+    activeView,
+    address,
     hasERC6551,
+    owner,
+    query,
+    token.blockchain,
+    token.eventId,
+    token.tokenAddress,
+    token.tokenId,
+    tokenAddress,
     tokenFilters,
     hasPoap,
     tokenOwnersQuery,
@@ -387,13 +429,7 @@ export function TokenHolders() {
     snapshotInfo.isApplicable,
     snapshotInfo.blockNumber,
     snapshotInfo.date,
-    snapshotInfo.timestamp,
-    query,
-    owner,
-    token.tokenAddress,
-    token.blockchain,
-    token.tokenId,
-    token.eventId
+    snapshotInfo.timestamp
   ]);
 
   const hasMultipleERC20 = useMemo(() => {

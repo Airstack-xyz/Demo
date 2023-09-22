@@ -28,7 +28,7 @@ export function useGetTokensOfOwner(
 ) {
   const {
     address: owners,
-    tokenType: tokenType = '',
+    tokenType = '',
     blockchainType,
     sortOrder,
     activeSnapshotInfo,
@@ -48,18 +48,18 @@ export function useGetTokensOfOwner(
     const fetchAllBlockchains =
       blockchainType.length === 2 || blockchainType.length === 0;
 
-    const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
+    const blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
     if (snapshotInfo.isApplicable) {
       return createNftWithCommonOwnersSnapshotQuery({
         owners,
-        blockchain: _blockchain,
+        blockchain: blockchain,
         blockNumber: snapshotInfo.blockNumber,
         date: snapshotInfo.date,
         timestamp: snapshotInfo.timestamp
       });
     }
-    return createNftWithCommonOwnersQuery(owners, _blockchain);
+    return createNftWithCommonOwnersQuery(owners, blockchain);
   }, [
     blockchainType,
     owners,
@@ -68,6 +68,9 @@ export function useGetTokensOfOwner(
     snapshotInfo.date,
     snapshotInfo.timestamp
   ]);
+
+  const isPoap = tokenType === 'POAP';
+  const is6551 = tokenType === 'ERC6551';
 
   const [
     fetchTokens,
@@ -87,30 +90,29 @@ export function useGetTokensOfOwner(
       visitedTokensSetRef.current = new Set();
       tokensRef.current = [];
 
-      const _limit = owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT;
-      const _tokenType =
-        tokenType && tokenType.length > 0
+      const limit = owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT;
+      const tokenFilters =
+        tokenType && tokenType.length > 0 && !is6551
           ? [tokenType]
           : tokenTypes.filter(
-              tokenType =>
-                tokenType !== 'POAP' &&
-                (includeERC20 ? true : tokenType !== 'ERC20')
+              tokenType => includeERC20 || tokenType !== 'ERC20'
             );
+      const sortBy = sortOrder ? sortOrder : defaultSortOrder;
 
       // For snapshots different variables are being passed
       if (snapshotInfo.isApplicable) {
         fetchTokens({
-          limit: _limit,
-          tokenType: _tokenType,
+          limit,
+          tokenType: tokenFilters,
           blockNumber: snapshotInfo.blockNumber,
           date: snapshotInfo.date,
           timestamp: snapshotInfo.timestamp
         });
       } else {
         fetchTokens({
-          limit: _limit,
-          tokenType: _tokenType,
-          sortBy: sortOrder ? sortOrder : defaultSortOrder
+          limit,
+          tokenType: tokenFilters,
+          sortBy
         });
       }
     }
@@ -119,8 +121,9 @@ export function useGetTokensOfOwner(
   }, [
     fetchTokens,
     includeERC20,
-    owners.length,
-    blockchainType,
+    is6551,
+    isPoap,
+    owners,
     sortOrder,
     tokenType,
     snapshotInfo.isApplicable,
@@ -157,7 +160,20 @@ export function useGetTokensOfOwner(
           return token;
         }, []);
     }
-    const tokens = [...ethTokens, ...maticTokens];
+    let tokens = [...ethTokens, ...maticTokens];
+
+    if (is6551) {
+      tokens = tokens.filter((token: CommonTokenType) => {
+        const commonTokens = token?._common_tokens || [];
+        return (
+          token?.tokenNfts?.erc6551Accounts?.length > 0 ||
+          commonTokens?.find(
+            _token => _token?.tokenNfts?.erc6551Accounts?.length > 0
+          )
+        );
+      });
+    }
+
     tokensRef.current = [...tokensRef.current, ...tokens];
     onDataReceived(tokens);
 
@@ -168,7 +184,7 @@ export function useGetTokensOfOwner(
     }
     setLoading(false);
     tokensRef.current = [];
-  }, [getNextPage, hasNextPage, onDataReceived, tokensData]);
+  }, [getNextPage, hasNextPage, is6551, onDataReceived, tokensData]);
 
   const getNext = useCallback(() => {
     if (!hasNextPage) return;

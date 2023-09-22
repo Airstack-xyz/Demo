@@ -1,4 +1,5 @@
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useState } from 'react';
+import { useOutsideClick } from '../hooks/useOutsideClick';
 
 export type Option = {
   label: string;
@@ -35,21 +36,9 @@ export function Dropdown({
   heading?: string;
 }) {
   const [_selected, setSelected] = useState<Option[]>([]);
-  const ref = useRef<HTMLDivElement>(null);
   const [show, setShow] = useState(false);
 
-  useEffect(() => {
-    // eslint-disable-next-line
-    const handleClickOutside = (event: any) => {
-      if (ref.current && !ref.current.contains(event.target)) {
-        setShow(false);
-      }
-    };
-    document.addEventListener('click', handleClickOutside, true);
-    return () => {
-      document.removeEventListener('click', handleClickOutside, true);
-    };
-  }, []);
+  const containerRef = useOutsideClick<HTMLDivElement>(() => setShow(false));
 
   const handleSelection = useCallback(
     (newSelection: Option[]) => {
@@ -69,7 +58,7 @@ export function Dropdown({
   return (
     <div
       className="text-xs font-medium relative inline-flex flex-col items-center"
-      ref={ref}
+      ref={containerRef}
     >
       <div onClick={() => setShow(show => (disabled ? false : !show))}>
         {renderPlaceholder(actualSelected, show, disabled)}

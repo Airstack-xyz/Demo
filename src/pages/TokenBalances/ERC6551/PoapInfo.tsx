@@ -4,7 +4,7 @@ import { formatDate } from '../../../utils';
 
 export function PoapInfo({
   poap,
-  transferDetails: transferDetails
+  transferDetails
 }: {
   poap: Poap;
   transferDetails: TokenTransfer;
