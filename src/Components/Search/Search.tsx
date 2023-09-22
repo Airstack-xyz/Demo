@@ -363,7 +363,6 @@ export const Search = memo(function Search() {
                 : tokenHoldersPlaceholder
             }
             disableSuggestions={isTokenBalances}
-            blurOnEnter={isTokenBalances}
           />
           <div ref={buttonSectionRef} className="flex justify-end pl-3">
             {isInputSectionFocused && value && (

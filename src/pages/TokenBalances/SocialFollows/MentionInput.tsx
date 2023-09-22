@@ -18,7 +18,6 @@ type MentionInputProps = {
   placeholder: string;
   className?: string;
   disableSuggestions?: boolean;
-  blurOnEnter?: boolean;
   onSubmit: (params: MentionOutput) => void;
   validationFn?: (params: MentionOutput) => boolean;
   onClear?: () => void;
@@ -31,7 +30,6 @@ export function MentionInput({
   placeholder,
   className,
   disableSuggestions,
-  blurOnEnter,
   validationFn,
   onSubmit,
   onClear
@@ -121,7 +119,6 @@ export function MentionInput({
           onSubmit={handleInputSubmit}
           placeholder={placeholder}
           disableSuggestions={disableSuggestions}
-          blurOnEnter={blurOnEnter}
         />
         <div ref={buttonSectionRef} className="flex justify-end pl-2">
           {isInputSectionFocused && value && (
