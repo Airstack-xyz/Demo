@@ -11,7 +11,6 @@ import classNames from 'classnames';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
 import { SocialQuery } from '../../queries';
-import { tokenTypes } from './constants';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { SortBy, defaultSortOrder } from '../../Components/Filters/SortBy';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
@@ -201,6 +200,16 @@ function TokenBalancePage() {
     const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
     const _sortBy = sortOrder ? sortOrder : defaultSortOrder;
 
+    let _tokenType = ['ERC721', 'ERC1155'];
+
+    if (tokenType) {
+      if (tokenType === 'ERC6551') {
+        _tokenType = ['ERC721'];
+      } else {
+        _tokenType = [tokenType];
+      }
+    }
+
     const options = [];
 
     if (
@@ -229,7 +238,7 @@ function TokenBalancePage() {
     nftLink = createAppUrlWithQuery(tokensQuery, {
       limit: 10,
       sortBy: _sortBy,
-      tokenType: tokenType ? [tokenType] : tokenTypes
+      tokenType: _tokenType
     });
 
     erc20Link = createAppUrlWithQuery(tokensQuery, {
