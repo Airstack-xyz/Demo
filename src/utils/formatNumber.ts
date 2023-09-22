@@ -2,8 +2,8 @@ export function formatNumber(number: number): string {
   if (number === 0) return '0';
 
   if (number < 1) {
-    const fixedNumner = number.toFixed(3);
-    return fixedNumner === '0.000' ? '0.001' : fixedNumner;
+    const fixedNumber = number.toFixed(3);
+    return fixedNumber === '0.000' ? '0.001' : fixedNumber;
   }
 
   number = Math.trunc(number);

@@ -7,6 +7,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState
 } from 'react';
 import { Link, useMatch, useNavigate, useSearchParams } from 'react-router-dom';
@@ -19,14 +20,14 @@ import {
 } from '../../hooks/useSearchInput';
 import { showToast } from '../../utils/showToast';
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
-import { addAndRemoveCombinationPlacholder } from './utils';
+import { addAndRemoveCombinationPlaceholder } from './utils';
 
 const tokenHoldersPlaceholder =
   'Use @ mention or enter any token contract address';
 const tokenBalancesPlaceholder =
   'Enter 0x, name.eth, fc_fname:name, or name.lens';
 
-const activeClasss =
+const activeClass =
   'bg-glass !border-stroke-color font-bold !text-text-primary';
 const tabClassName =
   'px-2.5 h-[30px] rounded-full mr-5 flex-row-center text-xs text-text-secondary border border-solid border-transparent';
@@ -37,7 +38,7 @@ function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
       <Link
         to="/token-balances"
         className={classNames(tabClassName, {
-          [activeClasss]: isTokenBalances
+          [activeClass]: isTokenBalances
         })}
       >
         <Icon name="token-balances" className="w-4 mr-1" /> Token balances
@@ -45,7 +46,7 @@ function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
       <Link
         to="/token-holders"
         className={classNames(tabClassName, {
-          [activeClasss]: !isTokenBalances
+          [activeClass]: !isTokenBalances
         })}
       >
         <Icon name="token-holders" className="w-4 mr-1" /> Token holders
@@ -69,6 +70,10 @@ export const Search = memo(function Search() {
 
   const [value, setValue] = useState(rawInput || '');
 
+  const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
+  const inputSectionRef = useRef<HTMLDivElement>(null);
+  const buttonSectionRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setValue(rawInput ? rawInput.trim() + padding : '');
   }, [rawInput]);
@@ -88,6 +93,29 @@ export const Search = memo(function Search() {
       });
     }
   }, [isTokenBalances, setOverviewTokens]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      // if click event is outside input section
+      if (
+        inputSectionRef.current &&
+        !inputSectionRef.current?.contains(event.target as Node)
+      ) {
+        setIsInputSectionFocused(false);
+      }
+      // if click event is from input section not from button section
+      else if (
+        buttonSectionRef.current &&
+        !buttonSectionRef.current?.contains(event.target as Node)
+      ) {
+        setIsInputSectionFocused(true);
+      }
+    }
+    document.addEventListener('click', handleClickOutside, true);
+    return () => {
+      document.removeEventListener('click', handleClickOutside, true);
+    };
+  }, []);
 
   const handleDataChange = useCallback(
     (data: Partial<CachedQuery>) => {
@@ -135,7 +163,7 @@ export const Search = memo(function Search() {
 
       if (address.length === 0) {
         showToast(
-          'Couldn’t find any valid wallet address or ens/lens/farcaster name',
+          "Couldn't find any valid wallet address or ens/lens/farcaster name",
           'negative'
         );
         handleDataChange({});
@@ -147,14 +175,14 @@ export const Search = memo(function Search() {
         return;
       }
 
-      const rawTextWithMenions = rawInput.join(padding);
+      const rawTextWithMentions = rawInput.join(padding);
       const searchData = {
         address,
         blockchain: 'ethereum',
-        rawInput: rawTextWithMenions,
+        rawInput: rawTextWithMentions,
         inputType: 'ADDRESS' as UserInputs['inputType']
       };
-      setValue(rawTextWithMenions.trim() + padding);
+      setValue(rawTextWithMentions.trim() + padding);
       handleDataChange(searchData);
     },
     [handleDataChange]
@@ -204,7 +232,7 @@ export const Search = memo(function Search() {
       });
 
       if (address.length === 0) {
-        showToast('Couldn’t find any contract', 'negative');
+        showToast("Couldn't find any contract", 'negative');
         return;
       }
 
@@ -213,14 +241,14 @@ export const Search = memo(function Search() {
         return;
       }
 
-      const rawTextWithMenions = rawInput.join(padding);
+      const rawTextWithMentions = rawInput.join(padding);
       const searchData = {
         address,
         blockchain,
-        rawInput: rawTextWithMenions,
+        rawInput: rawTextWithMentions,
         inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType']
       };
-      setValue(rawTextWithMenions + padding);
+      setValue(rawTextWithMentions + padding);
       handleDataChange(searchData);
     },
     [handleDataChange]
@@ -233,7 +261,7 @@ export const Search = memo(function Search() {
   }, [rawInput, value]);
 
   useEffect(() => {
-    return addAndRemoveCombinationPlacholder(
+    return addAndRemoveCombinationPlaceholder(
       shouldShowCombinationPlaceholder,
       isTokenBalances
     );
@@ -242,18 +270,20 @@ export const Search = memo(function Search() {
   const handleSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
-      const trimedValue = value.trim();
+      setIsInputSectionFocused(false);
 
-      if (searchParams.get('rawInput') === trimedValue) {
+      const trimmedValue = value.trim();
+
+      if (searchParams.get('rawInput') === trimmedValue) {
         window.location.reload(); // reload page if same search
         return;
       }
 
       if (isTokenBalances) {
-        return handleTokenBalancesSearch(trimedValue);
+        return handleTokenBalancesSearch(trimmedValue);
       }
 
-      handleTokenHoldersSearch(trimedValue);
+      handleTokenHoldersSearch(trimmedValue);
     },
     [
       handleTokenBalancesSearch,
@@ -263,6 +293,15 @@ export const Search = memo(function Search() {
       value
     ]
   );
+
+  const handleInputSubmit = useCallback((value: string) => {
+    setIsInputSectionFocused(false);
+    setValue(value);
+  }, []);
+
+  const handleInputClear = useCallback(() => {
+    setValue('');
+  }, []);
 
   const getTabChangeHandler = useCallback(
     (tokenBalance: boolean) => {
@@ -278,16 +317,18 @@ export const Search = memo(function Search() {
     [isHome, navigate]
   );
 
+  const showPrefixIcon = isHome && (!isInputSectionFocused || !value);
+
   return (
-    <div className="w-[105%] sm:w-full z-10">
+    <div className="z-10">
       <div className="my-6 flex-col-center">
-        <div className="bg-glass bg-secondry border flex p-1 rounded-full">
+        <div className="bg-glass bg-secondary border flex p-1 rounded-full">
           {isHome && (
             <>
               <button
                 onClick={() => getTabChangeHandler(true)}
                 className={classNames(tabClassName, {
-                  [activeClasss]: isTokenBalances
+                  [activeClass]: isTokenBalances
                 })}
               >
                 <Icon name="token-balances" className="w-4 mr-1" /> Token
@@ -296,7 +337,7 @@ export const Search = memo(function Search() {
               <button
                 onClick={() => getTabChangeHandler(false)}
                 className={classNames(tabClassName, {
-                  [activeClasss]: !isTokenBalances
+                  [activeClass]: !isTokenBalances
                 })}
               >
                 <Icon name="token-holders" className="w-4 mr-1" /> Token holders
@@ -307,11 +348,17 @@ export const Search = memo(function Search() {
         </div>
       </div>
       <form className="flex flex-row justify-center" onSubmit={handleSubmit}>
-        <div className="flex flex-col sm:flex-row items-center h-[50px]  w-[75vw] max-w-[645px] border-solid-stroke rounded-18 bg-glass px-5 py-3">
+        <div
+          ref={inputSectionRef}
+          className="flex items-center h-[50px] w-[calc(100vw-20px)] sm:w-[645px] border-solid-stroke rounded-18 bg-glass px-4 py-3"
+        >
+          {showPrefixIcon && (
+            <Icon name="search" width={15} height={15} className="mr-1.5" />
+          )}
           <InputWithMention
             value={value}
             onChange={setValue}
-            onSubmit={setValue}
+            onSubmit={handleInputSubmit}
             placeholder={
               isTokenBalances
                 ? tokenBalancesPlaceholder
@@ -319,13 +366,23 @@ export const Search = memo(function Search() {
             }
             disableSuggestions={isTokenBalances}
           />
+          <div ref={buttonSectionRef} className="flex justify-end pl-3">
+            {isInputSectionFocused && value && (
+              <button type="submit">
+                <Icon name="search" width={20} height={20} />
+              </button>
+            )}
+            {!isInputSectionFocused && value && (
+              <button
+                type="button"
+                className="text-right w-5"
+                onClick={handleInputClear}
+              >
+                <Icon name="close" width={14} height={14} />
+              </button>
+            )}
+          </div>
         </div>
-        <button
-          type="submit"
-          className="bg-button-primary rounded-18 ml-2 sm:ml-5 px-6 py-3 sm:py-3.5 font-bold self-center"
-        >
-          Go
-        </button>
       </form>
     </div>
   );

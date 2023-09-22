@@ -16,7 +16,7 @@ export function useAnimateInputPlaceholder(input: HTMLTextAreaElement | null) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const timeoutIdRef = useRef<any>(0);
 
-  const onPlaceholderAninationComplete = useCallback(() => {
+  const onPlaceholderAnimationComplete = useCallback(() => {
     timeoutIdRef.current = setTimeout(() => {
       setPlaceholderIndex((placeholderIndex + 1) % placeholders.length);
     }, placeholderChangeWaitTime);
@@ -25,7 +25,7 @@ export function useAnimateInputPlaceholder(input: HTMLTextAreaElement | null) {
   const { text, stop } = useTextTypingEffect({
     text: placeholders[placeholderIndex],
     interval: 80,
-    onComplete: onPlaceholderAninationComplete
+    onComplete: onPlaceholderAnimationComplete
   });
 
   const handleFocus = useCallback(() => {
@@ -37,10 +37,10 @@ export function useAnimateInputPlaceholder(input: HTMLTextAreaElement | null) {
     (event: FocusEvent) => {
       const target = event.target as HTMLTextAreaElement;
       if (target.value.trim() === '') {
-        onPlaceholderAninationComplete();
+        onPlaceholderAnimationComplete();
       }
     },
-    [onPlaceholderAninationComplete]
+    [onPlaceholderAnimationComplete]
   );
 
   useEffect(() => {

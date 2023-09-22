@@ -5,9 +5,9 @@ import { Icon } from '../../../Components/Icon';
 import { Asset } from '../../../Components/Asset';
 import { getDAppType } from '../utils';
 import { Poap, Token as TokenType } from '../types';
-import { ListWithMoreOptions } from './ListWithMoreOptions';
+import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
-import { WalletAddress } from './WalletAddress';
+import { WalletAddress } from '../../../Components/WalletAddress';
 import classNames from 'classnames';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
@@ -28,7 +28,7 @@ export function Token({
     : '';
   const tokenId = tokenInProps?.tokenId || '';
   const tokenAddress = tokenInProps?.tokenAddress || '';
-  const primarEns = owner?.primaryDomain?.name || '';
+  const primaryEns = owner?.primaryDomain?.name || '';
   const ens = owner?.domains?.map(domain => domain.name) || [];
   const token = tokenInProps as TokenType;
   const poap = tokenInProps as Poap;
@@ -228,7 +228,7 @@ export function Token({
       <td className="ellipsis">
         {}
         <ListWithMoreOptions
-          list={[primarEns || '']}
+          list={[primaryEns || '']}
           onShowMore={getShowMoreHandler(ens, 'ens')}
           listFor="ens"
           onItemClick={handleAddressClick}

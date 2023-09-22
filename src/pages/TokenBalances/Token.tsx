@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo } from 'react';
+import { Fragment, memo, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Icon } from '../../Components/Icon';
 import { formatDate } from '../../utils';
@@ -160,9 +160,8 @@ export const Token = memo(function Token({
           {type !== 'ERC20' && (
             <div className="ellipsis flex flex-1 mr-2">
               {ids.map((id, index) => (
-                <>
+                <Fragment key={id}>
                   <span
-                    key={id}
                     className={classNames('ellipsis', {
                       'max-w-[50%]': ids.length > 1
                     })}
@@ -171,7 +170,7 @@ export const Token = memo(function Token({
                     {id}
                   </span>
                   {index < ids.length - 1 && <span className="mr-1">,</span>}
-                </>
+                </Fragment>
               ))}
             </div>
           )}

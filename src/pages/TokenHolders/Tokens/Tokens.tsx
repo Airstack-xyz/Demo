@@ -8,7 +8,7 @@ import { AddressesModal } from '../../../Components/AddressesModal';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 import { useGetCommonOwnersOfTokens } from '../../../hooks/useGetCommonOwnersOfTokens';
 import { useGetCommonOwnersOfPoaps } from '../../../hooks/useGetCommonOwnersOfPoaps';
-import { StatusLoader } from '../OverviewDetails/Tokens/StatusLoader';
+import { StatusLoader } from '../../../Components/StatusLoader';
 import {
   TokenHolder,
   useOverviewTokens
@@ -39,6 +39,7 @@ function Loader() {
 export function TokensComponent() {
   const [{ tokens: _overviewTokens }] = useOverviewTokens(['tokens']);
   const [{ address, inputType }] = useSearchInput();
+
   const overviewTokens: TokenHolder[] = _overviewTokens;
 
   const shouldFetchPoaps = useMemo(
@@ -46,7 +47,7 @@ export function TokensComponent() {
     [address]
   );
 
-  const hasMulitpleERC20 = useMemo(() => {
+  const hasMultipleERC20 = useMemo(() => {
     const erc20Tokens = overviewTokens.filter(
       (token: TokenHolder) => token.tokenType === 'ERC20'
     );
@@ -77,23 +78,22 @@ export function TokensComponent() {
     ...paginationPoaps
   } = useGetCommonOwnersOfPoaps(tokenAddress);
 
-  const navigator = useNavigate();
+  const navigate = useNavigate();
 
-  const [showModal, setShowModal] = useState(false);
-  const [modalValues, setModalValues] = useState<{
-    leftValues: string[];
-    rightValues: string[];
+  const [modalData, setModalData] = useState<{
+    isOpen: boolean;
     dataType: string;
+    addresses: string[];
   }>({
-    leftValues: [],
-    rightValues: [],
-    dataType: ''
+    isOpen: false,
+    dataType: '',
+    addresses: []
   });
 
   const isPoap = inputType === 'POAP';
 
   useEffect(() => {
-    if (tokenAddress.length === 0 || hasMulitpleERC20) return;
+    if (tokenAddress.length === 0 || hasMultipleERC20) return;
 
     if (isPoap && shouldFetchPoaps) {
       fetchPoap();
@@ -107,39 +107,36 @@ export function TokensComponent() {
     isPoap,
     shouldFetchPoaps,
     tokenAddress.length,
-    hasMulitpleERC20
+    hasMultipleERC20
   ]);
 
-  const handleShowMore = useCallback((values: string[], dataType: string) => {
-    const leftValues: string[] = [];
-    const rightValues: string[] = [];
-    values.forEach((value, index) => {
-      if (index % 2 === 0) {
-        leftValues.push(value);
-      } else {
-        rightValues.push(value);
-      }
+  const handleShowMore = useCallback((values: string[], type: string) => {
+    setModalData({
+      isOpen: true,
+      dataType: type || 'ens',
+      addresses: values
     });
-    setModalValues({
-      leftValues,
-      rightValues,
-      dataType: dataType || 'ens'
-    });
-    setShowModal(true);
   }, []);
+
+  const handleModalClose = () => {
+    setModalData({
+      isOpen: false,
+      dataType: '',
+      addresses: []
+    });
+  };
 
   const handleAddressClick = useCallback(
     (address: string) => {
-      const isFarcaster = modalValues.dataType?.includes('farcaster');
-      navigator(
-        createTokenBalancesUrl({
-          address: isFarcaster ? `fc_fname:${address}` : address,
-          blockchain: 'ethereum',
-          inputType: 'ADDRESS'
-        })
-      );
+      const isFarcaster = modalData.dataType?.includes('farcaster');
+      const url = createTokenBalancesUrl({
+        address: isFarcaster ? `fc_fname:${address}` : address,
+        blockchain: 'ethereum',
+        inputType: 'ADDRESS'
+      });
+      navigate(url);
     },
-    [modalValues.dataType, navigator]
+    [modalData.dataType, navigate]
   );
 
   const { hasNextPage, getNextPage } = shouldFetchPoaps
@@ -160,7 +157,7 @@ export function TokensComponent() {
   const showStatusLoader = loading && isCombination;
 
   // ERC20 tokens have a large number of holders so we don't allow multiple ERC20 tokens to be searched at once
-  if (hasMulitpleERC20) return null;
+  if (hasMultipleERC20) return null;
 
   if (loading && (!tokens || tokens.length === 0)) {
     return (
@@ -212,17 +209,10 @@ export function TokensComponent() {
         {loading && <Loader />}
       </div>
       <AddressesModal
-        heading={`All ${modalValues.dataType} names of ${address}`}
-        isOpen={showModal}
-        onRequestClose={() => {
-          setShowModal(false);
-          setModalValues({
-            leftValues: [],
-            rightValues: [],
-            dataType: ''
-          });
-        }}
-        modalValues={modalValues}
+        heading={`All ${modalData.dataType} names of ${address}`}
+        isOpen={modalData.isOpen}
+        addresses={modalData.addresses}
+        onRequestClose={handleModalClose}
         onAddressClick={handleAddressClick}
       />
       {showStatusLoader && (

@@ -2,10 +2,10 @@ import { Poap, Token as TokenType } from '../../types';
 import { Icon } from '../../../../Components/Icon';
 import { useMemo, useCallback } from 'react';
 import { getDAppType } from '../../utils';
-import { ListWithMoreOptions } from '../../Tokens/ListWithMoreOptions';
+import { ListWithMoreOptions } from '../../../../Components/ListWithMoreOptions';
 import { useNavigate } from 'react-router-dom';
 import { createTokenBalancesUrl } from '../../../../utils/createTokenUrl';
-import { WalletAddress } from '../../Tokens/WalletAddress';
+import { WalletAddress } from '../../../../Components/WalletAddress';
 
 export function Token({
   token,

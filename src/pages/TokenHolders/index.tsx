@@ -6,7 +6,7 @@ import React, {
   useState
 } from 'react';
 import { Search } from '../../Components/Search';
-import { Layout } from '../../Components/layout';
+import { Layout } from '../../Components/Layout';
 import { Tokens } from './Tokens/Tokens';
 import { HoldersOverview } from './Overview/Overview';
 import { useSearchInput } from '../../hooks/useSearchInput';
@@ -34,7 +34,7 @@ import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../queries/commonP
 import { useMatch } from 'react-router-dom';
 import {
   useOverviewTokens,
-  TokenHolder as TokenAndHolder
+  TokenHolder
 } from '../../store/tokenHoldersOverview';
 import { sortByAddressByNonERC20First } from '../../utils/getNFTQueryForTokensHolder';
 import {
@@ -45,10 +45,10 @@ import {
 } from '../../queries/tokenDetails';
 import { useTokenDetails } from '../../store/tokenDetails';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
-import { defaultSortOrder } from '../TokenBalances/SortBy';
 import { tokenTypes } from '../TokenBalances/constants';
 import { accountOwnerQuery } from '../../queries/accountsQuery';
 import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
+import { defaultSortOrder } from '../../Components/Filters/SortBy';
 
 export function TokenHolders() {
   const [
@@ -72,9 +72,7 @@ export function TokenHolders() {
     setShowTokensOrOverview(true);
   }, [tokenAddress]);
 
-  const tokenListKey = useMemo(() => {
-    return tokenAddress.join(',');
-  }, [tokenAddress]);
+  const tokensKey = useMemo(() => tokenAddress.join(','), [tokenAddress]);
 
   useEffect(() => {
     // go to token-holders page if user input address has changed
@@ -92,51 +90,53 @@ export function TokenHolders() {
     addressRef.current = tokenAddress;
   }, [tokenAddress, setData]);
 
-  const isPoap = tokenAddress.every(token => !token.startsWith('0x'));
+  const hasSomePoap = tokenAddress.some(token => !token.startsWith('0x'));
+  const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
   const address = useMemo(() => {
-    return sortByAddressByNonERC20First(tokenAddress, overviewTokens, isPoap);
-  }, [isPoap, tokenAddress, overviewTokens]);
-
-  const hasSomePoap = address.some(token => !token.address.startsWith('0x'));
+    return sortByAddressByNonERC20First(tokenAddress, overviewTokens, hasPoap);
+  }, [hasPoap, tokenAddress, overviewTokens]);
 
   const tokenOwnersQuery = useMemo(() => {
     if (address.length === 0) return '';
-    if (address.length === 1) return getNftOwnersQuery(address[0].address);
+    if (address.length === 1) {
+      return getNftOwnersQuery(address[0].address);
+    }
     if (hasSomePoap) {
-      const sortedAddress = sortAddressByPoapFirst(address);
-      return getCommonPoapAndNftOwnersQuery(sortedAddress[0], sortedAddress[1]);
+      const tokens = sortAddressByPoapFirst(address);
+      return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
     }
     return getCommonNftOwnersQuery(address[0], address[1]);
   }, [address, hasSomePoap]);
 
   const tokensQueryWithFilter = useMemo(() => {
-    if (address.length === 0) return '';
-
     const requestFilters = getRequestFilters(tokenFilters);
+    const hasSocialFilters = Boolean(requestFilters?.socialFilters);
+    const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
+    if (address.length === 0) return '';
     if (address.length === 1) {
       return getNftOwnersQueryWithFilters(
         address[0].address,
-        Boolean(requestFilters?.socialFilters),
-        requestFilters?.hasPrimaryDomain
+        hasSocialFilters,
+        hasPrimaryDomain
       );
     }
     if (hasSomePoap) {
-      const sortedAddresses = sortAddressByPoapFirst(address);
+      const tokens = sortAddressByPoapFirst(address);
       return getCommonPoapAndNftOwnersQueryWithFilters(
-        sortedAddresses[0],
-        sortedAddresses[1],
-        Boolean(requestFilters?.socialFilters),
-        requestFilters?.hasPrimaryDomain
+        tokens[0],
+        tokens[1],
+        hasSocialFilters,
+        hasPrimaryDomain
       );
     }
     return getCommonNftOwnersQueryWithFilters(
       address[0],
       address[1],
-      Boolean(requestFilters?.socialFilters),
-      requestFilters?.hasPrimaryDomain
+      hasSocialFilters,
+      hasPrimaryDomain
     );
-  }, [address, hasSomePoap, tokenFilters]);
+  }, [tokenFilters, address, hasSomePoap]);
 
   const token = useMemo(() => {
     const { tokenAddress, tokenId, blockchain, eventId } =
@@ -154,12 +154,14 @@ export function TokenHolders() {
 
     if (activeView) {
       const requestFilters = getRequestFilters(tokenFilters);
+      const hasSocialFilters = Boolean(requestFilters?.socialFilters);
+      const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
       let combinationsQueryLink = '';
-      if (isPoap) {
+      if (hasPoap) {
         const combinationsQuery = getFilterablePoapsQuery(
           address,
-          Boolean(requestFilters?.socialFilters),
-          requestFilters?.hasPrimaryDomain
+          hasSocialFilters,
+          hasPrimaryDomain
         );
         combinationsQueryLink = createAppUrlWithQuery(combinationsQuery, {
           limit: 200,
@@ -179,44 +181,48 @@ export function TokenHolders() {
       ];
     }
 
-    const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
-      limit: 20
-    });
-
-    const poapsQuery = createCommonOwnersPOAPsQuery(address);
-
-    const poapLink = createAppUrlWithQuery(poapsQuery, {
-      limit: 20
-    });
-
-    const tokenSupplyLink = createAppUrlWithQuery(TokenTotalSupplyQuery, {
-      tokenAddress: query
-    });
-
-    const poapSupplyLink = createAppUrlWithQuery(POAPSupplyQuery, {
-      eventId: query
-    });
-
-    const options =
-      hasERC6551 || activeTokenInfo
-        ? []
-        : [
-            isPoap
-              ? {
-                  label: 'POAP holders',
-                  link: poapLink
-                }
-              : {
-                  label: 'Token holders',
-                  link: tokenLink
-                }
-          ];
+    const options = [];
 
     if (!activeTokenInfo && !hasERC6551) {
-      options.push({
-        label: isPoap ? 'POAP supply' : 'Token supply',
-        link: isPoap ? poapSupplyLink : tokenSupplyLink
-      });
+      if (hasPoap) {
+        const poapsQuery = createCommonOwnersPOAPsQuery(address);
+
+        const poapLink = createAppUrlWithQuery(poapsQuery, {
+          limit: 20
+        });
+
+        const poapSupplyLink = createAppUrlWithQuery(POAPSupplyQuery, {
+          eventId: query
+        });
+
+        options.push({
+          label: 'POAP holders',
+          link: poapLink
+        });
+
+        options.push({
+          label: 'POAP supply',
+          link: poapSupplyLink
+        });
+      } else {
+        const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
+          limit: 20
+        });
+
+        options.push({
+          label: 'Token holders',
+          link: tokenLink
+        });
+
+        const tokenSupplyLink = createAppUrlWithQuery(TokenTotalSupplyQuery, {
+          tokenAddress: query
+        });
+
+        options.push({
+          label: 'Token supply',
+          link: tokenSupplyLink
+        });
+      }
     }
 
     if (hasERC6551 && !activeTokenInfo) {
@@ -268,14 +274,17 @@ export function TokenHolders() {
         }
       );
 
-      options.push({
-        label: token?.eventId ? 'POAP Details' : 'Token Details',
-        link: token?.eventId
-          ? poapDetailsQueryLink
-          : token?.tokenId
-          ? tokenDetailsQueryLink
-          : erc20DetailsQueryLink
-      });
+      if (token?.eventId) {
+        options.push({
+          label: 'POAP Details',
+          link: poapDetailsQueryLink
+        });
+      } else {
+        options.push({
+          label: 'Token Details',
+          link: token?.tokenId ? tokenDetailsQueryLink : erc20DetailsQueryLink
+        });
+      }
 
       if (hasERC6551) {
         options.push({
@@ -308,7 +317,6 @@ export function TokenHolders() {
     activeView,
     address,
     hasERC6551,
-    isPoap,
     owner,
     query,
     token.blockchain,
@@ -317,13 +325,14 @@ export function TokenHolders() {
     token.tokenId,
     tokenAddress,
     tokenFilters,
+    hasPoap,
     tokenOwnersQuery,
     tokensQueryWithFilter
   ]);
 
-  const hasMulitpleERC20 = useMemo(() => {
+  const hasMultipleERC20 = useMemo(() => {
     const erc20Tokens = overviewTokens.filter(
-      (token: TokenAndHolder) => token.tokenType === 'ERC20'
+      (token: TokenHolder) => token.tokenType === 'ERC20'
     );
     return erc20Tokens.length > 1;
   }, [overviewTokens]);
@@ -335,7 +344,7 @@ export function TokenHolders() {
   const showInCenter = isHome;
 
   const showTokens =
-    showTokensOrOverview && !hasMulitpleERC20 && !activeTokenInfo;
+    showTokensOrOverview && !hasMultipleERC20 && !activeTokenInfo;
 
   return (
     <Layout>
@@ -356,9 +365,15 @@ export function TokenHolders() {
         </div>
         {query && query.length > 0 && (
           <>
-            {!hasMulitpleERC20 && (
-              <div className="hidden sm:flex-col-center my-3">
-                <GetAPIDropdown options={options} />
+            {!hasMultipleERC20 && (
+              <div className="m-3 flex-row-center">
+                <div className="flex justify-center w-[calc(100vw-20px)] sm:w-[645px]">
+                  <GetAPIDropdown
+                    options={options}
+                    disabled={overviewTokens.length === 0}
+                    dropdownAlignment="center"
+                  />
+                </div>
               </div>
             )}
             <div className="flex flex-col justify-center mt-7" key={query}>
@@ -367,7 +382,7 @@ export function TokenHolders() {
                 <>
                   {activeView && <OverviewDetails />}
                   {!activeView && (
-                    <div key={tokenListKey}>
+                    <div key={tokensKey}>
                       <div className="flex mb-4">
                         <Icon name="token-holders" height={20} width={20} />{' '}
                         <span className="font-bold ml-1.5 text-sm">

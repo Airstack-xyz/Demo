@@ -31,11 +31,18 @@ export type IconType =
   | 'sort'
   | 'blockchain-filter'
   | 'check-mark'
+  | 'search'
+  | 'tools'
+  | 'calendar'
+  | 'clock'
+  | 'block'
+  | 'eye'
   | 'holder-white'
   | 'stack'
   | 'token-holders-white'
   | 'folder'
-  | 'folder-gray';
+  | 'folder-gray'
+  | 'check-mark-circle';
 
 export type IconProps = {
   name: IconType;

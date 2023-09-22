@@ -154,7 +154,7 @@ export function TokenDetails(props: {
     });
 
   const [
-    fetchAccoutHolders,
+    fetchAccountHolders,
     { data: _accountHoldersData, loading: loadingAccountHolder }
   ] = useLazyQuery(
     accountHolderQuery,
@@ -217,19 +217,19 @@ export function TokenDetails(props: {
 
   // eslint-disable-next-line
   const nft: Nft = nftData?.nft || ({} as Nft);
-  const transfterDetails: TokenTransfer =
+  const transferDetails: TokenTransfer =
     nftData?.transferDetails || ({} as TokenTransfer);
 
   useEffect(() => {
     if (!nft?.tokenBalance) return;
     const ownerId = nft?.tokenBalance?.owner?.identity;
     if (ownerId) {
-      fetchAccoutHolders({
+      fetchAccountHolders({
         blockchain,
         address: ownerId
       });
     }
-  }, [blockchain, fetchAccoutHolders, nft]);
+  }, [blockchain, fetchAccountHolders, nft]);
 
   useEffect(() => {
     setDetails({
@@ -268,7 +268,7 @@ export function TokenDetails(props: {
     >
       <div className="flex items-center mb-7">
         {!hideBackBreadcrumb && (
-          <div className="flex items-center max-w-[60%] sm:w-auto overflow-hidden mr-1">
+          <div className="flex items-center sm:w-auto overflow-hidden mr-1">
             <div
               className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
               onClick={handleClose}
@@ -278,7 +278,7 @@ export function TokenDetails(props: {
                 height={20}
                 width={20}
               />{' '}
-              <span className="ml-1.5 text-text-secondary break-all cursor-pointer max-w-[90%] sm:max-w-[500px] ellipsis">
+              <span className="ml-1.5 text-text-secondary break-all cursor-pointer ellipsis">
                 Token {isTokenBalances ? 'balances' : 'holders'} of{' '}
                 {address.join(', ')}
               </span>
@@ -292,8 +292,7 @@ export function TokenDetails(props: {
           return (
             <div
               className={classNames('flex items-center overflow-hidden', {
-                'skeleton-loader': loading,
-                'flex-1': isActiveToken
+                'skeleton-loader': loading
               })}
             >
               <button
@@ -386,7 +385,7 @@ export function TokenDetails(props: {
             {isPoap && poap ? (
               <PoapInfo
                 poap={poap}
-                transfterDetails={poapData.transferDetails}
+                transferDetails={poapData.transferDetails}
               />
             ) : erc20Token ? (
               <TokenERC20Info token={erc20Token} />
@@ -396,7 +395,7 @@ export function TokenDetails(props: {
                 tokenId={tokenId}
                 blockchain={blockchain}
                 tokenAddress={tokenAddress}
-                transfterDetails={transfterDetails}
+                transferDetails={transferDetails}
                 loadingHolder={loadingAccountHolder}
                 holderData={!loadingAccountHolder ? accountHoldersData : null}
               />

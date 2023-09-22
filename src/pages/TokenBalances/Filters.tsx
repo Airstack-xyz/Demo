@@ -1,10 +1,10 @@
 import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { tokenTypesForFilter } from './constants';
-import { memo, useCallback } from 'react';
-import { BlockchainFilter } from './BlockchainFilter';
-import { SortBy } from './SortBy';
-import { isMobileDevice } from '../../utils/isMobileDevice';
+import { memo, useCallback, useMemo } from 'react';
+
+const buttonClass =
+  'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light';
 
 export const Filters = memo(function Filters() {
   const [{ tokenType: existingTokenType = '' }, setData] = useSearchInput();
@@ -20,22 +20,16 @@ export const Filters = memo(function Filters() {
       if (input.tokenType === 'All') {
         input.tokenType = '';
       }
-
       setData(input, { updateQueryParams: true });
     },
     [existingTokenType, setData]
   );
 
-  const filters = ['All', ...tokenTypesForFilter];
-
-  const buttonClass =
-    'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light';
-
-  const isMobile = isMobileDevice();
+  const filters = useMemo(() => ['All', ...tokenTypesForFilter], []);
 
   return (
-    <div className="flex justify-between items-center">
-      <div>
+    <div className="flex items-center scroll-shadow-r">
+      <div className="flex overflow-auto pr-[50px] no-scrollbar">
         {filters.map(tokenType => {
           return (
             <button
@@ -54,12 +48,6 @@ export const Filters = memo(function Filters() {
           );
         })}
       </div>
-      {!isMobile && (
-        <div>
-          <BlockchainFilter />
-          <SortBy />
-        </div>
-      )}
     </div>
   );
 });
