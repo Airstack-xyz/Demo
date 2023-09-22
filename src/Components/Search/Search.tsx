@@ -270,6 +270,8 @@ export const Search = memo(function Search() {
   const handleSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
+      setIsInputSectionFocused(false);
+
       const trimmedValue = value.trim();
 
       if (searchParams.get('rawInput') === trimmedValue) {
