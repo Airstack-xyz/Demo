@@ -10,7 +10,7 @@ const LazyImage = ({
   src?: string;
   alt?: string;
 } & ComponentProps<'img'>) => {
-  const [status, setStatus] = useState<LazyImageStatusType>('loading');
+  const [status, setStatus] = useState<LazyImageStatusType>('error');
   return (
     <>
       {status === 'error' && (
@@ -30,6 +30,7 @@ const LazyImage = ({
         src={src}
         alt={alt}
         style={status !== 'loaded' ? { display: 'none' } : undefined}
+        onLoadStart={() => setStatus('loading')}
         onLoad={() => setStatus('loaded')}
         onError={() => setStatus('error')}
       />
