@@ -32,9 +32,9 @@ export interface SearchAIMentions_SearchAIMentions {
 
 export const ID_REGEX = /#⎱.+?⎱\((.+?)\)\s*/g;
 export const NAME_REGEX = /#⎱(.+?)⎱\(.+?\)/g;
-export const REGEX_LAST_WORD_STARTS_WITH_AT = /\s@[^\s-]*$/g;
-export const REGEX_FIRST_WORD_IS_AT = /^@[^\s-]*/g;
-const REGEX_FIRST_WORD = /([^\s-]*)/;
+export const REGEX_LAST_WORD_STARTS_WITH_AT = /\s@[^\s]*$/g;
+export const REGEX_FIRST_WORD_IS_AT = /^@[^\s]*/g;
+const REGEX_FIRST_WORD = /([^\s]*)/;
 
 const tokenValuePrefixMap: Record<MentionType, string> = {
   [MentionType.NFT_COLLECTION]: 'NFT collection',

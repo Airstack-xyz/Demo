@@ -59,6 +59,7 @@ export function TableSection({
 
   const [tableItems, setTableItems] = useState<Follow[]>([]);
   const tableItemsRef = useRef<Follow[]>([]);
+  const tableIdsSetRef = useRef<Set<string>>(new Set());
 
   const [modalData, setModalData] = useState<ModalData>({
     isOpen: false,
@@ -100,8 +101,16 @@ export function TableSection({
       const filteredItems = filterTableItems({
         items,
         filters: _filters,
+        dappName: socialInfo.dappName,
         profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery
+      }).filter(item => {
+        const id = `${item.followerProfileId}-${item.followingProfileId}`;
+        if (tableIdsSetRef.current.has(id)) {
+          return false;
+        }
+        tableIdsSetRef.current.add(id);
+        return true;
       });
 
       tableItemsRef.current = [...tableItemsRef.current, ...filteredItems];
@@ -113,13 +122,13 @@ export function TableSection({
         matching: prev.matching + filteredItems.length
       }));
     },
-    [_filters, isFollowerQuery, socialInfo.profileTokenIds]
+    [_filters, isFollowerQuery, socialInfo.dappName, socialInfo.profileTokenIds]
   );
 
   const [fetchData, { loading, pagination }] = useLazyQueryWithPagination(
     query,
     {},
-    { onCompleted: handleData }
+    { onCompleted: handleData, cache: false }
   );
 
   const { hasNextPage, getNextPage } = pagination;
@@ -138,6 +147,9 @@ export function TableSection({
   }, [loading, hasNextPage, getNextPage]);
 
   useEffect(() => {
+    tableItemsRef.current = [];
+    tableIdsSetRef.current = new Set();
+    setTableItems([]);
     fetchData({
       identity: identities[0],
       dappName: socialInfo.dappName,
@@ -218,7 +230,7 @@ export function TableSection({
           <table className="social-follow-table">
             <thead>
               <tr>
-                <th>Profile image</th>
+                <th>{isLensDapp ? 'Token image' : 'Profile image'}</th>
                 <th>{isLensDapp ? 'Lens' : 'Farcaster'}</th>
                 <th>{isLensDapp ? 'Token ID' : 'FID'}</th>
                 <th>Primary ENS</th>

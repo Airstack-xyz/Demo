@@ -8,6 +8,7 @@ export type SocialsResponse = {
 
 export type Social = {
   id: string;
+  isDefault: boolean;
   blockchain: Chain;
   dappName: string;
   dappSlug: string;
@@ -20,8 +21,8 @@ export type Social = {
   followerCount: number;
   followingCount: number;
   userAddress: string;
-  userCreatedAtBlockTimestamp: string;
-  userCreatedAtBlockNumber: number;
+  profileCreatedAtBlockTimestamp: string;
+  profileCreatedAtBlockNumber: number;
 };
 
 export type SocialFollowResponse = {
@@ -49,6 +50,14 @@ export type Wallet = {
     Follower: Follow[];
   };
   socialFollowings: {
+    Following: Follow[];
+  };
+  alsoFollow: {
+    Follower: Follow[];
+    Following: Follow[];
+  };
+  mutualFollow: {
+    Follower: Follow[];
     Following: Follow[];
   };
   identity: string;

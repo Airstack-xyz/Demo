@@ -118,6 +118,7 @@ export function useSearchInput(
     ): T extends true ? string[] : string => {
       const { tokenBalance, tokenHolder } = userInputCache;
       const valueString = searchParams.get(key) || '';
+
       const savedValue =
         (isTokenBalances ? tokenBalance[key] : tokenHolder[key]) ||
         (isArray ? [] : '');

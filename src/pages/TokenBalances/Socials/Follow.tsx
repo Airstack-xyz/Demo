@@ -10,14 +10,18 @@ export type FollowParams = {
   followerTab?: boolean;
 };
 
-const maxItemCount = Infinity; // Not showing show more for v1 release
-const minItemCount = 2;
-
 type Section = {
-  profileNames: string[];
+  profileName: string;
   profileTokenId?: string;
   followerCount?: number;
   followingCount?: number;
+  hideFollowerCount?: boolean;
+  hideFollowingCount?: boolean;
+};
+
+export type FollowType = {
+  dappName: string;
+  sections: Section[];
 };
 
 type FollowSectionProps = {
@@ -30,27 +34,19 @@ type FollowSectionProps = {
 
 function FollowSection({
   dappName,
-  profileNames,
+  profileName,
   profileTokenId,
   followerCount,
   followingCount,
+  hideFollowerCount,
+  hideFollowingCount,
   image,
   isFirstSection,
-  onFollowClick,
-  onShowMoreClick
+  onFollowClick
 }: FollowSectionProps) {
-  const [showMax, setShowMax] = useState(false);
-
-  const items = useMemo(() => {
-    if (!showMax) {
-      return profileNames?.slice(0, minItemCount);
-    }
-    return profileNames?.slice(0, maxItemCount);
-  }, [showMax, profileNames]);
-
-  const getSocialClickHandler = (name: string, follow?: boolean) => () => {
+  const getSocialClickHandler = (follow?: boolean) => () => {
     onFollowClick?.({
-      profileName: name,
+      profileName,
       profileTokenId,
       dappName,
       followerCount,
@@ -59,12 +55,11 @@ function FollowSection({
     });
   };
 
-  const showFollowInfo =
-    followerCount != undefined || followingCount !== undefined;
-
   return (
     <>
-      <div className={classNames('flex', !isFirstSection && 'mt-2')}>
+      <div
+        className={classNames('flex items-center', !isFirstSection && 'mt-2')}
+      >
         <div className="flex flex-1 items-start">
           {isFirstSection && (
             <div className="flex items-center">
@@ -75,81 +70,53 @@ function FollowSection({
             </div>
           )}
         </div>
-        <ul className="text-text-secondary w-1/2 overflow-hidden flex flex-col justify-center">
-          {items?.map((value, index) => (
-            <li key={index} className="mb-2.5 last:mb-0 flex">
-              <div
-                className={classNames('px-3 py-1 rounded-18 ellipsis', {
-                  'hover:bg-glass cursor-pointer': typeof value !== 'object'
-                })}
-                onClick={getSocialClickHandler(value)}
-              >
-                {value}
-              </div>
-            </li>
-          ))}
-          {!showMax && profileNames?.length > minItemCount && (
-            <li
-              onClick={() => {
-                setShowMax(show => !show);
-              }}
-              className="text-text-button font-bold cursor-pointer px-3"
-            >
-              see more
-            </li>
-          )}
-          {showMax && profileNames.length > maxItemCount && (
-            <li
-              onClick={() => {
-                if (showMax && profileNames.length > maxItemCount) {
-                  onShowMoreClick?.(profileNames, dappName);
-                  return;
-                }
-              }}
-              className="text-text-button font-bold cursor-pointer px-3"
-            >
-              see all
-            </li>
-          )}
-        </ul>
+        <div className="text-text-secondary w-1/2">
+          <button
+            className="px-3 py-1 rounded-18 hover:bg-glass cursor-pointer ellipsis"
+            onClick={getSocialClickHandler()}
+          >
+            {profileName}
+          </button>
+        </div>
       </div>
-      {showFollowInfo && (
-        <>
-          <div className="flex mt-2 text-text-secondary">
-            <div className="flex-1 ml-[34px]">Followers</div>
-            <div className="w-1/2">
-              <button
-                className="px-3 py-1 rounded-18 hover:bg-glass text-left"
-                onClick={getSocialClickHandler(profileNames[0], true)}
-              >
-                {followerCount}
-              </button>
-            </div>
+      {followerCount != undefined && !hideFollowerCount && (
+        <div className="flex items-center mt-2 text-text-secondary">
+          <div className="flex-1 ml-[34px]">Followers</div>
+          <div className="w-1/2">
+            <button
+              className="px-3 py-1 rounded-18 hover:bg-glass text-left"
+              onClick={getSocialClickHandler(true)}
+            >
+              {followerCount}
+            </button>
           </div>
-          <div className="flex mt-2 text-text-secondary">
-            <div className="flex-1 ml-[34px]">Following</div>
-            <div className="w-1/2">
-              <button
-                className="px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
-                onClick={getSocialClickHandler(profileNames[0], false)}
-              >
-                {followingCount}
-              </button>
-            </div>
+        </div>
+      )}
+      {followingCount != undefined && !hideFollowingCount && (
+        <div className="flex items-center mt-2 text-text-secondary">
+          <div className="flex-1 ml-[34px]">Following</div>
+          <div className="w-1/2">
+            <button
+              className="px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
+              onClick={getSocialClickHandler(false)}
+            >
+              {followingCount}
+            </button>
           </div>
-        </>
+        </div>
       )}
     </>
   );
 }
 
 type FollowProps = {
-  dappName: string;
-  sections: Section[];
   image: string;
   onFollowClick?: (params: FollowParams) => void;
   onShowMoreClick?: (sections: Section[], dappName?: string) => void;
-};
+} & FollowType;
+
+const maxItemCount = Infinity; // Not showing show more for v1 release
+const minItemCount = 2;
 
 export function Follow({
   dappName,
@@ -177,7 +144,6 @@ export function Follow({
           dappName={dappName}
           image={image}
           onFollowClick={onFollowClick}
-          onShowMoreClick={() => onShowMoreClick?.(sections, dappName)}
         />
       ))}
       {!showMax && sections?.length > minItemCount && (
@@ -185,7 +151,7 @@ export function Follow({
           onClick={() => {
             setShowMax(show => !show);
           }}
-          className="text-text-button font-bold cursor-pointer px-3"
+          className="text-text-button font-bold cursor-pointer mt-2 ml-[34px]"
         >
           see more
         </button>
@@ -198,7 +164,7 @@ export function Follow({
               return;
             }
           }}
-          className="text-text-button font-bold cursor-pointer px-3"
+          className="text-text-button font-bold cursor-pointer mt-2 ml-[34px]"
         >
           see all
         </button>

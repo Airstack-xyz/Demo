@@ -1,5 +1,6 @@
-import { Image } from '../../../Components/Asset';
+import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
+import LazyImage from '../../../Components/LazyImage';
 import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
 import { WalletAddress } from '../../../Components/WalletAddress';
 import { Follow } from './types';
@@ -57,6 +58,8 @@ export function TableRow({
 
   const xmtpEnabled = wallet?.xmtp?.find(val => val.isXMTPEnabled);
 
+  const tokenOrFarcasterId = isLensDapp ? tokenId : social?.userId;
+
   const lensCell = (
     <ListWithMoreOptions
       list={lensAddresses}
@@ -78,13 +81,25 @@ export function TableRow({
   return (
     <tr>
       <td>
-        <Image
-          className="w-[50px] h-[50px] rounded"
-          src={social?.profileImage}
-        />
+        {isLensDapp && social ? (
+          <Asset
+            preset="extraSmall"
+            containerClassName="w-[50px] h-[50px] [&>img]:w-[50px] [&>img]:max-w-[50px]"
+            chain={social.blockchain}
+            tokenId={social.profileTokenId}
+            address={social.profileTokenAddress}
+          />
+        ) : (
+          <LazyImage
+            className="rounded"
+            src={social?.profileImage}
+            width={50}
+            height={50}
+          />
+        )}
       </td>
       <td>{isLensDapp ? lensCell : farcasterCell}</td>
-      <td>{isLensDapp ? `#${tokenId}` : `#${social?.userId}`}</td>
+      <td>{tokenOrFarcasterId ? `#${tokenOrFarcasterId}` : '--'}</td>
       <td>
         <ListWithMoreOptions
           list={[primaryEns]}
@@ -102,11 +117,7 @@ export function TableRow({
         />
       </td>
       <td>
-        <WalletAddress
-          address={walletAddress}
-          dataType={item.dappName}
-          onClick={onAddressClick}
-        />
+        <WalletAddress address={walletAddress} onClick={onAddressClick} />
       </td>
       <td>{isLensDapp ? farcasterCell : lensCell}</td>
       <td>

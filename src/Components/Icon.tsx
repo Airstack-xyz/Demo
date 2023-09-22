@@ -41,7 +41,8 @@ export type IconType =
   | 'stack'
   | 'token-holders-white'
   | 'folder'
-  | 'folder-gray';
+  | 'folder-gray'
+  | 'check-mark-circle';
 
 export type IconProps = {
   name: IconType;

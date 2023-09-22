@@ -22,6 +22,11 @@
     @apply py-3 px-2 h-[50px] align-middle ellipsis;
 }
 
-.social-follow-table > tbody > tr:is(:first-child, :last-child) > td {
+.social-follow-table > tbody > tr:first-child > td {
     @apply pt-5;
 }
+
+.social-follow-table > tbody > tr:last-child > td {
+    @apply pb-5;
+}
+

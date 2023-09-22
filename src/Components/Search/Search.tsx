@@ -270,6 +270,8 @@ export const Search = memo(function Search() {
   const handleSubmit = useCallback(
     (e: FormEvent) => {
       e.preventDefault();
+      setIsInputSectionFocused(false);
+
       const trimmedValue = value.trim();
 
       if (searchParams.get('rawInput') === trimmedValue) {
@@ -363,7 +365,6 @@ export const Search = memo(function Search() {
                 : tokenHoldersPlaceholder
             }
             disableSuggestions={isTokenBalances}
-            blurOnEnter={isTokenBalances}
           />
           <div ref={buttonSectionRef} className="flex justify-end pl-3">
             {isInputSectionFocused && value && (

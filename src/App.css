@@ -34,8 +34,7 @@ body {
 }
 
 .no-scrollbar::-webkit-scrollbar {
-  background: transparent; /* Chrome/Safari/Webkit */
-  width: 0px;
+  display: none; /* Chrome/Safari/Webkit */
 }
 
 .glass-effect-button {
@@ -163,6 +162,6 @@ body {
 
 .scroll-shadow-r::after {
     content: '';
-    @apply absolute right-0 top-0 h-full w-16 bg-gradient-to-r from-transparent to-primary pointer-events-none;
+    @apply absolute right-0 top-0 h-full w-[50px] bg-gradient-to-r from-transparent to-primary pointer-events-none;
 }
 

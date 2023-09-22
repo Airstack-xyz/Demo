@@ -29,7 +29,7 @@ export const Filters = memo(function Filters() {
 
   return (
     <div className="flex items-center scroll-shadow-r">
-      <div className="flex overflow-auto no-scrollbar">
+      <div className="flex overflow-auto pr-[50px] no-scrollbar">
         {filters.map(tokenType => {
           return (
             <button
