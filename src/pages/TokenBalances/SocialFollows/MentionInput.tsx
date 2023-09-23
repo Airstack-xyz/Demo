@@ -79,6 +79,8 @@ export function MentionInput({
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    setIsInputSectionFocused(false);
+
     const rawInput: string[] = [];
     const words: string[] = [];
     const mentions: MentionValues[] = [];

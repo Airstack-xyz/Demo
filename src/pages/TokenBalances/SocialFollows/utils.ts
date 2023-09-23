@@ -12,13 +12,23 @@ export const MUTUAL_FOLLOW_FILTER = 'mutual_follow';
 
 export const getSocialFollowFilterData = ({
   filters,
+  dappName,
+  profileTokenIds,
   isFollowerQuery
 }: {
   filters: string[];
+  dappName: string;
+  profileTokenIds: string[];
   isFollowerQuery: boolean;
 }) => {
   const queryFilters: SocialFollowQueryFilters = {};
   const logicalFilters: SocialFollowLogicalFilters = {};
+
+  // filter by profile ids for farcaster and lens (follower query only)
+  if (dappName === 'farcaster' || (dappName === 'lens' && isFollowerQuery)) {
+    const key = isFollowerQuery ? 'followingProfileIds' : 'followerProfileIds';
+    queryFilters[key] = profileTokenIds;
+  }
 
   filters.forEach(filter => {
     if (filter === 'farcaster' || filter === 'lens') {
@@ -113,43 +123,17 @@ function filterByAlsoFollow(items: Follow[], isFollowerQuery: boolean) {
   });
 }
 
-function filterByProfileTokenIds(
-  items: Follow[],
-  profileTokenIds: string[],
-  isFollowerQuery: boolean
-) {
-  if (isFollowerQuery)
-    return items?.filter(item => {
-      return profileTokenIds.includes(item.followingProfileId);
-    });
-  return items?.filter(item => {
-    return profileTokenIds.includes(item.followerProfileId);
-  });
-}
-
 export const filterTableItems = ({
   items,
   filters,
-  dappName,
-  profileTokenIds,
   isFollowerQuery
 }: {
   items: Follow[];
   filters: string[];
   dappName: string;
-  profileTokenIds: string[];
   isFollowerQuery: boolean;
 }) => {
   let filteredItems = items;
-
-  // filter by profile token ids for farcaster and lens (follower query only)
-  if (dappName === 'farcaster' || (dappName === 'lens' && isFollowerQuery)) {
-    filteredItems = filterByProfileTokenIds(
-      filteredItems,
-      profileTokenIds,
-      isFollowerQuery
-    );
-  }
 
   filters.forEach(filter => {
     if (filter === 'primaryEns') {

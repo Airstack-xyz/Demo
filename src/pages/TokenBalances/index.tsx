@@ -379,10 +379,14 @@ function TokenBalancePage() {
       const formattedDappName = capitalizeFirstLetter(socialInfo.dappName);
       const socialFollowersFilterData = getSocialFollowFilterData({
         filters: socialInfo.followerFilters,
+        dappName: socialInfo.dappName,
+        profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery: true
       });
       const socialFollowingsFilterData = getSocialFollowFilterData({
         filters: socialInfo.followingFilters,
+        dappName: socialInfo.dappName,
+        profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery: false
       });
 
@@ -396,7 +400,7 @@ function TokenBalancePage() {
       const socialFollowersDetailsLink = createAppUrlWithQuery(
         socialFollowersDetailsQuery,
         {
-          identity: owners[0],
+          identities: owners,
           dappName: socialInfo.dappName,
           limit: 10,
           ...socialFollowersFilterData.queryFilters
@@ -406,7 +410,7 @@ function TokenBalancePage() {
       const socialFollowingDetailsLink = createAppUrlWithQuery(
         socialFollowingDetailsQuery,
         {
-          identity: owners[0],
+          identities: owners,
           dappName: socialInfo.dappName,
           limit: 10,
           ...socialFollowingsFilterData.queryFilters
@@ -451,6 +455,7 @@ function TokenBalancePage() {
     socialInfo.isApplicable,
     socialInfo.dappName,
     socialInfo.followerFilters,
+    socialInfo.profileTokenIds,
     socialInfo.followingFilters,
     socialInfo.profileNames,
     token,
