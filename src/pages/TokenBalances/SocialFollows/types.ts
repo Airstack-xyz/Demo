@@ -85,9 +85,11 @@ export type Wallet = {
 };
 
 export type SocialFollowQueryFilters = {
+  followerProfileIds?: string[];
   followerPrimaryDomain?: boolean;
   followerCount?: number;
   followerDappNames?: string[];
+  followingProfileIds?: string[];
   followingPrimaryDomain?: boolean;
   followingCount?: number;
   followingDappNames?: string[];
