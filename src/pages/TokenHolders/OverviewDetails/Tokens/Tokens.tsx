@@ -7,7 +7,10 @@ import {
   useRef,
   useState
 } from 'react';
-import { useSearchInput } from '../../../../hooks/useSearchInput';
+import {
+  resetCachedUserInputs,
+  useSearchInput
+} from '../../../../hooks/useSearchInput';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { Header } from './Header';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -354,13 +357,13 @@ export function TokensComponent() {
   const handleAddressClick = useCallback(
     (address: string, type = '') => {
       const isFarcaster = type?.includes('farcaster');
-      navigate(
-        createTokenBalancesUrl({
-          address: isFarcaster ? `fc_fname:${address}` : address,
-          blockchain: 'ethereum',
-          inputType: 'ADDRESS'
-        })
-      );
+      const url = createTokenBalancesUrl({
+        address: isFarcaster ? `fc_fname:${address}` : address,
+        blockchain: 'ethereum',
+        inputType: 'ADDRESS'
+      });
+      resetCachedUserInputs();
+      navigate(url);
     },
     [navigate]
   );

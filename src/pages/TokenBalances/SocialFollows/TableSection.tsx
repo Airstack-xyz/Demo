@@ -3,7 +3,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
 import { AddressesModal } from '../../../Components/AddressesModal';
-import { UpdateUserInputs } from '../../../hooks/useSearchInput';
+import {
+  UpdateUserInputs,
+  resetCachedUserInputs
+} from '../../../hooks/useSearchInput';
 import { getSocialFollowersQuery } from '../../../queries/socialFollowersQuery';
 import { getSocialFollowingsQuery } from '../../../queries/socialFollowingQuery';
 import {
@@ -181,6 +184,7 @@ export function TableSection({
         blockchain: 'ethereum',
         inputType: 'ADDRESS'
       });
+      resetCachedUserInputs();
       navigate(url);
     },
     [navigate]

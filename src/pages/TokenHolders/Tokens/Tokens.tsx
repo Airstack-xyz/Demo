@@ -1,5 +1,8 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { useSearchInput } from '../../../hooks/useSearchInput';
+import {
+  resetCachedUserInputs,
+  useSearchInput
+} from '../../../hooks/useSearchInput';
 import { Header } from './Header';
 import { useNavigate } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -141,6 +144,7 @@ export function TokensComponent() {
         blockchain: 'ethereum',
         inputType: 'ADDRESS'
       });
+      resetCachedUserInputs();
       navigate(url);
     },
     [navigate]
