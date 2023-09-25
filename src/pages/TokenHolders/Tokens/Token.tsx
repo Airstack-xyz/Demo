@@ -9,7 +9,10 @@ import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 import { WalletAddress } from '../../../Components/WalletAddress';
 import classNames from 'classnames';
-import { useSearchInput } from '../../../hooks/useSearchInput';
+import {
+  resetCachedUserInputs,
+  useSearchInput
+} from '../../../hooks/useSearchInput';
 import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
 
 export function Token({
@@ -122,13 +125,13 @@ export function Token({
   const handleAddressClick = useCallback(
     (address: string, type = '') => {
       const isFarcaster = type?.includes('farcaster');
-      navigate(
-        createTokenBalancesUrl({
-          address: isFarcaster ? `fc_fname:${address}` : address,
-          blockchain: 'ethereum',
-          inputType: 'ADDRESS'
-        })
-      );
+      const url = createTokenBalancesUrl({
+        address: isFarcaster ? `fc_fname:${address}` : address,
+        blockchain: 'ethereum',
+        inputType: 'ADDRESS'
+      });
+      resetCachedUserInputs();
+      navigate(url);
     },
     [navigate]
   );
