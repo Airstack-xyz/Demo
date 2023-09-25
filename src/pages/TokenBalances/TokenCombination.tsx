@@ -214,9 +214,12 @@ export const TokenCombination = memo(function TokenCombination({
 
   return (
     <div
-      className={classNames('border-solid-stroke rounded-18 bg-glass flex-1', {
-        'w-[80%] sm:max-w-full lg:max-w-[49%] ': !showAllTokens
-      })}
+      className={classNames(
+        'border-solid-stroke rounded-18 bg-glass flex-1 !backdrop-blur-none',
+        {
+          'w-[80%] sm:max-w-full lg:max-w-[49%] ': !showAllTokens
+        }
+      )}
     >
       <div className="rounded-18 bg-glass flex items-center justify-between px-3 py-2.5">
         <div
