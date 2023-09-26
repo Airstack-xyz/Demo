@@ -3,7 +3,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
 import { AddressesModal } from '../../../Components/AddressesModal';
-import { UpdateUserInputs } from '../../../hooks/useSearchInput';
+import {
+  UpdateUserInputs,
+  resetCachedUserInputs
+} from '../../../hooks/useSearchInput';
 import { getSocialFollowersQuery } from '../../../queries/socialFollowersQuery';
 import { getSocialFollowingsQuery } from '../../../queries/socialFollowingQuery';
 import {
@@ -72,18 +75,18 @@ export function TableSection({
     matching: 0
   });
 
-  const _filtersKey = isFollowerQuery ? 'followerFilters' : 'followingFilters';
-  const _filters = isFollowerQuery
-    ? socialInfo.followerFilters
-    : socialInfo.followingFilters;
+  const filtersKey = isFollowerQuery ? 'followerFilters' : 'followingFilters';
+  const filters = socialInfo[filtersKey];
 
   const filterData = useMemo(
     () =>
       getSocialFollowFilterData({
-        filters: _filters,
+        filters,
+        dappName: socialInfo.dappName,
+        profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery
       }),
-    [_filters, isFollowerQuery]
+    [filters, isFollowerQuery, socialInfo.dappName, socialInfo.profileTokenIds]
   );
 
   const query = useMemo(() => {
@@ -100,9 +103,8 @@ export function TableSection({
 
       const filteredItems = filterTableItems({
         items,
-        filters: _filters,
+        filters,
         dappName: socialInfo.dappName,
-        profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery
       }).filter(item => {
         const id = `${item.followerProfileId}-${item.followingProfileId}`;
@@ -122,7 +124,7 @@ export function TableSection({
         matching: prev.matching + filteredItems.length
       }));
     },
-    [_filters, isFollowerQuery, socialInfo.dappName, socialInfo.profileTokenIds]
+    [filters, isFollowerQuery, socialInfo.dappName]
   );
 
   const [fetchData, { loading, pagination }] = useLazyQueryWithPagination(
@@ -151,7 +153,7 @@ export function TableSection({
     tableIdsSetRef.current = new Set();
     setTableItems([]);
     fetchData({
-      identity: identities[0],
+      identities: identities,
       dappName: socialInfo.dappName,
       limit: MAX_LIMIT,
       ...filterData.queryFilters
@@ -165,13 +167,13 @@ export function TableSection({
           activeSocialInfo: getActiveSocialInfoString({
             ...socialInfo,
             followerTab: isFollowerQuery,
-            [_filtersKey]: filters
+            [filtersKey]: filters
           })
         },
         { updateQueryParams: true }
       );
     },
-    [_filtersKey, isFollowerQuery, setQueryData, socialInfo]
+    [filtersKey, isFollowerQuery, setQueryData, socialInfo]
   );
 
   const handleAddressClick = useCallback(
@@ -182,6 +184,7 @@ export function TableSection({
         blockchain: 'ethereum',
         inputType: 'ADDRESS'
       });
+      resetCachedUserInputs('tokenBalance');
       navigate(url);
     },
     [navigate]
@@ -215,7 +218,7 @@ export function TableSection({
     <>
       <Filters
         dappName={socialInfo.dappName}
-        selectedFilters={_filters}
+        selectedFilters={filters}
         isFollowerQuery={isFollowerQuery}
         disabled={loading}
         onApply={handleFiltersApply}
