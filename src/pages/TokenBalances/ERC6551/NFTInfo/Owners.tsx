@@ -31,7 +31,7 @@ export function Owners({
       blockchain: '',
       inputType: 'ADDRESS'
     });
-    resetCachedUserInputs();
+    resetCachedUserInputs('tokenBalance');
     navigate(url);
   };
 
