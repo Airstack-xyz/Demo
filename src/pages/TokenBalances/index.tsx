@@ -330,10 +330,14 @@ function TokenBalancePage() {
       const formattedDappName = capitalizeFirstLetter(socialInfo.dappName);
       const socialFollowersFilterData = getSocialFollowFilterData({
         filters: socialInfo.followerFilters,
+        dappName: socialInfo.dappName,
+        profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery: true
       });
       const socialFollowingsFilterData = getSocialFollowFilterData({
         filters: socialInfo.followingFilters,
+        dappName: socialInfo.dappName,
+        profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery: false
       });
 
@@ -347,7 +351,7 @@ function TokenBalancePage() {
       const socialFollowersDetailsLink = createAppUrlWithQuery(
         socialFollowersDetailsQuery,
         {
-          identity: address[0],
+          identities: address,
           dappName: socialInfo.dappName,
           limit: 10,
           ...socialFollowersFilterData.queryFilters
@@ -357,7 +361,7 @@ function TokenBalancePage() {
       const socialFollowingDetailsLink = createAppUrlWithQuery(
         socialFollowingDetailsQuery,
         {
-          identity: address[0],
+          identities: address,
           dappName: socialInfo.dappName,
           limit: 10,
           ...socialFollowingsFilterData.queryFilters
@@ -393,13 +397,14 @@ function TokenBalancePage() {
     accountAddress,
     blockchainType,
     sortOrder,
+    tokenType,
     showTokenDetails,
     socialInfo.isApplicable,
     socialInfo.dappName,
     socialInfo.followerFilters,
+    socialInfo.profileTokenIds,
     socialInfo.followingFilters,
     socialInfo.profileNames,
-    tokenType,
     token,
     query
   ]);

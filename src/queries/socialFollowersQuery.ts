@@ -11,13 +11,25 @@ export const getSocialFollowersQuery = ({
   logicalFilters: SocialFollowLogicalFilters;
 }) => {
   const variables = [
-    '$identity: Identity!',
+    '$identities: [Identity!]',
     '$dappName: SocialDappName',
     '$limit: Int'
+  ];
+  const filters = [
+    'identity: {_in: $identities}',
+    'dappName: {_eq: $dappName}'
   ];
   const socialFilters = [];
   const domainFilters = [];
 
+  if (queryFilters.followingProfileIds) {
+    variables.push('$followingProfileIds: [String!]');
+    filters.push('followingProfileId: {_in: $followingProfileIds}');
+  }
+  if (queryFilters.followerDappNames) {
+    variables.push('$followerDappNames: [SocialDappName!]');
+    socialFilters.push('dappName: {_in: $followerDappNames}');
+  }
   if (queryFilters.followerDappNames) {
     variables.push('$followerDappNames: [SocialDappName!]');
     socialFilters.push('dappName: {_in: $followerDappNames}');
@@ -32,12 +44,13 @@ export const getSocialFollowersQuery = ({
   }
 
   const variablesString = variables.join(',');
+  const filtersString = filters.join(',');
   const socialFiltersString = socialFilters.join(',');
   const domainFiltersString = domainFilters.join(',');
 
   return `query SocialFollowersDetails(${variablesString}) {
     SocialFollowers(
-      input: {filter: {identity: {_eq: $identity}, dappName: {_eq: $dappName}}, blockchain: ALL, limit: $limit}
+      input: {filter: {${filtersString}}, blockchain: ALL, limit: $limit}
     ) {
       Follower {
         id

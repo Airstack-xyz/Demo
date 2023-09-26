@@ -1,9 +1,9 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { createTokenBalancesUrl } from '../../../../utils/createTokenUrl';
-import classNames from 'classnames';
 import { useState, useMemo } from 'react';
 import { CopyButton } from './CopyButton';
 import { HoldersModal, HoldersModalProps } from './HoldersModal';
+import { resetCachedUserInputs } from '../../../../hooks/useSearchInput';
 
 const MIN_OWNERS = 3;
 const MAX_OWNERS = 7;
@@ -17,7 +17,7 @@ export function Owners({
 }) {
   const [showModal, setShowModal] = useState(false);
   const [showMax, setShowMax] = useState(false);
-  const navigator = useNavigate();
+  const navigate = useNavigate();
   const items = useMemo(() => {
     if (!showMax) {
       return owners?.slice(0, MIN_OWNERS);
@@ -25,25 +25,30 @@ export function Owners({
     return owners.slice(0, MAX_OWNERS);
   }, [showMax, owners]);
 
+  const handleAddressClick = (address: string) => {
+    const url = createTokenBalancesUrl({
+      address,
+      blockchain: '',
+      inputType: 'ADDRESS'
+    });
+    resetCachedUserInputs('tokenBalance');
+    navigate(url);
+  };
+
   return (
     <>
       <ul className="text-text-secondary overflow-hidden flex flex-col justify-center mr-1">
         {items?.map((owner, index) => (
-          <li key={index} className={classNames('mb-2.5 last:mb-0 flex')}>
-            <Link
-              className="ellipsis border border-solid border-transparent hover:border-solid-stroke hover:bg-glass rounded-18"
-              to={createTokenBalancesUrl({
-                address: owner,
-                blockchain: '',
-                inputType: 'ADDRESS'
-              })}
+          <li key={index} className="mb-2.5 last:mb-0 flex">
+            <button
+              className="mr-1 ellipsis border border-solid border-transparent hover:border-solid-stroke hover:bg-glass rounded-18"
+              onClick={() => handleAddressClick(owner)}
             >
               {owner}
-            </Link>{' '}
+            </button>
             <CopyButton value={owner} />
           </li>
         ))}
-
         {!showMax && owners?.length > MIN_OWNERS && (
           <li
             onClick={() => {
@@ -72,15 +77,7 @@ export function Owners({
           heading="All Holders"
           token={token}
           isOpen={showModal}
-          onAddressClick={(address: string) => {
-            navigator(
-              createTokenBalancesUrl({
-                address,
-                blockchain: '',
-                inputType: 'ADDRESS'
-              })
-            );
-          }}
+          onAddressClick={handleAddressClick}
           onRequestClose={() => {
             setShowModal(false);
           }}
