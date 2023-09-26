@@ -184,7 +184,7 @@ export function TableSection({
         blockchain: 'ethereum',
         inputType: 'ADDRESS'
       });
-      resetCachedUserInputs();
+      resetCachedUserInputs('tokenBalance');
       navigate(url);
     },
     [navigate]

@@ -57,7 +57,7 @@ export function Token({
         blockchain: 'ethereum',
         inputType: 'ADDRESS'
       });
-      resetCachedUserInputs();
+      resetCachedUserInputs('tokenBalance');
       navigate(url);
     },
     [navigate]
