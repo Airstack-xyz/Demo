@@ -21,6 +21,8 @@ import { filterTableItems, getSocialFollowFilterData } from './utils';
 import { StatusLoader } from '../../../Components/StatusLoader';
 
 import './styles.css';
+import { MentionInput, MentionOutput } from './MentionInput';
+import { showToast } from '../../../utils/showToast';
 
 const LOADING_ROW_COUNT = 6;
 
@@ -49,6 +51,18 @@ type TableSectionProps = {
   setQueryData: UpdateUserInputs;
 };
 
+const mentionValidationFn = ({ mentions }: MentionOutput) => {
+  if (mentions.length === 0) {
+    showToast('Please use @ to add token, NFT, or POAP', 'negative');
+    return false;
+  }
+  if (mentions.length > 1) {
+    showToast("Filter can't work with more than one entities", 'negative');
+    return false;
+  }
+  return true;
+};
+
 const MAX_LIMIT = 200;
 const MIN_LIMIT = 20;
 
@@ -75,18 +89,25 @@ export function TableSection({
     matching: 0
   });
 
-  const filtersKey = isFollowerQuery ? 'followerFilters' : 'followingFilters';
-  const filters = socialInfo[filtersKey];
+  const dataKey = isFollowerQuery ? 'followerData' : 'followingData';
+  const { filters, mentionRawText, mention } = socialInfo[dataKey];
 
   const filterData = useMemo(
     () =>
       getSocialFollowFilterData({
         filters,
+        mention,
         dappName: socialInfo.dappName,
         profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery
       }),
-    [filters, isFollowerQuery, socialInfo.dappName, socialInfo.profileTokenIds]
+    [
+      filters,
+      isFollowerQuery,
+      mention,
+      socialInfo.dappName,
+      socialInfo.profileTokenIds
+    ]
   );
 
   const query = useMemo(() => {
@@ -160,21 +181,42 @@ export function TableSection({
     });
   }, [fetchData, identities, filterData.queryFilters, socialInfo.dappName]);
 
-  const handleFiltersApply = useCallback(
-    (filters: string[]) => {
+  const updateQueryData = useCallback(
+    (data: object) => {
       setQueryData(
         {
           activeSocialInfo: getActiveSocialInfoString({
             ...socialInfo,
             followerTab: isFollowerQuery,
-            [filtersKey]: filters
+            [dataKey]: {
+              ...socialInfo[dataKey],
+              ...data
+            }
           })
         },
         { updateQueryParams: true }
       );
     },
-    [filtersKey, isFollowerQuery, setQueryData, socialInfo]
+    [dataKey, isFollowerQuery, setQueryData, socialInfo]
   );
+
+  const handleFiltersApply = useCallback(
+    (filters: string[]) => {
+      updateQueryData({ filters });
+    },
+    [updateQueryData]
+  );
+
+  const handleMentionSubmit = useCallback(
+    ({ rawText }: MentionOutput) => {
+      updateQueryData({ mentionRawText: rawText });
+    },
+    [updateQueryData]
+  );
+
+  const handleMentionClear = useCallback(() => {
+    updateQueryData({ mentionRawText: '' });
+  }, [updateQueryData]);
 
   const handleAddressClick = useCallback(
     (address: string, type?: string) => {
@@ -222,6 +264,15 @@ export function TableSection({
         isFollowerQuery={isFollowerQuery}
         disabled={loading}
         onApply={handleFiltersApply}
+      />
+      <MentionInput
+        defaultValue={mentionRawText}
+        disabled={loading}
+        placeholder="Enter a token, NFT, or POAP to view overlap"
+        containerClassName="mb-4"
+        validationFn={mentionValidationFn}
+        onSubmit={handleMentionSubmit}
+        onClear={handleMentionClear}
       />
       <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden overflow-y-auto mb-5">
         <InfiniteScroll

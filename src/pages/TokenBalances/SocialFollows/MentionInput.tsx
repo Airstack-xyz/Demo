@@ -16,7 +16,9 @@ export type MentionOutput = {
 type MentionInputProps = {
   defaultValue: string;
   placeholder: string;
-  className?: string;
+  containerClassName?: string;
+  inputClassName?: string;
+  disabled?: boolean;
   disableSuggestions?: boolean;
   onSubmit: (params: MentionOutput) => void;
   validationFn?: (params: MentionOutput) => boolean;
@@ -28,7 +30,9 @@ const padding = '  ';
 export function MentionInput({
   defaultValue,
   placeholder,
-  className,
+  containerClassName,
+  inputClassName,
+  disabled,
   disableSuggestions,
   validationFn,
   onSubmit,
@@ -107,16 +111,20 @@ export function MentionInput({
   };
 
   return (
-    <form className="flex flex-row justify-center" onSubmit={handleSubmit}>
+    <form
+      className={classNames('flex flex-row', containerClassName)}
+      onSubmit={handleSubmit}
+    >
       <div
         ref={inputSectionRef}
         className={classNames(
-          'flex items-center h-[40px] min-w-[200px] border-solid-stroke rounded-full bg-glass px-3 py-2',
-          className
+          'flex items-center h-[40px] min-w-[400px] border-solid-stroke rounded-full bg-glass px-3 py-2',
+          inputClassName
         )}
       >
         <InputWithMention
           value={value}
+          disabled={disabled}
           onChange={setValue}
           onSubmit={handleInputSubmit}
           placeholder={placeholder}

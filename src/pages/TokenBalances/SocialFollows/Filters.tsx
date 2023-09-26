@@ -153,23 +153,23 @@ export function Filters({
 
   const handleFilterRemove = useCallback(
     (filter: string) => {
-      const _selectedFilters = selectedFilters.filter(item => item !== filter);
-      onApply(_selectedFilters);
+      const filters = selectedFilters.filter(item => item !== filter);
+      onApply(filters);
     },
     [onApply, selectedFilters]
   );
 
   const handleApplyClick = () => {
-    const _selectedFilters = currentFilters;
+    const filters = currentFilters;
     if (followCount != null) {
       if (!(Number(followCount) > 0)) {
         showToast("Value of 'n' should be positive integer", 'negative');
         return;
       }
-      _selectedFilters.push(`${MORE_THAN_N_FOLLOW_FILTER}:${followCount}`);
+      filters.push(`${MORE_THAN_N_FOLLOW_FILTER}:${followCount}`);
     }
     setIsDropdownVisible(false);
-    onApply(_selectedFilters);
+    onApply(filters);
   };
 
   const handleFilterCountKeyUp = (
@@ -182,42 +182,101 @@ export function Filters({
 
   const appliedFiltersCount = selectedFilters.length;
 
+  const renderChips = () => {
+    const count = selectedFiltersInfo.followCount;
+    return (
+      <div className="flex gap-2.5 overflow-auto pr-[50px] no-scrollbar">
+        {count != null && (
+          <div className="py-[7px] px-3 flex-shrink-0 bg-glass-1 rounded-full">
+            {isFollowerQuery
+              ? `has more than ${count} followers`
+              : `has more than ${count} followings`}
+            <button
+              className="ml-2.5"
+              onClick={() =>
+                handleFilterRemove(`${MORE_THAN_N_FOLLOW_FILTER}:${count}`)
+              }
+            >
+              <Icon name="close" height={10} width={10} />
+            </button>
+          </div>
+        )}
+        {chipOptions.map((item, index) => (
+          <div
+            className="py-[7px] px-3 flex-shrink-0 bg-glass-1 rounded-full"
+            key={index}
+          >
+            {item.label}
+            <button
+              className="ml-2.5"
+              onClick={() => handleFilterRemove(item.value)}
+            >
+              <Icon name="close" height={10} width={10} />
+            </button>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  const renderDropdown = () => {
+    if (!isDropdownVisible) {
+      return null;
+    }
+    return (
+      <div className="bg-glass rounded-18 p-2 mt-1 flex flex-col absolute min-w-[202px] right-0 top-full z-20">
+        <FilterCheckbox
+          label={
+            isFollowerQuery
+              ? "has more than 'n' followers"
+              : "has more than 'n' followings"
+          }
+          isSelected={followCount !== null}
+          onChange={handleFollowCountToggle}
+        />
+        {followCount != null && (
+          <input
+            autoFocus
+            type="text"
+            placeholder="enter value for n"
+            className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none"
+            onChange={handleFollowCountChange}
+            onKeyUp={handleFilterCountKeyUp}
+            value={followCount}
+          />
+        )}
+        {filterOptions.map(item => (
+          <FilterCheckbox
+            key={item.value}
+            label={item.label}
+            isSelected={currentFilters.includes(item.value)}
+            onChange={handleFilterCheckboxChange(item.value)}
+          />
+        ))}
+        <div className="p-2 mt-1 flex justify-center gap-5">
+          <button
+            type="button"
+            className="px-2.5 py-1 rounded-full bg-white backdrop-blur-[66.63px] text-primary enabled:hover:opacity-60 disabled:hover:cursor-not-allowed disabled:opacity-50"
+            onClick={handleApplyClick}
+          >
+            Apply
+          </button>
+          <button
+            type="button"
+            className="px-2.5 py-1 rounded-full hover:opacity-60"
+            onClick={handleDropdownHide}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="flex my-4">
       <div className="flex-1 text-xs text-text-secondary scroll-shadow-r">
-        <div className="flex gap-2.5 overflow-auto pr-[50px] no-scrollbar">
-          {selectedFiltersInfo.followCount != null && (
-            <div className="py-[7px] px-3 flex-shrink-0 bg-glass-1 rounded-full">
-              {isFollowerQuery
-                ? `has more than ${selectedFiltersInfo.followCount} followers`
-                : `has more than ${selectedFiltersInfo.followCount} followings`}
-              <button
-                className="ml-2.5"
-                onClick={() =>
-                  handleFilterRemove(
-                    `${MORE_THAN_N_FOLLOW_FILTER}:${selectedFiltersInfo.followCount}`
-                  )
-                }
-              >
-                <Icon name="close" height={10} width={10} />
-              </button>
-            </div>
-          )}
-          {chipOptions.map((item, index) => (
-            <div
-              className="py-[7px] px-3 flex-shrink-0 bg-glass-1 rounded-full"
-              key={index}
-            >
-              {item.label}
-              <button
-                className="ml-2.5"
-                onClick={() => handleFilterRemove(item.value)}
-              >
-                <Icon name="close" height={10} width={10} />
-              </button>
-            </div>
-          ))}
-        </div>
+        {renderChips()}
       </div>
       <div
         ref={dropdownContainerRef}
@@ -232,54 +291,7 @@ export function Filters({
           icon="filter"
           onClick={handleDropdownToggle}
         />
-        {isDropdownVisible && (
-          <div className="bg-glass rounded-18 p-2 mt-1 flex flex-col absolute min-w-[202px] right-0 top-full z-20">
-            <FilterCheckbox
-              label={
-                isFollowerQuery
-                  ? "has more than 'n' followers"
-                  : "has more than 'n' followings"
-              }
-              isSelected={followCount !== null}
-              onChange={handleFollowCountToggle}
-            />
-            {followCount != null && (
-              <input
-                autoFocus
-                type="text"
-                placeholder="enter value for n"
-                className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none"
-                onChange={handleFollowCountChange}
-                onKeyUp={handleFilterCountKeyUp}
-                value={followCount}
-              />
-            )}
-            {filterOptions.map(item => (
-              <FilterCheckbox
-                key={item.value}
-                label={item.label}
-                isSelected={currentFilters.includes(item.value)}
-                onChange={handleFilterCheckboxChange(item.value)}
-              />
-            ))}
-            <div className="p-2 mt-1 flex justify-center gap-5">
-              <button
-                type="button"
-                className="px-2.5 py-1 rounded-full bg-white backdrop-blur-[66.63px] text-primary enabled:hover:opacity-60 disabled:hover:cursor-not-allowed disabled:opacity-50"
-                onClick={handleApplyClick}
-              >
-                Apply
-              </button>
-              <button
-                type="button"
-                className="px-2.5 py-1 rounded-full hover:opacity-60"
-                onClick={handleDropdownHide}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        )}
+        {renderDropdown()}
       </div>
     </div>
   );

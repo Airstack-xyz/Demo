@@ -1,21 +1,29 @@
+import { getAllWordsAndMentions } from '../Components/Input/utils';
+
 export const getActiveSocialInfoString = ({
   dappName,
   profileNames,
   profileTokenIds,
   followerTab,
   followerCount,
-  followerFilters,
+  followerData = {},
   followingCount,
-  followingFilters
+  followingData = {}
 }: {
   dappName: string;
   profileNames: string[];
   profileTokenIds: string[];
   followerTab?: boolean;
   followerCount?: string | number;
-  followerFilters?: string[];
+  followerData?: {
+    filters?: string[];
+    mentionRawText?: string;
+  };
   followingCount?: string | number;
-  followingFilters?: string[];
+  followingData?: {
+    filters?: string[];
+    mentionRawText?: string;
+  };
 }) => {
   const socialInfo: (string | number)[] = [
     dappName,
@@ -26,10 +34,12 @@ export const getActiveSocialInfoString = ({
   socialInfo.push(followerTab === false ? '0' : '1');
 
   socialInfo.push(followerCount != undefined ? followerCount : '');
-  socialInfo.push(followerFilters?.join(',') || '');
+  socialInfo.push(followerData.filters ? followerData.filters.join(',') : '');
+  socialInfo.push(followerData.mentionRawText || '');
 
   socialInfo.push(followingCount != undefined ? followingCount : '');
-  socialInfo.push(followingFilters?.join(',') || '');
+  socialInfo.push(followingData.filters ? followingData.filters.join(',') : '');
+  socialInfo.push(followingData.mentionRawText || '');
 
   return socialInfo.join('│');
 };
@@ -42,9 +52,23 @@ export const getActiveSocialInfo = (activeSocialInfo?: string) => {
     followerTab,
     followerCount,
     followerFiltersString,
+    followerMentionRawText,
     followingCount,
-    followingFiltersString
+    followingFiltersString,
+    followingMentionRawText
   ] = activeSocialInfo?.split('│') ?? [];
+
+  let followerMention = null;
+  if (followerMentionRawText) {
+    const mentionData = getAllWordsAndMentions(followerMentionRawText);
+    followerMention = mentionData[0].mention;
+  }
+
+  let followingMention = null;
+  if (followingMentionRawText) {
+    const mentionData = getAllWordsAndMentions(followingMentionRawText);
+    followingMention = mentionData[0].mention;
+  }
 
   return {
     isApplicable: Boolean(dappName),
@@ -55,13 +79,17 @@ export const getActiveSocialInfo = (activeSocialInfo?: string) => {
       : [],
     followerTab: followerTab === '1',
     followerCount,
-    followerFilters: followerFiltersString
-      ? followerFiltersString.split(',')
-      : [],
+    followerData: {
+      filters: followerFiltersString ? followerFiltersString.split(',') : [],
+      mentionRawText: followerMentionRawText,
+      mention: followerMention
+    },
     followingCount,
-    followingFilters: followingFiltersString
-      ? followingFiltersString?.split(',')
-      : []
+    followingData: {
+      filters: followingFiltersString ? followingFiltersString.split(',') : [],
+      mentionRawText: followingMentionRawText,
+      mention: followingMention
+    }
   };
 };
 

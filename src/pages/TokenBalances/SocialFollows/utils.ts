@@ -1,3 +1,4 @@
+import { MentionValues } from '../../../Components/Input/utils';
 import {
   Follow,
   SocialFollowLogicalFilters,
@@ -12,11 +13,13 @@ export const MUTUAL_FOLLOW_FILTER = 'mutual_follow';
 
 export const getSocialFollowFilterData = ({
   filters,
+  mention,
   dappName,
   profileTokenIds,
   isFollowerQuery
 }: {
   filters: string[];
+  mention?: MentionValues | null;
   dappName: string;
   profileTokenIds: string[];
   isFollowerQuery: boolean;
@@ -30,7 +33,11 @@ export const getSocialFollowFilterData = ({
     queryFilters[key] = profileTokenIds;
   }
 
-  filters.forEach(filter => {
+  if (mention) {
+    logicalFilters.mentionData = mention;
+  }
+
+  filters?.forEach(filter => {
     if (filter === 'farcaster' || filter === 'lens') {
       const key = isFollowerQuery ? 'followerDappNames' : 'followingDappNames';
       if (!Object.hasOwn(queryFilters, key)) {

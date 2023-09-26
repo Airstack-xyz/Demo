@@ -3,7 +3,7 @@
 }
 
 .social-follow-table thead {
-    @apply bg-glass rounded-2xl;
+    @apply bg-glass rounded-2xl !backdrop-blur-none;
 }
 
 .social-follow-table th {
