@@ -351,7 +351,7 @@ function TokenBalancePage() {
       const socialFollowersDetailsLink = createAppUrlWithQuery(
         socialFollowersDetailsQuery,
         {
-          identities: address,
+          identity: address[0],
           dappName: socialInfo.dappName,
           limit: 10,
           ...socialFollowersFilterData.queryFilters

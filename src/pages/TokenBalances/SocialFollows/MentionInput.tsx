@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Icon } from '../../../Components/Icon';
 import { InputWithMention } from '../../../Components/Input/Input';
 import {
@@ -16,8 +16,7 @@ export type MentionOutput = {
 type MentionInputProps = {
   defaultValue: string;
   placeholder: string;
-  containerClassName?: string;
-  inputClassName?: string;
+  className?: string;
   disabled?: boolean;
   disableSuggestions?: boolean;
   onSubmit: (params: MentionOutput) => void;
@@ -30,8 +29,7 @@ const padding = '  ';
 export function MentionInput({
   defaultValue,
   placeholder,
-  containerClassName,
-  inputClassName,
+  className,
   disabled,
   disableSuggestions,
   validationFn,
@@ -71,18 +69,12 @@ export function MentionInput({
     };
   }, []);
 
-  const handleInputSubmit = useCallback((value: string) => {
-    setIsInputSectionFocused(false);
-    setValue(value);
-  }, []);
-
   const handleInputClear = useCallback(() => {
     setValue('');
     onClear?.();
   }, [onClear]);
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (value: string) => {
     setIsInputSectionFocused(false);
 
     const rawInput: string[] = [];
@@ -101,7 +93,7 @@ export function MentionInput({
     const rawText = rawInput.join(padding);
     const text = words.join(' ');
 
-    if (validationFn && !validationFn({ text, mentions, rawText })) {
+    if (rawText && validationFn && !validationFn({ text, mentions, rawText })) {
       return;
     }
 
@@ -111,38 +103,33 @@ export function MentionInput({
   };
 
   return (
-    <form
-      className={classNames('flex flex-row', containerClassName)}
-      onSubmit={handleSubmit}
+    <div
+      ref={inputSectionRef}
+      className={classNames(
+        'flex items-center h-[30px] w-[300px] border-solid-stroke rounded-full bg-glass px-3 py-1.5 sf-mention-input',
+        className
+      )}
     >
-      <div
-        ref={inputSectionRef}
-        className={classNames(
-          'flex items-center h-[40px] min-w-[400px] border-solid-stroke rounded-full bg-glass px-3 py-2',
-          inputClassName
+      <InputWithMention
+        value={value}
+        disabled={disabled}
+        onChange={setValue}
+        onSubmit={handleSubmit}
+        placeholder={placeholder}
+        disableSuggestions={disableSuggestions}
+      />
+      <div ref={buttonSectionRef} className="flex justify-end pl-2">
+        {isInputSectionFocused && value && (
+          <button type="submit">
+            <Icon name="search" width={16} height={16} />
+          </button>
         )}
-      >
-        <InputWithMention
-          value={value}
-          disabled={disabled}
-          onChange={setValue}
-          onSubmit={handleInputSubmit}
-          placeholder={placeholder}
-          disableSuggestions={disableSuggestions}
-        />
-        <div ref={buttonSectionRef} className="flex justify-end pl-2">
-          {isInputSectionFocused && value && (
-            <button type="submit">
-              <Icon name="search" width={16} height={16} />
-            </button>
-          )}
-          {!isInputSectionFocused && value && (
-            <button type="button" onClick={handleInputClear}>
-              <Icon name="close" width={14} height={14} />
-            </button>
-          )}
-        </div>
+        {!isInputSectionFocused && value && (
+          <button type="button" onClick={handleInputClear}>
+            <Icon name="close" width={14} height={14} />
+          </button>
+        )}
       </div>
-    </form>
+    </div>
   );
 }

@@ -152,16 +152,9 @@ body {
   @apply bg-text-secondary absolute -bottom-[5px] left-0 w-full h-[5px] rounded-18;
 }
 
-/* scroll-shadows */
-
 /* scroll-shadow-r: adds shadow to the right-end of horizonal scrollable content */
 
 .scroll-shadow-r {
-    position: relative;
+    mask: linear-gradient(to right, white calc(100% - 50px), transparent);
+    -webkit-mask: linear-gradient(to right, white calc(100% - 50px), transparent);
 }
-
-.scroll-shadow-r::after {
-    content: '';
-    @apply absolute right-0 top-0 h-full w-[50px] bg-gradient-to-r from-transparent to-primary pointer-events-none;
-}
-

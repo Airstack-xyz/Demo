@@ -61,6 +61,34 @@ export type Wallet = {
     Follower: Follow[];
     Following: Follow[];
   };
+  holdings: {
+    tokenId: string;
+    tokenAddress: string;
+    blockchain: Chain;
+    poapEvent: {
+      eventId: string;
+      contentValue: {
+        image: {
+          extraSmall: string;
+        };
+      };
+    };
+    token: {
+      logo: {
+        small: string;
+      };
+      projectDetails: {
+        imageUrl: string;
+      };
+    };
+    tokenNfts: {
+      contentValue: {
+        image: {
+          extraSmall: string;
+        };
+      };
+    };
+  }[];
   identity: string;
   addresses: string[];
   socials: {
@@ -86,11 +114,11 @@ export type Wallet = {
 };
 
 export type SocialFollowQueryFilters = {
-  followerProfileIds?: string[];
+  followerProfileId?: string;
   followerPrimaryDomain?: boolean;
   followerCount?: number;
   followerDappNames?: string[];
-  followingProfileIds?: string[];
+  followingProfileId?: string;
   followingPrimaryDomain?: boolean;
   followingCount?: number;
   followingDappNames?: string[];
@@ -99,5 +127,5 @@ export type SocialFollowQueryFilters = {
 export type SocialFollowLogicalFilters = {
   alsoFollow?: string;
   mutualFollow?: boolean;
-  mentionData?: MentionValues | null;
+  holdingData?: MentionValues | null;
 };

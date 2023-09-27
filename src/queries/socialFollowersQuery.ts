@@ -11,24 +11,19 @@ export const getSocialFollowersQuery = ({
   logicalFilters: SocialFollowLogicalFilters;
 }) => {
   const variables = [
-    '$identities: [Identity!]',
+    '$identity: Identity!',
     '$dappName: SocialDappName',
     '$limit: Int'
   ];
-  const filters = [
-    'identity: {_in: $identities}',
-    'dappName: {_eq: $dappName}'
-  ];
+  const filters = ['identity: {_eq: $identity}', 'dappName: {_eq: $dappName}'];
   const socialFilters = [];
   const domainFilters = [];
 
-  if (queryFilters.followingProfileIds) {
-    variables.push('$followingProfileIds: [String!]');
-    filters.push('followingProfileId: {_in: $followingProfileIds}');
-  }
-  if (queryFilters.followerDappNames) {
-    variables.push('$followerDappNames: [SocialDappName!]');
-    socialFilters.push('dappName: {_in: $followerDappNames}');
+  const logicalQueries = [];
+
+  if (queryFilters.followingProfileId) {
+    variables.push('$followingProfileId: String!');
+    filters.push('followingProfileId: {_eq: $followingProfileId}');
   }
   if (queryFilters.followerDappNames) {
     variables.push('$followerDappNames: [SocialDappName!]');
@@ -43,10 +38,72 @@ export const getSocialFollowersQuery = ({
     domainFilters.push('isPrimary: {_eq: $followerPrimaryDomain}');
   }
 
+  if (logicalFilters.mutualFollow) {
+    logicalQueries.push(`mutualFollow: socialFollowings(input: {filter: {identity: {_eq: $identity}, dappName: {_eq: $dappName}}, limit: 1}) {
+      Following {
+        id
+        followingProfileId
+      }
+    }`);
+  }
+  if (logicalFilters.alsoFollow) {
+    logicalQueries.push(`alsoFollow: socialFollowers(input: {filter: {identity: {_eq: $identity}, dappName: {_eq: ${logicalFilters.alsoFollow}}}, limit: 1}) {
+      Follower {
+        id
+        followerProfileId
+      }
+    }`);
+  }
+  if (logicalFilters.holdingData) {
+    const { address, token, blockchain, eventId } = logicalFilters.holdingData;
+    if (token === 'POAP') {
+      logicalQueries.push(`holdings: poaps(
+        input: {filter: {eventId: {_in: ["${eventId}"]}}, limit: 1}
+      ) {
+        tokenId
+        tokenAddress
+        blockchain
+        poapEvent {
+          eventId
+          contentValue {
+            image {
+              extraSmall
+            }
+          }
+        }
+      }`);
+    } else {
+      logicalQueries.push(`holdings: tokenBalances(
+        input: {filter: {tokenAddress: {_in: ["${address}"]}}, blockchain: ${blockchain}, limit: 1}
+      ) {
+        tokenId
+        tokenAddress
+        blockchain
+        token {
+          logo {
+            small
+          }
+          projectDetails {
+            imageUrl
+          }
+        }
+        tokenNfts {
+          contentValue {
+            image {
+              extraSmall
+            }
+          }
+        }
+      }`);
+    }
+  }
+
   const variablesString = variables.join(',');
   const filtersString = filters.join(',');
   const socialFiltersString = socialFilters.join(',');
   const domainFiltersString = domainFilters.join(',');
+
+  const logicalQueriesString = logicalQueries.join('\n');
 
   return `query SocialFollowersDetails(${variablesString}) {
     SocialFollowers(
@@ -90,26 +147,7 @@ export const getSocialFollowersQuery = ({
           xmtp {
             isXMTPEnabled
           }
-          ${
-            logicalFilters.mutualFollow
-              ? `mutualFollow: socialFollowings(input: {filter: {identity: {_eq: $identity}, dappName: {_eq: $dappName}}, limit: 1}) {
-            Following {
-              id
-              followingProfileId
-            }
-          }`
-              : ''
-          }
-          ${
-            logicalFilters.alsoFollow
-              ? `alsoFollow: socialFollowers(input: {filter: {identity: {_eq: $identity}, dappName: {_eq: ${logicalFilters.alsoFollow}}}, limit: 1}) {
-            Follower {
-              id
-              followerProfileId
-            }
-          }`
-              : ''
-          }
+          ${logicalQueriesString}
         }
       }
     }

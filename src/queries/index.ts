@@ -398,3 +398,21 @@ export const PoapOverviewQuery = `query GetPoapOverview($eventId: String) {
     xmtpUsersCount
   }
 }`;
+
+export const DomainsQuery = `query GetDomains($addresses: [Identity!] $limit:Int) {
+  Domains(input: {filter: {owner: {_in: $addresses}}, blockchain: ethereum, limit:$limit}) {
+    Domain {
+      name
+    }
+  }
+}`;
+
+export const SocialsQuery = `query GetSocials($addresses: [Identity!], $dappName: SocialDappName!, $limit: Int) {
+  Socials(
+    input: {filter: {identity: {_in: $addresses}, dappName: {_eq: $dappName}}, blockchain: ethereum, limit: $limit}
+  ) {
+    Social {
+      profileName
+    }
+  }
+}`;

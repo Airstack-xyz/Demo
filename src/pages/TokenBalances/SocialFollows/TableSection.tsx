@@ -2,7 +2,7 @@ import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
-import { AddressesModal } from '../../../Components/AddressesModal';
+import { StatusLoader } from '../../../Components/StatusLoader';
 import {
   UpdateUserInputs,
   resetCachedUserInputs
@@ -14,15 +14,16 @@ import {
   getActiveSocialInfoString
 } from '../../../utils/activeSocialInfoString';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
+import { showToast } from '../../../utils/showToast';
 import { Filters } from './Filters';
+import { MentionInput, MentionOutput } from './MentionInput';
 import { TableRow, TableRowLoader } from './TableRow';
 import { Follow, SocialFollowResponse } from './types';
 import { filterTableItems, getSocialFollowFilterData } from './utils';
-import { StatusLoader } from '../../../Components/StatusLoader';
+import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 
 import './styles.css';
-import { MentionInput, MentionOutput } from './MentionInput';
-import { showToast } from '../../../utils/showToast';
 
 const LOADING_ROW_COUNT = 6;
 
@@ -78,6 +79,8 @@ export function TableSection({
   const tableItemsRef = useRef<Follow[]>([]);
   const tableIdsSetRef = useRef<Set<string>>(new Set());
 
+  const isMobile = isMobileDevice();
+
   const [modalData, setModalData] = useState<ModalData>({
     isOpen: false,
     dataType: '',
@@ -89,22 +92,20 @@ export function TableSection({
     matching: 0
   });
 
-  const dataKey = isFollowerQuery ? 'followerData' : 'followingData';
-  const { filters, mentionRawText, mention } = socialInfo[dataKey];
+  const followDataKey = isFollowerQuery ? 'followerData' : 'followingData';
+  const followData = socialInfo[followDataKey];
 
   const filterData = useMemo(
     () =>
       getSocialFollowFilterData({
-        filters,
-        mention,
+        ...followData,
         dappName: socialInfo.dappName,
         profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery
       }),
     [
-      filters,
+      followData,
       isFollowerQuery,
-      mention,
       socialInfo.dappName,
       socialInfo.profileTokenIds
     ]
@@ -123,8 +124,8 @@ export function TableSection({
           : data?.SocialFollowings?.Following) || [];
 
       const filteredItems = filterTableItems({
+        ...followData,
         items,
-        filters,
         dappName: socialInfo.dappName,
         isFollowerQuery
       }).filter(item => {
@@ -145,7 +146,7 @@ export function TableSection({
         matching: prev.matching + filteredItems.length
       }));
     },
-    [filters, isFollowerQuery, socialInfo.dappName]
+    [followData, isFollowerQuery, socialInfo.dappName]
   );
 
   const [fetchData, { loading, pagination }] = useLazyQueryWithPagination(
@@ -174,22 +175,22 @@ export function TableSection({
     tableIdsSetRef.current = new Set();
     setTableItems([]);
     fetchData({
-      identities: identities,
+      identity: identities[0],
       dappName: socialInfo.dappName,
       limit: MAX_LIMIT,
       ...filterData.queryFilters
     });
   }, [fetchData, identities, filterData.queryFilters, socialInfo.dappName]);
 
-  const updateQueryData = useCallback(
+  const handleQueryUpdate = useCallback(
     (data: object) => {
       setQueryData(
         {
           activeSocialInfo: getActiveSocialInfoString({
             ...socialInfo,
             followerTab: isFollowerQuery,
-            [dataKey]: {
-              ...socialInfo[dataKey],
+            [followDataKey]: {
+              ...followData,
               ...data
             }
           })
@@ -197,26 +198,26 @@ export function TableSection({
         { updateQueryParams: true }
       );
     },
-    [dataKey, isFollowerQuery, setQueryData, socialInfo]
+    [followData, followDataKey, isFollowerQuery, setQueryData, socialInfo]
   );
 
   const handleFiltersApply = useCallback(
     (filters: string[]) => {
-      updateQueryData({ filters });
+      handleQueryUpdate({ filters });
     },
-    [updateQueryData]
+    [handleQueryUpdate]
   );
 
   const handleMentionSubmit = useCallback(
     ({ rawText }: MentionOutput) => {
-      updateQueryData({ mentionRawText: rawText });
+      handleQueryUpdate({ mentionRawText: rawText });
     },
-    [updateQueryData]
+    [handleQueryUpdate]
   );
 
   const handleMentionClear = useCallback(() => {
-    updateQueryData({ mentionRawText: '' });
-  }, [updateQueryData]);
+    handleQueryUpdate({ mentionRawText: '' });
+  }, [handleQueryUpdate]);
 
   const handleAddressClick = useCallback(
     (address: string, type?: string) => {
@@ -256,24 +257,28 @@ export function TableSection({
 
   const isLensDapp = socialInfo.dappName === 'lens';
 
+  const mentionInputComponent = (
+    <MentionInput
+      defaultValue={followData.mentionRawText}
+      disabled={loading}
+      placeholder="Enter a token, NFT, or POAP to view overlap"
+      validationFn={mentionValidationFn}
+      onSubmit={handleMentionSubmit}
+      onClear={handleMentionClear}
+    />
+  );
+
   return (
     <>
       <Filters
         dappName={socialInfo.dappName}
-        selectedFilters={filters}
+        selectedFilters={followData.filters}
         isFollowerQuery={isFollowerQuery}
         disabled={loading}
+        customLeftComponent={isMobile ? undefined : mentionInputComponent}
         onApply={handleFiltersApply}
       />
-      <MentionInput
-        defaultValue={mentionRawText}
-        disabled={loading}
-        placeholder="Enter a token, NFT, or POAP to view overlap"
-        containerClassName="mb-4"
-        validationFn={mentionValidationFn}
-        onSubmit={handleMentionSubmit}
-        onClear={handleMentionClear}
-      />
+      {isMobile && <div className="mb-4">{mentionInputComponent}</div>}
       <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden overflow-y-auto mb-5">
         <InfiniteScroll
           next={handleNext}
@@ -281,12 +286,19 @@ export function TableSection({
           hasMore={hasNextPage}
           loader={null}
         >
-          <table className="social-follow-table">
+          <table className="sf-table">
             <thead>
               <tr>
-                <th>{isLensDapp ? 'Token image' : 'Profile image'}</th>
+                <th
+                  className={
+                    followData.mentionRawText ? 'w-[200px]' : undefined
+                  }
+                >
+                  {isLensDapp || followData.mentionRawText
+                    ? 'Token image'
+                    : 'Profile image'}
+                </th>
                 <th>{isLensDapp ? 'Lens' : 'Farcaster'}</th>
-                <th>{isLensDapp ? 'Token ID' : 'FID'}</th>
                 <th>Primary ENS</th>
                 <th>ENS</th>
                 <th>Wallet address</th>
@@ -315,14 +327,16 @@ export function TableSection({
           {loading && <TableLoader />}
         </InfiniteScroll>
       </div>
-      <AddressesModal
-        heading={`All ${modalData.dataType} names of ${identities[0]}`}
-        isOpen={modalData.isOpen}
-        addresses={modalData.addresses}
-        dataType={modalData.dataType}
-        onRequestClose={handleModalClose}
-        onAddressClick={handleAddressClick}
-      />
+      {modalData.isOpen && (
+        <LazyAddressesModal
+          heading={`All ${modalData.dataType} names of ${modalData.addresses[0]}`}
+          isOpen={modalData.isOpen}
+          addresses={modalData.addresses}
+          dataType={modalData.dataType}
+          onRequestClose={handleModalClose}
+          onAddressClick={handleAddressClick}
+        />
+      )}
       {(loading || loaderData.isVisible) && (
         <StatusLoader total={loaderData.total} matching={loaderData.matching} />
       )}

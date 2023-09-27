@@ -1,7 +1,7 @@
 import { useLazyQuery } from '@airstack/airstack-react';
 import classNames from 'classnames';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { AddressesModal } from '../../../Components/AddressesModal';
+import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { SocialQuery } from '../../../queries';
 import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
@@ -239,6 +239,7 @@ function SocialsComponent() {
           />
           <Social
             name="ENS names"
+            type="ens"
             values={_ensValues}
             image={iconMap['ens']}
             onAddressClick={handleAddressValue}
@@ -259,13 +260,15 @@ function SocialsComponent() {
           />
         </div>
       </div>
-      <AddressesModal
-        heading={`All ENS names of ${address[0]}`}
-        isOpen={modalData.isOpen}
-        addresses={modalData.addresses}
-        onRequestClose={handleModalClose}
-        onAddressClick={handleAddressClick}
-      />
+      {modalData.isOpen && (
+        <LazyAddressesModal
+          heading={`All ENS names of ${address[0]}`}
+          isOpen={modalData.isOpen}
+          addresses={address}
+          onRequestClose={handleModalClose}
+          onAddressClick={handleAddressClick}
+        />
+      )}
     </div>
   );
 }

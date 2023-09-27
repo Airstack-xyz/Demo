@@ -1,7 +1,14 @@
 import { FilterPlaceholder } from '../../../Components/Filters/FilterPlaceholder';
 import { FilterCheckbox } from '../../../Components/Filters/FilterCheckbox';
 import { useOutsideClick } from '../../../hooks/useOutsideClick';
-import { useState, useCallback, ChangeEvent, useMemo, useEffect } from 'react';
+import {
+  useState,
+  useCallback,
+  ChangeEvent,
+  useMemo,
+  useEffect,
+  ReactNode
+} from 'react';
 import {
   ALSO_FOLLOW_FILTER,
   MORE_THAN_N_FOLLOW_FILTER,
@@ -54,6 +61,7 @@ type FilterProps = {
   selectedFilters: string[];
   isFollowerQuery?: boolean;
   disabled?: boolean;
+  customLeftComponent?: ReactNode;
   onApply: (filters: string[]) => void;
 };
 
@@ -62,6 +70,7 @@ export function Filters({
   selectedFilters,
   isFollowerQuery,
   disabled,
+  customLeftComponent,
   onApply
 }: FilterProps) {
   const [currentFilters, setCurrentFilters] = useState<string[]>([]);
@@ -275,6 +284,7 @@ export function Filters({
 
   return (
     <div className="flex my-4">
+      {customLeftComponent && <div className="mr-2">{customLeftComponent}</div>}
       <div className="flex-1 text-xs text-text-secondary scroll-shadow-r">
         {renderChips()}
       </div>

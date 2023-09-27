@@ -29,12 +29,12 @@ export const getSocialFollowFilterData = ({
 
   // filter by profile ids for farcaster and lens (follower query only)
   if (dappName === 'farcaster' || (dappName === 'lens' && isFollowerQuery)) {
-    const key = isFollowerQuery ? 'followingProfileIds' : 'followerProfileIds';
-    queryFilters[key] = profileTokenIds;
+    const key = isFollowerQuery ? 'followingProfileId' : 'followerProfileId';
+    queryFilters[key] = profileTokenIds[0];
   }
 
   if (mention) {
-    logicalFilters.mentionData = mention;
+    logicalFilters.holdingData = mention;
   }
 
   filters?.forEach(filter => {
@@ -130,17 +130,31 @@ function filterByAlsoFollow(items: Follow[], isFollowerQuery: boolean) {
   });
 }
 
+function filterByHoldings(items: Follow[]) {
+  return items?.filter(item => {
+    return (
+      (item.followerAddress || item.followingAddress)?.holdings?.length > 0
+    );
+  });
+}
+
 export const filterTableItems = ({
   items,
   filters,
+  mention,
   isFollowerQuery
 }: {
   items: Follow[];
   filters: string[];
+  mention?: MentionValues | null;
   dappName: string;
   isFollowerQuery: boolean;
 }) => {
   let filteredItems = items;
+
+  if (mention) {
+    filteredItems = filterByHoldings(filteredItems);
+  }
 
   filters.forEach(filter => {
     if (filter === 'primaryEns') {
