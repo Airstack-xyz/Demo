@@ -16,6 +16,7 @@ export type MentionOutput = {
 type MentionInputProps = {
   defaultValue: string;
   placeholder: string;
+  tooltip?: string;
   className?: string;
   disabled?: boolean;
   disableSuggestions?: boolean;
@@ -29,6 +30,7 @@ const padding = '  ';
 export function MentionInput({
   defaultValue,
   placeholder,
+  tooltip,
   className,
   disabled,
   disableSuggestions,
@@ -39,6 +41,8 @@ export function MentionInput({
   const [value, setValue] = useState('');
 
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+
   const inputSectionRef = useRef<HTMLDivElement>(null);
   const buttonSectionRef = useRef<HTMLDivElement>(null);
 
@@ -67,6 +71,14 @@ export function MentionInput({
     return () => {
       document.removeEventListener('click', handleClickOutside, true);
     };
+  }, []);
+
+  const handleTooltipShow = useCallback(() => {
+    setIsTooltipVisible(true);
+  }, []);
+
+  const handleTooltipHide = useCallback(() => {
+    setIsTooltipVisible(false);
   }, []);
 
   const handleInputClear = useCallback(() => {
@@ -105,6 +117,8 @@ export function MentionInput({
   return (
     <div
       ref={inputSectionRef}
+      onMouseEnter={disabled ? handleTooltipShow : undefined}
+      onMouseLeave={disabled ? handleTooltipHide : undefined}
       className={classNames(
         'flex items-center h-[30px] w-[300px] border-solid-stroke rounded-full bg-glass px-3 py-1.5 sf-mention-input',
         className
@@ -130,6 +144,14 @@ export function MentionInput({
           </button>
         )}
       </div>
+      {disabled && isTooltipVisible && (
+        <div className="absolute left-4 top-4 z-20">
+          <img src="images/cursor.svg" height={30} width={30} />
+          <div className="bg-glass-1 rounded-[16px] py-1.5 px-3 w-max text-text-secondary">
+            {tooltip || 'Please wait until loading finishes'}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

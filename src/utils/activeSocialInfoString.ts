@@ -77,7 +77,7 @@ export const getActiveSocialInfo = (activeSocialInfo?: string) => {
     profileTokenIds: profileTokenIdsString
       ? profileTokenIdsString.split(',')
       : [],
-    followerTab: followerTab === '1',
+    followerTab: followerTab === '0' ? false : true,
     followerCount,
     followerData: {
       filters: followerFiltersString ? followerFiltersString.split(',') : [],
