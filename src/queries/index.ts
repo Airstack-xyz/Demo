@@ -7,6 +7,7 @@ export const TokensQuery = `query GetTokens($owner: Identity, $tokenType: [Token
       tokenType
       blockchain
       tokenAddress
+      formattedAmount
       tokenNfts {
         tokenId
         contentValue {
@@ -37,6 +38,7 @@ export const TokensQuery = `query GetTokens($owner: Identity, $tokenType: [Token
       tokenType
       blockchain
       tokenAddress
+      formattedAmount
       tokenNfts {
         tokenId
         contentValue {
@@ -68,6 +70,8 @@ export const POAPQuery = `query GetPOAPs($owner: Identity, $limit: Int $sortBy: 
       blockchain
       tokenId
       tokenAddress
+      tokenType
+      formattedAmount
       poapEvent {
         city
         eventName

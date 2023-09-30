@@ -61,6 +61,10 @@ export const getSocialFollowingsQuery = ({
         input: {filter: {eventId: {_in: ["${eventId}"]}}, limit: 1}
       ) {
         tokenId
+        tokenAddress
+        tokenType
+        blockchain
+        formattedAmount
         poapEvent {
           eventId
           contentValue {
@@ -76,7 +80,9 @@ export const getSocialFollowingsQuery = ({
       ) {
         tokenId
         tokenAddress
+        tokenType
         blockchain
+        formattedAmount
         token {
           logo {
             small

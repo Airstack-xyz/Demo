@@ -35,6 +35,10 @@
   @apply pb-5;
 }
 
+.sf-mention-input {
+  @apply flex items-center h-[30px] w-[300px] border-solid-stroke rounded-full bg-glass px-3 py-1.5;
+}
+
 .sf-mention-input .mentions {
   @apply text-xs;
 }

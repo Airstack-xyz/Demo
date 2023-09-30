@@ -45,7 +45,7 @@ const fields = `
         }
 `;
 
-function getQueryWithFiter(
+function getQueryWithFilter(
   owners: string[],
   index = 0,
   blockchain: string
@@ -53,7 +53,7 @@ function getQueryWithFiter(
   const children =
     owners.length - 1 === index
       ? fields
-      : getQueryWithFiter(owners, index + 1, blockchain);
+      : getQueryWithFilter(owners, index + 1, blockchain);
   return `token {
         name
         symbol
@@ -111,8 +111,8 @@ token {
 
 export function getQueryForBlockchain(owners: string[], isEth: boolean) {
   const blockchain = isEth ? 'ethereum' : 'polygon';
-  const childern =
-    owners.length === 1 ? fields : getQueryWithFiter(owners, 1, blockchain);
+  const children =
+    owners.length === 1 ? fields : getQueryWithFilter(owners, 1, blockchain);
   return `
     ${blockchain}: TokenBalances(
       input: {filter: {owner: {_eq: "${
@@ -121,7 +121,7 @@ export function getQueryForBlockchain(owners: string[], isEth: boolean) {
     ) {
       TokenBalance {
         ${owners.length > 1 ? tokenId : ''}
-        ${childern}
+        ${children}
       }
     }`;
 }

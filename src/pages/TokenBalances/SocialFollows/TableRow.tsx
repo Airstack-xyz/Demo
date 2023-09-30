@@ -1,9 +1,11 @@
+import { ReactNode } from 'react';
 import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
 import LazyImage from '../../../Components/LazyImage';
 import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
 import { WalletAddress } from '../../../Components/WalletAddress';
 import { Follow } from './types';
+import { formatNumber } from '../../../utils/formatNumber';
 
 export function TableRowLoader() {
   return (
@@ -18,18 +20,22 @@ export function TableRow({
   isLensDapp,
   isFollowerQuery,
   onShowMoreClick,
-  onAddressClick
+  onAddressClick,
+  onAssetClick
 }: {
   item: Follow;
   isFollowerQuery: boolean;
   isLensDapp: boolean;
   onShowMoreClick: (values: string[], dataType?: string) => void;
   onAddressClick: (address: string, dataType?: string) => void;
+  onAssetClick: (
+    tokenAddress: string,
+    tokenId: string,
+    blockchain: string,
+    eventId?: string
+  ) => void;
 }) {
   const wallet = isFollowerQuery ? item.followerAddress : item.followingAddress;
-
-  const holding = wallet?.holdings?.[0];
-  const isPoap = Boolean(holding?.poapEvent);
 
   const profileTokenId = isFollowerQuery
     ? item.followerProfileId
@@ -61,17 +67,7 @@ export function TableRow({
 
   const xmtpEnabled = wallet?.xmtp?.find(v => v.isXMTPEnabled);
 
-  const tokenImage =
-    holding?.token?.logo?.small ||
-    holding?.tokenNfts?.contentValue?.image?.extraSmall ||
-    holding?.token?.projectDetails?.imageUrl ||
-    holding?.poapEvent?.contentValue?.image?.extraSmall;
-
-  const tokenId = holding?.tokenId;
-  const tokenAddress = holding?.tokenAddress;
-  const tokenBlockchain = holding?.blockchain;
-
-  const tokenOrEventId = isPoap ? holding?.poapEvent?.eventId : tokenId;
+  const userId = social?.userId;
 
   const lensCell = (
     <ListWithMoreOptions
@@ -91,52 +87,108 @@ export function TableRow({
     />
   );
 
+  const renderAssets = () => {
+    const assets: ReactNode[] = [];
+    if (isLensDapp && social) {
+      assets.push(
+        <div
+          key="profile-token"
+          className="cursor-pointer"
+          onClick={() =>
+            onAssetClick(
+              social.profileTokenAddress,
+              social.profileTokenId,
+              social.blockchain
+            )
+          }
+        >
+          <Asset
+            preset="extraSmall"
+            containerClassName="h-[50px] w-[50px]"
+            imgProps={{
+              className: 'max-w-[50px] max-h-[50px]'
+            }}
+            chain={social.blockchain}
+            tokenId={social.profileTokenId}
+            address={social.profileTokenAddress}
+          />
+          <div className="mt-2">
+            {profileTokenId ? `#${profileTokenId}` : '--'}
+          </div>
+        </div>
+      );
+    } else {
+      assets.push(
+        <div key="profile-image">
+          <LazyImage
+            className="h-[50px] w-[50px] object-cover rounded"
+            src={social?.profileImage}
+          />
+        </div>
+      );
+    }
+
+    const holding = wallet?.holdings?.[0];
+
+    if (holding) {
+      const holdingEventId = holding?.poapEvent?.eventId;
+      const isPoap = Boolean(holdingEventId);
+
+      const holdingImage =
+        holding?.token?.logo?.small ||
+        holding?.tokenNfts?.contentValue?.image?.extraSmall ||
+        holding?.token?.projectDetails?.imageUrl ||
+        holding?.poapEvent?.contentValue?.image?.extraSmall;
+
+      const holdingTokenId = holding?.tokenId;
+      const holdingTokenAddress = holding?.tokenAddress;
+      const holdingBlockchain = holding?.blockchain;
+      const holdingFormattedAmount = holding?.formattedAmount;
+      const holdingType = holding?.tokenType;
+
+      let holdingText = null;
+
+      if (isPoap) {
+        holdingText = `#${holdingEventId}`;
+      } else if (holdingType === 'ERC20' && holdingFormattedAmount) {
+        holdingText = formatNumber(holdingFormattedAmount);
+      } else if (holdingTokenId) {
+        holdingText = `#${holdingTokenId}`;
+      }
+
+      assets.push(
+        <div
+          key="holding-token"
+          className="cursor-pointer"
+          onClick={() =>
+            onAssetClick(holdingTokenAddress, holdingTokenId, holdingBlockchain)
+          }
+        >
+          <Asset
+            preset="extraSmall"
+            containerClassName="h-[50px] w-[50px]"
+            imgProps={{ className: 'max-w-[50px] max-h-[50px]' }}
+            image={holdingImage}
+            chain={holdingBlockchain}
+            tokenId={holdingTokenId}
+            address={holdingTokenAddress}
+            useImageOnError={isPoap}
+          />
+          <div className="mt-2">{holdingText || '--'}</div>
+        </div>
+      );
+    }
+
+    return assets;
+  };
+
   return (
     <tr>
-      <td className="flex gap-2">
-        <div className="flex flex-col shrink-0 items-center">
-          {isLensDapp && social ? (
-            <>
-              <Asset
-                preset="extraSmall"
-                containerClassName="h-[50px] w-[50px]"
-                imgProps={{
-                  className: 'max-w-[50px] max-h-[50px]'
-                }}
-                chain={social.blockchain}
-                tokenId={social.profileTokenId}
-                address={social.profileTokenAddress}
-              />
-              <div className="mt-2">
-                {profileTokenId ? `#${profileTokenId}` : '--'}
-              </div>
-            </>
-          ) : (
-            <LazyImage
-              className="h-[50px] w-[50px] object-cover rounded"
-              src={social?.profileImage}
-            />
-          )}
-        </div>
-        {!!(tokenImage || tokenAddress) && (
-          <div className="flex flex-col shrink-0 items-center">
-            <Asset
-              preset="extraSmall"
-              containerClassName="h-[50px] w-[50px]"
-              imgProps={{ className: 'max-w-[50px] max-h-[50px]' }}
-              image={tokenImage}
-              chain={tokenBlockchain}
-              tokenId={tokenId}
-              address={tokenAddress}
-              useImageOnError={isPoap}
-            />
-            <div className="mt-2">
-              {tokenOrEventId ? `#${tokenOrEventId}` : '--'}
-            </div>
-          </div>
-        )}
+      <td className="flex gap-2 [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:shrink-0">
+        {renderAssets()}
       </td>
       <td>{isLensDapp ? lensCell : farcasterCell}</td>
+      {!isLensDapp && <td>{userId ? `#${userId}` : '--'}</td>}
       <td>
         <ListWithMoreOptions
           list={[primaryEns]}

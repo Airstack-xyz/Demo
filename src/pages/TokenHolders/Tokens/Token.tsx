@@ -14,6 +14,7 @@ import {
   useSearchInput
 } from '../../../hooks/useSearchInput';
 import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
+import { formatNumber } from '../../../utils/formatNumber';
 
 export function Token({
   token: tokenInProps,
@@ -47,6 +48,7 @@ export function Token({
       image: string;
       tokenId: string;
       tokenAddress: string;
+      formattedAmount?: string;
       blockchain: Chain;
       eventId: string | null;
       has6551?: boolean;
@@ -55,6 +57,10 @@ export function Token({
         image,
         tokenId,
         tokenAddress,
+        formattedAmount:
+          token?.tokenType === 'ERC20' && token.formattedAmount != null
+            ? formatNumber(token.formattedAmount)
+            : undefined,
         eventId: poap?.eventId,
         blockchain: token?.blockchain as Chain,
         has6551: token?.tokenNfts?.erc6551Accounts?.length > 0
@@ -72,6 +78,11 @@ export function Token({
         image: _image,
         tokenId: token?._tokenId || '',
         tokenAddress: token?._tokenAddress || '',
+        formattedAmount:
+          innerToken?.tokenType === 'ERC20' &&
+          innerToken.formattedAmount != null
+            ? formatNumber(innerToken.formattedAmount)
+            : undefined,
         eventId: token?._eventId,
         blockchain: poap?._blockchain as Chain,
         has6551: token?._tokenNfts?.erc6551Accounts?.length > 0
@@ -82,8 +93,8 @@ export function Token({
     image,
     tokenId,
     tokenAddress,
-    poap?.eventId,
-    poap?._blockchain,
+    token?.tokenType,
+    token?.formattedAmount,
     token?.blockchain,
     token?.tokenNfts?.erc6551Accounts?.length,
     token?._token,
@@ -93,7 +104,9 @@ export function Token({
     token?._poapEvent?.logo?.image?.small,
     token?._tokenId,
     token?._tokenAddress,
-    token?._eventId
+    token?._eventId,
+    poap?.eventId,
+    poap?._blockchain
   ]);
 
   const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
@@ -158,7 +171,17 @@ export function Token({
       >
         <div className="flex">
           {assets.map(
-            ({ tokenAddress, tokenId, blockchain, image, has6551 }, index) => (
+            (
+              {
+                tokenAddress,
+                tokenId,
+                blockchain,
+                image,
+                has6551,
+                formattedAmount
+              },
+              index
+            ) => (
               <div className="mr-1.5 last:!mr-0">
                 <div
                   className="relative token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden flex-col-center cursor-pointer"
@@ -209,7 +232,9 @@ export function Token({
                   )}
                 </div>
                 {isCombination && (
-                  <div className="text-[10px] mt-1 text-center">#{tokenId}</div>
+                  <div className="text-[10px] mt-1 text-center">
+                    {formattedAmount || `#${tokenId}`}
+                  </div>
                 )}
               </div>
             )
@@ -221,15 +246,14 @@ export function Token({
       </td>
       {!isCombination && (
         <td className="ellipsis">
-          {token?.tokenType === 'ERC20'
-            ? token?.formattedAmount
+          {token?.tokenType === 'ERC20' && token.formattedAmount != null
+            ? formatNumber(token.formattedAmount)
             : tokenId
             ? `#${tokenId}`
             : '--'}
         </td>
       )}
       <td className="ellipsis">
-        {}
         <ListWithMoreOptions
           list={[primaryEns || '']}
           onShowMore={getShowMoreHandler(ens, 'ens')}

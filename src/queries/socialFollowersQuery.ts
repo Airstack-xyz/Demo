@@ -62,7 +62,9 @@ export const getSocialFollowersQuery = ({
       ) {
         tokenId
         tokenAddress
+        tokenType
         blockchain
+        formattedAmount
         poapEvent {
           eventId
           contentValue {
@@ -78,7 +80,9 @@ export const getSocialFollowersQuery = ({
       ) {
         tokenId
         tokenAddress
+        tokenType
         blockchain
+        formattedAmount
         token {
           logo {
             small

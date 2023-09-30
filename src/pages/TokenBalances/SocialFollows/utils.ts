@@ -38,13 +38,13 @@ export const getSocialFollowFilterData = ({
   }
 
   filters?.forEach(filter => {
-    if (filter === 'farcaster' || filter === 'lens') {
-      const key = isFollowerQuery ? 'followerDappNames' : 'followingDappNames';
-      if (!Object.hasOwn(queryFilters, key)) {
-        queryFilters[key] = [];
-      }
-      queryFilters[key]?.push(filter);
-    }
+    // if (filter === 'farcaster' || filter === 'lens') {
+    //   const key = isFollowerQuery ? 'followerDappNames' : 'followingDappNames';
+    //   if (!Object.hasOwn(queryFilters, key)) {
+    //     queryFilters[key] = [];
+    //   }
+    //   queryFilters[key]?.push(filter);
+    // }
     if (filter === 'primaryEns') {
       const key = isFollowerQuery
         ? 'followerPrimaryDomain'

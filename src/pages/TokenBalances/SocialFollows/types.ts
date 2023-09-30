@@ -64,7 +64,9 @@ export type Wallet = {
   holdings: {
     tokenId: string;
     tokenAddress: string;
+    tokenType: string;
     blockchain: Chain;
+    formattedAmount: number;
     poapEvent: {
       eventId: string;
       contentValue: {

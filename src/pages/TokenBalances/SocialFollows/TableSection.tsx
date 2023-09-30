@@ -2,6 +2,7 @@ import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
+import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { StatusLoader } from '../../../Components/StatusLoader';
 import {
   UpdateUserInputs,
@@ -21,8 +22,7 @@ import { MentionInput, MentionOutput } from './MentionInput';
 import { TableRow, TableRowLoader } from './TableRow';
 import { Follow, SocialFollowResponse } from './types';
 import { filterTableItems, getSocialFollowFilterData } from './utils';
-import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
-
+import { getActiveTokenInfoString } from '../../../utils/activeTokenInfoString';
 import './styles.css';
 
 const LOADING_ROW_COUNT = 6;
@@ -58,7 +58,7 @@ const mentionValidationFn = ({ mentions }: MentionOutput) => {
     return false;
   }
   if (mentions.length > 1) {
-    showToast("Filter can't work with more than one entities", 'negative');
+    showToast('You can only enter one token at a time', 'negative');
     return false;
   }
   return true;
@@ -233,6 +233,29 @@ export function TableSection({
     [navigate]
   );
 
+  const handleAssetClick = useCallback(
+    (
+      tokenAddress: string,
+      tokenId: string,
+      blockchain: string,
+      eventId?: string
+    ) => {
+      setQueryData(
+        {
+          activeTokenInfo: getActiveTokenInfoString(
+            tokenAddress,
+            tokenId,
+            blockchain,
+            eventId
+          ),
+          activeSocialInfo: ''
+        },
+        { updateQueryParams: true }
+      );
+    },
+    [setQueryData]
+  );
+
   const handleShowMoreClick = (values: string[], type?: string) => {
     setModalData({
       isOpen: true,
@@ -261,7 +284,7 @@ export function TableSection({
     <MentionInput
       defaultValue={followData.mentionRawText}
       disabled={loading}
-      placeholder="Enter a token, NFT, or POAP to view overlap"
+      placeholder="Use @ mention or enter any token address"
       validationFn={mentionValidationFn}
       onSubmit={handleMentionSubmit}
       onClear={handleMentionClear}
@@ -299,6 +322,7 @@ export function TableSection({
                     : 'Profile image'}
                 </th>
                 <th>{isLensDapp ? 'Lens' : 'Farcaster'}</th>
+                {!isLensDapp && <th>FID</th>}
                 <th>Primary ENS</th>
                 <th>ENS</th>
                 <th>Wallet address</th>
@@ -315,6 +339,7 @@ export function TableSection({
                   isLensDapp={isLensDapp}
                   onShowMoreClick={handleShowMoreClick}
                   onAddressClick={handleAddressClick}
+                  onAssetClick={handleAssetClick}
                 />
               ))}
             </tbody>

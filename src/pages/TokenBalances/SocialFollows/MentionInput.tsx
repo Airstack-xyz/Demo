@@ -1,3 +1,4 @@
+import classNames from 'classnames';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Icon } from '../../../Components/Icon';
 import { InputWithMention } from '../../../Components/Input/Input';
@@ -5,7 +6,6 @@ import {
   MentionValues,
   getAllWordsAndMentions
 } from '../../../Components/Input/utils';
-import classNames from 'classnames';
 
 export type MentionOutput = {
   text: string;
@@ -115,34 +115,33 @@ export function MentionInput({
   };
 
   return (
-    <div
-      ref={inputSectionRef}
-      onMouseEnter={disabled ? handleTooltipShow : undefined}
-      onMouseLeave={disabled ? handleTooltipHide : undefined}
-      className={classNames(
-        'flex items-center h-[30px] w-[300px] border-solid-stroke rounded-full bg-glass px-3 py-1.5 sf-mention-input',
-        className
-      )}
-    >
-      <InputWithMention
-        value={value}
-        disabled={disabled}
-        onChange={setValue}
-        onSubmit={handleSubmit}
-        placeholder={placeholder}
-        disableSuggestions={disableSuggestions}
-      />
-      <div ref={buttonSectionRef} className="flex justify-end pl-2">
-        {isInputSectionFocused && value && (
-          <button type="submit">
-            <Icon name="search" width={16} height={16} />
-          </button>
-        )}
-        {!isInputSectionFocused && value && (
-          <button type="button" onClick={handleInputClear}>
-            <Icon name="close" width={14} height={14} />
-          </button>
-        )}
+    <div className="relative">
+      <div
+        ref={inputSectionRef}
+        onMouseEnter={disabled ? handleTooltipShow : undefined}
+        onMouseLeave={disabled ? handleTooltipHide : undefined}
+        className={classNames('sf-mention-input', className)}
+      >
+        <InputWithMention
+          value={value}
+          disabled={disabled}
+          onChange={setValue}
+          onSubmit={handleSubmit}
+          placeholder={placeholder}
+          disableSuggestions={disableSuggestions}
+        />
+        <div ref={buttonSectionRef} className="flex justify-end pl-2">
+          {isInputSectionFocused && value && (
+            <button type="submit">
+              <Icon name="search" width={16} height={16} />
+            </button>
+          )}
+          {!isInputSectionFocused && value && (
+            <button type="button" onClick={handleInputClear}>
+              <Icon name="close" width={14} height={14} />
+            </button>
+          )}
+        </div>
       </div>
       {disabled && isTooltipVisible && (
         <div className="absolute left-4 top-4 z-20">
