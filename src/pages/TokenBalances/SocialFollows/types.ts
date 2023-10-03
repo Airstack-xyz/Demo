@@ -46,6 +46,37 @@ export type Follow = {
   followingAddress: Wallet;
 };
 
+export type Holding = {
+  tokenId: string;
+  tokenAddress: string;
+  tokenType: string;
+  blockchain: Chain;
+  formattedAmount: number;
+  poapEvent: {
+    eventId: string;
+    contentValue: {
+      image: {
+        extraSmall: string;
+      };
+    };
+  };
+  token: {
+    logo: {
+      small: string;
+    };
+    projectDetails: {
+      imageUrl: string;
+    };
+  };
+  tokenNfts: {
+    contentValue: {
+      image: {
+        extraSmall: string;
+      };
+    };
+  };
+};
+
 export type Wallet = {
   socialFollowers: {
     Follower: Follow[];
@@ -69,36 +100,9 @@ export type Wallet = {
     id: string;
     profileTokenId: string;
   }[];
-  holdings: {
-    tokenId: string;
-    tokenAddress: string;
-    tokenType: string;
-    blockchain: Chain;
-    formattedAmount: number;
-    poapEvent: {
-      eventId: string;
-      contentValue: {
-        image: {
-          extraSmall: string;
-        };
-      };
-    };
-    token: {
-      logo: {
-        small: string;
-      };
-      projectDetails: {
-        imageUrl: string;
-      };
-    };
-    tokenNfts: {
-      contentValue: {
-        image: {
-          extraSmall: string;
-        };
-      };
-    };
-  }[];
+  poapHoldings: Holding[];
+  ethereumHoldings: Holding[];
+  polygonHoldings: Holding[];
   identity: string;
   addresses: string[];
   socials: {

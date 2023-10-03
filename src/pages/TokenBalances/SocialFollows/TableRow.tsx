@@ -129,7 +129,10 @@ export function TableRow({
       );
     }
 
-    const holding = wallet?.holdings?.[0];
+    const holding =
+      wallet?.poapHoldings?.[0] ||
+      wallet?.ethereumHoldings?.[0] ||
+      wallet?.polygonHoldings?.[0];
 
     if (holding) {
       const holdingEventId = holding?.poapEvent?.eventId;

@@ -132,8 +132,11 @@ function filterByAlsoFollow(items: Follow[], isFollowerQuery: boolean) {
 
 function filterByHoldings(items: Follow[]) {
   return items?.filter(item => {
+    const follow = item.followerAddress || item.followingAddress;
     return (
-      (item.followerAddress || item.followingAddress)?.holdings?.length > 0
+      follow?.poapHoldings?.length > 0 ||
+      follow?.ethereumHoldings?.length > 0 ||
+      follow?.polygonHoldings?.length > 0
     );
   });
 }

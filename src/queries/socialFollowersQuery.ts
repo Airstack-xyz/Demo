@@ -3,6 +3,28 @@ import {
   SocialFollowQueryFilters
 } from '../pages/TokenBalances/SocialFollows/types';
 
+const tokenBalanceFields = `
+tokenId
+tokenAddress
+tokenType
+blockchain
+formattedAmount
+token {
+  logo {
+    small
+  }
+  projectDetails {
+    imageUrl
+  }
+}
+tokenNfts {
+  contentValue {
+    image {
+      extraSmall
+    }
+  }
+}`;
+
 export const getSocialFollowersQuery = ({
   queryFilters,
   logicalFilters
@@ -69,9 +91,9 @@ export const getSocialFollowersQuery = ({
   if (logicalFilters.holdingData) {
     const { address, token, blockchain, eventId, customInputType } =
       logicalFilters.holdingData;
-    if (token === 'POAP' || customInputType === 'POAP') {
+    if (customInputType === 'POAP' || token === 'POAP') {
       const poapEventId = eventId || address;
-      logicalQueries.push(`holdings: poaps(
+      logicalQueries.push(`poapHoldings: poaps(
         input: {filter: {eventId: {_eq: "${poapEventId}"}}, limit: 1}
       ) {
         tokenId
@@ -87,36 +109,20 @@ export const getSocialFollowersQuery = ({
         }
       }`);
     } else {
-      const otherInputs = ['limit: 1'];
-      if (blockchain && token !== 'ADDRESS') {
-        otherInputs.push(`blockchain: ${blockchain}`);
+      if (blockchain === 'ethereum' || token === 'ADDRESS') {
+        logicalQueries.push(`ethereumHoldings: tokenBalances(
+            input: {filter: {tokenAddress: {_eq: "${address}"}}, blockchain: ethereum, limit: 1}
+          ) {
+            ${tokenBalanceFields}
+          }`);
       }
-      const otherInputsString = otherInputs.join(',');
-
-      logicalQueries.push(`holdings: tokenBalances(
-        input: {filter: {tokenAddress: {_eq: "${address}"}}${otherInputsString}}
-      ) {
-        tokenId
-        tokenAddress
-        tokenType
-        blockchain
-        formattedAmount
-        token {
-          logo {
-            small
-          }
-          projectDetails {
-            imageUrl
-          }
-        }
-        tokenNfts {
-          contentValue {
-            image {
-              extraSmall
-            }
-          }
-        }
-      }`);
+      if (blockchain === 'polygon' || token === 'ADDRESS') {
+        logicalQueries.push(`polygonHoldings: tokenBalances(
+            input: {filter: {tokenAddress: {_eq: "${address}"}}, blockchain: polygon, limit: 1}
+          ) {
+            ${tokenBalanceFields}
+          }`);
+      }
     }
   }
 
