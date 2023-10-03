@@ -88,7 +88,7 @@ export const getSocialFollowersQuery = ({
       }`);
     } else {
       const otherInputs = ['limit: 1'];
-      if (blockchain) {
+      if (blockchain && token !== 'ADDRESS') {
         otherInputs.push(`blockchain: ${blockchain}`);
       }
       const otherInputsString = otherInputs.join(',');
