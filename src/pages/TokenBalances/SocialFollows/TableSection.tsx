@@ -42,6 +42,7 @@ function TableLoader() {
 type ModalData = {
   isOpen: boolean;
   dataType?: string;
+  identity?: string;
   addresses: string[];
 };
 
@@ -53,10 +54,6 @@ type TableSectionProps = {
 };
 
 const mentionValidationFn = ({ mentions }: MentionOutput) => {
-  if (mentions.length === 0) {
-    showToast('Please use @ to add token, NFT, or POAP', 'negative');
-    return false;
-  }
   if (mentions.length > 1) {
     showToast('You can only enter one token at a time', 'negative');
     return false;
@@ -84,6 +81,7 @@ export function TableSection({
   const [modalData, setModalData] = useState<ModalData>({
     isOpen: false,
     dataType: '',
+    identity: '',
     addresses: []
   });
   const [loaderData, setLoaderData] = useState({
@@ -176,7 +174,6 @@ export function TableSection({
     setTableItems([]);
     fetchData({
       identity: identities[0],
-      dappName: socialInfo.dappName,
       limit: MAX_LIMIT,
       ...filterData.queryFilters
     });
@@ -247,8 +244,7 @@ export function TableSection({
             tokenId,
             blockchain,
             eventId
-          ),
-          activeSocialInfo: ''
+          )
         },
         { updateQueryParams: true }
       );
@@ -256,11 +252,16 @@ export function TableSection({
     [setQueryData]
   );
 
-  const handleShowMoreClick = (values: string[], type?: string) => {
+  const handleShowMoreClick = (
+    addresses: string[],
+    dataType?: string,
+    identity?: string
+  ) => {
     setModalData({
       isOpen: true,
-      dataType: type,
-      addresses: values
+      dataType,
+      addresses,
+      identity
     });
   };
 
@@ -279,11 +280,12 @@ export function TableSection({
   }, [getNextPage, hasNextPage, loading]);
 
   const isLensDapp = socialInfo.dappName === 'lens';
+  const isInputDisabled = loading || loaderData.isVisible;
 
   const mentionInputComponent = (
     <MentionInput
       defaultValue={followData.mentionRawText}
-      disabled={loading}
+      disabled={isInputDisabled}
       placeholder="Use @ mention or enter any token address"
       validationFn={mentionValidationFn}
       onSubmit={handleMentionSubmit}
@@ -297,7 +299,7 @@ export function TableSection({
         dappName={socialInfo.dappName}
         selectedFilters={followData.filters}
         isFollowerQuery={isFollowerQuery}
-        disabled={loading}
+        disabled={isInputDisabled}
         customLeftComponent={isMobile ? undefined : mentionInputComponent}
         onApply={handleFiltersApply}
       />
@@ -354,7 +356,9 @@ export function TableSection({
       </div>
       {modalData.isOpen && (
         <LazyAddressesModal
-          heading={`All ${modalData.dataType} names of ${modalData.addresses[0]}`}
+          heading={`All ${modalData.dataType} names of ${
+            modalData?.identity || modalData.addresses[0]
+          }`}
           isOpen={modalData.isOpen}
           addresses={modalData.addresses}
           dataType={modalData.dataType}

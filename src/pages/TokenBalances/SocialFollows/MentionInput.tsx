@@ -16,12 +16,11 @@ export type MentionOutput = {
 type MentionInputProps = {
   defaultValue: string;
   placeholder: string;
-  tooltip?: string;
   className?: string;
   disabled?: boolean;
   disableSuggestions?: boolean;
-  onSubmit: (params: MentionOutput) => void;
   validationFn?: (params: MentionOutput) => boolean;
+  onSubmit: (params: MentionOutput) => void;
   onClear?: () => void;
 };
 
@@ -30,7 +29,6 @@ const padding = '  ';
 export function MentionInput({
   defaultValue,
   placeholder,
-  tooltip,
   className,
   disabled,
   disableSuggestions,
@@ -41,7 +39,6 @@ export function MentionInput({
   const [value, setValue] = useState('');
 
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
-  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
 
   const inputSectionRef = useRef<HTMLDivElement>(null);
   const buttonSectionRef = useRef<HTMLDivElement>(null);
@@ -73,34 +70,32 @@ export function MentionInput({
     };
   }, []);
 
-  const handleTooltipShow = useCallback(() => {
-    setIsTooltipVisible(true);
-  }, []);
-
-  const handleTooltipHide = useCallback(() => {
-    setIsTooltipVisible(false);
-  }, []);
-
   const handleInputClear = useCallback(() => {
     setValue('');
     onClear?.();
   }, [onClear]);
 
-  const handleSubmit = (value: string) => {
+  const handleInputSubmit = () => {
+    handleSubmit(value);
+  };
+
+  const handleSubmit = (mentionValue: string) => {
     setIsInputSectionFocused(false);
 
     const rawInput: string[] = [];
     const words: string[] = [];
     const mentions: MentionValues[] = [];
 
-    getAllWordsAndMentions(value).forEach(({ word, mention, rawValue }) => {
-      rawInput.push(rawValue);
-      words.push(word);
-      if (mention) {
-        mentions.push(mention);
-        return;
+    getAllWordsAndMentions(mentionValue).forEach(
+      ({ word, mention, rawValue }) => {
+        rawInput.push(rawValue);
+        words.push(word);
+        if (mention) {
+          mentions.push(mention);
+          return;
+        }
       }
-    });
+    );
 
     const rawText = rawInput.join(padding);
     const text = words.join(' ');
@@ -115,42 +110,34 @@ export function MentionInput({
   };
 
   return (
-    <div className="relative">
-      <div
-        ref={inputSectionRef}
-        onMouseEnter={disabled ? handleTooltipShow : undefined}
-        onMouseLeave={disabled ? handleTooltipHide : undefined}
-        className={classNames('sf-mention-input', className)}
-      >
-        <InputWithMention
-          value={value}
-          disabled={disabled}
-          onChange={setValue}
-          onSubmit={handleSubmit}
-          placeholder={placeholder}
-          disableSuggestions={disableSuggestions}
-        />
-        <div ref={buttonSectionRef} className="flex justify-end pl-2">
-          {isInputSectionFocused && value && (
-            <button type="submit">
-              <Icon name="search" width={16} height={16} />
-            </button>
-          )}
-          {!isInputSectionFocused && value && (
-            <button type="button" onClick={handleInputClear}>
-              <Icon name="close" width={14} height={14} />
-            </button>
-          )}
-        </div>
-      </div>
-      {disabled && isTooltipVisible && (
-        <div className="absolute left-4 top-4 z-20">
-          <img src="images/cursor.svg" height={30} width={30} />
-          <div className="bg-glass-1 rounded-[16px] py-1.5 px-3 w-max text-text-secondary">
-            {tooltip || 'Please wait until loading finishes'}
-          </div>
-        </div>
+    <div
+      ref={inputSectionRef}
+      className={classNames(
+        'sf-mention-input',
+        { 'cursor-not-allowed': disabled },
+        className
       )}
+    >
+      <InputWithMention
+        value={value}
+        disabled={disabled}
+        onChange={setValue}
+        onSubmit={handleSubmit}
+        placeholder={placeholder}
+        disableSuggestions={disableSuggestions}
+      />
+      <div ref={buttonSectionRef} className="flex justify-end pl-2">
+        {isInputSectionFocused && value && (
+          <button type="button" onClick={handleInputSubmit}>
+            <Icon name="search" width={16} height={16} />
+          </button>
+        )}
+        {!isInputSectionFocused && value && (
+          <button type="button" onClick={handleInputClear}>
+            <Icon name="close" width={14} height={14} />
+          </button>
+        )}
+      </div>
     </div>
   );
 }

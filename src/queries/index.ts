@@ -70,8 +70,6 @@ export const POAPQuery = `query GetPOAPs($owner: Identity, $limit: Int $sortBy: 
       blockchain
       tokenId
       tokenAddress
-      tokenType
-      formattedAmount
       poapEvent {
         city
         eventName
@@ -403,9 +401,10 @@ export const PoapOverviewQuery = `query GetPoapOverview($eventId: String) {
   }
 }`;
 
-export const DomainsQuery = `query GetDomains($addresses: [Identity!] $limit:Int) {
-  Domains(input: {filter: {owner: {_in: $addresses}}, blockchain: ethereum, limit:$limit}) {
+export const DomainsQuery = `query GetDomains($addresses: [Address!] $limit:Int) {
+  Domains(input: {filter: {resolvedAddress: {_in: $addresses}}, blockchain: ethereum, limit:$limit}) {
     Domain {
+      id
       name
     }
   }
@@ -416,6 +415,7 @@ export const SocialsQuery = `query GetSocials($addresses: [Identity!], $dappName
     input: {filter: {identity: {_in: $addresses}, dappName: {_eq: $dappName}}, blockchain: ethereum, limit: $limit}
   ) {
     Social {
+      id
       profileName
     }
   }

@@ -1,8 +1,8 @@
-import { useQueryWithPagination } from '@airstack/airstack-react';
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { Modal } from './Modal';
 import { DomainsQuery, SocialsQuery } from '../queries';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 const LOADING_ITEM_COUNT = 16;
 
@@ -73,10 +73,13 @@ export function LazyAddressesModal({
 
   const query = isENS ? DomainsQuery : SocialsQuery;
 
-  const {
-    loading,
-    pagination: { hasNextPage, getNextPage }
-  } = useQueryWithPagination(
+  const [
+    fetchData,
+    {
+      loading,
+      pagination: { hasNextPage, getNextPage }
+    }
+  ] = useLazyQueryWithPagination(
     query,
     {
       addresses,
@@ -84,9 +87,19 @@ export function LazyAddressesModal({
       limit: LIMIT
     },
     {
-      onCompleted: handleData
+      onCompleted: handleData,
+      cache: false
     }
   );
+
+  useEffect(() => {
+    setItems([]);
+    fetchData({
+      addresses,
+      dappName: isENS ? undefined : dataType,
+      limit: LIMIT
+    });
+  }, [addresses, dataType, fetchData, isENS]);
 
   const handleNext = useCallback(() => {
     if (hasNextPage && !loading) {

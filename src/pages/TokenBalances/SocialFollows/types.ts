@@ -53,14 +53,22 @@ export type Wallet = {
   socialFollowings: {
     Following: Follow[];
   };
-  alsoFollow: {
+  alsoFollows: {
     Follower: Follow[];
     Following: Follow[];
   };
-  mutualFollow: {
+  mutualFollows: {
     Follower: Follow[];
     Following: Follow[];
   };
+  lensSocials: {
+    id: string;
+    profileTokenId: string;
+  }[];
+  farcasterSocials: {
+    id: string;
+    profileTokenId: string;
+  }[];
   holdings: {
     tokenId: string;
     tokenAddress: string;
@@ -108,7 +116,6 @@ export type Wallet = {
   };
   domains: {
     name: string;
-    dappName: string;
   }[];
   xmtp: {
     isXMTPEnabled: boolean;
@@ -116,18 +123,17 @@ export type Wallet = {
 };
 
 export type SocialFollowQueryFilters = {
+  dappName: string;
   followerProfileId?: string;
-  followerPrimaryDomain?: boolean;
   followerCount?: number;
-  followerDappNames?: string[];
   followingProfileId?: string;
-  followingPrimaryDomain?: boolean;
   followingCount?: number;
-  followingDappNames?: string[];
 };
 
 export type SocialFollowLogicalFilters = {
   alsoFollow?: string;
   mutualFollow?: boolean;
   holdingData?: MentionValues | null;
+  lensSocial?: boolean;
+  farcasterSocial?: boolean;
 };

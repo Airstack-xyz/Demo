@@ -352,7 +352,6 @@ function TokenBalancePage() {
         socialFollowersDetailsQuery,
         {
           identity: address[0],
-          dappName: socialInfo.dappName,
           limit: 10,
           ...socialFollowersFilterData.queryFilters
         }
@@ -361,8 +360,7 @@ function TokenBalancePage() {
       const socialFollowingDetailsLink = createAppUrlWithQuery(
         socialFollowingDetailsQuery,
         {
-          identities: address,
-          dappName: socialInfo.dappName,
+          identity: address[0],
           limit: 10,
           ...socialFollowingsFilterData.queryFilters
         }
@@ -456,6 +454,7 @@ function TokenBalancePage() {
           activeTokens={activeTokens}
           key={activeTokenInfo}
           showLoader={loadingAccount}
+          socialInfo={socialInfo}
           onClose={() => setData({ activeTokenInfo: '' })}
           hideBackBreadcrumb={hideBackBreadcrumb}
         />

@@ -26,7 +26,11 @@ export function TableRow({
   item: Follow;
   isFollowerQuery: boolean;
   isLensDapp: boolean;
-  onShowMoreClick: (values: string[], dataType?: string) => void;
+  onShowMoreClick: (
+    addresses: string[],
+    dataType?: string,
+    identity?: string
+  ) => void;
   onAddressClick: (address: string, dataType?: string) => void;
   onAssetClick: (
     tokenAddress: string,
@@ -42,9 +46,6 @@ export function TableRow({
     : item.followingProfileId;
 
   const primaryEns = wallet?.primaryDomain?.name || '';
-
-  const getShowMoreHandler = (type: string) => () =>
-    onShowMoreClick([primaryEns], type);
 
   const social = wallet?.socials?.find(
     v => v.profileTokenId === profileTokenId
@@ -73,7 +74,7 @@ export function TableRow({
     <ListWithMoreOptions
       list={lensAddresses}
       listFor="lens"
-      onShowMore={getShowMoreHandler('lens')}
+      onShowMore={() => onShowMoreClick([primaryEns], 'lens')}
       onItemClick={onAddressClick}
     />
   );
@@ -82,7 +83,7 @@ export function TableRow({
     <ListWithMoreOptions
       list={farcasterAddresses}
       listFor="farcaster"
-      onShowMore={getShowMoreHandler('farcaster')}
+      onShowMore={() => onShowMoreClick([primaryEns], 'farcaster')}
       onItemClick={onAddressClick}
     />
   );
@@ -193,7 +194,6 @@ export function TableRow({
         <ListWithMoreOptions
           list={[primaryEns]}
           listFor="ens"
-          onShowMore={getShowMoreHandler('ens')}
           onItemClick={onAddressClick}
         />
       </td>
@@ -201,7 +201,9 @@ export function TableRow({
         <ListWithMoreOptions
           list={ens}
           listFor="ens"
-          onShowMore={getShowMoreHandler('ens')}
+          onShowMore={() =>
+            onShowMoreClick(wallet?.addresses, 'ens', primaryEns)
+          }
           onItemClick={onAddressClick}
         />
       </td>
