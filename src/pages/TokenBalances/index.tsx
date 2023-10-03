@@ -326,7 +326,7 @@ function TokenBalancePage() {
       }
     }
 
-    if (socialInfo.isApplicable) {
+    if (!showTokenDetails && socialInfo.isApplicable) {
       const formattedDappName = capitalizeFirstLetter(socialInfo.dappName);
       const socialFollowersFilterData = getSocialFollowFilterData({
         ...socialInfo.followerData,

@@ -162,7 +162,12 @@ export function TableRow({
           key="holding-token"
           className="cursor-pointer"
           onClick={() =>
-            onAssetClick(holdingTokenAddress, holdingTokenId, holdingBlockchain)
+            onAssetClick(
+              holdingTokenAddress,
+              holdingTokenId,
+              holdingBlockchain,
+              holdingEventId
+            )
           }
         >
           <Asset

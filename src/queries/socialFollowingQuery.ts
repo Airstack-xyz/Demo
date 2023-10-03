@@ -70,8 +70,9 @@ export const getSocialFollowingsQuery = ({
     const { address, token, blockchain, eventId, customInputType } =
       logicalFilters.holdingData;
     if (token === 'POAP' || customInputType === 'POAP') {
+      const poapEventId = eventId || address;
       logicalQueries.push(`holdings: poaps(
-        input: {filter: {eventId: {_eq: "${eventId}"}}, limit: 1}
+        input: {filter: {eventId: {_eq: "${poapEventId}"}}, limit: 1}
       ) {
         tokenId
         tokenAddress

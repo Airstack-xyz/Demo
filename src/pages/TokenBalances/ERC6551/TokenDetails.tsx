@@ -294,7 +294,7 @@ export function TokenDetails(props: {
                 width={20}
               />
               <span className="ml-1 text-text-secondary break-all cursor-pointer ellipsis">
-                Token {isTokenBalances ? 'balances' : 'holders'} of
+                Token {isTokenBalances ? 'balances' : 'holders'} of{' '}
                 {address.join(', ')}
               </span>
             </div>
@@ -320,6 +320,7 @@ export function TokenDetails(props: {
           const isActiveToken = index === activeTokens.length - 1;
           return (
             <div
+              key={_tokenId}
               className={classNames('flex items-center overflow-hidden', {
                 'skeleton-loader': loading
               })}
