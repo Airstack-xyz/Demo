@@ -1,6 +1,6 @@
 const toastContainerId = 'toast-container';
 
-function createToatElement(message: string, type: 'positive' | 'negative') {
+function createToastElement(message: string, type: 'positive' | 'negative') {
   const toast = document.createElement('div');
   toast.className = `${
     type === 'positive' ? 'bg-toast-positive' : 'bg-toast-negative'
@@ -9,7 +9,7 @@ function createToatElement(message: string, type: 'positive' | 'negative') {
   return toast;
 }
 
-function getCotainer(root: HTMLElement) {
+function getContainer(root: HTMLElement) {
   let container = document.getElementById(toastContainerId);
 
   if (!container) {
@@ -29,8 +29,8 @@ export function showToast(
 ) {
   const root = document.getElementById('root');
   if (!root) return;
-  const container = getCotainer(root);
-  const toast = createToatElement(message, type);
+  const container = getContainer(root);
+  const toast = createToastElement(message, type);
 
   container.appendChild(toast);
 

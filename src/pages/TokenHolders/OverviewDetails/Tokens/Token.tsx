@@ -2,10 +2,11 @@ import { Poap, Token as TokenType } from '../../types';
 import { Icon } from '../../../../Components/Icon';
 import { useMemo, useCallback } from 'react';
 import { getDAppType } from '../../utils';
-import { ListWithMoreOptions } from '../../Tokens/ListWithMoreOptions';
+import { ListWithMoreOptions } from '../../../../Components/ListWithMoreOptions';
 import { useNavigate } from 'react-router-dom';
 import { createTokenBalancesUrl } from '../../../../utils/createTokenUrl';
-import { WalletAddress } from '../../Tokens/WalletAddress';
+import { WalletAddress } from '../../../../Components/WalletAddress';
+import { resetCachedUserInputs } from '../../../../hooks/useSearchInput';
 
 export function Token({
   token,
@@ -51,13 +52,13 @@ export function Token({
   const handleAddressClick = useCallback(
     (address: string, type = '') => {
       const isFarcaster = type?.includes('farcaster');
-      navigate(
-        createTokenBalancesUrl({
-          address: isFarcaster ? `fc_fname:${address}` : address,
-          blockchain: 'ethereum',
-          inputType: 'ADDRESS'
-        })
-      );
+      const url = createTokenBalancesUrl({
+        address: isFarcaster ? `fc_fname:${address}` : address,
+        blockchain: 'ethereum',
+        inputType: 'ADDRESS'
+      });
+      resetCachedUserInputs('tokenBalance');
+      navigate(url);
     },
     [navigate]
   );

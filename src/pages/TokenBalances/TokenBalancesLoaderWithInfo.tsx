@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { StatusLoader } from '../TokenHolders/OverviewDetails/Tokens/StatusLoader';
+import { StatusLoader } from '../../Components/StatusLoader';
 import { subscribe } from '../../utils/eventEmitter/eventEmitter';
 import { useSearchInput } from '../../hooks/useSearchInput';
 

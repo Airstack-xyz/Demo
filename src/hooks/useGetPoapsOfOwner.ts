@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { UserInputs } from './useSearchInput';
-import { defaultSortOrder } from '../pages/TokenBalances/SortBy';
+import { defaultSortOrder } from '../Components/Filters/SortBy';
 import { CommonPoapType, PoapType } from '../pages/TokenBalances/types';
 import { poapsOfCommonOwnersQuery } from '../queries/poapsOfCommonOwnersQuery';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';

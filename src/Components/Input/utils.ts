@@ -32,9 +32,9 @@ export interface SearchAIMentions_SearchAIMentions {
 
 export const ID_REGEX = /#⎱.+?⎱\((.+?)\)\s*/g;
 export const NAME_REGEX = /#⎱(.+?)⎱\(.+?\)/g;
-export const REGEX_LAST_WORD_STARTS_WITH_AT = /\s@[^\s-]*$/g;
-export const REGEX_FIRST_WORD_IS_AT = /^@[^\s-]*/g;
-const REGEX_FISRT_WORD = /([^\s-]*)/;
+export const REGEX_LAST_WORD_STARTS_WITH_AT = /\s@[^\s]*$/g;
+export const REGEX_FIRST_WORD_IS_AT = /^@[^\s]*/g;
+const REGEX_FIRST_WORD = /([^\s]*)/;
 
 const tokenValuePrefixMap: Record<MentionType, string> = {
   [MentionType.NFT_COLLECTION]: 'NFT collection',
@@ -88,7 +88,7 @@ export function highlightMentionText(root: HTMLElement, matched = false) {
     // there is chance that the whole mention word is not in the single node
     // this can happen when the cursor is in the middle of the mention word
     if (matched && node) {
-      updateOnMatch(node, REGEX_FISRT_WORD);
+      updateOnMatch(node, REGEX_FIRST_WORD);
       matched = false;
       return;
     }
@@ -132,10 +132,6 @@ export function highlightMention(el: HTMLTextAreaElement | null) {
   };
 }
 
-export function capitalizeFirstLetter(str: string) {
-  const capitalized = str.charAt(0).toUpperCase() + str.slice(1);
-  return capitalized;
-}
 // id format: <address> <token type> <blockchain>
 export function generateId(mention: SearchAIMentions_SearchAIMentions) {
   return `${mention.address} ${mention.type} ${mention.blockchain} ${mention.eventId}`;
@@ -172,13 +168,14 @@ export function isMention(str: string) {
   return Boolean(/#⎱.+?⎱\((.+?)\)\s*/g.exec(str));
 }
 
-type MentionValues = {
+export type MentionValues = {
   address: string;
   token?: string;
   blockchain?: string;
   eventId?: string | null;
   customInputType?: string;
 };
+
 export function getValuesFromId(id: string): MentionValues {
   const match = /#⎱.+?⎱\((.+?)\)\s*/g.exec(id);
   if (!match) return { address: id };
@@ -221,16 +218,16 @@ function getRawString(string: string) {
   });
 }
 
-type WordWitnMention = {
+type WordWithMention = {
   word: string;
   rawValue: string;
   mention?: MentionValues;
 };
 
-export function getAllWordsAndMentions(query: string): WordWitnMention[] {
+export function getAllWordsAndMentions(query: string): WordWithMention[] {
   const matches = query.matchAll(/#⎱.+?⎱\((.+?)\)\s*/g);
 
-  const wordsAndMentions: WordWitnMention[] = [];
+  const wordsAndMentions: WordWithMention[] = [];
   let currentIndex = 0;
 
   [...matches].forEach(match => {
