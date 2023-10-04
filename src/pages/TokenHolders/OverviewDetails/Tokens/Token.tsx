@@ -22,7 +22,7 @@ export function Token({
     : Array.isArray(walletAddresses)
     ? walletAddresses[0]
     : '';
-  const primarEns = owner?.primaryDomain?.name || '';
+  const primaryEns = owner?.primaryDomain?.name || '';
   const ens = owner?.domains?.map(domain => domain.name) || [];
   const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
   const navigate = useNavigate();
@@ -77,7 +77,7 @@ export function Token({
       </td>
       <td className="ellipsis">
         <ListWithMoreOptions
-          list={[primarEns || '']}
+          list={[primaryEns || '']}
           onShowMore={getShowMoreHandler(ens, 'ens')}
           listFor="ens"
           onItemClick={handleAddressClick}

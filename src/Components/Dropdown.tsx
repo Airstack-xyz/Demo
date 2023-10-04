@@ -15,7 +15,8 @@ export function Dropdown({
   renderPlaceholder,
   onChange,
   disabled,
-  heading
+  heading,
+  footerComponent
 }: {
   options: Option[];
   selected?: Option[];
@@ -30,6 +31,7 @@ export function Dropdown({
   onChange: (selected: Option[]) => void;
   disabled?: boolean;
   heading?: string;
+  footerComponent?: ReactNode;
 }) {
   const [_selected, setSelected] = useState<Option[]>([]);
   const [show, setShow] = useState(false);
@@ -82,6 +84,7 @@ export function Dropdown({
               })}
             </div>
           ))}
+          {footerComponent}
         </div>
       )}
     </div>

@@ -103,12 +103,12 @@ function getFields(tokenAddress: string) {
   return isToken ? fields : poapFields;
 }
 
-function getQueryWithFiter(tokens: string[], index = 0): string {
+function getQueryWithFilter(tokens: string[], index = 0): string {
   const isToken = tokens[index].startsWith('0x');
   const children =
     tokens.length - 1 === index
       ? getFields(tokens[index])
-      : getQueryWithFiter(tokens, index + 1);
+      : getQueryWithFilter(tokens, index + 1);
   return `owner {
         ${isToken ? 'tokenBalances' : 'poaps'}(
           input: {filter: {${isToken ? 'tokenAddress' : 'eventId'}: {_eq: "${
@@ -140,10 +140,10 @@ export function commonOwnersQueryDynamic(tokenAddress: string[]) {
   // make sure the tokenAddress had tokens alwasy first
   tokenAddress = sortArray(tokenAddress);
   const isToken = tokenAddress[0].startsWith('0x');
-  const childern =
+  const children =
     tokenAddress.length === 1
       ? getFields(tokenAddress[0])
-      : getQueryWithFiter(tokenAddress, 1);
+      : getQueryWithFilter(tokenAddress, 1);
 
   return `query GetTokenAndPoapsHolders($limit: Int) {
     ethereum: ${isToken ? 'TokenBalances' : 'Poaps'}(
@@ -153,7 +153,7 @@ export function commonOwnersQueryDynamic(tokenAddress: string[]) {
     ) {
       TokenBalance {
         ${tokenAddress.length > 1 ? fieldsWithAsset : ''} 
-        ${childern}
+        ${children}
       }
     }
     ${
@@ -165,7 +165,7 @@ export function commonOwnersQueryDynamic(tokenAddress: string[]) {
     ) {
       TokenBalance {
         ${tokenAddress.length > 1 ? fieldsWithAsset : ''}
-        ${childern}
+        ${children}
       }
     }`
         : ''

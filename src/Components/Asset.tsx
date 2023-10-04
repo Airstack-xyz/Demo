@@ -29,7 +29,7 @@ export function Asset({ image, useImageOnError, ...props }: AssetProps) {
     !props.address ||
     !props.tokenId
   ) {
-    return <Image src={image} />;
+    return <Image {...props.imgProps} src={image} />;
   }
 
   return (
@@ -37,9 +37,10 @@ export function Asset({ image, useImageOnError, ...props }: AssetProps) {
       preset="medium"
       error={
         useImageOnError && image ? (
-          <Image src={image} />
+          <Image {...props.imgProps} src={image} />
         ) : (
           <img
+            {...props.imgProps}
             src="images/placeholder.svg"
             data-type="error-placeholder"
             alt="error"
@@ -48,6 +49,7 @@ export function Asset({ image, useImageOnError, ...props }: AssetProps) {
       }
       loading={
         <img
+          {...props.imgProps}
           src="images/placeholder.svg"
           data-type="loading-placeholder"
           alt="loading"

@@ -326,16 +326,16 @@ function TokenBalancePage() {
       }
     }
 
-    if (socialInfo.isApplicable) {
+    if (!showTokenDetails && socialInfo.isApplicable) {
       const formattedDappName = capitalizeFirstLetter(socialInfo.dappName);
       const socialFollowersFilterData = getSocialFollowFilterData({
-        filters: socialInfo.followerFilters,
+        ...socialInfo.followerData,
         dappName: socialInfo.dappName,
         profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery: true
       });
       const socialFollowingsFilterData = getSocialFollowFilterData({
-        filters: socialInfo.followingFilters,
+        ...socialInfo.followingData,
         dappName: socialInfo.dappName,
         profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery: false
@@ -351,8 +351,7 @@ function TokenBalancePage() {
       const socialFollowersDetailsLink = createAppUrlWithQuery(
         socialFollowersDetailsQuery,
         {
-          identities: address,
-          dappName: socialInfo.dappName,
+          identity: address[0],
           limit: 10,
           ...socialFollowersFilterData.queryFilters
         }
@@ -361,8 +360,7 @@ function TokenBalancePage() {
       const socialFollowingDetailsLink = createAppUrlWithQuery(
         socialFollowingDetailsQuery,
         {
-          identities: address,
-          dappName: socialInfo.dappName,
+          identity: address[0],
           limit: 10,
           ...socialFollowingsFilterData.queryFilters
         }
@@ -401,9 +399,9 @@ function TokenBalancePage() {
     showTokenDetails,
     socialInfo.isApplicable,
     socialInfo.dappName,
-    socialInfo.followerFilters,
+    socialInfo.followerData,
     socialInfo.profileTokenIds,
-    socialInfo.followingFilters,
+    socialInfo.followingData,
     socialInfo.profileNames,
     token,
     query
@@ -456,6 +454,7 @@ function TokenBalancePage() {
           activeTokens={activeTokens}
           key={activeTokenInfo}
           showLoader={loadingAccount}
+          socialInfo={socialInfo}
           onClose={() => setData({ activeTokenInfo: '' })}
           hideBackBreadcrumb={hideBackBreadcrumb}
         />

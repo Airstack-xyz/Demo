@@ -36,6 +36,8 @@ export function getCommonPoapAndNftOwnersQuery(
           tokenBalances(input: {filter: {tokenAddress: {_eq: "${tokenId.address}"}}, blockchain: ${tokenId.blockchain}}) {
             tokenId
             tokenAddress
+            tokenType
+            formattedAmount
             blockchain
             token {
               logo {
