@@ -206,10 +206,10 @@ function SocialsComponent() {
     [wallet?.socials]
   );
 
-  const _primaryEnsValues = wallet?.primaryDomain?.name
+  const primaryEnsValues = wallet?.primaryDomain?.name
     ? [wallet.primaryDomain.name]
     : ['--'];
-  const _ensValues =
+  const ensValues =
     domainsList && domainsList.length > 0 ? domainsList : ['--'];
 
   return (
@@ -233,14 +233,14 @@ function SocialsComponent() {
           <Social
             name="Primary ENS"
             type="ens"
-            values={_primaryEnsValues}
+            values={primaryEnsValues}
             image={iconMap['ens']}
             onAddressClick={handleAddressValue}
           />
           <Social
             name="ENS names"
             type="ens"
-            values={_ensValues}
+            values={ensValues}
             image={iconMap['ens']}
             onAddressClick={handleAddressValue}
             onShowMoreClick={handleShowMoreClick}
@@ -264,6 +264,7 @@ function SocialsComponent() {
         <LazyAddressesModal
           heading={`All ENS names of ${address[0]}`}
           isOpen={modalData.isOpen}
+          dataType={modalData.dataType}
           addresses={address}
           onRequestClose={handleModalClose}
           onAddressClick={handleAddressClick}

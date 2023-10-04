@@ -92,6 +92,7 @@ export const POAPQuery = `query GetPOAPs($owner: Identity, $limit: Int $sortBy: 
 
 export const SocialQuery = `query GetSocial($identity: Identity!) {
   Wallet(input: {identity: $identity, blockchain: ethereum}) {
+    addresses
     primaryDomain {
       name
     }
@@ -401,8 +402,8 @@ export const PoapOverviewQuery = `query GetPoapOverview($eventId: String) {
   }
 }`;
 
-export const DomainsQuery = `query GetDomains($addresses: [Address!] $limit:Int) {
-  Domains(input: {filter: {resolvedAddress: {_in: $addresses}}, blockchain: ethereum, limit:$limit}) {
+export const DomainsQuery = `query GetDomains($addresses: [Identity!] $limit:Int) {
+  Domains(input: {filter: {owner: {_in: $addresses}}, blockchain: ethereum, limit:$limit}) {
     Domain {
       id
       name

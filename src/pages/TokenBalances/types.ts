@@ -95,6 +95,7 @@ export interface SocialsType {
 }
 
 export interface Wallet {
+  addresses: string[];
   primaryDomain: PrimaryDomain;
   domains: Domain[];
   socials: Social[];
