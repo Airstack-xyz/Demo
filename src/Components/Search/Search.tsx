@@ -350,7 +350,7 @@ export const Search = memo(function Search() {
       <form className="flex flex-row justify-center" onSubmit={handleSubmit}>
         <div
           ref={inputSectionRef}
-          className="flex items-center h-[50px] w-[calc(100vw-20px)] sm:w-[645px] border-solid-stroke rounded-18 bg-glass px-4 py-3"
+          className="flex items-center h-[50px] w-full border-solid-stroke rounded-18 bg-glass px-4 py-3"
         >
           {showPrefixIcon && (
             <Icon name="search" width={15} height={15} className="mr-1.5" />

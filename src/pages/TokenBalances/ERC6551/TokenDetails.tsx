@@ -275,7 +275,7 @@ export function TokenDetails(props: {
   return (
     <div
       className={classNames(
-        'max-w-[950px] text-sm m-auto w-[98vw] pt-10 sm:pt-0',
+        'max-w-[950px] w-full text-sm pt-10 sm:pt-0 sm:mx-auto',
         {
           'pb-10': !hasChildren
         }
