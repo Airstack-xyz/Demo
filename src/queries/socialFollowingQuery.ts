@@ -20,6 +20,7 @@ token {
 tokenNfts {
   contentValue {
     image {
+      medium
       extraSmall
     }
   }
@@ -103,20 +104,21 @@ export const getSocialFollowingsQuery = ({
           eventId
           contentValue {
             image {
+              medium
               extraSmall
             }
           }
         }
       }`);
     } else {
-      if (blockchain === 'ethereum' || token === 'ADDRESS') {
+      if (!blockchain || blockchain === 'ethereum' || token === 'ADDRESS') {
         logicalQueries.push(`ethereumHoldings: tokenBalances(
             input: {filter: {tokenAddress: {_eq: "${address}"}}, blockchain: ethereum, limit: 1}
           ) {
             ${tokenBalanceFields}
           }`);
       }
-      if (blockchain === 'polygon' || token === 'ADDRESS') {
+      if (!blockchain || blockchain === 'polygon' || token === 'ADDRESS') {
         logicalQueries.push(`polygonHoldings: tokenBalances(
             input: {filter: {tokenAddress: {_eq: "${address}"}}, blockchain: polygon, limit: 1}
           ) {
