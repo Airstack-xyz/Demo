@@ -4,6 +4,7 @@ const createBaseQuery = () => {
       tokenType
       blockchain
       tokenAddress
+      formattedAmount
       tokenNfts {
         tokenId
         contentValue {

@@ -43,6 +43,7 @@ owner {
 
 const fieldsWithAsset = `tokenId
 tokenAddress
+tokenType
 token {
   logo {
     small

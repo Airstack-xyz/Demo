@@ -144,7 +144,7 @@ export function TokensComponent() {
         blockchain: 'ethereum',
         inputType: 'ADDRESS'
       });
-      resetCachedUserInputs();
+      resetCachedUserInputs('tokenBalance');
       navigate(url);
     },
     [navigate]

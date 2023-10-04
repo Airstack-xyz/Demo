@@ -11,6 +11,8 @@ export function getCommonNftOwnersQuery(
       TokenBalance {
         tokenId
         tokenAddress
+        tokenType
+        formattedAmount
         blockchain
         token {
           logo {
@@ -38,6 +40,8 @@ export function getCommonNftOwnersQuery(
           tokenBalances(input: {filter: {tokenAddress: {_eq: "${token2.address}"}}, blockchain: ${token2.blockchain}}) {
             tokenId
             tokenAddress
+            tokenType
+            formattedAmount
             blockchain
             token {
               logo {
@@ -92,6 +96,8 @@ export function getCommonNftOwnersQuery(
       TokenBalance {
         tokenId
         tokenAddress
+        tokenType
+        formattedAmount
         blockchain
         token {
           logo {
@@ -119,6 +125,8 @@ export function getCommonNftOwnersQuery(
           tokenBalances(input: {filter: {tokenAddress: {_eq: "${token2.address}"}}, blockchain: ${token2.blockchain}}) {
             tokenId
             tokenAddress
+            tokenType
+            formattedAmount
             blockchain
             token {
               logo {
@@ -178,6 +186,8 @@ export function getNftOwnersQuery(token: string) {
       TokenBalance {
         tokenId
         tokenAddress
+        tokenType
+        formattedAmount
         blockchain
         token {
           logo {
@@ -230,6 +240,8 @@ export function getNftOwnersQuery(token: string) {
       TokenBalance {
         tokenId
         tokenAddress
+        tokenType
+        formattedAmount
         blockchain
         token {
           logo {

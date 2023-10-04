@@ -1,9 +1,11 @@
+import { ReactNode } from 'react';
 import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
 import LazyImage from '../../../Components/LazyImage';
 import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
 import { WalletAddress } from '../../../Components/WalletAddress';
 import { Follow } from './types';
+import { formatNumber } from '../../../utils/formatNumber';
 
 export function TableRowLoader() {
   return (
@@ -18,51 +20,61 @@ export function TableRow({
   isLensDapp,
   isFollowerQuery,
   onShowMoreClick,
-  onAddressClick
+  onAddressClick,
+  onAssetClick
 }: {
   item: Follow;
   isFollowerQuery: boolean;
   isLensDapp: boolean;
-  onShowMoreClick: (values: string[], dataType?: string) => void;
+  onShowMoreClick: (
+    addresses: string[],
+    dataType?: string,
+    identity?: string
+  ) => void;
   onAddressClick: (address: string, dataType?: string) => void;
+  onAssetClick: (
+    tokenAddress: string,
+    tokenId: string,
+    blockchain: string,
+    eventId?: string
+  ) => void;
 }) {
   const wallet = isFollowerQuery ? item.followerAddress : item.followingAddress;
 
-  const tokenId = isFollowerQuery
+  const profileTokenId = isFollowerQuery
     ? item.followerProfileId
     : item.followingProfileId;
 
-  const getShowMoreHandler = (values: string[], type: string) => () =>
-    onShowMoreClick(values, type);
+  const primaryEns = wallet?.primaryDomain?.name || '';
 
-  const social = wallet?.socials?.find(val => val.profileTokenId === tokenId);
+  const social = wallet?.socials?.find(
+    v => v.profileTokenId === profileTokenId
+  );
 
   const lensAddresses =
     wallet?.socials
-      ?.filter(val => val.dappName === 'lens')
-      .map(val => val.profileName) || [];
+      ?.filter(v => v.dappName === 'lens')
+      .map(v => v.profileName) || [];
   const farcasterAddresses =
     wallet?.socials
-      ?.filter(val => val.dappName === 'farcaster')
-      .map(val => val.profileName) || [];
+      ?.filter(v => v.dappName === 'farcaster')
+      .map(v => v.profileName) || [];
 
-  const primaryEns = wallet?.primaryDomain?.name || '';
-
-  const ens = wallet?.domains?.map(val => val.name) || [];
+  const ens = wallet?.domains?.map(v => v.name) || [];
 
   const walletAddress = Array.isArray(wallet?.addresses)
     ? wallet?.addresses[0]
     : '';
 
-  const xmtpEnabled = wallet?.xmtp?.find(val => val.isXMTPEnabled);
+  const xmtpEnabled = wallet?.xmtp?.find(v => v.isXMTPEnabled);
 
-  const tokenOrFarcasterId = isLensDapp ? tokenId : social?.userId;
+  const userId = social?.userId;
 
   const lensCell = (
     <ListWithMoreOptions
       list={lensAddresses}
       listFor="lens"
-      onShowMore={getShowMoreHandler(lensAddresses, 'lens')}
+      onShowMore={() => onShowMoreClick([primaryEns], 'lens')}
       onItemClick={onAddressClick}
     />
   );
@@ -71,38 +83,125 @@ export function TableRow({
     <ListWithMoreOptions
       list={farcasterAddresses}
       listFor="farcaster"
-      onShowMore={getShowMoreHandler(farcasterAddresses, 'farcaster')}
+      onShowMore={() => onShowMoreClick([primaryEns], 'farcaster')}
       onItemClick={onAddressClick}
     />
   );
 
-  return (
-    <tr>
-      <td>
-        {isLensDapp && social ? (
+  const renderAssets = () => {
+    const assets: ReactNode[] = [];
+    if (isLensDapp && social) {
+      assets.push(
+        <div
+          key="profile-token"
+          className="cursor-pointer"
+          onClick={() =>
+            onAssetClick(
+              social.profileTokenAddress,
+              social.profileTokenId,
+              social.blockchain
+            )
+          }
+        >
           <Asset
             preset="extraSmall"
-            containerClassName="w-[50px] h-[50px] [&>img]:w-[50px] [&>img]:max-w-[50px]"
+            containerClassName="h-[50px] w-[50px]"
+            imgProps={{
+              className: 'max-w-[50px] max-h-[50px]'
+            }}
             chain={social.blockchain}
             tokenId={social.profileTokenId}
             address={social.profileTokenAddress}
           />
-        ) : (
+          <div className="mt-2">
+            {profileTokenId ? `#${profileTokenId}` : '--'}
+          </div>
+        </div>
+      );
+    } else {
+      assets.push(
+        <div key="profile-image">
           <LazyImage
-            className="rounded"
+            className="h-[50px] w-[50px] object-cover rounded"
             src={social?.profileImage}
-            width={50}
-            height={50}
           />
-        )}
+        </div>
+      );
+    }
+
+    const holding =
+      wallet?.poapHoldings?.[0] ||
+      wallet?.ethereumHoldings?.[0] ||
+      wallet?.polygonHoldings?.[0];
+
+    if (holding) {
+      const holdingEventId = holding?.poapEvent?.eventId;
+      const isPoap = Boolean(holdingEventId);
+
+      const holdingImage =
+        holding?.token?.logo?.small ||
+        holding?.tokenNfts?.contentValue?.image?.extraSmall ||
+        holding?.token?.projectDetails?.imageUrl ||
+        holding?.poapEvent?.contentValue?.image?.extraSmall;
+
+      const holdingTokenId = holding?.tokenId;
+      const holdingTokenAddress = holding?.tokenAddress;
+      const holdingBlockchain = holding?.blockchain;
+      const holdingFormattedAmount = holding?.formattedAmount;
+      const holdingType = holding?.tokenType;
+
+      let holdingText = null;
+
+      if (isPoap) {
+        holdingText = `#${holdingEventId}`;
+      } else if (holdingType === 'ERC20' && holdingFormattedAmount) {
+        holdingText = formatNumber(holdingFormattedAmount);
+      } else if (holdingTokenId) {
+        holdingText = `#${holdingTokenId}`;
+      }
+
+      assets.push(
+        <div
+          key="holding-token"
+          className="cursor-pointer"
+          onClick={() =>
+            onAssetClick(
+              holdingTokenAddress,
+              holdingTokenId,
+              holdingBlockchain,
+              holdingEventId
+            )
+          }
+        >
+          <Asset
+            preset="extraSmall"
+            containerClassName="h-[50px] w-[50px]"
+            imgProps={{ className: 'max-w-[50px] max-h-[50px]' }}
+            image={holdingImage}
+            chain={holdingBlockchain}
+            tokenId={holdingTokenId}
+            address={holdingTokenAddress}
+            useImageOnError={isPoap}
+          />
+          <div className="mt-2">{holdingText || '--'}</div>
+        </div>
+      );
+    }
+
+    return assets;
+  };
+
+  return (
+    <tr>
+      <td className="flex gap-2 [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:shrink-0">
+        {renderAssets()}
       </td>
       <td>{isLensDapp ? lensCell : farcasterCell}</td>
-      <td>{tokenOrFarcasterId ? `#${tokenOrFarcasterId}` : '--'}</td>
+      {!isLensDapp && <td>{userId ? `#${userId}` : '--'}</td>}
       <td>
         <ListWithMoreOptions
           list={[primaryEns]}
           listFor="ens"
-          onShowMore={getShowMoreHandler(ens, 'ens')}
           onItemClick={onAddressClick}
         />
       </td>
@@ -110,7 +209,9 @@ export function TableRow({
         <ListWithMoreOptions
           list={ens}
           listFor="ens"
-          onShowMore={getShowMoreHandler(ens, 'ens')}
+          onShowMore={() =>
+            onShowMoreClick(wallet?.addresses, 'ens', primaryEns)
+          }
           onItemClick={onAddressClick}
         />
       </td>

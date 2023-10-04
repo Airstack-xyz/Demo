@@ -19,7 +19,7 @@ export function AddressesModal({
 }: AddressesModalProps) {
   return (
     <Modal heading={heading} isOpen={isOpen} onRequestClose={onRequestClose}>
-      <div className="w-[600px] max-h-[60vh] h-auto bg-primary rounded-xl p-5 overflow-auto grid grid-cols-2 gap-y-5">
+      <div className="w-[600px] max-h-[60vh] h-auto bg-primary rounded-xl p-5 overflow-auto grid grid-cols-2 auto-rows-max gap-y-5 gap-x-2">
         {addresses.map((address, index) => (
           <div
             key={index}

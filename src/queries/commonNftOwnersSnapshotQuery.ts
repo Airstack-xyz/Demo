@@ -32,6 +32,8 @@ function getCommonNftOwnersSubQueryForBlockchain({
       TokenBalance: Snapshot {
         tokenId
         tokenAddress
+        tokenType
+        formattedAmount
         blockchain
         token {
           logo {
@@ -59,6 +61,8 @@ function getCommonNftOwnersSubQueryForBlockchain({
           tokenBalances(input: {filter :{tokenAddress: {_eq: "${address2.address}"}}, blockchain: ${address2.blockchain}}) {
             tokenId
             tokenAddress
+            tokenType
+            formattedAmount
             blockchain
             token {
               logo {
@@ -185,6 +189,8 @@ function getNftOwnersSubQueryForBlockchain({
       TokenBalance: Snapshot {
         tokenId
         tokenAddress
+        tokenType
+        formattedAmount
         blockchain
         token {
           logo {

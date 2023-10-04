@@ -42,9 +42,15 @@ export type UpdateUserInputs = (
 
 const arrayTypes = ['address', 'blockchainType', 'tokenFilters'];
 
-export function resetCachedUserInputs() {
-  userInputCache.tokenBalance = {} as UserInputs;
-  userInputCache.tokenHolder = {} as UserInputs;
+export function resetCachedUserInputs(
+  clear: 'all' | 'tokenBalance' | 'tokenHolder' = 'all'
+) {
+  if (clear === 'all' || clear === 'tokenBalance') {
+    userInputCache.tokenBalance = {} as UserInputs;
+  }
+  if (clear === 'all' || clear === 'tokenHolder') {
+    userInputCache.tokenHolder = {} as UserInputs;
+  }
 }
 
 export function useSearchInput(

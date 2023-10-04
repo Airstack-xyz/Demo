@@ -44,6 +44,8 @@ function getCommonNftOwnersSubQueryForBlockchain({
             }"}}, blockchain: ${address2.blockchain}}) {
               tokenId
               tokenAddress
+              tokenType
+              formattedAmount
               token {
                 logo {
                   small
@@ -170,6 +172,8 @@ function getNftOwnersSubQueryForBlockchain({
       TokenBalance : Snapshot {
         tokenId
         tokenAddress
+        tokenType
+        formattedAmount
         owner {
           identity
           addresses

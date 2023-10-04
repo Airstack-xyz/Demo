@@ -73,6 +73,7 @@ const fields = `
   blockchain
   tokenAddress
   tokenType
+  formattedAmount
   tokenNfts: tokenNft {
     tokenId
     contentValue {

@@ -25,6 +25,8 @@ export function getCommonPoapAndNftOwnersQueryWithFilters(
           }"}}, blockchain: ${tokenId.blockchain}}) {
             tokenId
             tokenAddress
+            tokenType
+            formattedAmount
             token {
               logo {
                 small

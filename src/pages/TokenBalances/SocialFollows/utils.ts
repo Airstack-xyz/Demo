@@ -1,3 +1,4 @@
+import { MentionValues } from '../../../Components/Input/utils';
 import {
   Follow,
   SocialFollowLogicalFilters,
@@ -12,37 +13,38 @@ export const MUTUAL_FOLLOW_FILTER = 'mutual_follow';
 
 export const getSocialFollowFilterData = ({
   filters,
+  mention,
   dappName,
   profileTokenIds,
   isFollowerQuery
 }: {
   filters: string[];
+  mention?: MentionValues | null;
   dappName: string;
   profileTokenIds: string[];
   isFollowerQuery: boolean;
 }) => {
-  const queryFilters: SocialFollowQueryFilters = {};
+  const queryFilters: SocialFollowQueryFilters = {
+    dappName
+  };
   const logicalFilters: SocialFollowLogicalFilters = {};
 
   // filter by profile ids for farcaster and lens (follower query only)
   if (dappName === 'farcaster' || (dappName === 'lens' && isFollowerQuery)) {
-    const key = isFollowerQuery ? 'followingProfileIds' : 'followerProfileIds';
-    queryFilters[key] = profileTokenIds;
+    const key = isFollowerQuery ? 'followingProfileId' : 'followerProfileId';
+    queryFilters[key] = profileTokenIds[0];
   }
 
-  filters.forEach(filter => {
-    if (filter === 'farcaster' || filter === 'lens') {
-      const key = isFollowerQuery ? 'followerDappNames' : 'followingDappNames';
-      if (!Object.hasOwn(queryFilters, key)) {
-        queryFilters[key] = [];
-      }
-      queryFilters[key]?.push(filter);
+  if (mention) {
+    logicalFilters.holdingData = mention;
+  }
+
+  filters?.forEach(filter => {
+    if (filter === 'farcaster') {
+      logicalFilters.farcasterSocial = true;
     }
-    if (filter === 'primaryEns') {
-      const key = isFollowerQuery
-        ? 'followerPrimaryDomain'
-        : 'followingPrimaryDomain';
-      queryFilters[key] = true;
+    if (filter === 'lens') {
+      logicalFilters.lensSocial = true;
     }
     if (filter.startsWith(MORE_THAN_N_FOLLOW_FILTER)) {
       const key = isFollowerQuery ? 'followerCount' : 'followingCount';
@@ -75,16 +77,17 @@ function filterByEns(items: Follow[]) {
 
 function filterByLens(items: Follow[]) {
   return items?.filter(item => {
-    return (item.followerAddress || item.followingAddress)?.socials?.find(
-      ({ dappName }) => dappName === 'lens'
+    return (
+      (item.followerAddress || item.followingAddress)?.lensSocials?.length > 0
     );
   });
 }
 
 function filterByFarcaster(items: Follow[]) {
   return items?.filter(item => {
-    return (item.followerAddress || item.followingAddress)?.socials?.find(
-      ({ dappName }) => dappName === 'farcaster'
+    return (
+      (item.followerAddress || item.followingAddress)?.farcasterSocials
+        ?.length > 0
     );
   });
 }
@@ -97,43 +100,65 @@ function filterByXmtp(items: Follow[]) {
   });
 }
 
-function filterByMoreThanNFollow(items: Follow[]) {
-  return items?.filter(item => {
-    return (item.followerAddress || item.followingAddress)?.socials?.length > 0;
-  });
+function filterByMoreThanNFollow(items: Follow[], dappName: string) {
+  if (dappName === 'farcaster') {
+    return filterByFarcaster(items);
+  }
+  if (dappName === 'lens') {
+    return filterByLens(items);
+  }
+  return items;
 }
 
 function filterByMutualFollow(items: Follow[], isFollowerQuery: boolean) {
   if (isFollowerQuery)
     return items?.filter(item => {
-      return item.followerAddress?.mutualFollow?.Following?.length > 0;
+      return item.followerAddress?.mutualFollows?.Following?.length > 0;
     });
   return items?.filter(item => {
-    return item.followingAddress?.mutualFollow?.Follower?.length > 0;
+    return item.followingAddress?.mutualFollows?.Follower?.length > 0;
   });
 }
 
 function filterByAlsoFollow(items: Follow[], isFollowerQuery: boolean) {
   if (isFollowerQuery)
     return items?.filter(item => {
-      return item.followerAddress?.alsoFollow?.Follower?.length > 0;
+      return item.followerAddress?.alsoFollows?.Follower?.length > 0;
     });
   return items?.filter(item => {
-    return item.followingAddress?.alsoFollow?.Following?.length > 0;
+    return item.followingAddress?.alsoFollows?.Following?.length > 0;
+  });
+}
+
+function filterByHoldings(items: Follow[]) {
+  return items?.filter(item => {
+    const follow = item.followerAddress || item.followingAddress;
+    return (
+      follow?.poapHoldings?.length > 0 ||
+      follow?.ethereumHoldings?.length > 0 ||
+      follow?.polygonHoldings?.length > 0
+    );
   });
 }
 
 export const filterTableItems = ({
   items,
   filters,
+  mention,
+  dappName,
   isFollowerQuery
 }: {
   items: Follow[];
   filters: string[];
+  mention?: MentionValues | null;
   dappName: string;
   isFollowerQuery: boolean;
 }) => {
   let filteredItems = items;
+
+  if (mention) {
+    filteredItems = filterByHoldings(filteredItems);
+  }
 
   filters.forEach(filter => {
     if (filter === 'primaryEns') {
@@ -152,7 +177,7 @@ export const filterTableItems = ({
       filteredItems = filterByXmtp(filteredItems);
     }
     if (filter.startsWith(MORE_THAN_N_FOLLOW_FILTER)) {
-      filteredItems = filterByMoreThanNFollow(filteredItems);
+      filteredItems = filterByMoreThanNFollow(filteredItems, dappName);
     }
     if (filter.startsWith(MUTUAL_FOLLOW_FILTER)) {
       filteredItems = filterByMutualFollow(filteredItems, isFollowerQuery);

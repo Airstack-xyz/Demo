@@ -1,7 +1,7 @@
 import { useLazyQuery } from '@airstack/airstack-react';
 import classNames from 'classnames';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { AddressesModal } from '../../../Components/AddressesModal';
+import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { SocialQuery } from '../../../queries';
 import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
@@ -206,10 +206,10 @@ function SocialsComponent() {
     [wallet?.socials]
   );
 
-  const _primaryEnsValues = wallet?.primaryDomain?.name
+  const primaryEnsValues = wallet?.primaryDomain?.name
     ? [wallet.primaryDomain.name]
     : ['--'];
-  const _ensValues =
+  const ensValues =
     domainsList && domainsList.length > 0 ? domainsList : ['--'];
 
   return (
@@ -233,13 +233,14 @@ function SocialsComponent() {
           <Social
             name="Primary ENS"
             type="ens"
-            values={_primaryEnsValues}
+            values={primaryEnsValues}
             image={iconMap['ens']}
             onAddressClick={handleAddressValue}
           />
           <Social
             name="ENS names"
-            values={_ensValues}
+            type="ens"
+            values={ensValues}
             image={iconMap['ens']}
             onAddressClick={handleAddressValue}
             onShowMoreClick={handleShowMoreClick}
@@ -259,13 +260,16 @@ function SocialsComponent() {
           />
         </div>
       </div>
-      <AddressesModal
-        heading={`All ENS names of ${address[0]}`}
-        isOpen={modalData.isOpen}
-        addresses={modalData.addresses}
-        onRequestClose={handleModalClose}
-        onAddressClick={handleAddressClick}
-      />
+      {modalData.isOpen && (
+        <LazyAddressesModal
+          heading={`All ENS names of ${address[0]}`}
+          isOpen={modalData.isOpen}
+          dataType={modalData.dataType}
+          addresses={address}
+          onRequestClose={handleModalClose}
+          onAddressClick={handleAddressClick}
+        />
+      )}
     </div>
   );
 }
