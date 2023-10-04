@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { Fragment, memo, useMemo } from 'react';
 import { Icon } from '../../Components/Icon';
 import { formatDate } from '../../utils';
 import { PoapsType, TokenType as TokenType } from './types';
@@ -170,9 +170,8 @@ export const TokenWithERC6551 = memo(function Token({
           <div className="flex items-center justify-between">
             <div className="ellipsis flex flex-1 mr-2 font-normal">
               {ids.map((id, index) => (
-                <>
+                <Fragment key={id}>
                   <span
-                    key={id}
                     className={classNames('ellipsis', {
                       'max-w-[50%]': ids.length > 1
                     })}
@@ -181,7 +180,7 @@ export const TokenWithERC6551 = memo(function Token({
                     {id}
                   </span>
                   {index < ids.length - 1 && <span className="mr-1">,</span>}
-                </>
+                </Fragment>
               ))}
             </div>
             <div className="ellipsis text-right max-w-[50%]">

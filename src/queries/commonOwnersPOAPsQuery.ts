@@ -47,14 +47,14 @@ owner {
   }
 }`;
 
-function getQueryWithFiter(tokenids: TokenAddress[], index = 0): string {
+function getQueryWithFilter(tokenIds: TokenAddress[], index = 0): string {
   const children =
-    tokenids.length - 1 === index
+    tokenIds.length - 1 === index
       ? fields
-      : getQueryWithFiter(tokenids, index + 1);
+      : getQueryWithFilter(tokenIds, index + 1);
   return `owner {
         poaps(
-          input: {filter: {eventId: {_eq: "${tokenids[index].address}"}}, blockchain: ALL}
+          input: {filter: {eventId: {_eq: "${tokenIds[index].address}"}}, blockchain: ALL}
         ) {
             ${children}
           }
@@ -63,8 +63,8 @@ function getQueryWithFiter(tokenids: TokenAddress[], index = 0): string {
 
 export function createCommonOwnersPOAPsQuery(tokenIds: TokenAddress[]) {
   if (tokenIds.length === 0) return '';
-  const childern =
-    tokenIds.length === 1 ? fields : getQueryWithFiter(tokenIds, 1);
+  const children =
+    tokenIds.length === 1 ? fields : getQueryWithFilter(tokenIds, 1);
   return `query GetPoapHolders($limit: Int) {
     Poaps(
       input: {filter: {eventId: {_eq: "${tokenIds[0].address}"}}, blockchain: ALL, limit: $limit}
@@ -88,7 +88,7 @@ export function createCommonOwnersPOAPsQuery(tokenIds: TokenAddress[]) {
             }
           }
         }
-        ${childern}
+        ${children}
       }
     } 
   }`;

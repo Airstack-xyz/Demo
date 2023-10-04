@@ -48,7 +48,8 @@ export function Card({
       {isLensDapp ? (
         <Asset
           preset="medium"
-          containerClassName="w-[180px] h-[180px] [&>img]:w-[180px] [&>img]:max-w-[180px]"
+          containerClassName="h-[180px] w-[180px]"
+          imgProps={{ className: 'max-w-[180px] max-h-[180px]' }}
           chain={item.blockchain}
           tokenId={item.profileTokenId}
           address={item.profileTokenAddress}

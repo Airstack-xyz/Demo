@@ -106,7 +106,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
     tokenDetails
   ]);
 
-  const hasMulitpleERC20 = useMemo(() => {
+  const hasMultipleERC20 = useMemo(() => {
     const erc20Tokens = tokenDetails.filter(
       token => token.tokenType === 'ERC20'
     );
@@ -114,10 +114,10 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
   }, [tokenDetails]);
 
   useEffect(() => {
-    if (hasMulitpleERC20) {
+    if (hasMultipleERC20) {
       showToast('Try to combine ERC20 tokens with NFTs or POAPs', 'negative');
     }
-  }, [hasMulitpleERC20]);
+  }, [hasMultipleERC20]);
 
   const isERC20 = useMemo(() => {
     return (

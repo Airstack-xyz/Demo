@@ -107,24 +107,24 @@ function getFields(hasSocialFilters = false, hasPrimaryDomainFilter = false) {
 //     }`;
 // };
 
-function getQueryWithFiter(
-  tokenids: TokenAddress[],
+function getQueryWithFilter(
+  tokenIds: TokenAddress[],
   index = 0,
   hasSocialFilters: boolean,
   hasPrimaryDomainFilter: boolean
 ): string {
   const children =
-    tokenids.length - 1 === index
+    tokenIds.length - 1 === index
       ? getFields(hasSocialFilters, hasPrimaryDomainFilter)
-      : getQueryWithFiter(
-          tokenids,
+      : getQueryWithFilter(
+          tokenIds,
           index + 1,
           hasSocialFilters,
           hasPrimaryDomainFilter
         );
   return `owner {
           poaps(
-            input: {filter: {eventId: {_eq: "${tokenids[index].address}"}}, blockchain: ALL }
+            input: {filter: {eventId: {_eq: "${tokenIds[index].address}"}}, blockchain: ALL }
           ) {
               ${children}
             }
@@ -137,10 +137,10 @@ export function getFilterablePoapsQuery(
   hasPrimaryDomainFilter = false
 ) {
   if (tokenIds.length === 0) return '';
-  const childern =
+  const children =
     tokenIds.length === 1
       ? getFields(hasSocialFilters, hasPrimaryDomainFilter)
-      : getQueryWithFiter(
+      : getQueryWithFilter(
           tokenIds,
           1,
           hasSocialFilters,
@@ -155,7 +155,7 @@ export function getFilterablePoapsQuery(
         }"}}, blockchain: ALL, limit: $limit}
       ) {
         Poap {
-          ${childern}
+          ${children}
           poapEvent {
             logo: contentValue {
               image {
