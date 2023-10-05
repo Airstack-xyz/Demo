@@ -99,7 +99,7 @@ export function ERC6551TokenHolder({
   }, [socialDetails?.domains, socialDetails?.primaryDomain?.name]);
 
   return (
-    <div className="w-[955px] max-w-[98vw]">
+    <div className="max-w-[950px] mx-auto">
       <div className="text-sm rounded-18 overflow-hidden flex items-stretch bg-glass w-full">
         <div className="m-2.5 py-6 px-3 sm:px-6 sm:py-6 border-solid-stroke rounded-18 bg-glass overflow-hidden flex-1">
           <div>

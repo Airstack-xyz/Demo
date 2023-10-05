@@ -115,7 +115,7 @@ export function LazyAddressesModal({
         hasMore={hasNextPage}
         height={400}
         loader={null}
-        className="w-[600px] h-auto bg-primary rounded-xl p-5 grid grid-cols-2 auto-rows-max gap-y-5 gap-x-2"
+        className="h-auto bg-primary rounded-xl p-5 grid grid-cols-1 auto-rows-max gap-y-5 gap-x-2 sm:grid-cols-2 sm:w-[600px]"
       >
         {items.map((item, index) => (
           <div

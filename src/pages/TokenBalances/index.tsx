@@ -421,16 +421,18 @@ function TokenBalancePage() {
     [address, blockchainType, tokenType, sortOrder]
   );
 
+  const isQueryExists = query && query.length > 0;
+
   const renderFilterContent = () => {
     if (showTokenDetails || socialInfo.isApplicable) {
       return (
-        <div className="flex justify-center w-[calc(100vw-20px)] sm:w-[645px]">
+        <div className="flex justify-center w-full">
           <GetAPIDropdown options={options} dropdownAlignment="center" />
         </div>
       );
     }
     return (
-      <div className="flex justify-between w-[calc(100vw-20px)] sm:w-[645px]">
+      <div className="flex justify-between w-full">
         <div className="flex-row-center gap-3.5">
           {isMobile ? (
             <AllFilters />
@@ -473,7 +475,7 @@ function TokenBalancePage() {
     }
 
     return (
-      <div key={query} className="flex justify-between px-5">
+      <div key={query} className="flex justify-between sm:px-5">
         <div className="w-full h-full">
           <div className="hidden sm:block">
             <SectionHeader iconName="nft-flat" heading={tab1Header} />
@@ -517,24 +519,21 @@ function TokenBalancePage() {
     <Layout>
       <TokenDetailsReset>
         <div
-          className={classNames(
-            'flex flex-col px-2 pt-5 w-[1440px] max-w-[100vw] sm:pt-8',
-            {
-              'flex-1 h-full w-full flex flex-col items-center !pt-[30%] text-center':
-                isHome
-            }
-          )}
+          className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
+            'flex-1 h-full w-full flex flex-col translate-y-[10vw] items-center text-center':
+              isHome
+          })}
         >
-          <div className="flex flex-col items-center">
+          <div className="max-w-[645px] mx-auto w-full">
             {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
             <Search />
+            {isQueryExists && (
+              <div className="my-3 flex-row-center">
+                {renderFilterContent()}
+              </div>
+            )}
           </div>
-          {query && query.length > 0 && (
-            <>
-              <div className="m-3 flex-row-center">{renderFilterContent()}</div>
-              {renderViewContent()}
-            </>
-          )}
+          {isQueryExists && <>{renderViewContent()}</>}
         </div>
       </TokenDetailsReset>
     </Layout>

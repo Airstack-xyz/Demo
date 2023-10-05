@@ -138,6 +138,18 @@ export function InputWithMention({
     [onSubmit, value]
   );
 
+  const handleContainerClick = useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      const target = event?.target as Element;
+      const suggestion = target?.closest('.suggestion');
+      // allow submission when user clicked a suggestion from the dropdown
+      if (suggestion) {
+        allowSubmitRef.current = true;
+      }
+    },
+    []
+  );
+
   const onAddSuggestion = useCallback((id: string) => {
     // this prevents submission if user is selecting a suggestion from the dropdown menu with enter key
     allowSubmitRef.current = false;
@@ -265,7 +277,10 @@ export function InputWithMention({
   );
 
   return (
-    <div className="wrapper w-full sm:w-auto sm:p-auto h-full">
+    <div
+      className="wrapper w-full sm:w-auto sm:p-auto h-full"
+      onClick={handleContainerClick}
+    >
       {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
       {/* @ts-ignore-next-line */}
       <MentionsInput

@@ -346,37 +346,42 @@ export function TokenHolders() {
   const showTokens =
     showTokensOrOverview && !hasMultipleERC20 && !activeTokenInfo;
 
+  const isQueryExists = query && query.length > 0;
+
+  const renderFilterContent = () => {
+    return (
+      <div className="flex justify-center w-full">
+        <GetAPIDropdown
+          options={options}
+          disabled={overviewTokens.length === 0}
+        />
+      </div>
+    );
+  };
+
   return (
     <Layout>
       <div
-        className={classNames(
-          'flex flex-col px-2 pt-5 w-[955px] max-w-[100vw] sm:pt-8',
-          {
-            'flex-1 h-full w-full flex flex-col items-center !pt-[30%] text-center':
-              showInCenter
-          }
-        )}
+        className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
+          'flex-1 h-full w-full flex flex-col translate-y-[10vw] items-center text-center':
+            isHome
+        })}
       >
-        <div className="flex flex-col items-center">
+        <div className="max-w-[645px] mx-auto w-full">
           {showInCenter && (
             <h1 className="text-[2rem]">Explore web3 identities</h1>
           )}
           <Search />
+          {!hasMultipleERC20 && isQueryExists && (
+            <div className="m-3 flex-row-center">{renderFilterContent()}</div>
+          )}
         </div>
-        {query && query.length > 0 && (
+        {isQueryExists && (
           <>
-            {!hasMultipleERC20 && (
-              <div className="m-3 flex-row-center">
-                <div className="flex justify-center w-[calc(100vw-20px)] sm:w-[645px]">
-                  <GetAPIDropdown
-                    options={options}
-                    disabled={overviewTokens.length === 0}
-                    dropdownAlignment="center"
-                  />
-                </div>
-              </div>
-            )}
-            <div className="flex flex-col justify-center mt-7" key={query}>
+            <div
+              className="flex flex-col justify-center mt-7 max-w-[950px] mx-auto"
+              key={query}
+            >
               <HoldersOverview onAddress404={handleInvalidAddress} />
               {showTokens && (
                 <>
