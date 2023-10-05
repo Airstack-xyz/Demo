@@ -241,7 +241,7 @@ export const TokenCombination = memo(function TokenCombination({
       </div>
       <div
         className={classNames(
-          'flex flex-col sm:flex-row flex-wrap gap-x-[20px] gap-y-[20px] items-center justify-center sm:justify-evenly p-5',
+          'flex flex-col sm:flex-row flex-wrap gap-x-[20px] gap-y-[20px] items-center justify-center p-5',
           {
             'gap-x-[8px] px-1.5': !showAllTokens && hasMoreTokens,
             '!justify-center': showAllTokens
