@@ -42,7 +42,6 @@ function TableLoader() {
 type ModalData = {
   isOpen: boolean;
   dataType?: string;
-  identity?: string;
   addresses: string[];
 };
 
@@ -81,7 +80,6 @@ export function TableSection({
   const [modalData, setModalData] = useState<ModalData>({
     isOpen: false,
     dataType: '',
-    identity: '',
     addresses: []
   });
   const [loaderData, setLoaderData] = useState({
@@ -224,6 +222,7 @@ export function TableSection({
         blockchain: 'ethereum',
         inputType: 'ADDRESS'
       });
+      document.documentElement.scrollTo(0, 0);
       resetCachedUserInputs('tokenBalance');
       navigate(url);
     },
@@ -237,6 +236,7 @@ export function TableSection({
       blockchain: string,
       eventId?: string
     ) => {
+      document.documentElement.scrollTo(0, 0);
       setQueryData(
         {
           activeTokenInfo: getActiveTokenInfoString(
@@ -252,16 +252,11 @@ export function TableSection({
     [setQueryData]
   );
 
-  const handleShowMoreClick = (
-    addresses: string[],
-    dataType?: string,
-    identity?: string
-  ) => {
+  const handleShowMoreClick = (addresses: string[], dataType?: string) => {
     setModalData({
       isOpen: true,
       dataType,
-      addresses,
-      identity
+      addresses
     });
   };
 
@@ -286,7 +281,7 @@ export function TableSection({
     <MentionInput
       defaultValue={followData.mentionRawText}
       disabled={isInputDisabled}
-      placeholder="Use @ mention or enter any token address"
+      placeholder="Input a token to view overlap"
       validationFn={mentionValidationFn}
       onSubmit={handleMentionSubmit}
       onClear={handleMentionClear}
@@ -303,8 +298,8 @@ export function TableSection({
         customLeftComponent={isMobile ? undefined : mentionInputComponent}
         onApply={handleFiltersApply}
       />
-      {isMobile && <div className="mb-4">{mentionInputComponent}</div>}
-      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden overflow-y-auto mb-5">
+      {isMobile && <div className="mb-4 mx-1">{mentionInputComponent}</div>}
+      <div className="border-solid-light rounded-2xl sm:overflow-hidden overflow-y-auto mb-5 mx-1">
         <InfiniteScroll
           next={handleNext}
           dataLength={tableItems.length}
@@ -356,9 +351,7 @@ export function TableSection({
       </div>
       {modalData.isOpen && (
         <LazyAddressesModal
-          heading={`All ${modalData.dataType} names of ${
-            modalData?.identity || modalData.addresses[0]
-          }`}
+          heading={`All ${modalData.dataType} names of ${modalData.addresses[0]}`}
           isOpen={modalData.isOpen}
           addresses={modalData.addresses}
           dataType={modalData.dataType}

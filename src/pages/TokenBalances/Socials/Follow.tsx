@@ -29,7 +29,7 @@ type FollowSectionProps = {
   image?: string;
   isFirstSection?: boolean;
   onFollowClick?: (params: FollowParams) => void;
-  onShowMoreClick?: (values: string[], type?: string) => void;
+  onShowMoreClick?: (addresses: string[], dataType?: string) => void;
 } & Section;
 
 function FollowSection({

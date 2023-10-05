@@ -37,16 +37,6 @@ body {
   display: none; /* Chrome/Safari/Webkit */
 }
 
-.glass-effect-button {
-  background: linear-gradient(
-    137deg,
-    rgba(255, 255, 255, 0.03) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  -webkit-backdrop-filter: blur(100px);
-  backdrop-filter: blur(100px);
-}
-
 .modal-overlay {
   background-color: rgb(14 14 18 / 90%) !important;
   z-index: 100;

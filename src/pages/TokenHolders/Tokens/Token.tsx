@@ -1,6 +1,6 @@
 import { Chain } from '@airstack/airstack-react/constants';
 import classNames from 'classnames';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
 import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
@@ -27,15 +27,13 @@ export function Token({
 }: {
   token: TokenType | Poap | null;
   isCombination: boolean;
-  onShowMoreClick?: (values: string[], dataType?: string) => void;
+  onShowMoreClick?: (addresses: string[], dataType?: string) => void;
   onAddressClick?: (address: string, type?: string) => void;
   onAssetClick?: (asset: AssetType) => void;
 }) {
   const owner = tokenInProps?.owner;
-  const walletAddresses = owner?.addresses || '';
-  const walletAddress = Array.isArray(walletAddresses)
-    ? walletAddresses[0]
-    : '';
+  const walletAddresses = owner?.addresses || [];
+  const walletAddress = walletAddresses[0] || '';
   const tokenId = tokenInProps?.tokenId || '';
   const tokenAddress = tokenInProps?.tokenAddress || '';
   const primaryEns = owner?.primaryDomain?.name || '';
@@ -118,12 +116,8 @@ export function Token({
       ?.filter(item => item.dappName === 'farcaster')
       .map(item => item.profileName) || [];
 
-  const getShowMoreHandler = useCallback(
-    (items: string[], type: string) => () => {
-      onShowMoreClick?.(items, type);
-    },
-    [onShowMoreClick]
-  );
+  const getShowMoreHandler = (addresses: string[], type: string) => () =>
+    onShowMoreClick?.([...addresses, ...walletAddresses], type);
 
   return (
     <>

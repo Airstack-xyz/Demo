@@ -283,9 +283,9 @@ export function Filters({
   };
 
   return (
-    <div className="flex my-4">
+    <div className="flex my-4 mx-1">
       {customLeftComponent && <div className="mr-2">{customLeftComponent}</div>}
-      <div className="flex-1 text-xs text-text-secondary scroll-shadow-r">
+      <div className="grow text-xs text-text-secondary scroll-shadow-r max-sm:w-[calc(100%-106px)]">
         {renderChips()}
       </div>
       <div

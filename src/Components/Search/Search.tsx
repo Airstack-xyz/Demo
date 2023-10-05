@@ -1,15 +1,7 @@
 import classNames from 'classnames';
 import { Icon } from '../Icon';
 import { InputWithMention } from '../Input/Input';
-import {
-  FormEvent,
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useMatch, useNavigate, useSearchParams } from 'react-router-dom';
 import { getAllMentionDetails, getAllWordsAndMentions } from '../Input/utils';
 import {
@@ -269,11 +261,10 @@ export const Search = memo(function Search() {
   }, [isTokenBalances, shouldShowCombinationPlaceholder]);
 
   const handleSubmit = useCallback(
-    (e: FormEvent) => {
-      e.preventDefault();
+    (mentionValue: string) => {
       setIsInputSectionFocused(false);
 
-      const trimmedValue = value.trim();
+      const trimmedValue = mentionValue.trim();
 
       if (searchParams.get('rawInput') === trimmedValue) {
         window.location.reload(); // reload page if same search
@@ -290,15 +281,13 @@ export const Search = memo(function Search() {
       handleTokenBalancesSearch,
       handleTokenHoldersSearch,
       isTokenBalances,
-      searchParams,
-      value
+      searchParams
     ]
   );
 
-  const handleInputSubmit = useCallback((value: string) => {
-    setIsInputSectionFocused(false);
-    setValue(value);
-  }, []);
+  const handleInputSubmit = () => {
+    handleSubmit(value);
+  };
 
   const handleInputClear = useCallback(() => {
     setValue('');
@@ -321,7 +310,7 @@ export const Search = memo(function Search() {
   const showPrefixIcon = isHome && (!isInputSectionFocused || !value);
 
   return (
-    <div className="z-10">
+    <div className="relative z-10">
       <div className="my-6 flex-col-center">
         <div className="bg-glass bg-secondary border flex p-1 rounded-full">
           {isHome && (
@@ -348,10 +337,10 @@ export const Search = memo(function Search() {
           {!isHome && <TabLinks isTokenBalances={isTokenBalances} />}
         </div>
       </div>
-      <form className="flex flex-row justify-center" onSubmit={handleSubmit}>
+      <div className="flex flex-row justify-center">
         <div
           ref={inputSectionRef}
-          className="flex items-center h-[50px] w-[calc(100vw-20px)] sm:w-[645px] border-solid-stroke rounded-18 bg-glass px-4 py-3"
+          className="flex items-center h-[50px] w-full border-solid-stroke rounded-18 bg-glass px-4 py-3"
         >
           {showPrefixIcon && (
             <Icon name="search" width={15} height={15} className="mr-1.5" />
@@ -359,7 +348,7 @@ export const Search = memo(function Search() {
           <InputWithMention
             value={value}
             onChange={setValue}
-            onSubmit={handleInputSubmit}
+            onSubmit={handleSubmit}
             placeholder={
               isTokenBalances
                 ? tokenBalancesPlaceholder
@@ -369,7 +358,7 @@ export const Search = memo(function Search() {
           />
           <div ref={buttonSectionRef} className="flex justify-end pl-3">
             {isInputSectionFocused && value && (
-              <button type="submit">
+              <button type="button" onClick={handleInputSubmit}>
                 <Icon name="search" width={20} height={20} />
               </button>
             )}
@@ -384,7 +373,7 @@ export const Search = memo(function Search() {
             )}
           </div>
         </div>
-      </form>
+      </div>
     </div>
   );
 });

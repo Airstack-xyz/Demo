@@ -9,16 +9,12 @@ export function Token({
   onAddressClick
 }: {
   token: TokenType | Poap | null;
-  onShowMoreClick?: (values: string[], dataType?: string) => void;
-  onAddressClick?: (address: string, type?: string) => void;
+  onShowMoreClick?: (addresses: string[], dataType?: string) => void;
+  onAddressClick?: (addresses: string, type?: string) => void;
 }) {
   const owner = token?.owner;
-  const walletAddresses = owner?.addresses || '';
-  const walletAddress = owner?.identity
-    ? owner.identity
-    : Array.isArray(walletAddresses)
-    ? walletAddresses[0]
-    : '';
+  const walletAddresses = owner?.addresses || [];
+  const walletAddress = owner?.identity || walletAddresses[0] || '';
   const primaryEns = owner?.primaryDomain?.name || '';
   const ens = owner?.domains?.map(domain => domain.name) || [];
   const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
@@ -32,8 +28,8 @@ export function Token({
       ?.filter(item => item.dappName === 'farcaster')
       .map(item => item.profileName) || [];
 
-  const getShowMoreHandler = (items: string[], type: string) => () =>
-    onShowMoreClick?.(items, type);
+  const getShowMoreHandler = (addresses: string[], type: string) => () =>
+    onShowMoreClick?.([...addresses, ...walletAddresses], type);
 
   return (
     <>

@@ -35,9 +35,9 @@ import { useOverviewTokens } from '../../../../store/tokenHoldersOverview';
 import { getPoapList, getTokenList } from './utils';
 import { sortAddressByPoapFirst } from '../../../../utils/sortAddressByPoapFirst';
 import { getActiveSnapshotInfo } from '../../../../utils/activeSnapshotInfoString';
-import { AddressesModal } from '../../../../Components/AddressesModal';
 import { createTokenBalancesUrl } from '../../../../utils/createTokenUrl';
 import { useNavigate } from 'react-router-dom';
+import { LazyAddressesModal } from '../../../../Components/LazyAddressesModal';
 
 const MAX_LIMIT = 200;
 const MIN_LIMIT = 20;
@@ -338,13 +338,16 @@ export function TokensComponent() {
     }
   }, [tokensData, loading, hasNextPage, getNextPage]);
 
-  const handleShowMoreClick = useCallback((values: string[], type?: string) => {
-    setModalData({
-      isOpen: true,
-      dataType: type || 'ens',
-      addresses: values
-    });
-  }, []);
+  const handleShowMoreClick = useCallback(
+    (addresses: string[], type?: string) => {
+      setModalData({
+        isOpen: true,
+        dataType: type || 'ens',
+        addresses
+      });
+    },
+    []
+  );
 
   const handleModalClose = () => {
     setModalData({
@@ -420,9 +423,10 @@ export function TokensComponent() {
           {loading && <Loader />}
         </InfiniteScroll>
       </div>
-      <AddressesModal
-        heading={`All ${modalData.dataType} names of ${address.join(', ')}`}
+      <LazyAddressesModal
+        heading={`All ${modalData.dataType} names of ${modalData.addresses[0]}`}
         isOpen={modalData.isOpen}
+        dataType={modalData.dataType}
         addresses={modalData.addresses}
         onRequestClose={handleModalClose}
         onAddressClick={handleAddressClick}

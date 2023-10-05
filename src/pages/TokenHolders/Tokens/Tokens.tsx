@@ -7,7 +7,6 @@ import { Header } from './Header';
 import { useNavigate } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { AssetType, Token } from './Token';
-import { AddressesModal } from '../../../Components/AddressesModal';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 import { useGetCommonOwnersOfTokens } from '../../../hooks/useGetCommonOwnersOfTokens';
 import { useGetCommonOwnersOfPoaps } from '../../../hooks/useGetCommonOwnersOfPoaps';
@@ -19,6 +18,7 @@ import {
 import { sortByAddressByNonERC20First } from '../../../utils/getNFTQueryForTokensHolder';
 import { getActiveSnapshotInfo } from '../../../utils/activeSnapshotInfoString';
 import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
+import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 
 const loaderData = Array(6).fill({});
 
@@ -120,13 +120,16 @@ export function TokensComponent() {
     hasMultipleERC20
   ]);
 
-  const handleShowMoreClick = useCallback((values: string[], type?: string) => {
-    setModalData({
-      isOpen: true,
-      dataType: type || 'ens',
-      addresses: values
-    });
-  }, []);
+  const handleShowMoreClick = useCallback(
+    (addresses: string[], type?: string) => {
+      setModalData({
+        isOpen: true,
+        dataType: type || 'ens',
+        addresses
+      });
+    },
+    []
+  );
 
   const handleModalClose = () => {
     setModalData({
@@ -233,9 +236,10 @@ export function TokensComponent() {
         </InfiniteScroll>
         {loading && <Loader />}
       </div>
-      <AddressesModal
-        heading={`All ${modalData.dataType} names of ${address}`}
+      <LazyAddressesModal
+        heading={`All ${modalData.dataType} names of ${modalData.addresses[0]}`}
         isOpen={modalData.isOpen}
+        dataType={modalData.dataType}
         addresses={modalData.addresses}
         onRequestClose={handleModalClose}
         onAddressClick={handleAddressClick}

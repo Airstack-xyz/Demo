@@ -265,7 +265,7 @@ function SocialsComponent() {
           heading={`All ENS names of ${address[0]}`}
           isOpen={modalData.isOpen}
           dataType={modalData.dataType}
-          addresses={address}
+          addresses={wallet.addresses}
           onRequestClose={handleModalClose}
           onAddressClick={handleAddressClick}
         />
