@@ -33,11 +33,11 @@ export const getActiveSocialInfoString = ({
 
   socialInfo.push(followerTab === false ? '0' : '1');
 
-  socialInfo.push(followerCount != undefined ? followerCount : '');
+  socialInfo.push(followerCount != null ? followerCount : '');
   socialInfo.push(followerData.filters ? followerData.filters.join(',') : '');
   socialInfo.push(followerData.mentionRawText || '');
 
-  socialInfo.push(followingCount != undefined ? followingCount : '');
+  socialInfo.push(followingCount != null ? followingCount : '');
   socialInfo.push(followingData.filters ? followingData.filters.join(',') : '');
   socialInfo.push(followingData.mentionRawText || '');
 
@@ -50,10 +50,10 @@ export const getActiveSocialInfo = (activeSocialInfo?: string) => {
     profileNamesString,
     profileTokenIdsString,
     followerTab,
-    followerCount,
+    followerCount = '',
     followerFiltersString,
     followerMentionRawText,
-    followingCount,
+    followingCount = '',
     followingFiltersString,
     followingMentionRawText
   ] = activeSocialInfo?.split('│') ?? [];
