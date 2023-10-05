@@ -36,7 +36,7 @@
 }
 
 .sf-mention-input {
-  @apply flex items-center h-[30px] sm:w-[300px] border-solid-stroke rounded-full bg-glass px-3 py-1.5;
+  @apply relative flex items-center h-[30px] sm:w-[300px] border-solid-stroke rounded-full bg-glass px-3 py-1.5 z-10;
 }
 
 .sf-mention-input .mentions {
