@@ -68,6 +68,7 @@ export function InputWithMention({
   const allowSubmitRef = useRef(true);
   const valueRef = useRef(value);
   const lastPositionOfCaretRef = useRef(0);
+  const isSuggestionClickedRef = useRef(false);
   const [loading, setLoading] = useState(false);
 
   // const [getMentions, { loading }] = useLazyQuery(MentionsQuery);
@@ -138,21 +139,29 @@ export function InputWithMention({
     [onSubmit, value]
   );
 
-  const handleContainerClick = useCallback(
-    (event: React.MouseEvent<HTMLElement>) => {
-      const target = event?.target as Element;
-      const suggestion = target?.closest('.suggestion');
-      // allow submission when user clicked a suggestion from the dropdown
-      if (suggestion) {
-        allowSubmitRef.current = true;
+  const handleBlur = useCallback(
+    (_: React.FocusEvent<HTMLInputElement>, clickedSuggestion: boolean) => {
+      if (clickedSuggestion) {
+        isSuggestionClickedRef.current = true;
+        // remove @ from input value so that it doesn't trigger search again
+        if (inputRef.current) {
+          inputRef.current.value = inputRef.current.value.slice(0, -1);
+        }
       }
     },
     []
   );
 
   const onAddSuggestion = useCallback((id: string) => {
-    // this prevents submission if user is selecting a suggestion from the dropdown menu with enter key
-    allowSubmitRef.current = false;
+    // allow submission only if suggestion is clicked
+    if (isSuggestionClickedRef.current) {
+      allowSubmitRef.current = true;
+    } else {
+      allowSubmitRef.current = false;
+    }
+
+    // reset value for next iteration
+    isSuggestionClickedRef.current = false;
 
     if (id === ADDRESS_OPTION_ID || id === POAP_OPTION_ID) {
       const overlay = document.getElementById(
@@ -277,10 +286,7 @@ export function InputWithMention({
   );
 
   return (
-    <div
-      className="wrapper w-full sm:w-auto sm:p-auto h-full"
-      onClick={handleContainerClick}
-    >
+    <div className="wrapper w-full sm:w-auto sm:p-auto h-full">
       {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
       {/* @ts-ignore-next-line */}
       <MentionsInput
@@ -289,6 +295,7 @@ export function InputWithMention({
         style={{ outline: 'none' }}
         placeholder={placeholder}
         onKeyUp={handleKeypress}
+        onBlur={handleBlur}
         className="mentions"
         value={value}
         onChange={handleUserInput}
