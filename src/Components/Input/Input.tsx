@@ -144,8 +144,10 @@ export function InputWithMention({
       if (clickedSuggestion) {
         isSuggestionClickedRef.current = true;
         // remove @ from input value so that it doesn't trigger search again
-        if (inputRef.current) {
-          inputRef.current.value = inputRef.current.value.slice(0, -1);
+        const inputValue = inputRef.current?.value || '';
+        const lastChar = inputValue.slice(-1);
+        if (inputRef.current && lastChar === '@') {
+          inputRef.current.value = inputValue.slice(0, -1);
         }
       }
     },

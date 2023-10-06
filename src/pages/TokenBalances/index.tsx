@@ -466,7 +466,6 @@ function TokenBalancePage() {
     if (socialInfo.isApplicable) {
       return (
         <SocialFollows
-          key={activeSocialInfo}
           identities={address}
           socialInfo={socialInfo}
           setQueryData={setData}
