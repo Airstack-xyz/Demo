@@ -3,12 +3,7 @@
 }
 
 .sf-table thead {
-  background: linear-gradient(
-    137deg,
-    rgba(255, 255, 255, 0.03) 0.55%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  @apply rounded-2xl;
+  @apply bg-glass rounded-2xl;
 }
 
 .sf-table th {
