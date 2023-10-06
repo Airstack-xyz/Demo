@@ -10,12 +10,14 @@ import { capitalizeFirstLetter } from '../../../utils';
 type SocialFollowsProps = {
   identities: string[];
   socialInfo: SocialInfo;
+  socialInfoQueryString: string;
   setQueryData: UpdateUserInputs;
 };
 
 export function SocialFollows({
   identities,
   socialInfo,
+  socialInfoQueryString,
   setQueryData
 }: SocialFollowsProps) {
   const [isFollowerQuery, setIsFollowerQuery] = useState(
@@ -30,8 +32,6 @@ export function SocialFollows({
       { updateQueryParams: true }
     );
   };
-
-  const tableKey = `${identities}-${socialInfo.dappName}-${socialInfo.profileNames}-${socialInfo.profileTokenIds}-${isFollowerQuery}`;
 
   return (
     <div className="max-w-[950px] mx-auto w-full text-sm pt-10 sm:pt-0">
@@ -80,7 +80,7 @@ export function SocialFollows({
         />
       </TabContainer>
       <TableSection
-        key={tableKey}
+        key={socialInfoQueryString}
         identities={identities}
         socialInfo={socialInfo}
         isFollowerQuery={isFollowerQuery}
