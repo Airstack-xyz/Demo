@@ -15,12 +15,14 @@ export const getSocialFollowFilterData = ({
   filters,
   mention,
   dappName,
+  identities,
   profileTokenIds,
   isFollowerQuery
 }: {
   filters: string[];
   mention?: MentionValues | null;
   dappName: string;
+  identities: string[];
   profileTokenIds: string[];
   isFollowerQuery: boolean;
 }) => {
@@ -31,8 +33,7 @@ export const getSocialFollowFilterData = ({
 
   // filter by profile ids for farcaster and lens (follower query only)
   if (dappName === 'farcaster' || (dappName === 'lens' && isFollowerQuery)) {
-    const key = isFollowerQuery ? 'followingProfileId' : 'followerProfileId';
-    queryFilters[key] = profileTokenIds[0];
+    queryFilters.profileTokenId = profileTokenIds[0];
   }
 
   if (mention) {
@@ -47,9 +48,8 @@ export const getSocialFollowFilterData = ({
       logicalFilters.lensSocial = true;
     }
     if (filter.startsWith(MORE_THAN_N_FOLLOW_FILTER)) {
-      const key = isFollowerQuery ? 'followerCount' : 'followingCount';
       const [, count] = filter.split(':');
-      queryFilters[key] = Number(count);
+      queryFilters.followCount = Number(count);
     }
     if (filter.startsWith(MUTUAL_FOLLOW_FILTER)) {
       logicalFilters.mutualFollow = true;
@@ -59,6 +59,11 @@ export const getSocialFollowFilterData = ({
       logicalFilters.alsoFollow = dappName;
     }
   });
+
+  // Add identity filter for mutualFollow and alsoFollow as these queries use that
+  if (logicalFilters.mutualFollow || logicalFilters.alsoFollow) {
+    queryFilters.identity = identities[0];
+  }
 
   return { queryFilters, logicalFilters };
 };

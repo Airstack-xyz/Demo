@@ -97,12 +97,14 @@ export function TableSection({
     () =>
       getSocialFollowFilterData({
         ...followData,
+        identities,
         dappName: socialInfo.dappName,
         profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery
       }),
     [
       followData,
+      identities,
       isFollowerQuery,
       socialInfo.dappName,
       socialInfo.profileTokenIds
@@ -173,7 +175,6 @@ export function TableSection({
     tableIdsSetRef.current = new Set();
     setTableItems([]);
     fetchData({
-      identity: identities[0],
       limit: MAX_LIMIT,
       ...filterData.queryFilters
     });

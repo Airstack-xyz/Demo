@@ -33,25 +33,29 @@ export const getSocialFollowersQuery = ({
   queryFilters: SocialFollowQueryFilters;
   logicalFilters: SocialFollowLogicalFilters;
 }) => {
-  const variables = [
-    '$identity: Identity!',
-    '$dappName: SocialDappName',
-    '$limit: Int'
-  ];
-  const filters = ['identity: {_eq: $identity}', 'dappName: {_eq: $dappName}'];
+  const variables = ['$dappName: SocialDappName', '$limit: Int'];
+  const filters = ['dappName: {_eq: $dappName}'];
 
   const logicalQueries = [];
 
-  if (queryFilters.followingProfileId) {
-    variables.push('$followingProfileId: String!');
-    filters.push('followingProfileId: {_eq: $followingProfileId}');
+  if (queryFilters.identity) {
+    variables.push('$identity: Identity!');
+    filters.push('identity: {_eq: $identity}');
   }
 
-  if (queryFilters.followerCount || logicalFilters.farcasterSocial) {
+  if (queryFilters.profileTokenId) {
+    variables.push('$profileTokenId: String!');
+    filters.push('followingProfileId: {_eq: $profileTokenId}');
+  }
+
+  if (queryFilters.followCount) {
+    variables.push('$followCount: Int');
+  }
+
+  if (queryFilters.followCount || logicalFilters.farcasterSocial) {
     const socialFilters = ['dappName: {_eq: farcaster}'];
-    if (queryFilters.dappName === 'farcaster' && queryFilters.followerCount) {
-      variables.push('$followerCount: Int');
-      socialFilters.push('followerCount: {_gt: $followerCount}');
+    if (queryFilters.dappName === 'farcaster' && queryFilters.followCount) {
+      socialFilters.push('followerCount: {_gt: $followCount}');
     }
     const socialFiltersString = socialFilters.join(',');
 
@@ -60,11 +64,10 @@ export const getSocialFollowersQuery = ({
       profileTokenId
     }`);
   }
-  if (queryFilters.followerCount || logicalFilters.lensSocial) {
+  if (queryFilters.followCount || logicalFilters.lensSocial) {
     const socialFilters = ['dappName: {_eq: lens}'];
-    if (queryFilters.dappName === 'lens' && queryFilters.followerCount) {
-      variables.push('$followerCount: Int');
-      socialFilters.push('followerCount: {_gt: $followerCount}');
+    if (queryFilters.dappName === 'lens' && queryFilters.followCount) {
+      socialFilters.push('followerCount: {_gt: $followCount}');
     }
     const socialFiltersString = socialFilters.join(',');
 

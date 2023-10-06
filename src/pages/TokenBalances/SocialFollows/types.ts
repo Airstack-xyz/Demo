@@ -128,10 +128,9 @@ export type Wallet = {
 
 export type SocialFollowQueryFilters = {
   dappName: string;
-  followerProfileId?: string;
-  followerCount?: number;
-  followingProfileId?: string;
-  followingCount?: number;
+  identity?: string;
+  profileTokenId?: string;
+  followCount?: number;
 };
 
 export type SocialFollowLogicalFilters = {
