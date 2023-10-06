@@ -468,7 +468,7 @@ function TokenBalancePage() {
         <SocialFollows
           identities={address}
           socialInfo={socialInfo}
-          socialInfoQueryString={activeSocialInfo}
+          activeSocialInfo={activeSocialInfo}
           setQueryData={setData}
         />
       );

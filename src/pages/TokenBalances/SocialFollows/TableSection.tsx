@@ -289,6 +289,7 @@ export function TableSection({
       defaultValue={followData.mentionRawText}
       disabled={isInputDisabled}
       placeholder="Input a token to view overlap"
+      className={isMobile ? 'h-[35px]' : undefined}
       validationFn={mentionValidationFn}
       onSubmit={handleMentionSubmit}
       onClear={handleMentionClear}

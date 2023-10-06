@@ -10,14 +10,14 @@ import { capitalizeFirstLetter } from '../../../utils';
 type SocialFollowsProps = {
   identities: string[];
   socialInfo: SocialInfo;
-  socialInfoQueryString: string;
+  activeSocialInfo: string;
   setQueryData: UpdateUserInputs;
 };
 
 export function SocialFollows({
   identities,
   socialInfo,
-  socialInfoQueryString,
+  activeSocialInfo,
   setQueryData
 }: SocialFollowsProps) {
   const [isFollowerQuery, setIsFollowerQuery] = useState(
@@ -80,7 +80,7 @@ export function SocialFollows({
         />
       </TabContainer>
       <TableSection
-        key={socialInfoQueryString}
+        key={activeSocialInfo}
         identities={identities}
         socialInfo={socialInfo}
         isFollowerQuery={isFollowerQuery}
