@@ -49,7 +49,6 @@ type ModalData = {
 type TableSectionProps = {
   identities: string[];
   socialInfo: SocialInfo;
-  isFollowerQuery: boolean;
   setQueryData: UpdateUserInputs;
 };
 
@@ -67,7 +66,6 @@ const MIN_LIMIT = 20;
 export function TableSection({
   identities,
   socialInfo,
-  isFollowerQuery,
   setQueryData
 }: TableSectionProps) {
   const navigate = useNavigate();
@@ -89,6 +87,8 @@ export function TableSection({
     total: MAX_LIMIT,
     matching: 0
   });
+
+  const isFollowerQuery = Boolean(socialInfo.followerTab);
 
   const followDataKey = isFollowerQuery ? 'followerData' : 'followingData';
   const followData = socialInfo[followDataKey];
@@ -186,9 +186,8 @@ export function TableSection({
         {
           activeSocialInfo: getActiveSocialInfoString({
             ...socialInfo,
-            followerTab: isFollowerQuery,
             [followDataKey]: {
-              ...followData,
+              ...socialInfo[followDataKey],
               ...data
             }
           })
@@ -196,7 +195,7 @@ export function TableSection({
         { updateQueryParams: true }
       );
     },
-    [followData, followDataKey, isFollowerQuery, setQueryData, socialInfo]
+    [followDataKey, setQueryData, socialInfo]
   );
 
   const handleFiltersApply = useCallback(
