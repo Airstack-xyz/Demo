@@ -33,12 +33,8 @@ export const getSocialFollowingsQuery = ({
   queryFilters: SocialFollowQueryFilters;
   logicalFilters: SocialFollowLogicalFilters;
 }) => {
-  const variables = [
-    '$identity: Identity!',
-    '$dappName: SocialDappName',
-    '$limit: Int'
-  ];
-  const filters = ['identity: {_eq: $identity}', 'dappName: {_eq: $dappName}'];
+  const variables = ['$dappName: SocialDappName', '$limit: Int'];
+  const filters = ['dappName: {_eq: $dappName}'];
 
   const logicalQueries = [];
 
@@ -99,7 +95,7 @@ export const getSocialFollowingsQuery = ({
   if (logicalFilters.holdingData) {
     const { address, token, blockchain, eventId, customInputType } =
       logicalFilters.holdingData;
-    if (token === 'POAP' || customInputType === 'POAP') {
+    if (customInputType === 'POAP' || token === 'POAP') {
       const poapEventId = eventId || address;
       logicalQueries.push(`poapHoldings: poaps(
         input: {filter: {eventId: {_eq: "${poapEventId}"}}, limit: 1}
