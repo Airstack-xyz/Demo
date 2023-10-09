@@ -3,7 +3,7 @@
 }
 
 .sf-table thead {
-  @apply bg-glass-grad !bg-fixed rounded-2xl;
+  @apply bg-glass-grad sm:bg-fixed rounded-2xl;
 }
 
 .sf-table th {

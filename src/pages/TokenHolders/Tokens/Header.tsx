@@ -6,7 +6,7 @@ export function Header({
   isCombination: boolean;
 }) {
   return (
-    <thead className="bg-glass-grad !bg-fixed rounded-2xl">
+    <thead className="bg-glass-grad sm:bg-fixed rounded-2xl">
       <tr className="[&>th]:text-xs [&>th]:font-bold [&>th]:text-left [&>th]:py-5 [&>th]:px-2 [&>th]:whitespace-nowrap">
         <th className="!pl-9">Token</th>
         <th>Wallet address</th>
