@@ -34,6 +34,8 @@ export const getSocialFollowFilterData = ({
   // filter by profile ids for farcaster and lens (follower query only)
   if (dappName === 'farcaster' || (dappName === 'lens' && isFollowerQuery)) {
     queryFilters.profileTokenId = profileTokenIds[0];
+  } else {
+    queryFilters.identity = identities[0];
   }
 
   if (mention) {
