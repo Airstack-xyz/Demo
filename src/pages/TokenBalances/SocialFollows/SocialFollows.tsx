@@ -1,7 +1,9 @@
-import { useState } from 'react';
 import { Icon } from '../../../Components/Icon';
 import { UpdateUserInputs } from '../../../hooks/useSearchInput';
-import { SocialInfo } from '../../../utils/activeSocialInfoString';
+import {
+  SocialInfo,
+  getActiveSocialInfoString
+} from '../../../utils/activeSocialInfoString';
 import { DetailsSection } from './DetailsSection';
 import { TableSection } from './TableSection';
 import { TabContainer, Tab } from '../../../Components/Tab';
@@ -10,17 +12,27 @@ import { capitalizeFirstLetter } from '../../../utils';
 type SocialFollowsProps = {
   identities: string[];
   socialInfo: SocialInfo;
+  activeSocialInfo: string;
   setQueryData: UpdateUserInputs;
 };
 
 export function SocialFollows({
   identities,
   socialInfo,
+  activeSocialInfo,
   setQueryData
 }: SocialFollowsProps) {
-  const [isFollowerQuery, setIsFollowerQuery] = useState(
-    socialInfo.followerTab
-  );
+  const handleTabChange = (follow: boolean) => {
+    setQueryData(
+      {
+        activeSocialInfo: getActiveSocialInfoString({
+          ...socialInfo,
+          followerTab: follow
+        })
+      },
+      { updateQueryParams: true }
+    );
+  };
 
   const handleClose = () => {
     setQueryData(
@@ -30,8 +42,6 @@ export function SocialFollows({
       { updateQueryParams: true }
     );
   };
-
-  const tableKey = `${identities}-${socialInfo.dappName}-${socialInfo.profileNames}-${socialInfo.profileTokenIds}-${isFollowerQuery}`;
 
   return (
     <div className="max-w-[950px] mx-auto w-full text-sm pt-10 sm:pt-0">
@@ -69,21 +79,20 @@ export function SocialFollows({
         <Tab
           icon="nft-flat"
           header={`${socialInfo.followerCount} followers`}
-          active={isFollowerQuery}
-          onClick={() => setIsFollowerQuery(true)}
+          active={socialInfo.followerTab}
+          onClick={() => handleTabChange(true)}
         />
         <Tab
           icon="erc20"
           header={`${socialInfo.followingCount} following`}
-          active={!isFollowerQuery}
-          onClick={() => setIsFollowerQuery(false)}
+          active={!socialInfo.followerTab}
+          onClick={() => handleTabChange(false)}
         />
       </TabContainer>
       <TableSection
-        key={tableKey}
+        key={activeSocialInfo}
         identities={identities}
         socialInfo={socialInfo}
-        isFollowerQuery={isFollowerQuery}
         setQueryData={setQueryData}
       />
     </div>

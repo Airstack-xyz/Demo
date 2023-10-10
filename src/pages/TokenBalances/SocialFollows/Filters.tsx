@@ -235,6 +235,7 @@ export function Filters({
     return (
       <div className="bg-glass rounded-18 p-2 mt-1 flex flex-col absolute min-w-[202px] right-0 top-full z-20">
         <FilterCheckbox
+          className="max-sm:py-1.5"
           label={
             isFollowerQuery
               ? "has more than 'n' followers"
@@ -256,6 +257,7 @@ export function Filters({
         )}
         {filterOptions.map(item => (
           <FilterCheckbox
+            className="max-sm:py-1.5"
             key={item.value}
             label={item.label}
             isSelected={currentFilters.includes(item.value)}
