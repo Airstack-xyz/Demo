@@ -48,7 +48,6 @@ type ModalData = {
 type TableSectionProps = {
   identities: string[];
   socialInfo: SocialInfo;
-  isFollowerQuery: boolean;
   setQueryData: UpdateUserInputs;
 };
 
@@ -66,7 +65,6 @@ const MIN_LIMIT = 20;
 export function TableSection({
   identities,
   socialInfo,
-  isFollowerQuery,
   setQueryData
 }: TableSectionProps) {
   const navigate = useNavigate();
@@ -88,6 +86,8 @@ export function TableSection({
     matching: 0
   });
 
+  const isFollowerQuery = Boolean(socialInfo.followerTab);
+
   const followDataKey = isFollowerQuery ? 'followerData' : 'followingData';
   const followData = socialInfo[followDataKey];
 
@@ -95,12 +95,14 @@ export function TableSection({
     () =>
       getSocialFollowFilterData({
         ...followData,
+        identities,
         dappName: socialInfo.dappName,
         profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery
       }),
     [
       followData,
+      identities,
       isFollowerQuery,
       socialInfo.dappName,
       socialInfo.profileTokenIds
@@ -171,7 +173,6 @@ export function TableSection({
     tableIdsSetRef.current = new Set();
     setTableItems([]);
     fetchData({
-      identity: identities[0],
       limit: MAX_LIMIT,
       ...filterData.queryFilters
     });
@@ -183,9 +184,8 @@ export function TableSection({
         {
           activeSocialInfo: getActiveSocialInfoString({
             ...socialInfo,
-            followerTab: isFollowerQuery,
             [followDataKey]: {
-              ...followData,
+              ...socialInfo[followDataKey],
               ...data
             }
           })
@@ -193,7 +193,7 @@ export function TableSection({
         { updateQueryParams: true }
       );
     },
-    [followData, followDataKey, isFollowerQuery, setQueryData, socialInfo]
+    [followDataKey, setQueryData, socialInfo]
   );
 
   const handleFiltersApply = useCallback(
@@ -282,6 +282,7 @@ export function TableSection({
       defaultValue={followData.mentionRawText}
       disabled={isInputDisabled}
       placeholder="Input a token to view overlap"
+      className={isMobile ? 'h-[35px]' : undefined}
       validationFn={mentionValidationFn}
       onSubmit={handleMentionSubmit}
       onClear={handleMentionClear}

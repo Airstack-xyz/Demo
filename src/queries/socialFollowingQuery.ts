@@ -33,25 +33,30 @@ export const getSocialFollowingsQuery = ({
   queryFilters: SocialFollowQueryFilters;
   logicalFilters: SocialFollowLogicalFilters;
 }) => {
-  const variables = [
-    '$identity: Identity!',
-    '$dappName: SocialDappName',
-    '$limit: Int'
-  ];
-  const filters = ['identity: {_eq: $identity}', 'dappName: {_eq: $dappName}'];
+  const variables = ['$dappName: SocialDappName', '$limit: Int'];
+  const filters = ['dappName: {_eq: $dappName}'];
 
   const logicalQueries = [];
 
-  if (queryFilters.followerProfileId) {
-    variables.push('$followerProfileId: String!');
-    filters.push('followerProfileId: {_eq: $followerProfileId}');
+  if (queryFilters.identity) {
+    variables.push('$identity: Identity!');
   }
 
-  if (queryFilters.followerCount || logicalFilters.farcasterSocial) {
+  if (queryFilters.profileTokenId) {
+    variables.push('$profileTokenId: String!');
+    filters.push('followerProfileId: {_eq: $profileTokenId}');
+  } else {
+    filters.push('identity: {_eq: $identity}');
+  }
+
+  if (queryFilters.followCount) {
+    variables.push('$followCount: Int');
+  }
+
+  if (queryFilters.followCount || logicalFilters.farcasterSocial) {
     const socialFilters = ['dappName: {_eq: farcaster}'];
-    if (queryFilters.dappName === 'farcaster' && queryFilters.followingCount) {
-      variables.push('$followingCount: Int');
-      socialFilters.push('followingCount: {_gt: $followingCount}');
+    if (queryFilters.dappName === 'farcaster' && queryFilters.followCount) {
+      socialFilters.push('followingCount: {_gt: $followCount}');
     }
     const socialFiltersString = socialFilters.join(',');
 
@@ -60,11 +65,10 @@ export const getSocialFollowingsQuery = ({
       profileTokenId
     }`);
   }
-  if (queryFilters.followerCount || logicalFilters.lensSocial) {
+  if (queryFilters.followCount || logicalFilters.lensSocial) {
     const socialFilters = ['dappName: {_eq: lens}'];
-    if (queryFilters.dappName === 'lens' && queryFilters.followingCount) {
-      variables.push('$followingCount: Int');
-      socialFilters.push('followingCount: {_gt: $followingCount}');
+    if (queryFilters.dappName === 'lens' && queryFilters.followCount) {
+      socialFilters.push('followingCount: {_gt: $followCount}');
     }
     const socialFiltersString = socialFilters.join(',');
 
@@ -92,7 +96,7 @@ export const getSocialFollowingsQuery = ({
   if (logicalFilters.holdingData) {
     const { address, token, blockchain, eventId, customInputType } =
       logicalFilters.holdingData;
-    if (token === 'POAP' || customInputType === 'POAP') {
+    if (customInputType === 'POAP' || token === 'POAP') {
       const poapEventId = eventId || address;
       logicalQueries.push(`poapHoldings: poaps(
         input: {filter: {eventId: {_eq: "${poapEventId}"}}, limit: 1}

@@ -380,12 +380,14 @@ function TokenBalancePage() {
       const socialFollowersFilterData = getSocialFollowFilterData({
         ...socialInfo.followerData,
         dappName: socialInfo.dappName,
+        identities: address,
         profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery: true
       });
       const socialFollowingsFilterData = getSocialFollowFilterData({
         ...socialInfo.followingData,
         dappName: socialInfo.dappName,
+        identities: address,
         profileTokenIds: socialInfo.profileTokenIds,
         isFollowerQuery: false
       });
@@ -400,7 +402,6 @@ function TokenBalancePage() {
       const socialFollowersDetailsLink = createAppUrlWithQuery(
         socialFollowersDetailsQuery,
         {
-          identity: address[0],
           limit: 10,
           ...socialFollowersFilterData.queryFilters
         }
@@ -409,7 +410,6 @@ function TokenBalancePage() {
       const socialFollowingDetailsLink = createAppUrlWithQuery(
         socialFollowingDetailsQuery,
         {
-          identity: address[0],
           limit: 10,
           ...socialFollowingsFilterData.queryFilters
         }
@@ -520,9 +520,9 @@ function TokenBalancePage() {
     if (socialInfo.isApplicable) {
       return (
         <SocialFollows
-          key={activeSocialInfo}
           identities={address}
           socialInfo={socialInfo}
+          activeSocialInfo={activeSocialInfo}
           setQueryData={setData}
         />
       );
