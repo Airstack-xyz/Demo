@@ -1,4 +1,5 @@
 import { Chain } from '@airstack/airstack-react/constants';
+import { MentionValues } from '../../../Components/Input/utils';
 
 export type SocialsResponse = {
   Socials: {
@@ -45,6 +46,37 @@ export type Follow = {
   followingAddress: Wallet;
 };
 
+export type Holding = {
+  tokenId: string;
+  tokenAddress: string;
+  tokenType: string;
+  blockchain: Chain;
+  formattedAmount: number;
+  poapEvent: {
+    eventId: string;
+    contentValue: {
+      image: {
+        extraSmall: string;
+      };
+    };
+  };
+  token: {
+    logo: {
+      small: string;
+    };
+    projectDetails: {
+      imageUrl: string;
+    };
+  };
+  tokenNfts: {
+    contentValue: {
+      image: {
+        extraSmall: string;
+      };
+    };
+  };
+};
+
 export type Wallet = {
   socialFollowers: {
     Follower: Follow[];
@@ -52,14 +84,25 @@ export type Wallet = {
   socialFollowings: {
     Following: Follow[];
   };
-  alsoFollow: {
+  alsoFollows: {
     Follower: Follow[];
     Following: Follow[];
   };
-  mutualFollow: {
+  mutualFollows: {
     Follower: Follow[];
     Following: Follow[];
   };
+  lensSocials: {
+    id: string;
+    profileTokenId: string;
+  }[];
+  farcasterSocials: {
+    id: string;
+    profileTokenId: string;
+  }[];
+  poapHoldings: Holding[];
+  ethereumHoldings: Holding[];
+  polygonHoldings: Holding[];
   identity: string;
   addresses: string[];
   socials: {
@@ -77,7 +120,6 @@ export type Wallet = {
   };
   domains: {
     name: string;
-    dappName: string;
   }[];
   xmtp: {
     isXMTPEnabled: boolean;
@@ -85,17 +127,16 @@ export type Wallet = {
 };
 
 export type SocialFollowQueryFilters = {
-  followerProfileIds?: string[];
-  followerPrimaryDomain?: boolean;
-  followerCount?: number;
-  followerDappNames?: string[];
-  followingProfileIds?: string[];
-  followingPrimaryDomain?: boolean;
-  followingCount?: number;
-  followingDappNames?: string[];
+  dappName: string;
+  identity?: string;
+  profileTokenId?: string;
+  followCount?: number;
 };
 
 export type SocialFollowLogicalFilters = {
   alsoFollow?: string;
   mutualFollow?: boolean;
+  holdingData?: MentionValues | null;
+  lensSocial?: boolean;
+  farcasterSocial?: boolean;
 };

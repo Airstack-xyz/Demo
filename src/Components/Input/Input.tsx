@@ -68,6 +68,7 @@ export function InputWithMention({
   const allowSubmitRef = useRef(true);
   const valueRef = useRef(value);
   const lastPositionOfCaretRef = useRef(0);
+  const isSuggestionClickedRef = useRef(false);
   const [loading, setLoading] = useState(false);
 
   // const [getMentions, { loading }] = useLazyQuery(MentionsQuery);
@@ -138,9 +139,31 @@ export function InputWithMention({
     [onSubmit, value]
   );
 
+  const handleBlur = useCallback(
+    (_: React.FocusEvent<HTMLInputElement>, clickedSuggestion: boolean) => {
+      if (clickedSuggestion) {
+        isSuggestionClickedRef.current = true;
+        // remove @ from input value so that it doesn't trigger search again
+        const inputValue = inputRef.current?.value || '';
+        const lastChar = inputValue.slice(-1);
+        if (inputRef.current && lastChar === '@') {
+          inputRef.current.value = inputValue.slice(0, -1);
+        }
+      }
+    },
+    []
+  );
+
   const onAddSuggestion = useCallback((id: string) => {
-    // this prevents submission if user is selecting a suggestion from the dropdown menu with enter key
-    allowSubmitRef.current = false;
+    // allow submission only if suggestion is clicked
+    if (isSuggestionClickedRef.current) {
+      allowSubmitRef.current = true;
+    } else {
+      allowSubmitRef.current = false;
+    }
+
+    // reset value for next iteration
+    isSuggestionClickedRef.current = false;
 
     if (id === ADDRESS_OPTION_ID || id === POAP_OPTION_ID) {
       const overlay = document.getElementById(
@@ -274,6 +297,7 @@ export function InputWithMention({
         style={{ outline: 'none' }}
         placeholder={placeholder}
         onKeyUp={handleKeypress}
+        onBlur={handleBlur}
         className="mentions"
         value={value}
         onChange={handleUserInput}

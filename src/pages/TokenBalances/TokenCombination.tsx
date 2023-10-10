@@ -215,7 +215,7 @@ export const TokenCombination = memo(function TokenCombination({
   return (
     <div
       className={classNames(
-        'border-solid-stroke rounded-18 bg-glass flex-1 !backdrop-blur-none',
+        'border-solid-stroke rounded-18 bg-glass-grad flex-1',
         {
           'w-[80%] sm:max-w-full lg:max-w-[49%] ': !showAllTokens
         }
@@ -241,7 +241,7 @@ export const TokenCombination = memo(function TokenCombination({
       </div>
       <div
         className={classNames(
-          'flex flex-col sm:flex-row flex-wrap gap-x-[20px] gap-y-[20px] items-center justify-center sm:justify-evenly p-5',
+          'flex flex-col sm:flex-row flex-wrap gap-x-[20px] gap-y-[20px] items-center justify-center p-5',
           {
             'gap-x-[8px] px-1.5': !showAllTokens && hasMoreTokens,
             '!justify-center': showAllTokens

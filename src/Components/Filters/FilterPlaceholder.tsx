@@ -10,6 +10,7 @@ type FilterPlaceholderProps = {
   isDisabled?: boolean;
   icon?: IconType;
   label: string;
+  className?: string;
   onClick?: () => void;
 };
 
@@ -18,12 +19,17 @@ export function FilterPlaceholder({
   isDisabled,
   icon,
   label,
+  className,
   onClick
 }: FilterPlaceholderProps) {
   return (
     <button
       disabled={isDisabled}
-      className={classNames(filterPlaceholderClass, { 'border-white': isOpen })}
+      className={classNames(
+        filterPlaceholderClass,
+        { 'border-white': isOpen },
+        className
+      )}
       onClick={onClick}
     >
       {icon && <Icon name={icon} height={12} width={12} className="mr-1.5" />}

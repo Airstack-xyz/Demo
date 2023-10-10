@@ -43,6 +43,8 @@ export interface Image {
 export interface Token {
   name: string;
   symbol: string;
+  tokenType: string;
+  formattedAmount: number;
   logo: {
     small: string;
     medium: string;
@@ -93,6 +95,7 @@ export interface SocialsType {
 }
 
 export interface Wallet {
+  addresses: string[];
   primaryDomain: PrimaryDomain;
   domains: Domain[];
   socials: Social[];

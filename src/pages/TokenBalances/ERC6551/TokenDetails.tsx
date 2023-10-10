@@ -30,6 +30,8 @@ import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
 import classNames from 'classnames';
 import { useTokenDetails } from '../../../store/tokenDetails';
 import { getActiveTokensInfoFromArray } from '../../../utils/activeTokenInfoString';
+import { SocialInfo } from '../../../utils/activeSocialInfoString';
+import { capitalizeFirstLetter } from '../../../utils';
 
 function LoaderItem() {
   return (
@@ -124,10 +126,12 @@ type Token = {
 export function TokenDetails(props: {
   onClose?: () => void;
   showLoader?: boolean;
+  socialInfo?: SocialInfo;
   activeTokens: Token[];
   hideBackBreadcrumb?: boolean;
 }) {
-  const { showLoader, activeTokens, onClose, hideBackBreadcrumb } = props;
+  const { showLoader, activeTokens, socialInfo, onClose, hideBackBreadcrumb } =
+    props;
   const { tokenId, eventId, blockchain, tokenAddress } =
     activeTokens[activeTokens.length - 1];
 
@@ -237,7 +241,18 @@ export function TokenDetails(props: {
     });
   }, [isPoap, nft?.erc6551Accounts?.length, setDetails]);
 
-  const handleBreadcrumbClick = useCallback(
+  const handleFollowBreadcrumbClick = useCallback(() => {
+    setSearchData(
+      {
+        activeTokenInfo: ''
+      },
+      {
+        updateQueryParams: true
+      }
+    );
+  }, [setSearchData]);
+
+  const handleTokenBreadcrumbClick = useCallback(
     (index: number) => {
       const updatedTokens = activeTokens.slice(0, index + 1);
       setSearchData(
@@ -260,7 +275,7 @@ export function TokenDetails(props: {
   return (
     <div
       className={classNames(
-        'max-w-[950px] text-sm m-auto w-[98vw] pt-10 sm:pt-0',
+        'max-w-[950px] mx-auto w-full text-sm pt-10 sm:pt-0',
         {
           'pb-10': !hasChildren
         }
@@ -277,8 +292,8 @@ export function TokenDetails(props: {
                 name={isTokenBalances ? 'token-balances' : 'token-holders'}
                 height={20}
                 width={20}
-              />{' '}
-              <span className="ml-1.5 text-text-secondary break-all cursor-pointer ellipsis">
+              />
+              <span className="ml-1 text-text-secondary break-all cursor-pointer ellipsis">
                 Token {isTokenBalances ? 'balances' : 'holders'} of{' '}
                 {address.join(', ')}
               </span>
@@ -286,11 +301,26 @@ export function TokenDetails(props: {
             <span className="text-text-secondary">/</span>
           </div>
         )}
+        {socialInfo?.dappName && (
+          <>
+            <div
+              className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden mr-1"
+              onClick={handleFollowBreadcrumbClick}
+            >
+              <Icon name="table-view" height={20} width={20} className="mr-1" />
+              <span className="text-text-primary ellipsis">
+                {capitalizeFirstLetter(socialInfo.dappName)} details
+              </span>
+            </div>
+            <span className="text-text-secondary">/</span>
+          </>
+        )}
         {activeTokens.map((token, index) => {
           const _tokenId = token.tokenId || token.eventId;
           const isActiveToken = index === activeTokens.length - 1;
           return (
             <div
+              key={_tokenId}
               className={classNames('flex items-center overflow-hidden', {
                 'skeleton-loader': loading
               })}
@@ -302,7 +332,7 @@ export function TokenDetails(props: {
                 })}
                 onClick={() => {
                   if (!isActiveToken) {
-                    handleBreadcrumbClick(index);
+                    handleTokenBreadcrumbClick(index);
                   }
                 }}
               >

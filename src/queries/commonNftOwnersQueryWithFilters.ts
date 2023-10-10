@@ -25,6 +25,8 @@ export function getCommonNftOwnersQueryWithFilters(
           }"}}, blockchain: ${token2.blockchain}}) {
             tokenId
             tokenAddress
+            tokenType
+            formattedAmount
             token {
               logo {
                 small
@@ -69,6 +71,8 @@ export function getCommonNftOwnersQueryWithFilters(
           }"}}, blockchain: ${token2.blockchain}}) {
             tokenId
             tokenAddress
+            tokenType
+            formattedAmount
             token {
               logo {
                 small
@@ -118,6 +122,8 @@ export function getNftOwnersQueryWithFilters(
       TokenBalance {
         tokenId
         tokenAddress
+        tokenType
+        formattedAmount
         owner {
           identity
           addresses
@@ -146,6 +152,8 @@ export function getNftOwnersQueryWithFilters(
       TokenBalance {
         tokenId
         tokenAddress
+        tokenType
+        formattedAmount
         owner {
           identity
           addresses

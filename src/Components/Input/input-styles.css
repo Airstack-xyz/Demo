@@ -49,6 +49,10 @@
   @apply outline-none text-transparent caret-text-primary !overflow-y-auto h-full;
 }
 
+#mention-input:disabled {
+  cursor: not-allowed;
+}
+
 .mention {
   @apply bg-stroke-highlight-blue;
 }
