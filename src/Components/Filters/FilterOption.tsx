@@ -8,6 +8,7 @@ type FilterOptionProps = {
   onClick: () => void;
   isDisabled?: boolean;
   isSelected?: boolean;
+  className?: string;
   label: string;
 };
 
@@ -15,14 +16,19 @@ export function FilterOption({
   onClick,
   isDisabled,
   isSelected,
+  className,
   label
 }: FilterOptionProps) {
   return (
     <button
       disabled={isDisabled}
-      className={classNames(filterOptionClass, {
-        'font-bold': isSelected
-      })}
+      className={classNames(
+        filterOptionClass,
+        {
+          'font-bold': isSelected
+        },
+        className
+      )}
       onClick={onClick}
     >
       <Icon

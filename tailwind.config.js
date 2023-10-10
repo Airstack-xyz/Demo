@@ -84,6 +84,13 @@ module.exports = {
             rgba(255, 255, 255, 0) 100%
           );`,
           'backdrop-filter': `blur(33.31547927856445px)`
+        },
+        '.bg-glass-grad': {
+          background: `linear-gradient(
+            137deg,
+            rgba(255, 255, 255, 0.03) 0.55%,
+            rgba(255, 255, 255, 0) 100%
+          )`
         }
       });
     }
