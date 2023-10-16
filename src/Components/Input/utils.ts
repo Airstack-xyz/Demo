@@ -14,20 +14,19 @@ export enum Blockchain {
   polygon = 'polygon'
 }
 
-export interface SearchAIMentions_SearchAIMentions_metadata {
+export interface SearchAIMentions_SearchAIMentions_results_metadata {
   __typename: 'Metadata';
   tokenMints: number | null;
 }
-
-export interface SearchAIMentions_SearchAIMentions {
-  __typename: 'SearchAIMentionsResult';
+export interface SearchAIMentions_SearchAIMentions_results {
+  __typename: 'SearchAIMentionResult';
   type: MentionType | null;
   name: string | null;
   address: string | null;
   eventId: string | null;
   blockchain: Blockchain | null;
   thumbnailURL: string | null;
-  metadata: SearchAIMentions_SearchAIMentions_metadata | null;
+  metadata: SearchAIMentions_SearchAIMentions_results_metadata | null;
 }
 
 export const ID_REGEX = /#⎱.+?⎱\((.+?)\)\s*/g;
@@ -133,7 +132,7 @@ export function highlightMention(el: HTMLTextAreaElement | null) {
 }
 
 // id format: <address> <token type> <blockchain>
-export function generateId(mention: SearchAIMentions_SearchAIMentions) {
+export function generateId(mention: SearchAIMentions_SearchAIMentions_results) {
   return `${mention.address} ${mention.type} ${mention.blockchain} ${mention.eventId}`;
 }
 
