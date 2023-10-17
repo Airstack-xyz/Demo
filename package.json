@@ -14,7 +14,7 @@
     "pre-commit": "npm run lint && npm run ts-lint"
   },
   "dependencies": {
-    "@airstack/airstack-react": "^0.5.3",
+    "@airstack/airstack-react": "^0.5.5",
     "classnames": "^2.3.2",
     "i": "^0.3.7",
     "npm": "^9.8.0",

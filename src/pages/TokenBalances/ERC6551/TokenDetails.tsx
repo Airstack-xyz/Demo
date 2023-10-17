@@ -189,8 +189,8 @@ export function TokenDetails(props: {
   }, [address, onClose]);
 
   const erc20Token = erc20Data?.Token;
-  const nftData: ReturnType<typeof formatNFTData> = data;
-  const poapData: ReturnType<typeof formatPoapData> = _poapData;
+  const nftData: null | ReturnType<typeof formatNFTData> = data;
+  const poapData: null | ReturnType<typeof formatPoapData> = _poapData;
 
   const isPoap = Boolean(eventId);
   const poap = poapData?.poap;
