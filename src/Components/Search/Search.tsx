@@ -305,8 +305,12 @@ export const Search = memo(function Search() {
   };
 
   const handleInputClear = useCallback(() => {
-    setValue('');
-  }, []);
+    if (advancedSearchData.visible) {
+      setAdvancedSearchData(prev => ({ ...prev, visible: false }));
+    } else {
+      setValue('');
+    }
+  }, [advancedSearchData.visible]);
 
   const getTabChangeHandler = useCallback(
     (tokenBalance: boolean) => {
@@ -379,10 +383,10 @@ export const Search = memo(function Search() {
           {!isHome && <TabLinks isTokenBalances={isTokenBalances} />}
         </div>
       </div>
-      <div className="">
+      <div className="before:bg-glass before:absolute before:inset-0 before:-z-10 before:rounded-18 relative">
         <div
           ref={inputSectionRef}
-          className="flex items-center h-[50px] w-full border-solid-stroke rounded-18 bg-glass px-4 py-3"
+          className="flex items-center h-[50px] w-full border-solid-stroke rounded-18 px-4 py-3"
         >
           {showPrefixIcon && (
             <Icon name="search" width={15} height={15} className="mr-1.5" />
@@ -396,18 +400,17 @@ export const Search = memo(function Search() {
             showAdvancedSearch={showAdvancedSearch}
           />
           <div ref={buttonSectionRef} className="flex justify-end pl-3">
-            {isInputSectionFocused && value && (
-              <button type="button" onClick={handleInputSubmit}>
-                <Icon name="search" width={20} height={20} />
-              </button>
-            )}
-            {!isInputSectionFocused && value && (
+            {value && (!isInputSectionFocused || advancedSearchData.visible) ? (
               <button
                 type="button"
                 className="text-right w-5"
                 onClick={handleInputClear}
               >
                 <Icon name="close" width={14} height={14} />
+              </button>
+            ) : (
+              <button type="button" onClick={handleInputSubmit}>
+                <Icon name="search" width={20} height={20} />
               </button>
             )}
           </div>

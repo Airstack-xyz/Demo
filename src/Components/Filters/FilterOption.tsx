@@ -5,11 +5,12 @@ const filterOptionClass =
   'flex items-center py-1 px-2 rounded-full mb-1 text-left whitespace-nowrap disabled:hover:cursor-not-allowed disabled:opacity-50';
 
 type FilterOptionProps = {
-  onClick: () => void;
+  onClick?: () => void;
   isDisabled?: boolean;
   isSelected?: boolean;
   className?: string;
   label: string;
+  tabIndex?: number;
 };
 
 export function FilterOption({
@@ -17,10 +18,12 @@ export function FilterOption({
   isDisabled,
   isSelected,
   className,
-  label
+  label,
+  tabIndex
 }: FilterOptionProps) {
   return (
     <button
+      tabIndex={tabIndex}
       disabled={isDisabled}
       className={classNames(
         filterOptionClass,

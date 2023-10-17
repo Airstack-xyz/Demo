@@ -3,6 +3,7 @@ import classNames from 'classnames';
 import { useCallback, useState } from 'react';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { Icon } from '../Icon';
+import { FilterPlaceholder } from '../Filters/FilterPlaceholder';
 
 export const chainOptions = [
   {
@@ -52,24 +53,13 @@ export default function BlockchainFilter({
 
   return (
     <div className="relative" ref={containerRef}>
-      <button
-        tabIndex={-1}
-        type="button"
-        disabled={isDisabled}
-        className={classNames(
-          'flex items-center py-1.5 px-4 rounded-xl text-[12px] border enabled:hover:bg-[#2A2B38] disabled:opacity-60 disabled:cursor-not-allowed focus:outline-none',
-          isDropdownVisible ? 'border-white' : 'border-white/10'
-        )}
+      <FilterPlaceholder
+        icon="blockchain-filter"
+        isOpen={isDropdownVisible}
+        isDisabled={isDisabled}
+        label={selectedOption.label}
         onClick={showDropdown}
-      >
-        <Icon
-          name="blockchain-filter"
-          className="mr-2"
-          height={12}
-          width={12}
-        />
-        {selectedOption.label}
-      </button>
+      />
       {isDropdownVisible && (
         <div className="py-2 pl-3 pr-5 mt-1 flex flex-col gap-y-1 rounded-md shadow bg-glass absolute top-full z-10 min-w-[108px]">
           {chainOptions.map(option => {
@@ -86,7 +76,7 @@ export default function BlockchainFilter({
                 key={option.value}
                 type="button"
                 className={classNames(
-                  'py-1.5 flex items-center rounded-lg text-[12px]',
+                  'py-1 flex items-center rounded-lg text-[12px]',
                   isSelected ? 'font-bold' : 'hover:text-white/50'
                 )}
                 onClick={onClick}

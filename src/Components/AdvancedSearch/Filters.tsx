@@ -48,10 +48,9 @@ export default function Filters({ selectedOption, onSelect }: FiltersProps) {
             key={option.value}
             type="button"
             className={classNames(
-              'py-1.5 px-4 rounded-xl border border-white text-[12px] focus:outline-none',
-              isSelected
-                ? 'font-bold'
-                : 'text-white/40 border-white/10 hover:bg-[#2A2B38]'
+              'py-1.5 px-3 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light',
+              isSelected &&
+                '!border-white bg-secondary font-bold !text-text-primary'
             )}
             onClick={onClick}
           >

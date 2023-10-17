@@ -16,7 +16,7 @@ import {
   AdvancedSearchAIMentionsResults
 } from './types';
 import { Icon } from '../Icon';
-import { fetchAIMentions } from '../Input/utils';
+import { NAME_REGEX, fetchAIMentions } from '../Input/utils';
 import { AdvancedSearchAIMentionsQuery } from '../../queries';
 
 const LOADING_ITEM_COUNT = 9;
@@ -42,8 +42,8 @@ type AdvancedSearchProps = {
 };
 
 type SearchData = {
-  loading: boolean;
-  error?: boolean;
+  isLoading: boolean;
+  isError?: boolean;
   searchTerm?: string | null;
   cursor?: string | null;
   nextCursor?: string | null;
@@ -65,7 +65,7 @@ const DISABLED_KEYS = [
 ];
 
 const defaultSearchData: SearchData = {
-  loading: true,
+  isLoading: true,
   searchTerm: null,
   cursor: null,
   nextCursor: null,
@@ -87,8 +87,8 @@ export default function AdvancedSearch({
   const focusIndexRef = useRef(0);
 
   const {
-    loading,
-    error,
+    isLoading,
+    isError,
     searchTerm,
     cursor,
     hasMore,
@@ -126,25 +126,23 @@ export default function AdvancedSearch({
     activeItem?.click();
   }, []);
 
-  const updateSearchTerm = useCallback(
-    (text?: string) => {
-      const query = getSearchQuery(text, mentionStartIndex);
-      // if there is no matching query found
-      if (query === null) {
-        onClose();
-      }
-      if (query) {
-        setSearchData(prev => ({
-          ...prev,
-          searchTerm: query,
-          cursor: null,
-          hasMore: true,
-          items: []
-        }));
-      }
-    },
-    [mentionStartIndex, onClose]
-  );
+  useEffect(() => {
+    const text = mentionValue?.replace(NAME_REGEX, '$1 ');
+    const query = getSearchQuery(text, mentionStartIndex);
+    // if there is no matching query found
+    if (query === null) {
+      onClose();
+    }
+    if (query) {
+      setSearchData(prev => ({
+        ...prev,
+        searchTerm: query,
+        cursor: null,
+        hasMore: true,
+        items: []
+      }));
+    }
+  }, [mentionValue, onClose, mentionStartIndex]);
 
   useEffect(() => {
     const aiInputEl =
@@ -194,8 +192,6 @@ export default function AdvancedSearch({
         case 'Escape':
           onClose();
           break;
-        default:
-          updateSearchTerm(aiInputEl?.value);
       }
     }
 
@@ -210,8 +206,7 @@ export default function AdvancedSearch({
     onClose,
     mentionEndIndex,
     mentionStartIndex,
-    selectGridItem,
-    updateSearchTerm
+    selectGridItem
   ]);
 
   useEffect(() => {
@@ -219,8 +214,10 @@ export default function AdvancedSearch({
     async function fetchData() {
       setSearchData(prev => ({
         ...prev,
-        loading: true
+        isLoading: true,
+        isError: false
       }));
+
       const [data, error] =
         await fetchAIMentions<AdvancedSearchAIMentionsResponse>({
           query: AdvancedSearchAIMentionsQuery,
@@ -235,10 +232,18 @@ export default function AdvancedSearch({
         });
 
       if (error) {
+        // if fetch is aborted
+        if (controller.signal.aborted) {
+          setSearchData(prev => ({
+            ...prev,
+            isError: false
+          }));
+          return;
+        }
         setSearchData(prev => ({
           ...prev,
-          loading: false,
-          error: true,
+          isLoading: false,
+          isError: true,
           items: []
         }));
         return;
@@ -250,7 +255,8 @@ export default function AdvancedSearch({
       focusIndexRef.current = 0;
       setSearchData(prev => ({
         ...prev,
-        loading: false,
+        isLoading: false,
+        isError: false,
         hasMore: nextHasMore,
         nextCursor: nextCursor,
         items: [...prev.items, ...nextItems],
@@ -322,12 +328,12 @@ export default function AdvancedSearch({
 
   const isBlockchainFilterDisabled = selectedToken.value === 'POAP';
 
-  const dataNotFound = !error && !loading && !hasMore && items.length === 0;
+  const dataNotFound = !isError && !isLoading && !hasMore && items.length === 0;
 
-  const errorOccurred = error && !loading && items.length === 0;
+  const errorOccurred = isError && !isLoading && items.length === 0;
 
   return (
-    <div id="advancedSearch" className="mt-4 py-2 pl-2">
+    <div id="advancedSearch" className="pt-5 px-5">
       <div className="flex justify-between items-center">
         <Filters selectedOption={selectedToken} onSelect={handleTokenSelect} />
         <div className="flex items-center">
@@ -351,7 +357,7 @@ export default function AdvancedSearch({
         hasMore={hasMore}
         loader={<GridLoader />}
         height={508}
-        className="mt-5 pr-1 grid grid-cols-3 auto-rows-max gap-[25px] scrollbar-sm"
+        className="mt-5 pr-1 grid grid-cols-3 auto-rows-max gap-[25px] no-scrollbar"
       >
         {dataNotFound && (
           <div className="p-2 text-center col-span-3">
@@ -370,7 +376,7 @@ export default function AdvancedSearch({
             </button>
           </div>
         )}
-        {loading && <GridLoader />}
+        {isLoading && <GridLoader />}
         {items.map((item, index) => (
           <Asset
             key={`${item.address}_${index}`}
