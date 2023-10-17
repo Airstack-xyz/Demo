@@ -1,38 +1,19 @@
-import { MentionsQuery } from '../../queries';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { SearchAIMentionsQuery } from '../../queries';
 import { createFormattedRawInput } from '../../utils/createQueryParamsWithMention';
 import { ADDRESS_OPTION_ID, POAP_OPTION_ID } from './constants';
-
-export enum MentionType {
-  DAO_TOKEN = 'DAO_TOKEN',
-  NFT_COLLECTION = 'NFT_COLLECTION',
-  POAP = 'POAP',
-  TOKEN = 'TOKEN'
-}
-
-export enum Blockchain {
-  ethereum = 'ethereum',
-  polygon = 'polygon'
-}
-
-export interface SearchAIMentions_SearchAIMentions_results_metadata {
-  __typename: 'Metadata';
-  tokenMints: number | null;
-}
-export interface SearchAIMentions_SearchAIMentions_results {
-  __typename: 'SearchAIMentionResult';
-  type: MentionType | null;
-  name: string | null;
-  address: string | null;
-  eventId: string | null;
-  blockchain: Blockchain | null;
-  thumbnailURL: string | null;
-  metadata: SearchAIMentions_SearchAIMentions_results_metadata | null;
-}
+import {
+  MentionData,
+  MentionType,
+  SearchAIMentionsInput,
+  SearchAIMentionsResults
+} from './types';
 
 export const ID_REGEX = /#⎱.+?⎱\((.+?)\)\s*/g;
 export const NAME_REGEX = /#⎱(.+?)⎱\(.+?\)/g;
 export const REGEX_LAST_WORD_STARTS_WITH_AT = /\s@[^\s]*$/g;
 export const REGEX_FIRST_WORD_IS_AT = /^@[^\s]*/g;
+
 const REGEX_FIRST_WORD = /([^\s]*)/;
 
 const tokenValuePrefixMap: Record<MentionType, string> = {
@@ -63,7 +44,6 @@ function getNode(parent: HTMLElement) {
 export function highlightMentionText(root: HTMLElement, matched = false) {
   const children = root?.childNodes;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function updateOnMatch(node: any, regex: RegExp) {
     const _node = node.children?.length > 0 ? node.children[0] : node;
     if (node.nodeType !== Node.TEXT_NODE) {
@@ -73,7 +53,6 @@ export function highlightMentionText(root: HTMLElement, matched = false) {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children.forEach((node: any) => {
     const mentionStartMatch = REGEX_LAST_WORD_STARTS_WITH_AT.exec(
       node.innerText
@@ -115,7 +94,6 @@ export function highlightMention(el: HTMLTextAreaElement | null) {
   observer.observe(targetNode, config);
   callback(); // handle the initial value
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function handleScroll({ target }: any) {
     root.scrollTop = target.scrollTop;
     root.scrollLeft = target.scrollLeft;
@@ -132,7 +110,7 @@ export function highlightMention(el: HTMLTextAreaElement | null) {
 }
 
 // id format: <address> <token type> <blockchain>
-export function generateId(mention: SearchAIMentions_SearchAIMentions_results) {
+export function generateId(mention: SearchAIMentionsResults) {
   return `${mention.address} ${mention.type} ${mention.blockchain} ${mention.eventId}`;
 }
 
@@ -167,15 +145,7 @@ export function isMention(str: string) {
   return Boolean(/#⎱.+?⎱\((.+?)\)\s*/g.exec(str));
 }
 
-export type MentionValues = {
-  address: string;
-  token?: string;
-  blockchain?: string;
-  eventId?: string | null;
-  customInputType?: string;
-};
-
-export function getValuesFromId(id: string): MentionValues {
+export function getValuesFromId(id: string): MentionData {
   const match = /#⎱.+?⎱\((.+?)\)\s*/g.exec(id);
   if (!match) return { address: id };
   const [address, token, blockchain, eventId, customInputId] =
@@ -194,7 +164,7 @@ export function getValuesFromId(id: string): MentionValues {
   };
 }
 
-export function getAllMentionDetails(query: string): [MentionValues[], string] {
+export function getAllMentionDetails(query: string): [MentionData[], string] {
   const matches = query.match(/#⎱.+?⎱\((.+?)\)\s*/g);
   if (!matches) return [[], ''];
 
@@ -220,7 +190,7 @@ function getRawString(string: string) {
 type WordWithMention = {
   word: string;
   rawValue: string;
-  mention?: MentionValues;
+  mention?: MentionData;
 };
 
 export function getAllWordsAndMentions(query: string): WordWithMention[] {
@@ -276,12 +246,10 @@ export function needHelp(str: string) {
   return Boolean(match);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function debouncePromise<CB extends (...args: any[]) => any>(
   callback: CB,
   timeout = 500
 ): CB {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let timer: any;
   let resolved: ((value: null | Awaited<ReturnType<CB>>) => void) | null = null;
   return ((...args) => {
@@ -291,7 +259,6 @@ export function debouncePromise<CB extends (...args: any[]) => any>(
       resolved = null;
     }
     timer = setTimeout(async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response: any = await callback(...args);
       if (resolved) {
         resolved(response);
@@ -301,27 +268,30 @@ export function debouncePromise<CB extends (...args: any[]) => any>(
   }) as CB;
 }
 
-const mentionAPI = process.env.MENTION_ENDPOINT as string;
-export async function fetchMentionOptions(
-  query: string,
-  limit: number
-): Promise<[null | object, null | string]> {
+const MENTION_ENDPOINT = process.env.MENTION_ENDPOINT as string;
+
+export async function fetchAIMentions<T = object>({
+  input,
+  query,
+  signal
+}: {
+  input: SearchAIMentionsInput;
+  query?: string;
+  signal?: AbortSignal | null;
+}): Promise<[T | null, string | null]> {
   try {
-    const res = await fetch(mentionAPI, {
+    const res = await fetch(MENTION_ENDPOINT, {
       method: 'POST',
       body: JSON.stringify({
-        operationName: 'SearchAIMentions',
-        query: MentionsQuery,
+        query: query || SearchAIMentionsQuery,
         variables: {
-          input: {
-            searchTerm: query,
-            limit
-          }
+          input
         }
       }),
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      signal
     });
 
     if (!res.ok) {
@@ -329,13 +299,11 @@ export async function fetchMentionOptions(
     }
 
     const { data } = await res.json();
-
     if (data.errors) {
       return [null, data.errors[0].message];
     }
 
     return [data, null];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     return [null, error?.message || 'Something went wrong'];
   }

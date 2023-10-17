@@ -42,7 +42,8 @@ export type IconType =
   | 'token-holders-white'
   | 'folder'
   | 'folder-gray'
-  | 'check-mark-circle';
+  | 'check-mark-circle'
+  | 'refresh-blue';
 
 export type IconProps = {
   name: IconType;

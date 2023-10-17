@@ -2,14 +2,12 @@ import classNames from 'classnames';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Icon } from '../../../Components/Icon';
 import { InputWithMention } from '../../../Components/Input/Input';
-import {
-  MentionValues,
-  getAllWordsAndMentions
-} from '../../../Components/Input/utils';
+import { getAllWordsAndMentions } from '../../../Components/Input/utils';
+import { MentionData } from '../../../Components/Input/types';
 
 export type MentionOutput = {
   text: string;
-  mentions: MentionValues[];
+  mentions: MentionData[];
   rawText: string;
 };
 
@@ -84,7 +82,7 @@ export function MentionInput({
 
     const rawInput: string[] = [];
     const words: string[] = [];
-    const mentions: MentionValues[] = [];
+    const mentions: MentionData[] = [];
 
     getAllWordsAndMentions(mentionValue).forEach(
       ({ word, mention, rawValue }) => {

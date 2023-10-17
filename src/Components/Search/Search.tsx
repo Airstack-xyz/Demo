@@ -13,6 +13,7 @@ import {
 import { showToast } from '../../utils/showToast';
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
 import { addAndRemoveCombinationPlaceholder } from './utils';
+import AdvancedSearch from '../AdvancedSearch';
 
 const tokenHoldersPlaceholder =
   'Use @ mention or enter any token contract address';
@@ -47,7 +48,14 @@ function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
   );
 }
 
+type AdvancedSearchData = {
+  visible: boolean;
+  mentionStartIndex: number;
+  mentionEndIndex: number;
+};
+
 const padding = '  ';
+
 export const Search = memo(function Search() {
   const [isTokenBalanceActive, setIsTokenBalanceActive] = useState(true);
   const isHome = useMatch('/');
@@ -61,6 +69,13 @@ export const Search = memo(function Search() {
   const navigate = useNavigate();
 
   const [value, setValue] = useState(rawInput || '');
+
+  const [advancedSearchData, setAdvancedSearchData] =
+    useState<AdvancedSearchData>({
+      visible: false,
+      mentionStartIndex: -1,
+      mentionEndIndex: -1
+    });
 
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
   const inputSectionRef = useRef<HTMLDivElement>(null);
@@ -261,6 +276,7 @@ export const Search = memo(function Search() {
 
   const handleSubmit = useCallback(
     (mentionValue: string) => {
+      setAdvancedSearchData(prev => ({ ...prev, visible: false }));
       setIsInputSectionFocused(false);
 
       const trimmedValue = mentionValue.trim();
@@ -306,6 +322,33 @@ export const Search = memo(function Search() {
     [isHome, navigate]
   );
 
+  const handleItemSelect = useCallback(
+    (value: string) => {
+      setAdvancedSearchData(prev => ({ ...prev, visible: false }));
+      handleSubmit(value);
+    },
+    [handleSubmit]
+  );
+
+  const showAdvancedSearch = useCallback(
+    (mentionStartIndex: number, mentionEndIndex: number) => {
+      setAdvancedSearchData({
+        visible: true,
+        mentionStartIndex,
+        mentionEndIndex
+      });
+    },
+    []
+  );
+
+  const hideAdvancedSearch = useCallback(() => {
+    setAdvancedSearchData(prev => ({ ...prev, visible: false }));
+  }, []);
+
+  const inputPlaceholder = isTokenBalances
+    ? tokenBalancesPlaceholder
+    : tokenHoldersPlaceholder;
+
   const showPrefixIcon = isHome && (!isInputSectionFocused || !value);
 
   return (
@@ -336,7 +379,7 @@ export const Search = memo(function Search() {
           {!isHome && <TabLinks isTokenBalances={isTokenBalances} />}
         </div>
       </div>
-      <div className="flex flex-row justify-center">
+      <div className="">
         <div
           ref={inputSectionRef}
           className="flex items-center h-[50px] w-full border-solid-stroke rounded-18 bg-glass px-4 py-3"
@@ -346,14 +389,11 @@ export const Search = memo(function Search() {
           )}
           <InputWithMention
             value={value}
+            placeholder={inputPlaceholder}
+            disableSuggestions={isTokenBalances || advancedSearchData.visible}
             onChange={setValue}
             onSubmit={handleSubmit}
-            placeholder={
-              isTokenBalances
-                ? tokenBalancesPlaceholder
-                : tokenHoldersPlaceholder
-            }
-            disableSuggestions={isTokenBalances}
+            showAdvancedSearch={showAdvancedSearch}
           />
           <div ref={buttonSectionRef} className="flex justify-end pl-3">
             {isInputSectionFocused && value && (
@@ -372,6 +412,15 @@ export const Search = memo(function Search() {
             )}
           </div>
         </div>
+        {advancedSearchData.visible && (
+          <AdvancedSearch
+            mentionStartIndex={advancedSearchData.mentionStartIndex}
+            mentionEndIndex={advancedSearchData.mentionEndIndex}
+            mentionValue={value}
+            onItemSelect={handleItemSelect}
+            onClose={hideAdvancedSearch}
+          />
+        )}
       </div>
     </div>
   );
