@@ -107,7 +107,8 @@ function TokenBalancePage() {
       blockchainType,
       sortOrder,
       activeTokenInfo,
-      activeSocialInfo
+      activeSocialInfo,
+      activeOnChainGraphInfo
     },
     setData
   ] = useSearchInput();
@@ -451,7 +452,9 @@ function TokenBalancePage() {
   };
 
   const renderViewContent = () => {
-    return <OnChainGraph />;
+    if (activeOnChainGraphInfo) {
+      return <OnChainGraph />;
+    }
     if (showTokenDetails) {
       return (
         <TokenDetails

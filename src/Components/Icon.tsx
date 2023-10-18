@@ -54,7 +54,8 @@ export type IconType =
   | 'token-sent'
   | 'poap-common'
   | 'farcaster'
-  | 'lens';
+  | 'lens'
+  | 'community';
 
 export type IconProps = {
   name: IconType;

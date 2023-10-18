@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { Icon } from '../../../Components/Icon';
+import { useSearchInput } from '../../../hooks/useSearchInput';
 
 export function Header({
   showGridView,
@@ -10,13 +11,23 @@ export function Header({
   setShowGridView: (show: boolean) => void;
   identities: string[];
 }) {
+  const setSearchInputData = useSearchInput()[1];
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center">
         <div className="flex items-center max-w-[60%] sm:w-auto overflow-hidden mr-2">
           <div
             className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
-            // onClick={handleClose}
+            onClick={() => {
+              setSearchInputData(
+                {
+                  activeSocialInfo: ''
+                },
+                {
+                  updateQueryParams: true
+                }
+              );
+            }}
           >
             <Icon
               name="token-holders"

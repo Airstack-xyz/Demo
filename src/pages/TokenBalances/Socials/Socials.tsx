@@ -11,6 +11,7 @@ import { Wallet as WalletType } from '../types';
 import { Follow, FollowParams, FollowType } from './Follow';
 import { Social } from './Social';
 import { XMTP } from './XMTP';
+import { Icon } from '../../../Components/Icon';
 
 const getFollowInfo = (socials: WalletType['socials']) => {
   const followMap: Record<string, FollowType> = {
@@ -216,6 +217,26 @@ function SocialsComponent() {
     <div className="w-full sm:w-auto">
       <div className="hidden sm:block">
         <SectionHeader iconName="socials-flat" heading="Socials" />
+      </div>
+      <div className="rounded-18 border-solid-stroke mt-3.5 bg-glass p-5 mb-5">
+        <button
+          className="flex items-center"
+          onClick={() => {
+            setData(
+              {
+                activeSocialInfo: 'onchain-graph'
+              },
+              {
+                updateQueryParams: true
+              }
+            );
+          }}
+        >
+          <Icon name="community" height={30} width={30} />
+          <span className="text-text-button text-sm font-medium ml-2">
+            View Onchain Graph {'->'}{' '}
+          </span>
+        </button>
       </div>
       <div
         className={classNames(
