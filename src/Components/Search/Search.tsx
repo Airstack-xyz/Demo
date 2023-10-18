@@ -14,6 +14,7 @@ import { showToast } from '../../utils/showToast';
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
 import { addAndRemoveCombinationPlaceholder } from './utils';
 import AdvancedSearch from '../AdvancedSearch';
+import { isMobileDevice } from '../../utils/isMobileDevice';
 
 const tokenHoldersPlaceholder =
   'Use @ mention or enter any token contract address';
@@ -54,6 +55,12 @@ type AdvancedSearchData = {
   mentionEndIndex: number;
 };
 
+const defaultAdvancedSearchData: AdvancedSearchData = {
+  visible: false,
+  mentionStartIndex: -1,
+  mentionEndIndex: -1
+};
+
 const padding = '  ';
 
 export const Search = memo(function Search() {
@@ -61,21 +68,19 @@ export const Search = memo(function Search() {
   const isHome = useMatch('/');
   const isTokenBalancesPage = !!useMatch('/token-balances');
   const [searchParams] = useSearchParams();
-  const setOverviewTokens = useOverviewTokens(['tokens'])[1];
+  const [, setOverviewTokens] = useOverviewTokens(['tokens']);
 
   const isTokenBalances = isHome ? isTokenBalanceActive : isTokenBalancesPage;
 
   const [{ rawInput }, setData] = useSearchInput(isTokenBalances);
   const navigate = useNavigate();
 
+  const isMobile = isMobileDevice();
+
   const [value, setValue] = useState(rawInput || '');
 
   const [advancedSearchData, setAdvancedSearchData] =
-    useState<AdvancedSearchData>({
-      visible: false,
-      mentionStartIndex: -1,
-      mentionEndIndex: -1
-    });
+    useState<AdvancedSearchData>(defaultAdvancedSearchData);
 
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
   const inputSectionRef = useRef<HTMLDivElement>(null);
@@ -108,6 +113,7 @@ export const Search = memo(function Search() {
         inputSectionRef.current &&
         !inputSectionRef.current?.contains(event.target as Node)
       ) {
+        setAdvancedSearchData(prev => ({ ...prev, visible: false }));
         setIsInputSectionFocused(false);
       }
       // if click event is from input section not from button section
@@ -383,47 +389,56 @@ export const Search = memo(function Search() {
           {!isHome && <TabLinks isTokenBalances={isTokenBalances} />}
         </div>
       </div>
-      <div className="before:bg-glass before:absolute before:inset-0 before:-z-10 before:rounded-18 relative">
+      <div className="flex-row-center relative">
         <div
           ref={inputSectionRef}
-          className="flex items-center h-[50px] w-full border-solid-stroke rounded-18 px-4 py-3"
-        >
-          {showPrefixIcon && (
-            <Icon name="search" width={15} height={15} className="mr-1.5" />
+          className={classNames(
+            'before-bg-glass before:rounded-18 transition-[width] absolute top-0',
+            advancedSearchData.visible ? 'w-[min(60vw,900px)]' : 'w-full'
           )}
-          <InputWithMention
-            value={value}
-            placeholder={inputPlaceholder}
-            disableSuggestions={isTokenBalances || advancedSearchData.visible}
-            onChange={setValue}
-            onSubmit={handleSubmit}
-            showAdvancedSearch={showAdvancedSearch}
-          />
-          <div ref={buttonSectionRef} className="flex justify-end pl-3">
-            {value && (!isInputSectionFocused || advancedSearchData.visible) ? (
-              <button
-                type="button"
-                className="text-right w-5"
-                onClick={handleInputClear}
-              >
-                <Icon name="close" width={14} height={14} />
-              </button>
-            ) : (
-              <button type="button" onClick={handleInputSubmit}>
-                <Icon name="search" width={20} height={20} />
-              </button>
+        >
+          <div className="flex items-center h-[50px] w-full border-solid-stroke rounded-18 px-4 py-3">
+            {showPrefixIcon && (
+              <Icon name="search" width={15} height={15} className="mr-1.5" />
             )}
+            <InputWithMention
+              value={value}
+              placeholder={inputPlaceholder}
+              disableSuggestions={isTokenBalances || advancedSearchData.visible}
+              onChange={setValue}
+              onSubmit={handleSubmit}
+              showAdvancedSearch={isMobile ? undefined : showAdvancedSearch}
+            />
+            <div ref={buttonSectionRef} className="flex justify-end pl-3">
+              {!!value && (
+                <>
+                  {!isInputSectionFocused || advancedSearchData.visible ? (
+                    <button
+                      type="button"
+                      className="text-right w-5"
+                      onClick={handleInputClear}
+                    >
+                      <Icon name="close" width={14} height={14} />
+                    </button>
+                  ) : (
+                    <button type="button" onClick={handleInputSubmit}>
+                      <Icon name="search" width={20} height={20} />
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
           </div>
+          {advancedSearchData.visible && (
+            <AdvancedSearch
+              mentionStartIndex={advancedSearchData.mentionStartIndex}
+              mentionEndIndex={advancedSearchData.mentionEndIndex}
+              mentionValue={value}
+              onItemSelect={handleItemSelect}
+              onClose={hideAdvancedSearch}
+            />
+          )}
         </div>
-        {advancedSearchData.visible && (
-          <AdvancedSearch
-            mentionStartIndex={advancedSearchData.mentionStartIndex}
-            mentionEndIndex={advancedSearchData.mentionEndIndex}
-            mentionValue={value}
-            onItemSelect={handleItemSelect}
-            onClose={hideAdvancedSearch}
-          />
-        )}
       </div>
     </div>
   );

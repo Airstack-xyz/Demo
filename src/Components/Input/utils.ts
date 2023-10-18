@@ -6,6 +6,7 @@ import {
   MentionData,
   MentionType,
   SearchAIMentionsInput,
+  SearchAIMentionsResponse,
   SearchAIMentionsResults
 } from './types';
 
@@ -270,7 +271,7 @@ export function debouncePromise<CB extends (...args: any[]) => any>(
 
 const MENTION_ENDPOINT = process.env.MENTION_ENDPOINT as string;
 
-export async function fetchAIMentions<T = object>({
+export async function fetchAIMentions<T = SearchAIMentionsResponse>({
   input,
   query,
   signal

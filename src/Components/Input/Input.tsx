@@ -170,7 +170,7 @@ export function InputWithMention({
   );
 
   const onAddSuggestion = useCallback(
-    (id: string) => {
+    (id: string, _display: string, start: number, end: number) => {
       // allow submission only if suggestion is clicked
       if (isSuggestionClickedRef.current) {
         allowSubmitRef.current = true;
@@ -181,25 +181,9 @@ export function InputWithMention({
       // reset value for next iteration
       isSuggestionClickedRef.current = false;
 
-      if (
-        showAdvancedSearch &&
-        id === ADVANCED_SEARCH_OPTION_ID &&
-        inputRef.current
-      ) {
+      if (showAdvancedSearch && id === ADVANCED_SEARCH_OPTION_ID) {
         allowSubmitRef.current = true; // allow submission on enter for advanced search
-
-        const mentionEndIndex = inputRef.current.selectionStart;
-        let mentionStartIndex = mentionEndIndex;
-
-        // find start range of query
-        while (
-          inputRef.current.value[mentionStartIndex] !== '@' &&
-          mentionStartIndex > 0
-        ) {
-          mentionStartIndex--;
-        }
-
-        showAdvancedSearch(mentionStartIndex, mentionEndIndex);
+        showAdvancedSearch(start, end);
         return false;
       }
 
@@ -287,6 +271,7 @@ export function InputWithMention({
     },
     [handleUserInput, showInputFor, value]
   );
+
   const fetchMentions = useCallback(
     async (query: string): Promise<Option[]> => {
       const [data] = await getMentions(query);

@@ -1,7 +1,7 @@
 import { MENTION_MARKUP, MENTION_REGEX } from '../Input/constants';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { mapPlainTextIndex } from '../Input/react-mentions/utils';
+import { mapPlainTextIndex, getPlainText } from '../Input/react-mentions/utils';
 import { AdvancedSearchAIMentionsResults } from './types';
 
 export const getItemMention = (item: AdvancedSearchAIMentionsResults) => {
@@ -48,13 +48,17 @@ export const getAssetImage = (type: string, url?: string | null) => {
   return url;
 };
 
-const mapConfig = [
+const mentionConfig = [
   {
     displayTransform: (id: string, display: string) => display || id,
     markup: MENTION_MARKUP,
     regex: MENTION_REGEX
   }
 ];
+
+export const getDisplayValue = (mentionValue: string) => {
+  return getPlainText(mentionValue, mentionConfig);
+};
 
 export const getUpdatedMentionValue = (
   mentionValue: string,
@@ -64,7 +68,7 @@ export const getUpdatedMentionValue = (
   // for the passed index in the displayValue, returns the corresponding index in mentionValue
   const positionInValue = mapPlainTextIndex(
     mentionValue,
-    mapConfig,
+    mentionConfig,
     indexInDisplayValue,
     'NULL'
   );

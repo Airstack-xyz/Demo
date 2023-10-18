@@ -7,6 +7,7 @@ import BlockchainFilter, {
 } from './BlockchainFilter';
 import Filters, { TokenSelectOption, defaultTokenOption } from './Filters';
 import {
+  getDisplayValue,
   getItemMention,
   getSearchQuery,
   getUpdatedMentionValue
@@ -16,7 +17,7 @@ import {
   AdvancedSearchAIMentionsResults
 } from './types';
 import { Icon } from '../Icon';
-import { NAME_REGEX, fetchAIMentions } from '../Input/utils';
+import { fetchAIMentions } from '../Input/utils';
 import { AdvancedSearchAIMentionsQuery } from '../../queries';
 
 const LOADING_ITEM_COUNT = 9;
@@ -127,7 +128,7 @@ export default function AdvancedSearch({
   }, []);
 
   useEffect(() => {
-    const text = mentionValue?.replace(NAME_REGEX, '$1 ');
+    const text = getDisplayValue(mentionValue);
     const query = getSearchQuery(text, mentionStartIndex);
     // if there is no matching query found
     if (query === null) {
@@ -152,7 +153,7 @@ export default function AdvancedSearch({
     aiInputEl?.setSelectionRange(mentionEndIndex, mentionEndIndex);
 
     function handleAIInputClick() {
-      const selectionStart = aiInputEl?.selectionStart || -1;
+      const selectionStart = aiInputEl?.selectionStart ?? -1;
       // if ai-input's caret moves before @ position
       if (selectionStart <= mentionStartIndex) {
         onClose();
@@ -231,15 +232,11 @@ export default function AdvancedSearch({
           }
         });
 
+      if (controller.signal.aborted) {
+        return;
+      }
+
       if (error) {
-        // if fetch is aborted
-        if (controller.signal.aborted) {
-          setSearchData(prev => ({
-            ...prev,
-            isError: false
-          }));
-          return;
-        }
         setSearchData(prev => ({
           ...prev,
           isLoading: false,
@@ -336,20 +333,11 @@ export default function AdvancedSearch({
     <div id="advancedSearch" className="pt-5 px-5">
       <div className="flex justify-between items-center">
         <Filters selectedOption={selectedToken} onSelect={handleTokenSelect} />
-        <div className="flex items-center">
-          <BlockchainFilter
-            isDisabled={isBlockchainFilterDisabled}
-            selectedOption={selectedChain}
-            onSelect={handleChainSelect}
-          />
-          <Icon
-            name="close"
-            className="hover:opacity-50 cursor-pointer ml-4"
-            height={12}
-            width={12}
-            onClick={onClose}
-          />
-        </div>
+        <BlockchainFilter
+          isDisabled={isBlockchainFilterDisabled}
+          selectedOption={selectedChain}
+          onSelect={handleChainSelect}
+        />
       </div>
       <InfiniteScroll
         next={handleMoreFetch}

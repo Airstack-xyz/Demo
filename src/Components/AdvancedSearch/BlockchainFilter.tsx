@@ -54,6 +54,7 @@ export default function BlockchainFilter({
   return (
     <div className="relative" ref={containerRef}>
       <FilterPlaceholder
+        tabIndex={-1}
         icon="blockchain-filter"
         isOpen={isDropdownVisible}
         isDisabled={isDisabled}
@@ -76,7 +77,7 @@ export default function BlockchainFilter({
                 key={option.value}
                 type="button"
                 className={classNames(
-                  'py-1 flex items-center rounded-lg text-[12px]',
+                  'py-1 flex items-center rounded-lg text-xs',
                   isSelected ? 'font-bold' : 'hover:text-white/50'
                 )}
                 onClick={onClick}
