@@ -139,10 +139,10 @@ export const fetchNftAndTokens = async (
   },
   cb: (data: ReturnType<typeof formatData>) => void
 ) => {
+  // TODO: remove this later
   let attemptNo = 0;
   const { ethereum: ethereumNFTs, polygon: polygonNFTs } = nfts;
   // STEP 1.2: Fetch NFT and POAP holders using input from Step 1.1
-  let res2;
   if (config?.nfts || config?.poaps) {
     const { data, error, hasNextPage, getNextPage } =
       await fetchQueryWithPagination<NFTAndPoapResponse>(
@@ -176,6 +176,4 @@ export const fetchNftAndTokens = async (
       attemptNo++;
     }
   }
-
-  return res2;
 };

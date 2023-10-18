@@ -234,6 +234,11 @@ export type RecommendedUser = {
   nfts?: {
     name: string;
     image?: string;
+    address?: string;
+    tokenNfts?: {
+      tokenId: string;
+    };
+    blockchain?: string;
   }[];
 };
 
@@ -271,6 +276,11 @@ export interface TokenBalance {
     logo: {
       small?: string;
     };
+    address?: string;
+    tokenNfts?: {
+      tokenId: string;
+    };
+    blockchain?: string;
   };
   owner: Owner;
 }

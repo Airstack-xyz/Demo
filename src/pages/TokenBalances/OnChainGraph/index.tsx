@@ -1,15 +1,14 @@
-import { Icon, IconType } from '../../../Components/Icon';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { useQueryWithPagination } from '@airstack/airstack-react';
 import { getOnChainGraphQuery } from '../../../queries/onChainGraphQuery';
 import { RecommendedUser, ResponseType } from './types';
 import { useEffect, useState } from 'react';
-import { CopyButton } from '../../../Components/CopyButton';
-import { Asset } from '../../../Components/Asset';
-import { Chain } from '@airstack/airstack-react/constants';
 import { fetchNftAndTokens } from './fetchNftAndPoaps';
+import { UserInfo } from './UserInfo';
+import classNames from 'classnames';
+import { Header } from './Header';
 
-function formatter(data: ResponseType) {
+function formatData(data: ResponseType) {
   const recommendedUsers: RecommendedUser[] = [];
   const {
     LensMutualFollows,
@@ -130,134 +129,19 @@ function formatter(data: ResponseType) {
   };
 }
 
-function TextWithIcon({
-  icon,
-  text,
-  height = 20,
-  width = 20
-}: {
-  icon: IconType;
-  text: string;
-  height?: number;
-  width?: number;
-}) {
-  return (
-    <div className="flex items-center">
-      <span className="w-[20px] flex items-center justify-center">
-        <Icon
-          name={icon}
-          height={height}
-          width={width}
-          className="mr-2 rounded-full"
-        />
-      </span>
-      <span className="text-text-secondary">{text}</span>
-    </div>
-  );
-}
-
-function Item({ user, identity }: { user: RecommendedUser; identity: string }) {
-  const { tokenTransfers, follows, poaps, nfts } = user;
-
-  const commonNftCount = nfts?.length || 0;
-
-  let social = user.socials?.find(social => social.profileImage);
-  if (!social) {
-    social = user.socials?.find(social => social.dappName === 'lens');
-  }
-
-  const blockchain =
-    social?.blockchain !== 'ethereum' && social?.blockchain !== 'polygon'
-      ? ''
-      : social?.blockchain;
-
-  return (
-    <div className="border-solid-stroke bg-glass rounded-18 overflow-hidden h-[326px]">
-      <div className="flex p-5 bg-glass overflow-hidden">
-        <div className="h-[78px] min-w-[78px] w-[78px] mr-4 relative flex justify-center">
-          <span className="w-full h-full border-solid-stroke overflow-hidden rounded-full">
-            <Asset
-              preset="medium"
-              containerClassName="w-full h-full flex items-center justify-center"
-              chain={blockchain as Chain}
-              tokenId={blockchain ? social?.profileTokenId || '' : ''}
-              address={social?.profileTokenAddress || ''}
-              image={social?.profileImage}
-              useImageOnError
-              className="[&>img]:!w-full"
-            />
-          </span>
-          <span className="absolute -bottom-2 text-xs bg-stroke-highlight-blue px-1 py-0.5 rounded-md">
-            45
-          </span>
-        </div>
-        <div className="flex-1">
-          <div className="font-semibold text-base">
-            {user?.domains?.[0]?.name || 'N/A'}
-          </div>
-          <div className="mb-2 mt-1 text-text-secondary text-xs flex items-center w-full ">
-            <span className="mr-1 flex-1 ellipsis max-w-[100px]">
-              {user?.addresses?.[0]}
-            </span>
-            <CopyButton value="" />
-          </div>
-          <div className="flex items-center [&>img]:mr-3">
-            {user.xmtp && <Icon name="xmtp-grey" />}
-            {user.domains && <Icon name="ens-grey" />}
-            {user.socials?.find(({ dappName }) => dappName === 'lens') && (
-              <Icon name="lens-grey" />
-            )}
-            {user.socials?.find(({ dappName }) => dappName === 'farcaster') && (
-              <Icon name="farcaster-grey" />
-            )}
-          </div>
-        </div>
-      </div>
-      <div className="leading-loose p-5">
-        {tokenTransfers && (
-          <TextWithIcon icon="token-sent" text={`Sent ${identity} tokens`} />
-        )}
-        {commonNftCount > 0 && (
-          <TextWithIcon
-            icon="nft-common"
-            text={`${commonNftCount} NFTs in common`}
-          />
-        )}
-        {!!poaps?.length && (
-          <TextWithIcon
-            icon="poap-common"
-            text={`${poaps?.length} POAPs in common`}
-            width={16}
-          />
-        )}
-        {follows?.farcaster && (
-          <TextWithIcon
-            icon="farcaster"
-            text="Farcaster mutual follow"
-            height={17}
-            width={17}
-          />
-        )}
-        {follows?.lens && (
-          <TextWithIcon icon="lens" text="Lens mutual follow" />
-        )}
-      </div>
-    </div>
-  );
-}
-
 export function OnChainGraph() {
+  const [showGridView, setShowGridView] = useState(true);
   const [{ address: identities }] = useSearchInput();
 
   const [recommendations, setRecommendations] = useState<RecommendedUser[]>([]);
 
-  const { data } = useQueryWithPagination(
+  const { data, pagination } = useQueryWithPagination(
     getOnChainGraphQuery({}),
     {
       user: identities[0]
     },
     {
-      dataFormatter: formatter,
+      dataFormatter: formatData,
       onCompleted(data) {
         setRecommendations(data?.recommendedUsers ?? []);
       }
@@ -265,6 +149,7 @@ export function OnChainGraph() {
   );
 
   const { poaps, nfts } = data ?? {};
+  const { hasNextPage, getNextPage } = pagination;
 
   useEffect(() => {
     if (!poaps || !nfts) return;
@@ -302,46 +187,33 @@ export function OnChainGraph() {
         }
         return [...recommendations];
       });
+    }).then(() => {
+      if (hasNextPage) {
+        getNextPage();
+      }
     });
-  }, [identities, nfts, poaps]);
-
-  const handleClose = () => {
-    // setQueryData(
-    //   {
-    //     activeSocialInfo: ''
-    //   },
-    //   { updateQueryParams: true }
-    // );
-  };
+  }, [getNextPage, hasNextPage, identities, nfts, poaps]);
 
   return (
-    <div className="max-w-[950px] mx-auto w-full text-sm pt-10 sm:pt-0">
-      <div className="flex items-center">
-        <div className="flex items-center max-w-[60%] sm:w-auto overflow-hidden mr-2">
-          <div
-            className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
-            onClick={handleClose}
-          >
-            <Icon
-              name="token-holders"
-              height={20}
-              width={20}
-              className="mr-2"
-            />
-            <span className="text-text-secondary break-all cursor-pointer ellipsis">
-              Token balances of {identities.join(', ')}
-            </span>
-          </div>
-          <span className="text-text-secondary">/</span>
-        </div>
-        <div className="flex items-center ellipsis">
-          <Icon name="table-view" height={20} width={20} className="mr-2" />
-          <span className="text-text-primary">OnChain Graph</span>
-        </div>
-      </div>
-      <div className="grid grid-cols-3 gap-12 my-10">
+    <div className="max-w-[950px] mx-auto w-full text-sm pt-10 sm:pt-5">
+      <Header
+        identities={identities}
+        showGridView={showGridView}
+        setShowGridView={setShowGridView}
+      />
+      <div
+        className={classNames('grid grid-cols-3 gap-12 my-10', {
+          '!grid-cols-1 [&>div]:w-[600px] [&>div]:max-w-[100%] justify-items-center':
+            !showGridView
+        })}
+      >
         {recommendations?.map?.((user, index) => (
-          <Item user={user} key={index} identity={identities[0]} />
+          <UserInfo
+            user={user}
+            key={index}
+            identity={identities[0]}
+            showDetails={!showGridView}
+          />
         ))}
       </div>
     </div>

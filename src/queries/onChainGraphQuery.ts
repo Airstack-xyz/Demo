@@ -227,6 +227,11 @@ export function getPoapsAndNft({
   TokenBalance {
     token {
       name
+      address
+      tokenNfts{
+        tokenId
+      }
+      blockchain
       logo {
         small
       }
@@ -260,6 +265,11 @@ PolygonNFTs: TokenBalances(
   TokenBalance {
     token {
       name
+      address
+      tokenNfts{
+        tokenId
+      }
+      blockchain
       logo {
         small
       }
