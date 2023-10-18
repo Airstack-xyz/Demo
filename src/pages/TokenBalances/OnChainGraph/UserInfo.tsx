@@ -33,13 +33,13 @@ function TextWithIcon({
 }
 
 export function UserInfo({
-  user,
+  user = {},
   identity,
   showDetails = false
 }: {
-  user: RecommendedUser;
-  identity: string;
-  showDetails: boolean;
+  user?: RecommendedUser;
+  identity?: string;
+  showDetails?: boolean;
 }) {
   const { tokenTransfers, follows, poaps, nfts } = user;
 

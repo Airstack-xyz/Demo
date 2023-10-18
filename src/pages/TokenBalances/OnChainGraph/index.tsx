@@ -132,6 +132,20 @@ function formatData(data: ResponseType) {
 
 const onChainQueryLimit = 200 * 7;
 const nftAndPoapsLimit = 200 * 3;
+
+function ItemsLoader() {
+  const loaderItems = Array(6).fill(0);
+  return (
+    <>
+      {loaderItems.map((_, index) => (
+        <div data-loader-type="block">
+          <UserInfo key={index} />
+        </div>
+      ))}
+    </>
+  );
+}
+
 export function OnChainGraph() {
   const [scanningCount, setScanningCount] = useState<number>(onChainQueryLimit);
   const [showGridView, setShowGridView] = useState(true);
@@ -212,7 +226,7 @@ export function OnChainGraph() {
         setShowGridView={setShowGridView}
       />
       <div
-        className={classNames('grid grid-cols-3 gap-12 my-10', {
+        className={classNames('grid grid-cols-3 gap-12 my-10 skeleton-loader', {
           '!grid-cols-1 [&>div]:w-[600px] [&>div]:max-w-[100%] justify-items-center':
             !showGridView
         })}
@@ -225,6 +239,7 @@ export function OnChainGraph() {
             showDetails={!showGridView}
           />
         ))}
+        {scanning && <ItemsLoader />}
       </div>
       {loading && (
         <Loader
