@@ -43,6 +43,7 @@ import {
   getAllActiveTokenInfo
 } from '../../utils/activeTokenInfoString';
 import { AllFilters } from '../../Components/Filters/AllFilters';
+import { OnChainGraph } from './OnChainGraph';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -450,6 +451,7 @@ function TokenBalancePage() {
   };
 
   const renderViewContent = () => {
+    return <OnChainGraph />;
     if (showTokenDetails) {
       return (
         <TokenDetails
