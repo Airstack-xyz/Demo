@@ -206,7 +206,7 @@ export const getOnChainGraphQuery = ({
     : '') +
   `}`;
 
-export function getPoapsAndNft({
+export function getPoapsAndNftQuery({
   nfts,
   poaps
 }: {

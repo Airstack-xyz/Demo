@@ -1,5 +1,5 @@
 import { fetchQueryWithPagination } from '@airstack/airstack-react';
-import { getPoapsAndNft } from '../../../queries/onChainGraphQuery';
+import { getPoapsAndNftQuery } from '../../../queries/onChainGraphQuery';
 import { NFTAndPoapResponse, RecommendedUser } from './types';
 
 function formatData(data: NFTAndPoapResponse) {
@@ -146,7 +146,7 @@ export const fetchNftAndTokens = async (
   if (config?.nfts || config?.poaps) {
     const { data, error, hasNextPage, getNextPage } =
       await fetchQueryWithPagination<NFTAndPoapResponse>(
-        getPoapsAndNft(config),
+        getPoapsAndNftQuery(config),
         {
           ethereumNFTs,
           polygonNFTs,

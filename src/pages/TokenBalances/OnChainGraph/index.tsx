@@ -7,6 +7,7 @@ import { fetchNftAndTokens } from './fetchNftAndPoaps';
 import { UserInfo } from './UserInfo';
 import classNames from 'classnames';
 import { Header } from './Header';
+import { Loader } from './Loader';
 
 function formatData(data: ResponseType) {
   const recommendedUsers: RecommendedUser[] = [];
@@ -129,11 +130,15 @@ function formatData(data: ResponseType) {
   };
 }
 
+const onChainQueryLimit = 200 * 7;
+const nftAndPoapsLimit = 200 * 3;
 export function OnChainGraph() {
+  const [scanningCount, setScanningCount] = useState<number>(onChainQueryLimit);
   const [showGridView, setShowGridView] = useState(true);
   const [{ address: identities }] = useSearchInput();
-
   const [recommendations, setRecommendations] = useState<RecommendedUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [scanning, setScanning] = useState(true);
 
   const { data, pagination } = useQueryWithPagination(
     getOnChainGraphQuery({}),
@@ -153,6 +158,9 @@ export function OnChainGraph() {
 
   useEffect(() => {
     if (!poaps || !nfts) return;
+    setLoading(true);
+
+    setScanningCount(scanningCount => scanningCount + nftAndPoapsLimit);
     fetchNftAndTokens({ poaps, nfts }, undefined, (data: RecommendedUser[]) => {
       // console.log(' data received ', data);
       setRecommendations(recommendations => {
@@ -190,6 +198,8 @@ export function OnChainGraph() {
     }).then(() => {
       if (hasNextPage) {
         getNextPage();
+      } else {
+        setScanning(false);
       }
     });
   }, [getNextPage, hasNextPage, identities, nfts, poaps]);
@@ -216,6 +226,16 @@ export function OnChainGraph() {
           />
         ))}
       </div>
+      {loading && (
+        <Loader
+          total={scanningCount}
+          matching={recommendations.length}
+          scanCompleted={!scanning}
+          onSortByScore={() => {
+            setLoading(false);
+          }}
+        />
+      )}
     </div>
   );
 }
