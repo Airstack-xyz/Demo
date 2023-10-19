@@ -158,19 +158,13 @@ export function InputWithMention({
     (_: React.FocusEvent<HTMLInputElement>, clickedSuggestion: boolean) => {
       if (clickedSuggestion) {
         isSuggestionClickedRef.current = true;
-        // remove @ from input value so that it doesn't trigger search again
-        const inputValue = inputRef.current?.value || '';
-        const lastChar = inputValue.slice(-1);
-        if (inputRef.current && lastChar === '@') {
-          inputRef.current.value = inputValue.slice(0, -1);
-        }
       }
     },
     []
   );
 
   const onAddSuggestion = useCallback(
-    (id: string, _display: string, start: number, end: number) => {
+    (id: string) => {
       // allow submission only if suggestion is clicked
       if (isSuggestionClickedRef.current) {
         allowSubmitRef.current = true;
@@ -182,8 +176,16 @@ export function InputWithMention({
       isSuggestionClickedRef.current = false;
 
       if (showAdvancedSearch && id === ADVANCED_SEARCH_OPTION_ID) {
-        allowSubmitRef.current = true; // allow submission on enter for advanced search
-        showAdvancedSearch(start, end);
+        const inputValue = inputRef.current?.value || '';
+        const endIndex = inputRef.current?.selectionStart ?? -1;
+        let startIndex = endIndex;
+
+        // find start index of query
+        while (inputValue[startIndex] !== '@' && startIndex > 0) {
+          startIndex--;
+        }
+
+        showAdvancedSearch(startIndex, endIndex);
         return false;
       }
 
@@ -295,8 +297,12 @@ export function InputWithMention({
   );
 
   const getData = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (query: string, callback: any) => {
+    async (query: string, callback: (data: unknown) => void) => {
+      // Prevent debouncedFetch from invoking after selecting suggestion
+      // It solves the issue of the dropdown skeleton appearing for 2 seconds again
+      if (isSuggestionClickedRef.current) {
+        return;
+      }
       const data = await debouncedFetch(query);
       const dataWithExtraOptions = [
         ...(data || []),
