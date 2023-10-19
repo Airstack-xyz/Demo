@@ -1,9 +1,17 @@
-import { ScoreMap, defaultScoreMap } from './constants';
+import { SCORE_KEY, ScoreMap, defaultScoreMap } from './constants';
 import { RecommendedUser } from './types';
+
+export function getDefaultScoreMap(): ScoreMap {
+  const savedScoreMap = localStorage.getItem(SCORE_KEY);
+  const savedScore: null | ScoreMap = savedScoreMap
+    ? JSON.parse(savedScoreMap)
+    : null;
+  return savedScore || defaultScoreMap;
+}
 
 export function filterDuplicatedAndCalculateScore(
   recommendations: RecommendedUser[],
-  scoreMap: ScoreMap = defaultScoreMap
+  scoreMap: ScoreMap = getDefaultScoreMap()
 ) {
   return recommendations.map(user => {
     let score = 0;

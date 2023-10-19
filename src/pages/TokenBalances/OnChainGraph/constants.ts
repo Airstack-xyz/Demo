@@ -1,4 +1,5 @@
 export const maxScore = 10;
+export const SCORE_KEY = 'airstack-score';
 
 export const defaultScoreMap = {
   tokenSent: 10,
@@ -11,10 +12,9 @@ export const defaultScoreMap = {
   commonEthNfts: 5,
   commonPolygonNfts: 1
 };
-
 export type ScoreMap = typeof defaultScoreMap;
 
-export const defaultScore: {
+export const scoreOptions: {
   label: string;
   value: keyof ScoreMap;
 }[] = [

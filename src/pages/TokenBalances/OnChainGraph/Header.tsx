@@ -2,10 +2,10 @@ import classNames from 'classnames';
 import { Icon } from '../../../Components/Icon';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { Dropdown } from '../../../Components/Dropdown';
-import { ScoreMap, defaultScore, defaultScoreMap, maxScore } from './constants';
+import { SCORE_KEY, ScoreMap, scoreOptions, maxScore } from './constants';
 import { useState } from 'react';
+import { getDefaultScoreMap } from './utils';
 
-const SCORE_KEY = 'airstack-score';
 export function Header({
   showGridView,
   setShowGridView,
@@ -17,13 +17,7 @@ export function Header({
   identities: string[];
   onApplyScore: (score: ScoreMap) => void;
 }) {
-  const [score, setScore] = useState<ScoreMap>(() => {
-    const score = localStorage.getItem(SCORE_KEY);
-    if (score) {
-      return JSON.parse(score);
-    }
-    return defaultScoreMap;
-  });
+  const [score, setScore] = useState<ScoreMap>(getDefaultScoreMap);
   const setSearchInputData = useSearchInput()[1];
 
   const getScoreHandler = (updateBy: number, key: keyof ScoreMap) => () => {
@@ -92,7 +86,7 @@ export function Header({
           </button>
         </span>
         <Dropdown
-          options={defaultScore}
+          options={scoreOptions}
           renderPlaceholder={() => (
             <button className="bg-glass-1 border-solid-stroke rounded-full flex items-center py-1.5 px-2.5 ml-3">
               <Icon name="bullseye" width={12} height={12} className="mr-1" />
@@ -118,7 +112,7 @@ export function Header({
           }
           renderOption={({ option }) => (
             <>
-              {option.label === defaultScore[0].label && (
+              {option.label === scoreOptions[0].label && (
                 <div className="bg-glass px-4 py-4 -mt-1 -mx-1 rounded-t-18 flex items-center justify-between">
                   <span>Criteria</span>
                   <span>Score</span>

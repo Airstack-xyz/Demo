@@ -27,20 +27,35 @@ function TextWithIcon({
           className="mr-2 rounded-full"
         />
       </span>
-      <span className="text-text-secondary">{text}</span>
+      <span className="text-text-secondary ellipsis">{text}</span>
     </div>
+  );
+}
+
+function Loader() {
+  return (
+    <div
+      className="flex items-center text-text-secondary h-5 mb-3"
+      data-loader-type="block"
+      data-loader-width="50"
+    ></div>
   );
 }
 
 export function UserInfo({
   user = {},
-  showDetails = false
+  identity,
+  showDetails = false,
+  loading
 }: {
   user?: RecommendedUser;
   identity?: string;
   showDetails?: boolean;
+  loading?: boolean;
 }) {
   const { tokenTransfers, follows, poaps, nfts } = user;
+
+  const loader = loading && <Loader />;
 
   const commonNftCount = nfts?.length || 0;
 
@@ -53,6 +68,8 @@ export function UserInfo({
     social?.blockchain !== 'ethereum' && social?.blockchain !== 'polygon'
       ? ''
       : social?.blockchain;
+
+  const address = user?.addresses?.[0] || '';
 
   return (
     <div
@@ -81,15 +98,15 @@ export function UserInfo({
             {user._score || 0}
           </span>
         </div>
-        <div className="flex-1">
-          <div className="font-semibold text-base">
-            {user?.domains?.[0]?.name || '--'}
+        <div className="flex-1 overflow-hidden">
+          <div className="font-semibold text-base ellipsis">
+            {user?.domains?.[0]?.name || address || '--'}
           </div>
           <div className="mb-2 mt-1 text-text-secondary text-xs flex items-center w-full ">
             <span className="mr-1 flex-1 ellipsis max-w-[100px]">
-              {user?.addresses?.[0]}
+              {address}
             </span>
-            <CopyButton value="" />
+            <CopyButton value={address} />
           </div>
           <div className="flex items-center [&>img]:mr-3">
             {user.xmtp && <Icon name="xmtp-grey" />}
@@ -104,7 +121,7 @@ export function UserInfo({
         </div>
       </div>
       <div className="leading-loose p-5">
-        {tokenTransfers && (
+        {tokenTransfers ? (
           <TextWithIcon
             icon="token-sent"
             text={
@@ -117,55 +134,67 @@ export function UserInfo({
                 : ''
             }
           />
+        ) : (
+          loader
         )}
-        {commonNftCount > 0 && (
+        {commonNftCount > 0 ? (
           <div>
             <TextWithIcon
               icon="nft-common"
               text={`${commonNftCount} NFTs in common`}
             />
-            {showDetails && <ListWithViewMore items={nfts} />}
+            {showDetails && <ListWithViewMore items={nfts} loading={loading} />}
           </div>
+        ) : (
+          loader
         )}
-        {!!poaps?.length && (
+        {poaps?.length ? (
           <>
             <TextWithIcon
               icon="poap-common"
               text={`${poaps?.length} POAPs in common`}
               width={16}
             />
-            {showDetails && <ListWithViewMore items={poaps} />}
+            {showDetails && (
+              <ListWithViewMore items={poaps} loading={loading} />
+            )}
           </>
+        ) : (
+          loader
         )}
-        {(follows?.followingOnFarcaster || follows?.followedOnFarcaster) && (
+        {follows?.followingOnFarcaster || follows?.followedOnFarcaster ? (
           <TextWithIcon
             icon="farcaster"
             text={
               follows?.followedOnFarcaster && follows?.followedOnFarcaster
                 ? 'Farcaster mutual follow'
                 : follows?.followingOnFarcaster
-                ? 'Farcaster followed by --'
+                ? `Farcaster followed by ${identity}`
                 : follows?.followedOnFarcaster
-                ? 'Following --- on Farcaster'
+                ? `Following ${identity} on Farcaster`
                 : ''
             }
             height={17}
             width={17}
           />
+        ) : (
+          loader
         )}
-        {(follows?.followingOnLens || follows?.followedOnLens) && (
+        {follows?.followingOnLens || follows?.followedOnLens ? (
           <TextWithIcon
             icon="lens"
             text={
               follows?.followedOnFarcaster && follows?.followedOnFarcaster
                 ? 'Lens mutual follow'
                 : follows?.followingOnLens
-                ? 'Lens followed by --'
+                ? `Lens followed by ${identity}`
                 : follows?.followedOnLens
-                ? 'Following --- on Lens'
+                ? `Following ${identity} on Lens`
                 : ''
             }
           />
+        ) : (
+          loader
         )}
       </div>
     </div>

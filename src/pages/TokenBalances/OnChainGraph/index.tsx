@@ -33,7 +33,7 @@ function ItemsLoader() {
 
 export function OnChainGraph() {
   const [scanningCount, setScanningCount] = useState<number>(onChainQueryLimit);
-  const [showGridView, setShowGridView] = useState(true);
+  const [showGridView, setShowGridView] = useState(false);
   const [{ address: identities }] = useSearchInput();
   const [recommendations, setRecommendations] = useState<RecommendedUser[]>([]);
   const [loading, setLoading] = useState(true);
@@ -161,9 +161,10 @@ export function OnChainGraph() {
         }}
       />
       <div
-        className={classNames('grid grid-cols-3 gap-12 my-10 skeleton-loader', {
+        className={classNames('grid grid-cols-3 gap-12 my-10', {
           '!grid-cols-1 [&>div]:w-[600px] [&>div]:max-w-[100%] justify-items-center':
-            !showGridView
+            !showGridView,
+          'skeleton-loader': scanning
         })}
       >
         {recommendations?.map?.((user, index) => (
@@ -172,6 +173,7 @@ export function OnChainGraph() {
             key={`${index}_${user.addresses?.[0] || user.domains?.[0]}`}
             identity={identities[0]}
             showDetails={!showGridView}
+            loading={scanning}
           />
         ))}
         {scanning && <ItemsLoader />}
