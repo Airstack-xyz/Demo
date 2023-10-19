@@ -9,8 +9,9 @@ import classNames from 'classnames';
 import { Header } from './Header';
 import { Loader } from './Loader';
 import { tokenTransferQuery } from '../../../queries/onChainGraph/tokenTransfer';
-import { filterDuplicatedAndCalculateScore } from './utils';
+import { filterDuplicatedAndCalculateScore, sortByScore } from './utils';
 import { formatOnChainData, formatTokenTransfer } from './dataFormatter';
+import { ScoreMap } from './constants';
 
 const checkXMTP = false;
 
@@ -151,6 +152,13 @@ export function OnChainGraph() {
         identities={identities}
         showGridView={showGridView}
         setShowGridView={setShowGridView}
+        onApplyScore={(score: ScoreMap) => {
+          setRecommendations(recommendations => {
+            return sortByScore(
+              filterDuplicatedAndCalculateScore(recommendations, score)
+            );
+          });
+        }}
       />
       <div
         className={classNames('grid grid-cols-3 gap-12 my-10 skeleton-loader', {
@@ -161,7 +169,7 @@ export function OnChainGraph() {
         {recommendations?.map?.((user, index) => (
           <UserInfo
             user={user}
-            key={index}
+            key={`${index}_${user.addresses?.[0] || user.domains?.[0]}`}
             identity={identities[0]}
             showDetails={!showGridView}
           />
@@ -175,9 +183,7 @@ export function OnChainGraph() {
           scanCompleted={!scanning}
           onSortByScore={() => {
             setRecommendations(recommendations => {
-              return recommendations.sort((a, b) => {
-                return (b._score || 0) - (a._score || 0);
-              });
+              return sortByScore(recommendations);
             });
             setLoading(false);
           }}

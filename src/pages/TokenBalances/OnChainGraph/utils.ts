@@ -1,28 +1,29 @@
-import { defaultScoreMap } from './constants';
+import { ScoreMap, defaultScoreMap } from './constants';
 import { RecommendedUser } from './types';
 
 export function filterDuplicatedAndCalculateScore(
-  recommendations: RecommendedUser[]
+  recommendations: RecommendedUser[],
+  scoreMap: ScoreMap = defaultScoreMap
 ) {
   return recommendations.map(user => {
     let score = 0;
     if (user.follows?.followingOnLens) {
-      score += defaultScoreMap.followingOnLens;
+      score += scoreMap.followingOnLens;
     }
     if (user.follows?.followedOnLens) {
-      score += defaultScoreMap.followedByOnLens;
+      score += scoreMap.followedByOnLens;
     }
     if (user.follows?.followingOnFarcaster) {
-      score += defaultScoreMap.followingOnFarcaster;
+      score += scoreMap.followingOnFarcaster;
     }
     if (user.follows?.followedOnFarcaster) {
-      score += defaultScoreMap.followedByOnFarcaster;
+      score += scoreMap.followedByOnFarcaster;
     }
     if (user.tokenTransfers?.sent) {
-      score += defaultScoreMap.tokenSent;
+      score += scoreMap.tokenSent;
     }
     if (user.tokenTransfers?.received) {
-      score += defaultScoreMap.tokenReceived;
+      score += scoreMap.tokenReceived;
     }
     let uniqueNfts: RecommendedUser['nfts'] = [];
     if (user.nfts) {
@@ -43,8 +44,8 @@ export function filterDuplicatedAndCalculateScore(
         nft => nft.blockchain === 'polygon'
       ).length;
       score +=
-        defaultScoreMap.commonEthNfts * ethNftCount +
-        defaultScoreMap.commonPolygonNfts * polygonNftCount;
+        scoreMap.commonEthNfts * ethNftCount +
+        scoreMap.commonPolygonNfts * polygonNftCount;
     }
     let uniquePoaps: RecommendedUser['poaps'] = [];
     if (user.poaps) {
@@ -58,7 +59,7 @@ export function filterDuplicatedAndCalculateScore(
         }
         return true;
       });
-      score += defaultScoreMap.commonPoaps * user.poaps.length;
+      score += scoreMap.commonPoaps * user.poaps.length;
     }
 
     return {
@@ -67,5 +68,11 @@ export function filterDuplicatedAndCalculateScore(
       nfts: uniqueNfts,
       _score: score
     };
+  });
+}
+
+export function sortByScore(recommendations: RecommendedUser[]) {
+  return recommendations.sort((a, b) => {
+    return (b._score || 0) - (a._score || 0);
   });
 }

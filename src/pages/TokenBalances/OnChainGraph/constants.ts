@@ -1,58 +1,4 @@
-export const defaultScore = [
-  {
-    name: 'Sent tokens',
-    key: 'tokenSent',
-    score: 10
-  },
-  {
-    name: 'Received tokens',
-    key: 'tokenReceived',
-    score: 0
-  },
-  {
-    name: 'Followed by them on Lens',
-    key: 'followedByOnLens',
-    score: 5
-  },
-  {
-    name: 'Following them on Lens',
-    key: 'followingOnLens',
-    score: 7
-  },
-  {
-    name: 'Followed by them on Farcaster',
-    key: 'followedByOnFarcaster',
-    score: 5
-  },
-  {
-    name: 'Following them on Farcaster',
-    key: 'followingOnFarcaster',
-    score: 5
-  },
-  {
-    name: 'POAPs in common (each)',
-    key: 'commonPoaps',
-    score: 7
-  },
-  {
-    name: 'Eth NFTs in common (each)',
-    key: 'commonEthNfts',
-    score: 5
-  },
-  {
-    name: 'Pol. NFTs in common (each)',
-    key: 'commonPolygonNfts',
-    score: 1
-  }
-];
-
-// export const defaultScoreMap = defaultScore.reduce(
-//   (_map: Record<string, number>, { key, score }) => {
-//     _map[key] = score;
-//     return _map;
-//   },
-//   {}
-// );
+export const maxScore = 10;
 
 export const defaultScoreMap = {
   tokenSent: 10,
@@ -65,3 +11,47 @@ export const defaultScoreMap = {
   commonEthNfts: 5,
   commonPolygonNfts: 1
 };
+
+export type ScoreMap = typeof defaultScoreMap;
+
+export const defaultScore: {
+  label: string;
+  value: keyof ScoreMap;
+}[] = [
+  {
+    label: 'Sent tokens',
+    value: 'tokenSent'
+  },
+  {
+    label: 'Received tokens',
+    value: 'tokenReceived'
+  },
+  {
+    label: 'Followed by them on Lens',
+    value: 'followedByOnLens'
+  },
+  {
+    label: 'Following them on Lens',
+    value: 'followingOnLens'
+  },
+  {
+    label: 'Followed by them on Farcaster',
+    value: 'followedByOnFarcaster'
+  },
+  {
+    label: 'Following them on Farcaster',
+    value: 'followingOnFarcaster'
+  },
+  {
+    label: 'POAPs in common (each)',
+    value: 'commonPoaps'
+  },
+  {
+    label: 'Eth NFTs in common (each)',
+    value: 'commonEthNfts'
+  },
+  {
+    label: 'Pol. NFTs in common (each)',
+    value: 'commonPolygonNfts'
+  }
+];
