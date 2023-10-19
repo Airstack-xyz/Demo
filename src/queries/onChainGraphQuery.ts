@@ -1,9 +1,46 @@
+const getFollowingBaseQuery = (forLens = false) => `Following {
+  followingAddress {
+    addresses
+    domains(input: {filter: {isPrimary: {_eq: true}}}) {
+      name
+    }
+    socials {
+      dappName
+      blockchain
+      profileName
+      profileImage
+      profileTokenId
+      profileTokenAddress
+    }
+    xmtp {
+      isXMTPEnabled
+    }
+    mutualFollower: socialFollowers(
+      input: {filter: {identity: {_eq: $user}, dappName: {_eq: ${
+        forLens ? 'lens' : 'farcaster'
+      }}}}
+    ) {
+      Follower {
+        followerAddress{
+          socials {
+            profileName
+          }
+        }
+      }
+    }
+  }
+}
+pageInfo {
+  hasNextPage
+  hasPrevPage
+  prevCursor
+  nextCursor
+}`;
+
 export const getOnChainGraphQuery = ({
   ethereumNfts = true,
   polygonNfts = true,
   poaps = true,
-  ethereumTokenTransfers = true,
-  polygonTokenTransfers = true,
   lensFollows = true,
   farcasterFollows = true
 }: {
@@ -18,147 +55,17 @@ export const getOnChainGraphQuery = ({
   `query MyQuery($user: Identity!) {` +
   (lensFollows
     ? `
-    LensMutualFollows: SocialFollowers(
+    LensFollowings: SocialFollowings(
       input: {filter: {identity: {_eq: $user}, dappName: {_eq: lens}}, blockchain: ALL, limit: 200}
     ) {
-      Follower {
-        followerAddress {
-          socialFollowings(
-            input: {filter: {identity: {_eq: $user}, dappName: {_eq: lens}}}
-          ) {
-            Following {
-              followingAddress {
-                addresses
-                domains(input: {filter: {isPrimary: {_eq: true}}}) {
-                  name
-                }
-                socials {
-                  dappName
-                  blockchain
-                  profileName
-                  profileImage
-                  profileTokenId
-                  profileTokenAddress
-                  userAssociatedAddresses
-                }
-                xmtp {
-                  isXMTPEnabled
-                }
-              }
-            }
-          }
-        }
-      }
-      pageInfo {
-        hasNextPage
-        hasPrevPage
-        prevCursor
-        nextCursor
-      }
+      ${getFollowingBaseQuery(true)}
     }`
     : '') +
   (farcasterFollows
-    ? `FarcasterMutualFollows: SocialFollowers(
+    ? `FarcasterFollowings: SocialFollowings(
       input: {filter: {identity: {_eq: $user}, dappName: {_eq: farcaster}}, blockchain: ALL, limit: 200}
     ) {
-      Follower {
-        followerAddress {
-          socialFollowings(
-            input: {filter: {identity: {_eq: $user}, dappName: {_eq: farcaster}}}
-          ) {
-            Following {
-              followingAddress {
-                addresses
-                domains(input: {filter: {isPrimary: {_eq: true}}}) {
-                  name
-                }
-                socials {
-                  dappName
-                  blockchain
-                  profileName
-                  profileImage
-                  profileTokenId
-                  profileTokenAddress
-                  userAssociatedAddresses
-                }
-                xmtp {
-                  isXMTPEnabled
-                }
-              }
-            }
-          }
-        }
-      }
-      pageInfo {
-        hasNextPage
-        hasPrevPage
-        prevCursor
-        nextCursor
-      }
-    }`
-    : '') +
-  (ethereumTokenTransfers
-    ? `EthereumTransfers: TokenTransfers(
-      input: {filter: {from: {_eq: $user}}, blockchain: ethereum, limit: 200}
-    ) {
-      TokenTransfer {
-        to {
-          addresses
-          domains(input: {filter: {isPrimary: {_eq: true}}}) {
-            name
-          }
-          socials {
-            dappName
-            blockchain
-            profileName
-            profileImage
-            profileTokenId
-            profileTokenAddress
-            userAssociatedAddresses
-          }
-          xmtp {
-            isXMTPEnabled
-          }
-        }
-      }
-      pageInfo {
-        hasNextPage
-        hasPrevPage
-        prevCursor
-        nextCursor
-      }
-    }`
-    : '') +
-  (polygonTokenTransfers
-    ? `PolygonTransfers: TokenTransfers(
-      input: {filter: {from: {_eq: $user}}, blockchain: polygon, limit: 200}
-    ) {
-      TokenTransfer {
-        to {
-          addresses
-          domains(input: {filter: {isPrimary: {_eq: true}}}) {
-            name
-          }
-          socials {
-            dappName
-            blockchain
-            profileName
-            profileImage
-            profileTokenId
-            profileTokenAddress
-            userAssociatedAddresses
-          }
-          xmtp {
-            isXMTPEnabled
-          }
-        }
-      }
-      pageInfo {
-        hasNextPage
-        hasPrevPage
-        prevCursor
-        nextCursor
-      }
+      ${getFollowingBaseQuery()}
     }`
     : '') +
   (poaps
@@ -166,12 +73,7 @@ export const getOnChainGraphQuery = ({
       Poap {
         eventId
       }
-      pageInfo {
-        hasNextPage
-        hasPrevPage
-        prevCursor
-        nextCursor
-      }
+      
     }`
     : '') +
   (ethereumNfts
@@ -181,12 +83,7 @@ export const getOnChainGraphQuery = ({
       TokenBalance {
         tokenAddress
       }
-      pageInfo {
-        hasNextPage
-        hasPrevPage
-        prevCursor
-        nextCursor
-      }
+      
     }`
     : '') +
   (polygonNfts
@@ -196,12 +93,7 @@ export const getOnChainGraphQuery = ({
       TokenBalance {
         tokenAddress
       }
-      pageInfo {
-        hasNextPage
-        hasPrevPage
-        prevCursor
-        nextCursor
-      }
+      
     }`
     : '') +
   `}`;
@@ -245,18 +137,11 @@ export function getPoapsAndNftQuery({
         dappName
         profileName
         profileTokenId
-        userAssociatedAddresses
       }
       xmtp {
         isXMTPEnabled
       }
     }
-  }
-  pageInfo {
-    hasNextPage
-    hasPrevPage
-    prevCursor
-    nextCursor
   }
 }
 PolygonNFTs: TokenBalances(
@@ -283,18 +168,11 @@ PolygonNFTs: TokenBalances(
         dappName
         profileName
         profileTokenId
-        userAssociatedAddresses
       }
       xmtp {
         isXMTPEnabled
       }
     }
-  }
-  pageInfo {
-    hasNextPage
-    hasPrevPage
-    prevCursor
-    nextCursor
   }
 }`
       : '') +
@@ -319,19 +197,12 @@ PolygonNFTs: TokenBalances(
           dappName
           profileName
           profileTokenId
-          userAssociatedAddresses
         }
         xmtp {
           isXMTPEnabled
         }
       }
     }
-  }
-  pageInfo {
-    hasNextPage
-    hasPrevPage
-    prevCursor
-    nextCursor
   }
 }`
       : '') +

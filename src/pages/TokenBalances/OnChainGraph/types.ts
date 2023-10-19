@@ -1,6 +1,6 @@
-export interface ResponseType {
-  LensMutualFollows: LensMutualFollows;
-  FarcasterMutualFollows: FarcasterMutualFollows;
+export interface OnChainDataResponse {
+  LensFollowings: Followings;
+  FarcasterFollowings: Followings;
   EthereumTransfers: EthereumTransfers;
   PolygonTransfers: PolygonTransfers;
   Poaps: Poaps;
@@ -8,10 +8,21 @@ export interface ResponseType {
   PolygonNFTs: PolygonNfts;
 }
 
-export interface LensMutualFollows {
-  Follower: Follower[];
-  pageInfo: PageInfo;
+export interface TokenTransferResponse {
+  EthereumTokenSent: TokenSentReceived;
+  EthereumTokenReceived: TokenSentReceived;
+  PolygonTokenSent: TokenSentReceived;
+  PolygonTokenReceived: TokenSentReceived;
+}
+
+export interface TokenSentReceived {
+  TokenTransfer: TokenTransfer[];
   pageInfo_cursor: PageInfoCursor;
+}
+
+export interface Followings {
+  Following: Following[];
+  pageInfo: PageInfo;
 }
 
 export interface Follower {
@@ -19,12 +30,15 @@ export interface Follower {
 }
 
 export interface FollowerAddress {
-  socialFollowings: SocialFollowings;
+  socialFollowings: SocialFollowers;
 }
 
-export interface SocialFollowings {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Following: any;
+export interface SocialFollowers {
+  Follower: {
+    followerAddress: {
+      socials: Pick<Social, 'profileName'>[];
+    };
+  }[];
 }
 
 export interface PageInfo {
@@ -42,7 +56,6 @@ export interface PageInfoCursor {
 export interface FarcasterMutualFollows {
   Follower: Follower2[];
   pageInfo: PageInfo2;
-  pageInfo_cursor1: PageInfoCursor1;
 }
 
 export interface Follower2 {
@@ -66,6 +79,7 @@ export interface FollowingAddress {
   domains: Domain[];
   socials: Social[];
   xmtp: Xmtp[];
+  mutualFollower: SocialFollowers;
 }
 
 export interface PageInfo2 {
@@ -75,22 +89,17 @@ export interface PageInfo2 {
   nextCursor: string;
 }
 
-export interface PageInfoCursor1 {
-  prevCursor: string;
-  nextCursor: string;
-}
-
 export interface EthereumTransfers {
   TokenTransfer: TokenTransfer[];
-  pageInfo: PageInfo3;
-  pageInfo_cursor2: PageInfoCursor2;
+  pageInfo: PageInfo;
 }
 
 export interface TokenTransfer {
-  to: To;
+  to?: Transfer;
+  from?: Transfer;
 }
 
-export interface To {
+export interface Transfer {
   addresses: string[];
   domains?: Domain[];
   socials?: Social[];
@@ -105,81 +114,21 @@ export interface Xmtp {
   isXMTPEnabled: boolean;
 }
 
-export interface PageInfo3 {
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-  prevCursor: string;
-  nextCursor: string;
-}
-
-export interface PageInfoCursor2 {
-  prevCursor: string;
-  nextCursor: string;
-}
-
 export interface PolygonTransfers {
-  TokenTransfer: TokenTransfer2[];
-  pageInfo: PageInfo4;
-  pageInfo_cursor3: PageInfoCursor3;
+  TokenTransfer: TokenTransfer[];
+  pageInfo: PageInfo;
 }
-
-export interface TokenTransfer2 {
-  to: To2;
-}
-
-export interface To2 {
-  addresses: string[];
-  domains?: Domain2[];
-  socials?: Social[];
-  xmtp?: Xmtp2[];
-}
-
-export interface Domain2 {
-  name: string;
-}
-
-export interface Xmtp2 {
-  isXMTPEnabled: boolean;
-}
-
-export interface PageInfo4 {
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-  prevCursor: string;
-  nextCursor: string;
-}
-
-export interface PageInfoCursor3 {
-  prevCursor: string;
-  nextCursor: string;
-}
-
 export interface Poaps {
   Poap: Poap[];
-  pageInfo: PageInfo5;
-  pageInfo_cursor4: PageInfoCursor4;
+  pageInfo: PageInfo;
 }
 
 export interface Poap {
   eventId: string;
 }
-
-export interface PageInfo5 {
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-  prevCursor: string;
-  nextCursor: string;
-}
-
-export interface PageInfoCursor4 {
-  prevCursor: string;
-  nextCursor: string;
-}
-
 export interface EthereumNfts {
   TokenBalance: TokenBalance[];
   pageInfo: PageInfo6;
-  pageInfo_cursor5: PageInfoCursor5;
 }
 
 export interface TokenBalance {
@@ -193,31 +142,13 @@ export interface PageInfo6 {
   nextCursor: string;
 }
 
-export interface PageInfoCursor5 {
-  prevCursor: string;
-  nextCursor: string;
-}
-
 export interface PolygonNfts {
   TokenBalance: TokenBalance2[];
-  pageInfo: PageInfo7;
-  pageInfo_cursor6: PageInfoCursor6;
+  pageInfo: PageInfo;
 }
 
 export interface TokenBalance2 {
   tokenAddress: string;
-}
-
-export interface PageInfo7 {
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-  prevCursor: string;
-  nextCursor: string;
-}
-
-export interface PageInfoCursor6 {
-  prevCursor: string;
-  nextCursor: string;
 }
 
 export type RecommendedUser = {
@@ -225,11 +156,20 @@ export type RecommendedUser = {
   domains?: Domain[];
   socials?: Social[];
   xmtp?: Xmtp[];
-  tokenTransfers?: boolean;
-  follows?: Record<string, boolean>;
+  tokenTransfers?: {
+    sent?: boolean;
+    received?: boolean;
+  };
+  follows?: {
+    followingOnLens?: boolean;
+    followedOnLens?: boolean;
+    followingOnFarcaster?: boolean;
+    followedOnFarcaster?: boolean;
+  };
   poaps?: {
     name: string;
     image?: string;
+    eventId?: string;
   }[];
   nfts?: {
     name: string;
@@ -238,8 +178,9 @@ export type RecommendedUser = {
     tokenNfts?: {
       tokenId: string;
     };
-    blockchain?: string;
+    blockchain?: 'ethereum' | 'polygon';
   }[];
+  _score?: number;
 };
 
 export interface Domain {
@@ -253,7 +194,6 @@ export interface Social {
   profileTokenId: string;
   profileImage: string;
   profileTokenAddress: string;
-  userAssociatedAddresses: string[];
 }
 
 export interface Xmtp {

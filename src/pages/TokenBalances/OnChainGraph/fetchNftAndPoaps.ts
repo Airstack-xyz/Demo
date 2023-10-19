@@ -2,8 +2,11 @@ import { fetchQueryWithPagination } from '@airstack/airstack-react';
 import { getPoapsAndNftQuery } from '../../../queries/onChainGraphQuery';
 import { NFTAndPoapResponse, RecommendedUser } from './types';
 
-function formatData(data: NFTAndPoapResponse) {
-  const recommendedUsers: RecommendedUser[] = [];
+export function formatNftAndPoapData(
+  data: NFTAndPoapResponse,
+  _recommendedUsers: RecommendedUser[] = []
+) {
+  const recommendedUsers: RecommendedUser[] = [..._recommendedUsers];
   const { EthereumNFTs, PolygonNFTs, Poaps } = data ?? {};
 
   // Compile Ethereum NFTs Data
@@ -33,14 +36,15 @@ function formatData(data: NFTAndPoapResponse) {
           ...addresses
         ]?.filter((address, index, array) => array.indexOf(address) === index);
         const _nfts = recommendedUsers?.[existingUserIndex]?.nfts || [];
+
         recommendedUsers[existingUserIndex].nfts = [
           ..._nfts,
-          { name, image: logo?.small }
+          { name, image: logo?.small, blockchain: 'ethereum' }
         ];
       } else {
         recommendedUsers.push({
           ...owner,
-          nfts: [{ name, image: logo?.small }]
+          nfts: [{ name, image: logo?.small, blockchain: 'ethereum' }]
         });
       }
     }
@@ -75,12 +79,12 @@ function formatData(data: NFTAndPoapResponse) {
         const _nfts = recommendedUsers?.[existingUserIndex]?.nfts || [];
         recommendedUsers[existingUserIndex].nfts = [
           ..._nfts,
-          { name, image: logo?.small }
+          { name, image: logo?.small, blockchain: 'polygon' }
         ];
       } else {
         recommendedUsers.push({
           ...owner,
-          nfts: [{ name, image: logo?.small }]
+          nfts: [{ name, image: logo?.small, blockchain: 'polygon' }]
         });
       }
     }
@@ -88,7 +92,7 @@ function formatData(data: NFTAndPoapResponse) {
 
   // Compile POAPs Data
   for (const poap of Poaps?.Poap ?? []) {
-    const { attendee, poapEvent } = poap ?? {};
+    const { attendee, poapEvent, eventId } = poap ?? {};
     const { eventName: name, contentValue } = poapEvent ?? {};
     const { addresses, xmtp } = attendee?.owner ?? {};
     if (xmtp?.length) {
@@ -106,12 +110,12 @@ function formatData(data: NFTAndPoapResponse) {
         const _poaps = recommendedUsers?.[existingUserIndex]?.poaps || [];
         recommendedUsers[existingUserIndex].poaps = [
           ..._poaps,
-          { name, image: contentValue?.image?.extraSmall }
+          { name, image: contentValue?.image?.extraSmall, eventId }
         ];
       } else {
         recommendedUsers.push({
           ...(attendee?.owner ?? {}),
-          poaps: [{ name, image: contentValue?.image?.extraSmall }]
+          poaps: [{ name, image: contentValue?.image?.extraSmall, eventId }]
         });
       }
     }
@@ -137,7 +141,7 @@ export const fetchNftAndTokens = async (
     tokenTransfers: true,
     socialFollows: true
   },
-  cb: (data: ReturnType<typeof formatData>) => void
+  cb: (data: NFTAndPoapResponse) => void
 ) => {
   // TODO: remove this later
   let attemptNo = 0;
@@ -154,7 +158,7 @@ export const fetchNftAndTokens = async (
         }
       );
     if (data) {
-      cb(formatData(data));
+      cb(data);
     }
     if (error) {
       return;
@@ -169,7 +173,7 @@ export const fetchNftAndTokens = async (
         break;
       }
       if (res.data) {
-        cb(formatData(res.data));
+        cb(res.data);
       }
       shouldFetchNextPage = res.hasNextPage;
       fetchNextPage = res.getNextPage;

@@ -34,7 +34,6 @@ function TextWithIcon({
 
 export function UserInfo({
   user = {},
-  identity,
   showDetails = false
 }: {
   user?: RecommendedUser;
@@ -79,7 +78,7 @@ export function UserInfo({
             />
           </span>
           <span className="absolute -bottom-2 text-xs bg-stroke-highlight-blue px-1 py-0.5 rounded-md">
-            45
+            {user._score || 0}
           </span>
         </div>
         <div className="flex-1">
@@ -106,7 +105,18 @@ export function UserInfo({
       </div>
       <div className="leading-loose p-5">
         {tokenTransfers && (
-          <TextWithIcon icon="token-sent" text={`Sent ${identity} tokens`} />
+          <TextWithIcon
+            icon="token-sent"
+            text={
+              tokenTransfers?.sent && tokenTransfers?.received
+                ? `Sent/Received tokens`
+                : tokenTransfers?.sent
+                ? `Sent tokens`
+                : tokenTransfers?.received
+                ? `Received tokens`
+                : ''
+            }
+          />
         )}
         {commonNftCount > 0 && (
           <div>
@@ -127,16 +137,35 @@ export function UserInfo({
             {showDetails && <ListWithViewMore items={poaps} />}
           </>
         )}
-        {follows?.farcaster && (
+        {(follows?.followingOnFarcaster || follows?.followedOnFarcaster) && (
           <TextWithIcon
             icon="farcaster"
-            text="Farcaster mutual follow"
+            text={
+              follows?.followedOnFarcaster && follows?.followedOnFarcaster
+                ? 'Farcaster mutual follow'
+                : follows?.followingOnFarcaster
+                ? 'Farcaster followed by --'
+                : follows?.followedOnFarcaster
+                ? 'Following --- on Farcaster'
+                : ''
+            }
             height={17}
             width={17}
           />
         )}
-        {follows?.lens && (
-          <TextWithIcon icon="lens" text="Lens mutual follow" />
+        {(follows?.followingOnLens || follows?.followedOnLens) && (
+          <TextWithIcon
+            icon="lens"
+            text={
+              follows?.followedOnFarcaster && follows?.followedOnFarcaster
+                ? 'Lens mutual follow'
+                : follows?.followingOnLens
+                ? 'Lens followed by --'
+                : follows?.followedOnLens
+                ? 'Following --- on Lens'
+                : ''
+            }
+          />
         )}
       </div>
     </div>
