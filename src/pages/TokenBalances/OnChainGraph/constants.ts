@@ -1,4 +1,6 @@
 export const maxScore = 10;
+export const QUERY_LIMIT = 200;
+export const MAX_ITEMS = 2000;
 export const SCORE_KEY = 'airstack-score';
 
 export const defaultScoreMap = {

@@ -6,6 +6,7 @@ type LoaderProps = {
   tokenName?: string;
   scanCompleted?: boolean;
   onSortByScore?: () => void;
+  onCloseLoader: () => void;
 };
 function Loading() {
   return (
@@ -29,10 +30,14 @@ export function Loader({
   matching,
   tokenName = 'records',
   scanCompleted,
-  onSortByScore
+  onSortByScore,
+  onCloseLoader
 }: LoaderProps) {
   return (
-    <div className="fixed inset-5 sm:inset-10 flex justify-center items-end z-[25]">
+    <div
+      className="fixed inset-5 sm:inset-10 flex justify-center items-end z-[25]"
+      onClick={() => !matching && onCloseLoader?.()}
+    >
       <div className="bg-glass rounded-18 p-9 border-solid-stroke max-w-[90%] sm:max-w-[500px]">
         <div className="flex items-center">
           {scanCompleted ? <LoadingCompleted /> : <Loading />}

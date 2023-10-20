@@ -184,7 +184,7 @@ export function UserInfo({
           <TextWithIcon
             icon="lens"
             text={
-              follows?.followedOnFarcaster && follows?.followedOnFarcaster
+              follows?.followingOnLens && follows?.followedOnLens
                 ? 'Lens mutual follow'
                 : follows?.followingOnLens
                 ? `Lens followed by ${identity}`
