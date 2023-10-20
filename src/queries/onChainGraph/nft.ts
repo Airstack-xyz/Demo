@@ -1,5 +1,5 @@
 export const nftAddressesQuery = `query UserNFTAddresses($user: Identity!, $blockchain: TokenBlockchain!) {
-  TokenBalances(input: {filter: {tokenType: {_in: [ERC1155, ERC721]}, owner: {_eq: $user}}, blockchain: $blockchain, limit: 200}) {
+  TokenBalances(input: {filter: {tokenType: {_in: [ERC721]}, owner: {_eq: $user}}, blockchain: $blockchain, limit: 200}) {
     TokenBalance {
       tokenAddress
     }
@@ -8,7 +8,7 @@ export const nftAddressesQuery = `query UserNFTAddresses($user: Identity!, $bloc
 
 export const nftQuery = `query NFTs($addresses: [Address!], $blockchain: TokenBlockchain!, $limit: Int) {
     TokenBalances(
-      input: {filter: {tokenAddress: {_in: $addresses}}, blockchain: $blockchain, limit: $limit}
+      input: {filter: {tokenAddress: {_in: $addresses}, tokenType: {_in: [ERC721]}}, blockchain: $blockchain, limit: $limit}
     ) {
       TokenBalance {
         token {

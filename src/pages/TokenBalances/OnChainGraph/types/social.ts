@@ -29,5 +29,6 @@ export interface Xmtp {
 }
 
 export interface MutualFollower {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Follower: any;
 }

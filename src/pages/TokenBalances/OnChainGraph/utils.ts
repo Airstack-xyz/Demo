@@ -1,3 +1,7 @@
+import {
+  FetchPaginatedQueryReturnType,
+  FetchQuery
+} from '@airstack/airstack-react/types';
 import { SCORE_KEY, ScoreMap, defaultScoreMap } from './constants';
 import { RecommendedUser } from './types';
 
@@ -83,4 +87,36 @@ export function sortByScore(recommendations: RecommendedUser[]) {
   return recommendations.sort((a, b) => {
     return (b._score || 0) - (a._score || 0);
   });
+}
+
+export async function paginateRequest<D>(
+  request: FetchPaginatedQueryReturnType<D>,
+  onReceivedData: (data: D | null) => Promise<boolean>
+) {
+  let _hasNextPage = false;
+  let _getNextPage = (() => {
+    // empty function
+  }) as FetchQuery<D>['getNextPage'];
+
+  const { data, hasNextPage, getNextPage } = await request;
+
+  _hasNextPage = hasNextPage;
+  _getNextPage = getNextPage;
+
+  if (!data) {
+    return;
+  }
+
+  let shouldFetchMore = await onReceivedData(data);
+
+  while (_hasNextPage && shouldFetchMore) {
+    const res: null | FetchQuery<D> = await _getNextPage();
+    if (!res) {
+      break;
+    }
+    const { data, hasNextPage, getNextPage } = res;
+    shouldFetchMore = await onReceivedData(data);
+    _hasNextPage = hasNextPage;
+    _getNextPage = getNextPage;
+  }
 }

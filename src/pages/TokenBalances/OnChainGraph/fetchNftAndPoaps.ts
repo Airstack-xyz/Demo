@@ -155,6 +155,9 @@ export const fetchNftAndTokens = async (
           ethereumNFTs,
           polygonNFTs,
           poaps
+        },
+        {
+          cache: false
         }
       );
     if (data) {

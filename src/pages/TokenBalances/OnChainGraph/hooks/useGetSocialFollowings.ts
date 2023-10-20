@@ -5,6 +5,7 @@ import { useCallback, useRef } from 'react';
 import { MAX_ITEMS, QUERY_LIMIT } from '../constants';
 import { RecommendedUser } from '../types';
 import { useOnChainGraphData } from './useOnChainGraphData';
+import { paginateRequest } from '../utils';
 
 function formatData(
   followings: FollowingAddress[],
@@ -53,41 +54,36 @@ export function useGetSocialFollowings(
   address: string,
   dappName: 'farcaster' | 'lens' = 'farcaster'
 ) {
-  const totalItemsFetchedRef = useRef(0);
+  const totalItemsCount = useRef(0);
   const { setData, setTotalScannedDocuments } = useOnChainGraphData();
 
   const fetchData = useCallback(async () => {
-    const pagination = {
-      hasNextPage: false,
-      getNextPage: () => {
-        // empty function
+    const request = fetchQueryWithPagination<SocialQueryResponse>(
+      socialFollowingsQuery,
+      {
+        user: address,
+        dappName
+      },
+      {
+        cache: false
       }
-    };
-    do {
-      setTotalScannedDocuments(count => count + QUERY_LIMIT);
-      const { data, hasNextPage, getNextPage } =
-        await fetchQueryWithPagination<SocialQueryResponse>(
-          socialFollowingsQuery,
-          {
-            user: address,
-            dappName
-          }
-        );
-
-      pagination.hasNextPage = hasNextPage;
-      pagination.getNextPage = getNextPage;
-      if (!data) break;
-      const followings = data.SocialFollowings.Following.map(
-        following => following.followingAddress
-      );
-      totalItemsFetchedRef.current += followings.length;
+    );
+    setTotalScannedDocuments(count => count + QUERY_LIMIT);
+    await paginateRequest(request, async data => {
+      const followings =
+        data?.SocialFollowings.Following.map(
+          following => following.followingAddress
+        ) ?? [];
+      totalItemsCount.current += followings.length;
       setData(recommendedUsers =>
         formatData(followings, recommendedUsers, dappName)
       );
-    } while (
-      pagination.hasNextPage &&
-      totalItemsFetchedRef.current >= MAX_ITEMS
-    );
+      const shouldFetchMore = totalItemsCount.current < MAX_ITEMS;
+      if (shouldFetchMore) {
+        setTotalScannedDocuments(count => count + QUERY_LIMIT);
+      }
+      return shouldFetchMore;
+    });
   }, [address, dappName, setData, setTotalScannedDocuments]);
 
   return [fetchData] as const;

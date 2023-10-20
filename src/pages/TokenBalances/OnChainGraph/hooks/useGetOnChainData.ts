@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useGetCommonPoapsHolder } from './useGetCommonPoapsHolder';
 import { useGetSocialFollowings } from './useGetSocialFollowings';
 import { useGetNFTs } from './useGetNFTs';
-import { useTokenTransfer } from './tokenTransfer';
+import { useTokenTransfer } from './useTokenTransfer';
 
 export function useGetOnChainData(address: string): [boolean] {
   const loadingRef = useRef(false);

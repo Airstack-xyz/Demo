@@ -1,12 +1,9 @@
-import {
-  fetchQueryWithPagination,
-  useLazyQueryWithPagination
-} from '@airstack/airstack-react';
+import { fetchQueryWithPagination } from '@airstack/airstack-react';
 import {
   poapsByEventIdsQuery,
   userPoapsEventIdsQuery
 } from '../../../../queries/onChainGraph/commonPoaps';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { MAX_ITEMS, QUERY_LIMIT } from '../constants';
 import {
   Poap,
@@ -15,6 +12,7 @@ import {
 } from '../types/common-poaps';
 import { RecommendedUser } from '../types';
 import { useOnChainGraphData } from './useOnChainGraphData';
+import { paginateRequest } from '../utils';
 
 function formatData(
   poaps: Poap[],
@@ -58,57 +56,51 @@ export function useGetCommonPoapsHolder(address: string) {
 
   const fetchPoapData = useCallback(
     async (eventIds: string[]) => {
-      const pagination = {
-        hasNextPage: false,
-        getNextPage: () => {
-          // empty function
+      const request = fetchQueryWithPagination<PoapsByEventIdsQueryResponse>(
+        poapsByEventIdsQuery,
+        {
+          user: address,
+          poaps: eventIds
+        },
+        {
+          cache: false
         }
-      };
-      do {
-        setTotalScannedDocuments(count => count + QUERY_LIMIT);
-        const { data, hasNextPage, getNextPage } =
-          await fetchQueryWithPagination<PoapsByEventIdsQueryResponse>(
-            poapsByEventIdsQuery,
-            {
-              user: address,
-              poaps: eventIds
-            }
-          );
+      );
+      setTotalScannedDocuments(count => count + QUERY_LIMIT);
+      await paginateRequest(request, async data => {
+        const poaps = data?.Poaps.Poap;
         totalItemsCount.current += data?.Poaps?.Poap?.length ?? 0;
-        pagination.hasNextPage = hasNextPage;
-        pagination.getNextPage = getNextPage;
-        if (!data) {
-          break;
+        setData(recommendedUsers => formatData(poaps || [], recommendedUsers));
+        const shouldFetchMore = totalItemsCount.current < MAX_ITEMS;
+        if (shouldFetchMore) {
+          setTotalScannedDocuments(count => count + QUERY_LIMIT);
         }
-        const poaps = data.Poaps.Poap;
-        setData(recommendedUsers => formatData(poaps, recommendedUsers));
-      } while (pagination.hasNextPage && totalItemsCount.current < MAX_ITEMS);
+        return shouldFetchMore;
+      });
     },
     [address, setData, setTotalScannedDocuments]
   );
 
   const fetchData = useCallback(async () => {
-    const pagination = {
-      hasNextPage: false,
-      getNextPage: () => {
-        // empty function
+    const request = fetchQueryWithPagination<UserPoapsEventIdsQueryResponse>(
+      userPoapsEventIdsQuery,
+      {
+        user: address
+      },
+      {
+        cache: false
       }
-    };
-    do {
-      setTotalScannedDocuments(count => count + QUERY_LIMIT);
-      const { data, hasNextPage, getNextPage } =
-        await fetchQueryWithPagination<UserPoapsEventIdsQueryResponse>(
-          userPoapsEventIdsQuery,
-          {
-            user: address
-          }
-        );
-      pagination.hasNextPage = hasNextPage;
-      pagination.getNextPage = getNextPage;
-      if (!data) break;
-      const eventIds = data.Poaps.Poap.map(poap => poap.eventId);
-      await fetchPoapData(eventIds);
-    } while (pagination.hasNextPage && totalItemsCount.current < MAX_ITEMS);
+    );
+    setTotalScannedDocuments(count => count + QUERY_LIMIT);
+    await paginateRequest(request, async data => {
+      const eventIds = data?.Poaps.Poap.map(poap => poap.eventId) ?? [];
+      await await fetchPoapData(eventIds);
+      const shouldFetchMore = totalItemsCount.current < MAX_ITEMS;
+      if (shouldFetchMore) {
+        setTotalScannedDocuments(count => count + QUERY_LIMIT);
+      }
+      return shouldFetchMore;
+    });
   }, [address, fetchPoapData, setTotalScannedDocuments]);
 
   return [fetchData] as const;

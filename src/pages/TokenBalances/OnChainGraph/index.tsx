@@ -1,16 +1,10 @@
 import { useSearchInput } from '../../../hooks/useSearchInput';
-import { useQueryWithPagination } from '@airstack/airstack-react';
-import { getOnChainGraphQuery } from '../../../queries/onChainGraphQuery';
-import { NFTAndPoapResponse, RecommendedUser } from './types';
-import { useEffect, useState } from 'react';
-import { fetchNftAndTokens, formatNftAndPoapData } from './fetchNftAndPoaps';
+import { useState } from 'react';
 import { UserInfo } from './UserInfo';
 import classNames from 'classnames';
 import { Header } from './Header';
 import { Loader } from './Loader';
-import { tokenTransferQuery } from '../../../queries/onChainGraph/tokenTransfer';
 import { filterDuplicatedAndCalculateScore, sortByScore } from './utils';
-import { formatOnChainData, formatTokenTransfer } from './dataFormatter';
 import { ScoreMap } from './constants';
 import { useOnChainGraphData } from './hooks/useOnChainGraphData';
 import { OnChainGraphDataContextProvider } from './context/OnChainGraphDataContext';

@@ -8,6 +8,7 @@ import { useCallback, useRef } from 'react';
 import { useOnChainGraphData } from './useOnChainGraphData';
 import { RecommendedUser } from '../types';
 import { MAX_ITEMS, QUERY_LIMIT } from '../constants';
+import { paginateRequest } from '../utils';
 
 export function formatData(
   data: Transfer[],
@@ -61,46 +62,39 @@ export function useTokenTransfer(
   transferType: 'sent' | 'received' = 'sent'
 ) {
   const { setData, setTotalScannedDocuments } = useOnChainGraphData();
-  const totalItemsFetchedRef = useRef(0);
+  const totalItemsCount = useRef(0);
 
   const fetchData = useCallback(async () => {
-    const pagination = {
-      hasNextPage: false,
-      getNextPage: () => {
-        // empty function
+    const request = fetchQueryWithPagination<TokenQueryResponse>(
+      transferType === 'sent' ? tokenSentQuery : tokenReceivedQuery,
+      {
+        user: address
+      },
+      {
+        cache: false
       }
-    };
-    do {
-      setTotalScannedDocuments(count => count + QUERY_LIMIT);
-      const { data, hasNextPage, getNextPage } =
-        await fetchQueryWithPagination<TokenQueryResponse>(
-          transferType === 'sent' ? tokenSentQuery : tokenReceivedQuery,
-          {
-            user: address
-          }
-        );
-
-      pagination.hasNextPage = hasNextPage;
-      pagination.getNextPage = getNextPage;
-      if (!data) break;
+    );
+    setTotalScannedDocuments(count => count + QUERY_LIMIT);
+    await paginateRequest(request, async data => {
       const ethData = (data?.Ethereum?.TokenTransfer ?? []).map(
         transfer => transfer.account
       );
-
       const polygonData = (data?.Polygon?.TokenTransfer ?? []).map(
         transfer => transfer.account
       );
 
       const tokenTransfer = [...ethData, ...polygonData] as Transfer[];
-
-      totalItemsFetchedRef.current += tokenTransfer.length;
+      totalItemsCount.current += tokenTransfer.length;
       setData(recommendedUsers =>
         formatData(tokenTransfer, recommendedUsers, transferType === 'sent')
       );
-    } while (
-      pagination.hasNextPage &&
-      totalItemsFetchedRef.current >= MAX_ITEMS
-    );
+
+      const shouldFetchMore = totalItemsCount.current < MAX_ITEMS;
+      if (shouldFetchMore) {
+        setTotalScannedDocuments(count => count + QUERY_LIMIT);
+      }
+      return shouldFetchMore;
+    });
   }, [address, setData, setTotalScannedDocuments, transferType]);
 
   return [fetchData] as const;

@@ -8,6 +8,7 @@ type OnChainGraphDataContextType = {
   setData: React.Dispatch<React.SetStateAction<RecommendedUser[]>>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const onChainGraphDataContext =
   createContext<OnChainGraphDataContextType | null>(null);
 

@@ -9,6 +9,7 @@ import { FetchPaginatedQueryReturnType } from '@airstack/airstack-react/types';
 import { MAX_ITEMS, QUERY_LIMIT, nftsToIgnore } from '../constants';
 import { RecommendedUser } from '../types';
 import { useOnChainGraphData } from './useOnChainGraphData';
+import { paginateRequest } from '../utils';
 
 const maxAddressPerQuery = 100;
 
@@ -97,7 +98,6 @@ export function useGetNFTs(
           formatData(data, recommendedUsers, blockchain)
         );
         if (totalItemsCount.current >= MAX_ITEMS) {
-          console.log(' reached limit for nft ', blockchain);
           setLoading(false);
           return;
         }
@@ -133,11 +133,17 @@ export function useGetNFTs(
       for (let i = 0; i < addresses.length; i += maxAddressPerQuery) {
         const chunk = addresses.slice(i, i + maxAddressPerQuery);
         requests.push(
-          fetchQueryWithPagination<NFTQueryResponse>(nftQuery, {
-            addresses: chunk,
-            blockchain,
-            limit: 200
-          })
+          fetchQueryWithPagination<NFTQueryResponse>(
+            nftQuery,
+            {
+              addresses: chunk,
+              blockchain,
+              limit: 200
+            },
+            {
+              cache: false
+            }
+          )
         );
       }
       return handleRequests(requests);
@@ -146,30 +152,28 @@ export function useGetNFTs(
   );
 
   const fetchData = useCallback(async () => {
-    const addressPagination = {
-      hasNextPage: false,
-      getNextPage: () => {
-        // empty function
+    const request = fetchQueryWithPagination<NFTQueryResponse>(
+      nftAddressesQuery,
+      {
+        user: address,
+        blockchain
+      },
+      {
+        cache: false
       }
-    };
-    do {
-      setTotalScannedDocuments(count => count + QUERY_LIMIT);
-      const { data, hasNextPage, getNextPage } =
-        await fetchQueryWithPagination<NFTQueryResponse>(nftAddressesQuery, {
-          user: address,
-          blockchain
-        });
-      addressPagination.hasNextPage = hasNextPage;
-      addressPagination.getNextPage = getNextPage;
-      if (!data) break;
-      const tokenAddresses = data.TokenBalances.TokenBalance.map(
+    );
+    setTotalScannedDocuments(count => count + QUERY_LIMIT);
+    await paginateRequest(request, async data => {
+      const tokenAddresses = data?.TokenBalances.TokenBalance.map(
         token => token.tokenAddress
       );
       await fetchNFT(tokenAddresses as string[]);
-    } while (
-      addressPagination.hasNextPage &&
-      totalItemsCount.current < MAX_ITEMS
-    );
+      const shouldFetchMore = totalItemsCount.current < MAX_ITEMS;
+      if (shouldFetchMore) {
+        setTotalScannedDocuments(count => count + QUERY_LIMIT);
+      }
+      return shouldFetchMore;
+    });
   }, [address, blockchain, fetchNFT, setTotalScannedDocuments]);
 
   return [fetchData, loading];
