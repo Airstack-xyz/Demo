@@ -1,11 +1,16 @@
-import { createContext, useState } from 'react';
+import { createContext, useCallback, useState } from 'react';
 import { RecommendedUser } from '../types';
+import {
+  filterDuplicatedAndCalculateScore,
+  getDefaultScoreMap,
+  sortByScore
+} from '../utils';
 
 type OnChainGraphDataContextType = {
   data: RecommendedUser[];
   totalScannedDocuments: number;
   setTotalScannedDocuments: React.Dispatch<React.SetStateAction<number>>;
-  setData: React.Dispatch<React.SetStateAction<RecommendedUser[]>>;
+  setData: (cb: (data: RecommendedUser[]) => RecommendedUser[]) => void;
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -17,8 +22,21 @@ export function OnChainGraphDataContextProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [data, setData] = useState<RecommendedUser[]>([]);
+  const [data, _setData] = useState<RecommendedUser[]>([]);
   const [totalScannedDocuments, setTotalScannedDocuments] = useState(0);
+
+  const setData = useCallback(
+    (cb: (data: RecommendedUser[]) => RecommendedUser[]) => {
+      _setData(recommendations => {
+        const updatedRecommendations = cb(recommendations);
+        const score = getDefaultScoreMap();
+        return sortByScore(
+          filterDuplicatedAndCalculateScore(updatedRecommendations, score)
+        );
+      });
+    },
+    []
+  );
 
   return (
     <onChainGraphDataContext.Provider
