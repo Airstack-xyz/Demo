@@ -1,13 +1,13 @@
-import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { fetchQueryWithPagination } from '@airstack/airstack-react';
 import {
   tokenReceivedQuery,
   tokenSentQuery
 } from '../../../../queries/onChainGraph/tokenTransfer';
 import { TokenQueryResponse, Transfer } from '../types/tokenSentReceived';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useRef } from 'react';
 import { useOnChainGraphData } from './useOnChainGraphData';
 import { RecommendedUser } from '../types';
-import { MAX_ITEMS } from '../constants';
+import { MAX_ITEMS, QUERY_LIMIT } from '../constants';
 
 export function formatData(
   data: Transfer[],
@@ -60,58 +60,48 @@ export function useTokenTransfer(
   address: string,
   transferType: 'sent' | 'received' = 'sent'
 ) {
-  const { setData } = useOnChainGraphData();
+  const { setData, setTotalScannedDocuments } = useOnChainGraphData();
   const totalItemsFetchedRef = useRef(0);
-  const loadingRef = useRef(false);
-  const [fetch, { data, loading, error, pagination }] =
-    useLazyQueryWithPagination<Transfer[]>(
-      transferType === 'sent' ? tokenSentQuery : tokenReceivedQuery,
-      { user: address },
-      {
-        dataFormatter(data: TokenQueryResponse) {
-          const ethData = (data?.Ethereum?.TokenTransfer ?? []).map(
-            transfer => transfer.account
-          );
 
-          const polygonData = (data?.Polygon?.TokenTransfer ?? []).map(
-            transfer => transfer.account
-          );
-
-          totalItemsFetchedRef.current += ethData.length + polygonData.length;
-
-          return [...ethData, ...polygonData] as Transfer[];
-        },
-        onCompleted(data) {
-          setData(recommendedUsers =>
-            formatData(data, recommendedUsers, transferType === 'sent')
-          );
-        }
+  const fetchData = useCallback(async () => {
+    const pagination = {
+      hasNextPage: false,
+      getNextPage: () => {
+        // empty function
       }
+    };
+    do {
+      setTotalScannedDocuments(count => count + QUERY_LIMIT);
+      const { data, hasNextPage, getNextPage } =
+        await fetchQueryWithPagination<TokenQueryResponse>(
+          transferType === 'sent' ? tokenSentQuery : tokenReceivedQuery,
+          {
+            user: address
+          }
+        );
+
+      pagination.hasNextPage = hasNextPage;
+      pagination.getNextPage = getNextPage;
+      if (!data) break;
+      const ethData = (data?.Ethereum?.TokenTransfer ?? []).map(
+        transfer => transfer.account
+      );
+
+      const polygonData = (data?.Polygon?.TokenTransfer ?? []).map(
+        transfer => transfer.account
+      );
+
+      const tokenTransfer = [...ethData, ...polygonData] as Transfer[];
+
+      totalItemsFetchedRef.current += tokenTransfer.length;
+      setData(recommendedUsers =>
+        formatData(tokenTransfer, recommendedUsers, transferType === 'sent')
+      );
+    } while (
+      pagination.hasNextPage &&
+      totalItemsFetchedRef.current >= MAX_ITEMS
     );
+  }, [address, setData, setTotalScannedDocuments, transferType]);
 
-  const limitReached = totalItemsFetchedRef.current >= MAX_ITEMS;
-
-  useEffect(() => {
-    if (limitReached) {
-      console.log('limit reached for token transfers');
-      return;
-    }
-    if (pagination.hasNextPage && !loading) {
-      pagination.getNextPage();
-    }
-
-    if (!pagination.hasNextPage) {
-      loadingRef.current = false;
-    }
-  }, [limitReached, loading, pagination]);
-
-  const fetchTokenSent = useCallback(() => {
-    if (loadingRef.current) {
-      return;
-    }
-    loadingRef.current = true;
-    fetch();
-  }, [fetch]);
-
-  return [fetchTokenSent, data, loading || loadingRef.current, error];
+  return [fetchData] as const;
 }

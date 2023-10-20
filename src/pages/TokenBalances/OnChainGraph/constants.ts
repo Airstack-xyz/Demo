@@ -2,6 +2,14 @@ export const maxScore = 10;
 export const QUERY_LIMIT = 200;
 export const MAX_ITEMS = 2000;
 export const SCORE_KEY = 'airstack-score';
+export const nftsToIgnore = [
+  // ENS
+  '0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85',
+  // NameWrapper
+  '0xd4416b13d2b3a9abae7acd5d6c2bbdbe25686401',
+  // OpenSea Shared Storefront
+  '0x495f947276749ce646f68ac8c248420045cb7b5e'
+];
 
 export const defaultScoreMap = {
   tokenSent: 10,

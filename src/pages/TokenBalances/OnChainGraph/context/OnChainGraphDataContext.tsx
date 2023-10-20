@@ -1,15 +1,11 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useRef,
-  useState
-} from 'react';
+import { createContext, useState } from 'react';
 import { RecommendedUser } from '../types';
 
 type OnChainGraphDataContextType = {
   data: RecommendedUser[];
-  setData: (cb: (data: RecommendedUser[]) => RecommendedUser[]) => void;
+  totalScannedDocuments: number;
+  setTotalScannedDocuments: React.Dispatch<React.SetStateAction<number>>;
+  setData: React.Dispatch<React.SetStateAction<RecommendedUser[]>>;
 };
 
 export const onChainGraphDataContext =
@@ -20,21 +16,16 @@ export function OnChainGraphDataContextProvider({
 }: {
   children: React.ReactNode;
 }) {
-  //   const dataRef = useRef<RecommendedUser[]>([]);
-  const [data, _setData] = useState<RecommendedUser[]>([]);
-
-  const setData = useCallback(
-    (cb: (data: RecommendedUser[]) => RecommendedUser[]) => {
-      _setData(cb);
-    },
-    []
-  );
+  const [data, setData] = useState<RecommendedUser[]>([]);
+  const [totalScannedDocuments, setTotalScannedDocuments] = useState(0);
 
   return (
     <onChainGraphDataContext.Provider
       value={{
         data,
-        setData
+        totalScannedDocuments,
+        setData,
+        setTotalScannedDocuments
       }}
     >
       {children}

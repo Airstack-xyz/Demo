@@ -142,7 +142,7 @@ export const tokenSentQuery = `query TokenSent($user: Identity!) {
     }
   }`;
 
-export const tokenReceivedQuery = `query TokenTransfer($user: Identity!) {
+export const tokenReceivedQuery = `query TokenReceived($user: Identity!) {
     Ethereum: TokenTransfers(
       input: {filter: {to: {_eq: $user}}, blockchain: ethereum, limit: 200}
     ) {

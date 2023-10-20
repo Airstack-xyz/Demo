@@ -1,16 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGetCommonPoapsHolder } from './useGetCommonPoapsHolder';
 import { useGetSocialFollowings } from './useGetSocialFollowings';
 import { useGetNFTs } from './useGetNFTs';
 import { useTokenTransfer } from './tokenTransfer';
-import { useOnChainGraphData } from './useOnChainGraphData';
-import { RecommendedUser } from '../types';
 
-export function useGetOnChainData(
-  address: string
-): [RecommendedUser[], boolean] {
-  const { data } = useOnChainGraphData();
-
+export function useGetOnChainData(address: string): [boolean] {
+  const loadingRef = useRef(false);
   const [loading, setLoading] = useState(false);
   const [fetchPoapsData] = useGetCommonPoapsHolder(address);
   const [fetchFarcasterData] = useGetSocialFollowings(address, 'farcaster');
@@ -21,16 +16,19 @@ export function useGetOnChainData(
   const [fetchTokenReceived] = useTokenTransfer(address, 'received');
 
   useEffect(() => {
+    if (loadingRef.current) return;
     const fetchData = async () => {
+      loadingRef.current = true;
       setLoading(true);
       await fetchPoapsData();
       await fetchFarcasterData();
-      // await fetchLensData();
-      // await fetchEthNft();
-      // await fetchPolygonNft();
+      await fetchLensData();
+      await fetchEthNft();
+      await fetchPolygonNft();
       await fetchTokenSent();
       await fetchTokenReceived();
       setLoading(false);
+      loadingRef.current = false;
     };
     fetchData();
   }, [
@@ -42,5 +40,5 @@ export function useGetOnChainData(
     fetchTokenReceived,
     fetchTokenSent
   ]);
-  return [data, loading];
+  return [loading];
 }

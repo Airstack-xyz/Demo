@@ -12,15 +12,9 @@ import { tokenTransferQuery } from '../../../queries/onChainGraph/tokenTransfer'
 import { filterDuplicatedAndCalculateScore, sortByScore } from './utils';
 import { formatOnChainData, formatTokenTransfer } from './dataFormatter';
 import { ScoreMap } from './constants';
-import { useGetCommonPoapsHolder } from './hooks/useGetCommonPoapsHolder';
 import { useOnChainGraphData } from './hooks/useOnChainGraphData';
 import { OnChainGraphDataContextProvider } from './context/OnChainGraphDataContext';
 import { useGetOnChainData } from './hooks/useGetOnChainData';
-
-const checkXMTP = false;
-
-const onChainQueryLimit = 200 * 7;
-const nftAndPoapsLimit = 200 * 3;
 
 function ItemsLoader() {
   const loaderItems = Array(6).fill(0);
@@ -36,121 +30,15 @@ function ItemsLoader() {
 }
 
 export function OnChainGraphComponent() {
-  const { data, setData } = useOnChainGraphData();
-  const [scanningCount, setScanningCount] = useState<number>(onChainQueryLimit);
-  const [showGridView, setShowGridView] = useState(false);
   const [{ address: identities }] = useSearchInput();
-  const [recommendations, setRecommendations] = useState<RecommendedUser[]>([]);
+  const {
+    data: recommendations,
+    totalScannedDocuments,
+    setData
+  } = useOnChainGraphData();
+  const [showGridView, setShowGridView] = useState(false);
   const [loading, setLoading] = useState(true);
-  // const [scanning, setScanning] = useState(true);
-
   const [scanning] = useGetOnChainData(identities[0]);
-
-  // const { data, pagination } = useQueryWithPagination(
-  //   getOnChainGraphQuery({
-  //     ethereumTokenTransfers: false,
-  //     polygonTokenTransfers: false
-  //   }),
-  //   {
-  //     user: identities[0]
-  //   },
-  //   {
-  //     dataFormatter: formatOnChainData,
-  //     onCompleted({ data }) {
-  //       setRecommendations(exitingUsers => {
-  //         return filterDuplicatedAndCalculateScore(
-  //           formatOnChainData(data, exitingUsers).recommendedUsers
-  //         );
-  //       });
-  //     }
-  //   }
-  // );
-
-  // const { pagination: tokenTransferPagination } = useQueryWithPagination(
-  //   tokenTransferQuery,
-  //   {
-  //     user: identities[0]
-  //   },
-  //   {
-  //     onCompleted(data) {
-  //       setRecommendations(exitingUsers => {
-  //         return filterDuplicatedAndCalculateScore(
-  //           formatTokenTransfer(data, exitingUsers)
-  //         );
-  //       });
-  //     }
-  //   }
-  // );
-
-  // const { poaps, nfts } = { poaps: [], nfts: [] };
-  // const { hasNextPage, getNextPage } = pagination;
-  // const { hasNextPage: hasNextTokenPage, getNextPage: getNextTokenPage } = {};
-
-  // useEffect(() => {
-  //   if (!poaps || !nfts) return;
-  //   setLoading(true);
-
-  //   setScanningCount(scanningCount => scanningCount + nftAndPoapsLimit);
-  //   fetchNftAndTokens(
-  //     { poaps, nfts },
-  //     undefined,
-  //     (_data: NFTAndPoapResponse) => {
-  //       setRecommendations(recommendations => {
-  //         const data = formatNftAndPoapData(_data, []);
-  //         for (const res of data) {
-  //           const { addresses = [], xmtp, nfts = [], poaps = [] } = res ?? {};
-  //           if (!checkXMTP || xmtp?.length) {
-  //             const existingUserIndex = recommendations.findIndex(
-  //               ({ addresses: recommendedUsersAddresses }) =>
-  //                 recommendedUsersAddresses?.some?.(address =>
-  //                   addresses?.includes?.(address)
-  //                 )
-  //             );
-  //             if (existingUserIndex !== -1) {
-  //               const _addresses =
-  //                 recommendations?.[existingUserIndex]?.addresses || [];
-  //               recommendations[existingUserIndex].addresses = [
-  //                 ..._addresses,
-  //                 ...addresses
-  //               ]?.filter(
-  //                 (address, index, array) => array.indexOf(address) === index
-  //               );
-  //               const _nfts = recommendations?.[existingUserIndex]?.nfts ?? [];
-  //               recommendations[existingUserIndex].nfts = [..._nfts, ...nfts];
-  //               recommendations[existingUserIndex].poaps = [
-  //                 ...(recommendations?.[existingUserIndex]?.poaps ?? []),
-  //                 ...poaps
-  //               ];
-  //             } else {
-  //               recommendations.push(res);
-  //             }
-  //           }
-  //         }
-  //         return filterDuplicatedAndCalculateScore(recommendations);
-  //       });
-  //     }
-  //   ).then(() => {
-  //     const stopScanning = !hasNextPage && !hasNextTokenPage;
-  //     if (stopScanning) {
-  //       setScanning(false);
-  //       return;
-  //     }
-  //     if (hasNextPage) {
-  //       getNextPage();
-  //     }
-  //     if (hasNextTokenPage) {
-  //       getNextTokenPage();
-  //     }
-  //   });
-  // }, [
-  //   getNextPage,
-  //   getNextTokenPage,
-  //   hasNextPage,
-  //   hasNextTokenPage,
-  //   identities,
-  //   nfts,
-  //   poaps
-  // ]);
 
   return (
     <div className="max-w-[950px] mx-auto w-full text-sm pt-10 sm:pt-5">
@@ -159,7 +47,7 @@ export function OnChainGraphComponent() {
         showGridView={showGridView}
         setShowGridView={setShowGridView}
         onApplyScore={(score: ScoreMap) => {
-          setRecommendations(recommendations => {
+          setData(recommendations => {
             return sortByScore(
               filterDuplicatedAndCalculateScore(recommendations, score)
             );
@@ -173,20 +61,20 @@ export function OnChainGraphComponent() {
           'skeleton-loader': scanning
         })}
       >
-        {data?.map?.((user, index) => (
+        {recommendations?.map?.((user, index) => (
           <UserInfo
             user={user}
             key={`${index}_${user.addresses?.[0] || user.domains?.[0]}`}
             identity={identities[0]}
             showDetails={!showGridView}
-            loading={false}
+            loading={scanning}
           />
         ))}
         {scanning && <ItemsLoader />}
       </div>
       {loading && (
         <Loader
-          total={scanningCount}
+          total={totalScannedDocuments}
           matching={recommendations.length}
           scanCompleted={!scanning}
           onSortByScore={() => {

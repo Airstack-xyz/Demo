@@ -1,14 +1,15 @@
-import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { fetchQueryWithPagination } from '@airstack/airstack-react';
 import { socialFollowingsQuery } from '../../../../queries/onChainGraph/followings';
 import { FollowingAddress, SocialQueryResponse } from '../types/social';
-import { useEffect, useRef } from 'react';
-import { MAX_ITEMS } from '../constants';
+import { useCallback, useRef } from 'react';
+import { MAX_ITEMS, QUERY_LIMIT } from '../constants';
 import { RecommendedUser } from '../types';
 import { useOnChainGraphData } from './useOnChainGraphData';
 
 function formatData(
   followings: FollowingAddress[],
-  exitingUser: RecommendedUser[] = []
+  exitingUser: RecommendedUser[] = [],
+  dappName: 'farcaster' | 'lens' = 'farcaster'
 ): RecommendedUser[] {
   const recommendedUsers: RecommendedUser[] = [...exitingUser];
   for (const following of followings) {
@@ -18,17 +19,30 @@ function formatData(
           following.addresses?.includes?.(address)
         )
     );
+    const followingKey =
+      dappName === 'farcaster' ? 'followingOnFarcaster' : 'followingOnLens';
+    const followedOnKey =
+      dappName === 'farcaster' ? 'followedOnFarcaster' : 'followedOnLens';
+
     const followsBack = Boolean(following?.mutualFollower?.Follower?.[0]);
     if (existingUserIndex !== -1) {
+      const follows = recommendedUsers?.[existingUserIndex]?.follows ?? {};
       recommendedUsers[existingUserIndex] = {
         ...following,
         ...recommendedUsers[existingUserIndex],
-        follows: { followingOnLens: true, followedOnLens: followsBack }
+        follows: {
+          ...follows,
+          [followingKey]: true,
+          [followedOnKey]: followsBack
+        }
       };
     } else {
       recommendedUsers.push({
         ...following,
-        follows: { followingOnLens: true, followedOnLens: followsBack }
+        follows: {
+          followingOnLens: true,
+          followedOnLens: followsBack
+        }
       });
     }
   }
@@ -40,40 +54,41 @@ export function useGetSocialFollowings(
   dappName: 'farcaster' | 'lens' = 'farcaster'
 ) {
   const totalItemsFetchedRef = useRef(0);
-  const { setData } = useOnChainGraphData();
-  const [fetch, { data, loading, error, pagination }] =
-    useLazyQueryWithPagination<FollowingAddress[]>(
-      socialFollowingsQuery,
-      {
-        user: address,
-        dappName
-      },
-      {
-        dataFormatter(data: SocialQueryResponse) {
-          const followings = data.SocialFollowings.Following.map(
-            following => following.followingAddress
-          );
-          totalItemsFetchedRef.current += followings.length;
-          return followings;
-        },
-        onCompleted(data) {
-          setData(recommendedUsers => formatData(data, recommendedUsers));
-        }
+  const { setData, setTotalScannedDocuments } = useOnChainGraphData();
+
+  const fetchData = useCallback(async () => {
+    const pagination = {
+      hasNextPage: false,
+      getNextPage: () => {
+        // empty function
       }
+    };
+    do {
+      setTotalScannedDocuments(count => count + QUERY_LIMIT);
+      const { data, hasNextPage, getNextPage } =
+        await fetchQueryWithPagination<SocialQueryResponse>(
+          socialFollowingsQuery,
+          {
+            user: address,
+            dappName
+          }
+        );
+
+      pagination.hasNextPage = hasNextPage;
+      pagination.getNextPage = getNextPage;
+      if (!data) break;
+      const followings = data.SocialFollowings.Following.map(
+        following => following.followingAddress
+      );
+      totalItemsFetchedRef.current += followings.length;
+      setData(recommendedUsers =>
+        formatData(followings, recommendedUsers, dappName)
+      );
+    } while (
+      pagination.hasNextPage &&
+      totalItemsFetchedRef.current >= MAX_ITEMS
     );
+  }, [address, dappName, setData, setTotalScannedDocuments]);
 
-  const limitReached = totalItemsFetchedRef.current >= MAX_ITEMS;
-
-  useEffect(() => {
-    if (limitReached) {
-      console.log('limit reached for social followings');
-      return;
-    }
-
-    if (!loading && pagination.hasNextPage) {
-      pagination.getNextPage();
-    }
-  }, [limitReached, loading, pagination]);
-
-  return [fetch, data, error, loading];
+  return [fetchData] as const;
 }
