@@ -73,7 +73,7 @@ export const getUpdatedMentionValue = (
     'NULL'
   );
   if (positionInValue === null) {
-    return;
+    return null;
   }
   return (
     mentionValue.substring(0, positionInValue) +

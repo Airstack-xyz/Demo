@@ -63,6 +63,12 @@ const defaultAdvancedSearchData: AdvancedSearchData = {
 
 const padding = '  ';
 
+const inputSectionClass =
+  'before-bg-glass before:rounded-18 rounded-18 border-solid-stroke transition-[width] absolute top-0';
+
+const inputClass =
+  'flex items-center h-[50px] bg-[linear-gradient(137deg,rgba(255,255,255,0.06)_-8.95%,rgba(255,255,255,0.00)_114%)] w-full rounded-18 px-4 py-3 relative z-10';
+
 export const Search = memo(function Search() {
   const [isTokenBalanceActive, setIsTokenBalanceActive] = useState(true);
   const isHome = useMatch('/');
@@ -332,14 +338,6 @@ export const Search = memo(function Search() {
     [isHome, navigate]
   );
 
-  const handleItemSelect = useCallback(
-    (value: string) => {
-      setAdvancedSearchData(prev => ({ ...prev, visible: false }));
-      handleSubmit(value);
-    },
-    [handleSubmit]
-  );
-
   const showAdvancedSearch = useCallback(
     (mentionStartIndex: number, mentionEndIndex: number) => {
       setAdvancedSearchData({
@@ -389,15 +387,15 @@ export const Search = memo(function Search() {
           {!isHome && <TabLinks isTokenBalances={isTokenBalances} />}
         </div>
       </div>
-      <div className="flex-row-center relative">
+      <div className="flex-row-center relative h-[50px] z-20">
         <div
           ref={inputSectionRef}
           className={classNames(
-            'before-bg-glass before:rounded-18 transition-[width] absolute top-0',
+            inputSectionClass,
             advancedSearchData.visible ? 'w-[min(60vw,900px)]' : 'w-full'
           )}
         >
-          <div className="flex items-center h-[50px] w-full border-solid-stroke rounded-18 px-4 py-3">
+          <div className={inputClass}>
             {showPrefixIcon && (
               <Icon name="search" width={15} height={15} className="mr-1.5" />
             )}
@@ -430,13 +428,19 @@ export const Search = memo(function Search() {
             </div>
           </div>
           {advancedSearchData.visible && (
-            <AdvancedSearch
-              mentionStartIndex={advancedSearchData.mentionStartIndex}
-              mentionEndIndex={advancedSearchData.mentionEndIndex}
-              mentionValue={value}
-              onItemSelect={handleItemSelect}
-              onClose={hideAdvancedSearch}
-            />
+            <>
+              <div
+                className="bg-primary/70 z-[-1] inset-0 fixed"
+                onClick={hideAdvancedSearch}
+              />
+              <AdvancedSearch
+                mentionStartIndex={advancedSearchData.mentionStartIndex}
+                mentionEndIndex={advancedSearchData.mentionEndIndex}
+                mentionValue={value}
+                onChange={setValue}
+                onClose={hideAdvancedSearch}
+              />
+            </>
           )}
         </div>
       </div>

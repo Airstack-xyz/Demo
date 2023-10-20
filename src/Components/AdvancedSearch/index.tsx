@@ -38,7 +38,7 @@ type AdvancedSearchProps = {
   mentionStartIndex: number;
   mentionEndIndex: number;
   mentionValue: string;
-  onItemSelect: (value: string) => void;
+  onChange: (value: string) => void;
   onClose: () => void;
 };
 
@@ -81,7 +81,7 @@ export default function AdvancedSearch({
   mentionStartIndex,
   mentionEndIndex,
   mentionValue,
-  onItemSelect,
+  onChange,
   onClose
 }: AdvancedSearchProps) {
   const [searchData, setSearchData] = useState<SearchData>(defaultSearchData);
@@ -316,11 +316,10 @@ export default function AdvancedSearch({
       itemMention,
       mentionStartIndex
     );
-    if (value) {
-      onItemSelect(value);
-    } else {
-      onClose();
+    if (value !== null) {
+      onChange(value);
     }
+    onClose();
   };
 
   const isBlockchainFilterDisabled = selectedToken.value === 'POAP';
