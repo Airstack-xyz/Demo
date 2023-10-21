@@ -23,6 +23,7 @@ export function useGetPoapsOfOwner(
   const tokensRef = useRef<PoapType[]>([]);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
   const isPoap = tokenType === 'POAP';
+  const searchingCommonPoaps = owners.length > 1;
 
   const query = useMemo(() => {
     return poapsOfCommonOwnersQuery(owners);
@@ -69,9 +70,9 @@ export function useGetPoapsOfOwner(
     if (!tokensData) return;
     let poaps = tokensData?.Poaps?.Poap || [];
     const processedTokensCount = poaps.length;
-    if (poaps.length > 0 && poaps[0]?.poapEvent?.poaps) {
+    if (poaps.length > 0 && searchingCommonPoaps) {
       poaps = poaps.reduce((items: CommonPoapType[], poap: CommonPoapType) => {
-        if (poap.poapEvent.poaps.length > 0) {
+        if (poap?.poapEvent?.poaps?.length > 0) {
           poap._common_tokens = poap.poapEvent.poaps;
           items.push(poap);
         }
@@ -88,7 +89,14 @@ export function useGetPoapsOfOwner(
     }
     setLoading(false);
     tokensRef.current = [];
-  }, [canFetchPoap, getNextPage, hasNextPage, onDataReceived, tokensData]);
+  }, [
+    canFetchPoap,
+    searchingCommonPoaps,
+    getNextPage,
+    hasNextPage,
+    onDataReceived,
+    tokensData
+  ]);
 
   const getNext = useCallback(() => {
     if (!hasNextPage || !canFetchPoap) return;
