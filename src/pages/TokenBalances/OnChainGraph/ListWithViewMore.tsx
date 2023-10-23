@@ -4,6 +4,22 @@ import { RecommendedUser } from './types';
 import { useMemo, useState } from 'react';
 import classNames from 'classnames';
 
+function Loader() {
+  return (
+    <li className="flex items-center mb-2">
+      <div
+        data-loader-type="block"
+        className="h-6 w-6 rounded-full mr-1.5"
+      ></div>
+      <div
+        className="flex items-center text-text-secondary h-5"
+        data-loader-type="block"
+        data-loader-width="50"
+      ></div>
+    </li>
+  );
+}
+
 export function ListWithViewMore({
   items = [],
   limit = 3,
@@ -41,13 +57,7 @@ export function ListWithViewMore({
           {item.name}
         </li>
       ))}
-      {loading && (
-        <li
-          className="flex items-center text-text-secondary h-5"
-          data-loader-type="block"
-          data-loader-width="50"
-        ></li>
-      )}
+      {loading && <Loader />}
       {!loading && !showAll && items.length > limit && (
         <button onClick={() => setShowAll(true)} className="text-text-button">
           see more

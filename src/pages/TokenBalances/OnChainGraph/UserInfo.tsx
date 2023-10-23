@@ -5,7 +5,9 @@ import { RecommendedUser } from './types';
 import { Asset } from '../../../Components/Asset';
 import { ListWithViewMore } from './ListWithViewMore';
 import { pluralize } from '../../../utils';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
+import classNames from 'classnames';
+import { useInViewportOnce } from '../../../hooks/useInViewportOnce';
 
 function TextWithIcon({
   icon,
@@ -19,7 +21,7 @@ function TextWithIcon({
   width?: number;
 }) {
   return (
-    <div className="flex items-center">
+    <div className="flex items-center mb-1">
       <span className="w-[20px] flex items-center justify-center">
         <Icon
           name={icon}
@@ -28,14 +30,14 @@ function TextWithIcon({
           className="mr-2 rounded-full"
         />
       </span>
-      <span className="text-text-secondary ellipsis">{text}</span>
+      <span className="text-text-secondary ellipsis flex-1">{text}</span>
     </div>
   );
 }
 
 function Loader() {
   return (
-    <div className="flex items-center mt-3">
+    <div className="flex items-center mb-3">
       <div
         data-loader-type="block"
         className="h-6 w-6 rounded-full mr-1.5"
@@ -49,17 +51,19 @@ function Loader() {
   );
 }
 
-export function UserInfo({
-  user = {},
-  identity,
-  showDetails = false,
-  loading
-}: {
+type UserInfoProps = {
   user?: RecommendedUser;
   identity?: string;
   showDetails?: boolean;
   loading?: boolean;
-}) {
+};
+
+export function Info({
+  user = {},
+  identity,
+  showDetails = false,
+  loading
+}: UserInfoProps) {
   const { tokenTransfers, follows, poaps, nfts } = user;
 
   const loader = loading && <Loader />;
@@ -221,5 +225,23 @@ export function UserInfo({
         {!hasLensFollow && loader}
       </div>
     </>
+  );
+}
+
+export function UserInfo(props: UserInfoProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInViewPort = useInViewportOnce(ref);
+  return (
+    <div
+      ref={ref}
+      className={classNames(
+        'border-solid-stroke bg-glass rounded-18 overflow-hidden h-[315px]',
+        {
+          'overflow-auto !h-auto': props.showDetails
+        }
+      )}
+    >
+      {isInViewPort && <Info {...props} />}
+    </div>
   );
 }

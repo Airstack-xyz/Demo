@@ -1,5 +1,5 @@
 import { useSearchInput } from '../../../hooks/useSearchInput';
-import { ComponentProps, useRef, useState } from 'react';
+import { useState } from 'react';
 import { UserInfo } from './UserInfo';
 import classNames from 'classnames';
 import { Header } from './Header';
@@ -7,41 +7,18 @@ import { Loader } from './Loader';
 import { useOnChainGraphData } from './hooks/useOnChainGraphData';
 import { OnChainGraphDataContextProvider } from './context/OnChainGraphDataContext';
 import { useGetOnChainData } from './hooks/useGetOnChainData';
-import { useInViewportOnce } from '../../../hooks/useInViewportOnce';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
 
 function ItemsLoader() {
   const loaderItems = Array(6).fill(0);
   return (
     <>
       {loaderItems.map((_, index) => (
-        <div
-          data-loader-type="block"
-          className={classNames(
-            'border-solid-stroke bg-glass rounded-18 overflow-hidden h-[326px]'
-          )}
-        >
-          <Item key={index} />
+        <div data-loader-type="block">
+          <UserInfo key={index} />
         </div>
       ))}
     </>
-  );
-}
-
-function Item(props: ComponentProps<typeof UserInfo>) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInViewPort = useInViewportOnce(ref);
-  return (
-    <div
-      ref={ref}
-      className={classNames(
-        'border-solid-stroke bg-glass rounded-18 overflow-hidden h-[326px]',
-        {
-          'overflow-auto !h-auto': props.showDetails
-        }
-      )}
-    >
-      {isInViewPort && <UserInfo {...props} />}
-    </div>
   );
 }
 
@@ -52,12 +29,12 @@ export function OnChainGraphComponent() {
     totalScannedDocuments,
     setData
   } = useOnChainGraphData();
-  const [showGridView, setShowGridView] = useState(true);
+  const [showGridView, setShowGridView] = useState(() => !isMobileDevice());
   const [loading, setLoading] = useState(true);
   const [scanning, cancelScan] = useGetOnChainData(identities[0]);
 
   return (
-    <div className="max-w-[950px] mx-auto w-full text-sm pt-10 sm:pt-5">
+    <div className="max-w-[958px] px-2 mx-auto w-full text-sm pt-10 sm:pt-5">
       <Header
         loading={loading}
         identities={identities}
@@ -68,14 +45,14 @@ export function OnChainGraphComponent() {
         }}
       />
       <div
-        className={classNames('grid grid-cols-3 gap-12 my-10', {
+        className={classNames('grid sm:grid-cols-3 gap-12 my-10', {
           '!grid-cols-1 [&>div]:w-[600px] [&>div]:max-w-[100%] justify-items-center':
             !showGridView,
           'skeleton-loader': scanning
         })}
       >
         {recommendations?.map?.((user, index) => (
-          <Item
+          <UserInfo
             user={user}
             key={`${index}_${user.addresses?.[0] || user.domains?.[0]}`}
             identity={identities[0]}
