@@ -317,7 +317,8 @@ export default function AdvancedSearch({
       mentionStartIndex
     );
     if (value !== null) {
-      onChange(value);
+      // Append space at the end
+      onChange(value.trim() + ' ');
     }
     onClose();
   };
