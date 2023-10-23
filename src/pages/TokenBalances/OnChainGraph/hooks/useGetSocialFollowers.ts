@@ -82,7 +82,7 @@ export function useGetSocialFollowers(
         return false;
       }
       const followers =
-        data?.SocialFollowers.Follower.map(
+        data?.SocialFollowers?.Follower?.map(
           following => following.followerAddress
         ) ?? [];
       totalItemsCount.current += followers.length;
