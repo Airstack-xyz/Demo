@@ -17,16 +17,16 @@ import {
   REGEX_LAST_WORD_STARTS_WITH_AT,
   debouncePromise,
   MentionType,
-  SearchAIMentions_SearchAIMentions,
   fetchMentionOptions,
-  getNameFromMarkup
+  getNameFromMarkup,
+  SearchAIMentions_SearchAIMentions_results
 } from './utils';
 import { AddressInput } from './AddressInput';
 import { ADDRESS_OPTION_ID, MENTION_COUNT, POAP_OPTION_ID } from './constants';
 import { Icon } from '../Icon';
 import { capitalizeFirstLetter, pluralize } from '../../utils';
 
-type Option = SearchAIMentions_SearchAIMentions & {
+type Option = SearchAIMentions_SearchAIMentions_results & {
   id: string;
   display: string;
 };
@@ -252,9 +252,9 @@ export function InputWithMention({
       const [response] = await getMentions(query);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data = response as any;
-      if (data?.SearchAIMentions) {
-        return data.SearchAIMentions.map(
-          (mention: SearchAIMentions_SearchAIMentions) => ({
+      if (data?.SearchAIMentions?.results) {
+        return data.SearchAIMentions.results.map(
+          (mention: SearchAIMentions_SearchAIMentions_results) => ({
             id: generateId(mention),
             display: mention.name,
             ...mention,
