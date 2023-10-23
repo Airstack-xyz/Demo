@@ -4,6 +4,7 @@ import { CopyButton } from '../ERC6551/NFTInfo/CopyButton';
 import { RecommendedUser } from './types';
 import { Asset } from '../../../Components/Asset';
 import { ListWithViewMore } from './ListWithViewMore';
+import { pluralize } from '../../../utils';
 
 function TextWithIcon({
   icon,
@@ -133,7 +134,7 @@ export function UserInfo({
           <div>
             <TextWithIcon
               icon="nft-common"
-              text={`${commonNftCount} NFTs in common`}
+              text={`${pluralize(commonNftCount, 'NFT')} in common`}
             />
             {showDetails && <ListWithViewMore items={nfts} loading={loading} />}
           </div>
@@ -144,7 +145,7 @@ export function UserInfo({
           <>
             <TextWithIcon
               icon="poap-common"
-              text={`${poaps?.length} POAPs in common`}
+              text={`${pluralize(poaps?.length, 'POAP')} in common`}
               width={16}
             />
             {showDetails && (
