@@ -5,8 +5,9 @@ export const tokenTransferQuery = `query TokenTransfer($user: Identity!) {
       TokenTransfer {
         to {
           addresses
-          domains(input: {filter: {isPrimary: {_eq: true}}}) {
+          domains {
             name
+            isPrimary
           }
           socials {
             dappName
@@ -28,8 +29,9 @@ export const tokenTransferQuery = `query TokenTransfer($user: Identity!) {
       TokenTransfer {
         from {
           addresses
-          domains(input: {filter: {isPrimary: {_eq: true}}}) {
+          domains {
             name
+            isPrimary
           }
           socials {
             dappName
@@ -51,8 +53,9 @@ export const tokenTransferQuery = `query TokenTransfer($user: Identity!) {
       TokenTransfer {
         to {
           addresses
-          domains(input: {filter: {isPrimary: {_eq: true}}}) {
+          domains {
             name
+            isPrimary
           }
           socials {
             dappName
@@ -74,8 +77,9 @@ export const tokenTransferQuery = `query TokenTransfer($user: Identity!) {
       TokenTransfer {
         from {
           addresses
-          domains(input: {filter: {isPrimary: {_eq: true}}}) {
+          domains {
             name
+            isPrimary
           }
           socials {
             dappName
@@ -100,8 +104,9 @@ export const tokenSentQuery = `query TokenSent($user: Identity!) {
       TokenTransfer {
         account: to {
           addresses
-          domains(input: {filter: {isPrimary: {_eq: true}}}) {
+          domains {
             name
+            isPrimary
           }
           socials {
             dappName
@@ -123,8 +128,9 @@ export const tokenSentQuery = `query TokenSent($user: Identity!) {
       TokenTransfer {
         account: to {
           addresses
-          domains(input: {filter: {isPrimary: {_eq: true}}}) {
+          domains {
             name
+            isPrimary
           }
           socials {
             dappName
@@ -149,8 +155,9 @@ export const tokenReceivedQuery = `query TokenReceived($user: Identity!) {
       TokenTransfer {
         account: from {
           addresses
-          domains(input: {filter: {isPrimary: {_eq: true}}}) {
+          domains {
             name
+            isPrimary
           }
           socials {
             dappName
@@ -172,8 +179,9 @@ export const tokenReceivedQuery = `query TokenReceived($user: Identity!) {
       TokenTransfer {
         account: from {
           addresses
-          domains(input: {filter: {isPrimary: {_eq: true}}}) {
+          domains {
             name
+            isPrimary
           }
           socials {
             dappName

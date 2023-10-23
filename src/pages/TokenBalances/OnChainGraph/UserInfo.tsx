@@ -5,6 +5,7 @@ import { RecommendedUser } from './types';
 import { Asset } from '../../../Components/Asset';
 import { ListWithViewMore } from './ListWithViewMore';
 import { pluralize } from '../../../utils';
+import { useMemo } from 'react';
 
 function TextWithIcon({
   icon,
@@ -64,6 +65,7 @@ export function UserInfo({
   const loader = loading && <Loader />;
 
   const commonNftCount = nfts?.length || 0;
+  const poapsCount = poaps?.length || 0;
 
   let social = user.socials?.find(social => social.profileImage);
   if (!social) {
@@ -79,6 +81,29 @@ export function UserInfo({
   const hasFarcasterFollow =
     follows?.followingOnFarcaster || follows?.followedOnFarcaster;
   const hasLensFollow = follows?.followingOnLens || follows?.followedOnLens;
+
+  const profileName = useMemo(() => {
+    let lensUserName = '';
+    let farcasterUserName = '';
+    user.socials?.forEach(social => {
+      if (social.dappName === 'lens') {
+        lensUserName = social.profileName;
+      }
+      if (social.dappName === 'farcaster') {
+        farcasterUserName = social.profileName;
+      }
+    });
+    let domain = '';
+    user.domains?.forEach(({ name, isPrimary }) => {
+      if (isPrimary) {
+        domain = name;
+      }
+      if (!domain) {
+        domain = name;
+      }
+    });
+    return domain || lensUserName || farcasterUserName || address || '';
+  }, [address, user.domains, user.socials]);
 
   return (
     <>
@@ -102,12 +127,10 @@ export function UserInfo({
         </div>
         <div className="flex-1 overflow-hidden">
           <div className="font-semibold text-base ellipsis">
-            {user?.domains?.[0]?.name || address || '--'}
+            {profileName || '--'}
           </div>
           <div className="mb-2 mt-1 text-text-secondary text-xs flex items-center w-full ">
-            <span className="mr-1 flex-1 ellipsis max-w-[100px]">
-              {address}
-            </span>
+            <span className="mr-1 ellipsis">{address}</span>
             <CopyButton value={address} />
           </div>
           <div className="flex items-center [&>img]:mr-3">
@@ -146,7 +169,7 @@ export function UserInfo({
             {showDetails && <ListWithViewMore items={nfts} loading={loading} />}
           </div>
         )}
-        {poaps?.length && (
+        {poapsCount > 0 && (
           <>
             <TextWithIcon
               icon="poap-common"
@@ -190,7 +213,7 @@ export function UserInfo({
         )}
         {!tokenTransfers && loader}
         {commonNftCount === 0 && loader}
-        {!poaps?.length && loader}
+        {poapsCount === 0 && loader}
         {!hasFarcasterFollow && loader}
         {!hasLensFollow && loader}
       </div>

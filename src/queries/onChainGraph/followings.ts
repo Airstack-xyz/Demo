@@ -5,8 +5,9 @@ export const socialFollowingsQuery = `query Followings($user: Identity!, $dappNa
       Following {
         followingAddress {
           addresses
-          domains(input: {filter: {isPrimary: {_eq: true}}}) {
+          domains {
             name
+            isPrimary
           }
           socials {
             dappName

@@ -24,8 +24,9 @@ export const nftQuery = `query NFTs($addresses: [Address!], $blockchain: TokenBl
         }
         owner {
           addresses
-          domains(input: {filter: {isPrimary: {_eq: true}}}) {
+          domains {
             name
+            isPrimary
           }
           socials {
             dappName

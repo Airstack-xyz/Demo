@@ -1,4 +1,4 @@
-import { Social, Xmtp } from '../types';
+import { Domain, Social, Xmtp } from '../types';
 
 export interface NFTQueryResponse {
   TokenBalances: TokenBalances;
@@ -36,8 +36,4 @@ export interface Owner {
   domains?: Domain[];
   socials: Social[];
   xmtp: Xmtp[];
-}
-
-export interface Domain {
-  name: string;
 }

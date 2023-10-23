@@ -1,4 +1,4 @@
-import { Social } from '../types';
+import { Domain, Social } from '../types';
 
 export interface SocialQueryResponse {
   SocialFollowings: SocialFollowings;
@@ -18,10 +18,6 @@ export interface FollowingAddress {
   socials: Social[];
   xmtp?: Xmtp[];
   mutualFollower: MutualFollower;
-}
-
-export interface Domain {
-  name: string;
 }
 
 export interface Xmtp {

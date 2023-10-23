@@ -108,6 +108,7 @@ export interface Transfer {
 
 export interface Domain {
   name: string;
+  isPrimary: boolean;
 }
 
 export interface Xmtp {
@@ -182,10 +183,6 @@ export type RecommendedUser = {
   }[];
   _score?: number;
 };
-
-export interface Domain {
-  name: string;
-}
 
 export interface Social {
   dappName: string;

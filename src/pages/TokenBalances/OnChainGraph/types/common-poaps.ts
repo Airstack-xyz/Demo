@@ -1,4 +1,4 @@
-import { Social } from '../types';
+import { Domain, Social } from '../types';
 
 export interface PoapsByEventIdsQueryResponse {
   Poaps: Poaps;
@@ -44,10 +44,6 @@ export interface Owner {
   domains?: Domain[];
   socials?: Social[];
   xmtp?: Xmtp[];
-}
-
-export interface Domain {
-  name: string;
 }
 
 export interface Xmtp {
