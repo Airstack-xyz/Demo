@@ -67,20 +67,18 @@ export function UserInfo({
   const commonNftCount = nfts?.length || 0;
   const poapsCount = poaps?.length || 0;
 
-  let social = user.socials?.find(social => social.profileImage);
-  if (!social) {
-    social = user.socials?.find(social => social.dappName === 'lens');
-  }
-
-  const blockchain =
-    social?.blockchain !== 'ethereum' && social?.blockchain !== 'polygon'
-      ? ''
-      : social?.blockchain;
-
   const address = user?.addresses?.[0] || '';
   const hasFarcasterFollow =
     follows?.followingOnFarcaster || follows?.followedOnFarcaster;
   const hasLensFollow = follows?.followingOnLens || follows?.followedOnLens;
+
+  const social = useMemo(() => {
+    const lens = user.socials?.find(social => social.dappName === 'lens');
+    const farcaster = user.socials?.find(
+      social => social.dappName === 'farcaster'
+    );
+    return farcaster?.profileImage ? farcaster : lens;
+  }, [user.socials]);
 
   const profileName = useMemo(() => {
     let lensUserName = '';
@@ -104,6 +102,11 @@ export function UserInfo({
     });
     return domain || lensUserName || farcasterUserName || address || '';
   }, [address, user.domains, user.socials]);
+
+  const blockchain =
+    social?.blockchain !== 'ethereum' && social?.blockchain !== 'polygon'
+      ? ''
+      : social?.blockchain;
 
   return (
     <>
