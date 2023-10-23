@@ -34,11 +34,17 @@ function TextWithIcon({
 
 function Loader() {
   return (
-    <div
-      className="flex items-center text-text-secondary h-5 mb-3"
-      data-loader-type="block"
-      data-loader-width="50"
-    ></div>
+    <div className="flex items-center mt-3">
+      <div
+        data-loader-type="block"
+        className="h-6 w-6 rounded-full mr-1.5"
+      ></div>
+      <div
+        className="flex items-center text-text-secondary h-5"
+        data-loader-type="block"
+        data-loader-width="75"
+      ></div>
+    </div>
   );
 }
 
@@ -70,6 +76,9 @@ export function UserInfo({
       : social?.blockchain;
 
   const address = user?.addresses?.[0] || '';
+  const hasFarcasterFollow =
+    follows?.followingOnFarcaster || follows?.followedOnFarcaster;
+  const hasLensFollow = follows?.followingOnLens || follows?.followedOnLens;
 
   return (
     <>
@@ -114,7 +123,7 @@ export function UserInfo({
         </div>
       </div>
       <div className="leading-loose p-5">
-        {tokenTransfers ? (
+        {tokenTransfers && (
           <TextWithIcon
             icon="token-sent"
             text={
@@ -127,10 +136,8 @@ export function UserInfo({
                 : ''
             }
           />
-        ) : (
-          loader
         )}
-        {commonNftCount > 0 ? (
+        {commonNftCount > 0 && (
           <div>
             <TextWithIcon
               icon="nft-common"
@@ -138,10 +145,8 @@ export function UserInfo({
             />
             {showDetails && <ListWithViewMore items={nfts} loading={loading} />}
           </div>
-        ) : (
-          loader
         )}
-        {poaps?.length ? (
+        {poaps?.length && (
           <>
             <TextWithIcon
               icon="poap-common"
@@ -152,10 +157,8 @@ export function UserInfo({
               <ListWithViewMore items={poaps} loading={loading} />
             )}
           </>
-        ) : (
-          loader
         )}
-        {follows?.followingOnFarcaster || follows?.followedOnFarcaster ? (
+        {hasFarcasterFollow && (
           <TextWithIcon
             icon="farcaster"
             text={
@@ -170,10 +173,8 @@ export function UserInfo({
             height={17}
             width={17}
           />
-        ) : (
-          loader
         )}
-        {follows?.followingOnLens || follows?.followedOnLens ? (
+        {hasLensFollow && (
           <TextWithIcon
             icon="lens"
             text={
@@ -186,9 +187,12 @@ export function UserInfo({
                 : ''
             }
           />
-        ) : (
-          loader
         )}
+        {!tokenTransfers && loader}
+        {commonNftCount === 0 && loader}
+        {!poaps?.length && loader}
+        {!hasFarcasterFollow && loader}
+        {!hasLensFollow && loader}
       </div>
     </>
   );
