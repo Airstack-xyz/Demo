@@ -44,6 +44,7 @@ import {
 } from '../../utils/activeTokenInfoString';
 import { AllFilters } from '../../Components/Filters/AllFilters';
 import { OnChainGraph } from './OnChainGraph';
+import { ScoreOverview } from './CommonScore/Overview';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -478,10 +479,13 @@ function TokenBalancePage() {
         />
       );
     }
-
     return (
       <div key={query} className="flex justify-between sm:px-5">
         <div className="w-full h-full">
+          <div className="hidden sm:block">
+            <SectionHeader iconName="nft-flat" heading="Overview" />
+            <ScoreOverview />
+          </div>
           <div className="hidden sm:block">
             <SectionHeader iconName="nft-flat" heading={tab1Header} />
           </div>
