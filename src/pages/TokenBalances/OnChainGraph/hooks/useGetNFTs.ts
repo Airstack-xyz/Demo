@@ -26,46 +26,48 @@ function formatData(
     const { addresses } = owner ?? {};
     const tokenNft = tokenNfts?.[0];
 
-    if (tokenNft) {
-      const existingUserIndex = recommendedUsers.findIndex(
-        ({ addresses: recommendedUsersAddresses }) =>
-          recommendedUsersAddresses?.some?.(address =>
-            addresses?.includes?.(address)
-          )
-      );
-      if (existingUserIndex !== -1) {
-        const _addresses =
-          recommendedUsers?.[existingUserIndex]?.addresses || [];
-        recommendedUsers[existingUserIndex].addresses = [
-          ..._addresses,
-          ...addresses
-        ]?.filter((address, index, array) => array.indexOf(address) === index);
-        const _nfts = recommendedUsers?.[existingUserIndex]?.nfts || [];
-        const nftExists = _nfts.some(nft => nft.address === address);
-        if (!nftExists) {
-          _nfts?.push({
+    if (!tokenNft) {
+      continue;
+    }
+
+    const existingUserIndex = recommendedUsers.findIndex(
+      ({ addresses: recommendedUsersAddresses }) =>
+        recommendedUsersAddresses?.some?.(address =>
+          addresses?.includes?.(address)
+        )
+    );
+
+    if (existingUserIndex !== -1) {
+      const _addresses = recommendedUsers?.[existingUserIndex]?.addresses || [];
+      recommendedUsers[existingUserIndex].addresses = [
+        ..._addresses,
+        ...addresses
+      ]?.filter((address, index, array) => array.indexOf(address) === index);
+      const _nfts = recommendedUsers?.[existingUserIndex]?.nfts || [];
+      const nftExists = _nfts.some(nft => nft.address === address);
+      if (!nftExists) {
+        _nfts?.push({
+          name,
+          image: logo?.small,
+          blockchain,
+          address,
+          tokenNfts: tokenNft
+        });
+      }
+      recommendedUsers[existingUserIndex].nfts = [..._nfts];
+    } else {
+      recommendedUsers.push({
+        ...owner,
+        nfts: [
+          {
             name,
             image: logo?.small,
             blockchain,
             address,
             tokenNfts: tokenNft
-          });
-        }
-        recommendedUsers[existingUserIndex].nfts = [..._nfts];
-      } else {
-        recommendedUsers.push({
-          ...owner,
-          nfts: [
-            {
-              name,
-              image: logo?.small,
-              blockchain,
-              address,
-              tokenNfts: tokenNft
-            }
-          ]
-        });
-      }
+          }
+        ]
+      });
     }
   }
   return recommendedUsers;

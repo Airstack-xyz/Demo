@@ -27,12 +27,14 @@ export function filterDuplicatedAndCalculateScore(
   );
   const recommendations: RecommendedUser[] = [];
   _recommendations.forEach(user => {
-    if (user.addresses?.some(address => identityMap[address])) {
-      return null;
+    if (
+      user.addresses?.some(address => identityMap[address]) ||
+      user.domains?.some(({ name }) => identityMap[name]) ||
+      user.addresses?.some(address => isBurnedAddress(address))
+    ) {
+      return;
     }
-    if (user.domains?.some(({ name }) => identityMap[name])) {
-      return null;
-    }
+
     let score = 0;
     if (user.follows?.followingOnLens) {
       score += scoreMap.followingOnLens;
@@ -52,12 +54,13 @@ export function filterDuplicatedAndCalculateScore(
     if (user.tokenTransfers?.received) {
       score += scoreMap.tokenReceived;
     }
+
     let uniqueNfts: RecommendedUser['nfts'] = [];
     if (user.nfts) {
       const existingNFT: Record<string, boolean> = {};
       uniqueNfts = user.nfts.filter(nft => {
         const key = `${nft.address}-${nft.tokenNfts?.tokenId}`;
-        if (existingNFT[key]) {
+        if (existingNFT[key] || isBurnedAddress(nft.address)) {
           return false;
         }
         existingNFT[key] = true;
@@ -135,4 +138,15 @@ export async function paginateRequest<D>(
     _hasNextPage = hasNextPage;
     _getNextPage = getNextPage;
   }
+}
+
+export function isBurnedAddress(address?: string) {
+  if (!address) {
+    return false;
+  }
+
+  return (
+    address === '0x0000000000000000000000000000000000000000' ||
+    address === '0x000000000000000000000000000000000000dEaD'
+  );
 }
