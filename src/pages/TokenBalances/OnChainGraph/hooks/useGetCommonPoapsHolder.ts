@@ -77,8 +77,8 @@ export function useGetCommonPoapsHolder(address: string) {
         if (requestCanceled.current) {
           return false;
         }
-        const poaps = data?.Poaps.Poap;
-        totalItemsCount.current += data?.Poaps?.Poap?.length ?? 0;
+        const poaps = data?.Poaps?.Poap || [];
+        totalItemsCount.current += poaps.length ?? 0;
         setData(recommendedUsers => formatData(poaps || [], recommendedUsers));
         const shouldFetchMore = totalItemsCount.current < MAX_ITEMS;
         if (shouldFetchMore) {
