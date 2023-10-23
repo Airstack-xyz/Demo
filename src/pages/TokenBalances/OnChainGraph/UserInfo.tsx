@@ -8,6 +8,7 @@ import { pluralize } from '../../../utils';
 import { useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { useInViewportOnce } from '../../../hooks/useInViewportOnce';
+import { Tooltip } from '../../../Components/Tooltip';
 
 function TextWithIcon({
   icon,
@@ -32,6 +33,17 @@ function TextWithIcon({
       </span>
       <span className="text-text-secondary ellipsis flex-1">{text}</span>
     </div>
+  );
+}
+
+function IconWithTooltip({ icon, text }: { icon: IconType; text: string }) {
+  return (
+    <Tooltip
+      contentClassName="py-1 px-3 rounded-md left-auto -right-[50px]"
+      content={<span>{text}</span>}
+    >
+      <Icon name={icon} />
+    </Tooltip>
   );
 }
 
@@ -84,7 +96,7 @@ export function Info({
     return farcaster?.profileImage ? farcaster : lens;
   }, [user.socials]);
 
-  const profileName = useMemo(() => {
+  const { lensUserName, farcasterUserName, domain } = useMemo(() => {
     let lensUserName = '';
     let farcasterUserName = '';
     user.socials?.forEach(social => {
@@ -104,8 +116,15 @@ export function Info({
         domain = name;
       }
     });
-    return domain || lensUserName || farcasterUserName || address || '';
-  }, [address, user.domains, user.socials]);
+    return {
+      lensUserName,
+      farcasterUserName,
+      domain
+    };
+  }, [user.domains, user.socials]);
+
+  const profileName =
+    domain || lensUserName || farcasterUserName || address || '';
 
   const blockchain =
     social?.blockchain !== 'ethereum' && social?.blockchain !== 'polygon'
@@ -140,16 +159,20 @@ export function Info({
             <span className="mr-1 ellipsis">{address}</span>
             <CopyButton value={address} />
           </div>
-          <div className="flex items-center [&>img]:mr-3">
-            {user.xmtp && <Icon name="xmtp-grey" />}
-            {user.domains && <Icon name="ens-grey" />}
-            {user.socials?.find(({ dappName }) => dappName === 'lens') && (
-              <Icon name="lens-grey" />
-            )}
-            {user.socials?.find(({ dappName }) => dappName === 'farcaster') && (
-              <Icon name="farcaster-grey" />
-            )}
-          </div>
+        </div>
+      </div>
+      <div className="relative">
+        <div className="flex items-center [&>span]:mr-3 absolute left-[78px] ml-4 px-5 bottom-5">
+          {user.xmtp && (
+            <IconWithTooltip icon="xmtp-grey" text="xmtp enabled" />
+          )}
+          {domain && <IconWithTooltip icon="ens-grey" text={domain} />}
+          {lensUserName && (
+            <IconWithTooltip icon="lens-grey" text={lensUserName} />
+          )}
+          {farcasterUserName && (
+            <IconWithTooltip icon="farcaster-grey" text={farcasterUserName} />
+          )}
         </div>
       </div>
       <div className="leading-loose p-5">
