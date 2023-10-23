@@ -14,10 +14,25 @@ export function getDefaultScoreMap(): ScoreMap {
 }
 
 export function filterDuplicatedAndCalculateScore(
-  recommendations: RecommendedUser[],
-  scoreMap: ScoreMap = getDefaultScoreMap()
+  _recommendations: RecommendedUser[],
+  scoreMap: ScoreMap = getDefaultScoreMap(),
+  identities: string[]
 ) {
-  return recommendations.map(user => {
+  const identityMap = identities.reduce(
+    (acc: Record<string, boolean>, identity) => {
+      acc[identity] = true;
+      return acc;
+    },
+    {}
+  );
+  const recommendations: RecommendedUser[] = [];
+  _recommendations.forEach(user => {
+    if (user.addresses?.some(address => identityMap[address])) {
+      return null;
+    }
+    if (user.domains?.some(({ name }) => identityMap[name])) {
+      return null;
+    }
     let score = 0;
     if (user.follows?.followingOnLens) {
       score += scoreMap.followingOnLens;
@@ -74,13 +89,14 @@ export function filterDuplicatedAndCalculateScore(
       score += scoreMap.commonPoaps * user.poaps.length;
     }
 
-    return {
+    recommendations.push({
       ...user,
       poaps: uniquePoaps,
       nfts: uniqueNfts,
       _score: score
-    };
+    });
   });
+  return recommendations;
 }
 
 export function sortByScore(recommendations: RecommendedUser[]) {
