@@ -118,14 +118,16 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
 export const MentionsQuery = `
   query SearchAIMentions($input: SearchAIMentionsInput!) {
     SearchAIMentions(input: $input) {
-      type
-      name
-      address
-      eventId
-      blockchain
-      thumbnailURL
-      metadata {
-        tokenMints
+      results {
+        type
+        name
+        address
+        eventId
+        blockchain
+        thumbnailURL
+        metadata {
+          tokenMints
+        }
       }
     }
   }
