@@ -54,10 +54,14 @@ export function useGetSocialFollowings(
   address: string,
   dappName: 'farcaster' | 'lens' = 'farcaster'
 ) {
+  const requestCanceled = useRef(false);
   const totalItemsCount = useRef(0);
   const { setData, setTotalScannedDocuments } = useOnChainGraphData();
 
   const fetchData = useCallback(async () => {
+    if (requestCanceled.current) {
+      return;
+    }
     const request = fetchQueryWithPagination<SocialQueryResponse>(
       socialFollowingsQuery,
       {
@@ -70,6 +74,9 @@ export function useGetSocialFollowings(
     );
     setTotalScannedDocuments(count => count + QUERY_LIMIT);
     await paginateRequest(request, async data => {
+      if (requestCanceled.current) {
+        return false;
+      }
       const followings =
         data?.SocialFollowings.Following.map(
           following => following.followingAddress
@@ -86,5 +93,9 @@ export function useGetSocialFollowings(
     });
   }, [address, dappName, setData, setTotalScannedDocuments]);
 
-  return [fetchData] as const;
+  const cancelRequest = useCallback(() => {
+    requestCanceled.current = true;
+  }, []);
+
+  return [fetchData, cancelRequest] as const;
 }

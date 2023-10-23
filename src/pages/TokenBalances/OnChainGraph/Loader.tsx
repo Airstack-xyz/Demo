@@ -1,12 +1,10 @@
-import classNames from 'classnames';
-
 type LoaderProps = {
   total: number;
   matching: number;
-  tokenName?: string;
   scanCompleted?: boolean;
   onSortByScore?: () => void;
   onCloseLoader: () => void;
+  onCancelScan?: () => void;
 };
 function Loading() {
   return (
@@ -25,62 +23,75 @@ function LoadingCompleted() {
   );
 }
 
+const TextWithLoader = ({
+  text,
+  loading
+}: {
+  text: string;
+  loading: boolean;
+}) => {
+  return (
+    <div className="flex items-center mb-3">
+      {loading ? <Loading /> : <LoadingCompleted />}
+      <span className="ellipsis">{text}</span>
+    </div>
+  );
+};
+
 export function Loader({
   total,
   matching,
-  tokenName = 'records',
   scanCompleted,
   onSortByScore,
-  onCloseLoader
+  onCloseLoader,
+  onCancelScan
 }: LoaderProps) {
   return (
     <div
       className="fixed left-0 right-0 bottom-10  flex justify-center items-end z-[25]"
       onClick={() => !matching && onCloseLoader?.()}
     >
-      <div className="bg-glass rounded-18 p-9 border-solid-stroke max-w-[90%] sm:max-w-[500px]">
-        <div className="flex items-center">
-          {scanCompleted ? <LoadingCompleted /> : <Loading />}
-          <span className="ellipsis">
-            Scanning {total} {tokenName}
-          </span>
-        </div>
-        <div
-          className={classNames('flex items-center ellipsis my-4', {
-            'text-text-secondary': !matching
-          })}
-        >
-          {scanCompleted ? <LoadingCompleted /> : <Loading />}
-          <span>
-            {matching ? 'Found' : 'Find'} {matching} matching results
-          </span>
-        </div>
-        <div
-          className={classNames('flex items-center ellipsis', {
-            'text-text-secondary': !matching
-          })}
-        >
+      <div className="bg-glass rounded-18 p-6 border-solid-stroke max-w-[90%] sm:max-w-[500px]">
+        <TextWithLoader
+          loading={!scanCompleted}
+          text={
+            scanCompleted
+              ? `Scanned ${total} records`
+              : `Scanning ${total} onchain records`
+          }
+        />
+
+        <TextWithLoader
+          loading={!scanCompleted}
+          text={
+            scanCompleted
+              ? `Found ${matching} onchain connections`
+              : `Analyzing ${total} onchain interactions`
+          }
+        />
+
+        <TextWithLoader
+          loading={!scanCompleted}
+          text={scanCompleted ? 'Scan complete' : 'Scoring onchain connections'}
+        />
+
+        <div className="flex items-center ellipsis">
           {scanCompleted ? (
-            <LoadingCompleted />
+            <button
+              className="bg-white rounded-18 text-primary px-2.5 py-1 font-medium mt-1 text-xs"
+              onClick={() => {
+                onSortByScore?.();
+              }}
+            >
+              Sort by score
+            </button>
           ) : (
-            <span className="grayscale">
-              <Loading />
-            </span>
-          )}
-          {scanCompleted ? (
-            <span>
-              Scan complete{' '}
-              <button
-                className="bg-white rounded-18 text-primary px-2.5 py-1 font-medium ml-5"
-                onClick={() => {
-                  onSortByScore?.();
-                }}
-              >
-                Sort by score
-              </button>
-            </span>
-          ) : (
-            <span>Waiting for scanning to complete to sort based on score</span>
+            <button
+              onClick={() => onCancelScan?.()}
+              className="text-text-button font-medium"
+            >
+              Stop scanning
+            </button>
           )}
         </div>
       </div>

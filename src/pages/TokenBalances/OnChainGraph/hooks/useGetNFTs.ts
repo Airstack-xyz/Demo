@@ -3,7 +3,7 @@ import {
   nftAddressesQuery,
   nftQuery
 } from '../../../../queries/onChainGraph/nft';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef } from 'react';
 import { NFTQueryResponse, TokenBalance } from '../types/nft';
 import { FetchPaginatedQueryReturnType } from '@airstack/airstack-react/types';
 import { MAX_ITEMS, QUERY_LIMIT, nftsToIgnore } from '../constants';
@@ -76,14 +76,17 @@ function formatData(
 export function useGetNFTs(
   address: string,
   blockchain: 'ethereum' | 'polygon' = 'ethereum'
-): [() => Promise<void>, boolean] {
+) {
+  const requestCanceled = useRef(false);
   const { setData, setTotalScannedDocuments } = useOnChainGraphData();
   const totalItemsCount = useRef(0);
-  const [loading, setLoading] = useState(false);
 
   const handleRequests = useCallback(
     async (requests: FetchPaginatedQueryReturnType<NFTQueryResponse>[]) => {
       await Promise.all(requests).then(responses => {
+        if (requestCanceled.current) {
+          return;
+        }
         const data = responses.reduce((acc: TokenBalance[], response) => {
           return [
             ...acc,
@@ -95,7 +98,6 @@ export function useGetNFTs(
           formatData(data, recommendedUsers, blockchain)
         );
         if (totalItemsCount.current >= MAX_ITEMS) {
-          setLoading(false);
           return;
         }
         const newRequests: FetchPaginatedQueryReturnType<NFTQueryResponse>[] =
@@ -112,8 +114,6 @@ export function useGetNFTs(
             count => count + newRequests.length * QUERY_LIMIT
           );
           return handleRequests(newRequests);
-        } else {
-          setLoading(false);
         }
       });
     },
@@ -122,7 +122,6 @@ export function useGetNFTs(
 
   const fetchNFT = useCallback(
     (addresses: string[]) => {
-      setLoading(true);
       setTotalScannedDocuments(count => count + addresses.length * QUERY_LIMIT);
       const requests = [];
       // remove addresses that we don't want to fetch nfts for
@@ -149,6 +148,9 @@ export function useGetNFTs(
   );
 
   const fetchData = useCallback(async () => {
+    if (requestCanceled.current) {
+      return;
+    }
     const request = fetchQueryWithPagination<NFTQueryResponse>(
       nftAddressesQuery,
       {
@@ -161,6 +163,9 @@ export function useGetNFTs(
     );
     setTotalScannedDocuments(count => count + QUERY_LIMIT);
     await paginateRequest(request, async data => {
+      if (requestCanceled.current) {
+        return false;
+      }
       const tokenAddresses = data?.TokenBalances.TokenBalance.map(
         token => token.tokenAddress
       );
@@ -173,5 +178,9 @@ export function useGetNFTs(
     });
   }, [address, blockchain, fetchNFT, setTotalScannedDocuments]);
 
-  return [fetchData, loading];
+  const cancelRequest = useCallback(() => {
+    requestCanceled.current = true;
+  }, []);
+
+  return [fetchData, cancelRequest] as const;
 }

@@ -61,10 +61,14 @@ export function useTokenTransfer(
   address: string,
   transferType: 'sent' | 'received' = 'sent'
 ) {
+  const requestCanceled = useRef(false);
   const { setData, setTotalScannedDocuments } = useOnChainGraphData();
   const totalItemsCount = useRef(0);
 
   const fetchData = useCallback(async () => {
+    if (requestCanceled.current) {
+      return false;
+    }
     const request = fetchQueryWithPagination<TokenQueryResponse>(
       transferType === 'sent' ? tokenSentQuery : tokenReceivedQuery,
       {
@@ -76,6 +80,9 @@ export function useTokenTransfer(
     );
     setTotalScannedDocuments(count => count + QUERY_LIMIT);
     await paginateRequest(request, async data => {
+      if (requestCanceled.current) {
+        return false;
+      }
       const ethData = (data?.Ethereum?.TokenTransfer ?? []).map(
         transfer => transfer.account
       );
@@ -97,5 +104,9 @@ export function useTokenTransfer(
     });
   }, [address, setData, setTotalScannedDocuments, transferType]);
 
-  return [fetchData] as const;
+  const cancelRequest = useCallback(() => {
+    requestCanceled.current = true;
+  }, []);
+
+  return [fetchData, cancelRequest] as const;
 }

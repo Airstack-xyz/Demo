@@ -51,11 +51,15 @@ function formatData(
 }
 
 export function useGetCommonPoapsHolder(address: string) {
+  const requestCanceled = useRef(false);
   const { setData, setTotalScannedDocuments } = useOnChainGraphData();
   const totalItemsCount = useRef(0);
 
   const fetchPoapData = useCallback(
     async (eventIds: string[]) => {
+      if (requestCanceled.current) {
+        return;
+      }
       const request = fetchQueryWithPagination<PoapsByEventIdsQueryResponse>(
         poapsByEventIdsQuery,
         {
@@ -68,6 +72,9 @@ export function useGetCommonPoapsHolder(address: string) {
       );
       setTotalScannedDocuments(count => count + QUERY_LIMIT);
       await paginateRequest(request, async data => {
+        if (requestCanceled.current) {
+          return false;
+        }
         const poaps = data?.Poaps.Poap;
         totalItemsCount.current += data?.Poaps?.Poap?.length ?? 0;
         setData(recommendedUsers => formatData(poaps || [], recommendedUsers));
@@ -82,6 +89,9 @@ export function useGetCommonPoapsHolder(address: string) {
   );
 
   const fetchData = useCallback(async () => {
+    if (requestCanceled.current) {
+      return;
+    }
     const request = fetchQueryWithPagination<UserPoapsEventIdsQueryResponse>(
       userPoapsEventIdsQuery,
       {
@@ -93,6 +103,9 @@ export function useGetCommonPoapsHolder(address: string) {
     );
     setTotalScannedDocuments(count => count + QUERY_LIMIT);
     await paginateRequest(request, async data => {
+      if (requestCanceled.current) {
+        return false;
+      }
       const eventIds = data?.Poaps.Poap.map(poap => poap.eventId) ?? [];
       await await fetchPoapData(eventIds);
       const shouldFetchMore = totalItemsCount.current < MAX_ITEMS;
@@ -103,5 +116,9 @@ export function useGetCommonPoapsHolder(address: string) {
     });
   }, [address, fetchPoapData, setTotalScannedDocuments]);
 
-  return [fetchData] as const;
+  const cancelRequest = useCallback(() => {
+    requestCanceled.current = true;
+  }, []);
+
+  return [fetchData, cancelRequest] as const;
 }

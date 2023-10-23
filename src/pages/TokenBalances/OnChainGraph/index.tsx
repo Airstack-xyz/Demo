@@ -54,7 +54,7 @@ export function OnChainGraphComponent() {
   } = useOnChainGraphData();
   const [showGridView, setShowGridView] = useState(true);
   const [loading, setLoading] = useState(true);
-  const [scanning] = useGetOnChainData(identities[0]);
+  const [scanning, cancelScan] = useGetOnChainData(identities[0]);
 
   return (
     <div className="max-w-[950px] mx-auto w-full text-sm pt-10 sm:pt-5">
@@ -95,6 +95,10 @@ export function OnChainGraphComponent() {
             setLoading(false);
           }}
           onCloseLoader={() => {
+            setLoading(false);
+          }}
+          onCancelScan={() => {
+            cancelScan();
             setLoading(false);
           }}
         />
