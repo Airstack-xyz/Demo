@@ -4,7 +4,7 @@ import {
   userPoapsEventIdsQuery
 } from '../../../../queries/onChainGraph/commonPoaps';
 import { useCallback, useRef } from 'react';
-import { MAX_ITEMS, QUERY_LIMIT } from '../constants';
+import { QUERY_LIMIT } from '../constants';
 import {
   Poap,
   PoapsByEventIdsQueryResponse,
@@ -13,6 +13,8 @@ import {
 import { RecommendedUser } from '../types';
 import { useOnChainGraphData } from './useOnChainGraphData';
 import { paginateRequest } from '../utils';
+
+const MAX_ITEMS = Infinity;
 
 function formatData(
   poaps: Poap[],
@@ -106,7 +108,10 @@ export function useGetCommonPoapsHolder(address: string) {
       if (requestCanceled.current) {
         return false;
       }
-      const eventIds = data?.Poaps.Poap.map(poap => poap.eventId) ?? [];
+      const eventIds =
+        data?.Poaps.Poap.filter(poap => !poap?.poapEvent?.isVirtualEvent).map(
+          poap => poap?.eventId
+        ) ?? [];
       await await fetchPoapData(eventIds);
       const shouldFetchMore = totalItemsCount.current < MAX_ITEMS;
       if (shouldFetchMore) {

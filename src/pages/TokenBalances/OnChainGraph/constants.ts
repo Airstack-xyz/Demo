@@ -20,7 +20,7 @@ export const defaultScoreMap = {
   followingOnFarcaster: 5,
   commonPoaps: 7,
   commonEthNfts: 5,
-  commonPolygonNfts: 1
+  commonPolygonNfts: 0
 };
 export type ScoreMap = typeof defaultScoreMap;
 

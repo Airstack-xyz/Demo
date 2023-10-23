@@ -1,7 +1,10 @@
 export const userPoapsEventIdsQuery = `query UserPoapsEventIds($user: Identity!) {
-    Poaps(input: {filter: {owner: {_eq: $user}}, blockchain: ALL, limit: 200}) {
+    Poaps(input: {filter: {owner: {_eq: $user}}, blockchain: ALL, limit: 200, order: {createdAtBlockNumber: DESC }}) {
       Poap {
         eventId
+        poapEvent {
+          isVirtualEvent
+        }
       }
     }
   }`;

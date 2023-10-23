@@ -144,9 +144,9 @@ export function isBurnedAddress(address?: string) {
   if (!address) {
     return false;
   }
-
+  address = address.toLowerCase();
   return (
     address === '0x0000000000000000000000000000000000000000' ||
-    address === '0x000000000000000000000000000000000000dEaD'
+    address === '0x000000000000000000000000000000000000dead'
   );
 }

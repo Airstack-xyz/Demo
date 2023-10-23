@@ -8,6 +8,9 @@ export interface UserPoapsEventIdsQueryResponse {
   Poaps: {
     Poap: {
       eventId: string;
+      poapEvent: {
+        isVirtualEvent: boolean;
+      };
     }[];
   };
 }

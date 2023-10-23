@@ -6,12 +6,13 @@ import {
 import { useCallback, useRef } from 'react';
 import { NFTQueryResponse, TokenBalance } from '../types/nft';
 import { FetchPaginatedQueryReturnType } from '@airstack/airstack-react/types';
-import { MAX_ITEMS, QUERY_LIMIT, nftsToIgnore } from '../constants';
+import { QUERY_LIMIT, nftsToIgnore } from '../constants';
 import { RecommendedUser } from '../types';
 import { useOnChainGraphData } from './useOnChainGraphData';
 import { paginateRequest } from '../utils';
 
 const maxAddressPerQuery = 100;
+const MAX_ITEMS = 10000;
 
 function formatData(
   data: TokenBalance[],

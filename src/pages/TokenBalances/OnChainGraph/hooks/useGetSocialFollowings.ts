@@ -2,10 +2,12 @@ import { fetchQueryWithPagination } from '@airstack/airstack-react';
 import { socialFollowingsQuery } from '../../../../queries/onChainGraph/followings';
 import { FollowingAddress, SocialQueryResponse } from '../types/social';
 import { useCallback, useRef } from 'react';
-import { MAX_ITEMS, QUERY_LIMIT } from '../constants';
+import { QUERY_LIMIT } from '../constants';
 import { RecommendedUser } from '../types';
 import { useOnChainGraphData } from './useOnChainGraphData';
 import { paginateRequest } from '../utils';
+
+const MAX_ITEMS = 10000;
 
 function formatData(
   followings: FollowingAddress[],
