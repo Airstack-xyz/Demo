@@ -35,3 +35,41 @@ export const socialFollowingsQuery = `query Followings($user: Identity!, $dappNa
       }
     }
   }`;
+
+export const socialFollowersQuery = `query Followers($user: Identity!, $dappName: SocialDappName) {
+  SocialFollowers(
+    input: {filter: {identity: {_eq: $user}, dappName: {_eq: $dappName}}, blockchain: ALL, limit: 200}
+  ) {
+    Follower {
+      followerAddress {
+        addresses
+        domains {
+          name
+          isPrimary
+        }
+        socials {
+          dappName
+          blockchain
+          profileName
+          profileImage
+          profileTokenId
+          profileTokenAddress
+        }
+        xmtp {
+          isXMTPEnabled
+        }
+        mutualFollower: socialFollowings(
+          input: {filter: {identity: {_eq: $user}, dappName: {_eq: $dappName}}}
+        ) {
+          Following {
+            followerAddress {
+              socials {
+                profileName
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}`;

@@ -3,19 +3,23 @@ import { useGetCommonPoapsHolder } from './useGetCommonPoapsHolder';
 import { useGetSocialFollowings } from './useGetSocialFollowings';
 import { useGetNFTs } from './useGetNFTs';
 import { useTokenTransfer } from './useTokenTransfer';
+import { useGetSocialFollowers } from './useGetSocialFollowers';
 
 export function useGetOnChainData(address: string) {
   const loadingRef = useRef(false);
   const [loading, setLoading] = useState(false);
   const [fetchPoapsData, cancelPoapRequests] = useGetCommonPoapsHolder(address);
-  const [fetchFarcasterData, cancelFarcasterRequest] = useGetSocialFollowings(
-    address,
-    'farcaster'
-  );
-  const [fetchLensData, cancelLensRequest] = useGetSocialFollowings(
-    address,
-    'lens'
-  );
+
+  const [fetchFarcasterFollowings, cancelFarcasterFollowingRequest] =
+    useGetSocialFollowings(address, 'farcaster');
+  const [fetchLensFollowings, cancelLensFollowingsRequest] =
+    useGetSocialFollowings(address, 'lens');
+
+  const [fetchFarcasterFollowers, cancelFarcasterFollowersRequest] =
+    useGetSocialFollowers(address, 'farcaster');
+  const [fetchLensFollowers, cancelLensFollowersRequest] =
+    useGetSocialFollowers(address, 'lens');
+
   const [fetchEthNft, cancelEthRequest] = useGetNFTs(address, 'ethereum');
   const [fetchPolygonNft, cancelPolygonRequest] = useGetNFTs(
     address,
@@ -33,8 +37,10 @@ export function useGetOnChainData(address: string) {
       loadingRef.current = true;
       setLoading(true);
       await fetchPoapsData();
-      await fetchFarcasterData();
-      await fetchLensData();
+      await fetchFarcasterFollowings();
+      await fetchLensFollowings();
+      await fetchFarcasterFollowers();
+      await fetchLensFollowers();
       await fetchEthNft();
       await fetchPolygonNft();
       await fetchTokenSent();
@@ -45,8 +51,10 @@ export function useGetOnChainData(address: string) {
     fetchData();
   }, [
     fetchEthNft,
-    fetchFarcasterData,
-    fetchLensData,
+    fetchFarcasterFollowers,
+    fetchFarcasterFollowings,
+    fetchLensFollowers,
+    fetchLensFollowings,
     fetchPoapsData,
     fetchPolygonNft,
     fetchTokenReceived,
@@ -55,8 +63,10 @@ export function useGetOnChainData(address: string) {
 
   const cancelRequests = useCallback(() => {
     cancelPoapRequests();
-    cancelFarcasterRequest();
-    cancelLensRequest();
+    cancelFarcasterFollowingRequest();
+    cancelLensFollowingsRequest();
+    cancelFarcasterFollowersRequest();
+    cancelLensFollowersRequest();
     cancelEthRequest();
     cancelPolygonRequest();
     cancelSentRequest();
@@ -65,8 +75,10 @@ export function useGetOnChainData(address: string) {
     loadingRef.current = false;
   }, [
     cancelEthRequest,
-    cancelFarcasterRequest,
-    cancelLensRequest,
+    cancelFarcasterFollowersRequest,
+    cancelFarcasterFollowingRequest,
+    cancelLensFollowersRequest,
+    cancelLensFollowingsRequest,
     cancelPoapRequests,
     cancelPolygonRequest,
     cancelReceivedRequest,

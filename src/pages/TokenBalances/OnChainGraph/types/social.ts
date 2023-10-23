@@ -2,12 +2,18 @@ import { Domain, Social } from '../types';
 
 export interface SocialQueryResponse {
   SocialFollowings: SocialFollowings;
+  SocialFollowers: SocialFollowers;
 }
 
 export interface SocialFollowings {
   Following: Following[];
 }
 
+export interface SocialFollowers {
+  Follower: {
+    followerAddress: FollowingAddress;
+  }[];
+}
 export interface Following {
   followingAddress: FollowingAddress;
 }
@@ -25,6 +31,18 @@ export interface Xmtp {
 }
 
 export interface MutualFollower {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Follower: any;
+  Follower: {
+    followerAddress: {
+      socials: {
+        profileName: string;
+      }[];
+    };
+  }[];
+  Following: {
+    followingAddress: {
+      socials: {
+        profileName: string;
+      }[];
+    };
+  }[];
 }

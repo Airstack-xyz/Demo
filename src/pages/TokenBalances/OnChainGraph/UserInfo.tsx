@@ -215,7 +215,7 @@ export function Info({
           <TextWithIcon
             icon="farcaster"
             text={
-              follows?.followedOnFarcaster && follows?.followedOnFarcaster
+              follows?.followedOnFarcaster && follows?.followingOnFarcaster
                 ? 'Farcaster mutual follow'
                 : follows?.followingOnFarcaster
                 ? `Farcaster followed by ${identity}`
@@ -231,7 +231,7 @@ export function Info({
           <TextWithIcon
             icon="lens"
             text={
-              follows?.followingOnLens && follows?.followedOnLens
+              follows?.followedOnLens && follows?.followingOnLens
                 ? 'Lens mutual follow'
                 : follows?.followingOnLens
                 ? `Lens followed by ${identity}`
