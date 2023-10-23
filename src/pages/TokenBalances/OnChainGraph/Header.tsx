@@ -5,17 +5,20 @@ import { Dropdown } from '../../../Components/Dropdown';
 import { SCORE_KEY, ScoreMap, scoreOptions, maxScore } from './constants';
 import { useState } from 'react';
 import { getDefaultScoreMap } from './utils';
+import { Tooltip } from '../../../Components/Tooltip';
 
 export function Header({
   showGridView,
   setShowGridView,
   identities,
-  onApplyScore
+  onApplyScore,
+  loading
 }: {
   showGridView: boolean;
   setShowGridView: (show: boolean) => void;
   identities: string[];
   onApplyScore: (score: ScoreMap) => void;
+  loading?: boolean;
 }) {
   const [score, setScore] = useState<ScoreMap>(getDefaultScoreMap);
   const setSearchInputData = useSearchInput()[1];
@@ -66,85 +69,98 @@ export function Header({
           <span className="text-text-primary">OnChain Graph</span>
         </div>
       </div>
-      <div className="flex items-center">
-        <span className="inline-flex items-center bg-glass-1 rounded-full">
-          <button
-            onClick={() => setShowGridView(true)}
-            className={classNames('py-1 px-2.5', {
-              'bg-glass border-solid-stroke rounded-full': showGridView
-            })}
-          >
-            <Icon name="grid-view" />
-          </button>
-          <button
-            onClick={() => setShowGridView(false)}
-            className={classNames('py-1 px-2.5', {
-              'bg-glass border-solid-stroke rounded-full': !showGridView
-            })}
-          >
-            <Icon name="list-view" />
-          </button>
-        </span>
-        <Dropdown
-          options={scoreOptions}
-          renderPlaceholder={() => (
-            <button className="bg-glass-1 border-solid-stroke rounded-full flex items-center py-1.5 px-2.5 ml-3">
-              <Icon name="bullseye" width={12} height={12} className="mr-1" />
-              Scoring
+      <Tooltip
+        disabled={!loading}
+        contentClassName="py-2 px-3 bg-secondary mt-3"
+        content={<div>please wait for scanning to complete</div>}
+      >
+        <div className="flex items-center">
+          <span className="inline-flex items-center bg-glass-1 rounded-full">
+            <button
+              disabled={loading}
+              onClick={() => setShowGridView(true)}
+              className={classNames('py-1 px-2.5 disabled:cursor-not-allowed', {
+                'bg-glass border-solid-stroke rounded-full': showGridView
+              })}
+            >
+              <Icon name="grid-view" />
             </button>
-          )}
-          closeOnSelect={false}
-          onChange={() => {
-            // do nothing
-          }}
-          footerComponent={
-            <div className="flex p-4">
+            <button
+              disabled={loading}
+              onClick={() => setShowGridView(false)}
+              className={classNames('py-1 px-2.5 disabled:cursor-not-allowed', {
+                'bg-glass border-solid-stroke rounded-full': !showGridView
+              })}
+            >
+              <Icon name="list-view" />
+            </button>
+          </span>
+          <Dropdown
+            disabled={loading}
+            options={scoreOptions}
+            optionsContainerClassName="left-auto right-0"
+            renderPlaceholder={() => (
               <button
-                className="flex bg-button-primary py-2 px-3 rounded-18 mr-4"
-                onClick={() => {
-                  onApplyScore(score);
-                }}
+                disabled={loading}
+                className="bg-glass-1 border-solid-stroke rounded-full flex items-center py-1.5 px-2.5 ml-3 disabled:cursor-not-allowed"
               >
-                Apply
+                <Icon name="bullseye" width={12} height={12} className="mr-1" />
+                Scoring
               </button>
-              <button>Close</button>
-            </div>
-          }
-          renderOption={({ option }) => (
-            <>
-              {option.label === scoreOptions[0].label && (
-                <div className="bg-glass px-4 py-4 -mt-1 -mx-1 rounded-t-18 flex items-center justify-between">
-                  <span>Criteria</span>
-                  <span>Score</span>
-                </div>
-              )}
-              <div
-                className="min-w-[313px] flex items-center justify-between p-4"
-                onClick={e => e.stopPropagation()}
-              >
-                <span>{option.label}</span>
-                <span className="flex">
-                  <button
-                    className="h-[14px] w-[14px] rounded-full bg-text-secondary flex items-center justify-center text-secondary"
-                    onClick={getScoreHandler(-1, option.value)}
-                  >
-                    -
-                  </button>
-                  <span className="mx-2 text-xs w-4 text-center">
-                    {score[option.value]}
-                  </span>
-                  <button
-                    className="h-[14px] w-[14px] rounded-full bg-text-secondary flex items-center justify-center text-secondary"
-                    onClick={getScoreHandler(1, option.value)}
-                  >
-                    +
-                  </button>
-                </span>
+            )}
+            closeOnSelect={false}
+            onChange={() => {
+              // do nothing
+            }}
+            footerComponent={
+              <div className="flex p-4">
+                <button
+                  className="flex bg-button-primary py-2 px-3 rounded-18 mr-4"
+                  onClick={() => {
+                    onApplyScore(score);
+                  }}
+                >
+                  Apply
+                </button>
+                <button>Close</button>
               </div>
-            </>
-          )}
-        ></Dropdown>
-      </div>
+            }
+            renderOption={({ option }) => (
+              <>
+                {option.label === scoreOptions[0].label && (
+                  <div className="bg-glass px-4 py-4 -mt-1 -mx-1 rounded-t-18 flex items-center justify-between">
+                    <span>Criteria</span>
+                    <span>Score</span>
+                  </div>
+                )}
+                <div
+                  className="min-w-[313px] flex items-center justify-between p-4"
+                  onClick={e => e.stopPropagation()}
+                >
+                  <span>{option.label}</span>
+                  <span className="flex">
+                    <button
+                      className="h-[14px] w-[14px] rounded-full bg-text-secondary flex items-center justify-center text-secondary"
+                      onClick={getScoreHandler(-1, option.value)}
+                    >
+                      -
+                    </button>
+                    <span className="mx-2 text-xs w-4 text-center">
+                      {score[option.value]}
+                    </span>
+                    <button
+                      className="h-[14px] w-[14px] rounded-full bg-text-secondary flex items-center justify-center text-secondary"
+                      onClick={getScoreHandler(1, option.value)}
+                    >
+                      +
+                    </button>
+                  </span>
+                </div>
+              </>
+            )}
+          ></Dropdown>
+        </div>
+      </Tooltip>
     </div>
   );
 }

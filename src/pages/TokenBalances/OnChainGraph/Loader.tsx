@@ -35,7 +35,7 @@ export function Loader({
 }: LoaderProps) {
   return (
     <div
-      className="fixed inset-5 sm:inset-10 flex justify-center items-end z-[25]"
+      className="fixed left-0 right-0 bottom-10  flex justify-center items-end z-[25]"
       onClick={() => !matching && onCloseLoader?.()}
     >
       <div className="bg-glass rounded-18 p-9 border-solid-stroke max-w-[90%] sm:max-w-[500px]">

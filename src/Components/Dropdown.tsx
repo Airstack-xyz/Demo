@@ -1,5 +1,6 @@
 import { ReactNode, useCallback, useState } from 'react';
 import { useOutsideClick } from '../hooks/useOutsideClick';
+import classnames from 'classnames';
 
 export type Option = {
   label: string;
@@ -15,11 +16,13 @@ export function Dropdown<T extends Option = Option>({
   onChange,
   disabled,
   heading,
-  footerComponent
+  footerComponent,
+  optionsContainerClassName
 }: {
   options: T[];
   selected?: T[];
   closeOnSelect?: boolean;
+  optionsContainerClassName?: string;
   renderPlaceholder: (option: T[], isOpen: boolean) => ReactNode;
   renderOption: (params: {
     option: T;
@@ -62,7 +65,10 @@ export function Dropdown<T extends Option = Option>({
       </div>
       {show && (
         <div
-          className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute z-20 min-w-[110%] left-0 top-full"
+          className={classnames(
+            'bg-glass rounded-18 p-1 mt-1 flex flex-col absolute z-20 min-w-[110%] left-0 top-full',
+            optionsContainerClassName
+          )}
           onClick={() => setShow(false)}
         >
           {!!heading && (

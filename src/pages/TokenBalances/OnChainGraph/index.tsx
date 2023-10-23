@@ -59,6 +59,7 @@ export function OnChainGraphComponent() {
   return (
     <div className="max-w-[950px] mx-auto w-full text-sm pt-10 sm:pt-5">
       <Header
+        loading={loading}
         identities={identities}
         showGridView={showGridView}
         setShowGridView={setShowGridView}
