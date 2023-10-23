@@ -13,6 +13,10 @@ function formatData(
   dappName: 'farcaster' | 'lens' = 'farcaster'
 ): RecommendedUser[] {
   const recommendedUsers: RecommendedUser[] = [...exitingUser];
+  const followingKey =
+    dappName === 'farcaster' ? 'followingOnFarcaster' : 'followingOnLens';
+  const followedOnKey =
+    dappName === 'farcaster' ? 'followedOnFarcaster' : 'followedOnLens';
   for (const following of followings) {
     const existingUserIndex = recommendedUsers.findIndex(
       ({ addresses: recommendedUsersAddresses }) =>
@@ -20,10 +24,6 @@ function formatData(
           following.addresses?.includes?.(address)
         )
     );
-    const followingKey =
-      dappName === 'farcaster' ? 'followingOnFarcaster' : 'followingOnLens';
-    const followedOnKey =
-      dappName === 'farcaster' ? 'followedOnFarcaster' : 'followedOnLens';
 
     const followsBack = Boolean(following?.mutualFollower?.Follower?.[0]);
     if (existingUserIndex !== -1) {
@@ -41,8 +41,8 @@ function formatData(
       recommendedUsers.push({
         ...following,
         follows: {
-          followingOnLens: true,
-          followedOnLens: followsBack
+          [followingKey]: true,
+          [followedOnKey]: followsBack
         }
       });
     }

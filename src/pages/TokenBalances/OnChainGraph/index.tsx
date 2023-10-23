@@ -1,5 +1,5 @@
 import { useSearchInput } from '../../../hooks/useSearchInput';
-import { useState } from 'react';
+import { ComponentProps, useRef, useState } from 'react';
 import { UserInfo } from './UserInfo';
 import classNames from 'classnames';
 import { Header } from './Header';
@@ -7,17 +7,41 @@ import { Loader } from './Loader';
 import { useOnChainGraphData } from './hooks/useOnChainGraphData';
 import { OnChainGraphDataContextProvider } from './context/OnChainGraphDataContext';
 import { useGetOnChainData } from './hooks/useGetOnChainData';
+import { useInViewportOnce } from '../../../hooks/useInViewportOnce';
 
 function ItemsLoader() {
   const loaderItems = Array(6).fill(0);
   return (
     <>
       {loaderItems.map((_, index) => (
-        <div data-loader-type="block">
-          <UserInfo key={index} />
+        <div
+          data-loader-type="block"
+          className={classNames(
+            'border-solid-stroke bg-glass rounded-18 overflow-hidden h-[326px]'
+          )}
+        >
+          <Item key={index} />
         </div>
       ))}
     </>
+  );
+}
+
+function Item(props: ComponentProps<typeof UserInfo>) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInViewPort = useInViewportOnce(ref);
+  return (
+    <div
+      ref={ref}
+      className={classNames(
+        'border-solid-stroke bg-glass rounded-18 overflow-hidden h-[326px]',
+        {
+          'overflow-auto !h-auto': props.showDetails
+        }
+      )}
+    >
+      {isInViewPort && <UserInfo {...props} />}
+    </div>
   );
 }
 
@@ -50,7 +74,7 @@ export function OnChainGraphComponent() {
         })}
       >
         {recommendations?.map?.((user, index) => (
-          <UserInfo
+          <Item
             user={user}
             key={`${index}_${user.addresses?.[0] || user.domains?.[0]}`}
             identity={identities[0]}

@@ -3,7 +3,6 @@ import { IconType, Icon } from '../../../Components/Icon';
 import { CopyButton } from '../ERC6551/NFTInfo/CopyButton';
 import { RecommendedUser } from './types';
 import { Asset } from '../../../Components/Asset';
-import classNames from 'classnames';
 import { ListWithViewMore } from './ListWithViewMore';
 
 function TextWithIcon({
@@ -72,14 +71,7 @@ export function UserInfo({
   const address = user?.addresses?.[0] || '';
 
   return (
-    <div
-      className={classNames(
-        'border-solid-stroke bg-glass rounded-18 overflow-hidden h-[326px]',
-        {
-          'overflow-auto !h-auto': showDetails
-        }
-      )}
-    >
+    <>
       <div className="flex p-5 bg-glass overflow-hidden">
         <div className="h-[78px] min-w-[78px] w-[78px] mr-4 relative flex justify-center">
           <span className="w-full h-full border-solid-stroke overflow-hidden rounded-full">
@@ -197,6 +189,6 @@ export function UserInfo({
           loader
         )}
       </div>
-    </div>
+    </>
   );
 }

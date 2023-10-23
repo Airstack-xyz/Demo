@@ -22,16 +22,11 @@ function formatData(
 
   for (const nft of data) {
     const { owner, token } = nft ?? {};
-    const { name, logo, address, tokenNfts } = token ?? {};
+    const { name, logo, address, tokenNfts = [] } = token ?? {};
     const { addresses } = owner ?? {};
-    // TODO confirm if we want to keep the condition below
-    if (
-      name?.length > 0 &&
-      !name?.includes('-Follower') &&
-      !name?.includes('$') &&
-      !name?.includes('Lens Protocol Profiles') &&
-      !name?.includes('-Collect')
-    ) {
+    const tokenNft = tokenNfts?.[0];
+
+    if (tokenNft) {
       const existingUserIndex = recommendedUsers.findIndex(
         ({ addresses: recommendedUsersAddresses }) =>
           recommendedUsersAddresses?.some?.(address =>
@@ -53,7 +48,7 @@ function formatData(
             image: logo?.small,
             blockchain,
             address,
-            tokenNfts: tokenNfts[0]
+            tokenNfts: tokenNft
           });
         }
         recommendedUsers[existingUserIndex].nfts = [..._nfts];
@@ -66,7 +61,7 @@ function formatData(
               image: logo?.small,
               blockchain,
               address,
-              tokenNfts: tokenNfts[0]
+              tokenNfts: tokenNft
             }
           ]
         });
