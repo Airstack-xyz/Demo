@@ -80,7 +80,7 @@ export function useGetSocialFollowings(
         return false;
       }
       const followings =
-        data?.SocialFollowings.Following.map(
+        data?.SocialFollowings?.Following?.map(
           following => following.followingAddress
         ) ?? [];
       totalItemsCount.current += followings.length;

@@ -109,7 +109,7 @@ export function useGetCommonPoapsHolder(address: string) {
         return false;
       }
       const eventIds =
-        data?.Poaps.Poap.filter(poap => !poap?.poapEvent?.isVirtualEvent).map(
+        data?.Poaps.Poap?.filter(poap => !poap?.poapEvent?.isVirtualEvent).map(
           poap => poap?.eventId
         ) ?? [];
       await await fetchPoapData(eventIds);

@@ -167,9 +167,9 @@ export function useGetNFTs(
       if (requestCanceled.current) {
         return false;
       }
-      const tokenAddresses = data?.TokenBalances.TokenBalance.map(
-        token => token.tokenAddress
-      );
+      const tokenAddresses =
+        data?.TokenBalances?.TokenBalance?.map(token => token.tokenAddress) ??
+        [];
       await fetchNFT(tokenAddresses as string[]);
       const shouldFetchMore = totalItemsCount.current < MAX_ITEMS;
       if (shouldFetchMore) {
