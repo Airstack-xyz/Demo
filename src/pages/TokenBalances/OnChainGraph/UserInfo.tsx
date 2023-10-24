@@ -1,3 +1,4 @@
+import { memo, useMemo, useRef } from 'react';
 import { Chain } from '@airstack/airstack-react/constants';
 import { IconType, Icon } from '../../../Components/Icon';
 import { CopyButton } from '../ERC6551/NFTInfo/CopyButton';
@@ -5,7 +6,6 @@ import { RecommendedUser } from './types';
 import { Asset } from '../../../Components/Asset';
 import { ListWithViewMore } from './ListWithViewMore';
 import { pluralize } from '../../../utils';
-import { useMemo, useRef } from 'react';
 import classNames from 'classnames';
 import { useInViewportOnce } from '../../../hooks/useInViewportOnce';
 import { Tooltip } from '../../../Components/Tooltip';
@@ -70,7 +70,7 @@ type UserInfoProps = {
   loading?: boolean;
 };
 
-export function Info({
+function UserInfo({
   user = {},
   identity,
   showDetails = false,
@@ -251,7 +251,7 @@ export function Info({
   );
 }
 
-export function UserInfo(props: UserInfoProps) {
+const MemoizedUserInfo = memo((props: UserInfoProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const isInViewPort = useInViewportOnce(ref);
   return (
@@ -264,7 +264,9 @@ export function UserInfo(props: UserInfoProps) {
         }
       )}
     >
-      {isInViewPort && <Info {...props} />}
+      {(isInViewPort || !props.loading) && <UserInfo {...props} />}
     </div>
   );
-}
+});
+
+export { MemoizedUserInfo as UserInfo };

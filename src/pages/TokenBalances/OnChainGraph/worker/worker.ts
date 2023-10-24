@@ -1,22 +1,23 @@
-import {
-  FetchPaginatedQueryReturnType,
-  FetchQuery
-} from '@airstack/airstack-react/types';
-import { SCORE_KEY, ScoreMap, defaultScoreMap } from './constants';
-import { RecommendedUser } from './types';
-import * as Comlink from 'comlink';
+/// <reference lib="webworker" />
 
-export function getDefaultScoreMap(): ScoreMap {
-  const savedScoreMap = localStorage.getItem(SCORE_KEY);
-  const savedScore: null | ScoreMap = savedScoreMap
-    ? JSON.parse(savedScoreMap)
-    : null;
-  return savedScore || defaultScoreMap;
+import * as Comlink from 'comlink';
+import { RecommendedUser } from '../types';
+import { ScoreMap } from '../constants';
+
+export function isBurnedAddress(address?: string) {
+  if (!address) {
+    return false;
+  }
+  address = address.toLowerCase();
+  return (
+    address === '0x0000000000000000000000000000000000000000' ||
+    address === '0x000000000000000000000000000000000000dead'
+  );
 }
 
-export function filterDuplicatedAndCalculateScore(
+function filterAndRankData(
   _recommendations: RecommendedUser[],
-  scoreMap: ScoreMap = getDefaultScoreMap(),
+  scoreMap: ScoreMap,
   identities: string[]
 ) {
   const identityMap = identities.reduce(
@@ -109,57 +110,12 @@ export function sortByScore(recommendations: RecommendedUser[]) {
   });
 }
 
-export async function paginateRequest<D>(
-  request: FetchPaginatedQueryReturnType<D>,
-  onReceivedData: (data: D | null) => Promise<boolean>
+function sortFilterAndRankData(
+  recommendations: RecommendedUser[],
+  scorceMap: ScoreMap,
+  identities: string[]
 ) {
-  let _hasNextPage = false;
-  let _getNextPage = (() => {
-    // empty function
-  }) as FetchQuery<D>['getNextPage'];
-
-  const { data, hasNextPage, getNextPage } = await request;
-
-  _hasNextPage = hasNextPage;
-  _getNextPage = getNextPage;
-
-  if (!data) {
-    return;
-  }
-
-  let shouldFetchMore = await onReceivedData(data);
-
-  while (_hasNextPage && shouldFetchMore) {
-    const res: null | FetchQuery<D> = await _getNextPage();
-    if (!res) {
-      break;
-    }
-    const { data, hasNextPage, getNextPage } = res;
-    shouldFetchMore = await onReceivedData(data);
-    _hasNextPage = hasNextPage;
-    _getNextPage = getNextPage;
-  }
+  return sortByScore(filterAndRankData(recommendations, scorceMap, identities));
 }
 
-export function isBurnedAddress(address?: string) {
-  if (!address) {
-    return false;
-  }
-  address = address.toLowerCase();
-  return (
-    address === '0x0000000000000000000000000000000000000000' ||
-    address === '0x000000000000000000000000000000000000dead'
-  );
-}
-
-const _worker = new Worker(new URL('./worker/worker', import.meta.url), {
-  type: 'module'
-});
-
-export const worker = Comlink.wrap<{
-  sortFilterAndRankData: (
-    recommendations: RecommendedUser[],
-    scoreMap: ScoreMap,
-    identities: string[]
-  ) => RecommendedUser[];
-}>(_worker);
+Comlink.expose({ sortFilterAndRankData });

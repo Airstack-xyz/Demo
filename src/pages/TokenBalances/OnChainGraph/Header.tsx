@@ -1,14 +1,14 @@
+import { memo, useState } from 'react';
 import classNames from 'classnames';
 import { Icon } from '../../../Components/Icon';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { Dropdown } from '../../../Components/Dropdown';
 import { SCORE_KEY, ScoreMap, scoreOptions, maxScore } from './constants';
-import { useState } from 'react';
 import { getDefaultScoreMap } from './utils';
 import { Tooltip } from '../../../Components/Tooltip';
 import classnames from 'classnames';
 
-export function Header({
+function Header({
   showGridView,
   setShowGridView,
   identities,
@@ -186,3 +186,7 @@ export function Header({
     </div>
   );
 }
+
+const MemoizedHeader = memo(Header);
+
+export { MemoizedHeader as Header };

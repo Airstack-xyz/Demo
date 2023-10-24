@@ -7,11 +7,7 @@ import {
   useState
 } from 'react';
 import { RecommendedUser } from '../types';
-import {
-  filterDuplicatedAndCalculateScore,
-  getDefaultScoreMap,
-  sortByScore
-} from '../utils';
+import { getDefaultScoreMap, worker } from '../utils';
 import { useSearchInput } from '../../../../hooks/useSearchInput';
 import { useLazyQuery } from '@airstack/airstack-react';
 import { SocialQuery } from '../../../../queries';
@@ -44,6 +40,7 @@ export function OnChainGraphDataContextProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const recommendationsRef = useRef<RecommendedUser[]>([]);
   const [{ address }] = useSearchInput();
   const [fetchData, { data: userSocial }] =
     useLazyQuery<SocialData>(SocialQuery);
@@ -67,18 +64,16 @@ export function OnChainGraphDataContextProvider({
   const [totalScannedDocuments, setTotalScannedDocuments] = useState(0);
 
   const setData = useCallback(
-    (cb: (data: RecommendedUser[]) => RecommendedUser[]) => {
-      _setData(recommendations => {
-        const updatedRecommendations = cb(recommendations);
-        const score = getDefaultScoreMap();
-        return sortByScore(
-          filterDuplicatedAndCalculateScore(
-            updatedRecommendations,
-            score,
-            userIdentitiesRef.current
-          )
-        );
-      });
+    async (cb: (data: RecommendedUser[]) => RecommendedUser[]) => {
+      const updatedRecommendations = cb(recommendationsRef.current);
+      recommendationsRef.current = updatedRecommendations;
+      const score = getDefaultScoreMap();
+      const sortedData = await worker.sortFilterAndRankData(
+        updatedRecommendations,
+        score,
+        userIdentitiesRef.current
+      );
+      _setData(sortedData);
     },
     []
   );

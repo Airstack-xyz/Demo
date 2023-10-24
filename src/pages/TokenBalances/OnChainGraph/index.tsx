@@ -1,5 +1,5 @@
+import { useCallback, useState } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
-import { useState } from 'react';
 import { UserInfo } from './UserInfo';
 import classNames from 'classnames';
 import { Header } from './Header';
@@ -33,6 +33,10 @@ export function OnChainGraphComponent() {
   const [loading, setLoading] = useState(true);
   const [scanning, cancelScan] = useGetOnChainData(identities[0]);
 
+  const applyScore = useCallback(() => {
+    setData(recommendations => [...recommendations]);
+  }, [setData]);
+
   return (
     <div className="max-w-[958px] px-2 mx-auto w-full text-sm pt-10 sm:pt-5">
       <Header
@@ -40,9 +44,7 @@ export function OnChainGraphComponent() {
         identities={identities}
         showGridView={showGridView}
         setShowGridView={setShowGridView}
-        onApplyScore={() => {
-          setData(recommendations => [...recommendations]);
-        }}
+        onApplyScore={applyScore}
       />
       <div
         className={classNames('grid sm:grid-cols-3 gap-12 my-10', {
