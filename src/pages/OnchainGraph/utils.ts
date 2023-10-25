@@ -163,3 +163,14 @@ export const worker = Comlink.wrap<{
     identities: string[]
   ) => RecommendedUser[];
 }>(_worker);
+
+export function updateAddressIfNeeded(
+  user: RecommendedUser,
+  addresses: string[]
+) {
+  // farcaster may not have the actual user wallet address, so update the addresses
+  if (user._dataOrigin === 'farcaster' && addresses?.length) {
+    user.addresses = addresses;
+  }
+  return user;
+}

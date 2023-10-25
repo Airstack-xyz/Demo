@@ -5,7 +5,7 @@ import { useCallback, useRef } from 'react';
 import { QUERY_LIMIT } from '../constants';
 import { RecommendedUser } from '../types';
 import { useOnChainGraphData } from './useOnChainGraphData';
-import { paginateRequest } from '../utils';
+import { paginateRequest, updateAddressIfNeeded } from '../utils';
 
 const MAX_ITEMS = 10000;
 
@@ -39,8 +39,13 @@ function formatData(
           [followedOnKey]: followsBack
         }
       };
+      updateAddressIfNeeded(
+        recommendedUsers[existingUserIndex],
+        following.addresses
+      );
     } else {
       recommendedUsers.push({
+        _dataOrigin: dappName,
         ...following,
         follows: {
           [followingKey]: true,

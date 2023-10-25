@@ -6,7 +6,7 @@ import { FetchPaginatedQueryReturnType } from '@airstack/airstack-react/types';
 import { QUERY_LIMIT, nftsToIgnore } from '../constants';
 import { RecommendedUser } from '../types';
 import { useOnChainGraphData } from './useOnChainGraphData';
-import { paginateRequest } from '../utils';
+import { paginateRequest, updateAddressIfNeeded } from '../utils';
 
 const maxAddressPerQuery = 100;
 const MAX_ITEMS = 10000;
@@ -36,11 +36,6 @@ function formatData(
     );
 
     if (existingUserIndex !== -1) {
-      const _addresses = recommendedUsers?.[existingUserIndex]?.addresses || [];
-      recommendedUsers[existingUserIndex].addresses = [
-        ..._addresses,
-        ...addresses
-      ]?.filter((address, index, array) => array.indexOf(address) === index);
       const _nfts = recommendedUsers?.[existingUserIndex]?.nfts || [];
       const nftExists = _nfts.some(nft => nft.address === address);
       if (!nftExists) {
@@ -53,6 +48,13 @@ function formatData(
         });
       }
       recommendedUsers[existingUserIndex].nfts = [..._nfts];
+
+      const newAddresses = addresses.filter(
+        (address, index, array) => array.indexOf(address) === index
+      );
+
+      updateAddressIfNeeded(recommendedUsers[existingUserIndex], newAddresses);
+      // farcaster may have the actual user wallet address, so update
     } else {
       recommendedUsers.push({
         ...owner,
