@@ -124,8 +124,8 @@ export function getCommonNftOwnersSnapshotQuery({
   address1: TokenAddress;
   address2: TokenAddress;
   date?: string;
-  blockNumber?: number;
-  timestamp?: number;
+  blockNumber?: string;
+  timestamp?: string;
 }) {
   const commonParams = {
     address1,
@@ -248,8 +248,8 @@ export function getNftOwnersSnapshotQuery({
 }: {
   address: string;
   date?: string;
-  blockNumber?: number;
-  timestamp?: number;
+  blockNumber?: string;
+  timestamp?: string;
 }) {
   const commonParams = {
     address,

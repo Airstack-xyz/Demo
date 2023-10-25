@@ -5,9 +5,9 @@ export function getActiveSnapshotInfoString({
   date,
   timestamp
 }: {
-  blockNumber?: string | number;
+  blockNumber?: string;
   date?: string;
-  timestamp?: string | number;
+  timestamp?: string;
 }) {
   return `${blockNumber || ''}│${date || ''}│${timestamp || ''}`;
 }
@@ -27,8 +27,8 @@ export function getActiveSnapshotInfo(activeTokenInfo?: string) {
   return {
     isApplicable: appliedFilter !== 'today',
     appliedFilter,
-    blockNumber: blockNumber ? Number(blockNumber) : undefined,
-    date: date || undefined,
-    timestamp: timestamp ? Number(timestamp) : undefined
+    blockNumber: blockNumber || '',
+    date: date || '',
+    timestamp: timestamp || ''
   };
 }

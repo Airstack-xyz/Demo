@@ -59,9 +59,7 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
   // force the component to re-render when any of the search input change, so that the ERC20 can reset, refetch
   const erc20Key = useMemo(
     () =>
-      `${address.join(
-        ','
-      )}-${blockchainType}-${tokenType}-${sortOrder}-${activeSnapshotInfo}`,
+      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${activeSnapshotInfo}`,
     [address, blockchainType, tokenType, sortOrder, activeSnapshotInfo]
   );
 
@@ -293,7 +291,6 @@ function TokenBalancePage() {
 
     if (
       (!showTokenDetails || detailTokensVisible) &&
-      !snapshotInfo.isApplicable &&
       !socialInfo.isApplicable &&
       tokenType !== 'POAP'
     ) {
@@ -303,11 +300,7 @@ function TokenBalancePage() {
       });
     }
 
-    if (
-      !showTokenDetails &&
-      !snapshotInfo.isApplicable &&
-      !socialInfo.isApplicable
-    ) {
+    if (!showTokenDetails && !socialInfo.isApplicable) {
       const socialLink = createAppUrlWithQuery(SocialQuery, {
         identity: query
       });
@@ -471,8 +464,8 @@ function TokenBalancePage() {
   // force the component to re-render when any of the search input change, so that the tokens are reset and refetch
   const tokensKey = useMemo(
     () =>
-      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${snapshotInfo}`,
-    [address, blockchainType, tokenType, sortOrder, snapshotInfo]
+      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${activeSnapshotInfo}`,
+    [address, blockchainType, tokenType, sortOrder, activeSnapshotInfo]
   );
 
   const isQueryExists = query && query.length > 0;
@@ -557,10 +550,18 @@ function TokenBalancePage() {
             showSocials ? (
               <SocialsAndERC20 />
             ) : (
-              <TokenContainer key={tokensKey} loading={loadingAccount} />
+              <TokenContainer
+                key={tokensKey}
+                loading={loadingAccount}
+                poapDisabled={snapshotInfo.isApplicable}
+              />
             )
           ) : (
-            <TokenContainer key={tokensKey} loading={loadingAccount} />
+            <TokenContainer
+              key={tokensKey}
+              loading={loadingAccount}
+              poapDisabled={snapshotInfo.isApplicable}
+            />
           )}
         </div>
         {!isMobile && <SocialsAndERC20 />}

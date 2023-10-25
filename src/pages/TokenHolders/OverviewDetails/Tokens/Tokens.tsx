@@ -423,14 +423,16 @@ export function TokensComponent() {
           {loading && <Loader />}
         </InfiniteScroll>
       </div>
-      <LazyAddressesModal
-        heading={`All ${modalData.dataType} names of ${modalData.addresses[0]}`}
-        isOpen={modalData.isOpen}
-        dataType={modalData.dataType}
-        addresses={modalData.addresses}
-        onRequestClose={handleModalClose}
-        onAddressClick={handleAddressClick}
-      />
+      {modalData.isOpen && (
+        <LazyAddressesModal
+          heading={`All ${modalData.dataType} names of ${modalData.addresses[0]}`}
+          isOpen={modalData.isOpen}
+          dataType={modalData.dataType}
+          addresses={modalData.addresses}
+          onRequestClose={handleModalClose}
+          onAddressClick={handleAddressClick}
+        />
+      )}
       {(loading || loaderData.isVisible) && (
         <StatusLoader
           total={loaderData.total}

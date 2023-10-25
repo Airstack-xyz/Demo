@@ -9,7 +9,6 @@ import { filterPlaceholderClass } from './FilterPlaceholder';
 import {
   SnapshotFilterType,
   SnapshotToastMessage,
-  TextValue,
   defaultSnapshotFilter,
   getSnackbarMessage
 } from './SnapshotFilter';
@@ -91,8 +90,8 @@ export function AllFilters() {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
 
-  const [blockNumber, setBlockNumber] = useState<TextValue>('');
-  const [timestamp, setTimestamp] = useState<TextValue>('');
+  const [blockNumber, setBlockNumber] = useState('');
+  const [timestamp, setTimestamp] = useState('');
   const [date, setDate] = useState<DateValue>(currentDate);
 
   const handleDropdownHide = useCallback(() => {

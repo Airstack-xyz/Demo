@@ -491,7 +491,9 @@ export function TokenHolders() {
               className="flex flex-col justify-center mt-7 max-w-[950px] mx-auto"
               key={query}
             >
-              <HoldersOverview onAddress404={handleInvalidAddress} />
+              {!snapshotInfo.isApplicable && (
+                <HoldersOverview onAddress404={handleInvalidAddress} />
+              )}
               {showTokens && (
                 <>
                   {activeView && <OverviewDetails />}

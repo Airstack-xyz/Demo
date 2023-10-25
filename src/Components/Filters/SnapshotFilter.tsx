@@ -23,9 +23,9 @@ export const defaultSnapshotFilter: SnapshotFilterType = 'today';
 
 type FunctionParams = {
   appliedFilter: SnapshotFilterType;
-  blockNumber?: number;
+  blockNumber?: string;
   date?: string;
-  timestamp?: number;
+  timestamp?: string;
 };
 
 export const getSnackbarMessage = ({
@@ -95,8 +95,6 @@ export function SnapshotToastMessage({ message }: { message: string }) {
   );
 }
 
-export type TextValue = string | number | undefined;
-
 const currentDate = new Date();
 
 const filterInputClass =
@@ -118,8 +116,8 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
 
-  const [blockNumber, setBlockNumber] = useState<TextValue>('');
-  const [timestamp, setTimestamp] = useState<TextValue>('');
+  const [blockNumber, setBlockNumber] = useState('');
+  const [timestamp, setTimestamp] = useState('');
   const [date, setDate] = useState<DateValue>(currentDate);
 
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
