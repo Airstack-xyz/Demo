@@ -17,7 +17,10 @@ import './erc20.styles.css';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { emit } from '../../utils/eventEmitter/eventEmitter';
 import { createNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
-import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
+import {
+  getActiveSnapshotInfo,
+  getSnapshotQueryFilters
+} from '../../utils/activeSnapshotInfoString';
 import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
 import { defaultSortOrder } from '../../Components/Filters/SortBy';
 
@@ -126,18 +129,14 @@ export function ERC20Tokens() {
       return createNftWithCommonOwnersSnapshotQuery({
         owners,
         blockchain: blockchain,
-        blockNumber: snapshotInfo.blockNumber,
-        date: snapshotInfo.date,
-        timestamp: snapshotInfo.timestamp
+        appliedSnapshotFilter: snapshotInfo.appliedFilter
       });
     }
     return createNftWithCommonOwnersQuery(owners, blockchain);
   }, [
     blockchainType,
     snapshotInfo.isApplicable,
-    snapshotInfo.blockNumber,
-    snapshotInfo.date,
-    snapshotInfo.timestamp,
+    snapshotInfo.appliedFilter,
     owners
   ]);
 
@@ -197,12 +196,11 @@ export function ERC20Tokens() {
       const limit = owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT;
 
       if (snapshotInfo.isApplicable) {
+        const queryFilters = getSnapshotQueryFilters(snapshotInfo);
         fetch({
           limit: limit,
           tokenType: ['ERC20'],
-          blockNumber: snapshotInfo.blockNumber,
-          date: snapshotInfo.date,
-          timestamp: snapshotInfo.timestamp
+          ...queryFilters
         });
       } else {
         fetch({
@@ -223,10 +221,7 @@ export function ERC20Tokens() {
     tokenType,
     blockchainType,
     sortOrder,
-    snapshotInfo.isApplicable,
-    snapshotInfo.blockNumber,
-    snapshotInfo.date,
-    snapshotInfo.timestamp
+    snapshotInfo
   ]);
 
   useEffect(() => {

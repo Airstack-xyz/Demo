@@ -2,23 +2,24 @@ import { SnapshotFilterType } from '../Components/Filters/SnapshotFilter';
 
 export function getActiveSnapshotInfoString({
   blockNumber,
-  date,
+  customDate,
   timestamp
 }: {
   blockNumber?: string;
-  date?: string;
+  customDate?: string;
   timestamp?: string;
 }) {
-  return `${blockNumber || ''}│${date || ''}│${timestamp || ''}`;
+  return `${blockNumber || ''}│${customDate || ''}│${timestamp || ''}`;
 }
 
 export function getActiveSnapshotInfo(activeTokenInfo?: string) {
-  const [blockNumber, date, timestamp] = activeTokenInfo?.split('│') ?? [];
+  const [blockNumber, customDate, timestamp] =
+    activeTokenInfo?.split('│') ?? [];
 
   let appliedFilter: SnapshotFilterType = 'today';
   if (blockNumber) {
     appliedFilter = 'blockNumber';
-  } else if (date) {
+  } else if (customDate) {
     appliedFilter = 'customDate';
   } else if (timestamp) {
     appliedFilter = 'timestamp';
@@ -28,7 +29,27 @@ export function getActiveSnapshotInfo(activeTokenInfo?: string) {
     isApplicable: appliedFilter !== 'today',
     appliedFilter,
     blockNumber: blockNumber || '',
-    date: date || '',
+    customDate: customDate || '',
     timestamp: timestamp || ''
   };
 }
+
+export type SnapshotInfo = ReturnType<typeof getActiveSnapshotInfo>;
+
+export const getSnapshotQueryFilters = (snapshotInfo: SnapshotInfo) => {
+  const queryFilters: Record<string, string | number> = {};
+
+  switch (snapshotInfo.appliedFilter) {
+    case 'blockNumber':
+      queryFilters.blockNumber = Number(snapshotInfo.blockNumber);
+      break;
+    case 'customDate':
+      queryFilters.customDate = snapshotInfo.customDate;
+      break;
+    case 'timestamp':
+      queryFilters.timestamp = Number(snapshotInfo.timestamp);
+      break;
+  }
+
+  return queryFilters;
+};

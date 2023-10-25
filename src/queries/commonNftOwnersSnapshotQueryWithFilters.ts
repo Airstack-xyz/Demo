@@ -1,3 +1,4 @@
+import { SnapshotFilterType } from '../Components/Filters/SnapshotFilter';
 import { TokenAddress } from '../pages/TokenHolders/types';
 
 const socialInput = '(input: {filter: {dappName: {_in: $socialFilters}}})';
@@ -8,30 +9,28 @@ function getCommonNftOwnersSubQueryForBlockchain({
   address1,
   address2,
   blockchain,
-  hasDate,
-  hasBlockNumber,
-  hasTimestamp,
+  appliedSnapshotFilter,
   hasSocialFilters,
   hasPrimaryDomain
 }: {
   address1: TokenAddress;
   address2: TokenAddress;
   blockchain: string;
-  hasDate?: boolean;
-  hasBlockNumber?: boolean;
-  hasTimestamp?: boolean;
+  appliedSnapshotFilter: SnapshotFilterType;
   hasSocialFilters: boolean;
   hasPrimaryDomain: boolean;
 }) {
   const filters = [`tokenAddress: {_eq: "${address1.address}"}`];
-  if (hasDate) {
-    filters.push('date: {_eq: $date}');
-  }
-  if (hasBlockNumber) {
-    filters.push('blockNumber: {_eq: $blockNumber}');
-  }
-  if (hasTimestamp) {
-    filters.push('timestamp: {_eq: $timestamp}');
+  switch (appliedSnapshotFilter) {
+    case 'customDate':
+      filters.push('date: {_eq: $customDate}');
+      break;
+    case 'blockNumber':
+      filters.push('blockNumber: {_eq: $blockNumber}');
+      break;
+    case 'timestamp':
+      filters.push('timestamp: {_eq: $timestamp}');
+      break;
   }
   const filtersString = filters.join(',');
 
@@ -84,39 +83,35 @@ function getCommonNftOwnersSubQueryForBlockchain({
 export function getCommonNftOwnersSnapshotQueryWithFilters({
   address1,
   address2,
-  date,
-  blockNumber,
-  timestamp,
+  appliedSnapshotFilter,
   hasSocialFilters = false,
   hasPrimaryDomain = false
 }: {
   address1: TokenAddress;
   address2: TokenAddress;
-  date?: string;
-  blockNumber?: string;
-  timestamp?: string;
+  appliedSnapshotFilter: SnapshotFilterType;
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }) {
   const commonParams = {
     address1,
     address2,
-    hasDate: !!date,
-    hasBlockNumber: !!blockNumber,
-    hasTimestamp: !!timestamp,
+    appliedSnapshotFilter,
     hasSocialFilters,
     hasPrimaryDomain
   };
 
   const variables = ['$limit: Int'];
-  if (commonParams.hasDate) {
-    variables.push('$date: String!');
-  }
-  if (commonParams.hasBlockNumber) {
-    variables.push('$blockNumber: Int!');
-  }
-  if (commonParams.hasTimestamp) {
-    variables.push('$timestamp: Int!');
+  switch (appliedSnapshotFilter) {
+    case 'customDate':
+      variables.push('$customDate: String!');
+      break;
+    case 'blockNumber':
+      variables.push('$blockNumber: Int!');
+      break;
+    case 'timestamp':
+      variables.push('$timestamp: Int!');
+      break;
   }
   if (commonParams.hasSocialFilters) {
     variables.push('$socialFilters: [SocialDappName!]');
@@ -141,29 +136,27 @@ export function getCommonNftOwnersSnapshotQueryWithFilters({
 function getNftOwnersSubQueryForBlockchain({
   address,
   blockchain,
-  hasDate,
-  hasBlockNumber,
-  hasTimestamp,
+  appliedSnapshotFilter,
   hasSocialFilters,
   hasPrimaryDomain
 }: {
   address: string;
   blockchain: string;
-  hasDate?: boolean;
-  hasBlockNumber?: boolean;
-  hasTimestamp?: boolean;
+  appliedSnapshotFilter: SnapshotFilterType;
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }) {
   const filters = [`tokenAddress: {_eq: "${address}"}`];
-  if (hasDate) {
-    filters.push('date: {_eq: $date}');
-  }
-  if (hasBlockNumber) {
-    filters.push('blockNumber: {_eq: $blockNumber}');
-  }
-  if (hasTimestamp) {
-    filters.push('timestamp: {_eq: $timestamp}');
+  switch (appliedSnapshotFilter) {
+    case 'customDate':
+      filters.push('date: {_eq: $customDate}');
+      break;
+    case 'blockNumber':
+      filters.push('blockNumber: {_eq: $blockNumber}');
+      break;
+    case 'timestamp':
+      filters.push('timestamp: {_eq: $timestamp}');
+      break;
   }
   const filtersString = filters.join(',');
 
@@ -201,37 +194,33 @@ function getNftOwnersSubQueryForBlockchain({
 
 export function getNftOwnersSnapshotQueryWithFilters({
   address,
-  date,
-  blockNumber,
-  timestamp,
+  appliedSnapshotFilter,
   hasSocialFilters = false,
   hasPrimaryDomain = false
 }: {
   address: string;
-  date?: string;
-  blockNumber?: string;
-  timestamp?: string;
+  appliedSnapshotFilter: SnapshotFilterType;
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }) {
   const commonParams = {
     address,
-    hasDate: !!date,
-    hasBlockNumber: !!blockNumber,
-    hasTimestamp: !!timestamp,
+    appliedSnapshotFilter,
     hasSocialFilters,
     hasPrimaryDomain
   };
 
   const variables = ['$limit: Int'];
-  if (commonParams.hasDate) {
-    variables.push('$date: String!');
-  }
-  if (commonParams.hasBlockNumber) {
-    variables.push('$blockNumber: Int!');
-  }
-  if (commonParams.hasTimestamp) {
-    variables.push('$timestamp: Int!');
+  switch (appliedSnapshotFilter) {
+    case 'customDate':
+      variables.push('$customDate: String!');
+      break;
+    case 'blockNumber':
+      variables.push('$blockNumber: Int!');
+      break;
+    case 'timestamp':
+      variables.push('$timestamp: Int!');
+      break;
   }
   if (commonParams.hasSocialFilters) {
     variables.push('$socialFilters: [SocialDappName!]');

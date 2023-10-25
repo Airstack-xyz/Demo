@@ -16,7 +16,10 @@ import {
   getCommonNftOwnersSnapshotQuery,
   getNftOwnersSnapshotQuery
 } from '../queries/commonNftOwnersSnapshotQuery';
-import { getActiveSnapshotInfo } from '../utils/activeSnapshotInfoString';
+import {
+  getActiveSnapshotInfo,
+  getSnapshotQueryFilters
+} from '../utils/activeSnapshotInfoString';
 
 type Token = TokenType & {
   _poapEvent?: Poap['poapEvent'];
@@ -69,9 +72,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQuery({
           address: tokenAddress[0].address,
-          blockNumber: snapshotInfo.blockNumber,
-          date: snapshotInfo.date,
-          timestamp: snapshotInfo.timestamp
+          appliedSnapshotFilter: snapshotInfo.appliedFilter
         });
       }
       return getNftOwnersQuery(tokenAddress[0].address);
@@ -84,9 +85,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
       return getCommonNftOwnersSnapshotQuery({
         address1: tokenAddress[0],
         address2: tokenAddress[1],
-        blockNumber: snapshotInfo.blockNumber,
-        date: snapshotInfo.date,
-        timestamp: snapshotInfo.timestamp
+        appliedSnapshotFilter: snapshotInfo.appliedFilter
       });
     }
     return getCommonNftOwnersQuery(tokenAddress[0], tokenAddress[1]);
@@ -94,9 +93,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     tokenAddress,
     hasPoap,
     snapshotInfo.isApplicable,
-    snapshotInfo.blockNumber,
-    snapshotInfo.date,
-    snapshotInfo.timestamp
+    snapshotInfo.appliedFilter
   ]);
 
   const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
@@ -203,11 +200,10 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     const limit = fetchSingleToken ? MIN_LIMIT : LIMIT;
 
     if (snapshotInfo.isApplicable) {
+      const queryFilters = getSnapshotQueryFilters(snapshotInfo);
       fetch({
         limit: limit,
-        blockNumber: snapshotInfo.blockNumber,
-        date: snapshotInfo.date,
-        timestamp: snapshotInfo.timestamp
+        ...queryFilters
       });
     } else {
       fetch({
@@ -216,15 +212,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     }
 
     setProcessedTokensCount(LIMIT);
-  }, [
-    fetch,
-    tokenAddress.length,
-    fetchSingleToken,
-    snapshotInfo.isApplicable,
-    snapshotInfo.blockNumber,
-    snapshotInfo.date,
-    snapshotInfo.timestamp
-  ]);
+  }, [tokenAddress.length, fetchSingleToken, snapshotInfo, fetch]);
 
   return {
     fetch: getTokens,

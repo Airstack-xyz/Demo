@@ -92,20 +92,22 @@ export function AllFilters() {
 
   const [blockNumber, setBlockNumber] = useState('');
   const [timestamp, setTimestamp] = useState('');
-  const [date, setDate] = useState<DateValue>(currentDate);
+  const [customDate, setCustomDate] = useState<DateValue>(currentDate);
 
   const handleDropdownHide = useCallback(() => {
     setIsDropdownVisible(false);
     setIsDatePickerVisible(false);
     setBlockNumber(snapshotInfo.blockNumber);
-    setDate(snapshotInfo.date ? new Date(snapshotInfo.date) : new Date());
+    setCustomDate(
+      snapshotInfo.customDate ? new Date(snapshotInfo.customDate) : new Date()
+    );
     setTimestamp(snapshotInfo.timestamp);
     setCurrentSnapshotFilter(snapshotInfo.appliedFilter);
     setCurrentBlockchainFilter(appliedBlockchainFilter);
     setCurrentSortOrder(appliedSortOrder);
   }, [
     snapshotInfo.blockNumber,
-    snapshotInfo.date,
+    snapshotInfo.customDate,
     snapshotInfo.timestamp,
     snapshotInfo.appliedFilter,
     appliedBlockchainFilter,
@@ -144,14 +146,16 @@ export function AllFilters() {
     setCurrentBlockchainFilter(appliedBlockchainFilter);
     setCurrentSortOrder(appliedSortOrder);
     setBlockNumber(snapshotInfo.blockNumber);
-    setDate(snapshotInfo.date ? new Date(snapshotInfo.date) : new Date());
+    setCustomDate(
+      snapshotInfo.customDate ? new Date(snapshotInfo.customDate) : new Date()
+    );
     setTimestamp(snapshotInfo.timestamp);
   }, [
     appliedBlockchainFilter,
     appliedSortOrder,
     snapshotInfo.appliedFilter,
     snapshotInfo.blockNumber,
-    snapshotInfo.date,
+    snapshotInfo.customDate,
     snapshotInfo.timestamp
   ]);
 
@@ -205,7 +209,7 @@ export function AllFilters() {
   }, []);
 
   const handleDateChange = useCallback((newDate: DateValue) => {
-    setDate(newDate);
+    setCustomDate(newDate);
     setIsDatePickerVisible(false);
   }, []);
 
@@ -225,23 +229,25 @@ export function AllFilters() {
 
   // Not enclosing in useCallback as its dependencies will change every time
   const handleApplyClick = () => {
-    const snapshotValues: Record<string, unknown> = {};
+    const snapshotData: Record<string, string> = {};
 
     // For snapshot filter
     switch (currentSnapshotFilter) {
       case 'blockNumber':
-        snapshotValues.blockNumber = blockNumber;
+        snapshotData.blockNumber = blockNumber;
         break;
       case 'customDate':
-        snapshotValues.date = (date as Date).toISOString().split('T')[0];
+        snapshotData.customDate = (customDate as Date)
+          .toISOString()
+          .split('T')[0];
         break;
       case 'timestamp':
-        snapshotValues.timestamp = timestamp;
+        snapshotData.timestamp = timestamp;
         break;
     }
 
     const filterValues: Partial<CachedQuery> = {
-      activeSnapshotInfo: getActiveSnapshotInfoString(snapshotValues)
+      activeSnapshotInfo: getActiveSnapshotInfoString(snapshotData)
     };
 
     // For blockchain filter
@@ -306,7 +312,7 @@ export function AllFilters() {
           {isDatePickerVisible && (
             <div ref={datePickerContainerRef} className="absolute left-2 z-20">
               <DatePicker
-                value={date}
+                value={customDate}
                 maxDate={currentDate}
                 onChange={handleDateChange}
               />
@@ -399,7 +405,7 @@ export function AllFilters() {
     );
   };
 
-  const formattedDate = date?.toLocaleString(undefined, {
+  const formattedDate = customDate?.toLocaleString(undefined, {
     day: 'numeric',
     month: 'short',
     year: 'numeric'

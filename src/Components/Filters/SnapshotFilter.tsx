@@ -10,7 +10,8 @@ import { FilterPlaceholder } from './FilterPlaceholder';
 import { defaultSortOrder } from './SortBy';
 import {
   getActiveSnapshotInfoString,
-  getActiveSnapshotInfo
+  getActiveSnapshotInfo,
+  SnapshotInfo
 } from '../../utils/activeSnapshotInfoString';
 
 export type SnapshotFilterType =
@@ -21,26 +22,19 @@ export type SnapshotFilterType =
 
 export const defaultSnapshotFilter: SnapshotFilterType = 'today';
 
-type FunctionParams = {
-  appliedFilter: SnapshotFilterType;
-  blockNumber?: string;
-  date?: string;
-  timestamp?: string;
-};
-
 export const getSnackbarMessage = ({
   appliedFilter,
   blockNumber,
-  date,
+  customDate,
   timestamp
-}: FunctionParams) => {
+}: SnapshotInfo) => {
   let message = '';
   switch (appliedFilter) {
     case 'blockNumber':
       message = `Viewing balances as of block no. ${blockNumber}`;
       break;
     case 'customDate':
-      message = `Viewing holders as of ${formatDate(date)}`;
+      message = `Viewing holders as of ${formatDate(customDate)}`;
       break;
     case 'timestamp':
       message = `Viewing balances as of timestamp ${timestamp}`;
@@ -52,9 +46,9 @@ export const getSnackbarMessage = ({
 const getLabelAndIcon = ({
   appliedFilter,
   blockNumber,
-  date,
+  customDate,
   timestamp
-}: FunctionParams) => {
+}: SnapshotInfo) => {
   let label = 'Today';
   let icon: IconType = 'calendar';
   switch (appliedFilter) {
@@ -63,7 +57,7 @@ const getLabelAndIcon = ({
       icon = 'block';
       break;
     case 'customDate':
-      label = formatDate(date);
+      label = formatDate(customDate);
       icon = 'calendar';
       break;
     case 'timestamp':
@@ -118,7 +112,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
 
   const [blockNumber, setBlockNumber] = useState('');
   const [timestamp, setTimestamp] = useState('');
-  const [date, setDate] = useState<DateValue>(currentDate);
+  const [customDate, setCustomDate] = useState<DateValue>(currentDate);
 
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
 
@@ -134,13 +128,15 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
     setIsDropdownVisible(false);
     setIsDatePickerVisible(false);
     setBlockNumber(snapshotInfo.blockNumber);
-    setDate(snapshotInfo.date ? new Date(snapshotInfo.date) : new Date());
+    setCustomDate(
+      snapshotInfo.customDate ? new Date(snapshotInfo.customDate) : new Date()
+    );
     setTimestamp(snapshotInfo.timestamp);
     setCurrentFilter(snapshotInfo.appliedFilter);
   }, [
     snapshotInfo.appliedFilter,
     snapshotInfo.blockNumber,
-    snapshotInfo.date,
+    snapshotInfo.customDate,
     snapshotInfo.timestamp
   ]);
 
@@ -170,13 +166,15 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
 
   useEffect(() => {
     setBlockNumber(snapshotInfo.blockNumber);
-    setDate(snapshotInfo.date ? new Date(snapshotInfo.date) : new Date());
+    setCustomDate(
+      snapshotInfo.customDate ? new Date(snapshotInfo.customDate) : new Date()
+    );
     setTimestamp(snapshotInfo.timestamp);
     setCurrentFilter(snapshotInfo.appliedFilter);
   }, [
     snapshotInfo.appliedFilter,
     snapshotInfo.blockNumber,
-    snapshotInfo.date,
+    snapshotInfo.customDate,
     snapshotInfo.timestamp
   ]);
 
@@ -211,7 +209,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   }, []);
 
   const handleDateChange = useCallback((newDate: DateValue) => {
-    setDate(newDate);
+    setCustomDate(newDate);
     setIsDatePickerVisible(false);
   }, []);
 
@@ -231,17 +229,19 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
 
   // Not enclosing in useCallback as its dependencies will change every time
   const handleApplyClick = () => {
-    const snapshotValues: Record<string, unknown> = {};
+    const snapshotData: Record<string, string> = {};
 
     switch (currentFilter) {
       case 'blockNumber':
-        snapshotValues.blockNumber = blockNumber;
+        snapshotData.blockNumber = blockNumber;
         break;
       case 'customDate':
-        snapshotValues.date = (date as Date).toISOString().split('T')[0];
+        snapshotData.customDate = (customDate as Date)
+          .toISOString()
+          .split('T')[0];
         break;
       case 'timestamp':
-        snapshotValues.timestamp = timestamp;
+        snapshotData.timestamp = timestamp;
         break;
     }
 
@@ -249,7 +249,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
     setData(
       {
         sortOrder: defaultSortOrder, // for snapshot query resetting sort order
-        activeSnapshotInfo: getActiveSnapshotInfoString(snapshotValues)
+        activeSnapshotInfo: getActiveSnapshotInfoString(snapshotData)
       },
       { updateQueryParams: true }
     );
@@ -263,7 +263,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
     }
   };
 
-  const formattedDate = date?.toLocaleString(undefined, {
+  const formattedDate = customDate?.toLocaleString(undefined, {
     day: 'numeric',
     month: 'short',
     year: 'numeric'
@@ -325,7 +325,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
                   className="absolute left-2 z-20"
                 >
                   <DatePicker
-                    value={date}
+                    value={customDate}
                     maxDate={currentDate}
                     onChange={handleDateChange}
                   />

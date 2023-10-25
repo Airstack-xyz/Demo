@@ -34,7 +34,10 @@ import { sortByAddressByNonERC20First } from '../../../../utils/getNFTQueryForTo
 import { useOverviewTokens } from '../../../../store/tokenHoldersOverview';
 import { getPoapList, getTokenList } from './utils';
 import { sortAddressByPoapFirst } from '../../../../utils/sortAddressByPoapFirst';
-import { getActiveSnapshotInfo } from '../../../../utils/activeSnapshotInfoString';
+import {
+  getActiveSnapshotInfo,
+  getSnapshotQueryFilters
+} from '../../../../utils/activeSnapshotInfoString';
 import { createTokenBalancesUrl } from '../../../../utils/createTokenUrl';
 import { useNavigate } from 'react-router-dom';
 import { LazyAddressesModal } from '../../../../Components/LazyAddressesModal';
@@ -151,9 +154,7 @@ export function TokensComponent() {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQueryWithFilters({
           address: address[0].address,
-          blockNumber: snapshotInfo.blockNumber,
-          date: snapshotInfo.date,
-          timestamp: snapshotInfo.timestamp,
+          appliedSnapshotFilter: snapshotInfo.appliedFilter,
           hasSocialFilters: hasSocialFilters,
           hasPrimaryDomain: hasPrimaryDomain
         });
@@ -177,9 +178,7 @@ export function TokensComponent() {
       return getCommonNftOwnersSnapshotQueryWithFilters({
         address1: address[0],
         address2: address[1],
-        blockNumber: snapshotInfo.blockNumber,
-        date: snapshotInfo.date,
-        timestamp: snapshotInfo.timestamp,
+        appliedSnapshotFilter: snapshotInfo.appliedFilter,
         hasSocialFilters: hasSocialFilters,
         hasPrimaryDomain: hasPrimaryDomain
       });
@@ -196,9 +195,7 @@ export function TokensComponent() {
     address,
     hasSomePoap,
     snapshotInfo.isApplicable,
-    snapshotInfo.blockNumber,
-    snapshotInfo.date,
-    snapshotInfo.timestamp
+    snapshotInfo.appliedFilter
   ]);
 
   const poapsQuery = useMemo(() => {
@@ -289,11 +286,10 @@ export function TokensComponent() {
       }
 
       if (snapshotInfo.isApplicable) {
+        const queryFilters = getSnapshotQueryFilters(snapshotInfo);
         fetchTokens({
           limit: MAX_LIMIT,
-          blockNumber: snapshotInfo.blockNumber,
-          date: snapshotInfo.date,
-          timestamp: snapshotInfo.timestamp,
+          ...queryFilters,
           ...requestFilters
         });
       } else {
@@ -310,10 +306,7 @@ export function TokensComponent() {
     hasPoap,
     requestFilters,
     shouldFetchTokens,
-    snapshotInfo.isApplicable,
-    snapshotInfo.blockNumber,
-    snapshotInfo.date,
-    snapshotInfo.timestamp
+    snapshotInfo
   ]);
 
   const { hasNextPage, getNextPage } = hasPoap

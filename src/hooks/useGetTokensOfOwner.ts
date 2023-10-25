@@ -7,7 +7,10 @@ import { tokenTypes } from '../pages/TokenBalances/constants';
 import { CommonTokenType, TokenType } from '../pages/TokenBalances/types';
 import { createNftWithCommonOwnersSnapshotQuery } from '../queries/nftWithCommonOwnersSnapshotQuery';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
-import { getActiveSnapshotInfo } from '../utils/activeSnapshotInfoString';
+import {
+  getActiveSnapshotInfo,
+  getSnapshotQueryFilters
+} from '../utils/activeSnapshotInfoString';
 
 const LIMIT = 20;
 const LIMIT_COMBINATIONS = 100;
@@ -54,19 +57,15 @@ export function useGetTokensOfOwner(
       return createNftWithCommonOwnersSnapshotQuery({
         owners,
         blockchain: blockchain,
-        blockNumber: snapshotInfo.blockNumber,
-        date: snapshotInfo.date,
-        timestamp: snapshotInfo.timestamp
+        appliedSnapshotFilter: snapshotInfo.appliedFilter
       });
     }
     return createNftWithCommonOwnersQuery(owners, blockchain);
   }, [
     blockchainType,
-    owners,
     snapshotInfo.isApplicable,
-    snapshotInfo.blockNumber,
-    snapshotInfo.date,
-    snapshotInfo.timestamp
+    snapshotInfo.appliedFilter,
+    owners
   ]);
 
   const isPoap = tokenType === 'POAP';
@@ -101,12 +100,11 @@ export function useGetTokensOfOwner(
 
       // For snapshots different variables are being passed
       if (snapshotInfo.isApplicable) {
+        const queryFilters = getSnapshotQueryFilters(snapshotInfo);
         fetchTokens({
           limit,
           tokenType: tokenFilters,
-          blockNumber: snapshotInfo.blockNumber,
-          date: snapshotInfo.date,
-          timestamp: snapshotInfo.timestamp
+          ...queryFilters
         });
       } else {
         fetchTokens({
@@ -124,12 +122,9 @@ export function useGetTokensOfOwner(
     is6551,
     isPoap,
     owners,
+    snapshotInfo,
     sortOrder,
-    tokenType,
-    snapshotInfo.isApplicable,
-    snapshotInfo.blockNumber,
-    snapshotInfo.date,
-    snapshotInfo.timestamp
+    tokenType
   ]);
 
   useEffect(() => {
