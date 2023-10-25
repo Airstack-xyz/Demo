@@ -93,13 +93,16 @@ export function LazyAddressesModal({
   );
 
   useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
     setItems([]);
     fetchData({
       addresses,
       dappName: isENS ? undefined : dataType,
       limit: LIMIT
     });
-  }, [addresses, dataType, fetchData, isENS]);
+  }, [addresses, dataType, fetchData, isENS, isOpen]);
 
   const handleNext = useCallback(() => {
     if (hasNextPage && !loading) {

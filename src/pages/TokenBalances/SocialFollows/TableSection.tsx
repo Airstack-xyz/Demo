@@ -161,6 +161,7 @@ export function TableSection({
       getNextPage();
     } else {
       tableItemsRef.current = [];
+      tableIdsSetRef.current = new Set();
       setLoaderData(prev => ({
         ...prev,
         isVisible: false
@@ -172,6 +173,10 @@ export function TableSection({
     tableItemsRef.current = [];
     tableIdsSetRef.current = new Set();
     setTableItems([]);
+    setLoaderData(prev => ({
+      ...prev,
+      isVisible: true
+    }));
     fetchData({
       limit: MAX_LIMIT,
       ...filterData.queryFilters
@@ -276,7 +281,7 @@ export function TableSection({
   }, [getNextPage, hasNextPage, loading]);
 
   const isLensDapp = socialInfo.dappName === 'lens';
-  const isInputDisabled = loading || loaderData.isVisible;
+  const isInputDisabled = loaderData.isVisible;
 
   const mentionInputComponent = (
     <MentionInput
@@ -361,7 +366,7 @@ export function TableSection({
           onAddressClick={handleAddressClick}
         />
       )}
-      {(loading || loaderData.isVisible) && (
+      {loaderData.isVisible && (
         <StatusLoader total={loaderData.total} matching={loaderData.matching} />
       )}
     </>

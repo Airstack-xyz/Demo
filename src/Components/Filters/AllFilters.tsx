@@ -125,20 +125,20 @@ export function AllFilters() {
   const isCombination = address.length > 1;
 
   useEffect(() => {
-    const filterValues: Partial<CachedQuery> = {};
+    const filterData: Partial<CachedQuery> = {};
     // If snapshot query, reset sort filter
     if (snapshotInfo.isApplicable) {
-      filterValues.sortOrder = defaultSortOrder;
+      filterData.sortOrder = defaultSortOrder;
     }
     // If POAP filter is applied, reset blockchain filter
     if (isPoap) {
-      filterValues.blockchainType = [];
+      filterData.blockchainType = [];
     }
     // If POAP and combinations, reset snapshot filter
     if (isPoap || isCombination) {
-      filterValues.activeSnapshotInfo = undefined;
+      filterData.activeSnapshotInfo = undefined;
     }
-    setData(filterValues, { updateQueryParams: true });
+    setData(filterData, { updateQueryParams: true });
   }, [snapshotInfo.isApplicable, isPoap, isCombination, setData]);
 
   useEffect(() => {
@@ -246,27 +246,27 @@ export function AllFilters() {
         break;
     }
 
-    const filterValues: Partial<CachedQuery> = {
+    const filterData: Partial<CachedQuery> = {
       activeSnapshotInfo: getActiveSnapshotInfoString(snapshotData)
     };
 
     // For blockchain filter
     if (currentBlockchainFilter === defaultBlockchainFilter) {
-      filterValues.blockchainType = [];
+      filterData.blockchainType = [];
     } else {
-      filterValues.blockchainType = [currentBlockchainFilter];
+      filterData.blockchainType = [currentBlockchainFilter];
     }
 
     // For sort filter
     // For snapshot query resetting sort order
     if (snapshotInfo.isApplicable) {
-      filterValues.sortOrder = defaultSortOrder;
+      filterData.sortOrder = defaultSortOrder;
     } else {
-      filterValues.sortOrder = currentSortOrder || defaultSortOrder;
+      filterData.sortOrder = currentSortOrder || defaultSortOrder;
     }
 
     setIsDropdownVisible(false);
-    setData(filterValues, { updateQueryParams: true });
+    setData(filterData, { updateQueryParams: true });
   };
 
   const handleKeyboardKeyUp = (
