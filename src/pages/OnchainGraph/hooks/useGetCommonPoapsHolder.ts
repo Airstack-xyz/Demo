@@ -12,7 +12,7 @@ import {
 } from '../types/common-poaps';
 import { RecommendedUser } from '../types';
 import { useOnChainGraphData } from './useOnChainGraphData';
-import { paginateRequest, updateAddressIfNeeded } from '../utils';
+import { paginateRequest } from '../utils';
 
 const MAX_ITEMS = Infinity;
 
@@ -32,13 +32,16 @@ function formatData(
         )
     );
     if (existingUserIndex !== -1) {
+      recommendedUsers[existingUserIndex].addresses = [
+        ...(recommendedUsers?.[existingUserIndex]?.addresses ?? []),
+        ...addresses
+      ]?.filter((address, index, array) => array.indexOf(address) === index);
       const _poaps = recommendedUsers?.[existingUserIndex]?.poaps || [];
       const poapExists = _poaps.some(poap => poap.eventId === eventId);
       if (!poapExists) {
         _poaps?.push({ name, image: contentValue?.image?.extraSmall, eventId });
         recommendedUsers[existingUserIndex].poaps = [..._poaps];
       }
-      updateAddressIfNeeded(recommendedUsers[existingUserIndex], addresses);
     } else {
       recommendedUsers.push({
         ...(attendee?.owner ?? {}),

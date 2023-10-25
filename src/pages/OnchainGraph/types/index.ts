@@ -185,7 +185,6 @@ export type RecommendedUser = {
     blockchain?: 'ethereum' | 'polygon';
   }[];
   _score?: number;
-  _dataOrigin?: string;
 };
 
 export interface Social {

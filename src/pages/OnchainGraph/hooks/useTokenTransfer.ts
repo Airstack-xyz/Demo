@@ -8,7 +8,7 @@ import { useCallback, useRef } from 'react';
 import { useOnChainGraphData } from './useOnChainGraphData';
 import { RecommendedUser } from '../types';
 import { MAX_ITEMS, QUERY_LIMIT } from '../constants';
-import { paginateRequest, updateAddressIfNeeded } from '../utils';
+import { paginateRequest } from '../utils';
 
 export function formatData(
   data: Transfer[],
@@ -35,15 +35,15 @@ export function formatData(
       _tokenTransfers['received'] = true;
     }
     if (existingUserIndex !== -1) {
+      const _addresses = recommendedUsers?.[existingUserIndex]?.addresses || [];
+      recommendedUsers[existingUserIndex].addresses = [
+        ..._addresses,
+        ...addresses
+      ]?.filter((address, index, array) => array.indexOf(address) === index);
       recommendedUsers[existingUserIndex].tokenTransfers = {
         ...(recommendedUsers?.[existingUserIndex]?.tokenTransfers ?? {}),
         ..._tokenTransfers
       };
-
-      updateAddressIfNeeded(
-        recommendedUsers[existingUserIndex],
-        transfer.addresses
-      );
     } else {
       recommendedUsers.push({
         ...transfer,
