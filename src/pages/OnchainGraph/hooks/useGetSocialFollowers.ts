@@ -41,9 +41,16 @@ function formatData(
         ...recommendedUsers[existingUserIndex],
         follows
       };
+      if (dappName === 'farcaster') {
+        recommendedUsers[existingUserIndex]._farcasterAddresses = [
+          ...(recommendedUsers[existingUserIndex]._farcasterAddresses || []),
+          ...follower.addresses
+        ]?.filter((address, index, array) => array.indexOf(address) === index);
+      }
     } else {
       recommendedUsers.push({
         ...follower,
+        _farcasterAddresses: dappName === 'farcaster' ? follower.addresses : [],
         follows: {
           [followingKey]: following,
           [followedOnKey]: true

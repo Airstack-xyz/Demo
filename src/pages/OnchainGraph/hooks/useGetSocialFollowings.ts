@@ -39,9 +39,17 @@ function formatData(
           [followedOnKey]: followsBack
         }
       };
+      if (dappName === 'farcaster') {
+        recommendedUsers[existingUserIndex]._farcasterAddresses = [
+          ...(recommendedUsers[existingUserIndex]._farcasterAddresses || []),
+          ...following.addresses
+        ]?.filter((address, index, array) => array.indexOf(address) === index);
+      }
     } else {
       recommendedUsers.push({
         ...following,
+        _farcasterAddresses:
+          dappName === 'farcaster' ? following.addresses : [],
         follows: {
           [followingKey]: true,
           [followedOnKey]: followsBack

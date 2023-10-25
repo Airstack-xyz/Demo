@@ -85,7 +85,16 @@ function UserInfo({
   const commonNftCount = nfts?.length || 0;
   const poapsCount = poaps?.length || 0;
 
-  const address = user?.addresses?.[0] || '';
+  const address = useMemo(() => {
+    const addresses = (user?.addresses || []).filter(address => {
+      return (
+        !user._farcasterAddresses?.length ||
+        !user._farcasterAddresses?.includes(address)
+      );
+    });
+    return addresses[0] || user?.addresses?.[0] || '';
+  }, [user._farcasterAddresses, user?.addresses]);
+
   const hasFarcasterFollow =
     follows?.followingOnFarcaster || follows?.followedOnFarcaster;
   const hasLensFollow = follows?.followingOnLens || follows?.followedOnLens;
@@ -110,7 +119,6 @@ function UserInfo({
       }
     });
     let domain = user?.primaryDomain?.name || '';
-
     if (domain) {
       user.domains?.forEach(({ name, isPrimary }) => {
         if (isPrimary) {
