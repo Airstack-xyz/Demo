@@ -1,29 +1,39 @@
 import { Chain } from '@airstack/airstack-react/constants';
-import { useMemo, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Icon } from '../../../Components/Icon';
-import { Asset } from '../../../Components/Asset';
-import { getDAppType } from '../utils';
-import { Poap, Token as TokenType } from '../types';
-import { ListWithMoreOptions } from './ListWithMoreOptions';
-import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
-import { WalletAddress } from './WalletAddress';
 import classNames from 'classnames';
+import { useMemo } from 'react';
+import { Asset } from '../../../Components/Asset';
+import { Icon } from '../../../Components/Icon';
+import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
+import { WalletAddress } from '../../../Components/WalletAddress';
+import { Poap, Token as TokenType } from '../types';
+import { formatNumber } from '../../../utils/formatNumber';
+
+export type AssetType = {
+  image: string;
+  tokenId: string;
+  tokenAddress: string;
+  blockchain: Chain;
+  eventId: string | null;
+  has6551?: boolean;
+  formattedAmount?: string;
+};
 
 export function Token({
   token: tokenInProps,
   isCombination,
-  onShowMore
+  onShowMoreClick,
+  onAddressClick,
+  onAssetClick
 }: {
   token: TokenType | Poap | null;
-  onShowMore?: (value: string[], dataType: string) => void;
   isCombination: boolean;
+  onShowMoreClick?: (addresses: string[], dataType?: string) => void;
+  onAddressClick?: (address: string, type?: string) => void;
+  onAssetClick?: (asset: AssetType) => void;
 }) {
   const owner = tokenInProps?.owner;
-  const walletAddresses = owner?.addresses || '';
-  const walletAddress = Array.isArray(walletAddresses)
-    ? walletAddresses[0]
-    : '';
+  const walletAddresses = owner?.addresses || [];
+  const walletAddress = walletAddresses[0] || '';
   const tokenId = tokenInProps?.tokenId || '';
   const tokenAddress = tokenInProps?.tokenAddress || '';
   const primaryEns = owner?.primaryDomain?.name || '';
@@ -38,19 +48,18 @@ export function Token({
     poap?.poapEvent?.logo?.image?.small;
 
   const assets = useMemo(() => {
-    const assetData: {
-      image: string;
-      tokenId: string;
-      tokenAddress: string;
-      blockchain: Chain;
-      isPoap: boolean;
-    }[] = [
+    const assetData: AssetType[] = [
       {
         image,
         tokenId,
         tokenAddress,
-        isPoap: !!poap?.poapEvent,
-        blockchain: token?.blockchain as Chain
+        formattedAmount:
+          token?.tokenType === 'ERC20' && token.formattedAmount != null
+            ? formatNumber(token.formattedAmount)
+            : undefined,
+        eventId: poap?.eventId,
+        blockchain: token?.blockchain as Chain,
+        has6551: token?.tokenNfts?.erc6551Accounts?.length > 0
       }
     ];
     const innerToken = token?._token;
@@ -65,8 +74,14 @@ export function Token({
         image: _image,
         tokenId: token?._tokenId || '',
         tokenAddress: token?._tokenAddress || '',
-        isPoap: !!token?._poapEvent,
-        blockchain: poap?._blockchain as Chain
+        formattedAmount:
+          innerToken?.tokenType === 'ERC20' &&
+          innerToken.formattedAmount != null
+            ? formatNumber(innerToken.formattedAmount)
+            : undefined,
+        eventId: token?._eventId,
+        blockchain: poap?._blockchain as Chain,
+        has6551: token?._tokenNfts?.erc6551Accounts?.length > 0
       });
     }
     return assetData;
@@ -74,54 +89,35 @@ export function Token({
     image,
     tokenId,
     tokenAddress,
-    poap?.poapEvent,
-    poap?._blockchain,
+    token?.tokenType,
+    token?.formattedAmount,
     token?.blockchain,
+    token?.tokenNfts?.erc6551Accounts?.length,
     token?._token,
     token?._tokenNfts?.contentValue?.image?.small,
-    token?._poapEvent,
+    token?._tokenNfts?.erc6551Accounts?.length,
+    token?._poapEvent?.contentValue?.image?.small,
+    token?._poapEvent?.logo?.image?.small,
     token?._tokenId,
-    token?._tokenAddress
+    token?._tokenAddress,
+    token?._eventId,
+    poap?.eventId,
+    poap?._blockchain
   ]);
 
   const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
-  const navigate = useNavigate();
 
-  const { lens, farcaster } = useMemo(() => {
-    const social = owner?.socials || [];
-    const result = { lens: [], farcaster: [] };
-    social.forEach(({ dappSlug, profileName }) => {
-      const type = getDAppType(dappSlug);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const list = result[type];
-      if (list) {
-        list.push(profileName);
-      }
-    });
-    return result;
-  }, [owner?.socials]);
+  const lensAddresses =
+    owner?.socials
+      ?.filter(item => item.dappName === 'lens')
+      .map(item => item.profileName) || [];
+  const farcasterAddresses =
+    owner?.socials
+      ?.filter(item => item.dappName === 'farcaster')
+      .map(item => item.profileName) || [];
 
-  const getShowMoreHandler = useCallback(
-    (items: string[], type: string) => () => {
-      onShowMore?.(items, type);
-    },
-    [onShowMore]
-  );
-
-  const handleAddressClick = useCallback(
-    (address: string, type = '') => {
-      const isFarcaster = type?.includes('farcaster');
-      navigate(
-        createTokenBalancesUrl({
-          address: isFarcaster ? `fc_fname:${address}` : address,
-          blockchain: 'ethereum',
-          inputType: 'ADDRESS'
-        })
-      );
-    },
-    [navigate]
-  );
+  const getShowMoreHandler = (addresses: string[], type: string) => () =>
+    onShowMoreClick?.([...addresses, ...walletAddresses], type);
 
   return (
     <>
@@ -132,73 +128,119 @@ export function Token({
         })}
       >
         <div className="flex">
-          {assets.map(asset => (
-            <div key={asset.tokenId} className="mr-1.5 last:!mr-0">
-              <div className="token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden [&>div]:w-full [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center">
-                <Asset
-                  address={asset.tokenAddress}
-                  tokenId={asset.tokenId}
-                  preset="small"
-                  containerClassName="token-img"
-                  chain={asset.blockchain}
-                  image={asset.image}
-                  videoProps={{
-                    controls: false
+          {assets.map(
+            (
+              {
+                tokenAddress,
+                tokenId,
+                blockchain,
+                image,
+                has6551,
+                formattedAmount
+              },
+              index
+            ) => (
+              <div key={tokenId} className="mr-1.5 last:!mr-0">
+                <div
+                  className="relative token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden flex-col-center cursor-pointer"
+                  onClick={() => {
+                    onAssetClick?.(assets[index]);
                   }}
-                />
-              </div>
-              {isCombination && (
-                <div className="text-[10px] mt-1 text-center">
-                  #{asset.tokenId}
+                >
+                  <Asset
+                    address={tokenAddress}
+                    tokenId={tokenId}
+                    preset="small"
+                    containerClassName={classNames(
+                      'token-img w-full [&>img]:w-full [&>img]:min-w-full z-10 rounded-md overflow-hidden',
+                      {
+                        '!w-[32px]': has6551
+                      }
+                    )}
+                    chain={blockchain}
+                    image={image}
+                    videoProps={{
+                      controls: false
+                    }}
+                  />
+                  {has6551 && (
+                    <div className="absolute z-20 bg-glass w-full rounded-md bottom-0 text-[8px] font-bold text-center border-solid-stroke">
+                      ERC6551
+                    </div>
+                  )}
+                  {has6551 && (
+                    <div className="absolute blur-md inset-0 flex-col-center">
+                      <Asset
+                        address={tokenAddress}
+                        tokenId={tokenId}
+                        preset="small"
+                        containerClassName={classNames(
+                          'token-img w-full [&>img]:w-full [&>img]:min-w-full rounded-md overflow-hidden',
+                          {
+                            '!w-40px': has6551
+                          }
+                        )}
+                        chain={blockchain}
+                        image={image}
+                        videoProps={{
+                          controls: false
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-          ))}
+                {isCombination && (
+                  <div className="text-[10px] mt-1 text-center">
+                    {formattedAmount || `#${tokenId}`}
+                  </div>
+                )}
+              </div>
+            )
+          )}
         </div>
       </td>
       <td className="ellipsis">
-        <WalletAddress address={walletAddress} onClick={handleAddressClick} />
+        <WalletAddress address={walletAddress} onClick={onAddressClick} />
       </td>
       {!isCombination && (
         <td className="ellipsis">
-          {token?.tokenType === 'ERC20'
-            ? token?.formattedAmount
+          {token?.tokenType === 'ERC20' && token.formattedAmount != null
+            ? formatNumber(token.formattedAmount)
             : tokenId
             ? `#${tokenId}`
             : '--'}
         </td>
       )}
       <td className="ellipsis">
-        {}
         <ListWithMoreOptions
           list={[primaryEns || '']}
-          onShowMore={getShowMoreHandler(ens, 'ens')}
           listFor="ens"
-          onItemClick={handleAddressClick}
+          onShowMore={getShowMoreHandler(ens, 'ens')}
+          onItemClick={onAddressClick}
         />
       </td>
       <td>
         <ListWithMoreOptions
           list={ens}
-          onShowMore={getShowMoreHandler(ens, 'ens')}
           listFor="ens"
-          onItemClick={handleAddressClick}
+          onShowMore={getShowMoreHandler(ens, 'ens')}
+          onItemClick={onAddressClick}
         />
       </td>
       <td>
         <ListWithMoreOptions
-          list={lens}
-          onShowMore={getShowMoreHandler(lens, 'lens')}
+          list={lensAddresses}
           listFor="lens"
-          onItemClick={handleAddressClick}
+          onShowMore={getShowMoreHandler(lensAddresses, 'lens')}
+          onItemClick={onAddressClick}
         />
       </td>
       <td>
         <ListWithMoreOptions
-          list={farcaster}
-          onShowMore={getShowMoreHandler(farcaster, 'farcaster')}
+          list={farcasterAddresses}
           listFor="farcaster"
-          onItemClick={handleAddressClick}
+          onShowMore={getShowMoreHandler(farcasterAddresses, 'farcaster')}
+          onItemClick={onAddressClick}
         />
       </td>
       <td>

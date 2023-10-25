@@ -11,14 +11,15 @@ import { SectionHeader } from './SectionHeader';
 import { CommonTokenType, TokenType } from './types';
 import classNames from 'classnames';
 import { useSearchInput } from '../../hooks/useSearchInput';
-import { createTokenHolderUrl } from '../../utils/createTokenUrl';
-import { Link } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { formatNumber } from '../../utils/formatNumber';
 import './erc20.styles.css';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { emit } from '../../utils/eventEmitter/eventEmitter';
 import { createNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
+import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
+import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
+import { defaultSortOrder } from '../../Components/Filters/SortBy';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
@@ -100,36 +101,44 @@ export function ERC20Tokens() {
       tokenType,
       blockchainType,
       sortOrder,
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp
-    }
+      activeTokenInfo,
+      activeSnapshotInfo
+    },
+    setSearchData
   ] = useSearchInput();
   const tokensRef = useRef<TokenType[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const isSnapshotQuery = Boolean(
-    snapshotBlockNumber || snapshotDate || snapshotTimestamp
-  );
   const isCombination = owners.length > 1;
 
+  const snapshotInfo = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
+
   const query = useMemo(() => {
-    if (isSnapshotQuery) {
+    const fetchAllBlockchains =
+      blockchainType.length === 2 || blockchainType.length === 0;
+
+    const blockchain = fetchAllBlockchains ? null : blockchainType[0];
+
+    if (snapshotInfo.isApplicable) {
       return createNftWithCommonOwnersSnapshotQuery({
         owners,
-        blockchain: null,
-        blockNumber: snapshotBlockNumber,
-        date: snapshotDate,
-        timestamp: snapshotTimestamp
+        blockchain: blockchain,
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp
       });
     }
-    return createNftWithCommonOwnersQuery(owners, null);
+    return createNftWithCommonOwnersQuery(owners, blockchain);
   }, [
-    owners,
-    isSnapshotQuery,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    blockchainType,
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp,
+    owners
   ]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -185,20 +194,21 @@ export function ERC20Tokens() {
       // eslint-disable-next-line react-hooks/exhaustive-deps
       data = null;
 
-      const _limit = owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT;
+      const limit = owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT;
 
-      if (isSnapshotQuery) {
+      if (snapshotInfo.isApplicable) {
         fetch({
-          limit: _limit,
+          limit: limit,
           tokenType: ['ERC20'],
-          blockNumber: snapshotBlockNumber,
-          date: snapshotDate,
-          timestamp: snapshotTimestamp
+          blockNumber: snapshotInfo.blockNumber,
+          date: snapshotInfo.date,
+          timestamp: snapshotInfo.timestamp
         });
       } else {
         fetch({
-          limit: _limit,
-          tokenType: ['ERC20']
+          limit: limit,
+          tokenType: ['ERC20'],
+          sortBy: sortOrder ? sortOrder : defaultSortOrder
         });
       }
     }
@@ -213,10 +223,10 @@ export function ERC20Tokens() {
     tokenType,
     blockchainType,
     sortOrder,
-    isSnapshotQuery,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   useEffect(() => {
@@ -276,16 +286,26 @@ export function ERC20Tokens() {
           loader={null}
         >
           {tokens.map((token, index) => (
-            <Link
+            <div
               key={index}
               data-address={token?.tokenAddress}
-              to={createTokenHolderUrl({
-                address: token?.tokenAddress,
-                type: 'ERC20',
-                blockchain: token.blockchain,
-                label: token?.token?.name
-              })}
-              className="random-color-item"
+              className="random-color-item cursor-pointer"
+              onClick={() => {
+                setSearchData(
+                  {
+                    activeTokenInfo: addToActiveTokenInfo(
+                      {
+                        tokenAddress: token?.tokenAddress,
+                        tokenId: token?.tokenId || '',
+                        blockchain: token?.blockchain,
+                        eventId: ''
+                      },
+                      activeTokenInfo
+                    )
+                  },
+                  { updateQueryParams: true }
+                );
+              }}
             >
               <Token
                 amount={isCombination ? null : token?.formattedAmount}
@@ -296,7 +316,7 @@ export function ERC20Tokens() {
                   token?.token?.projectDetails?.imageUrl
                 }
               />
-            </Link>
+            </div>
           ))}
           {loading && <Loader />}
         </InfiniteScroll>

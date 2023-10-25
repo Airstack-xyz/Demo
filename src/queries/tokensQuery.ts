@@ -4,6 +4,7 @@ const createBaseQuery = () => {
       tokenType
       blockchain
       tokenAddress
+      formattedAmount
       tokenNfts {
         tokenId
         contentValue {
@@ -54,38 +55,29 @@ export function getTokensQuery(blockchain: string | null) {
 }`;
 }
 
-export const MultiTokenOverviewQuery = `query TokenOverviewQuery($tokenAddress: [Address!]) {
-  ethereum: TokenHolders(
-    input: {filter: {inputType: {_eq: token}, tokenAddress: {_intersection: $tokenAddress}}, blockchain: ethereum}
-  ) {
-    ensUsersCount
-    farcasterProfileCount
-    lensProfileCount
-    primaryEnsUsersCount
-    totalHolders
-    xmtpUsersCount
-  }
-  polygon: TokenHolders(
-    input: {filter: {inputType: {_eq: token}, tokenAddress: {_intersection: $tokenAddress}}, blockchain: polygon}
-  ) {
-    ensUsersCount
-    farcasterProfileCount
-    lensProfileCount
-    primaryEnsUsersCount
-    totalHolders
-    xmtpUsersCount
-  }
-}`;
-
-export const MultiPoapsOverviewQuery = `query TokenOverviewQuery($eventId: [Address!]) {
-  ethereum: TokenHolders(
-    input: {filter: {inputType: {_eq: poap}, eventId: {_intersection: $eventId}}, blockchain: ethereum}
-  ) {
-    ensUsersCount
-    farcasterProfileCount
-    lensProfileCount
-    primaryEnsUsersCount
-    totalHolders
-    xmtpUsersCount
-  }
-}`;
+export function getOverviewQuery(
+  hasPolygon: boolean,
+  hasEvents: boolean,
+  hasEthereum: boolean
+) {
+  return `query TokenHolders(${
+    hasPolygon ? '$polygonTokens: [Address!], ' : ''
+  }${hasEvents ? '$eventIds: [Address!], ' : ''}${
+    hasEthereum ? '$ethereumTokens: [Address!]' : ''
+  }) {
+    TokenHolders(input: {filter: {polygonTokens: {${
+      hasPolygon ? '_intersection: $polygonTokens' : ''
+    }}, eventId: {${
+    hasEvents ? '_intersection: $eventIds' : ''
+  }}, ethereumTokens: {${
+    hasEthereum ? '_intersection: $ethereumTokens' : ''
+  }}}}) {
+      farcasterProfileCount
+      primaryEnsUsersCount
+      totalHolders
+      xmtpUsersCount
+      lensProfileCount
+      ensUsersCount
+    }
+  }`;
+}

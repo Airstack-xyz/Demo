@@ -12,7 +12,7 @@ type ItemProps = {
 };
 
 function Placeholder() {
-  return <img src="/images/placeholder.png" />;
+  return <img src="/images/placeholder.svg" />;
 }
 
 export function Item({

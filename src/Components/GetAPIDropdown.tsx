@@ -12,10 +12,12 @@ type Options = {
 
 export function GetAPIDropdown({
   options,
-  disabled
+  disabled,
+  dropdownAlignment = 'left'
 }: {
   options: Options[];
   disabled?: boolean;
+  dropdownAlignment?: 'left' | 'center' | 'right';
 }) {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -47,7 +49,7 @@ export function GetAPIDropdown({
       >
         <button
           className={classNames(
-            'py-2 px-4 text-text-button bg-secondary rounded-full text-xs font-medium flex-row-center border border-solid border-transparent',
+            'py-1.5 px-3 text-text-button bg-glass-1 rounded-full text-xs font-medium flex-row-center border border-solid border-transparent',
             {
               'border-white': isDropdownVisible,
               'cursor-not-allowed pointer-events-none opacity-80': disabled
@@ -61,7 +63,14 @@ export function GetAPIDropdown({
         </button>
         {isDropdownVisible && (
           <div
-            className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute min-w-[214px] top-9 z-10"
+            className={classNames(
+              'bg-glass rounded-18 p-1 mt-1 flex flex-col absolute min-w-[214px] top-9 z-20',
+              {
+                'left-0': dropdownAlignment === 'left',
+                'left-1/2 -translate-x-1/2': dropdownAlignment === 'center',
+                'right-0': dropdownAlignment === 'right'
+              }
+            )}
             onClick={handleDropdownClose}
           >
             {options.map(({ label, link }) => (

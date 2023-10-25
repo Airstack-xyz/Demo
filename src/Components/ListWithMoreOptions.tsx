@@ -1,31 +1,31 @@
 import classNames from 'classnames';
 import { useState, useMemo, useCallback } from 'react';
 
-const maxTokens = 7;
-const minTokens = 1;
+const maxItemCount = 7;
+const minItemCount = 1;
 
 export function ListWithMoreOptions({
   list,
-  onShowMore,
   listFor,
+  onShowMore,
   onItemClick
 }: {
   list: string[];
-  onShowMore?: () => void;
   listFor: string;
-  onItemClick: (address: string, type: string) => void;
+  onShowMore?: () => void;
+  onItemClick?: (address: string, type?: string) => void;
 }) {
   const [showMax, setShowMax] = useState(false);
   const items = useMemo(() => {
     if (!showMax) {
-      return list?.slice(0, minTokens);
+      return list?.slice(0, minItemCount);
     }
-    return list?.slice(0, maxTokens);
+    return list?.slice(0, maxItemCount);
   }, [showMax, list]);
 
   const getItemClickHandler = useCallback(
     (value: string) => () => {
-      onItemClick(value, listFor);
+      onItemClick?.(value, listFor);
     },
     [listFor, onItemClick]
   );
@@ -48,7 +48,7 @@ export function ListWithMoreOptions({
         </li>
       ))}
       {list.length === 0 && <li>--</li>}
-      {!showMax && list?.length > minTokens && (
+      {!showMax && list?.length > minItemCount && (
         <li
           onClick={e => {
             e.stopPropagation();
@@ -59,11 +59,11 @@ export function ListWithMoreOptions({
           see more
         </li>
       )}
-      {showMax && list.length > maxTokens && (
+      {showMax && list.length > maxItemCount && (
         <li
           onClick={e => {
             e.stopPropagation();
-            if (showMax && list.length > maxTokens) {
+            if (showMax && list.length > maxItemCount) {
               onShowMore?.();
               return;
             }

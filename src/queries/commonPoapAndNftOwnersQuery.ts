@@ -13,14 +13,12 @@ export function getCommonPoapAndNftOwnersQuery(
         tokenId
         tokenAddress
         blockchain
+        eventId
         poapEvent {
           contentValue {
             image {
-              original
-              medium
-              large
-              extraSmall
               small
+              medium
             }
             video
             audio
@@ -38,6 +36,8 @@ export function getCommonPoapAndNftOwnersQuery(
           tokenBalances(input: {filter: {tokenAddress: {_eq: "${tokenId.address}"}}, blockchain: ${tokenId.blockchain}}) {
             tokenId
             tokenAddress
+            tokenType
+            formattedAmount
             blockchain
             token {
               logo {
@@ -52,6 +52,12 @@ export function getCommonPoapAndNftOwnersQuery(
                 video
                 image {
                   small
+                  medium
+                }
+              }
+              erc6551Accounts {
+                address {
+                  identity
                 }
               }
             }
@@ -60,6 +66,7 @@ export function getCommonPoapAndNftOwnersQuery(
               addresses
               socials {
                 blockchain
+                dappName
                 dappSlug
                 profileName
               }

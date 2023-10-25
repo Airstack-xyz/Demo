@@ -1,74 +1,89 @@
 /* eslint-disable react-refresh/only-export-components */
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
-import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
+import { useSearchInput } from '../../hooks/useSearchInput';
 import { formatDate } from '../../utils';
 import { DatePicker, DateValue } from '../DatePicker';
 import { Icon, IconType } from '../Icon';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 import { defaultSortOrder } from './SortBy';
+import {
+  getActiveSnapshotInfoString,
+  getActiveSnapshotInfo
+} from '../../utils/activeSnapshotInfoString';
 
-export const enum SnapshotFilterType {
-  TODAY = 'TODAY',
-  CUSTOM_DATE = 'CUSTOM_DATE',
-  BLOCK_NUMBER = 'BLOCK_NUMBER',
-  TIMESTAMP = 'TIMESTAMP'
-}
+export type SnapshotFilterType =
+  | 'today'
+  | 'customDate'
+  | 'blockNumber'
+  | 'timestamp';
 
-export const defaultSnapshotFilter = SnapshotFilterType.TODAY;
+export const defaultSnapshotFilter: SnapshotFilterType = 'today';
 
 type FunctionParams = {
-  selectedFilter: SnapshotFilterType;
-  snapshotBlockNumber?: number;
-  snapshotDate?: string;
-  snapshotTimestamp?: number;
+  appliedFilter: SnapshotFilterType;
+  blockNumber?: number;
+  date?: string;
+  timestamp?: number;
 };
 
 export const getSnackbarMessage = ({
-  selectedFilter,
-  snapshotBlockNumber,
-  snapshotDate,
-  snapshotTimestamp
+  appliedFilter,
+  blockNumber,
+  date,
+  timestamp
 }: FunctionParams) => {
   let message = '';
-  switch (selectedFilter) {
-    case SnapshotFilterType.BLOCK_NUMBER:
-      message = `Viewing balances as of block no. ${snapshotBlockNumber}`;
+  switch (appliedFilter) {
+    case 'blockNumber':
+      message = `Viewing balances as of block no. ${blockNumber}`;
       break;
-    case SnapshotFilterType.CUSTOM_DATE:
-      message = `Viewing holders as of ${formatDate(snapshotDate)}`;
+    case 'customDate':
+      message = `Viewing holders as of ${formatDate(date)}`;
       break;
-    case SnapshotFilterType.TIMESTAMP:
-      message = `Viewing balances as of timestamp ${snapshotTimestamp}`;
+    case 'timestamp':
+      message = `Viewing balances as of timestamp ${timestamp}`;
       break;
   }
   return message;
 };
 
 const getLabelAndIcon = ({
-  selectedFilter,
-  snapshotBlockNumber,
-  snapshotDate,
-  snapshotTimestamp
+  appliedFilter,
+  blockNumber,
+  date,
+  timestamp
 }: FunctionParams) => {
   let label = 'Today';
   let icon: IconType = 'calendar';
-  switch (selectedFilter) {
-    case SnapshotFilterType.BLOCK_NUMBER:
-      label = String(snapshotBlockNumber);
+  switch (appliedFilter) {
+    case 'blockNumber':
+      label = String(blockNumber);
       icon = 'block';
       break;
-    case SnapshotFilterType.CUSTOM_DATE:
-      label = formatDate(snapshotDate);
+    case 'customDate':
+      label = formatDate(date);
       icon = 'calendar';
       break;
-    case SnapshotFilterType.TIMESTAMP:
-      label = String(snapshotTimestamp);
+    case 'timestamp':
+      label = String(timestamp);
       icon = 'clock';
       break;
   }
   return { label, icon };
+};
+
+const getTooltipMessage = ({
+  forCombination,
+  forPoap
+}: {
+  forCombination?: boolean;
+  forPoap?: boolean;
+}) => {
+  if (forCombination) return 'Snapshots is disabled for combinations';
+  if (forPoap) return 'Snapshots is disabled for POAP';
+  return '';
 };
 
 export function SnapshotToastMessage({ message }: { message: string }) {
@@ -82,42 +97,54 @@ export function SnapshotToastMessage({ message }: { message: string }) {
 
 export type TextValue = string | number | undefined;
 
+const currentDate = new Date();
+
+const filterInputClass =
+  'bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none';
+
 export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
-  const [
-    {
-      address,
-      tokenType,
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp
-    },
-    setData
-  ] = useSearchInput();
+  const [{ address, tokenType, activeSnapshotInfo }, setData] =
+    useSearchInput();
 
-  const selectedFilter = useMemo(() => {
-    if (snapshotBlockNumber) return SnapshotFilterType.BLOCK_NUMBER;
-    if (snapshotDate) return SnapshotFilterType.CUSTOM_DATE;
-    if (snapshotTimestamp) return SnapshotFilterType.TIMESTAMP;
-    return defaultSnapshotFilter;
-  }, [snapshotBlockNumber, snapshotDate, snapshotTimestamp]);
+  const snapshotInfo = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
 
-  const [currentFilter, setCurrentFilter] = useState(selectedFilter);
+  const [currentFilter, setCurrentFilter] = useState<SnapshotFilterType>(
+    snapshotInfo.appliedFilter
+  );
 
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
 
   const [blockNumber, setBlockNumber] = useState<TextValue>('');
   const [timestamp, setTimestamp] = useState<TextValue>('');
-  const [date, setDate] = useState<DateValue>(new Date());
+  const [date, setDate] = useState<DateValue>(currentDate);
+
+  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
+
+  const handleTooltipShow = useCallback(() => {
+    setIsTooltipVisible(true);
+  }, []);
+
+  const handleTooltipHide = useCallback(() => {
+    setIsTooltipVisible(false);
+  }, []);
 
   const handleDropdownHide = useCallback(() => {
     setIsDropdownVisible(false);
     setIsDatePickerVisible(false);
-    setBlockNumber(snapshotBlockNumber);
-    setDate(snapshotDate ? new Date(snapshotDate) : new Date());
-    setTimestamp(snapshotTimestamp);
-    setCurrentFilter(selectedFilter);
-  }, [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]);
+    setBlockNumber(snapshotInfo.blockNumber);
+    setDate(snapshotInfo.date ? new Date(snapshotInfo.date) : new Date());
+    setTimestamp(snapshotInfo.timestamp);
+    setCurrentFilter(snapshotInfo.appliedFilter);
+  }, [
+    snapshotInfo.appliedFilter,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
+  ]);
 
   const dropdownContainerRef =
     useOutsideClick<HTMLDivElement>(handleDropdownHide);
@@ -136,9 +163,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
     if (isFilterDisabled) {
       setData(
         {
-          snapshotBlockNumber: undefined,
-          snapshotDate: undefined,
-          snapshotTimestamp: undefined
+          activeSnapshotInfo: undefined
         },
         { updateQueryParams: true }
       );
@@ -146,32 +171,25 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   }, [isFilterDisabled, setData]);
 
   useEffect(() => {
-    setBlockNumber(snapshotBlockNumber);
-    setDate(snapshotDate ? new Date(snapshotDate) : new Date());
-    setTimestamp(snapshotTimestamp);
-    setCurrentFilter(selectedFilter);
-  }, [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]);
+    setBlockNumber(snapshotInfo.blockNumber);
+    setDate(snapshotInfo.date ? new Date(snapshotInfo.date) : new Date());
+    setTimestamp(snapshotInfo.timestamp);
+    setCurrentFilter(snapshotInfo.appliedFilter);
+  }, [
+    snapshotInfo.appliedFilter,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
+  ]);
 
   const snackbarMessage = useMemo(
-    () =>
-      getSnackbarMessage({
-        selectedFilter,
-        snapshotBlockNumber,
-        snapshotDate,
-        snapshotTimestamp
-      }),
-    [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]
+    () => getSnackbarMessage(snapshotInfo),
+    [snapshotInfo]
   );
 
   const { label, icon } = useMemo(
-    () =>
-      getLabelAndIcon({
-        selectedFilter,
-        snapshotBlockNumber,
-        snapshotDate,
-        snapshotTimestamp
-      }),
-    [selectedFilter, snapshotBlockNumber, snapshotDate, snapshotTimestamp]
+    () => getLabelAndIcon(snapshotInfo),
+    [snapshotInfo]
   );
 
   const handleDropdownToggle = useCallback(() => {
@@ -186,7 +204,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   );
 
   const handleCustomDateOptionClick = useCallback(() => {
-    setCurrentFilter(SnapshotFilterType.CUSTOM_DATE);
+    setCurrentFilter('customDate');
     setIsDatePickerVisible(true);
   }, []);
 
@@ -215,31 +233,28 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
 
   // Not enclosing in useCallback as its dependencies will change every time
   const handleApplyClick = () => {
-    const filterValues: Partial<CachedQuery> = {
-      sortOrder: defaultSortOrder, // For snapshot query resetting sort order
-      snapshotBlockNumber: undefined,
-      snapshotDate: undefined,
-      snapshotTimestamp: undefined
-    };
+    const snapshotValues: Record<string, unknown> = {};
 
     switch (currentFilter) {
-      case SnapshotFilterType.BLOCK_NUMBER:
-        filterValues.snapshotBlockNumber = blockNumber
-          ? Number(blockNumber)
-          : undefined;
+      case 'blockNumber':
+        snapshotValues.blockNumber = blockNumber;
         break;
-      case SnapshotFilterType.CUSTOM_DATE:
-        filterValues.snapshotDate = (date as Date).toISOString().split('T')[0];
+      case 'customDate':
+        snapshotValues.date = (date as Date).toISOString().split('T')[0];
         break;
-      case SnapshotFilterType.TIMESTAMP:
-        filterValues.snapshotTimestamp = timestamp
-          ? Number(timestamp)
-          : undefined;
+      case 'timestamp':
+        snapshotValues.timestamp = timestamp;
         break;
     }
 
     setIsDropdownVisible(false);
-    setData(filterValues, { updateQueryParams: true });
+    setData(
+      {
+        sortOrder: defaultSortOrder, // for snapshot query resetting sort order
+        activeSnapshotInfo: getActiveSnapshotInfoString(snapshotValues)
+      },
+      { updateQueryParams: true }
+    );
   };
 
   const handleKeyboardKeyUp = (
@@ -261,6 +276,8 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
       <div
         className="text-xs font-medium relative flex flex-col items-end"
         ref={dropdownContainerRef}
+        onMouseEnter={isFilterDisabled ? handleTooltipShow : undefined}
+        onMouseLeave={isFilterDisabled ? handleTooltipHide : undefined}
       >
         <FilterPlaceholder
           isDisabled={isFilterDisabled}
@@ -269,23 +286,34 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
           icon={icon}
           onClick={handleDropdownToggle}
         />
+        {isFilterDisabled && isTooltipVisible && (
+          <div className="absolute left-4 top-4 z-20">
+            <img src="images/cursor.svg" height={30} width={30} />
+            <div className="bg-glass-1 rounded-[16px] py-1.5 px-3 w-max text-text-secondary">
+              {getTooltipMessage({
+                forCombination: isCombination,
+                forPoap: isPoap
+              })}
+            </div>
+          </div>
+        )}
         {isDropdownVisible && (
-          <div className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-10">
+          <div className="before:bg-glass before:absolute before:inset-0 before:-z-10 before:rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">
             <div className="font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap">
               Balance as of
             </div>
             <FilterOption
               label="Today"
-              isSelected={currentFilter === SnapshotFilterType.TODAY}
-              onClick={handleFilterOptionClick(SnapshotFilterType.TODAY)}
+              isSelected={currentFilter === 'today'}
+              onClick={handleFilterOptionClick('today')}
             />
             <FilterOption
               label="Custom date"
-              isSelected={currentFilter === SnapshotFilterType.CUSTOM_DATE}
+              isSelected={currentFilter === 'customDate'}
               onClick={handleCustomDateOptionClick}
             />
             <div className="relative">
-              {currentFilter === SnapshotFilterType.CUSTOM_DATE && (
+              {currentFilter === 'customDate' && (
                 <div
                   className="ml-10 mr-4 mb-2 cursor-pointer"
                   onClick={handleDatePickerShow}
@@ -298,21 +326,25 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
                   ref={datePickerContainerRef}
                   className="absolute left-2 z-20"
                 >
-                  <DatePicker value={date} onChange={handleDateChange} />
+                  <DatePicker
+                    value={date}
+                    maxDate={currentDate}
+                    onChange={handleDateChange}
+                  />
                 </div>
               )}
             </div>
             <FilterOption
               label="Block number"
-              isSelected={currentFilter === SnapshotFilterType.BLOCK_NUMBER}
-              onClick={handleFilterOptionClick(SnapshotFilterType.BLOCK_NUMBER)}
+              isSelected={currentFilter === 'blockNumber'}
+              onClick={handleFilterOptionClick('blockNumber')}
             />
-            {currentFilter === SnapshotFilterType.BLOCK_NUMBER && (
+            {currentFilter === 'blockNumber' && (
               <input
                 autoFocus
                 type="text"
                 placeholder="enter block no."
-                className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none"
+                className={filterInputClass}
                 onChange={handleBlockNumberChange}
                 onKeyUp={handleKeyboardKeyUp}
                 value={blockNumber}
@@ -320,15 +352,15 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
             )}
             <FilterOption
               label="Timestamp"
-              isSelected={currentFilter === SnapshotFilterType.TIMESTAMP}
-              onClick={handleFilterOptionClick(SnapshotFilterType.TIMESTAMP)}
+              isSelected={currentFilter === 'timestamp'}
+              onClick={handleFilterOptionClick('timestamp')}
             />
-            {currentFilter === SnapshotFilterType.TIMESTAMP && (
+            {currentFilter === 'timestamp' && (
               <input
                 autoFocus
                 type="text"
                 placeholder="epoch timestamp"
-                className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none"
+                className={filterInputClass}
                 onChange={handleTimestampChange}
                 onKeyUp={handleKeyboardKeyUp}
                 value={timestamp}
@@ -353,9 +385,8 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
           </div>
         )}
       </div>
-      {selectedFilter !== defaultSnapshotFilter && snackbarMessage && (
-        <SnapshotToastMessage message={snackbarMessage} />
-      )}
+      {snapshotInfo.appliedFilter !== defaultSnapshotFilter &&
+        snackbarMessage && <SnapshotToastMessage message={snackbarMessage} />}
     </>
   );
 }

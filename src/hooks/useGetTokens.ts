@@ -19,7 +19,7 @@ export type OverviewTokenDetailsType = {
 export function useFetchTokens() {
   const setTokens = useOverviewTokens(['tokens'])[1];
 
-  const [data, setData] = useState<OverviewTokenDetailsType[]>([]);
+  const [data, setData] = useState<null | OverviewTokenDetailsType[]>(null);
   const [loading, setLoading] = useState(false);
 
   const getTokenFromResponse = useCallback(
@@ -48,6 +48,8 @@ export function useFetchTokens() {
 
       const token = (ethTokenBalances[0] ||
         polygonTokenBalances[0]) as TokenBalance;
+
+      if (!token) return null;
 
       return {
         name: token?.token?.name || '',

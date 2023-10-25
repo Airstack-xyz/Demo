@@ -1,0 +1,55 @@
+.sf-table {
+  @apply w-auto text-xs table-fixed sm:w-full;
+}
+
+.sf-table thead {
+  @apply bg-glass-grad sm:bg-fixed rounded-2xl;
+}
+
+.sf-table th {
+  @apply py-5 px-2 text-xs font-bold text-left whitespace-nowrap;
+}
+
+.sf-table :is(th, td):first-child {
+  @apply pl-9;
+}
+
+.sf-table :is(th, td):first-child {
+  @apply pr-9;
+}
+
+.sf-table td {
+  @apply py-3 px-2 align-middle ellipsis;
+}
+
+.sf-table > tbody > tr:first-child > td {
+  @apply pt-5;
+}
+
+.sf-table > tbody > tr:last-child > td {
+  @apply pb-5;
+}
+
+.sf-mention-input {
+  @apply relative flex items-center h-[30px] sm:w-[300px] border-solid-stroke rounded-full bg-glass px-3 py-1.5 z-10;
+}
+
+.sf-mention-input .mentions {
+  @apply text-xs;
+}
+
+.sf-mention-input .mentions__suggestions__item {
+  @apply p-0;
+}
+
+.sf-mention-input .mentions__suggestions__item .text {
+  @apply text-xs;
+}
+
+.sf-mention-input .mentions__suggestions__item .type {
+  font-size: 10px;
+}
+
+.sf-mention-input #suggestions-overlay {
+  top: 10px !important;
+}

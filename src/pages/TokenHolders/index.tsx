@@ -1,11 +1,17 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
 import { Search } from '../../Components/Search';
-import { Layout } from '../../Components/layout';
+import { Layout } from '../../Components/Layout';
 import { Tokens } from './Tokens/Tokens';
 import { HoldersOverview } from './Overview/Overview';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
-import { TokenTotalSupplyQuery } from '../../queries';
+import { SocialQuery, TokenTotalSupplyQuery } from '../../queries';
 import classNames from 'classnames';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Icon } from '../../Components/Icon';
@@ -31,7 +37,13 @@ import {
   TokenHolder
 } from '../../store/tokenHoldersOverview';
 import { sortByAddressByNonERC20First } from '../../utils/getNFTQueryForTokensHolder';
-import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
+import {
+  erc6551TokensQuery,
+  poapDetailsQuery,
+  tokenDetailsQuery,
+  erc20TokenDetailsQuery
+} from '../../queries/tokenDetails';
+import { useTokenDetails } from '../../store/tokenDetails';
 import {
   getCommonNftOwnersSnapshotQuery,
   getNftOwnersSnapshotQuery
@@ -40,6 +52,13 @@ import {
   getCommonNftOwnersSnapshotQueryWithFilters,
   getNftOwnersSnapshotQueryWithFilters
 } from '../../queries/commonNftOwnersSnapshotQueryWithFilters';
+import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
+import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
+import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { tokenTypes } from '../TokenBalances/constants';
+import { accountOwnerQuery } from '../../queries/accountsQuery';
+import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
+import { defaultSortOrder } from '../../Components/Filters/SortBy';
 
 export function TokenHolders() {
   const [
@@ -47,29 +66,42 @@ export function TokenHolders() {
       address: tokenAddress,
       activeView,
       tokenFilters,
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp
+      activeSnapshotInfo,
+      activeTokenInfo
     },
     setData
   ] = useSearchInput();
+  const [{ hasERC6551, owner, accountAddress }] = useTokenDetails([
+    'hasERC6551',
+    'owner',
+    'accountAddress'
+  ]);
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
+  const [showTokensOrOverview, setShowTokensOrOverview] = useState(true);
 
   const addressRef = useRef<null | string[]>(null);
   const isHome = useMatch('/');
 
   const query = tokenAddress.length > 0 ? tokenAddress[0] : '';
 
-  const tokenListKey = useMemo(() => {
-    return tokenAddress.join(',');
+  useEffect(() => {
+    setShowTokensOrOverview(true);
   }, [tokenAddress]);
+
+  const tokensKey = useMemo(() => tokenAddress.join(','), [tokenAddress]);
+
+  const snapshotInfo = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
 
   useEffect(() => {
     // go to token-holders page if user input address has changed
     if (addressRef.current && addressRef.current !== tokenAddress) {
       setData(
         {
-          activeView: ''
+          activeView: '',
+          activeTokenInfo: ''
         },
         {
           updateQueryParams: true
@@ -79,9 +111,6 @@ export function TokenHolders() {
     addressRef.current = tokenAddress;
   }, [tokenAddress, setData]);
 
-  const isSnapshotQuery = Boolean(
-    snapshotBlockNumber || snapshotDate || snapshotTimestamp
-  );
   const hasSomePoap = tokenAddress.some(token => !token.startsWith('0x'));
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
@@ -92,12 +121,12 @@ export function TokenHolders() {
   const tokenOwnersQuery = useMemo(() => {
     if (address.length === 0) return '';
     if (address.length === 1) {
-      if (isSnapshotQuery) {
+      if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQuery({
           address: address[0].address,
-          blockNumber: snapshotBlockNumber,
-          date: snapshotDate,
-          timestamp: snapshotTimestamp
+          blockNumber: snapshotInfo.blockNumber,
+          date: snapshotInfo.date,
+          timestamp: snapshotInfo.timestamp
         });
       }
       return getNftOwnersQuery(address[0].address);
@@ -106,45 +135,45 @@ export function TokenHolders() {
       const tokens = sortAddressByPoapFirst(address);
       return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
     }
-    if (isSnapshotQuery) {
+    if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQuery({
         address1: address[0],
         address2: address[1],
-        blockNumber: snapshotBlockNumber,
-        date: snapshotDate,
-        timestamp: snapshotTimestamp
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp
       });
     }
     return getCommonNftOwnersQuery(address[0], address[1]);
   }, [
     address,
     hasSomePoap,
-    isSnapshotQuery,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   const tokensQueryWithFilter = useMemo(() => {
     const requestFilters = getRequestFilters(tokenFilters);
-    const _hasSocialFilters = Boolean(requestFilters?.socialFilters);
-    const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
+    const hasSocialFilters = Boolean(requestFilters?.socialFilters);
+    const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
     if (address.length === 0) return '';
     if (address.length === 1) {
-      if (isSnapshotQuery) {
+      if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQueryWithFilters({
           address: address[0].address,
-          blockNumber: snapshotBlockNumber,
-          date: snapshotDate,
-          timestamp: snapshotTimestamp,
-          hasSocialFilters: _hasSocialFilters,
-          hasPrimaryDomain: _hasPrimaryDomain
+          blockNumber: snapshotInfo.blockNumber,
+          date: snapshotInfo.date,
+          timestamp: snapshotInfo.timestamp,
+          hasSocialFilters,
+          hasPrimaryDomain
         });
       }
       return getNftOwnersQueryWithFilters(
         address[0].address,
-        _hasSocialFilters,
-        _hasPrimaryDomain
+        hasSocialFilters,
+        hasPrimaryDomain
       );
     }
     if (hasSomePoap) {
@@ -152,62 +181,73 @@ export function TokenHolders() {
       return getCommonPoapAndNftOwnersQueryWithFilters(
         tokens[0],
         tokens[1],
-        _hasSocialFilters,
-        _hasPrimaryDomain
+        hasSocialFilters,
+        hasPrimaryDomain
       );
     }
-    if (isSnapshotQuery) {
+    if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQueryWithFilters({
         address1: address[0],
         address2: address[1],
-        blockNumber: snapshotBlockNumber,
-        date: snapshotDate,
-        timestamp: snapshotTimestamp,
-        hasSocialFilters: _hasSocialFilters,
-        hasPrimaryDomain: _hasPrimaryDomain
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp,
+        hasSocialFilters,
+        hasPrimaryDomain
       });
     }
     return getCommonNftOwnersQueryWithFilters(
       address[0],
       address[1],
-      _hasSocialFilters,
-      _hasPrimaryDomain
+      hasSocialFilters,
+      hasPrimaryDomain
     );
   }, [
-    address,
     tokenFilters,
+    address,
     hasSomePoap,
-    isSnapshotQuery,
-    snapshotDate,
-    snapshotBlockNumber,
-    snapshotTimestamp
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
+
+  const token = useMemo(() => {
+    const { tokenAddress, tokenId, blockchain, eventId } =
+      getActiveTokenInfo(activeTokenInfo);
+    return {
+      tokenAddress,
+      tokenId,
+      blockchain,
+      eventId
+    };
+  }, [activeTokenInfo]);
 
   const options = useMemo(() => {
     if (address.length === 0) return [];
 
     if (activeView) {
       const requestFilters = getRequestFilters(tokenFilters);
-      const _hasSocialFilters = Boolean(requestFilters?.socialFilters);
-      const _hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
+      const hasSocialFilters = Boolean(requestFilters?.socialFilters);
+      const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
       let combinationsQueryLink = '';
       if (hasPoap) {
         const combinationsQuery = getFilterablePoapsQuery(
           address,
-          _hasSocialFilters,
-          _hasPrimaryDomain
+          hasSocialFilters,
+          hasPrimaryDomain
         );
         combinationsQueryLink = createAppUrlWithQuery(combinationsQuery, {
           limit: 200,
           ...requestFilters
         });
       } else {
-        if (isSnapshotQuery) {
+        if (snapshotInfo.isApplicable) {
           combinationsQueryLink = createAppUrlWithQuery(tokensQueryWithFilter, {
             limit: 200,
-            blockNumber: snapshotBlockNumber,
-            date: snapshotDate,
-            timestamp: snapshotTimestamp,
+            blockNumber: snapshotInfo.blockNumber,
+            date: snapshotInfo.date,
+            timestamp: snapshotInfo.timestamp,
             ...requestFilters
           });
         } else {
@@ -227,73 +267,169 @@ export function TokenHolders() {
 
     const options = [];
 
-    if (hasPoap) {
-      const poapsQuery = createCommonOwnersPOAPsQuery(address);
+    if (!activeTokenInfo && !hasERC6551) {
+      if (hasPoap) {
+        const poapsQuery = createCommonOwnersPOAPsQuery(address);
 
-      const poapLink = createAppUrlWithQuery(poapsQuery, {
-        limit: 20
-      });
-
-      const poapSupplyLink = createAppUrlWithQuery(POAPSupplyQuery, {
-        eventId: query
-      });
-
-      options.push({
-        label: 'POAP holders',
-        link: poapLink
-      });
-
-      options.push({
-        label: 'POAP supply',
-        link: poapSupplyLink
-      });
-    } else {
-      if (isSnapshotQuery) {
-        const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
-          limit: 20,
-          blockNumber: snapshotBlockNumber,
-          date: snapshotDate,
-          timestamp: snapshotTimestamp
-        });
-
-        options.push({
-          label: 'Token holders',
-          link: tokenLink
-        });
-      } else {
-        const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
+        const poapLink = createAppUrlWithQuery(poapsQuery, {
           limit: 20
         });
 
-        options.push({
-          label: 'Token holders',
-          link: tokenLink
-        });
-
-        const tokenSupplyLink = createAppUrlWithQuery(TokenTotalSupplyQuery, {
-          tokenAddress: query
+        const poapSupplyLink = createAppUrlWithQuery(POAPSupplyQuery, {
+          eventId: query
         });
 
         options.push({
-          label: 'Token supply',
-          link: tokenSupplyLink
+          label: 'POAP holders',
+          link: poapLink
+        });
+
+        options.push({
+          label: 'POAP supply',
+          link: poapSupplyLink
+        });
+      } else {
+        if (snapshotInfo.isApplicable) {
+          const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
+            limit: 20,
+            blockNumber: snapshotInfo.blockNumber,
+            date: snapshotInfo.date,
+            timestamp: snapshotInfo.timestamp
+          });
+
+          options.push({
+            label: 'Token holders',
+            link: tokenLink
+          });
+        } else {
+          const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
+            limit: 20
+          });
+
+          options.push({
+            label: 'Token holders',
+            link: tokenLink
+          });
+
+          const tokenSupplyLink = createAppUrlWithQuery(TokenTotalSupplyQuery, {
+            tokenAddress: query
+          });
+
+          options.push({
+            label: 'Token supply',
+            link: tokenSupplyLink
+          });
+        }
+      }
+    }
+
+    if (hasERC6551 && !activeTokenInfo) {
+      const socialLink = createAppUrlWithQuery(SocialQuery, {
+        identity: owner
+      });
+      options.push({
+        label: 'Socials, Domains & XMTP',
+        link: socialLink
+      });
+
+      const accountHolderLink = createAppUrlWithQuery(accountOwnerQuery, {
+        accountAddress: tokenAddress[0]
+      });
+
+      options.push({
+        label: 'Account Holder',
+        link: accountHolderLink
+      });
+    }
+
+    if (activeTokenInfo) {
+      const erc6551AccountsQueryLink = createAppUrlWithQuery(
+        erc6551TokensQuery,
+        {
+          tokenAddress: token.tokenAddress,
+          blockchain: token.blockchain,
+          tokenId: token.tokenId
+        }
+      );
+
+      const poapDetailsQueryLink = createAppUrlWithQuery(poapDetailsQuery, {
+        tokenAddress: token.tokenAddress,
+        eventId: token.eventId
+      });
+
+      const tokenDetailsQueryLink = createAppUrlWithQuery(tokenDetailsQuery, {
+        tokenAddress: token.tokenAddress,
+        blockchain: token.blockchain,
+        tokenId: token.tokenId
+      });
+
+      const erc20DetailsQueryLink = createAppUrlWithQuery(
+        erc20TokenDetailsQuery,
+        {
+          tokenAddress: token.tokenAddress,
+          blockchain: token.blockchain,
+          tokenId: token.tokenId
+        }
+      );
+
+      if (token?.eventId) {
+        options.push({
+          label: 'POAP Details',
+          link: poapDetailsQueryLink
+        });
+      } else {
+        options.push({
+          label: 'Token Details',
+          link: token?.tokenId ? tokenDetailsQueryLink : erc20DetailsQueryLink
+        });
+      }
+
+      if (hasERC6551) {
+        options.push({
+          label: 'ERC6551 Accounts',
+          link: erc6551AccountsQueryLink
+        });
+
+        const tokensQuery = createNftWithCommonOwnersQuery(
+          [accountAddress],
+          null
+        );
+
+        const nftLink = createAppUrlWithQuery(tokensQuery, {
+          limit: 10,
+          sortBy: defaultSortOrder,
+          tokenType: tokenTypes
+        });
+
+        options.push({
+          label: 'Token Balances (NFT)',
+          link: nftLink
         });
       }
     }
 
     return options;
   }, [
+    accountAddress,
+    activeTokenInfo,
     activeView,
     address,
-    hasPoap,
+    hasERC6551,
+    owner,
     query,
+    token.blockchain,
+    token.eventId,
+    token.tokenAddress,
+    token.tokenId,
+    tokenAddress,
     tokenFilters,
+    hasPoap,
     tokenOwnersQuery,
     tokensQueryWithFilter,
-    isSnapshotQuery,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   const hasMultipleERC20 = useMemo(() => {
@@ -303,47 +439,64 @@ export function TokenHolders() {
     return erc20Tokens.length > 1;
   }, [overviewTokens]);
 
-  const showInCenter = isHome;
+  const handleInvalidAddress = useCallback(() => {
+    setShowTokensOrOverview(false);
+  }, []);
+
+  const showTokens =
+    showTokensOrOverview && !hasMultipleERC20 && !activeTokenInfo;
+
+  const isQueryExists = query && query.length > 0;
+
+  const renderFilterContent = () => {
+    if (activeTokenInfo) {
+      return (
+        <div className="flex justify-center w-full">
+          <GetAPIDropdown options={options} />
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex justify-between w-full">
+        <div className="flex-row-center gap-3.5">
+          <SnapshotFilter disabled={hasSomePoap} />
+        </div>
+        <GetAPIDropdown
+          options={options}
+          disabled={overviewTokens.length === 0}
+        />
+      </div>
+    );
+  };
 
   return (
     <Layout>
       <div
-        className={classNames(
-          'flex flex-col px-2 pt-5 w-[955px] max-w-[100vw] sm:pt-8',
-          {
-            'flex-1 h-full w-full flex flex-col items-center !pt-[30%] text-center':
-              showInCenter
-          }
-        )}
+        className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
+          'flex-1 h-full w-full flex flex-col translate-y-[10vw] items-center text-center':
+            isHome
+        })}
       >
-        <div className="flex flex-col items-center">
-          {showInCenter && (
-            <h1 className="text-[2rem]">Explore web3 identities</h1>
-          )}
+        <div className="max-w-[645px] mx-auto w-full">
+          {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
           <Search />
+          {!hasMultipleERC20 && isQueryExists && (
+            <div className="m-3 flex-row-center">{renderFilterContent()}</div>
+          )}
         </div>
-        {query && query.length > 0 && (
+        {isQueryExists && (
           <>
-            {!hasMultipleERC20 && (
-              <div className="m-3 flex-row-center">
-                <div className="flex justify-between w-[calc(100vw-20px)] sm:w-[645px]">
-                  <div className="flex-row-center gap-1">
-                    <SnapshotFilter disabled={hasSomePoap} />
-                  </div>
-                  <GetAPIDropdown
-                    options={options}
-                    disabled={overviewTokens.length === 0}
-                  />
-                </div>
-              </div>
-            )}
-            <div className="flex flex-col justify-center mt-7" key={query}>
-              {!isSnapshotQuery && <HoldersOverview />}
-              {!hasMultipleERC20 && (
+            <div
+              className="flex flex-col justify-center mt-7 max-w-[950px] mx-auto"
+              key={query}
+            >
+              <HoldersOverview onAddress404={handleInvalidAddress} />
+              {showTokens && (
                 <>
                   {activeView && <OverviewDetails />}
                   {!activeView && (
-                    <div key={tokenListKey}>
+                    <div key={tokensKey}>
                       <div className="flex mb-4">
                         <Icon name="token-holders" height={20} width={20} />{' '}
                         <span className="font-bold ml-1.5 text-sm">

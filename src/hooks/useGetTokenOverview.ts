@@ -1,56 +1,82 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { apiKey } from '../constants';
-import {
-  MultiPoapsOverviewQuery,
-  MultiTokenOverviewQuery
-} from '../queries/tokensQuery';
+import { getOverviewQuery } from '../queries/tokensQuery';
+import { OverviewData } from '../pages/TokenHolders/types';
 
-// const API = 'https://api.beta.airstack.xyz/gql';
-// temp remove below api later
-const API = 'https://api.uat.airstack.xyz/gql';
+const API = 'https://api.beta.airstack.xyz/gql';
+
+type Variable = {
+  polygonTokens: string[];
+  eventIds: string[];
+  ethereumTokens: string[];
+};
 
 export function useGetTokenOverview() {
-  const [data, setData] = useState(null);
+  const [data, setData] = useState<null | OverviewData['TokenHolders']>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<null | string>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchTokenOverview = useCallback(
-    async (tokenAddress: string[], isPoap = false) => {
-      setLoading(true);
-      try {
-        const query = isPoap
-          ? MultiPoapsOverviewQuery
-          : MultiTokenOverviewQuery;
-        const variables = isPoap ? { eventId: tokenAddress } : { tokenAddress };
+  const fetchTokenOverview = useCallback(async (tokenAddress: Variable) => {
+    if (abortControllerRef.current) {
+      // abort previous request
+      abortControllerRef.current.abort();
+    }
 
-        const res = await fetch(API, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: apiKey
-          },
-          body: JSON.stringify({
-            query,
-            variables
-          })
-        });
-        const json = await res.json();
-        const data = json?.data;
-        if (json.errors) {
-          setError('Unable to fetch overview data');
-          return;
-        }
+    setLoading(true);
+    setData(null);
+    setError(null);
 
-        if (data) {
-          setData(data);
-        }
-      } catch (e) {
+    const variables: Partial<Variable> = {};
+    for (const key in tokenAddress) {
+      const value = tokenAddress[key as keyof Variable];
+      if (value && value.length > 0) {
+        variables[key as keyof Variable] = value;
+      }
+    }
+
+    let requestAborted = false;
+    try {
+      const query = getOverviewQuery(
+        !!variables.polygonTokens?.length,
+        !!variables.eventIds?.length,
+        !!variables.ethereumTokens?.length
+      );
+      abortControllerRef.current = new AbortController();
+      const res = await fetch(API, {
+        method: 'POST',
+        signal: abortControllerRef.current.signal,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: apiKey
+        },
+        body: JSON.stringify({
+          query,
+          variables
+        })
+      });
+      const json = await res.json();
+      const data: OverviewData = json?.data;
+      if (json.errors) {
         setError('Unable to fetch overview data');
-      } finally {
+        return;
+      }
+
+      if (data?.TokenHolders) {
+        setData(data?.TokenHolders);
+      }
+    } catch (e) {
+      if (e instanceof DOMException && e?.name === 'AbortError') {
+        requestAborted = true;
+        return;
+      }
+      setError('Unable to fetch overview data');
+    } finally {
+      abortControllerRef.current = null;
+      if (!requestAborted) {
         setLoading(false);
       }
-    },
-    []
-  );
+    }
+  }, []);
   return { fetch: fetchTokenOverview, data, loading, error };
 }

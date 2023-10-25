@@ -1,19 +1,24 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { useSearchInput } from '../../../hooks/useSearchInput';
+import {
+  resetCachedUserInputs,
+  useSearchInput
+} from '../../../hooks/useSearchInput';
 import { Header } from './Header';
 import { useNavigate } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { Token } from './Token';
-import { AddressesModal } from '../../../Components/AddressesModal';
+import { AssetType, Token } from './Token';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 import { useGetCommonOwnersOfTokens } from '../../../hooks/useGetCommonOwnersOfTokens';
 import { useGetCommonOwnersOfPoaps } from '../../../hooks/useGetCommonOwnersOfPoaps';
-import { StatusLoader } from '../OverviewDetails/Tokens/StatusLoader';
+import { StatusLoader } from '../../../Components/StatusLoader';
 import {
   TokenHolder,
   useOverviewTokens
 } from '../../../store/tokenHoldersOverview';
 import { sortByAddressByNonERC20First } from '../../../utils/getNFTQueryForTokensHolder';
+import { getActiveSnapshotInfo } from '../../../utils/activeSnapshotInfoString';
+import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
+import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 
 const loaderData = Array(6).fill({});
 
@@ -37,20 +42,20 @@ function Loader() {
 }
 
 export function TokensComponent() {
-  const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
+  const [{ tokens: _overviewTokens }] = useOverviewTokens(['tokens']);
   const [
-    { address, inputType, snapshotBlockNumber, snapshotDate, snapshotTimestamp }
+    { address, inputType, activeTokenInfo, activeSnapshotInfo },
+    setSearchData
   ] = useSearchInput();
 
-  const isSnapshotQuery = Boolean(
-    snapshotBlockNumber || snapshotDate || snapshotTimestamp
-  );
+  const overviewTokens: TokenHolder[] = _overviewTokens;
 
   const shouldFetchPoaps = useMemo(() => {
+    const snapshot = getActiveSnapshotInfo(activeSnapshotInfo);
     const hasSomeToken = address.some(a => a.startsWith('0x'));
     // Don't fetch Poaps for snapshot query
-    return !hasSomeToken && !isSnapshotQuery;
-  }, [address, isSnapshotQuery]);
+    return !hasSomeToken && !snapshot.isApplicable;
+  }, [address, activeSnapshotInfo]);
 
   const hasMultipleERC20 = useMemo(() => {
     const erc20Tokens = overviewTokens.filter(
@@ -83,17 +88,16 @@ export function TokensComponent() {
     ...paginationPoaps
   } = useGetCommonOwnersOfPoaps(tokenAddress);
 
-  const navigator = useNavigate();
+  const navigate = useNavigate();
 
-  const [showModal, setShowModal] = useState(false);
-  const [modalValues, setModalValues] = useState<{
-    leftValues: string[];
-    rightValues: string[];
+  const [modalData, setModalData] = useState<{
+    isOpen: boolean;
     dataType: string;
+    addresses: string[];
   }>({
-    leftValues: [],
-    rightValues: [],
-    dataType: ''
+    isOpen: false,
+    dataType: '',
+    addresses: []
   });
 
   const isPoap = inputType === 'POAP';
@@ -116,39 +120,52 @@ export function TokensComponent() {
     hasMultipleERC20
   ]);
 
-  const handleShowMore = useCallback((values: string[], dataType: string) => {
-    const leftValues: string[] = [];
-    const rightValues: string[] = [];
-    values.forEach((value, index) => {
-      if (index % 2 === 0) {
-        leftValues.push(value);
-      } else {
-        rightValues.push(value);
-      }
-    });
-    setModalValues({
-      leftValues,
-      rightValues,
-      dataType: dataType || 'ens'
-    });
-    setShowModal(true);
-  }, []);
-
-  const handleAddressClick = useCallback(
-    (address: string) => {
-      const isFarcaster = modalValues.dataType?.includes('farcaster');
-      navigator(
-        createTokenBalancesUrl({
-          address: isFarcaster ? `fc_fname:${address}` : address,
-          blockchain: 'ethereum',
-          inputType: 'ADDRESS'
-        })
-      );
+  const handleShowMoreClick = useCallback(
+    (addresses: string[], type?: string) => {
+      setModalData({
+        isOpen: true,
+        dataType: type || 'ens',
+        addresses
+      });
     },
-    [modalValues.dataType, navigator]
+    []
   );
 
-  const { hasNextPage, getNextPage } = isPoap
+  const handleModalClose = () => {
+    setModalData({
+      isOpen: false,
+      dataType: '',
+      addresses: []
+    });
+  };
+
+  const handleAddressClick = useCallback(
+    (address: string, type?: string) => {
+      const isFarcaster = type?.includes('farcaster');
+      const url = createTokenBalancesUrl({
+        address: isFarcaster ? `fc_fname:${address}` : address,
+        blockchain: 'ethereum',
+        inputType: 'ADDRESS'
+      });
+      resetCachedUserInputs('tokenBalance');
+      navigate(url);
+    },
+    [navigate]
+  );
+
+  const handleAssetClick = useCallback(
+    (token: AssetType) => {
+      setSearchData(
+        {
+          activeTokenInfo: addToActiveTokenInfo(token, activeTokenInfo)
+        },
+        { updateQueryParams: true }
+      );
+    },
+    [activeTokenInfo, setSearchData]
+  );
+
+  const { hasNextPage, getNextPage } = shouldFetchPoaps
     ? paginationPoaps
     : paginationTokens;
 
@@ -203,7 +220,9 @@ export function TokensComponent() {
                   <Token
                     token={token}
                     isCombination={isCombination}
-                    onShowMore={handleShowMore}
+                    onShowMoreClick={handleShowMoreClick}
+                    onAddressClick={handleAddressClick}
+                    onAssetClick={handleAssetClick}
                   />
                 </tr>
               ))}
@@ -217,18 +236,12 @@ export function TokensComponent() {
         </InfiniteScroll>
         {loading && <Loader />}
       </div>
-      <AddressesModal
-        heading={`All ${modalValues.dataType} names of ${address}`}
-        isOpen={showModal}
-        onRequestClose={() => {
-          setShowModal(false);
-          setModalValues({
-            leftValues: [],
-            rightValues: [],
-            dataType: ''
-          });
-        }}
-        modalValues={modalValues}
+      <LazyAddressesModal
+        heading={`All ${modalData.dataType} names of ${modalData.addresses[0]}`}
+        isOpen={modalData.isOpen}
+        dataType={modalData.dataType}
+        addresses={modalData.addresses}
+        onRequestClose={handleModalClose}
         onAddressClick={handleAddressClick}
       />
       {showStatusLoader && (

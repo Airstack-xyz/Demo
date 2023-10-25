@@ -16,17 +16,19 @@ import {
   getCommonNftOwnersSnapshotQuery,
   getNftOwnersSnapshotQuery
 } from '../queries/commonNftOwnersSnapshotQuery';
+import { getActiveSnapshotInfo } from '../utils/activeSnapshotInfoString';
 
 type Token = TokenType & {
   _poapEvent?: Poap['poapEvent'];
   _blockchain?: string;
+  eventId?: string;
 };
 
 type NestedTokenBalance = (Pick<
   Token,
   'tokenAddress' | 'tokenId' | 'token' | 'tokenNfts'
 > &
-  Pick<Poap, 'poapEvent'> & {
+  Pick<Poap, 'poapEvent' | 'eventId'> & {
     owner: {
       tokenBalances: Token[];
     };
@@ -53,22 +55,23 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
 
-  const [{ snapshotBlockNumber, snapshotDate, snapshotTimestamp }] =
-    useSearchInput();
+  const [{ activeSnapshotInfo }] = useSearchInput();
 
-  const isSnapshotQuery = Boolean(
-    snapshotBlockNumber || snapshotDate || snapshotTimestamp
-  );
   const hasPoap = tokenAddress.some(token => !token.address.startsWith('0x'));
+
+  const snapshotInfo = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
 
   const query = useMemo(() => {
     if (tokenAddress.length === 1) {
-      if (isSnapshotQuery) {
+      if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQuery({
           address: tokenAddress[0].address,
-          blockNumber: snapshotBlockNumber,
-          date: snapshotDate,
-          timestamp: snapshotTimestamp
+          blockNumber: snapshotInfo.blockNumber,
+          date: snapshotInfo.date,
+          timestamp: snapshotInfo.timestamp
         });
       }
       return getNftOwnersQuery(tokenAddress[0].address);
@@ -77,23 +80,23 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
       const tokens = sortAddressByPoapFirst(tokenAddress);
       return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
     }
-    if (isSnapshotQuery) {
+    if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQuery({
         address1: tokenAddress[0],
         address2: tokenAddress[1],
-        blockNumber: snapshotBlockNumber,
-        date: snapshotDate,
-        timestamp: snapshotTimestamp
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp
       });
     }
     return getCommonNftOwnersQuery(tokenAddress[0], tokenAddress[1]);
   }, [
-    hasPoap,
     tokenAddress,
-    isSnapshotQuery,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    hasPoap,
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
@@ -152,6 +155,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
               _token: token.token,
               _tokenNfts: token.tokenNfts,
               _poapEvent: token.poapEvent,
+              _eventId: token.eventId,
               _blockchain: token.blockchain
             }
           ],
@@ -196,30 +200,30 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     setTokens([]);
     ownersSetRef.current = new Set();
 
-    const _limit = fetchSingleToken ? MIN_LIMIT : LIMIT;
+    const limit = fetchSingleToken ? MIN_LIMIT : LIMIT;
 
-    if (isSnapshotQuery) {
+    if (snapshotInfo.isApplicable) {
       fetch({
-        limit: _limit,
-        blockNumber: snapshotBlockNumber,
-        date: snapshotDate,
-        timestamp: snapshotTimestamp
+        limit: limit,
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp
       });
     } else {
       fetch({
-        limit: _limit
+        limit: limit
       });
     }
 
     setProcessedTokensCount(LIMIT);
   }, [
     fetch,
-    fetchSingleToken,
     tokenAddress.length,
-    isSnapshotQuery,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    fetchSingleToken,
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   return {

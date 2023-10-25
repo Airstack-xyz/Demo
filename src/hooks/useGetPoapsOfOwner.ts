@@ -1,46 +1,39 @@
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchInput } from './useSearchInput';
 import { defaultSortOrder } from '../Components/Filters/SortBy';
 import { CommonPoapType, PoapType } from '../pages/TokenBalances/types';
 import { poapsOfCommonOwnersQuery } from '../queries/poapsOfCommonOwnersQuery';
-import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { UserInputs } from './useSearchInput';
 
 const LIMIT = 20;
 const LIMIT_COMBINATIONS = 100;
 
+type Inputs = Pick<
+  UserInputs,
+  'address' | 'tokenType' | 'blockchainType' | 'sortOrder'
+>;
 export function useGetPoapsOfOwner(
-  onDataReceived: (tokens: PoapType[]) => void
+  inputs: Inputs,
+  onDataReceived: (tokens: PoapType[]) => void,
+  noFetch = false
 ) {
+  const { address: owners, tokenType = '', blockchainType, sortOrder } = inputs;
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const tokensRef = useRef<PoapType[]>([]);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
-  const [
-    {
-      address: owners,
-      tokenType = '',
-      blockchainType,
-      sortOrder,
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp
-    }
-  ] = useSearchInput();
-
-  const isSnapshotQuery = Boolean(
-    snapshotBlockNumber || snapshotDate || snapshotTimestamp
-  );
+  const isPoap = tokenType === 'POAP';
 
   const query = useMemo(() => {
     return poapsOfCommonOwnersQuery(owners);
   }, [owners]);
 
   const canFetchPoap = useMemo(() => {
-    const isPoap = tokenType === 'POAP';
+    if (noFetch) return false;
     const hasPolygonChainFilter =
       blockchainType.length === 1 && blockchainType[0] === 'polygon';
-    return !hasPolygonChainFilter && !isSnapshotQuery && (!tokenType || isPoap);
-  }, [isSnapshotQuery, tokenType, blockchainType]);
+    return !hasPolygonChainFilter && (!tokenType || isPoap);
+  }, [blockchainType, isPoap, noFetch, tokenType]);
 
   const [
     fetchTokens,
@@ -63,15 +56,13 @@ export function useGetPoapsOfOwner(
     });
     setProcessedTokensCount(LIMIT);
   }, [
-    fetchTokens,
     canFetchPoap,
+    fetchTokens,
     owners,
     sortOrder,
     blockchainType,
     tokenType,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    noFetch
   ]);
 
   useEffect(() => {

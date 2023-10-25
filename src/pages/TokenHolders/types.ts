@@ -1,7 +1,7 @@
 import { TokenBalance, ContentValue } from '../TokenBalances/types';
 
 export type Token = TokenBalance &
-  Pick<Poap, '_poapEvent'> & {
+  Pick<Poap, '_poapEvent' | '_eventId'> & {
     _tokenNfts: TokenBalance['tokenNfts'];
     _token: TokenBalance['token'];
     _tokenAddress: string;
@@ -37,6 +37,7 @@ export type Poap = {
   eventId: string;
   poapEvent: PoapEvent;
   _poapEvent: PoapEvent;
+  _eventId: string;
   _blockchain: string;
   owner: Owner & {
     poaps: Poap[];
@@ -66,6 +67,7 @@ export interface Owner {
 
 export interface Social {
   blockchain: string;
+  dappName: string;
   dappSlug: string;
   profileName: string;
 }
@@ -93,18 +95,17 @@ export interface Supply {
 }
 
 export type OverviewData = {
-  ethereum: OverviewBlockchainData;
-  polygon: OverviewBlockchainData;
+  TokenHolders: TokenHolders;
 };
 
-export type OverviewBlockchainData = {
-  ensUsersCount: number;
+export interface TokenHolders {
   farcasterProfileCount: number;
-  lensProfileCount: number;
   primaryEnsUsersCount: number;
   totalHolders: number;
   xmtpUsersCount: number;
-};
+  lensProfileCount: number;
+  ensUsersCount: number;
+}
 
 export interface TotalPoapsSupply {
   PoapEvents: PoapEvents;

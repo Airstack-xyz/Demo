@@ -8,9 +8,9 @@ export function Layout({
   className?: string;
 }) {
   return (
-    <div className="w-full h-screen flex flex-col items-center pt-[70px] pb-8">
+    <div className="pt-[70px] pb-8">
       <Header />
-      <div className="flex-1 flex flex-col">{children}</div>
+      <div className="">{children}</div>
     </div>
   );
 }

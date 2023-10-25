@@ -19,24 +19,28 @@ import {
   blockchainOptions,
   defaultBlockchainFilter
 } from './BlockchainFilter';
+import {
+  getActiveSnapshotInfoString,
+  getActiveSnapshotInfo
+} from '../../utils/activeSnapshotInfoString';
 
 const getAppliedFilterCount = ({
-  selectedSnapshotFilter,
-  selectedBlockchainFilter,
-  selectedSortOrder
+  appliedSnapshotFilter,
+  appliedBlockchainFilter,
+  appliedSortOrder
 }: {
-  selectedSnapshotFilter: SnapshotFilterType;
-  selectedBlockchainFilter: BlockchainFilterType;
-  selectedSortOrder: SortOrderType;
+  appliedSnapshotFilter: SnapshotFilterType;
+  appliedBlockchainFilter: BlockchainFilterType;
+  appliedSortOrder: SortOrderType;
 }) => {
   let count = 0;
-  if (selectedSnapshotFilter != defaultSnapshotFilter) {
+  if (appliedSnapshotFilter != defaultSnapshotFilter) {
     count += 1;
   }
-  if (selectedBlockchainFilter != defaultBlockchainFilter) {
+  if (appliedBlockchainFilter != defaultBlockchainFilter) {
     count += 1;
   }
-  if (selectedSortOrder != defaultSortOrder) {
+  if (appliedSortOrder != defaultSortOrder) {
     count += 1;
   }
   return count;
@@ -45,75 +49,68 @@ const getAppliedFilterCount = ({
 const sectionHeaderClass =
   'font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap';
 
+const filterInputClass =
+  'bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none';
+
+const currentDate = new Date();
+
 export function AllFilters() {
-  const [
-    {
-      address,
-      blockchainType,
-      tokenType,
-      sortOrder,
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp
-    },
-    setData
-  ] = useSearchInput();
+  const [searchInputs, setData] = useSearchInput();
 
-  const selectedSnapshotFilter = useMemo(() => {
-    if (snapshotBlockNumber) return SnapshotFilterType.BLOCK_NUMBER;
-    if (snapshotDate) return SnapshotFilterType.CUSTOM_DATE;
-    if (snapshotTimestamp) return SnapshotFilterType.TIMESTAMP;
-    return defaultSnapshotFilter;
-  }, [snapshotBlockNumber, snapshotDate, snapshotTimestamp]);
+  const address = searchInputs.address;
+  const tokenType = searchInputs.tokenType;
+  const activeSnapshotInfo = searchInputs.activeSnapshotInfo;
+  const blockchainType = searchInputs.blockchainType as BlockchainFilterType[];
+  const sortOrder = searchInputs.sortOrder as SortOrderType;
 
-  const selectedBlockchainFilter = useMemo(() => {
+  const snapshotInfo = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
+
+  const appliedBlockchainFilter = useMemo(() => {
     const filterValue = blockchainType[0];
-    if (
-      filterValue === BlockchainFilterType.ETHEREUM ||
-      filterValue === BlockchainFilterType.POLYGON
-    ) {
+    if (filterValue === 'ethereum' || filterValue === 'polygon') {
       return filterValue;
     }
     return defaultBlockchainFilter;
   }, [blockchainType]);
 
-  const selectedSortOrder = useMemo(() => {
-    return sortOrder === SortOrderType.ASC
-      ? SortOrderType.ASC
-      : defaultSortOrder;
+  const appliedSortOrder = useMemo(() => {
+    return sortOrder === 'ASC' ? 'ASC' : defaultSortOrder;
   }, [sortOrder]);
 
   const [currentSnapshotFilter, setCurrentSnapshotFilter] = useState(
-    selectedSnapshotFilter
+    snapshotInfo.appliedFilter
   );
   const [currentBlockchainFilter, setCurrentBlockchainFilter] = useState(
-    selectedBlockchainFilter
+    appliedBlockchainFilter
   );
-  const [currentSortOrder, setCurrentSortOrder] = useState(selectedSortOrder);
+  const [currentSortOrder, setCurrentSortOrder] = useState(appliedSortOrder);
 
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
 
   const [blockNumber, setBlockNumber] = useState<TextValue>('');
   const [timestamp, setTimestamp] = useState<TextValue>('');
-  const [date, setDate] = useState<DateValue>(new Date());
+  const [date, setDate] = useState<DateValue>(currentDate);
 
   const handleDropdownHide = useCallback(() => {
     setIsDropdownVisible(false);
     setIsDatePickerVisible(false);
-    setBlockNumber(snapshotBlockNumber);
-    setDate(snapshotDate ? new Date(snapshotDate) : new Date());
-    setTimestamp(snapshotTimestamp);
-    setCurrentSnapshotFilter(selectedSnapshotFilter);
-    setCurrentBlockchainFilter(selectedBlockchainFilter);
-    setCurrentSortOrder(selectedSortOrder);
+    setBlockNumber(snapshotInfo.blockNumber);
+    setDate(snapshotInfo.date ? new Date(snapshotInfo.date) : new Date());
+    setTimestamp(snapshotInfo.timestamp);
+    setCurrentSnapshotFilter(snapshotInfo.appliedFilter);
+    setCurrentBlockchainFilter(appliedBlockchainFilter);
+    setCurrentSortOrder(appliedSortOrder);
   }, [
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp,
-    selectedSnapshotFilter,
-    selectedBlockchainFilter,
-    selectedSortOrder
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp,
+    snapshotInfo.appliedFilter,
+    appliedBlockchainFilter,
+    appliedSortOrder
   ]);
 
   const dropdownContainerRef =
@@ -123,16 +120,13 @@ export function AllFilters() {
     setIsDatePickerVisible(false)
   );
 
-  const isSnapshotQuery = Boolean(
-    snapshotBlockNumber || snapshotDate || snapshotTimestamp
-  );
   const isPoap = tokenType === 'POAP';
   const isCombination = address.length > 1;
 
   useEffect(() => {
     const filterValues: Partial<CachedQuery> = {};
     // If snapshot query, reset sort filter
-    if (isSnapshotQuery) {
+    if (snapshotInfo.isApplicable) {
       filterValues.sortOrder = defaultSortOrder;
     }
     // If POAP filter is applied, reset blockchain filter
@@ -141,53 +135,40 @@ export function AllFilters() {
     }
     // If POAP and combinations, reset snapshot filter
     if (isPoap || isCombination) {
-      filterValues.snapshotBlockNumber = undefined;
-      filterValues.snapshotDate = undefined;
-      filterValues.snapshotTimestamp = undefined;
+      filterValues.activeSnapshotInfo = undefined;
     }
     setData(filterValues, { updateQueryParams: true });
-  }, [isSnapshotQuery, isPoap, isCombination, setData]);
+  }, [snapshotInfo.isApplicable, isPoap, isCombination, setData]);
 
   useEffect(() => {
-    setCurrentSnapshotFilter(selectedSnapshotFilter);
-    setCurrentBlockchainFilter(selectedBlockchainFilter);
-    setCurrentSortOrder(selectedSortOrder);
-    setBlockNumber(snapshotBlockNumber);
-    setDate(snapshotDate ? new Date(snapshotDate) : new Date());
-    setTimestamp(snapshotTimestamp);
+    setCurrentSnapshotFilter(snapshotInfo.appliedFilter);
+    setCurrentBlockchainFilter(appliedBlockchainFilter);
+    setCurrentSortOrder(appliedSortOrder);
+    setBlockNumber(snapshotInfo.blockNumber);
+    setDate(snapshotInfo.date ? new Date(snapshotInfo.date) : new Date());
+    setTimestamp(snapshotInfo.timestamp);
   }, [
-    selectedSnapshotFilter,
-    selectedBlockchainFilter,
-    selectedSortOrder,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    appliedBlockchainFilter,
+    appliedSortOrder,
+    snapshotInfo.appliedFilter,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   const snackbarMessage = useMemo(
-    () =>
-      getSnackbarMessage({
-        selectedFilter: selectedSnapshotFilter,
-        snapshotBlockNumber,
-        snapshotDate,
-        snapshotTimestamp
-      }),
-    [
-      selectedSnapshotFilter,
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp
-    ]
+    () => getSnackbarMessage(snapshotInfo),
+    [snapshotInfo]
   );
 
   const appliedFilterCount = useMemo(
     () =>
       getAppliedFilterCount({
-        selectedSnapshotFilter,
-        selectedBlockchainFilter,
-        selectedSortOrder
+        appliedSnapshotFilter: snapshotInfo.appliedFilter,
+        appliedBlockchainFilter: appliedBlockchainFilter,
+        appliedSortOrder: appliedSortOrder
       }),
-    [selectedBlockchainFilter, selectedSnapshotFilter, selectedSortOrder]
+    [snapshotInfo.appliedFilter, appliedBlockchainFilter, appliedSortOrder]
   );
 
   const handleDropdownToggle = useCallback(() => {
@@ -216,7 +197,7 @@ export function AllFilters() {
   );
 
   const handleCustomDateOptionClick = useCallback(() => {
-    setCurrentSnapshotFilter(SnapshotFilterType.CUSTOM_DATE);
+    setCurrentSnapshotFilter('customDate');
     setIsDatePickerVisible(true);
   }, []);
 
@@ -245,28 +226,24 @@ export function AllFilters() {
 
   // Not enclosing in useCallback as its dependencies will change every time
   const handleApplyClick = () => {
-    const filterValues: Partial<CachedQuery> = {
-      snapshotBlockNumber: undefined,
-      snapshotDate: undefined,
-      snapshotTimestamp: undefined
-    };
+    const snapshotValues: Record<string, unknown> = {};
 
     // For snapshot filter
     switch (currentSnapshotFilter) {
-      case SnapshotFilterType.BLOCK_NUMBER:
-        filterValues.snapshotBlockNumber = blockNumber
-          ? Number(blockNumber)
-          : undefined;
+      case 'blockNumber':
+        snapshotValues.blockNumber = blockNumber;
         break;
-      case SnapshotFilterType.CUSTOM_DATE:
-        filterValues.snapshotDate = (date as Date).toISOString().split('T')[0];
+      case 'customDate':
+        snapshotValues.date = (date as Date).toISOString().split('T')[0];
         break;
-      case SnapshotFilterType.TIMESTAMP:
-        filterValues.snapshotTimestamp = timestamp
-          ? Number(timestamp)
-          : undefined;
+      case 'timestamp':
+        snapshotValues.timestamp = timestamp;
         break;
     }
+
+    const filterValues: Partial<CachedQuery> = {
+      activeSnapshotInfo: getActiveSnapshotInfoString(snapshotValues)
+    };
 
     // For blockchain filter
     if (currentBlockchainFilter === defaultBlockchainFilter) {
@@ -277,7 +254,7 @@ export function AllFilters() {
 
     // For sort filter
     // For snapshot query resetting sort order
-    if (isSnapshotQuery) {
+    if (snapshotInfo.isApplicable) {
       filterValues.sortOrder = defaultSortOrder;
     } else {
       filterValues.sortOrder = currentSortOrder || defaultSortOrder;
@@ -309,17 +286,17 @@ export function AllFilters() {
         <FilterOption
           label="Today"
           isDisabled={isDisabled}
-          isSelected={currentSnapshotFilter === SnapshotFilterType.TODAY}
-          onClick={handleSnapshotFilterOptionClick(SnapshotFilterType.TODAY)}
+          isSelected={currentSnapshotFilter === 'today'}
+          onClick={handleSnapshotFilterOptionClick('today')}
         />
         <FilterOption
           label="Custom date"
           isDisabled={isDisabled}
-          isSelected={currentSnapshotFilter === SnapshotFilterType.CUSTOM_DATE}
+          isSelected={currentSnapshotFilter === 'customDate'}
           onClick={handleCustomDateOptionClick}
         />
         <div className="relative">
-          {currentSnapshotFilter === SnapshotFilterType.CUSTOM_DATE && (
+          {currentSnapshotFilter === 'customDate' && (
             <div
               className="ml-10 mr-4 mb-2 cursor-pointer"
               onClick={handleDatePickerShow}
@@ -329,24 +306,26 @@ export function AllFilters() {
           )}
           {isDatePickerVisible && (
             <div ref={datePickerContainerRef} className="absolute left-2 z-20">
-              <DatePicker value={date} onChange={handleDateChange} />
+              <DatePicker
+                value={date}
+                maxDate={currentDate}
+                onChange={handleDateChange}
+              />
             </div>
           )}
         </div>
         <FilterOption
           label="Block number"
           isDisabled={isDisabled}
-          isSelected={currentSnapshotFilter === SnapshotFilterType.BLOCK_NUMBER}
-          onClick={handleSnapshotFilterOptionClick(
-            SnapshotFilterType.BLOCK_NUMBER
-          )}
+          isSelected={currentSnapshotFilter === 'blockNumber'}
+          onClick={handleSnapshotFilterOptionClick('blockNumber')}
         />
-        {currentSnapshotFilter === SnapshotFilterType.BLOCK_NUMBER && (
+        {currentSnapshotFilter === 'blockNumber' && (
           <input
             autoFocus
             type="text"
             placeholder="enter block no."
-            className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none"
+            className={filterInputClass}
             onChange={handleBlockNumberChange}
             onKeyUp={handleKeyboardKeyUp}
             value={blockNumber}
@@ -355,17 +334,15 @@ export function AllFilters() {
         <FilterOption
           label="Timestamp"
           isDisabled={isDisabled}
-          isSelected={currentSnapshotFilter === SnapshotFilterType.TIMESTAMP}
-          onClick={handleSnapshotFilterOptionClick(
-            SnapshotFilterType.TIMESTAMP
-          )}
+          isSelected={currentSnapshotFilter === 'timestamp'}
+          onClick={handleSnapshotFilterOptionClick('timestamp')}
         />
-        {currentSnapshotFilter === SnapshotFilterType.TIMESTAMP && (
+        {currentSnapshotFilter === 'timestamp' && (
           <input
             autoFocus
             type="text"
             placeholder="epoch timestamp"
-            className="bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none"
+            className={filterInputClass}
             onChange={handleTimestampChange}
             onKeyUp={handleKeyboardKeyUp}
             value={timestamp}
@@ -400,7 +377,7 @@ export function AllFilters() {
   };
 
   const renderSortSection = () => {
-    const isDisabled = isSnapshotQuery;
+    const isDisabled = snapshotInfo.isApplicable;
     return (
       <>
         <div
@@ -445,7 +422,7 @@ export function AllFilters() {
           <Icon name="arrow-down" height={16} width={16} className="ml-1" />
         </button>
         {isDropdownVisible && (
-          <div className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-10">
+          <div className="before:bg-glass before:absolute before:inset-0 before:-z-10 before:rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">
             {renderSnapshotSection()}
             {renderBlockchainSection()}
             {renderSortSection()}
@@ -468,9 +445,8 @@ export function AllFilters() {
           </div>
         )}
       </div>
-      {selectedSnapshotFilter !== defaultSnapshotFilter && snackbarMessage && (
-        <SnapshotToastMessage message={snackbarMessage} />
-      )}
+      {snapshotInfo.appliedFilter !== defaultSnapshotFilter &&
+        snackbarMessage && <SnapshotToastMessage message={snackbarMessage} />}
     </>
   );
 }

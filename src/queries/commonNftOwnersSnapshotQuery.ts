@@ -15,23 +15,25 @@ function getCommonNftOwnersSubQueryForBlockchain({
   hasBlockNumber?: boolean;
   hasTimestamp?: boolean;
 }) {
-  const _filters = [`tokenAddress: {_eq: "${address1.address}"}`];
+  const filters = [`tokenAddress: {_eq: "${address1.address}"}`];
   if (hasDate) {
-    _filters.push('date: {_eq: $date}');
+    filters.push('date: {_eq: $date}');
   }
   if (hasBlockNumber) {
-    _filters.push('blockNumber: {_eq: $blockNumber}');
+    filters.push('blockNumber: {_eq: $blockNumber}');
   }
   if (hasTimestamp) {
-    _filters.push('timestamp: {_eq: $timestamp}');
+    filters.push('timestamp: {_eq: $timestamp}');
   }
-  const _filtersString = _filters.join(',');
+  const filtersString = filters.join(',');
 
   return `
-    ${blockchain}: Snapshots(input: {filter: {${_filtersString}}, blockchain: ${blockchain}, limit: $limit}) {
+    ${blockchain}: Snapshots(input: {filter: {${filtersString}}, blockchain: ${blockchain}, limit: $limit}) {
       TokenBalance: Snapshot {
         tokenId
         tokenAddress
+        tokenType
+        formattedAmount
         blockchain
         token {
           logo {
@@ -46,6 +48,12 @@ function getCommonNftOwnersSubQueryForBlockchain({
             video
             image {
               small
+              medium
+            }
+          }
+          erc6551Accounts {
+            address {
+              identity
             }
           }
         }
@@ -53,6 +61,8 @@ function getCommonNftOwnersSubQueryForBlockchain({
           tokenBalances(input: {filter :{tokenAddress: {_eq: "${address2.address}"}}, blockchain: ${address2.blockchain}}) {
             tokenId
             tokenAddress
+            tokenType
+            formattedAmount
             blockchain
             token {
               logo {
@@ -67,6 +77,12 @@ function getCommonNftOwnersSubQueryForBlockchain({
                 video
                 image {
                   small
+                  medium
+                }
+              }
+              erc6551Accounts {
+                address {
+                  identity
                 }
               }
             }
@@ -75,6 +91,7 @@ function getCommonNftOwnersSubQueryForBlockchain({
               addresses
               socials {
                 blockchain
+                dappName
                 dappSlug
                 profileName
               }
@@ -118,19 +135,19 @@ export function getCommonNftOwnersSnapshotQuery({
     hasTimestamp: !!timestamp
   };
 
-  const _variables = ['$limit: Int'];
+  const variables = ['$limit: Int'];
   if (commonParams.hasDate) {
-    _variables.push('$date: String!');
+    variables.push('$date: String!');
   }
   if (commonParams.hasBlockNumber) {
-    _variables.push('$blockNumber: Int!');
+    variables.push('$blockNumber: Int!');
   }
   if (commonParams.hasTimestamp) {
-    _variables.push('$timestamp: Int!');
+    variables.push('$timestamp: Int!');
   }
-  const _variablesString = _variables.join(',');
+  const variablesString = variables.join(',');
 
-  return `query CommonNftOwners(${_variablesString}) {
+  return `query CommonNftOwners(${variablesString}) {
     ${getCommonNftOwnersSubQueryForBlockchain({
       blockchain: 'ethereum',
       ...commonParams
@@ -155,23 +172,25 @@ function getNftOwnersSubQueryForBlockchain({
   hasBlockNumber?: boolean;
   hasTimestamp?: boolean;
 }) {
-  const _filters = [`tokenAddress: {_eq: "${address}"}`];
+  const filters = [`tokenAddress: {_eq: "${address}"}`];
   if (hasDate) {
-    _filters.push('date: {_eq: $date}');
+    filters.push('date: {_eq: $date}');
   }
   if (hasBlockNumber) {
-    _filters.push('blockNumber: {_eq: $blockNumber}');
+    filters.push('blockNumber: {_eq: $blockNumber}');
   }
   if (hasTimestamp) {
-    _filters.push('timestamp: {_eq: $timestamp}');
+    filters.push('timestamp: {_eq: $timestamp}');
   }
-  const _filtersString = _filters.join(',');
+  const filtersString = filters.join(',');
 
   return `
-    ${blockchain}: Snapshots(input: {filter :{${_filtersString}}, blockchain: ${blockchain}, limit: $limit}) {
+    ${blockchain}: Snapshots(input: {filter :{${filtersString}}, blockchain: ${blockchain}, limit: $limit}) {
       TokenBalance: Snapshot {
         tokenId
         tokenAddress
+        tokenType
+        formattedAmount
         blockchain
         token {
           logo {
@@ -186,6 +205,12 @@ function getNftOwnersSubQueryForBlockchain({
             video
             image {
               small
+              medium
+            }
+          }
+          erc6551Accounts {
+            address {
+              identity
             }
           }
         }
@@ -194,6 +219,7 @@ function getNftOwnersSubQueryForBlockchain({
           addresses
           socials {
             blockchain
+            dappName
             dappSlug
             profileName
           }
@@ -232,19 +258,19 @@ export function getNftOwnersSnapshotQuery({
     hasTimestamp: !!timestamp
   };
 
-  const _variables = ['$limit: Int'];
+  const variables = ['$limit: Int'];
   if (commonParams.hasDate) {
-    _variables.push('$date: String!');
+    variables.push('$date: String!');
   }
   if (commonParams.hasBlockNumber) {
-    _variables.push('$blockNumber: Int!');
+    variables.push('$blockNumber: Int!');
   }
   if (commonParams.hasTimestamp) {
-    _variables.push('$timestamp: Int!');
+    variables.push('$timestamp: Int!');
   }
-  const _variablesString = _variables.join(',');
+  const variablesString = variables.join(',');
 
-  return `query NftOwners(${_variablesString}) {
+  return `query NftOwners(${variablesString}) {
     ${getNftOwnersSubQueryForBlockchain({
       blockchain: 'ethereum',
       ...commonParams

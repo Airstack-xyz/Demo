@@ -4,6 +4,17 @@
 :root {
   @apply !bg-primary;
 }
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: black;
+  border-radius: 7px;
+}
+
 body {
   font-family: 'Inter';
   font-style: normal;
@@ -12,23 +23,23 @@ body {
   color: white;
   background-color: #0e0e12;
 }
+
 #root {
   width: 100%;
 }
 
-.glass-effect-button {
-  background: linear-gradient(
-    137deg,
-    rgba(255, 255, 255, 0.03) 50%,
-    rgba(255, 255, 255, 0) 100%
-  );
-  -webkit-backdrop-filter: blur(100px);
-  backdrop-filter: blur(100px);
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE 10+ */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Webkit */
 }
 
 .modal-overlay {
   background-color: rgb(14 14 18 / 90%) !important;
-  z-index: 20;
+  z-index: 100;
 }
 
 .code {
@@ -121,3 +132,19 @@ body {
 }
 
 /* skeleton loader end*/
+
+/* tab */
+.tabs .tab {
+  position: relative;
+}
+.tabs .tab.active::after {
+  content: '';
+  @apply bg-text-secondary absolute -bottom-[5px] left-0 w-full h-[5px] rounded-18;
+}
+
+/* scroll-shadow-r: adds shadow to the right-end of horizonal scrollable content */
+
+.scroll-shadow-r {
+    mask: linear-gradient(to right, white calc(100% - 50px), transparent);
+    -webkit-mask: linear-gradient(to right, white calc(100% - 50px), transparent);
+}

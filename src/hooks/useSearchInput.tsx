@@ -18,9 +18,9 @@ export type CachedQuery = {
   activeViewCount: string;
   blockchainType: string[];
   sortOrder: string;
-  snapshotDate: string | undefined; // Format: YYYY-MM-DD
-  snapshotBlockNumber: number | undefined;
-  snapshotTimestamp: number | undefined;
+  activeTokenInfo: string;
+  activeSnapshotInfo: string;
+  activeSocialInfo: string;
 };
 
 export type UserInputs = CachedQuery;
@@ -30,16 +30,27 @@ export const userInputCache = {
   tokenHolder: {} as UserInputs
 };
 
-type UpdateUserInputs = (
+export type UpdateUserInputs = (
   data: Partial<UserInputs>,
-  config?: { reset?: boolean; updateQueryParams?: boolean; redirectTo?: string }
+  config?: {
+    reset?: boolean;
+    updateQueryParams?: boolean;
+    redirectTo?: string;
+    replace?: boolean;
+  }
 ) => void;
 
 const arrayTypes = ['address', 'blockchainType', 'tokenFilters'];
 
-export function resetCachedUserInputs() {
-  userInputCache.tokenBalance = {} as UserInputs;
-  userInputCache.tokenHolder = {} as UserInputs;
+export function resetCachedUserInputs(
+  clear: 'all' | 'tokenBalance' | 'tokenHolder' = 'all'
+) {
+  if (clear === 'all' || clear === 'tokenBalance') {
+    userInputCache.tokenBalance = {} as UserInputs;
+  }
+  if (clear === 'all' || clear === 'tokenHolder') {
+    userInputCache.tokenHolder = {} as UserInputs;
+  }
 }
 
 export function useSearchInput(
@@ -60,8 +71,9 @@ export function useSearchInput(
     (data: Partial<CachedQuery>, config) => {
       let inputs = data;
       const shouldReplaceFilters =
-        data?.tokenFilters &&
-        userInputCache.tokenHolder?.tokenFilters?.length > 0;
+        config?.replace ||
+        (data?.tokenFilters &&
+          userInputCache.tokenHolder?.tokenFilters?.length > 0);
 
       if (isTokenBalances) {
         inputs = {
@@ -113,6 +125,7 @@ export function useSearchInput(
     ): T extends true ? string[] : string => {
       const { tokenBalance, tokenHolder } = userInputCache;
       const valueString = searchParams.get(key) || '';
+
       const savedValue =
         (isTokenBalances ? tokenBalance[key] : tokenHolder[key]) ||
         (isArray ? [] : '');
@@ -138,10 +151,6 @@ export function useSearchInput(
   );
 
   return useMemo(() => {
-    const _snapshotDate = getData('snapshotDate');
-    const _snapshotBlockNumber = getData('snapshotBlockNumber');
-    const _snapshotTimestamp = getData('snapshotTimestamp');
-
     const data = {
       address: getData('address', true),
       tokenType: getData('tokenType'),
@@ -149,23 +158,19 @@ export function useSearchInput(
       inputType: !isTokenBalances
         ? (getData('inputType') as CachedQuery['inputType'])
         : null,
-      activeView: isTokenBalances ? '' : getData('activeView'),
+      activeView: isTokenBalances ? '' : searchParams.get('activeView') || '',
+      activeTokenInfo: searchParams.get('activeTokenInfo') || '',
+      activeSnapshotInfo: searchParams.get('activeSnapshotInfo') || '',
       tokenFilters: !isTokenBalances ? getData('tokenFilters', true) : [],
       activeViewToken: isTokenBalances ? '' : getData('activeViewToken'),
       activeViewCount: isTokenBalances ? '' : getData('activeViewCount'),
       blockchainType: getData('blockchainType', true),
       sortOrder: getData('sortOrder'),
-      snapshotDate: _snapshotDate || undefined,
-      snapshotBlockNumber: _snapshotBlockNumber
-        ? Number(_snapshotBlockNumber)
-        : undefined,
-      snapshotTimestamp: _snapshotTimestamp
-        ? Number(_snapshotTimestamp)
-        : undefined
+      activeSocialInfo: searchParams.get('activeSocialInfo') || ''
     };
 
     setData(data);
 
     return [data, setData, setSearchParams];
-  }, [getData, isTokenBalances, setData, setSearchParams]);
+  }, [getData, isTokenBalances, setData, searchParams, setSearchParams]);
 }

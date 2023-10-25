@@ -25,6 +25,7 @@ owner {
   identity
   addresses
   socials {
+    dappName
     dappSlug
     profileName
   }
@@ -71,6 +72,7 @@ owner {
   addresses
   socials {
     blockchain
+    dappName
     dappSlug
     profileName
   }

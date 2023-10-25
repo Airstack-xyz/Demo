@@ -12,22 +12,21 @@ import { MentionsInput, Mention } from './react-mentions';
 import './input-styles.css';
 import {
   generateId,
-  capitalizeFirstLetter,
   highlightMention,
   ID_REGEX,
   REGEX_LAST_WORD_STARTS_WITH_AT,
   debouncePromise,
   MentionType,
-  SearchAIMentions_SearchAIMentions,
   fetchMentionOptions,
-  getNameFromMarkup
+  getNameFromMarkup,
+  SearchAIMentions_SearchAIMentions_results
 } from './utils';
 import { AddressInput } from './AddressInput';
 import { ADDRESS_OPTION_ID, MENTION_COUNT, POAP_OPTION_ID } from './constants';
 import { Icon } from '../Icon';
-import { pluralize } from '../../utils';
+import { capitalizeFirstLetter, pluralize } from '../../utils';
 
-type Option = SearchAIMentions_SearchAIMentions & {
+type Option = SearchAIMentions_SearchAIMentions_results & {
   id: string;
   display: string;
 };
@@ -69,6 +68,7 @@ export function InputWithMention({
   const allowSubmitRef = useRef(true);
   const valueRef = useRef(value);
   const lastPositionOfCaretRef = useRef(0);
+  const isSuggestionClickedRef = useRef(false);
   const [loading, setLoading] = useState(false);
 
   // const [getMentions, { loading }] = useLazyQuery(MentionsQuery);
@@ -125,23 +125,45 @@ export function InputWithMention({
   const handleKeypress: KeyboardEventHandler<HTMLTextAreaElement> = useCallback(
     event => {
       if (event.key === 'Enter') {
-        // need to blur input, when enter is pressed
-        inputRef.current?.blur();
         // prevent submission when user is selecting a suggestion from the dropdown menu with Enter key
         if (!allowSubmitRef.current) {
           allowSubmitRef.current = true;
           return;
         }
         event.preventDefault();
+        // blur on enter key press
+        inputRef.current?.blur();
         onSubmit(value);
       }
     },
     [onSubmit, value]
   );
 
+  const handleBlur = useCallback(
+    (_: React.FocusEvent<HTMLInputElement>, clickedSuggestion: boolean) => {
+      if (clickedSuggestion) {
+        isSuggestionClickedRef.current = true;
+        // remove @ from input value so that it doesn't trigger search again
+        const inputValue = inputRef.current?.value || '';
+        const lastChar = inputValue.slice(-1);
+        if (inputRef.current && lastChar === '@') {
+          inputRef.current.value = inputValue.slice(0, -1);
+        }
+      }
+    },
+    []
+  );
+
   const onAddSuggestion = useCallback((id: string) => {
-    // this prevents submission if user is selecting a suggestion from the dropdown menu with enter key
-    allowSubmitRef.current = false;
+    // allow submission only if suggestion is clicked
+    if (isSuggestionClickedRef.current) {
+      allowSubmitRef.current = true;
+    } else {
+      allowSubmitRef.current = false;
+    }
+
+    // reset value for next iteration
+    isSuggestionClickedRef.current = false;
 
     if (id === ADDRESS_OPTION_ID || id === POAP_OPTION_ID) {
       const overlay = document.getElementById(
@@ -230,9 +252,9 @@ export function InputWithMention({
       const [response] = await getMentions(query);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data = response as any;
-      if (data?.SearchAIMentions) {
-        return data.SearchAIMentions.map(
-          (mention: SearchAIMentions_SearchAIMentions) => ({
+      if (data?.SearchAIMentions?.results) {
+        return data.SearchAIMentions.results.map(
+          (mention: SearchAIMentions_SearchAIMentions_results) => ({
             id: generateId(mention),
             display: mention.name,
             ...mention,
@@ -275,6 +297,7 @@ export function InputWithMention({
         style={{ outline: 'none' }}
         placeholder={placeholder}
         onKeyUp={handleKeypress}
+        onBlur={handleBlur}
         className="mentions"
         value={value}
         onChange={handleUserInput}

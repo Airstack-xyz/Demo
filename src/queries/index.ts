@@ -7,6 +7,7 @@ export const TokensQuery = `query GetTokens($owner: Identity, $tokenType: [Token
       tokenType
       blockchain
       tokenAddress
+      formattedAmount
       tokenNfts {
         tokenId
         contentValue {
@@ -37,6 +38,7 @@ export const TokensQuery = `query GetTokens($owner: Identity, $tokenType: [Token
       tokenType
       blockchain
       tokenAddress
+      formattedAmount
       tokenNfts {
         tokenId
         contentValue {
@@ -90,15 +92,22 @@ export const POAPQuery = `query GetPOAPs($owner: Identity, $limit: Int $sortBy: 
 
 export const SocialQuery = `query GetSocial($identity: Identity!) {
   Wallet(input: {identity: $identity, blockchain: ethereum}) {
+    addresses
     primaryDomain {
       name
     }
     domains {
       name
     }
-    socials {
+    socials(input: {limit: 200}) {
+      isDefault
       dappName
+      dappSlug
+      blockchain
       profileName
+      profileTokenId
+      followerCount
+      followingCount
     }
     xmtp {
       isXMTPEnabled
@@ -109,14 +118,16 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
 export const MentionsQuery = `
   query SearchAIMentions($input: SearchAIMentionsInput!) {
     SearchAIMentions(input: $input) {
-      type
-      name
-      address
-      eventId
-      blockchain
-      thumbnailURL
-      metadata {
-        tokenMints
+      results {
+        type
+        name
+        address
+        eventId
+        blockchain
+        thumbnailURL
+        metadata {
+          tokenMints
+        }
       }
     }
   }
@@ -210,6 +221,7 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
         addresses
         socials {
           blockchain
+          dappName
           dappSlug
           profileName
         }
@@ -265,6 +277,7 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
         addresses
         socials {
           blockchain
+          dappName
           dappSlug
           profileName
         }
@@ -316,12 +329,16 @@ export const PoapOwnerQuery = `query GetPoapHolders($eventId: [String!], $limit:
         }
         blockchain
         eventName
+        endDate
+        endDate
+        city
       }
       owner {
         identity
         addresses
         socials {
           blockchain
+          dappName
           dappSlug
           profileName
         }
@@ -387,5 +404,25 @@ export const PoapOverviewQuery = `query GetPoapOverview($eventId: String) {
     primaryEnsUsersCount
     totalHolders
     xmtpUsersCount
+  }
+}`;
+
+export const DomainsQuery = `query GetDomains($addresses: [Identity!] $limit:Int) {
+  Domains(input: {filter: {owner: {_in: $addresses}}, blockchain: ethereum, limit:$limit}) {
+    Domain {
+      id
+      name
+    }
+  }
+}`;
+
+export const SocialsQuery = `query GetSocials($addresses: [Identity!], $dappName: SocialDappName!, $limit: Int) {
+  Socials(
+    input: {filter: {identity: {_in: $addresses}, dappName: {_eq: $dappName}}, blockchain: ethereum, limit: $limit}
+  ) {
+    Social {
+      id
+      profileName
+    }
   }
 }`;

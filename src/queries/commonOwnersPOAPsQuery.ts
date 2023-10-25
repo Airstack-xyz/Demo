@@ -31,6 +31,7 @@ owner {
   addresses
   socials {
     blockchain
+    dappName
     dappSlug
     profileName
   }
@@ -73,6 +74,7 @@ export function createCommonOwnersPOAPsQuery(tokenIds: TokenAddress[]) {
         tokenId
         tokenAddress
         blockchain
+        eventId
         poapEvent {
           contentValue {
             image {

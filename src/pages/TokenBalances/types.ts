@@ -6,6 +6,7 @@ export interface TokenType {
   formattedAmount: number;
   tokenNfts: TokenNfts;
   token: Token;
+  tokenId?: string;
   _tokenId?: string;
   _common_tokens?: TokenType[];
 }
@@ -19,8 +20,17 @@ export type CommonTokenType = TokenType & {
 export interface TokenNfts {
   tokenId: string;
   contentValue: ContentValue;
+  erc6551Accounts: Erc6551Account[];
 }
 
+export interface Erc6551Account {
+  address: Address;
+}
+
+export interface Address {
+  addresses: string[];
+  tokenBalances: TokenType[];
+}
 export interface ContentValue {
   image: Image;
 }
@@ -33,6 +43,8 @@ export interface Image {
 export interface Token {
   name: string;
   symbol: string;
+  tokenType: string;
+  formattedAmount: number;
   logo: {
     small: string;
     medium: string;
@@ -83,6 +95,7 @@ export interface SocialsType {
 }
 
 export interface Wallet {
+  addresses: string[];
   primaryDomain: PrimaryDomain;
   domains: Domain[];
   socials: Social[];
@@ -98,8 +111,14 @@ export interface Domain {
 }
 
 export interface Social {
+  isDefault: boolean;
+  blockchain: string;
   dappName: string;
+  dappSlug: string;
   profileName: string;
+  profileTokenId: string;
+  followerCount: number;
+  followingCount: number;
 }
 
 export interface Xmtp {
@@ -148,12 +167,6 @@ export interface Poap {
   tokenUri: string;
   tokenAddress: string;
   tokenId: string;
-}
-
-export interface Social {
-  blockchain: string;
-  dappSlug: string;
-  profileName: string;
 }
 
 export interface PrimaryDomain {

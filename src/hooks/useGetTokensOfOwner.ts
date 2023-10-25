@@ -1,63 +1,76 @@
 import { config } from '@airstack/airstack-react/config';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createNftWithCommonOwnersQuery } from '../queries/nftWithCommonOwnersQuery';
-import { useSearchInput } from './useSearchInput';
 import { defaultSortOrder } from '../Components/Filters/SortBy';
+import { UserInputs } from './useSearchInput';
 import { tokenTypes } from '../pages/TokenBalances/constants';
 import { CommonTokenType, TokenType } from '../pages/TokenBalances/types';
 import { createNftWithCommonOwnersSnapshotQuery } from '../queries/nftWithCommonOwnersSnapshotQuery';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { getActiveSnapshotInfo } from '../utils/activeSnapshotInfoString';
 
 const LIMIT = 20;
 const LIMIT_COMBINATIONS = 100;
 
+type Inputs = Pick<
+  UserInputs,
+  | 'address'
+  | 'tokenType'
+  | 'blockchainType'
+  | 'sortOrder'
+  | 'activeSnapshotInfo'
+> & {
+  includeERC20?: boolean;
+};
 export function useGetTokensOfOwner(
+  inputs: Inputs,
   onDataReceived: (tokens: TokenType[]) => void
 ) {
+  const {
+    address: owners,
+    tokenType = '',
+    blockchainType,
+    sortOrder,
+    activeSnapshotInfo,
+    includeERC20
+  } = inputs;
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
   const tokensRef = useRef<TokenType[]>([]);
-  const [
-    {
-      address: owners,
-      tokenType: tokenType = '',
-      blockchainType,
-      sortOrder,
-      snapshotBlockNumber,
-      snapshotDate,
-      snapshotTimestamp
-    }
-  ] = useSearchInput();
 
-  const isSnapshotQuery = Boolean(
-    snapshotBlockNumber || snapshotDate || snapshotTimestamp
+  const snapshotInfo = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
   );
 
   const query = useMemo(() => {
     const fetchAllBlockchains =
       blockchainType.length === 2 || blockchainType.length === 0;
 
-    const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
+    const blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
-    if (isSnapshotQuery) {
+    if (snapshotInfo.isApplicable) {
       return createNftWithCommonOwnersSnapshotQuery({
         owners,
-        blockchain: _blockchain,
-        blockNumber: snapshotBlockNumber,
-        date: snapshotDate,
-        timestamp: snapshotTimestamp
+        blockchain: blockchain,
+        blockNumber: snapshotInfo.blockNumber,
+        date: snapshotInfo.date,
+        timestamp: snapshotInfo.timestamp
       });
     }
-    return createNftWithCommonOwnersQuery(owners, _blockchain);
+    return createNftWithCommonOwnersQuery(owners, blockchain);
   }, [
-    owners,
     blockchainType,
-    isSnapshotQuery,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    owners,
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
+
+  const isPoap = tokenType === 'POAP';
+  const is6551 = tokenType === 'ERC6551';
 
   const [
     fetchTokens,
@@ -77,26 +90,29 @@ export function useGetTokensOfOwner(
       visitedTokensSetRef.current = new Set();
       tokensRef.current = [];
 
-      const _limit = owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT;
-      const _tokenType =
-        tokenType && tokenType.length > 0
+      const limit = owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT;
+      const tokenFilters =
+        tokenType && tokenType.length > 0 && !is6551
           ? [tokenType]
-          : tokenTypes.filter(tokenType => tokenType !== 'POAP');
+          : tokenTypes.filter(
+              tokenType => includeERC20 || tokenType !== 'ERC20'
+            );
+      const sortBy = sortOrder ? sortOrder : defaultSortOrder;
 
       // For snapshots different variables are being passed
-      if (isSnapshotQuery) {
+      if (snapshotInfo.isApplicable) {
         fetchTokens({
-          limit: _limit,
-          tokenType: _tokenType,
-          blockNumber: snapshotBlockNumber,
-          date: snapshotDate,
-          timestamp: snapshotTimestamp
+          limit,
+          tokenType: tokenFilters,
+          blockNumber: snapshotInfo.blockNumber,
+          date: snapshotInfo.date,
+          timestamp: snapshotInfo.timestamp
         });
       } else {
         fetchTokens({
-          limit: _limit,
-          tokenType: _tokenType,
-          sortBy: sortOrder ? sortOrder : defaultSortOrder
+          limit,
+          tokenType: tokenFilters,
+          sortBy
         });
       }
     }
@@ -104,14 +120,16 @@ export function useGetTokensOfOwner(
     setProcessedTokensCount(LIMIT);
   }, [
     fetchTokens,
-    owners.length,
-    blockchainType,
+    includeERC20,
+    is6551,
+    isPoap,
+    owners,
     sortOrder,
     tokenType,
-    isSnapshotQuery,
-    snapshotBlockNumber,
-    snapshotDate,
-    snapshotTimestamp
+    snapshotInfo.isApplicable,
+    snapshotInfo.blockNumber,
+    snapshotInfo.date,
+    snapshotInfo.timestamp
   ]);
 
   useEffect(() => {
@@ -142,7 +160,20 @@ export function useGetTokensOfOwner(
           return token;
         }, []);
     }
-    const tokens = [...ethTokens, ...maticTokens];
+    let tokens = [...ethTokens, ...maticTokens];
+
+    if (is6551) {
+      tokens = tokens.filter((token: CommonTokenType) => {
+        const commonTokens = token?._common_tokens || [];
+        return (
+          token?.tokenNfts?.erc6551Accounts?.length > 0 ||
+          commonTokens?.find(
+            _token => _token?.tokenNfts?.erc6551Accounts?.length > 0
+          )
+        );
+      });
+    }
+
     tokensRef.current = [...tokensRef.current, ...tokens];
     onDataReceived(tokens);
 
@@ -153,7 +184,7 @@ export function useGetTokensOfOwner(
     }
     setLoading(false);
     tokensRef.current = [];
-  }, [getNextPage, hasNextPage, onDataReceived, tokensData]);
+  }, [getNextPage, hasNextPage, is6551, onDataReceived, tokensData]);
 
   const getNext = useCallback(() => {
     if (!hasNextPage) return;

@@ -37,7 +37,12 @@ export type IconType =
   | 'clock'
   | 'block'
   | 'eye'
-  | 'holder-white';
+  | 'holder-white'
+  | 'stack'
+  | 'token-holders-white'
+  | 'folder'
+  | 'folder-gray'
+  | 'check-mark-circle';
 
 export type IconProps = {
   name: IconType;

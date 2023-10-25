@@ -25,6 +25,7 @@ owner {
   identity
   addresses
   socials {
+    dappName
     dappSlug
     profileName
   }
@@ -42,6 +43,7 @@ owner {
 
 const fieldsWithAsset = `tokenId
 tokenAddress
+tokenType
 token {
   logo {
     small
