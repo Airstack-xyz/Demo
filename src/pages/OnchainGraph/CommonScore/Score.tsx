@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { Icon } from '../../../Components/Icon';
-import { ScoreBar } from './ScoreBar';
 import { getDefaultScoreMap } from '../utils';
 import { scoreOptions } from '../constants';
 
@@ -9,11 +8,8 @@ export function Score({ score }: { score: number }) {
 
   return (
     <div className="bg-glass flex flex-col justify-center h-full p-7 rounded-l-18 z-10">
-      <h3 className="text-[28px] font-semibold">{score}</h3>
-      <div className="mt-2.5 mb-2">
-        <ScoreBar scorePercentage={70} />
-      </div>
-      <div className="flex items-center">
+      <h3 className="text-5xl font-semibold text-center">{score}</h3>
+      <div className="flex items-center mt-2">
         <span className="text-xs text-text-secondary mr-1">on-chain match</span>
         <div className="relative">
           <Icon name="info-circle" height={14} width={14} className="peer" />

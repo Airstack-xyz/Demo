@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { UserInfo } from './UserInfo';
 import classNames from 'classnames';
 import { Header } from './Header';
@@ -36,6 +36,15 @@ export function OnChainGraphComponent() {
   const [showGridView, setShowGridView] = useState(() => !isMobileDevice());
   const [loading, setLoading] = useState(true);
   const [scanning, cancelScan] = useGetOnChainData(identity);
+
+  useEffect(() => {
+    // if no identity, redirect to home page
+    if (!identity) {
+      navigate('/', {
+        replace: true
+      });
+    }
+  }, [identity, navigate]);
 
   const applyScore = useCallback(() => {
     setData(recommendations => [...recommendations]);

@@ -64,7 +64,7 @@ export const Search = memo(function Search() {
   const navigate = useNavigate();
 
   const [value, setValue] = useState(() => {
-    return !identity
+    return !identity.trim()
       ? ''
       : createFormattedRawInput({
           label: identity,

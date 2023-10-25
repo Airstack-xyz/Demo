@@ -10,7 +10,7 @@ import {
   fetchNfts,
   fetchTokensTransfer,
   getDomainName
-} from './data-fetchers';
+} from './dataFetchers';
 import { Score } from './Score';
 
 function Loader() {
