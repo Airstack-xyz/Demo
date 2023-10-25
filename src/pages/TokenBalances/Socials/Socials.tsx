@@ -12,6 +12,7 @@ import { Follow, FollowParams, FollowType } from './Follow';
 import { Social } from './Social';
 import { XMTP } from './XMTP';
 import { Icon } from '../../../Components/Icon';
+import { Link } from 'react-router-dom';
 
 const getFollowInfo = (socials: WalletType['socials']) => {
   const followMap: Record<string, FollowType> = {
@@ -219,24 +220,17 @@ function SocialsComponent() {
         <SectionHeader iconName="socials-flat" heading="Socials" />
       </div>
       <div className="rounded-18 border-solid-stroke mt-3.5 bg-glass p-5 mb-5">
-        <button
+        <Link
           className="flex items-center"
-          onClick={() => {
-            setData(
-              {
-                activeOnChainGraphInfo: 'onchain-graph'
-              },
-              {
-                updateQueryParams: true
-              }
-            );
-          }}
+          to={`/onchain-graph?identity=${address[0]}`}
         >
-          <Icon name="community" height={30} width={30} />
-          <span className="text-text-button text-sm font-medium ml-2">
-            View Onchain Graph {'->'}{' '}
-          </span>
-        </button>
+          <>
+            <Icon name="community" height={30} width={30} />
+            <span className="text-text-button text-sm font-medium ml-2">
+              View Onchain Graph {'->'}{' '}
+            </span>
+          </>
+        </Link>
       </div>
       <div
         className={classNames(

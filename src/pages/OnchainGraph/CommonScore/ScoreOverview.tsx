@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getDefaultScoreMap } from '../OnChainGraph/utils';
+import { getDefaultScoreMap } from '../utils';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { Icon, IconType } from '../../../Components/Icon';
 import { pluralize } from '../../../utils';

@@ -1,8 +1,5 @@
 import { fetchQueryWithPagination } from '@airstack/airstack-react';
-import {
-  nftAddressesQuery,
-  nftQuery
-} from '../../../../queries/onChainGraph/nft';
+import { nftAddressesQuery, nftQuery } from '../../../queries/onChainGraph/nft';
 import { useCallback, useRef } from 'react';
 import { NFTQueryResponse, TokenBalance } from '../types/nft';
 import { FetchPaginatedQueryReturnType } from '@airstack/airstack-react/types';

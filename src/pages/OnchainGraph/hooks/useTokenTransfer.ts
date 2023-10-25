@@ -2,7 +2,7 @@ import { fetchQueryWithPagination } from '@airstack/airstack-react';
 import {
   tokenReceivedQuery,
   tokenSentQuery
-} from '../../../../queries/onChainGraph/tokenTransfer';
+} from '../../../queries/onChainGraph/tokenTransfer';
 import { TokenQueryResponse, Transfer } from '../types/tokenSentReceived';
 import { useCallback, useRef } from 'react';
 import { useOnChainGraphData } from './useOnChainGraphData';

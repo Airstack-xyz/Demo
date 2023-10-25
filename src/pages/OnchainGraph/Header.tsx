@@ -1,12 +1,14 @@
 import { memo, useState } from 'react';
 import classNames from 'classnames';
-import { Icon } from '../../../Components/Icon';
-import { useSearchInput } from '../../../hooks/useSearchInput';
-import { Dropdown } from '../../../Components/Dropdown';
+import { Icon } from '../../Components/Icon';
+import { Dropdown } from '../../Components/Dropdown';
 import { SCORE_KEY, ScoreMap, scoreOptions, maxScore } from './constants';
 import { getDefaultScoreMap } from './utils';
-import { Tooltip } from '../../../Components/Tooltip';
+import { Tooltip } from '../../Components/Tooltip';
 import classnames from 'classnames';
+import { createSearchParams, useNavigate } from 'react-router-dom';
+import { useIdentity } from './hooks/useIdentity';
+import { createFormattedRawInput } from '../../utils/createQueryParamsWithMention';
 
 function Header({
   showGridView,
@@ -22,7 +24,8 @@ function Header({
   loading?: boolean;
 }) {
   const [score, setScore] = useState<ScoreMap>(getDefaultScoreMap);
-  const setSearchInputData = useSearchInput()[1];
+  const navigate = useNavigate();
+  const identity = useIdentity();
 
   const getScoreHandler = (updateBy: number, key: keyof ScoreMap) => () => {
     setScore(prevScore => {
@@ -43,14 +46,18 @@ function Header({
           <div
             className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
             onClick={() => {
-              setSearchInputData(
-                {
-                  activeOnChainGraphInfo: ''
-                },
-                {
-                  updateQueryParams: true
-                }
-              );
+              navigate({
+                pathname: '/token-balances',
+                search: createSearchParams({
+                  address: identity,
+                  rawInput: createFormattedRawInput({
+                    label: identity,
+                    address: identity,
+                    type: 'ADDRESS',
+                    blockchain: 'ethereum'
+                  })
+                }).toString()
+              });
             }}
           >
             <Icon

@@ -1,5 +1,5 @@
 import { Chain } from '@airstack/airstack-react/constants';
-import { Asset } from '../../../Components/Asset';
+import { Asset } from '../../Components/Asset';
 import { RecommendedUser } from './types';
 import { useMemo, useState } from 'react';
 import classNames from 'classnames';

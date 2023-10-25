@@ -1,5 +1,5 @@
 import { fetchQueryWithPagination } from '@airstack/airstack-react';
-import { socialFollowingsQuery } from '../../../../queries/onChainGraph/followings';
+import { socialFollowersQuery } from '../../../queries/onChainGraph/followings';
 import { FollowingAddress, SocialQueryResponse } from '../types/social';
 import { useCallback, useRef } from 'react';
 import { QUERY_LIMIT } from '../constants';
@@ -10,7 +10,7 @@ import { paginateRequest } from '../utils';
 const MAX_ITEMS = 10000;
 
 function formatData(
-  followings: FollowingAddress[],
+  followers: FollowingAddress[],
   exitingUser: RecommendedUser[] = [],
   dappName: 'farcaster' | 'lens' = 'farcaster'
 ): RecommendedUser[] {
@@ -19,32 +19,34 @@ function formatData(
     dappName === 'farcaster' ? 'followingOnFarcaster' : 'followingOnLens';
   const followedOnKey =
     dappName === 'farcaster' ? 'followedOnFarcaster' : 'followedOnLens';
-  for (const following of followings) {
+
+  for (const follower of followers) {
     const existingUserIndex = recommendedUsers.findIndex(
       ({ addresses: recommendedUsersAddresses }) =>
         recommendedUsersAddresses?.some?.(address =>
-          following.addresses?.includes?.(address)
+          follower.addresses?.includes?.(address)
         )
     );
 
-    const followsBack = Boolean(following?.mutualFollower?.Follower?.[0]);
+    const following = Boolean(follower?.mutualFollower?.Following?.length);
+
     if (existingUserIndex !== -1) {
       const follows = recommendedUsers?.[existingUserIndex]?.follows ?? {};
+
+      follows[followedOnKey] = true;
+      follows[followingKey] = follows[followingKey] || following;
+
       recommendedUsers[existingUserIndex] = {
-        ...following,
+        ...follower,
         ...recommendedUsers[existingUserIndex],
-        follows: {
-          ...follows,
-          [followingKey]: true,
-          [followedOnKey]: followsBack
-        }
+        follows
       };
     } else {
       recommendedUsers.push({
-        ...following,
+        ...follower,
         follows: {
-          [followingKey]: true,
-          [followedOnKey]: followsBack
+          [followingKey]: following,
+          [followedOnKey]: true
         }
       });
     }
@@ -52,7 +54,7 @@ function formatData(
   return recommendedUsers;
 }
 
-export function useGetSocialFollowings(
+export function useGetSocialFollowers(
   address: string,
   dappName: 'farcaster' | 'lens' = 'farcaster'
 ) {
@@ -65,7 +67,7 @@ export function useGetSocialFollowings(
       return;
     }
     const request = fetchQueryWithPagination<SocialQueryResponse>(
-      socialFollowingsQuery,
+      socialFollowersQuery,
       {
         user: address,
         dappName
@@ -79,13 +81,13 @@ export function useGetSocialFollowings(
       if (requestCanceled.current) {
         return false;
       }
-      const followings =
-        data?.SocialFollowings?.Following?.map(
-          following => following.followingAddress
+      const followers =
+        data?.SocialFollowers?.Follower?.map(
+          following => following.followerAddress
         ) ?? [];
-      totalItemsCount.current += followings.length;
+      totalItemsCount.current += followers.length;
       setData(recommendedUsers =>
-        formatData(followings, recommendedUsers, dappName)
+        formatData(followers, recommendedUsers, dappName)
       );
       const shouldFetchMore = totalItemsCount.current < MAX_ITEMS;
       if (shouldFetchMore) {

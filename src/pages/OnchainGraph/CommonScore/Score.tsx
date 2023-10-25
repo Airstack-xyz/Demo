@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { Icon } from '../../../Components/Icon';
 import { ScoreBar } from './ScoreBar';
-import { getDefaultScoreMap } from '../OnChainGraph/utils';
-import { scoreOptions } from '../OnChainGraph/constants';
+import { getDefaultScoreMap } from '../utils';
+import { scoreOptions } from '../constants';
 
 export function Score({ score }: { score: number }) {
   const scoreMap = useMemo(() => getDefaultScoreMap(), []);

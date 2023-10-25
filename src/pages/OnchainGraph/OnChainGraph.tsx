@@ -6,9 +6,10 @@ import { Loader } from './Loader';
 import { useOnChainGraphData } from './hooks/useOnChainGraphData';
 import { OnChainGraphDataContextProvider } from './context/OnChainGraphDataContext';
 import { useGetOnChainData } from './hooks/useGetOnChainData';
-import { isMobileDevice } from '../../../utils/isMobileDevice';
-import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
+import { isMobileDevice } from '../../utils/isMobileDevice';
+import { createFormattedRawInput } from '../../utils/createQueryParamsWithMention';
 import { useIdentity } from './hooks/useIdentity';
+import { createSearchParams, useNavigate } from 'react-router-dom';
 
 function ItemsLoader() {
   const loaderItems = Array(6).fill(0);
@@ -25,6 +26,7 @@ function ItemsLoader() {
 
 export function OnChainGraphComponent() {
   const identity = useIdentity();
+  const navigate = useNavigate();
   // const [{ address: identities, rawInput }, setSearchData] = useSearchInput();
   const {
     data: recommendations,
@@ -39,26 +41,31 @@ export function OnChainGraphComponent() {
     setData(recommendations => [...recommendations]);
   }, [setData]);
 
-  const handleUserClick = useCallback((identity: string) => {
-    const _rawInput = createFormattedRawInput({
-      label: identity,
-      address: identity,
-      type: 'ADDRESS',
-      blockchain: 'ethereum'
-    });
-    // eslint-disable-next-line
-    console.log(_rawInput);
-    // setSearchData(
-    //   {
-    //     rawInput: `${rawInput} ${_rawInput}`,
-    //     address: [...identities, identity],
-    //     activeOnChainGraphInfo: ''
-    //   },
-    //   {
-    //     updateQueryParams: true
-    //   }
-    // );
-  }, []);
+  const handleUserClick = useCallback(
+    (_identity: string) => {
+      const rawInputForExistingIdentity = createFormattedRawInput({
+        label: identity,
+        address: identity,
+        type: 'ADDRESS',
+        blockchain: 'ethereum'
+      });
+
+      const rawInputForNewIdentity = createFormattedRawInput({
+        label: _identity,
+        address: _identity,
+        type: 'ADDRESS',
+        blockchain: 'ethereum'
+      });
+      navigate({
+        pathname: '/token-balances',
+        search: createSearchParams({
+          rawInput: `${rawInputForExistingIdentity} ${rawInputForNewIdentity}`,
+          address: `${identity},${_identity}`
+        }).toString()
+      });
+    },
+    [identity, navigate]
+  );
 
   return (
     <div className="max-w-[958px] px-2 mx-auto w-full text-sm pt-10 sm:pt-5">

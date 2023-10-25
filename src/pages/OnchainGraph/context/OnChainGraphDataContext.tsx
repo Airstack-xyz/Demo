@@ -8,9 +8,9 @@ import {
 } from 'react';
 import { RecommendedUser } from '../types';
 import { getDefaultScoreMap, worker } from '../utils';
-import { useSearchInput } from '../../../../hooks/useSearchInput';
+import { useSearchInput } from '../../../hooks/useSearchInput';
 import { useLazyQuery } from '@airstack/airstack-react';
-import { SocialQuery } from '../../../../queries';
+import { SocialQuery } from '../../../queries';
 
 type OnChainGraphDataContextType = {
   data: RecommendedUser[];

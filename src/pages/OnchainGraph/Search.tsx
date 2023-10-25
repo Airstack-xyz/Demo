@@ -1,11 +1,13 @@
 import classNames from 'classnames';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useMatch, useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  CachedQuery,
-  UserInputs,
-  userInputCache
-} from '../../hooks/useSearchInput';
+  Link,
+  createSearchParams,
+  useMatch,
+  useNavigate,
+  useSearchParams
+} from 'react-router-dom';
+import { UserInputs, userInputCache } from '../../hooks/useSearchInput';
 import { showToast } from '../../utils/showToast';
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
 import { Icon } from '../../Components/Icon';
@@ -13,7 +15,7 @@ import { getAllWordsAndMentions } from '../../Components/Input/utils';
 import { addAndRemoveCombinationPlaceholder } from '../../Components/Search/utils';
 import { InputWithMention } from '../../Components/Input/Input';
 import { createFormattedRawInput } from '../../utils/createQueryParamsWithMention';
-import { useIdentity } from './OnChainGraph/hooks/useIdentity';
+import { useIdentity } from './hooks/useIdentity';
 
 const tokenHoldersPlaceholder =
   'Use @ mention or enter any token contract address';
@@ -125,30 +127,6 @@ export const Search = memo(function Search() {
     };
   }, []);
 
-  const handleDataChange = useCallback(
-    (data: Partial<CachedQuery>) => {
-      setOverviewTokens({
-        tokens: []
-      });
-      // eslint-disable-next-line
-      console.log(data);
-
-      // if (isHome) {
-      //   setData(data, {
-      //     updateQueryParams: true,
-      //     reset: isTokenBalances,
-      //     redirectTo: isTokenBalances ? '/token-balances' : '/token-holders'
-      //   });
-      //   return;
-      // }
-      // setData(data, {
-      //   updateQueryParams: true,
-      //   reset: isTokenBalances
-      // });
-    },
-    [setOverviewTokens]
-  );
-
   const handleTokenBalancesSearch = useCallback(
     (value: string) => {
       const address: string[] = [];
@@ -177,7 +155,6 @@ export const Search = memo(function Search() {
           "Couldn't find any valid wallet address or ens/lens/farcaster name",
           'negative'
         );
-        handleDataChange({});
         return;
       }
 
@@ -193,76 +170,14 @@ export const Search = memo(function Search() {
         rawInput: rawTextWithMentions,
         inputType: 'ADDRESS' as UserInputs['inputType']
       };
-      setValue(rawTextWithMentions.trim() + padding);
-      handleDataChange(searchData);
-    },
-    [handleDataChange]
-  );
 
-  const handleTokenHoldersSearch = useCallback(
-    (value: string) => {
-      const address: string[] = [];
-      const rawInput: string[] = [];
-      let inputType: string | null = null;
-      let hasInputTypeMismatch = false;
-      let blockchain = 'ethereum';
-      let token = '';
-      const wordsAndMentions = getAllWordsAndMentions(value);
-
-      wordsAndMentions.forEach(({ word, mention, rawValue }) => {
-        if (mention) {
-          rawInput.push(rawValue);
-          address.push(mention.eventId || mention.address);
-          blockchain = mention.blockchain || '';
-          token = mention.token || '';
-          const _inputType = mention.customInputType || '';
-          hasInputTypeMismatch = hasInputTypeMismatch
-            ? hasInputTypeMismatch
-            : inputType !== null
-            ? inputType !== _inputType
-            : false;
-          inputType = inputType || _inputType;
-          return;
-        }
-
-        const _inputType = word.startsWith('0x')
-          ? 'ADDRESS'
-          : !isNaN(Number(word))
-          ? 'POAP'
-          : null;
-        hasInputTypeMismatch = hasInputTypeMismatch
-          ? hasInputTypeMismatch
-          : inputType !== null
-          ? inputType !== _inputType
-          : false;
-
-        inputType = inputType || _inputType;
-        if (!inputType) return;
-        address.push(word);
-        rawInput.push(rawValue);
+      navigate({
+        pathname: '/token-balances',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        search: createSearchParams(searchData as any).toString()
       });
-
-      if (address.length === 0) {
-        showToast("Couldn't find any contract", 'negative');
-        return;
-      }
-
-      if (address.length > 2) {
-        showToast('You can only compare 2 tokens at a time', 'negative');
-        return;
-      }
-
-      const rawTextWithMentions = rawInput.join(padding);
-      const searchData = {
-        address,
-        blockchain,
-        rawInput: rawTextWithMentions,
-        inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType']
-      };
-      setValue(rawTextWithMentions + padding);
-      handleDataChange(searchData);
     },
-    [handleDataChange]
+    [navigate]
   );
 
   useEffect(() => {
@@ -280,18 +195,9 @@ export const Search = memo(function Search() {
         return;
       }
 
-      if (isTokenBalances) {
-        return handleTokenBalancesSearch(trimmedValue);
-      }
-
-      handleTokenHoldersSearch(trimmedValue);
+      return handleTokenBalancesSearch(trimmedValue);
     },
-    [
-      handleTokenBalancesSearch,
-      handleTokenHoldersSearch,
-      isTokenBalances,
-      searchParams
-    ]
+    [handleTokenBalancesSearch, searchParams]
   );
 
   const handleInputSubmit = () => {

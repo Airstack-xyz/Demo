@@ -1,16 +1,16 @@
 import { fetchQuery, fetchQueryWithPagination } from '@airstack/airstack-react';
-import { paginateRequest } from '../OnChainGraph/utils';
+import { paginateRequest } from '../utils';
 import {
   CommonPoapType,
   CommonTokenType,
   Wallet
 } from '../../TokenBalances/types';
-import { nftsToIgnore } from '../OnChainGraph/constants';
+import { nftsToIgnore } from '../constants';
 import { commonNFTTokens } from '../../../queries/onChainGraphForTwoAddresses/common-nfts';
 import { commonPoapsQuery } from '../../../queries/onChainGraphForTwoAddresses/common-poaps';
 import { mutualFollower } from '../../../queries/onChainGraphForTwoAddresses/followings';
-import { Following, SocialQueryResponse } from '../OnChainGraph/types/social';
-import { TokenQueryResponse } from '../OnChainGraph/types/tokenSentReceived';
+import { Following, SocialQueryResponse } from '../types/social';
+import { TokenQueryResponse } from '../types/tokenSentReceived';
 import { tokenSentQuery } from '../../../queries/onChainGraphForTwoAddresses/tokens';
 import { SocialQuery } from '../../../queries';
 

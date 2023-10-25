@@ -1,14 +1,14 @@
 import { memo, useMemo, useRef } from 'react';
 import { Chain } from '@airstack/airstack-react/constants';
-import { IconType, Icon } from '../../../Components/Icon';
+import { IconType, Icon } from '../../Components/Icon';
 import { RecommendedUser } from './types';
-import { Asset } from '../../../Components/Asset';
+import { Asset } from '../../Components/Asset';
 import { ListWithViewMore } from './ListWithViewMore';
-import { pluralize } from '../../../utils';
+import { pluralize } from '../../utils';
 import classNames from 'classnames';
-import { useInViewportOnce } from '../../../hooks/useInViewportOnce';
-import { Tooltip } from '../../../Components/Tooltip';
-import { CopyButton } from '../../../Components/CopyButton';
+import { useInViewportOnce } from '../../hooks/useInViewportOnce';
+import { Tooltip } from '../../Components/Tooltip';
+import { CopyButton } from '../../Components/CopyButton';
 
 function TextWithIcon({
   icon,

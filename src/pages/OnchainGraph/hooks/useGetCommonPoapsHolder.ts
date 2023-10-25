@@ -2,7 +2,7 @@ import { fetchQueryWithPagination } from '@airstack/airstack-react';
 import {
   poapsByEventIdsQuery,
   userPoapsEventIdsQuery
-} from '../../../../queries/onChainGraph/commonPoaps';
+} from '../../../queries/onChainGraph/commonPoaps';
 import { useCallback, useRef } from 'react';
 import { QUERY_LIMIT } from '../constants';
 import {
@@ -108,10 +108,7 @@ export function useGetCommonPoapsHolder(address: string) {
       if (requestCanceled.current) {
         return false;
       }
-      const eventIds =
-        data?.Poaps.Poap?.filter(poap => !poap?.poapEvent?.isVirtualEvent).map(
-          poap => poap?.eventId
-        ) ?? [];
+      const eventIds = data?.Poaps.Poap?.map(poap => poap?.eventId) ?? [];
       await await fetchPoapData(eventIds);
       const shouldFetchMore = totalItemsCount.current < MAX_ITEMS;
       if (shouldFetchMore) {

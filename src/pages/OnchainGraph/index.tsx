@@ -1,4 +1,4 @@
-import { Search } from '../../Components/Search';
+import { Search } from './Search';
 import { Layout } from '../../Components/Layout';
 import classNames from 'classnames';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
