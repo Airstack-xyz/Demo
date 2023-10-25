@@ -59,7 +59,13 @@ export function ListWithViewMore({
       ))}
       {loading && <Loader />}
       {!loading && !showAll && items.length > limit && (
-        <button onClick={() => setShowAll(true)} className="text-text-button">
+        <button
+          onClick={e => {
+            e.stopPropagation();
+            setShowAll(true);
+          }}
+          className="text-text-button"
+        >
           see more
         </button>
       )}

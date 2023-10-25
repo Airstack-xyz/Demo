@@ -456,6 +456,7 @@ function TokenBalancePage() {
     if (activeOnChainGraphInfo) {
       return <OnChainGraph />;
     }
+
     if (showTokenDetails) {
       return (
         <TokenDetails

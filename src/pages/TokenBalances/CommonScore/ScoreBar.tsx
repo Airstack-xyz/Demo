@@ -89,9 +89,9 @@ export function ScoreBar({ scorePercentage }: { scorePercentage: number }) {
           y2="7.00002"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stop-color="#3486FF" />
-          <stop offset="0.447924" stop-color="#178594" />
-          <stop offset="1" stop-color="#00843D" />
+          <stop stopColor="#3486FF" />
+          <stop offset="0.447924" stopColor="#178594" />
+          <stop offset="1" stopColor="#00843D" />
         </linearGradient>
       </defs>
     </svg>

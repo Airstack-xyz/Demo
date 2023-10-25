@@ -224,7 +224,7 @@ function SocialsComponent() {
           onClick={() => {
             setData(
               {
-                activeSocialInfo: 'onchain-graph'
+                activeOnChainGraphInfo: 'onchain-graph'
               },
               {
                 updateQueryParams: true

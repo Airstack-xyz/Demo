@@ -166,7 +166,7 @@ export function useSearchInput(
       blockchainType: getData('blockchainType', true),
       sortOrder: getData('sortOrder'),
       activeSocialInfo: searchParams.get('activeSocialInfo') || '',
-      activeOnChainGraphInfo: searchParams.get('activeSocialInfo') || ''
+      activeOnChainGraphInfo: searchParams.get('activeOnChainGraphInfo') || ''
     };
 
     setData(data);

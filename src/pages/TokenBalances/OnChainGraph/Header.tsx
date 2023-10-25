@@ -45,7 +45,7 @@ function Header({
             onClick={() => {
               setSearchInputData(
                 {
-                  activeSocialInfo: ''
+                  activeOnChainGraphInfo: ''
                 },
                 {
                   updateQueryParams: true

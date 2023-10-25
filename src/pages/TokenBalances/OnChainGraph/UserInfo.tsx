@@ -68,13 +68,15 @@ type UserInfoProps = {
   identity?: string;
   showDetails?: boolean;
   loading?: boolean;
+  onClick?: (address: string) => void;
 };
 
 function UserInfo({
   user = {},
   identity,
   showDetails = false,
-  loading
+  loading,
+  onClick
 }: UserInfoProps) {
   const { tokenTransfers, follows, poaps, nfts } = user;
 
@@ -132,7 +134,12 @@ function UserInfo({
       : social?.blockchain;
 
   return (
-    <>
+    <div
+      className="h-full w-full cursor-pointer"
+      onClick={() => {
+        onClick?.(domain || address);
+      }}
+    >
       <div className="flex p-5 bg-glass overflow-hidden">
         <div className="h-[78px] min-w-[78px] w-[78px] mr-4 relative flex justify-center">
           <span className="w-full h-full border-solid-stroke overflow-hidden rounded-full">
@@ -247,7 +254,7 @@ function UserInfo({
         {!hasFarcasterFollow && loader}
         {!hasLensFollow && loader}
       </div>
-    </>
+    </div>
   );
 }
 
@@ -258,7 +265,7 @@ const MemoizedUserInfo = memo((props: UserInfoProps) => {
     <div
       ref={ref}
       className={classNames(
-        'border-solid-stroke bg-glass rounded-18 overflow-hidden h-[315px]',
+        'border-solid-stroke bg-glass hover:border-solid-light rounded-18 overflow-hidden h-[315px]',
         {
           'overflow-auto !h-auto': props.showDetails
         }

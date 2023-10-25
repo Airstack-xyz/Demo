@@ -8,6 +8,7 @@ import { useOnChainGraphData } from './hooks/useOnChainGraphData';
 import { OnChainGraphDataContextProvider } from './context/OnChainGraphDataContext';
 import { useGetOnChainData } from './hooks/useGetOnChainData';
 import { isMobileDevice } from '../../../utils/isMobileDevice';
+import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
 
 function ItemsLoader() {
   const loaderItems = Array(6).fill(0);
@@ -23,7 +24,7 @@ function ItemsLoader() {
 }
 
 export function OnChainGraphComponent() {
-  const [{ address: identities }] = useSearchInput();
+  const [{ address: identities, rawInput }, setSearchData] = useSearchInput();
   const {
     data: recommendations,
     totalScannedDocuments,
@@ -36,6 +37,28 @@ export function OnChainGraphComponent() {
   const applyScore = useCallback(() => {
     setData(recommendations => [...recommendations]);
   }, [setData]);
+
+  const handleUserClick = useCallback(
+    (identity: string) => {
+      const _rawInput = createFormattedRawInput({
+        label: identity,
+        address: identity,
+        type: 'ADDRESS',
+        blockchain: 'ethereum'
+      });
+      setSearchData(
+        {
+          rawInput: `${rawInput} ${_rawInput}`,
+          address: [...identities, identity],
+          activeOnChainGraphInfo: ''
+        },
+        {
+          updateQueryParams: true
+        }
+      );
+    },
+    [identities, rawInput, setSearchData]
+  );
 
   return (
     <div className="max-w-[958px] px-2 mx-auto w-full text-sm pt-10 sm:pt-5">
@@ -60,6 +83,7 @@ export function OnChainGraphComponent() {
             identity={identities[0]}
             showDetails={!showGridView}
             loading={scanning}
+            onClick={handleUserClick}
           />
         ))}
         {scanning && <ItemsLoader />}
