@@ -4,7 +4,7 @@ index 4a428f6..95f89bc 100644
 +++ b/node_modules/@airstack/airstack-react/constants/index.js
 @@ -1,4 +1,4 @@
 -const AIRSTACK_ENDPOINT = "https://api.airstack.xyz/gql";
-+const AIRSTACK_ENDPOINT = "https://api.dev.airstack.xyz/gql";
++const AIRSTACK_ENDPOINT = "https://api.uat.airstack.xyz/gql";
  var PresetPXSize = /* @__PURE__ */ ((PresetPXSize2) => {
    PresetPXSize2[PresetPXSize2["ExtraSmall"] = 125] = "ExtraSmall";
    PresetPXSize2[PresetPXSize2["Small"] = 250] = "Small";
@@ -13,7 +13,7 @@ index 4a428f6..95f89bc 100644
    /* Large */
  ];
 -const API_ENDPOINT_PROD = "https://api.airstack.xyz/gql";
-+const API_ENDPOINT_PROD = "https://api.dev.airstack.xyz/gql";
++const API_ENDPOINT_PROD = "https://api.uat.airstack.xyz/gql";
  export {
    AIRSTACK_ENDPOINT,
    API_ENDPOINT_PROD,
