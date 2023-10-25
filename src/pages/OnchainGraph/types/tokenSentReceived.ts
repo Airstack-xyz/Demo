@@ -1,4 +1,4 @@
-import { Domain, Social } from '../types';
+import { Domain, Social } from './index';
 
 export interface TokenQueryResponse {
   Ethereum: TokenSent;

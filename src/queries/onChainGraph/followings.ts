@@ -5,6 +5,9 @@ export const socialFollowingsQuery = `query Followings($user: Identity!, $dappNa
       Following {
         followingAddress {
           addresses
+          primaryDomain {
+            name
+          }
           domains {
             name
             isPrimary
@@ -43,6 +46,9 @@ export const socialFollowersQuery = `query Followers($user: Identity!, $dappName
     Follower {
       followerAddress {
         addresses
+        primaryDomain {
+          name
+        }
         domains {
           name
           isPrimary

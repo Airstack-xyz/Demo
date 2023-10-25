@@ -109,21 +109,24 @@ function UserInfo({
         farcasterUserName = social.profileName;
       }
     });
-    let domain = '';
-    user.domains?.forEach(({ name, isPrimary }) => {
-      if (isPrimary) {
-        domain = name;
-      }
-      if (!domain) {
-        domain = name;
-      }
-    });
+    let domain = user?.primaryDomain?.name || '';
+
+    if (domain) {
+      user.domains?.forEach(({ name, isPrimary }) => {
+        if (isPrimary) {
+          domain = name;
+        }
+        if (!domain) {
+          domain = name;
+        }
+      });
+    }
     return {
       lensUserName,
       farcasterUserName,
       domain
     };
-  }, [user.domains, user.socials]);
+  }, [user.domains, user?.primaryDomain?.name, user.socials]);
 
   const profileName =
     domain || lensUserName || farcasterUserName || address || '';

@@ -1,4 +1,4 @@
-import { Domain, Social, Xmtp } from '../types';
+import { Domain, Social, Xmtp } from './index';
 
 export interface NFTQueryResponse {
   TokenBalances: TokenBalances;

@@ -5,6 +5,9 @@ export const tokenSentQuery = `query TokenSent($user: Identity!) {
       TokenTransfer {
         account: to {
           addresses
+          primaryDomain {
+            name
+          }
           domains {
             name
             isPrimary
@@ -29,6 +32,9 @@ export const tokenSentQuery = `query TokenSent($user: Identity!) {
       TokenTransfer {
         account: to {
           addresses
+          primaryDomain {
+            name
+          }
           domains {
             name
             isPrimary
@@ -56,6 +62,9 @@ export const tokenReceivedQuery = `query TokenReceived($user: Identity!) {
       TokenTransfer {
         account: from {
           addresses
+          primaryDomain {
+            name
+          }
           domains {
             name
             isPrimary
@@ -80,6 +89,9 @@ export const tokenReceivedQuery = `query TokenReceived($user: Identity!) {
       TokenTransfer {
         account: from {
           addresses
+          primaryDomain {
+            name
+          }
           domains {
             name
             isPrimary

@@ -154,6 +154,9 @@ export interface TokenBalance2 {
 
 export type RecommendedUser = {
   addresses?: string[];
+  primaryDomain?: {
+    name: string;
+  };
   domains?: Domain[];
   socials?: Social[];
   xmtp?: Xmtp[];

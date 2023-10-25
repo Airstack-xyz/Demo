@@ -24,6 +24,9 @@ export const poapsByEventIdsQuery = `query PoapsByEventId($poaps: [String!]) {
         attendee {
           owner {
             addresses
+            primaryDomain {
+              name
+            }
             domains {
               name
               isPrimary
