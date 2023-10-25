@@ -53,7 +53,10 @@ import {
   getNftOwnersSnapshotQueryWithFilters
 } from '../../queries/commonNftOwnersSnapshotQueryWithFilters';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
-import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
+import {
+  getActiveSnapshotInfo,
+  getSnapshotQueryFilters
+} from '../../utils/activeSnapshotInfoString';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { tokenTypes } from '../TokenBalances/constants';
 import { accountOwnerQuery } from '../../queries/accountsQuery';
@@ -124,9 +127,7 @@ export function TokenHolders() {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQuery({
           address: address[0].address,
-          blockNumber: snapshotInfo.blockNumber,
-          date: snapshotInfo.date,
-          timestamp: snapshotInfo.timestamp
+          appliedSnapshotFilter: snapshotInfo.appliedFilter
         });
       }
       return getNftOwnersQuery(address[0].address);
@@ -139,9 +140,7 @@ export function TokenHolders() {
       return getCommonNftOwnersSnapshotQuery({
         address1: address[0],
         address2: address[1],
-        blockNumber: snapshotInfo.blockNumber,
-        date: snapshotInfo.date,
-        timestamp: snapshotInfo.timestamp
+        appliedSnapshotFilter: snapshotInfo.appliedFilter
       });
     }
     return getCommonNftOwnersQuery(address[0], address[1]);
@@ -149,9 +148,7 @@ export function TokenHolders() {
     address,
     hasSomePoap,
     snapshotInfo.isApplicable,
-    snapshotInfo.blockNumber,
-    snapshotInfo.date,
-    snapshotInfo.timestamp
+    snapshotInfo.appliedFilter
   ]);
 
   const tokensQueryWithFilter = useMemo(() => {
@@ -163,9 +160,7 @@ export function TokenHolders() {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQueryWithFilters({
           address: address[0].address,
-          blockNumber: snapshotInfo.blockNumber,
-          date: snapshotInfo.date,
-          timestamp: snapshotInfo.timestamp,
+          appliedSnapshotFilter: snapshotInfo.appliedFilter,
           hasSocialFilters,
           hasPrimaryDomain
         });
@@ -189,9 +184,7 @@ export function TokenHolders() {
       return getCommonNftOwnersSnapshotQueryWithFilters({
         address1: address[0],
         address2: address[1],
-        blockNumber: snapshotInfo.blockNumber,
-        date: snapshotInfo.date,
-        timestamp: snapshotInfo.timestamp,
+        appliedSnapshotFilter: snapshotInfo.appliedFilter,
         hasSocialFilters,
         hasPrimaryDomain
       });
@@ -207,9 +200,7 @@ export function TokenHolders() {
     address,
     hasSomePoap,
     snapshotInfo.isApplicable,
-    snapshotInfo.blockNumber,
-    snapshotInfo.date,
-    snapshotInfo.timestamp
+    snapshotInfo.appliedFilter
   ]);
 
   const token = useMemo(() => {
@@ -243,11 +234,10 @@ export function TokenHolders() {
         });
       } else {
         if (snapshotInfo.isApplicable) {
+          const queryFilters = getSnapshotQueryFilters(snapshotInfo);
           combinationsQueryLink = createAppUrlWithQuery(tokensQueryWithFilter, {
             limit: 200,
-            blockNumber: snapshotInfo.blockNumber,
-            date: snapshotInfo.date,
-            timestamp: snapshotInfo.timestamp,
+            ...queryFilters,
             ...requestFilters
           });
         } else {
@@ -290,11 +280,10 @@ export function TokenHolders() {
         });
       } else {
         if (snapshotInfo.isApplicable) {
+          const queryFilters = getSnapshotQueryFilters(snapshotInfo);
           const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
             limit: 20,
-            blockNumber: snapshotInfo.blockNumber,
-            date: snapshotInfo.date,
-            timestamp: snapshotInfo.timestamp
+            ...queryFilters
           });
 
           options.push({
@@ -410,26 +399,23 @@ export function TokenHolders() {
 
     return options;
   }, [
-    accountAddress,
-    activeTokenInfo,
-    activeView,
     address,
+    activeView,
+    activeTokenInfo,
     hasERC6551,
-    owner,
-    query,
-    token.blockchain,
-    token.eventId,
-    token.tokenAddress,
-    token.tokenId,
-    tokenAddress,
     tokenFilters,
     hasPoap,
-    tokenOwnersQuery,
+    snapshotInfo,
     tokensQueryWithFilter,
-    snapshotInfo.isApplicable,
-    snapshotInfo.blockNumber,
-    snapshotInfo.date,
-    snapshotInfo.timestamp
+    query,
+    tokenOwnersQuery,
+    owner,
+    tokenAddress,
+    token.tokenAddress,
+    token.blockchain,
+    token.tokenId,
+    token.eventId,
+    accountAddress
   ]);
 
   const hasMultipleERC20 = useMemo(() => {

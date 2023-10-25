@@ -33,7 +33,10 @@ import {
   erc20TokenDetailsQuery
 } from '../../queries/tokenDetails';
 import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
-import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
+import {
+  getActiveSnapshotInfo,
+  getSnapshotQueryFilters
+} from '../../utils/activeSnapshotInfoString';
 import { SocialFollows } from './SocialFollows/SocialFollows';
 import { Tab, TabContainer } from '../../Components/Tab';
 import { getActiveSocialInfo } from '../../utils/activeSocialInfoString';
@@ -250,28 +253,23 @@ function TokenBalancePage() {
     let erc20Link = '';
 
     if (snapshotInfo.isApplicable) {
+      const queryFilters = getSnapshotQueryFilters(snapshotInfo);
       const tokensQuery = createNftWithCommonOwnersSnapshotQuery({
         owners,
         blockchain,
-        blockNumber: snapshotInfo.blockNumber,
-        date: snapshotInfo.date,
-        timestamp: snapshotInfo.timestamp
+        appliedSnapshotFilter: snapshotInfo.appliedFilter
       });
 
       nftLink = createAppUrlWithQuery(tokensQuery, {
         limit: 10,
         tokenType: tokenFilters,
-        blockNumber: snapshotInfo.blockNumber,
-        date: snapshotInfo.date,
-        timestamp: snapshotInfo.timestamp
+        ...queryFilters
       });
 
       erc20Link = createAppUrlWithQuery(tokensQuery, {
         limit: 50,
         tokenType: ['ERC20'],
-        blockNumber: snapshotInfo.blockNumber,
-        date: snapshotInfo.date,
-        timestamp: snapshotInfo.timestamp
+        ...queryFilters
       });
     } else {
       const tokensQuery = createNftWithCommonOwnersQuery(owners, blockchain);
@@ -439,10 +437,7 @@ function TokenBalancePage() {
     sortOrder,
     tokenType,
     showTokenDetails,
-    snapshotInfo.isApplicable,
-    snapshotInfo.blockNumber,
-    snapshotInfo.date,
-    snapshotInfo.timestamp,
+    snapshotInfo,
     socialInfo.isApplicable,
     socialInfo.dappName,
     socialInfo.followerData,

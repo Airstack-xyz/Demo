@@ -1,3 +1,5 @@
+import { SnapshotFilterType } from '../Components/Filters/SnapshotFilter';
+
 const recursiveFields = `
   amount
   tokenType
@@ -111,17 +113,13 @@ const fields = `
 `;
 
 function getSubQueryForBlockchain({
-  owners,
   isEthereum,
-  hasDate,
-  hasBlockNumber,
-  hasTimestamp
+  owners,
+  appliedSnapshotFilter
 }: {
-  owners: string[];
   isEthereum?: boolean;
-  hasDate?: boolean;
-  hasBlockNumber?: boolean;
-  hasTimestamp?: boolean;
+  owners: string[];
+  appliedSnapshotFilter: SnapshotFilterType;
 }) {
   const blockchain = isEthereum ? 'ethereum' : 'polygon';
   const children =
@@ -133,14 +131,16 @@ function getSubQueryForBlockchain({
     `owner: {_eq: "${owners[0]}"}`,
     `tokenType: {_in: $tokenType}`
   ];
-  if (hasDate) {
-    filters.push('date: {_eq: $date}');
-  }
-  if (hasBlockNumber) {
-    filters.push('blockNumber: {_eq: $blockNumber}');
-  }
-  if (hasTimestamp) {
-    filters.push('timestamp: {_eq: $timestamp}');
+  switch (appliedSnapshotFilter) {
+    case 'customDate':
+      filters.push('date: {_eq: $customDate}');
+      break;
+    case 'blockNumber':
+      filters.push('blockNumber: {_eq: $blockNumber}');
+      break;
+    case 'timestamp':
+      filters.push('timestamp: {_eq: $timestamp}');
+      break;
   }
   const filtersString = filters.join(',');
 
@@ -157,34 +157,30 @@ function getSubQueryForBlockchain({
 export function createNftWithCommonOwnersSnapshotQuery({
   owners,
   blockchain,
-  date,
-  blockNumber,
-  timestamp
+  appliedSnapshotFilter
 }: {
   owners: string[];
   blockchain: string | null;
-  date?: string;
-  blockNumber?: string;
-  timestamp?: string;
+  appliedSnapshotFilter: SnapshotFilterType;
 }) {
   if (!owners.length) return '';
 
   const commonParams = {
     owners,
-    hasDate: !!date,
-    hasBlockNumber: !!blockNumber,
-    hasTimestamp: !!timestamp
+    appliedSnapshotFilter
   };
 
   const variables = ['$tokenType: [TokenType!]', '$limit: Int'];
-  if (commonParams.hasDate) {
-    variables.push('$date: String!');
-  }
-  if (commonParams.hasBlockNumber) {
-    variables.push('$blockNumber: Int!');
-  }
-  if (commonParams.hasTimestamp) {
-    variables.push('$timestamp: Int!');
+  switch (appliedSnapshotFilter) {
+    case 'customDate':
+      variables.push('$customDate: String!');
+      break;
+    case 'blockNumber':
+      variables.push('$blockNumber: Int!');
+      break;
+    case 'timestamp':
+      variables.push('$timestamp: Int!');
+      break;
   }
   const variablesString = variables.join(',');
 

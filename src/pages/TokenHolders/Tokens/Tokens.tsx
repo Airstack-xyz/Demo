@@ -157,7 +157,8 @@ export function TokensComponent() {
     (token: AssetType) => {
       setSearchData(
         {
-          activeTokenInfo: addToActiveTokenInfo(token, activeTokenInfo)
+          activeTokenInfo: addToActiveTokenInfo(token, activeTokenInfo),
+          activeSnapshotInfo: ''
         },
         { updateQueryParams: true }
       );

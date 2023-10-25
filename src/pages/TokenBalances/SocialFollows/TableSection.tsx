@@ -244,7 +244,8 @@ export function TableSection({
             tokenId,
             blockchain,
             eventId
-          )
+          ),
+          activeSnapshotInfo: ''
         },
         { updateQueryParams: true }
       );
