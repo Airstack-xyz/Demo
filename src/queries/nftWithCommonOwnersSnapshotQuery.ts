@@ -164,8 +164,8 @@ export function createNftWithCommonOwnersSnapshotQuery({
   owners: string[];
   blockchain: string | null;
   date?: string;
-  blockNumber?: number;
-  timestamp?: number;
+  blockNumber?: string;
+  timestamp?: string;
 }) {
   if (!owners.length) return '';
 

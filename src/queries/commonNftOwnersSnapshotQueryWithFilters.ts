@@ -93,8 +93,8 @@ export function getCommonNftOwnersSnapshotQueryWithFilters({
   address1: TokenAddress;
   address2: TokenAddress;
   date?: string;
-  blockNumber?: number;
-  timestamp?: number;
+  blockNumber?: string;
+  timestamp?: string;
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }) {
@@ -209,8 +209,8 @@ export function getNftOwnersSnapshotQueryWithFilters({
 }: {
   address: string;
   date?: string;
-  blockNumber?: number;
-  timestamp?: number;
+  blockNumber?: string;
+  timestamp?: string;
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }) {
