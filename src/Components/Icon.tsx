@@ -55,7 +55,9 @@ export type IconType =
   | 'poap-common'
   | 'farcaster'
   | 'lens'
-  | 'community';
+  | 'community'
+  | 'info-circle'
+  | 'overview';
 
 export type IconProps = {
   name: IconType;

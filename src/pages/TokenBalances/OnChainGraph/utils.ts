@@ -115,7 +115,7 @@ export async function paginateRequest<D>(
 ) {
   let _hasNextPage = false;
   let _getNextPage = (() => {
-    // empty function
+    // noop function
   }) as FetchQuery<D>['getNextPage'];
 
   const { data, hasNextPage, getNextPage } = await request;

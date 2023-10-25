@@ -1,26 +1,28 @@
-import { useEffect, useState } from 'react';
-import { fetchQueryWithPagination } from '@airstack/airstack-react';
+import { fetchQuery, fetchQueryWithPagination } from '@airstack/airstack-react';
 import { paginateRequest } from '../OnChainGraph/utils';
-import { CommonPoapType, CommonTokenType } from '../types';
-import { useSearchInput } from '../../../hooks/useSearchInput';
-import { commonPoapsQuery } from './common-score/poapsOfCommonOwnersQuery';
-import { commonNFTTokens } from './common-score/nftWithCommonOwnersQuery';
-import { tokenSentQuery } from './common-score/tokens';
-import { TokenQueryResponse } from '../OnChainGraph/types/tokenSentReceived';
-import { mutualFollower } from './common-score/followings';
+import { CommonPoapType, CommonTokenType, Wallet } from '../types';
+import { nftsToIgnore } from '../OnChainGraph/constants';
+import { commonNFTTokens } from '../../../queries/onChainGraphForTwoAddresses/common-nfts';
+import { commonPoapsQuery } from '../../../queries/onChainGraphForTwoAddresses/common-poaps';
+import { mutualFollower } from '../../../queries/onChainGraphForTwoAddresses/followings';
 import { Following, SocialQueryResponse } from '../OnChainGraph/types/social';
+import { TokenQueryResponse } from '../OnChainGraph/types/tokenSentReceived';
+import { tokenSentQuery } from '../../../queries/onChainGraphForTwoAddresses/tokens';
+import { SocialQuery } from '../../../queries';
 
-// function useCommonSocials() {
-//   // const [following, setFollowing] = useState<[boolean, boolean]>([false, false]);
-
-//   const
-// }
-
-async function fetchNfts(
+export async function fetchNfts(
   address: string[],
-  onCountChange?: (count: number) => void
+  onCountChange?: ({
+    ethCount,
+    polygonCount
+  }: {
+    ethCount: number;
+    polygonCount: number;
+  }) => void
 ) {
-  let count = 0;
+  let ethCount = 0;
+  let polygonCount = 0;
+  const visited = new Set<string>();
 
   const request = fetchQueryWithPagination(commonNFTTokens, {
     identity: address[0],
@@ -29,28 +31,44 @@ async function fetchNfts(
 
   await paginateRequest(request, async data => {
     const { ethereum, polygon } = data;
-    let ethTokens = ethereum?.TokenBalance || [];
-    let maticTokens = polygon?.TokenBalance || [];
-    if (ethTokens.length > 0 && ethTokens[0]?.token?.tokenBalances) {
-      ethTokens = ethTokens.filter((token: CommonTokenType) =>
-        Boolean(token?.token?.tokenBalances?.length)
-      );
+    let ethTokens: CommonTokenType[] = ethereum?.TokenBalance || [];
+    let maticTokens: CommonTokenType[] = polygon?.TokenBalance || [];
+
+    if (ethTokens.length > 0) {
+      ethTokens = ethTokens.filter(token => {
+        if (nftsToIgnore.includes(token?.tokenAddress)) return false;
+
+        const isDuplicate = visited.has(token?.tokenAddress);
+        visited.add(token?.tokenAddress);
+        return Boolean(token?.token?.tokenBalances?.length) && !isDuplicate;
+      });
     }
-    if (maticTokens.length > 0 && maticTokens[0]?.token?.tokenBalances) {
-      maticTokens = maticTokens.filter((token: CommonTokenType) =>
-        Boolean(token?.token?.tokenBalances?.length)
-      );
+    if (maticTokens.length > 0) {
+      maticTokens = maticTokens.filter(token => {
+        if (nftsToIgnore.includes(token?.tokenAddress)) return false;
+        const isDuplicate = visited.has(token?.tokenAddress);
+        visited.add(token?.tokenAddress);
+        return Boolean(token?.token?.tokenBalances?.length) && !isDuplicate;
+      });
     }
 
-    const tokens = [...ethTokens, ...maticTokens];
-    count += tokens.length;
-    onCountChange?.(count);
+    ethCount += ethTokens.length;
+    polygonCount += maticTokens.length;
+
+    onCountChange?.({
+      ethCount,
+      polygonCount
+    });
+
     return true;
   });
-  return count;
+  return {
+    ethCount,
+    polygonCount
+  };
 }
 
-async function fetchPoaps(
+export async function fetchPoaps(
   address: string[],
   onCountChange?: (count: number) => void
 ) {
@@ -78,7 +96,7 @@ async function fetchPoaps(
   return count;
 }
 
-async function fetchTokensTransfer(address: string[]) {
+export async function fetchTokensTransfer(address: string[]) {
   let tokenSent = false;
   let tokenReceived = false;
 
@@ -114,7 +132,7 @@ async function fetchTokensTransfer(address: string[]) {
   return { tokenSent, tokenReceived };
 }
 
-async function fetchMutualFollowings(address: string[]) {
+export async function fetchMutualFollowings(address: string[]) {
   const lens = {
     following: false,
     followedBy: false
@@ -219,67 +237,18 @@ async function fetchMutualFollowings(address: string[]) {
   };
 }
 
-export function ScoreOverview() {
-  const [{ address }] = useSearchInput();
-  const [nftCount, setNftCount] = useState(0);
-  const [poapsCount, setPoapsCount] = useState(0);
-  const [following, setFollowing] = useState<[boolean, boolean]>([
-    false,
-    false
-  ]);
-  const [followedBy, setFollowedBy] = useState<[boolean, boolean]>([
-    false,
-    false
-  ]);
-  const [tokenTransfer, setTokenTransfer] = useState<{
-    tokenSent: boolean;
-    tokenReceived: boolean;
-  }>({
-    tokenSent: false,
-    tokenReceived: false
+export async function getDomainName(identity: string) {
+  if (identity.endsWith('.eth')) {
+    return identity;
+  }
+
+  const { data } = await fetchQuery<{
+    Wallet: Wallet;
+  }>(SocialQuery, {
+    identity
   });
-  useEffect(() => {
-    async function run() {
-      await fetchPoaps(address, (count: number) => setPoapsCount(count));
-      const { lens, farcaster } = await fetchMutualFollowings(address);
-      setFollowing([lens.following, farcaster.following]);
-      setFollowedBy([lens.followedBy, farcaster.followedBy]);
-      await fetchNfts(address, (count: number) => setNftCount(count));
-      const { tokenSent, tokenReceived } = await fetchTokensTransfer(address);
-      setTokenTransfer({ tokenSent, tokenReceived });
-    }
-    run();
-  }, [address]);
 
-  // useGetSocialFollowings('');
+  const wallet = data?.Wallet;
 
-  return (
-    <div>
-      <div>nft - {nftCount}</div>
-      <div>poaps - {poapsCount}</div>
-      <div>
-        {following[1] ? `${address[0]} follows ${address[1]} in farcaster` : ''}
-      </div>
-      <div>
-        {followedBy[0]
-          ? `${address[0]} is followed by ${address[1]} in lens`
-          : ''}
-      </div>
-      <div>
-        {followedBy[1]
-          ? `${address[0]} is followed by ${address[1]} in farcaster`
-          : ''}
-      </div>
-      <div>
-        {tokenTransfer.tokenSent
-          ? `${address[0]} sent tokens to ${address[1]}`
-          : ''}
-      </div>
-      <div>
-        {tokenTransfer.tokenReceived
-          ? `${address[0]} received tokens from ${address[1]}`
-          : ''}
-      </div>
-    </div>
-  );
+  return wallet ? wallet.primaryDomain?.name || wallet?.domains?.[0]?.name : '';
 }
