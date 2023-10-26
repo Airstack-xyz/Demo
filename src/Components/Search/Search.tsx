@@ -63,12 +63,6 @@ const defaultAdvancedSearchData: AdvancedSearchData = {
 
 const padding = '  ';
 
-const inputSectionClass =
-  'before-bg-glass before:rounded-18 rounded-18 border-solid-stroke transition-all absolute top-0';
-
-const inputClass =
-  'flex items-center h-[50px] w-full rounded-18 px-4 py-3 transition-all relative z-10';
-
 export const Search = memo(function Search() {
   const [isTokenBalanceActive, setIsTokenBalanceActive] = useState(true);
   const isHome = useMatch('/');
@@ -391,16 +385,18 @@ export const Search = memo(function Search() {
         <div
           ref={inputSectionRef}
           className={classNames(
-            inputSectionClass,
-            advancedSearchData.visible ? 'w-[min(60vw,900px)]' : 'w-full'
+            'transition-all absolute top-0',
+            advancedSearchData.visible
+              ? 'before-bg-glass before:rounded-18 before:border-solid-stroke w-[min(60vw,900px)]'
+              : 'w-full'
           )}
         >
           <div
             className={classNames(
-              inputClass,
+              'flex items-center h-[50px] w-full rounded-18 px-4 py-3 transition-all z-10 relative',
               advancedSearchData.visible
                 ? 'bg-[linear-gradient(137deg,#ffffff0f_-8.95%,#ffffff00_114%)]'
-                : undefined
+                : 'border-solid-stroke bg-glass'
             )}
           >
             {showPrefixIcon && (
