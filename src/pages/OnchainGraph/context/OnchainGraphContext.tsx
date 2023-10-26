@@ -12,7 +12,7 @@ import { useSearchInput } from '../../../hooks/useSearchInput';
 import { useLazyQuery } from '@airstack/airstack-react';
 import { SocialQuery } from '../../../queries';
 
-type OnChainGraphDataContextType = {
+type OnchainGraphContextType = {
   data: RecommendedUser[];
   totalScannedDocuments: number;
   setTotalScannedDocuments: React.Dispatch<React.SetStateAction<number>>;
@@ -32,10 +32,10 @@ export interface SocialData {
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const onChainGraphDataContext =
-  createContext<OnChainGraphDataContextType | null>(null);
+export const onChainGraphContext =
+  createContext<OnchainGraphContextType | null>(null);
 
-export function OnChainGraphDataContextProvider({
+export function OnchainGraphContextProvider({
   children
 }: {
   children: React.ReactNode;
@@ -88,8 +88,8 @@ export function OnChainGraphDataContextProvider({
   }, [data, setData, totalScannedDocuments]);
 
   return (
-    <onChainGraphDataContext.Provider value={value}>
+    <onChainGraphContext.Provider value={value}>
       {children}
-    </onChainGraphDataContext.Provider>
+    </onChainGraphContext.Provider>
   );
 }

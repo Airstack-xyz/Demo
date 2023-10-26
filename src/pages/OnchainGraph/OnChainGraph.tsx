@@ -4,7 +4,7 @@ import classNames from 'classnames';
 import { Header } from './Header';
 import { Loader } from './Loader';
 import { useOnChainGraphData } from './hooks/useOnChainGraphData';
-import { OnChainGraphDataContextProvider } from './context/OnChainGraphDataContext';
+import { OnchainGraphContextProvider } from './context/OnchainGraphContext';
 import { useGetOnChainData } from './hooks/useGetOnChainData';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { createFormattedRawInput } from '../../utils/createQueryParamsWithMention';
@@ -128,8 +128,8 @@ export function OnChainGraphComponent() {
 
 export function OnChainGraph() {
   return (
-    <OnChainGraphDataContextProvider>
+    <OnchainGraphContextProvider>
       <OnChainGraphComponent />
-    </OnChainGraphDataContextProvider>
+    </OnchainGraphContextProvider>
   );
 }

@@ -1,8 +1,8 @@
 import { useContext } from 'react';
-import { onChainGraphDataContext } from '../context/OnChainGraphDataContext';
+import { onChainGraphContext } from '../context/OnchainGraphContext';
 
 export function useOnChainGraphData() {
-  const ctx = useContext(onChainGraphDataContext);
+  const ctx = useContext(onChainGraphContext);
   if (!ctx) {
     throw new Error(
       'useOnChainGraphData must be used within OnChainGraphDataContextProvider'
