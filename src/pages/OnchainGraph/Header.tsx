@@ -81,7 +81,11 @@ function Header({
         <Tooltip
           disabled={!loading}
           contentClassName="py-2 px-3 bg-secondary mt-3"
-          content={<div>please wait for scanning to complete</div>}
+          content={
+            <div className="text-[10px]">
+              please wait for scanning to complete
+            </div>
+          }
         >
           <div className="flex items-center">
             <span className="hidden sm:inline-flex items-center bg-glass-1 rounded-full">
