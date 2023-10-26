@@ -8,9 +8,9 @@ import {
 } from 'react';
 import { RecommendedUser } from '../types';
 import { getDefaultScoreMap, worker } from '../utils';
-import { useSearchInput } from '../../../hooks/useSearchInput';
 import { useLazyQuery } from '@airstack/airstack-react';
 import { SocialQuery } from '../../../queries';
+import { useIdentity } from '../hooks/useIdentity';
 
 type OnchainGraphContextType = {
   data: RecommendedUser[];
@@ -41,19 +41,19 @@ export function OnchainGraphContextProvider({
   children: React.ReactNode;
 }) {
   const recommendationsRef = useRef<RecommendedUser[]>([]);
-  const [{ address }] = useSearchInput();
+  const identity = useIdentity();
   const [fetchData, { data: userSocial }] =
     useLazyQuery<SocialData>(SocialQuery);
   const [data, _setData] = useState<RecommendedUser[]>([]);
   const userIdentitiesRef = useRef<string[]>([]);
 
   useEffect(() => {
-    if (address.length > 0) {
+    if (identity.length > 0) {
       fetchData({
-        identity: address[0]
+        identity
       });
     }
-  }, [fetchData, address]);
+  }, [fetchData, identity]);
 
   useEffect(() => {
     const address = userSocial?.Wallet?.addresses || [];
