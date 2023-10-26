@@ -1,3 +1,4 @@
+import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { useOnchainGraphContext } from './hooks/useOnchainGraphContext';
 
 type LoaderProps = {
@@ -98,10 +99,18 @@ export function Loader({
   onRestartScan
 }: LoaderProps) {
   const { scanIncomplete, reset, setScanIncomplete } = useOnchainGraphContext();
+  const containerRef = useOutsideClick<HTMLDivElement>(() => {
+    if (scanCompleted || scanIncomplete) {
+      onCloseLoader();
+    }
+  });
 
   return (
     <div className="fixed h-0 left-0 right-0 bottom-10  flex justify-center items-end z-[25]">
-      <div className="bg-glass rounded-18 p-6 border-solid-stroke max-w-[90%] sm:max-w-[500px] relative">
+      <div
+        ref={containerRef}
+        className="bg-glass rounded-18 p-6 border-solid-stroke max-w-[90%] sm:max-w-[500px] relative"
+      >
         {(scanIncomplete || scanCompleted) && (
           <button
             className="absolute -right-2 -top-2 rounded-full cursor-pointer"
