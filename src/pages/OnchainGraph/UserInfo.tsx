@@ -154,7 +154,7 @@ function UserInfo({
     >
       <div className="flex p-5 bg-glass overflow-hidden">
         <div className="h-[78px] min-w-[78px] w-[78px] mr-4 relative flex justify-center">
-          <span className="w-full h-full border-solid-stroke overflow-hidden rounded-full">
+          <span className="w-full h-full border-solid-stroke overflow-hidden rounded-full flex items-center justify-center [&>img]:max-w-[150%] [&>img]:w-[150%]">
             <Asset
               preset="medium"
               containerClassName="w-full h-full flex items-center justify-center"

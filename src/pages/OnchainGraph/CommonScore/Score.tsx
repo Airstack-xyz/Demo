@@ -7,7 +7,7 @@ export function Score({ score }: { score: number }) {
   const scoreMap = useMemo(() => getDefaultScoreMap(), []);
 
   return (
-    <div className="bg-glass flex flex-col justify-center h-full p-7 rounded-l-18 z-10">
+    <div className="bg-glass flex flex-col justify-center h-full p-3 sm:p-7 rounded-l-18 z-10">
       <h3 className="text-5xl font-semibold text-center">{score}</h3>
       <div className="flex items-center mt-2">
         <span className="text-xs text-text-secondary mr-1">on-chain match</span>

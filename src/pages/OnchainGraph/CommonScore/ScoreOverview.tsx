@@ -41,12 +41,12 @@ function TextWithIcon({
 }) {
   return (
     <div className="flex items-center mb-5 last:mb-0">
-      <span className="w-[20px] flex items-center justify-center">
+      <span className="w-[20px] flex items-center justify-center mr-2">
         <Icon
           name={icon}
           height={height}
           width={width}
-          className="mr-2 rounded-full"
+          className="rounded-full"
         />
       </span>
       <span className="ellipsis flex-1">{text}</span>
@@ -156,7 +156,7 @@ export function ScoreOverview() {
     <div className="h-[236px] bg-glass flex items-center border-solid-stroke rounded-18">
       <Score score={score} />
       <div
-        className={classnames('p-7 text-sm flex-1', {
+        className={classnames('p-3 sm:p-7 overflow-hidden text-sm flex-1', {
           'skeleton-loader': loading
         })}
       >
