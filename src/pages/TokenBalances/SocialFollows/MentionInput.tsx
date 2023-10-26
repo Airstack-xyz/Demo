@@ -149,7 +149,7 @@ export function MentionInput({
   }, []);
 
   return (
-    <div className="relative z-10">
+    <div id="socialFollowMentionInput" className="relative z-10">
       <div
         ref={inputSectionRef}
         className={classNames(
@@ -190,6 +190,7 @@ export function MentionInput({
             onClick={hideAdvancedSearch}
           />
           <AdvancedSearch
+            mentionInputSelector="#socialFollowMentionInput #mention-input"
             mentionStartIndex={advancedSearchData.mentionStartIndex}
             mentionEndIndex={advancedSearchData.mentionEndIndex}
             mentionValue={value}

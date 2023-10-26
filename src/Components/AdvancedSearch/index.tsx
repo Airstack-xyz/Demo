@@ -35,6 +35,7 @@ function GridLoader() {
 }
 
 type AdvancedSearchProps = {
+  mentionInputSelector: string;
   mentionStartIndex: number;
   mentionEndIndex: number;
   mentionValue: string;
@@ -78,6 +79,7 @@ const defaultSearchData: SearchData = {
 };
 
 export default function AdvancedSearch({
+  mentionInputSelector,
   mentionStartIndex,
   mentionEndIndex,
   mentionValue,
@@ -147,7 +149,7 @@ export default function AdvancedSearch({
 
   useEffect(() => {
     const aiInputEl =
-      document.querySelector<HTMLTextAreaElement>('#mention-input');
+      document.querySelector<HTMLTextAreaElement>(mentionInputSelector);
 
     // set ai-input's caret to correct position
     aiInputEl?.setSelectionRange(mentionEndIndex, mentionEndIndex);
@@ -207,7 +209,8 @@ export default function AdvancedSearch({
     onClose,
     mentionEndIndex,
     mentionStartIndex,
-    selectGridItem
+    selectGridItem,
+    mentionInputSelector
   ]);
 
   useEffect(() => {
@@ -321,7 +324,7 @@ export default function AdvancedSearch({
       const finalValue = value.trim() + ' ';
       onChange(finalValue);
       const aiInputEl =
-        document.querySelector<HTMLTextAreaElement>('#mention-input');
+        document.querySelector<HTMLTextAreaElement>(mentionInputSelector);
       // focus and put caret to last position
       aiInputEl?.focus();
       aiInputEl?.setSelectionRange(finalValue.length, finalValue.length);

@@ -304,19 +304,22 @@ export function InputWithMention({
         return;
       }
       const data = await debouncedFetch(query);
-      const dataWithExtraOptions = [
-        ...(data || []),
-        { id: ADVANCED_SEARCH_OPTION_ID },
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const dataWithExtraOptions: any[] = data || [];
+      if (showAdvancedSearch) {
+        dataWithExtraOptions.push({ id: ADVANCED_SEARCH_OPTION_ID });
+      }
+      dataWithExtraOptions.push(
         { id: ADDRESS_OPTION_ID },
         { id: POAP_OPTION_ID }
-      ];
+      );
       callback(dataWithExtraOptions);
     },
-    [debouncedFetch]
+    [debouncedFetch, showAdvancedSearch]
   );
 
   const renderSuggestion = (suggestion: Option) => {
-    if (showAdvancedSearch && suggestion.id === ADVANCED_SEARCH_OPTION_ID) {
+    if (suggestion.id === ADVANCED_SEARCH_OPTION_ID) {
       return (
         <div className="addressOption">
           <Icon name="filter" /> Advanced search

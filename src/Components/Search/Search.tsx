@@ -381,7 +381,10 @@ export const Search = memo(function Search() {
           {!isHome && <TabLinks isTokenBalances={isTokenBalances} />}
         </div>
       </div>
-      <div className="flex-row-center relative h-[50px] z-40">
+      <div
+        id="mainMentionInput"
+        className="flex-row-center relative h-[50px] z-40"
+      >
         <div
           ref={inputSectionRef}
           className={classNames(
@@ -435,6 +438,7 @@ export const Search = memo(function Search() {
                 onClick={hideAdvancedSearch}
               />
               <AdvancedSearch
+                mentionInputSelector="#mainMentionInput #mention-input"
                 mentionStartIndex={advancedSearchData.mentionStartIndex}
                 mentionEndIndex={advancedSearchData.mentionEndIndex}
                 mentionValue={value}
