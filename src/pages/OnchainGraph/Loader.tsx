@@ -101,7 +101,7 @@ export function Loader({
 
   return (
     <div className="fixed h-0 left-0 right-0 bottom-10  flex justify-center items-end z-[25]">
-      <div className="bg-glass rounded-18 p-6 border-solid-stroke max-w-[90%] sm:max-w-[500px]">
+      <div className="bg-glass rounded-18 p-6 border-solid-stroke max-w-[90%] sm:max-w-[500px] relative">
         {(scanIncomplete || scanCompleted) && (
           <button
             className="absolute -right-2 -top-2 rounded-full cursor-pointer"
