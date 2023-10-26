@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import classNames from 'classnames';
 import { Icon } from '../Icon';
 import { InputWithMention } from '../Input/Input';
@@ -14,17 +15,17 @@ import { showToast } from '../../utils/showToast';
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
 import { addAndRemoveCombinationPlaceholder } from './utils';
 
-const tokenHoldersPlaceholder =
+export const tokenHoldersPlaceholder =
   'Use @ mention or enter any token contract address';
-const tokenBalancesPlaceholder =
+export const tokenBalancesPlaceholder =
   'Enter 0x, name.eth, fc_fname:name, or name.lens';
 
-const activeClass =
+export const activeClass =
   'bg-glass !border-stroke-color font-bold !text-text-primary';
-const tabClassName =
+export const tabClassName =
   'px-2.5 h-[30px] rounded-full mr-5 flex-row-center text-xs text-text-secondary border border-solid border-transparent';
 
-function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
+export function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
   return (
     <>
       <Link

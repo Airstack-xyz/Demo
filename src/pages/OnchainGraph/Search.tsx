@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Link,
   createSearchParams,
   useMatch,
   useNavigate,
@@ -16,39 +15,13 @@ import { addAndRemoveCombinationPlaceholder } from '../../Components/Search/util
 import { InputWithMention } from '../../Components/Input/Input';
 import { createFormattedRawInput } from '../../utils/createQueryParamsWithMention';
 import { useIdentity } from './hooks/useIdentity';
-
-const tokenHoldersPlaceholder =
-  'Use @ mention or enter any token contract address';
-const tokenBalancesPlaceholder =
-  'Enter 0x, name.eth, fc_fname:name, or name.lens';
-
-const activeClass =
-  'bg-glass !border-stroke-color font-bold !text-text-primary';
-const tabClassName =
-  'px-2.5 h-[30px] rounded-full mr-5 flex-row-center text-xs text-text-secondary border border-solid border-transparent';
-
-function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
-  return (
-    <>
-      <Link
-        to="/token-balances"
-        className={classNames(tabClassName, {
-          [activeClass]: isTokenBalances
-        })}
-      >
-        <Icon name="token-balances" className="w-4 mr-1" /> Token balances
-      </Link>
-      <Link
-        to="/token-holders"
-        className={classNames(tabClassName, {
-          [activeClass]: !isTokenBalances
-        })}
-      >
-        <Icon name="token-holders" className="w-4 mr-1" /> Token holders
-      </Link>
-    </>
-  );
-}
+import {
+  tabClassName,
+  activeClass,
+  TabLinks,
+  tokenBalancesPlaceholder,
+  tokenHoldersPlaceholder
+} from '../../Components/Search/Search';
 
 const padding = '  ';
 export const Search = memo(function Search() {
