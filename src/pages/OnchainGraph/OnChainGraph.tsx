@@ -27,15 +27,21 @@ function ItemsLoader() {
 export function OnChainGraphComponent() {
   const identity = useIdentity();
   const navigate = useNavigate();
-  // const [{ address: identities, rawInput }, setSearchData] = useSearchInput();
   const {
     data: recommendations,
     totalScannedDocuments,
     setData
   } = useOnchainGraphContext();
   const [showGridView, setShowGridView] = useState(() => !isMobileDevice());
-  const [loading, setLoading] = useState(true);
-  const [scanning, cancelScan] = useGetOnChainData(identity);
+  const [loading, setLoading] = useState(false);
+  const [startScan, scanning, cancelScan] = useGetOnChainData(identity);
+
+  useEffect(() => {
+    if (identity) {
+      startScan();
+      setLoading(true);
+    }
+  }, [identity, startScan]);
 
   useEffect(() => {
     // if no identity, redirect to home page
@@ -117,8 +123,8 @@ export function OnChainGraphComponent() {
           }}
           onCancelScan={() => {
             cancelScan();
-            setLoading(false);
           }}
+          onRestartScan={startScan}
         />
       )}
     </div>

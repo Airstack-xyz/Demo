@@ -15,8 +15,11 @@ import { useIdentity } from '../hooks/useIdentity';
 type OnchainGraphContextType = {
   data: RecommendedUser[];
   totalScannedDocuments: number;
+  scanIncomplete: boolean;
   setTotalScannedDocuments: React.Dispatch<React.SetStateAction<number>>;
   setData: (cb: (data: RecommendedUser[]) => RecommendedUser[]) => void;
+  setScanIncomplete: React.Dispatch<React.SetStateAction<boolean>>;
+  reset: () => void;
 };
 
 export interface SocialData {
@@ -46,6 +49,7 @@ export function OnchainGraphContextProvider({
     useLazyQuery<SocialData>(SocialQuery);
   const [data, _setData] = useState<RecommendedUser[]>([]);
   const userIdentitiesRef = useRef<string[]>([]);
+  const [scanIncomplete, setScanIncomplete] = useState(false);
 
   useEffect(() => {
     if (identity.length > 0) {
@@ -78,14 +82,24 @@ export function OnchainGraphContextProvider({
     []
   );
 
+  const reset = useCallback(() => {
+    _setData([]);
+    recommendationsRef.current = [];
+    setTotalScannedDocuments(0);
+    setScanIncomplete(false);
+  }, []);
+
   const value = useMemo(() => {
     return {
       data,
       totalScannedDocuments,
+      scanIncomplete,
       setData,
-      setTotalScannedDocuments
+      setTotalScannedDocuments,
+      setScanIncomplete,
+      reset
     };
-  }, [data, setData, totalScannedDocuments]);
+  }, [data, reset, scanIncomplete, setData, totalScannedDocuments]);
 
   return (
     <onChainGraphContext.Provider value={value}>

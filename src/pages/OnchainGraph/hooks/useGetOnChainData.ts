@@ -31,24 +31,22 @@ export function useGetOnChainData(address: string) {
     'received'
   );
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (loadingRef.current || !address) return;
-    const fetchData = async () => {
-      loadingRef.current = true;
-      setLoading(true);
-      await fetchPoapsData();
-      await fetchFarcasterFollowings();
-      await fetchLensFollowings();
-      await fetchFarcasterFollowers();
-      await fetchLensFollowers();
-      await fetchEthNft();
-      await fetchPolygonNft();
-      await fetchTokenSent();
-      await fetchTokenReceived();
-      setLoading(false);
-      loadingRef.current = false;
-    };
-    fetchData();
+    loadingRef.current = true;
+    window.onchainGraphRequestCanceled = false;
+    setLoading(true);
+    await fetchPoapsData();
+    await fetchFarcasterFollowings();
+    await fetchLensFollowings();
+    await fetchFarcasterFollowers();
+    await fetchLensFollowers();
+    await fetchEthNft();
+    await fetchPolygonNft();
+    await fetchTokenSent();
+    await fetchTokenReceived();
+    setLoading(false);
+    loadingRef.current = false;
   }, [
     address,
     fetchEthNft,
@@ -63,6 +61,7 @@ export function useGetOnChainData(address: string) {
   ]);
 
   const cancelRequests = useCallback(() => {
+    window.onchainGraphRequestCanceled = true;
     cancelPoapRequests();
     cancelFarcasterFollowingRequest();
     cancelLensFollowingsRequest();
@@ -90,9 +89,8 @@ export function useGetOnChainData(address: string) {
     window.onchainGraphRequestCanceled = false;
     return () => {
       cancelRequests();
-      window.onchainGraphRequestCanceled = true;
     };
   }, [cancelRequests]);
 
-  return [loading, cancelRequests] as const;
+  return [fetchData, loading, cancelRequests] as const;
 }
