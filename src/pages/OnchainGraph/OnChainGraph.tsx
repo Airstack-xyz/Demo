@@ -80,7 +80,7 @@ export function OnChainGraphComponent() {
   );
 
   return (
-    <div className="max-w-[958px] px-2 mx-auto w-full text-sm pt-10 sm:pt-5">
+    <div className="max-w-[958px] px-2 mx-auto w-full text-sm pt-5 sm:pt-10">
       <Header
         loading={scanning}
         identities={[identity]}
