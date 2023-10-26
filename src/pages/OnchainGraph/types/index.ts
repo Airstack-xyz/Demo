@@ -1,3 +1,9 @@
+declare global {
+  interface Window {
+    onchainGraphRequestCanceled: boolean;
+  }
+}
+
 export interface OnChainDataResponse {
   LensFollowings: Followings;
   FarcasterFollowings: Followings;

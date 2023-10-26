@@ -86,5 +86,13 @@ export function useGetOnChainData(address: string) {
     cancelSentRequest
   ]);
 
+  useEffect(() => {
+    window.onchainGraphRequestCanceled = false;
+    return () => {
+      cancelRequests();
+      window.onchainGraphRequestCanceled = true;
+    };
+  }, [cancelRequests]);
+
   return [loading, cancelRequests] as const;
 }

@@ -66,7 +66,7 @@ export function useTokenTransfer(
   const totalItemsCount = useRef(0);
 
   const fetchData = useCallback(async () => {
-    if (requestCanceled.current) {
+    if (requestCanceled.current && window.onchainGraphRequestCanceled) {
       return false;
     }
     const request = fetchQueryWithPagination<TokenQueryResponse>(
@@ -80,7 +80,7 @@ export function useTokenTransfer(
     );
     setTotalScannedDocuments(count => count + QUERY_LIMIT);
     await paginateRequest(request, async data => {
-      if (requestCanceled.current) {
+      if (requestCanceled.current && window.onchainGraphRequestCanceled) {
         return false;
       }
       const ethData = (data?.Ethereum?.TokenTransfer ?? []).map(

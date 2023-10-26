@@ -70,7 +70,7 @@ export function useGetSocialFollowers(
   const { setData, setTotalScannedDocuments } = useOnchainGraphContext();
 
   const fetchData = useCallback(async () => {
-    if (requestCanceled.current) {
+    if (requestCanceled.current && window.onchainGraphRequestCanceled) {
       return;
     }
     const request = fetchQueryWithPagination<SocialQueryResponse>(
@@ -85,7 +85,7 @@ export function useGetSocialFollowers(
     );
     setTotalScannedDocuments(count => count + QUERY_LIMIT);
     await paginateRequest(request, async data => {
-      if (requestCanceled.current) {
+      if (requestCanceled.current && window.onchainGraphRequestCanceled) {
         return false;
       }
       const followers =
