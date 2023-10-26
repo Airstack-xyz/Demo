@@ -31,7 +31,8 @@ export function OnChainGraphComponent() {
   const navigate = useNavigate();
   const [recommendations, totalItems, isLastPage, getNextPage] =
     usePaginatedData();
-  const { totalScannedDocuments, setData } = useOnchainGraphContext();
+  const { totalScannedDocuments, setData, sortDataUsingScore } =
+    useOnchainGraphContext();
   const [showGridView, setShowGridView] = useState(() => !isMobileDevice());
   const [loading, setLoading] = useState(false);
   const [startScan, scanning, cancelScan] = useGetOnChainData(identity);
@@ -51,10 +52,6 @@ export function OnChainGraphComponent() {
       });
     }
   }, [identity, navigate]);
-
-  const applyScore = useCallback(() => {
-    setData(recommendations => [...recommendations]);
-  }, [setData]);
 
   const handleUserClick = useCallback(
     async (_identity: string) => {
@@ -89,7 +86,7 @@ export function OnChainGraphComponent() {
         identities={[identity]}
         showGridView={showGridView}
         setShowGridView={setShowGridView}
-        onApplyScore={applyScore}
+        onApplyScore={sortDataUsingScore}
       />
       <div>
         <InfiniteScroll

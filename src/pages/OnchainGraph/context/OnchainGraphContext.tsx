@@ -11,6 +11,7 @@ import { getDefaultScoreMap, worker } from '../utils';
 import { useLazyQuery } from '@airstack/airstack-react';
 import { SocialQuery } from '../../../queries';
 import { useIdentity } from '../hooks/useIdentity';
+import { ScoreMap } from '../constants';
 
 type OnchainGraphContextType = {
   data: RecommendedUser[];
@@ -20,6 +21,7 @@ type OnchainGraphContextType = {
   setData: (cb: (data: RecommendedUser[]) => RecommendedUser[]) => void;
   setScanIncomplete: React.Dispatch<React.SetStateAction<boolean>>;
   reset: () => void;
+  sortDataUsingScore: (score: ScoreMap) => Promise<void>;
 };
 
 export interface SocialData {
@@ -82,6 +84,15 @@ export function OnchainGraphContextProvider({
     []
   );
 
+  const sortDataUsingScore = useCallback(async (score: ScoreMap) => {
+    const sortedData = await worker.sortFilterAndRankData(
+      recommendationsRef.current,
+      score,
+      userIdentitiesRef.current
+    );
+    _setData(sortedData);
+  }, []);
+
   const reset = useCallback(() => {
     _setData([]);
     recommendationsRef.current = [];
@@ -92,14 +103,22 @@ export function OnchainGraphContextProvider({
   const value = useMemo(() => {
     return {
       data,
-      totalScannedDocuments,
       scanIncomplete,
+      totalScannedDocuments,
       setData,
-      setTotalScannedDocuments,
       setScanIncomplete,
+      sortDataUsingScore,
+      setTotalScannedDocuments,
       reset
     };
-  }, [data, reset, scanIncomplete, setData, totalScannedDocuments]);
+  }, [
+    data,
+    reset,
+    scanIncomplete,
+    setData,
+    sortDataUsingScore,
+    totalScannedDocuments
+  ]);
 
   return (
     <onChainGraphContext.Provider value={value}>
