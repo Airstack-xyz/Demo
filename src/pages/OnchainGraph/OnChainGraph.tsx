@@ -86,7 +86,7 @@ export function OnChainGraphComponent() {
         onApplyScore={applyScore}
       />
       <div
-        className={classNames('grid sm:grid-cols-3 gap-12 my-10', {
+        className={classNames('grid sm:grid-cols-3 gap-12 my-5 sm:my-10', {
           '!grid-cols-1 [&>div]:w-[600px] [&>div]:max-w-[100%] justify-items-center':
             !showGridView
         })}
