@@ -22,13 +22,13 @@ function TextWithIcon({
   width?: number;
 }) {
   return (
-    <div className="flex items-center mb-1">
-      <span className="w-[20px] flex items-center justify-center">
+    <div className="flex items-center mb-2">
+      <span className="w-[20px] flex items-center justify-center mr-2">
         <Icon
           name={icon}
           height={height}
           width={width}
-          className="mr-2 rounded-full"
+          className="rounded-full"
         />
       </span>
       <span className="text-text-secondary ellipsis flex-1">{text}</span>
@@ -49,7 +49,7 @@ function IconWithTooltip({ icon, text }: { icon: IconType; text: string }) {
 
 function Loader() {
   return (
-    <div className="flex items-center mb-3">
+    <div className="flex items-center mb-2 last:mb-0">
       <div
         data-loader-type="block"
         className="h-6 w-6 rounded-full mr-1.5"
@@ -198,7 +198,7 @@ function UserInfo({
           )}
         </div>
       </div>
-      <div className="leading-loose p-5">
+      <div className="p-5">
         {tokenTransfers && (
           <TextWithIcon
             icon="token-sent"
@@ -281,7 +281,7 @@ const MemoizedUserInfo = memo((props: UserInfoProps) => {
     <div
       ref={ref}
       className={classNames(
-        'border-solid-stroke bg-glass hover:border-solid-light rounded-18 overflow-hidden h-[315px]',
+        'border-solid-stroke bg-glass hover:border-solid-light rounded-18 overflow-hidden h-[300px]',
         {
           'overflow-auto !h-auto': props.showDetails
         }
