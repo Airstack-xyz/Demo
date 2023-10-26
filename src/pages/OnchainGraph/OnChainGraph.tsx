@@ -10,6 +10,8 @@ import { isMobileDevice } from '../../utils/isMobileDevice';
 import { createFormattedRawInput } from '../../utils/createQueryParamsWithMention';
 import { useIdentity } from './hooks/useIdentity';
 import { createSearchParams, useNavigate } from 'react-router-dom';
+import { usePaginatedData } from './hooks/usePaginatedData';
+import InfiniteScroll from 'react-infinite-scroll-component';
 
 function ItemsLoader() {
   const loaderItems = Array(6).fill(0);
@@ -27,11 +29,8 @@ function ItemsLoader() {
 export function OnChainGraphComponent() {
   const identity = useIdentity();
   const navigate = useNavigate();
-  const {
-    data: recommendations,
-    totalScannedDocuments,
-    setData
-  } = useOnchainGraphContext();
+  const [recommendations, isLastPage, getNextPage] = usePaginatedData();
+  const { totalScannedDocuments, setData } = useOnchainGraphContext();
   const [showGridView, setShowGridView] = useState(() => !isMobileDevice());
   const [loading, setLoading] = useState(false);
   const [startScan, scanning, cancelScan] = useGetOnChainData(identity);
@@ -91,23 +90,29 @@ export function OnChainGraphComponent() {
         setShowGridView={setShowGridView}
         onApplyScore={applyScore}
       />
-      <div
-        className={classNames('grid sm:grid-cols-3 gap-12 my-5 sm:my-10', {
-          '!grid-cols-1 [&>div]:w-[600px] [&>div]:max-w-[100%] justify-items-center':
-            !showGridView
-        })}
-      >
-        {recommendations?.map?.((user, index) => (
-          <UserInfo
-            user={user}
-            key={`${index}_${user.addresses?.[0] || user.domains?.[0]}`}
-            identity={identity}
-            showDetails={!showGridView}
-            loading={scanning}
-            onClick={handleUserClick}
-          />
-        ))}
-        {scanning && <ItemsLoader />}
+      <div>
+        <InfiniteScroll
+          next={getNextPage}
+          dataLength={recommendations.length}
+          hasMore={!isLastPage}
+          className={classNames('grid sm:grid-cols-3 gap-12 my-5 sm:my-10', {
+            '!grid-cols-1 [&>div]:w-[600px] [&>div]:max-w-[100%] justify-items-center':
+              !showGridView
+          })}
+          loader={null}
+        >
+          {recommendations?.map?.((user, index) => (
+            <UserInfo
+              user={user}
+              key={`${index}_${user.addresses?.[0] || user.domains?.[0]}`}
+              identity={identity}
+              showDetails={!showGridView}
+              loading={scanning}
+              onClick={handleUserClick}
+            />
+          ))}
+          {scanning && <ItemsLoader />}
+        </InfiniteScroll>
       </div>
       {loading && (
         <Loader
