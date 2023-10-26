@@ -1,6 +1,8 @@
+import { QUERY_LIMIT } from '../../pages/OnchainGraph/constants';
+
 export const tokenSentQuery = `query TokenSent($user: Identity!) {
     Ethereum: TokenTransfers(
-      input: {filter: {from: {_eq: $user}}, blockchain: ethereum, limit: 200}
+      input: {filter: {from: {_eq: $user}}, blockchain: ethereum, limit: ${QUERY_LIMIT}}
     ) {
       TokenTransfer {
         account: to {
@@ -27,7 +29,7 @@ export const tokenSentQuery = `query TokenSent($user: Identity!) {
       }
     }
     Polygon: TokenTransfers(
-      input: {filter: {from: {_eq: $user}}, blockchain: ethereum, limit: 200}
+      input: {filter: {from: {_eq: $user}}, blockchain: ethereum, limit: ${QUERY_LIMIT}}
     ) {
       TokenTransfer {
         account: to {
@@ -57,7 +59,7 @@ export const tokenSentQuery = `query TokenSent($user: Identity!) {
 
 export const tokenReceivedQuery = `query TokenReceived($user: Identity!) {
     Ethereum: TokenTransfers(
-      input: {filter: {to: {_eq: $user}}, blockchain: ethereum, limit: 200}
+      input: {filter: {to: {_eq: $user}}, blockchain: ethereum, limit: ${QUERY_LIMIT}}
     ) {
       TokenTransfer {
         account: from {
@@ -84,7 +86,7 @@ export const tokenReceivedQuery = `query TokenReceived($user: Identity!) {
       }
     }
     Polygon: TokenTransfers(
-      input: {filter: {to: {_eq: $user}}, blockchain: polygon, limit: 200}
+      input: {filter: {to: {_eq: $user}}, blockchain: polygon, limit: ${QUERY_LIMIT}}
     ) {
       TokenTransfer {
         account: from {

@@ -132,7 +132,7 @@ export function useGetNFTs(
             {
               addresses: chunk,
               blockchain,
-              limit: 200
+              limit: 100
             },
             {
               cache: false

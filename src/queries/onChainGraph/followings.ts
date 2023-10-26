@@ -1,6 +1,8 @@
+import { QUERY_LIMIT } from '../../pages/OnchainGraph/constants';
+
 export const socialFollowingsQuery = `query Followings($user: Identity!, $dappName: SocialDappName) {
     SocialFollowings(
-      input: {filter: {identity: {_eq: $user}, dappName: {_eq: $dappName}}, blockchain: ALL, limit: 200}
+      input: {filter: {identity: {_eq: $user}, dappName: {_eq: $dappName}}, blockchain: ALL, limit: ${QUERY_LIMIT}}
     ) {
       Following {
         followingAddress {
@@ -41,7 +43,7 @@ export const socialFollowingsQuery = `query Followings($user: Identity!, $dappNa
 
 export const socialFollowersQuery = `query Followers($user: Identity!, $dappName: SocialDappName) {
   SocialFollowers(
-    input: {filter: {identity: {_eq: $user}, dappName: {_eq: $dappName}}, blockchain: ALL, limit: 200}
+    input: {filter: {identity: {_eq: $user}, dappName: {_eq: $dappName}}, blockchain: ALL, limit: ${QUERY_LIMIT}}
   ) {
     Follower {
       followerAddress {
