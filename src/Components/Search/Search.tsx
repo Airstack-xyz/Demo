@@ -381,22 +381,20 @@ export const Search = memo(function Search() {
           {!isHome && <TabLinks isTokenBalances={isTokenBalances} />}
         </div>
       </div>
-      <div className="flex-row-center relative h-[50px] z-20">
+      <div className="flex-row-center relative h-[50px] z-40">
         <div
           ref={inputSectionRef}
           className={classNames(
-            'transition-all absolute top-0',
-            advancedSearchData.visible
-              ? 'before-bg-glass before:rounded-18 before:border-solid-stroke w-[min(60vw,900px)]'
-              : 'w-full'
+            'before-bg-glass before:rounded-18 before:border-solid-stroke transition-all absolute top-0',
+            advancedSearchData.visible ? 'w-[min(60vw,900px)]' : 'w-full'
           )}
         >
           <div
             className={classNames(
-              'flex items-center h-[50px] w-full rounded-18 px-4 py-3 transition-all z-10 relative',
+              'flex items-center h-[50px] w-full rounded-18 px-4 py-3 transition-all z-20 relative',
               advancedSearchData.visible
                 ? 'bg-[linear-gradient(137deg,#ffffff0f_-8.95%,#ffffff00_114%)]'
-                : 'border-solid-stroke bg-glass'
+                : ''
             )}
           >
             {showPrefixIcon && (

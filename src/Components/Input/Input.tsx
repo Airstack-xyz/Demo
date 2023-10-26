@@ -376,7 +376,7 @@ export function InputWithMention({
         singleLine
         style={{ outline: 'none' }}
         placeholder={placeholder}
-        onKeyDown={handleKeypress}
+        onKeyUp={handleKeypress}
         onBlur={handleBlur}
         className="mentions"
         value={value}

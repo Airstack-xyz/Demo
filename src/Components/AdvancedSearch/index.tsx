@@ -167,7 +167,7 @@ export default function AdvancedSearch({
         return;
       }
     }
-    function handleKeyDown(event: KeyboardEvent) {
+    function handleKeyUp(event: KeyboardEvent) {
       // disable ai-input's certain keys, so that they can be used in advanced search
       if (DISABLED_KEYS.includes(event.key)) {
         event.stopImmediatePropagation();
@@ -196,10 +196,10 @@ export default function AdvancedSearch({
       }
     }
 
-    document.addEventListener('keydown', handleKeyDown, true);
+    document.addEventListener('keyup', handleKeyUp, true);
     aiInputEl?.addEventListener('click', handleAIInputClick);
     return () => {
-      document.removeEventListener('keydown', handleKeyDown, true);
+      document.removeEventListener('keyup', handleKeyUp, true);
       aiInputEl?.removeEventListener('click', handleAIInputClick);
     };
   }, [
@@ -317,8 +317,14 @@ export default function AdvancedSearch({
       mentionStartIndex
     );
     if (value !== null) {
-      // Append space at the end
-      onChange(value.trim() + ' ');
+      // append space to the value
+      const finalValue = value.trim() + ' ';
+      onChange(finalValue);
+      const aiInputEl =
+        document.querySelector<HTMLTextAreaElement>('#mention-input');
+      // focus and put caret to last position
+      aiInputEl?.focus();
+      aiInputEl?.setSelectionRange(finalValue.length, finalValue.length);
     }
     onClose();
   };
@@ -330,7 +336,7 @@ export default function AdvancedSearch({
   const errorOccurred = isError && !isLoading && items.length === 0;
 
   return (
-    <div id="advancedSearch" className="pt-5 px-5 relative z-10">
+    <div id="advancedSearch" className="pt-5 px-5 relative z-20">
       <div className="flex justify-between items-center">
         <Filters selectedOption={selectedToken} onSelect={handleTokenSelect} />
         <BlockchainFilter
