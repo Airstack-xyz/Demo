@@ -45,7 +45,7 @@ export function useTokensSupply() {
     async (tokenAddress: string[]) => {
       setLoading(true);
       setData(null);
-      const promises: FetchQueryReturnType[] = [];
+      const promises: FetchQueryReturnType<unknown>[] = [];
       tokenAddress.forEach(token => {
         const isPoap = !token.startsWith('0x');
         const variables = isPoap ? { eventId: token } : { tokenAddress: token };
