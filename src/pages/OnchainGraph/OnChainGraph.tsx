@@ -3,7 +3,7 @@ import { UserInfo } from './UserInfo';
 import classNames from 'classnames';
 import { Header } from './Header';
 import { Loader } from './Loader';
-import { useOnChainGraphData } from './hooks/useOnChainGraphData';
+import { useOnchainGraphContext } from './hooks/useOnchainGraphContext';
 import { OnchainGraphContextProvider } from './context/OnchainGraphContext';
 import { useGetOnChainData } from './hooks/useGetOnChainData';
 import { isMobileDevice } from '../../utils/isMobileDevice';
@@ -32,7 +32,7 @@ export function OnChainGraphComponent() {
     data: recommendations,
     totalScannedDocuments,
     setData
-  } = useOnChainGraphData();
+  } = useOnchainGraphContext();
   const [showGridView, setShowGridView] = useState(() => !isMobileDevice());
   const [loading, setLoading] = useState(true);
   const [scanning, cancelScan] = useGetOnChainData(identity);

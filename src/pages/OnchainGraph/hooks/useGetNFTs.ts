@@ -5,7 +5,7 @@ import { NFTQueryResponse, TokenBalance } from '../types/nft';
 import { FetchPaginatedQueryReturnType } from '@airstack/airstack-react/types';
 import { QUERY_LIMIT, nftsToIgnore } from '../constants';
 import { RecommendedUser } from '../types';
-import { useOnChainGraphData } from './useOnChainGraphData';
+import { useOnchainGraphContext } from './useOnchainGraphContext';
 import { paginateRequest } from '../utils';
 
 const maxAddressPerQuery = 100;
@@ -76,7 +76,7 @@ export function useGetNFTs(
   blockchain: 'ethereum' | 'polygon' = 'ethereum'
 ) {
   const requestCanceled = useRef(false);
-  const { setData, setTotalScannedDocuments } = useOnChainGraphData();
+  const { setData, setTotalScannedDocuments } = useOnchainGraphContext();
   const totalItemsCount = useRef(0);
 
   const handleRequests = useCallback(

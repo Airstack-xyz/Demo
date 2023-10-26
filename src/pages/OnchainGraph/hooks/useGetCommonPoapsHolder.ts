@@ -11,7 +11,7 @@ import {
   UserPoapsEventIdsQueryResponse
 } from '../types/common-poaps';
 import { RecommendedUser } from '../types';
-import { useOnChainGraphData } from './useOnChainGraphData';
+import { useOnchainGraphContext } from './useOnchainGraphContext';
 import { paginateRequest } from '../utils';
 
 const MAX_ITEMS = Infinity;
@@ -54,7 +54,7 @@ function formatData(
 
 export function useGetCommonPoapsHolder(address: string) {
   const requestCanceled = useRef(false);
-  const { setData, setTotalScannedDocuments } = useOnChainGraphData();
+  const { setData, setTotalScannedDocuments } = useOnchainGraphContext();
   const totalItemsCount = useRef(0);
 
   const fetchPoapData = useCallback(

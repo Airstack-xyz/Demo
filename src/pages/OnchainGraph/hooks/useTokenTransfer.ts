@@ -5,7 +5,7 @@ import {
 } from '../../../queries/onChainGraph/tokenTransfer';
 import { TokenQueryResponse, Transfer } from '../types/tokenSentReceived';
 import { useCallback, useRef } from 'react';
-import { useOnChainGraphData } from './useOnChainGraphData';
+import { useOnchainGraphContext } from './useOnchainGraphContext';
 import { RecommendedUser } from '../types';
 import { MAX_ITEMS, QUERY_LIMIT } from '../constants';
 import { paginateRequest } from '../utils';
@@ -62,7 +62,7 @@ export function useTokenTransfer(
   transferType: 'sent' | 'received' = 'sent'
 ) {
   const requestCanceled = useRef(false);
-  const { setData, setTotalScannedDocuments } = useOnChainGraphData();
+  const { setData, setTotalScannedDocuments } = useOnchainGraphContext();
   const totalItemsCount = useRef(0);
 
   const fetchData = useCallback(async () => {

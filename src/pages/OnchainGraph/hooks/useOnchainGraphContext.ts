@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { onChainGraphContext } from '../context/OnchainGraphContext';
 
-export function useOnChainGraphData() {
+export function useOnchainGraphContext() {
   const ctx = useContext(onChainGraphContext);
   if (!ctx) {
     throw new Error(

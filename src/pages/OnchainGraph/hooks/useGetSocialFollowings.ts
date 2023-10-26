@@ -4,7 +4,7 @@ import { FollowingAddress, SocialQueryResponse } from '../types/social';
 import { useCallback, useRef } from 'react';
 import { QUERY_LIMIT } from '../constants';
 import { RecommendedUser } from '../types';
-import { useOnChainGraphData } from './useOnChainGraphData';
+import { useOnchainGraphContext } from './useOnchainGraphContext';
 import { paginateRequest } from '../utils';
 
 const MAX_ITEMS = 10000;
@@ -66,7 +66,7 @@ export function useGetSocialFollowings(
 ) {
   const requestCanceled = useRef(false);
   const totalItemsCount = useRef(0);
-  const { setData, setTotalScannedDocuments } = useOnChainGraphData();
+  const { setData, setTotalScannedDocuments } = useOnchainGraphContext();
 
   const fetchData = useCallback(async () => {
     if (requestCanceled.current) {
