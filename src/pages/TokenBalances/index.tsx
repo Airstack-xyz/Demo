@@ -427,13 +427,13 @@ function TokenBalancePage() {
   const renderFilterContent = () => {
     if (showTokenDetails || socialInfo.isApplicable) {
       return (
-        <div className="flex justify-center w-full">
+        <div className="flex justify-center w-full z-[21]">
           <GetAPIDropdown options={options} dropdownAlignment="center" />
         </div>
       );
     }
     return (
-      <div className="flex justify-between w-full">
+      <div className="flex justify-between w-full z-[21]">
         <div className="flex-row-center gap-3.5">
           {isMobile ? (
             <AllFilters />
