@@ -23,7 +23,7 @@ function TextWithIcon({
   width?: number;
 }) {
   return (
-    <div className="flex items-center mb-2">
+    <div className="flex items-center mb-2 last:mb-0">
       <span className="w-[20px] flex items-center justify-center mr-2">
         <Icon
           name={icon}
@@ -50,7 +50,7 @@ function IconWithTooltip({ icon, text }: { icon: IconType; text: string }) {
 
 function Loader() {
   return (
-    <div className="flex items-center mb-1.5 last:mb-0">
+    <div className="flex items-center mb-2 last:mb-0">
       <div
         data-loader-type="block"
         className="h-5 w-5 rounded-full mr-1.5"

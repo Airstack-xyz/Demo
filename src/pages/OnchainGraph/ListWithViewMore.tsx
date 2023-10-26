@@ -43,7 +43,10 @@ export function ListWithViewMore({
       })}
     >
       {visibleItems?.map?.((item, index) => (
-        <li key={index} className="flex items-center text-text-secondary">
+        <li
+          key={index}
+          className="flex mb-2 last:mb-0 items-center text-text-secondary"
+        >
           <span className="h-[20px] w-[20px] [&>img]:w-full mr-2">
             <Asset
               chain={item.blockchain as Chain}
