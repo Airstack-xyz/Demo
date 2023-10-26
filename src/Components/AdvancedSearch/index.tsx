@@ -330,7 +330,7 @@ export default function AdvancedSearch({
   const errorOccurred = isError && !isLoading && items.length === 0;
 
   return (
-    <div id="advancedSearch" className="pt-5 px-5">
+    <div id="advancedSearch" className="pt-5 px-5 relative z-10">
       <div className="flex justify-between items-center">
         <Filters selectedOption={selectedToken} onSelect={handleTokenSelect} />
         <BlockchainFilter
