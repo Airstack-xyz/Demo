@@ -29,7 +29,8 @@ function ItemsLoader() {
 export function OnChainGraphComponent() {
   const identity = useIdentity();
   const navigate = useNavigate();
-  const [recommendations, isLastPage, getNextPage] = usePaginatedData();
+  const [recommendations, totalItems, isLastPage, getNextPage] =
+    usePaginatedData();
   const { totalScannedDocuments, setData } = useOnchainGraphContext();
   const [showGridView, setShowGridView] = useState(() => !isMobileDevice());
   const [loading, setLoading] = useState(false);
@@ -117,7 +118,7 @@ export function OnChainGraphComponent() {
       {loading && (
         <Loader
           total={totalScannedDocuments}
-          matching={recommendations.length}
+          matching={totalItems}
           scanCompleted={!scanning}
           onSortByScore={() => {
             setData(recommendations => [...recommendations]);

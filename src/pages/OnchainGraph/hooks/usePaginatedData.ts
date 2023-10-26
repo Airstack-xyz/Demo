@@ -18,5 +18,10 @@ export function usePaginatedData() {
     setLastItemIndex(prev => prev + ITEM_PER_PAGE);
   }, []);
 
-  return [paginatedData, lastItemIndex >= data.length, getNextPage] as const;
+  return [
+    paginatedData,
+    data.length,
+    lastItemIndex >= data.length,
+    getNextPage
+  ] as const;
 }
