@@ -16,7 +16,7 @@ function ItemsLoader() {
   return (
     <>
       {loaderItems.map((_, index) => (
-        <div data-loader-type="block">
+        <div className="skeleton-loader" data-loader-type="block">
           <UserInfo key={index} />
         </div>
       ))}
@@ -51,7 +51,7 @@ export function OnChainGraphComponent() {
   }, [setData]);
 
   const handleUserClick = useCallback(
-    (_identity: string) => {
+    async (_identity: string) => {
       const rawInputForExistingIdentity = createFormattedRawInput({
         label: identity,
         address: identity,
@@ -79,7 +79,7 @@ export function OnChainGraphComponent() {
   return (
     <div className="max-w-[958px] px-2 mx-auto w-full text-sm pt-10 sm:pt-5">
       <Header
-        loading={loading}
+        loading={scanning}
         identities={[identity]}
         showGridView={showGridView}
         setShowGridView={setShowGridView}
@@ -88,8 +88,7 @@ export function OnChainGraphComponent() {
       <div
         className={classNames('grid sm:grid-cols-3 gap-12 my-10', {
           '!grid-cols-1 [&>div]:w-[600px] [&>div]:max-w-[100%] justify-items-center':
-            !showGridView,
-          'skeleton-loader': scanning
+            !showGridView
         })}
       >
         {recommendations?.map?.((user, index) => (
