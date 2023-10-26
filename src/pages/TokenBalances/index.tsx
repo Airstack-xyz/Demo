@@ -43,7 +43,6 @@ import {
   getAllActiveTokenInfo
 } from '../../utils/activeTokenInfoString';
 import { AllFilters } from '../../Components/Filters/AllFilters';
-import { OnChainGraph } from './OnChainGraph';
 import { ScoreOverview } from '../OnchainGraph/CommonScore/ScoreOverview';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
@@ -108,8 +107,7 @@ function TokenBalancePage() {
       blockchainType,
       sortOrder,
       activeTokenInfo,
-      activeSocialInfo,
-      activeOnChainGraphInfo
+      activeSocialInfo
     },
     setData
   ] = useSearchInput();
@@ -453,10 +451,6 @@ function TokenBalancePage() {
   };
 
   const renderViewContent = () => {
-    if (activeOnChainGraphInfo) {
-      return <OnChainGraph />;
-    }
-
     if (showTokenDetails) {
       return (
         <TokenDetails
