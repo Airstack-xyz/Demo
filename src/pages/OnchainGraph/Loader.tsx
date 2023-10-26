@@ -147,7 +147,7 @@ export function Loader({
         <div className="flex items-center ellipsis">
           {scanIncomplete && (
             <button
-              className="bg-white rounded-18 text-primary px-2.5 py-1 font-medium mt-1 text-xs"
+              className="text-text-button font-medium"
               onClick={() => {
                 reset();
                 onRestartScan();
