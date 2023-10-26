@@ -9,6 +9,7 @@ import classNames from 'classnames';
 import { useInViewportOnce } from '../../hooks/useInViewportOnce';
 import { Tooltip } from '../../Components/Tooltip';
 import { CopyButton } from '../../Components/CopyButton';
+import classnames from 'classnames';
 
 function TextWithIcon({
   icon,
@@ -49,13 +50,13 @@ function IconWithTooltip({ icon, text }: { icon: IconType; text: string }) {
 
 function Loader() {
   return (
-    <div className="flex items-center mb-2 last:mb-0">
+    <div className="flex items-center mb-1.5 last:mb-0">
       <div
         data-loader-type="block"
-        className="h-6 w-6 rounded-full mr-1.5"
+        className="h-5 w-5 rounded-full mr-1.5"
       ></div>
       <div
-        className="flex items-center text-text-secondary h-5"
+        className="flex items-center text-text-secondary h-4"
         data-loader-type="block"
         data-loader-width="75"
       ></div>
@@ -198,7 +199,11 @@ function UserInfo({
           )}
         </div>
       </div>
-      <div className="p-5">
+      <div
+        className={classnames('px-5 pt-5 pb-2.5', {
+          'skeleton-loader': loading
+        })}
+      >
         {tokenTransfers && (
           <TextWithIcon
             icon="token-sent"
@@ -281,7 +286,7 @@ const MemoizedUserInfo = memo((props: UserInfoProps) => {
     <div
       ref={ref}
       className={classNames(
-        'border-solid-stroke bg-glass hover:border-solid-light rounded-18 overflow-hidden h-[300px]',
+        'border-solid-stroke bg-glass hover:border-solid-light rounded-18 overflow-hidden h-[290px]',
         {
           'overflow-auto !h-auto': props.showDetails
         }
