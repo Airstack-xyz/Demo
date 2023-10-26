@@ -159,7 +159,10 @@ function UserInfo({
               containerClassName="w-full h-full flex items-center justify-center"
               chain={blockchain as Chain}
               tokenId={blockchain ? social?.profileTokenId || '' : ''}
-              address={social?.profileTokenAddress || ''}
+              address={
+                // if there is profile image then set address to empty string so that it doesn't show the token image
+                social?.profileImage ? '' : social?.profileTokenAddress || ''
+              }
               image={social?.profileImage}
               useImageOnError
               className="[&>img]:!w-full"
