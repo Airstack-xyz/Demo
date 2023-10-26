@@ -219,13 +219,13 @@ function UserInfo({
           />
         )}
         {commonNftCount > 0 && (
-          <div>
+          <>
             <TextWithIcon
               icon="nft-common"
               text={`${pluralize(commonNftCount, 'NFT')} in common`}
             />
             {showDetails && <ListWithViewMore items={nfts} loading={loading} />}
-          </div>
+          </>
         )}
         {poapsCount > 0 && (
           <>
@@ -246,7 +246,7 @@ function UserInfo({
               follows?.followedOnFarcaster && follows?.followingOnFarcaster
                 ? 'Farcaster mutual follow'
                 : follows?.followingOnFarcaster
-                ? `Farcaster followed by ${identity}`
+                ? `Followed by ${identity} on Farcaster `
                 : follows?.followedOnFarcaster
                 ? `Following ${identity} on Farcaster`
                 : ''
@@ -262,7 +262,7 @@ function UserInfo({
               follows?.followedOnLens && follows?.followingOnLens
                 ? 'Lens mutual follow'
                 : follows?.followingOnLens
-                ? `Lens followed by ${identity}`
+                ? `Followed by ${identity} on Lens`
                 : follows?.followedOnLens
                 ? `Following ${identity} on Lens`
                 : ''

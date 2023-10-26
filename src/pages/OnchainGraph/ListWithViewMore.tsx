@@ -38,7 +38,7 @@ export function ListWithViewMore({
   }, [items, limit, showAll]);
   return (
     <ul
-      className={classNames('ml-5', {
+      className={classNames('ml-5 mb-2', {
         'skeleton-loader': loading
       })}
     >
