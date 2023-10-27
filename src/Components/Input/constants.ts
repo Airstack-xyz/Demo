@@ -2,7 +2,7 @@ export const POAP_OPTION_ID = 'ID_POAP';
 export const ADDRESS_OPTION_ID = 'ID_ADDRESS';
 export const ADVANCED_SEARCH_OPTION_ID = 'ID_ADVANCED_SEARCH';
 
-export const MENTION_COUNT = 10;
+export const MENTION_COUNT = 8;
 export const MENTION_MARKUP = '#⎱__display__⎱(__id__)';
 export const MENTION_REGEX = /#⎱([^⎱]+)⎱\(([^)]+?)\)/;
 
