@@ -35,10 +35,11 @@ export function BlockchainFilter({ disabled }: { disabled?: boolean }) {
   const isPoap = tokenType === 'POAP';
 
   const isFilterDisabled = disabled || isPoap;
+  const hasBlockchainFilterApplied = blockchainType.length > 0;
 
   // Reset blockchain filter if POAP filter is applied
   useEffect(() => {
-    if (isFilterDisabled) {
+    if (isFilterDisabled && hasBlockchainFilterApplied) {
       setData(
         {
           blockchainType: []
@@ -46,7 +47,7 @@ export function BlockchainFilter({ disabled }: { disabled?: boolean }) {
         { updateQueryParams: true }
       );
     }
-  }, [isFilterDisabled, setData]);
+  }, [hasBlockchainFilterApplied, isFilterDisabled, setData]);
 
   const handleChange = useCallback(
     (selected: Option[]) => {
