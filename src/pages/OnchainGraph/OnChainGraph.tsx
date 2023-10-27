@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { UserInfo } from './UserInfo';
 import classNames from 'classnames';
 import { Header } from './Header';
@@ -12,6 +12,7 @@ import { useIdentity } from './hooks/useIdentity';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import { usePaginatedData } from './hooks/usePaginatedData';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { OnchainGraphCache, clearCache, getCache, setCache } from './cache';
 
 function ItemsLoader() {
   const loaderItems = Array(6).fill(0);
@@ -31,16 +32,44 @@ export function OnChainGraphComponent() {
   const navigate = useNavigate();
   const [recommendations, totalItems, isLastPage, getNextPage] =
     usePaginatedData();
-  const { totalScannedDocuments, setData, sortDataUsingScore } =
-    useOnchainGraphContext();
+  const {
+    data,
+    scanIncomplete,
+    totalScannedDocuments,
+    setData,
+    sortDataUsingScore
+  } = useOnchainGraphContext();
   const [showGridView, setShowGridView] = useState(() => !isMobileDevice());
-  const [loading, setLoading] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
   const [startScan, scanning, cancelScan] = useGetOnChainData(identity);
+  const dataToCachedRef = useRef<OnchainGraphCache>({
+    data,
+    hasCompleteData: scanIncomplete ? false : !scanning,
+    totalScannedDocuments
+  });
+
+  dataToCachedRef.current.data = data;
+  dataToCachedRef.current.hasCompleteData = scanIncomplete ? false : !scanning;
+  dataToCachedRef.current.totalScannedDocuments = totalScannedDocuments;
+
+  useEffect(
+    () => () => {
+      setCache(
+        dataToCachedRef.current.data,
+        dataToCachedRef.current.hasCompleteData,
+        dataToCachedRef.current.totalScannedDocuments
+      );
+    },
+    []
+  );
 
   useEffect(() => {
-    if (identity) {
+    const data = getCache().data || [];
+    if (identity && data?.length === 0) {
       startScan();
-      setLoading(true);
+      setShowLoader(true);
+    } else if (data?.length > 0) {
+      setShowLoader(true);
     }
   }, [identity, startScan]);
 
@@ -112,22 +141,25 @@ export function OnChainGraphComponent() {
           {scanning && <ItemsLoader />}
         </InfiniteScroll>
       </div>
-      {loading && (
+      {showLoader && (
         <Loader
           total={totalScannedDocuments}
           matching={totalItems}
           scanCompleted={!scanning}
           onSortByScore={() => {
             setData(recommendations => [...recommendations]);
-            setLoading(false);
+            setShowLoader(false);
           }}
           onCloseLoader={() => {
-            setLoading(false);
+            setShowLoader(false);
           }}
           onCancelScan={() => {
             cancelScan();
           }}
-          onRestartScan={startScan}
+          onRestartScan={() => {
+            startScan();
+            clearCache();
+          }}
         />
       )}
     </div>

@@ -12,6 +12,7 @@ import { useLazyQuery } from '@airstack/airstack-react';
 import { SocialQuery } from '../../../queries';
 import { useIdentity } from '../hooks/useIdentity';
 import { ScoreMap } from '../constants';
+import { getCache } from '../cache';
 
 type OnchainGraphContextType = {
   data: RecommendedUser[];
@@ -45,13 +46,16 @@ export function OnchainGraphContextProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const cache = useMemo(() => {
+    return getCache();
+  }, []);
   const recommendationsRef = useRef<RecommendedUser[]>([]);
   const identity = useIdentity();
   const [fetchData, { data: userSocial }] =
     useLazyQuery<SocialData>(SocialQuery);
-  const [data, _setData] = useState<RecommendedUser[]>([]);
+  const [data, _setData] = useState<RecommendedUser[]>(cache.data || []);
   const userIdentitiesRef = useRef<string[]>([]);
-  const [scanIncomplete, setScanIncomplete] = useState(false);
+  const [scanIncomplete, setScanIncomplete] = useState(!cache.hasCompleteData);
 
   useEffect(() => {
     if (identity.length > 0) {
@@ -67,7 +71,9 @@ export function OnchainGraphContextProvider({
     userIdentitiesRef.current = [...address, ...domains];
   }, [userSocial?.Wallet?.addresses, userSocial?.Wallet?.domains]);
 
-  const [totalScannedDocuments, setTotalScannedDocuments] = useState(0);
+  const [totalScannedDocuments, setTotalScannedDocuments] = useState(
+    cache.totalScannedDocuments || 0
+  );
 
   const setData = useCallback(
     async (cb: (data: RecommendedUser[]) => RecommendedUser[]) => {
