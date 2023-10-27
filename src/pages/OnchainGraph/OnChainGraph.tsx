@@ -20,7 +20,8 @@ function ItemsLoader() {
     <>
       {loaderItems.map((_, index) => (
         <div className="skeleton-loader" data-loader-type="block">
-          <UserInfo key={index} />
+          {/* eslint-disable-next-line */}
+          <UserInfo key={index} identities={{} as any} />
         </div>
       ))}
     </>
@@ -35,7 +36,7 @@ export function OnChainGraphComponent() {
   const {
     data,
     scanIncomplete,
-    displayIdentity,
+    displayIdentities,
     totalScannedDocuments,
     setData,
     sortDataUsingScore
@@ -44,24 +45,22 @@ export function OnChainGraphComponent() {
   const [showLoader, setShowLoader] = useState(false);
   const [startScan, scanning, cancelScan] = useGetOnChainData(identity);
   const dataToCachedRef = useRef<OnchainGraphCache>({
+    cacheFor: identity,
     data,
     hasCompleteData: scanIncomplete ? false : !scanning,
     totalScannedDocuments
   });
 
+  dataToCachedRef.current.cacheFor = identity;
   dataToCachedRef.current.data = data;
   dataToCachedRef.current.hasCompleteData = scanIncomplete ? false : !scanning;
   dataToCachedRef.current.totalScannedDocuments = totalScannedDocuments;
 
   useEffect(
     () => () => {
-      setCache(
-        dataToCachedRef.current.data,
-        dataToCachedRef.current.hasCompleteData,
-        dataToCachedRef.current.totalScannedDocuments
-      );
+      setCache({ ...dataToCachedRef.current });
     },
-    []
+    [identity]
   );
 
   useEffect(() => {
@@ -133,7 +132,7 @@ export function OnChainGraphComponent() {
             <UserInfo
               user={user}
               key={`${index}_${user.addresses?.[0] || user.domains?.[0]}`}
-              identity={displayIdentity || identity}
+              identities={displayIdentities}
               showDetails={!showGridView}
               loading={scanning}
               onClick={handleUserClick}

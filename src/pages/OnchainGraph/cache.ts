@@ -3,12 +3,14 @@ export type OnchainGraphCache = {
   data: null | RecommendedUser[];
   hasCompleteData: boolean;
   totalScannedDocuments: number;
+  cacheFor: string;
 };
 
 const cache: OnchainGraphCache = {
   data: null,
   hasCompleteData: true,
-  totalScannedDocuments: 0
+  totalScannedDocuments: 0,
+  cacheFor: ''
 };
 
 export function getCache() {
@@ -17,17 +19,15 @@ export function getCache() {
   };
 }
 
-export function setCache(
-  data: null | RecommendedUser[],
-  hasCompleteData: boolean,
-  totalScannedDocuments: number
-) {
-  cache.data = data;
-  cache.hasCompleteData = hasCompleteData;
-  cache.totalScannedDocuments = totalScannedDocuments;
+export function setCache(newCache: OnchainGraphCache) {
+  cache.cacheFor = newCache.cacheFor;
+  cache.data = newCache.data;
+  cache.hasCompleteData = newCache.hasCompleteData;
+  cache.totalScannedDocuments = newCache.totalScannedDocuments;
 }
 
 export function clearCache() {
+  cache.cacheFor = '';
   cache.data = null;
   cache.hasCompleteData = true;
   cache.totalScannedDocuments = 0;

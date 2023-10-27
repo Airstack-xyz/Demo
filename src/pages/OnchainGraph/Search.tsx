@@ -138,7 +138,7 @@ export const Search = memo(function Search() {
 
       const rawTextWithMentions = rawInput.join(padding);
       const searchData = {
-        address,
+        address: address.join(','),
         blockchain: 'ethereum',
         rawInput: rawTextWithMentions,
         inputType: 'ADDRESS' as UserInputs['inputType']

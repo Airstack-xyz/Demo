@@ -66,7 +66,11 @@ function Loader() {
 
 type UserInfoProps = {
   user?: RecommendedUser;
-  identity?: string;
+  identities: {
+    lensUsername: string;
+    farcasterUsername: string;
+    ens: string;
+  };
   showDetails?: boolean;
   loading?: boolean;
   onClick?: (address: string) => void;
@@ -74,7 +78,7 @@ type UserInfoProps = {
 
 function UserInfo({
   user = {},
-  identity,
+  identities,
   showDetails = false,
   loading,
   onClick
@@ -246,9 +250,9 @@ function UserInfo({
               follows?.followedOnFarcaster && follows?.followingOnFarcaster
                 ? 'Farcaster mutual follow'
                 : follows?.followingOnFarcaster
-                ? `Followed by ${identity} on Farcaster `
+                ? `Followed by ${identities?.farcasterUsername} on Farcaster `
                 : follows?.followedOnFarcaster
-                ? `Following ${identity} on Farcaster`
+                ? `Following ${identities?.farcasterUsername} on Farcaster`
                 : ''
             }
             height={17}
@@ -262,9 +266,9 @@ function UserInfo({
               follows?.followedOnLens && follows?.followingOnLens
                 ? 'Lens mutual follow'
                 : follows?.followingOnLens
-                ? `Followed by ${identity} on Lens`
+                ? `Followed by ${identities?.lensUsername} on Lens`
                 : follows?.followedOnLens
-                ? `Following ${identity} on Lens`
+                ? `Following ${identities?.lensUsername} on Lens`
                 : ''
             }
           />
