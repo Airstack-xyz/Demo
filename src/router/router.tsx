@@ -1,4 +1,5 @@
 import { Home } from '../pages/home';
+import { OnChainGraphPage } from '../pages/OnchainGraph';
 import { TokenBalance } from '../pages/TokenBalances';
 import { TokenHolders } from '../pages/TokenHolders';
 
@@ -16,6 +17,10 @@ const router = createBrowserRouter([
   {
     path: '/token-holders',
     element: <TokenHolders />
+  },
+  {
+    path: '/onchain-graph', // identity: string, ref: string
+    element: <OnChainGraphPage />
   }
 ]);
 

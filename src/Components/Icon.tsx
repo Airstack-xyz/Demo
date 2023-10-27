@@ -42,7 +42,22 @@ export type IconType =
   | 'token-holders-white'
   | 'folder'
   | 'folder-gray'
-  | 'check-mark-circle';
+  | 'check-mark-circle'
+  | 'grid-view'
+  | 'list-view'
+  | 'bullseye'
+  | 'xmtp-grey'
+  | 'ens-grey'
+  | 'farcaster-grey'
+  | 'lens-grey'
+  | 'nft-common'
+  | 'token-sent'
+  | 'poap-common'
+  | 'farcaster'
+  | 'lens'
+  | 'community'
+  | 'info-circle'
+  | 'overview';
 
 export type IconProps = {
   name: IconType;

@@ -1,75 +1,65 @@
-/* eslint-disable react-refresh/only-export-components */
 import classNames from 'classnames';
-import { Icon } from '../Icon';
-import { InputWithMention } from '../Input/Input';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useMatch, useNavigate, useSearchParams } from 'react-router-dom';
-import { getAllMentionDetails, getAllWordsAndMentions } from '../Input/utils';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import {
-  CachedQuery,
-  UserInputs,
-  useSearchInput,
-  userInputCache
-} from '../../hooks/useSearchInput';
+  createSearchParams,
+  useMatch,
+  useNavigate,
+  useSearchParams
+} from 'react-router-dom';
+import { UserInputs, userInputCache } from '../../hooks/useSearchInput';
 import { showToast } from '../../utils/showToast';
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
-import { addAndRemoveCombinationPlaceholder } from './utils';
-
-export const tokenHoldersPlaceholder =
-  'Use @ mention or enter any token contract address';
-export const tokenBalancesPlaceholder =
-  'Enter 0x, name.eth, fc_fname:name, or name.lens';
-
-export const activeClass =
-  'bg-glass !border-stroke-color font-bold !text-text-primary';
-export const tabClassName =
-  'px-2.5 h-[30px] rounded-full mr-5 flex-row-center text-xs text-text-secondary border border-solid border-transparent';
-
-export function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
-  return (
-    <>
-      <Link
-        to="/token-balances"
-        className={classNames(tabClassName, {
-          [activeClass]: isTokenBalances
-        })}
-      >
-        <Icon name="token-balances" className="w-4 mr-1" /> Token balances
-      </Link>
-      <Link
-        to="/token-holders"
-        className={classNames(tabClassName, {
-          [activeClass]: !isTokenBalances
-        })}
-      >
-        <Icon name="token-holders" className="w-4 mr-1" /> Token holders
-      </Link>
-    </>
-  );
-}
+import { Icon } from '../../Components/Icon';
+import { getAllWordsAndMentions } from '../../Components/Input/utils';
+import { addAndRemoveCombinationPlaceholder } from '../../Components/Search/utils';
+import { InputWithMention } from '../../Components/Input/Input';
+import { createFormattedRawInput } from '../../utils/createQueryParamsWithMention';
+import { useIdentity } from './hooks/useIdentity';
+import {
+  tabClassName,
+  activeClass,
+  TabLinks,
+  tokenBalancesPlaceholder,
+  tokenHoldersPlaceholder
+} from '../../Components/Search/Search';
 
 const padding = '  ';
 export const Search = memo(function Search() {
-  const [isTokenBalanceActive, setIsTokenBalanceActive] = useState(true);
-  const isHome = useMatch('/');
-  const isTokenBalancesPage = !!useMatch('/token-balances');
   const [searchParams] = useSearchParams();
+
+  const identity = useIdentity();
+
+  const isHome = useMatch('/');
   const setOverviewTokens = useOverviewTokens(['tokens'])[1];
 
-  const isTokenBalances = isHome ? isTokenBalanceActive : isTokenBalancesPage;
+  const isTokenBalances = true;
 
-  const [{ rawInput }, setData] = useSearchInput(isTokenBalances);
   const navigate = useNavigate();
 
-  const [value, setValue] = useState(rawInput || '');
+  const [value, setValue] = useState(() => {
+    return !identity.trim()
+      ? ''
+      : createFormattedRawInput({
+          label: identity,
+          address: identity,
+          type: 'ADDRESS',
+          blockchain: 'ethereum'
+        });
+  });
 
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
   const inputSectionRef = useRef<HTMLDivElement>(null);
   const buttonSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const rawInput = createFormattedRawInput({
+      label: identity,
+      address: identity,
+      type: 'ADDRESS',
+      blockchain: 'ethereum'
+    });
     setValue(rawInput ? rawInput.trim() + padding : '');
-  }, [rawInput]);
+  }, [identity]);
 
   useEffect(() => {
     if (isTokenBalances) {
@@ -110,27 +100,6 @@ export const Search = memo(function Search() {
     };
   }, []);
 
-  const handleDataChange = useCallback(
-    (data: Partial<CachedQuery>) => {
-      setOverviewTokens({
-        tokens: []
-      });
-      if (isHome) {
-        setData(data, {
-          updateQueryParams: true,
-          reset: isTokenBalances,
-          redirectTo: isTokenBalances ? '/token-balances' : '/token-holders'
-        });
-        return;
-      }
-      setData(data, {
-        updateQueryParams: true,
-        reset: isTokenBalances
-      });
-    },
-    [isHome, isTokenBalances, setData, setOverviewTokens]
-  );
-
   const handleTokenBalancesSearch = useCallback(
     (value: string) => {
       const address: string[] = [];
@@ -159,7 +128,6 @@ export const Search = memo(function Search() {
           "Couldn't find any valid wallet address or ens/lens/farcaster name",
           'negative'
         );
-        handleDataChange({});
         return;
       }
 
@@ -175,90 +143,19 @@ export const Search = memo(function Search() {
         rawInput: rawTextWithMentions,
         inputType: 'ADDRESS' as UserInputs['inputType']
       };
-      setValue(rawTextWithMentions.trim() + padding);
-      handleDataChange(searchData);
-    },
-    [handleDataChange]
-  );
 
-  const handleTokenHoldersSearch = useCallback(
-    (value: string) => {
-      const address: string[] = [];
-      const rawInput: string[] = [];
-      let inputType: string | null = null;
-      let hasInputTypeMismatch = false;
-      let blockchain = 'ethereum';
-      let token = '';
-      const wordsAndMentions = getAllWordsAndMentions(value);
-
-      wordsAndMentions.forEach(({ word, mention, rawValue }) => {
-        if (mention) {
-          rawInput.push(rawValue);
-          address.push(mention.eventId || mention.address);
-          blockchain = mention.blockchain || '';
-          token = mention.token || '';
-          const _inputType = mention.customInputType || '';
-          hasInputTypeMismatch = hasInputTypeMismatch
-            ? hasInputTypeMismatch
-            : inputType !== null
-            ? inputType !== _inputType
-            : false;
-          inputType = inputType || _inputType;
-          return;
-        }
-
-        const _inputType = word.startsWith('0x')
-          ? 'ADDRESS'
-          : !isNaN(Number(word))
-          ? 'POAP'
-          : null;
-        hasInputTypeMismatch = hasInputTypeMismatch
-          ? hasInputTypeMismatch
-          : inputType !== null
-          ? inputType !== _inputType
-          : false;
-
-        inputType = inputType || _inputType;
-        if (!inputType) return;
-        address.push(word);
-        rawInput.push(rawValue);
+      navigate({
+        pathname: '/token-balances',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        search: createSearchParams(searchData as any).toString()
       });
-
-      if (address.length === 0) {
-        showToast("Couldn't find any contract", 'negative');
-        return;
-      }
-
-      if (address.length > 2) {
-        showToast('You can only compare 2 tokens at a time', 'negative');
-        return;
-      }
-
-      const rawTextWithMentions = rawInput.join(padding);
-      const searchData = {
-        address,
-        blockchain,
-        rawInput: rawTextWithMentions,
-        inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType']
-      };
-      setValue(rawTextWithMentions + padding);
-      handleDataChange(searchData);
     },
-    [handleDataChange]
+    [navigate]
   );
-
-  const shouldShowCombinationPlaceholder = useMemo(() => {
-    if (!rawInput) return false;
-    const [mentions] = getAllMentionDetails(value);
-    return mentions.length === 1 && rawInput === value.trim();
-  }, [rawInput, value]);
 
   useEffect(() => {
-    return addAndRemoveCombinationPlaceholder(
-      shouldShowCombinationPlaceholder,
-      isTokenBalances
-    );
-  }, [isTokenBalances, shouldShowCombinationPlaceholder]);
+    return addAndRemoveCombinationPlaceholder(false, isTokenBalances);
+  }, [isTokenBalances]);
 
   const handleSubmit = useCallback(
     (mentionValue: string) => {
@@ -266,23 +163,14 @@ export const Search = memo(function Search() {
 
       const trimmedValue = mentionValue.trim();
 
-      if (searchParams.get('rawInput') === trimmedValue) {
+      if (searchParams.get('identity') === trimmedValue) {
         window.location.reload(); // reload page if same search
         return;
       }
 
-      if (isTokenBalances) {
-        return handleTokenBalancesSearch(trimmedValue);
-      }
-
-      handleTokenHoldersSearch(trimmedValue);
+      return handleTokenBalancesSearch(trimmedValue);
     },
-    [
-      handleTokenBalancesSearch,
-      handleTokenHoldersSearch,
-      isTokenBalances,
-      searchParams
-    ]
+    [handleTokenBalancesSearch, searchParams]
   );
 
   const handleInputSubmit = () => {
@@ -295,16 +183,11 @@ export const Search = memo(function Search() {
 
   const getTabChangeHandler = useCallback(
     (tokenBalance: boolean) => {
-      if (!isHome) {
-        setValue('');
-        navigate({
-          pathname: tokenBalance ? '/token-balances' : '/token-holders'
-        });
-      } else {
-        setIsTokenBalanceActive(active => !active);
-      }
+      navigate({
+        pathname: tokenBalance ? '/token-balances' : '/token-holders'
+      });
     },
-    [isHome, navigate]
+    [navigate]
   );
 
   const showPrefixIcon = isHome && (!isInputSectionFocused || !value);
