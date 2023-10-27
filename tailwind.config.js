@@ -91,6 +91,10 @@ module.exports = {
             rgba(255, 255, 255, 0.03) 0.55%,
             rgba(255, 255, 255, 0) 100%
           )`
+        },
+        '.before-bg-glass': {
+          // Use this class if bg-glass will used in nesting fashion, normally blur doesn't work correctly if applied in nested fashion
+          '@apply before:bg-glass before:absolute before:inset-0': {}
         }
       });
     }

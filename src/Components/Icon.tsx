@@ -43,6 +43,7 @@ export type IconType =
   | 'folder'
   | 'folder-gray'
   | 'check-mark-circle'
+  | 'refresh-blue'
   | 'grid-view'
   | 'list-view'
   | 'bullseye'

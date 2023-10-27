@@ -1,4 +1,4 @@
-import { MentionValues } from '../../../Components/Input/utils';
+import { MentionData } from '../../../Components/Input/types';
 import {
   Follow,
   SocialFollowLogicalFilters,
@@ -20,7 +20,7 @@ export const getSocialFollowFilterData = ({
   isFollowerQuery
 }: {
   filters: string[];
-  mention?: MentionValues | null;
+  mention?: MentionData | null;
   dappName: string;
   identities: string[];
   profileTokenIds: string[];
@@ -157,7 +157,7 @@ export const filterTableItems = ({
 }: {
   items: Follow[];
   filters: string[];
-  mention?: MentionValues | null;
+  mention?: MentionData | null;
   dappName: string;
   isFollowerQuery: boolean;
 }) => {
