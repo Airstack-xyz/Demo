@@ -35,6 +35,7 @@ export function OnChainGraphComponent() {
   const {
     data,
     scanIncomplete,
+    displayIdentity,
     totalScannedDocuments,
     setData,
     sortDataUsingScore
@@ -132,7 +133,7 @@ export function OnChainGraphComponent() {
             <UserInfo
               user={user}
               key={`${index}_${user.addresses?.[0] || user.domains?.[0]}`}
-              identity={identity}
+              identity={displayIdentity || identity}
               showDetails={!showGridView}
               loading={scanning}
               onClick={handleUserClick}
