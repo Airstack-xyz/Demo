@@ -115,7 +115,7 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
   }
 }`;
 
-export const MentionsQuery = `
+export const SearchAIMentionsQuery = `
   query SearchAIMentions($input: SearchAIMentionsInput!) {
     SearchAIMentions(input: $input) {
       results {
@@ -128,6 +128,33 @@ export const MentionsQuery = `
         metadata {
           tokenMints
         }
+      }
+    }
+  }
+`;
+
+export const AdvancedSearchAIMentionsQuery = `
+  query AdvancedSearchAIMentions($input: SearchAIMentionsInput!) {
+    SearchAIMentions(input: $input) {
+      results {
+        type
+        name
+        address
+        eventId
+        blockchain
+        tokenType
+        thumbnailURL
+        blockchain
+        symbol
+        image {
+          medium
+        }
+        metadata {
+          tokenMints
+        }
+      }
+      pageInfo {
+        nextCursor
       }
     }
   }
