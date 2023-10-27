@@ -97,6 +97,7 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
       name
     }
     domains {
+      isPrimary
       name
     }
     socials(input: {limit: 200}) {

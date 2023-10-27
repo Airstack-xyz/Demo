@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { UserInfo } from './UserInfo';
 import classNames from 'classnames';
 import { Header } from './Header';
@@ -12,6 +12,7 @@ import { useIdentity } from './hooks/useIdentity';
 import { createSearchParams, useNavigate } from 'react-router-dom';
 import { usePaginatedData } from './hooks/usePaginatedData';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { OnchainGraphCache, clearCache, getCache, setCache } from './cache';
 
 function ItemsLoader() {
   const loaderItems = Array(6).fill(0);
@@ -19,7 +20,8 @@ function ItemsLoader() {
     <>
       {loaderItems.map((_, index) => (
         <div className="skeleton-loader" data-loader-type="block">
-          <UserInfo key={index} />
+          {/* eslint-disable-next-line */}
+          <UserInfo key={index} identities={{} as any} />
         </div>
       ))}
     </>
@@ -31,16 +33,43 @@ export function OnChainGraphComponent() {
   const navigate = useNavigate();
   const [recommendations, totalItems, isLastPage, getNextPage] =
     usePaginatedData();
-  const { totalScannedDocuments, setData, sortDataUsingScore } =
-    useOnchainGraphContext();
+  const {
+    data,
+    scanIncomplete,
+    displayIdentities,
+    totalScannedDocuments,
+    setData,
+    sortDataUsingScore
+  } = useOnchainGraphContext();
   const [showGridView, setShowGridView] = useState(() => !isMobileDevice());
-  const [loading, setLoading] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
   const [startScan, scanning, cancelScan] = useGetOnChainData(identity);
+  const dataToCachedRef = useRef<OnchainGraphCache>({
+    cacheFor: identity,
+    data,
+    hasCompleteData: scanIncomplete ? false : !scanning,
+    totalScannedDocuments
+  });
+
+  dataToCachedRef.current.cacheFor = identity;
+  dataToCachedRef.current.data = data;
+  dataToCachedRef.current.hasCompleteData = scanIncomplete ? false : !scanning;
+  dataToCachedRef.current.totalScannedDocuments = totalScannedDocuments;
+
+  useEffect(
+    () => () => {
+      setCache({ ...dataToCachedRef.current });
+    },
+    [identity]
+  );
 
   useEffect(() => {
-    if (identity) {
+    const data = getCache().data || [];
+    if (identity && data?.length === 0) {
       startScan();
-      setLoading(true);
+      setShowLoader(true);
+    } else if (data?.length > 0) {
+      setShowLoader(true);
     }
   }, [identity, startScan]);
 
@@ -103,7 +132,7 @@ export function OnChainGraphComponent() {
             <UserInfo
               user={user}
               key={`${index}_${user.addresses?.[0] || user.domains?.[0]}`}
-              identity={identity}
+              identities={displayIdentities}
               showDetails={!showGridView}
               loading={scanning}
               onClick={handleUserClick}
@@ -112,22 +141,25 @@ export function OnChainGraphComponent() {
           {scanning && <ItemsLoader />}
         </InfiniteScroll>
       </div>
-      {loading && (
+      {showLoader && (
         <Loader
           total={totalScannedDocuments}
           matching={totalItems}
           scanCompleted={!scanning}
           onSortByScore={() => {
             setData(recommendations => [...recommendations]);
-            setLoading(false);
+            setShowLoader(false);
           }}
           onCloseLoader={() => {
-            setLoading(false);
+            setShowLoader(false);
           }}
           onCancelScan={() => {
             cancelScan();
           }}
-          onRestartScan={startScan}
+          onRestartScan={() => {
+            startScan();
+            clearCache();
+          }}
         />
       )}
     </div>
