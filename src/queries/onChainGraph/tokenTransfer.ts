@@ -29,7 +29,7 @@ export const tokenSentQuery = `query TokenSent($user: Identity!) {
       }
     }
     Polygon: TokenTransfers(
-      input: {filter: {from: {_eq: $user}}, blockchain: ethereum, limit: ${QUERY_LIMIT}}
+      input: {filter: {from: {_eq: $user}}, blockchain: polygon, limit: ${QUERY_LIMIT}}
     ) {
       TokenTransfer {
         account: to {
