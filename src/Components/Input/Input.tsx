@@ -176,6 +176,9 @@ export function InputWithMention({
       isSuggestionClickedRef.current = false;
 
       if (showAdvancedSearch && id === ADVANCED_SEARCH_OPTION_ID) {
+        // allow submit on enter for advanced search
+        allowSubmitRef.current = true;
+
         const inputValue = inputRef.current?.value || '';
         const endIndex = inputRef.current?.selectionStart ?? -1;
         let startIndex = endIndex;
