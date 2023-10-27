@@ -73,7 +73,7 @@ export function useFetchTokens() {
       setData([]);
       setTokens({ tokens: [] });
 
-      const promises: FetchQueryReturnType[] = [];
+      const promises: FetchQueryReturnType<unknown>[] = [];
       tokenAddress.forEach(tokenAddress => {
         const isPoap = !tokenAddress.startsWith('0x');
         const variables = isPoap ? { eventId: tokenAddress } : { tokenAddress };

@@ -43,7 +43,22 @@ export type IconType =
   | 'folder'
   | 'folder-gray'
   | 'check-mark-circle'
-  | 'refresh-blue';
+  | 'refresh-blue'
+  | 'grid-view'
+  | 'list-view'
+  | 'bullseye'
+  | 'xmtp-grey'
+  | 'ens-grey'
+  | 'farcaster-grey'
+  | 'lens-grey'
+  | 'nft-common'
+  | 'token-sent'
+  | 'poap-common'
+  | 'farcaster'
+  | 'lens'
+  | 'community'
+  | 'info-circle'
+  | 'overview';
 
 export type IconProps = {
   name: IconType;
