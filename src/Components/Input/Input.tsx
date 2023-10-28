@@ -16,29 +16,42 @@ import {
   ID_REGEX,
   REGEX_LAST_WORD_STARTS_WITH_AT,
   debouncePromise,
-  MentionType,
-  fetchMentionOptions,
-  getNameFromMarkup,
-  SearchAIMentions_SearchAIMentions_results
+  fetchAIMentions,
+  getNameFromMarkup
 } from './utils';
 import { AddressInput } from './AddressInput';
-import { ADDRESS_OPTION_ID, MENTION_COUNT, POAP_OPTION_ID } from './constants';
+import {
+  ADDRESS_OPTION_ID,
+  ADVANCED_SEARCH_OPTION_ID,
+  MENTION_COUNT,
+  MENTION_MARKUP,
+  MENTION_REGEX,
+  POAP_OPTION_ID
+} from './constants';
 import { Icon } from '../Icon';
 import { capitalizeFirstLetter, pluralize } from '../../utils';
+import {
+  MentionType,
+  SearchAIMentionsResponse,
+  SearchAIMentionsResults
+} from './types';
 
-type Option = SearchAIMentions_SearchAIMentions_results & {
+type Option = SearchAIMentionsResults & {
   id: string;
   display: string;
 };
 
 type AIInputProps = {
+  value: string;
   disabled?: boolean;
+  placeholder: string;
+  disableSuggestions?: boolean;
   onChange: (value: string) => void;
   onSubmit: (value: string) => void;
-  defaultValue?: string;
-  placeholder: string;
-  value: string;
-  disableSuggestions?: boolean;
+  showAdvancedSearch?: (
+    mentionStartIndex: number,
+    mentionEndIndex: number
+  ) => void;
 };
 
 const mentionTypeMap: Record<MentionType, string> = {
@@ -48,13 +61,17 @@ const mentionTypeMap: Record<MentionType, string> = {
   [MentionType.POAP]: 'POAP'
 };
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+const noop = () => {};
+
 export function InputWithMention({
-  disabled,
-  onChange,
   value,
-  onSubmit,
+  disabled,
   placeholder,
-  disableSuggestions
+  disableSuggestions,
+  onChange,
+  onSubmit,
+  showAdvancedSearch
 }: AIInputProps) {
   const [showInputFor, setShowInputFor] = useState<
     'ID_ADDRESS' | 'ID_POAP' | null
@@ -71,13 +88,11 @@ export function InputWithMention({
   const isSuggestionClickedRef = useRef(false);
   const [loading, setLoading] = useState(false);
 
-  // const [getMentions, { loading }] = useLazyQuery(MentionsQuery);
-
-  // const placeholder = useAnimateInputPlaceholder(inputRef.current);
-
   const getMentions = useCallback(async (query: string) => {
     setLoading(true);
-    const res = await fetchMentionOptions(query, MENTION_COUNT);
+    const res = await fetchAIMentions<SearchAIMentionsResponse>({
+      input: { searchTerm: query, limit: MENTION_COUNT }
+    });
     setLoading(false);
     return res;
   }, []);
@@ -143,62 +158,76 @@ export function InputWithMention({
     (_: React.FocusEvent<HTMLInputElement>, clickedSuggestion: boolean) => {
       if (clickedSuggestion) {
         isSuggestionClickedRef.current = true;
-        // remove @ from input value so that it doesn't trigger search again
-        const inputValue = inputRef.current?.value || '';
-        const lastChar = inputValue.slice(-1);
-        if (inputRef.current && lastChar === '@') {
-          inputRef.current.value = inputValue.slice(0, -1);
-        }
       }
     },
     []
   );
 
-  const onAddSuggestion = useCallback((id: string) => {
-    // allow submission only if suggestion is clicked
-    if (isSuggestionClickedRef.current) {
-      allowSubmitRef.current = true;
-    } else {
-      allowSubmitRef.current = false;
-    }
-
-    // reset value for next iteration
-    isSuggestionClickedRef.current = false;
-
-    if (id === ADDRESS_OPTION_ID || id === POAP_OPTION_ID) {
-      const overlay = document.getElementById(
-        'suggestions-overlay'
-      ) as HTMLElement;
-
-      const top = overlay.style.top
-        ? `${parseInt(overlay.style.top, 10)}px`
-        : 'auto';
-      let left = overlay.style.left
-        ? `${parseInt(overlay.style.left, 10)}px`
-        : 'auto';
-      const right = overlay.style.right
-        ? `${parseInt(overlay.style.right, 10)}px`
-        : 'auto';
-
-      if (left !== 'auto' && inputRef.current) {
-        const maxLeft = 290 + parseInt(left, 10);
-        const isGoingPastInputBorder = inputRef.current.offsetWidth < maxLeft;
-        left = isGoingPastInputBorder
-          ? `${inputRef.current.offsetWidth - 290}px`
-          : left;
+  const onAddSuggestion = useCallback(
+    (id: string) => {
+      // allow submission only if suggestion is clicked
+      if (isSuggestionClickedRef.current) {
+        allowSubmitRef.current = true;
+      } else {
+        allowSubmitRef.current = false;
       }
-      setInputPosition({
-        top: top,
-        left: left,
-        right: right
-      });
-      setShowInputFor(id);
-      lastPositionOfCaretRef.current = inputRef.current?.selectionStart || 0;
 
-      return false; // don't add the mention to input
-    }
-    return true; // add the mention
-  }, []);
+      // reset value for next iteration
+      isSuggestionClickedRef.current = false;
+
+      if (showAdvancedSearch && id === ADVANCED_SEARCH_OPTION_ID) {
+        // allow submit on enter for advanced search
+        allowSubmitRef.current = true;
+
+        const inputValue = inputRef.current?.value || '';
+        const endIndex = inputRef.current?.selectionStart ?? -1;
+        let startIndex = endIndex;
+
+        // find start index of query
+        while (inputValue[startIndex] !== '@' && startIndex > 0) {
+          startIndex--;
+        }
+
+        showAdvancedSearch(startIndex, endIndex);
+        return false;
+      }
+
+      if (id === ADDRESS_OPTION_ID || id === POAP_OPTION_ID) {
+        const overlay = document.getElementById(
+          'suggestions-overlay'
+        ) as HTMLElement;
+
+        const top = overlay.style.top
+          ? `${parseInt(overlay.style.top, 10)}px`
+          : 'auto';
+        let left = overlay.style.left
+          ? `${parseInt(overlay.style.left, 10)}px`
+          : 'auto';
+        const right = overlay.style.right
+          ? `${parseInt(overlay.style.right, 10)}px`
+          : 'auto';
+
+        if (left !== 'auto' && inputRef.current) {
+          const maxLeft = 290 + parseInt(left, 10);
+          const isGoingPastInputBorder = inputRef.current.offsetWidth < maxLeft;
+          left = isGoingPastInputBorder
+            ? `${inputRef.current.offsetWidth - 290}px`
+            : left;
+        }
+        setInputPosition({
+          top: top,
+          left: left,
+          right: right
+        });
+        setShowInputFor(id);
+        lastPositionOfCaretRef.current = inputRef.current?.selectionStart || 0;
+
+        return false; // don't add the mention to input
+      }
+      return true; // add the mention
+    },
+    [showAdvancedSearch]
+  );
 
   const handleCloseAddressInput = useCallback(
     (address: string) => {
@@ -247,20 +276,17 @@ export function InputWithMention({
     },
     [handleUserInput, showInputFor, value]
   );
+
   const fetchMentions = useCallback(
     async (query: string): Promise<Option[]> => {
-      const [response] = await getMentions(query);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const data = response as any;
+      const [data] = await getMentions(query);
       if (data?.SearchAIMentions?.results) {
-        return data.SearchAIMentions.results.map(
-          (mention: SearchAIMentions_SearchAIMentions_results) => ({
-            id: generateId(mention),
-            display: mention.name,
-            ...mention,
-            blockchain: capitalizeFirstLetter(mention.blockchain || '')
-          })
-        );
+        return data.SearchAIMentions.results.map(mention => ({
+          ...mention,
+          id: generateId(mention),
+          display: mention.name,
+          blockchain: capitalizeFirstLetter(mention.blockchain || '')
+        }));
       }
 
       return [];
@@ -274,18 +300,78 @@ export function InputWithMention({
   );
 
   const getData = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (query: string, callback: any) => {
+    async (query: string, callback: (data: unknown) => void) => {
+      // Prevent debouncedFetch from invoking after selecting suggestion
+      // It solves the issue of the dropdown skeleton appearing for 2 seconds again
+      if (isSuggestionClickedRef.current) {
+        return;
+      }
       const data = await debouncedFetch(query);
-      const dataWithAddressOption = [
-        ...(data || []),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const dataWithExtraOptions: any[] = data || [];
+      if (showAdvancedSearch) {
+        dataWithExtraOptions.push({ id: ADVANCED_SEARCH_OPTION_ID });
+      }
+      dataWithExtraOptions.push(
         { id: ADDRESS_OPTION_ID },
         { id: POAP_OPTION_ID }
-      ];
-      callback(dataWithAddressOption);
+      );
+      callback(dataWithExtraOptions);
     },
-    [debouncedFetch]
+    [debouncedFetch, showAdvancedSearch]
   );
+
+  const renderSuggestion = (suggestion: Option) => {
+    if (suggestion.id === ADVANCED_SEARCH_OPTION_ID) {
+      return (
+        <div className="addressOption">
+          <Icon name="filter" /> Advanced search
+        </div>
+      );
+    }
+
+    if (suggestion.id === ADDRESS_OPTION_ID) {
+      return (
+        <div className="addressOption">
+          <Icon name="input-tokens" /> Enter token contract address
+        </div>
+      );
+    }
+
+    if (suggestion.id === POAP_OPTION_ID) {
+      return (
+        <div className="addressOption">
+          <Icon name="input-poap" /> Enter a POAP event ID
+        </div>
+      );
+    }
+
+    const tokenMints = suggestion?.metadata?.tokenMints;
+    const showPOAPHolderCount =
+      suggestion.type === MentionType.POAP && Number.isInteger(tokenMints);
+
+    return (
+      <div className="suggestion">
+        <img src={suggestion.thumbnailURL || ''} alt={suggestion.display} />
+        <span className="text">
+          <p className="text-left">
+            {suggestion.display}
+            <span className="type">
+              {suggestion.blockchain}
+              <span>•</span>
+              {mentionTypeMap[suggestion.type as MentionType] || ''}
+              {showPOAPHolderCount && (
+                <>
+                  <span>•</span>
+                  {pluralize(tokenMints, 'holder')}
+                </>
+              )}
+            </span>
+          </p>
+        </span>
+      </div>
+    );
+  };
 
   return (
     <div className="wrapper w-full sm:w-auto sm:p-auto h-full">
@@ -319,70 +405,15 @@ export function InputWithMention({
         }
       >
         <Mention
-          markup="#⎱__display__⎱(__id__)"
-          // this also matches a display text which has ] and [ brackets in it
-          regex={/#⎱([^⎱]+)⎱\(([^)]+?)\)/}
+          markup={MENTION_MARKUP}
+          regex={MENTION_REGEX}
           trigger="@"
           appendSpaceOnAdd
           onAdd={onAddSuggestion}
           className="mention"
           isLoading={loading}
-          renderSuggestion={
-            disableSuggestions
-              ? null
-              : (suggestion: Option) => {
-                  if (suggestion.id === ADDRESS_OPTION_ID) {
-                    return (
-                      <div className="addressOption">
-                        <Icon name="input-tokens" /> Enter token contract
-                        address
-                      </div>
-                    );
-                  }
-
-                  if (suggestion.id === POAP_OPTION_ID) {
-                    return (
-                      <div className="addressOption">
-                        <Icon name="input-poap" /> Enter a POAP event ID
-                      </div>
-                    );
-                  }
-
-                  const tokenMints = suggestion?.metadata?.tokenMints;
-                  const showPOAPHolderCount =
-                    suggestion.type === MentionType.POAP &&
-                    Number.isInteger(tokenMints);
-
-                  return (
-                    <div className="suggestion">
-                      <img
-                        src={suggestion.thumbnailURL || ''}
-                        alt={suggestion.display}
-                      />
-                      <span className="text">
-                        <p className="text-left">
-                          {suggestion.display}
-                          <span className="type">
-                            {suggestion.blockchain}
-                            <span>•</span>
-                            {mentionTypeMap[suggestion.type as MentionType] ||
-                              ''}
-                            {showPOAPHolderCount && (
-                              <>
-                                <span>•</span>
-                                {pluralize(tokenMints, 'holder')}
-                              </>
-                            )}
-                          </span>
-                        </p>
-                      </span>
-                    </div>
-                  );
-                }
-          }
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore-next-line
-          data={disableSuggestions ? null : getData}
+          renderSuggestion={disableSuggestions ? null : renderSuggestion}
+          data={disableSuggestions ? noop : getData}
         />
       </MentionsInput>
     </div>

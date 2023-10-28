@@ -12,11 +12,17 @@ import { useLazyQuery } from '@airstack/airstack-react';
 import { SocialQuery } from '../../../queries';
 import { useIdentity } from '../hooks/useIdentity';
 import { ScoreMap } from '../constants';
+import { clearCache, getCache } from '../cache';
 
 type OnchainGraphContextType = {
   data: RecommendedUser[];
   totalScannedDocuments: number;
   scanIncomplete: boolean;
+  displayIdentities: {
+    lensUsername: string;
+    farcasterUsername: string;
+    ens: string;
+  };
   setTotalScannedDocuments: React.Dispatch<React.SetStateAction<number>>;
   setData: (cb: (data: RecommendedUser[]) => RecommendedUser[]) => void;
   setScanIncomplete: React.Dispatch<React.SetStateAction<boolean>>;
@@ -32,6 +38,17 @@ export interface SocialData {
     };
     domains: {
       name: string;
+      isPrimary: string;
+    }[];
+    socials?: {
+      isDefault: boolean;
+      dappName: string;
+      dappSlug: string;
+      blockchain: string;
+      profileName: string;
+      profileTokenId: string;
+      followerCount: number;
+      followingCount: number;
     }[];
   };
 }
@@ -40,18 +57,87 @@ export interface SocialData {
 export const onChainGraphContext =
   createContext<OnchainGraphContextType | null>(null);
 
+function getIdentitiesFromSocial(data: SocialData) {
+  let lensUsername = '';
+  let farcasterUsername = '';
+  const user = data?.Wallet;
+
+  if (!user) {
+    return null;
+  }
+
+  user.socials?.forEach(social => {
+    if (social.dappName === 'lens') {
+      lensUsername = social.profileName;
+    }
+    if (social.dappName === 'farcaster') {
+      farcasterUsername = social.profileName;
+    }
+  });
+
+  let ens = user?.primaryDomain?.name || '';
+
+  if (ens) {
+    user.domains?.forEach(({ name, isPrimary }) => {
+      if (isPrimary) {
+        ens = name;
+      }
+      if (!ens) {
+        ens = name;
+      }
+    });
+  }
+  return {
+    lensUsername,
+    farcasterUsername,
+    ens
+  };
+}
+
 export function OnchainGraphContextProvider({
   children
 }: {
   children: React.ReactNode;
 }) {
-  const recommendationsRef = useRef<RecommendedUser[]>([]);
   const identity = useIdentity();
-  const [fetchData, { data: userSocial }] =
-    useLazyQuery<SocialData>(SocialQuery);
-  const [data, _setData] = useState<RecommendedUser[]>([]);
+  const _cache = getCache();
+
+  // delete cache if identity has changed
+  // do it outside of Effect to avoid the cache getting updated with the new identity from the children
+  if (identity !== _cache.cacheFor) {
+    clearCache();
+  }
+
+  const cache = useMemo(() => {
+    return getCache();
+  }, []);
+
+  const recommendationsRef = useRef<RecommendedUser[]>(cache.data || []);
+  const [displayIdentities, setDisplayIdentities] = useState({
+    lensUsername: '',
+    farcasterUsername: '',
+    ens: ''
+  });
+  const [fetchData, { data: userSocial }] = useLazyQuery<SocialData>(
+    SocialQuery,
+    {},
+    {
+      onCompleted(data) {
+        const identities = getIdentitiesFromSocial(data);
+        if (!identities) {
+          return;
+        }
+        setDisplayIdentities(identities);
+      }
+    }
+  );
+
+  const _scanIncomplete =
+    (cache.data || []).length > 0 && !cache.hasCompleteData;
+
+  const [data, _setData] = useState<RecommendedUser[]>(cache.data || []);
   const userIdentitiesRef = useRef<string[]>([]);
-  const [scanIncomplete, setScanIncomplete] = useState(false);
+  const [scanIncomplete, setScanIncomplete] = useState(_scanIncomplete);
 
   useEffect(() => {
     if (identity.length > 0) {
@@ -67,7 +153,9 @@ export function OnchainGraphContextProvider({
     userIdentitiesRef.current = [...address, ...domains];
   }, [userSocial?.Wallet?.addresses, userSocial?.Wallet?.domains]);
 
-  const [totalScannedDocuments, setTotalScannedDocuments] = useState(0);
+  const [totalScannedDocuments, setTotalScannedDocuments] = useState(
+    cache.totalScannedDocuments || 0
+  );
 
   const setData = useCallback(
     async (cb: (data: RecommendedUser[]) => RecommendedUser[]) => {
@@ -104,6 +192,7 @@ export function OnchainGraphContextProvider({
     return {
       data,
       scanIncomplete,
+      displayIdentities,
       totalScannedDocuments,
       setData,
       setScanIncomplete,
@@ -113,6 +202,7 @@ export function OnchainGraphContextProvider({
     };
   }, [
     data,
+    displayIdentities,
     reset,
     scanIncomplete,
     setData,

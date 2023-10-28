@@ -152,7 +152,7 @@ export function Token({
                     tokenId={tokenId}
                     preset="small"
                     containerClassName={classNames(
-                      'token-img w-full [&>img]:w-full [&>img]:min-w-full z-10 rounded-md overflow-hidden',
+                      'token-img w-full [&>img]:w-full [&>img]:min-w-full rounded-md overflow-hidden',
                       {
                         '!w-[32px]': has6551
                       }

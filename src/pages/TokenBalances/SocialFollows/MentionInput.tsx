@@ -2,14 +2,14 @@ import classNames from 'classnames';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Icon } from '../../../Components/Icon';
 import { InputWithMention } from '../../../Components/Input/Input';
-import {
-  MentionValues,
-  getAllWordsAndMentions
-} from '../../../Components/Input/utils';
+import { getAllWordsAndMentions } from '../../../Components/Input/utils';
+import { MentionData } from '../../../Components/Input/types';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
+import AdvancedSearch from '../../../Components/AdvancedSearch';
 
 export type MentionOutput = {
   text: string;
-  mentions: MentionValues[];
+  mentions: MentionData[];
   rawText: string;
 };
 
@@ -23,6 +23,21 @@ type MentionInputProps = {
   onSubmit: (params: MentionOutput) => void;
   onClear?: () => void;
 };
+
+type AdvancedSearchData = {
+  visible: boolean;
+  mentionStartIndex: number;
+  mentionEndIndex: number;
+};
+
+const defaultAdvancedSearchData: AdvancedSearchData = {
+  visible: false,
+  mentionStartIndex: -1,
+  mentionEndIndex: -1
+};
+
+const advancedSearchContainerClass =
+  'before-bg-glass before:rounded-18 rounded-18 border-solid-stroke w-[min(60vw,786px)] absolute top-8';
 
 const padding = '  ';
 
@@ -38,7 +53,12 @@ export function MentionInput({
 }: MentionInputProps) {
   const [value, setValue] = useState('');
 
+  const [advancedSearchData, setAdvancedSearchData] =
+    useState<AdvancedSearchData>(defaultAdvancedSearchData);
+
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
+
+  const isMobile = isMobileDevice();
 
   const inputSectionRef = useRef<HTMLDivElement>(null);
   const buttonSectionRef = useRef<HTMLDivElement>(null);
@@ -71,9 +91,13 @@ export function MentionInput({
   }, []);
 
   const handleInputClear = useCallback(() => {
-    setValue('');
-    onClear?.();
-  }, [onClear]);
+    if (advancedSearchData.visible) {
+      setAdvancedSearchData(prev => ({ ...prev, visible: false }));
+    } else {
+      setValue('');
+      onClear?.();
+    }
+  }, [advancedSearchData.visible, onClear]);
 
   const handleInputSubmit = () => {
     handleSubmit(value);
@@ -84,7 +108,7 @@ export function MentionInput({
 
     const rawInput: string[] = [];
     const words: string[] = [];
-    const mentions: MentionValues[] = [];
+    const mentions: MentionData[] = [];
 
     getAllWordsAndMentions(mentionValue).forEach(
       ({ word, mention, rawValue }) => {
@@ -109,35 +133,72 @@ export function MentionInput({
     setValue(rawText.trim() + padding);
   };
 
+  const showAdvancedSearch = useCallback(
+    (mentionStartIndex: number, mentionEndIndex: number) => {
+      setAdvancedSearchData({
+        visible: true,
+        mentionStartIndex,
+        mentionEndIndex
+      });
+    },
+    []
+  );
+
+  const hideAdvancedSearch = useCallback(() => {
+    setAdvancedSearchData(prev => ({ ...prev, visible: false }));
+  }, []);
+
   return (
-    <div
-      ref={inputSectionRef}
-      className={classNames(
-        'sf-mention-input',
-        { 'cursor-not-allowed': disabled },
-        className
-      )}
-    >
-      <InputWithMention
-        value={value}
-        disabled={disabled}
-        onChange={setValue}
-        onSubmit={handleSubmit}
-        placeholder={placeholder}
-        disableSuggestions={disableSuggestions}
-      />
-      <div ref={buttonSectionRef} className="flex justify-end pl-2">
-        {isInputSectionFocused && value && (
-          <button type="button" onClick={handleInputSubmit}>
-            <Icon name="search" width={16} height={16} />
-          </button>
+    <div id="socialFollowMentionInput" className="relative z-10">
+      <div
+        ref={inputSectionRef}
+        className={classNames(
+          'sf-mention-input',
+          { 'cursor-not-allowed': disabled },
+          className
         )}
-        {!isInputSectionFocused && value && (
-          <button type="button" onClick={handleInputClear}>
-            <Icon name="close" width={14} height={14} />
-          </button>
-        )}
+      >
+        <InputWithMention
+          value={value}
+          disabled={disabled}
+          placeholder={placeholder}
+          disableSuggestions={disableSuggestions || advancedSearchData.visible}
+          onChange={setValue}
+          onSubmit={handleSubmit}
+          showAdvancedSearch={isMobile ? undefined : showAdvancedSearch}
+        />
+        <div ref={buttonSectionRef} className="flex justify-end pl-2">
+          {!!value && (
+            <>
+              {!isInputSectionFocused || advancedSearchData.visible ? (
+                <button type="button" onClick={handleInputClear}>
+                  <Icon name="close" width={14} height={14} />
+                </button>
+              ) : (
+                <button type="button" onClick={handleInputSubmit}>
+                  <Icon name="search" width={14} height={14} />
+                </button>
+              )}
+            </>
+          )}
+        </div>
       </div>
+      {advancedSearchData.visible && (
+        <div className={advancedSearchContainerClass}>
+          <div
+            className="bg-primary/70 z-[-1] inset-0 fixed"
+            onClick={hideAdvancedSearch}
+          />
+          <AdvancedSearch
+            mentionInputSelector="#socialFollowMentionInput #mention-input"
+            mentionStartIndex={advancedSearchData.mentionStartIndex}
+            mentionEndIndex={advancedSearchData.mentionEndIndex}
+            mentionValue={value}
+            onChange={setValue}
+            onClose={hideAdvancedSearch}
+          />
+        </div>
+      )}
     </div>
   );
 }
