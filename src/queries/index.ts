@@ -99,6 +99,11 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
     domains {
       isPrimary
       name
+      tokenNft {
+        tokenId
+        address
+        blockchain
+      }
     }
     socials(input: {limit: 200}) {
       isDefault
