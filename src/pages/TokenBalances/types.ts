@@ -116,9 +116,11 @@ export interface Social {
   dappName: string;
   dappSlug: string;
   profileName: string;
+  profileImage: string;
   profileTokenId: string;
   followerCount: number;
   followingCount: number;
+  profileTokenAddress: string;
 }
 
 export interface Xmtp {
