@@ -187,7 +187,7 @@ export function ScoreOverview() {
       <Score score={score} domains={domains} socials={profiles} />
       <div
         className={classnames(
-          'p-3 sm:p-7 overflow-hidden text-sm flex-1 w-full sm:w-auto mt-6 sm:mt-0',
+          'p-3 sm:p-7 overflow-hidden text-sm flex-1 w-full sm:w-auto mt-2 sm:mt-0',
           {
             'skeleton-loader': loading
           }

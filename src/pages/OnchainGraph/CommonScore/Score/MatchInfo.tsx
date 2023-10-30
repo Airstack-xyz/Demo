@@ -10,7 +10,7 @@ export function MatchInfo() {
       <span className="text-xs text-text-secondary mr-1">on-chain match</span>
       <div className="relative">
         <Icon name="info-circle" height={14} width={14} className="peer" />
-        <div className="bg-tertiary z-10 text-xs absolute w-[270px] leading-loose rounded-18 hidden peer-hover:block hover:block pb-2">
+        <div className="bg-tertiary z-10 text-xs absolute w-[270px] leading-loose rounded-18 hidden peer-hover:block hover:block pb-2 -right-16 sm:right-auto">
           <div className="px-5 py-2 font-bold">
             How’s this score calculated?
           </div>
