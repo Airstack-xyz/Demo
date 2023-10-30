@@ -115,8 +115,8 @@ function FollowInfo({ icon, text, className }: FollowInfoProps) {
         className
       )}
     >
-      <Icon name={icon} className="mr-1" height={16} width={16} />
-      {text}
+      <Icon name={icon} height={16} width={16} />
+      <span className="ml-1 ellipsis">{text}</span>
     </div>
   );
 }

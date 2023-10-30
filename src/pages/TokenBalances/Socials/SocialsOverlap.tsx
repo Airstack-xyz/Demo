@@ -4,6 +4,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { SocialOverlapQuery } from '../../../queries';
+import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
 import { SectionHeader } from '../SectionHeader';
 import {
@@ -29,25 +30,25 @@ const getSocialFollowInfo = (
 ) => {
   const followData: Record<string, FollowCombinationType> = {};
 
-  const [identity1, identity2] = address || [];
+  const [address1, address2] = address || [];
 
   const farcasterSocials1 = wallet1?.farcasterSocials || [];
   const lensSocials1 = wallet1?.lensSocials || [];
-  const user1FollowsUser2OnFarcaster = Boolean(
-    wallet1?.farcasterFollowers?.Follower?.length
-  );
-  const user1FollowsUser2OnLens = Boolean(
-    wallet1?.lensFollowers?.Follower?.length
-  );
+  // const user1FollowsUser2OnFarcaster = Boolean(
+  //   wallet1?.farcasterFollowers?.Follower?.length
+  // );
+  // const user1FollowsUser2OnLens = Boolean(
+  //   wallet1?.lensFollowers?.Follower?.length
+  // );
 
   const farcasterSocials2 = wallet2?.farcasterSocials || [];
   const lensSocials2 = wallet2?.lensSocials || [];
-  const user2FollowsUser1OnFarcaster = Boolean(
-    wallet2?.farcasterFollowers?.Follower?.length
-  );
-  const user2FollowsUser1OnLens = Boolean(
-    wallet2?.lensFollowers?.Follower?.length
-  );
+  // const user2FollowsUser1OnFarcaster = Boolean(
+  //   wallet2?.farcasterFollowers?.Follower?.length
+  // );
+  // const user2FollowsUser1OnLens = Boolean(
+  //   wallet2?.lensFollowers?.Follower?.length
+  // );
 
   // For farcaster:
   if (farcasterSocials1.length > 0 && farcasterSocials2.length > 0) {
@@ -58,27 +59,34 @@ const getSocialFollowInfo = (
       sections: []
     };
     // for farcaster follower info
-    if (user1FollowsUser2OnFarcaster || user2FollowsUser1OnFarcaster) {
-      if (user1FollowsUser2OnFarcaster && user2FollowsUser1OnFarcaster) {
-        followData.farcaster.followInfo = {
-          icon: 'mutual-follow',
-          text: 'Mutual follow'
-        };
-      } else if (user1FollowsUser2OnFarcaster) {
-        followData.farcaster.followInfo = {
-          icon: 'follow-purple',
-          text: `${identity1} follows ${identity2}`
-        };
-      } else if (user2FollowsUser1OnFarcaster) {
-        followData.farcaster.followInfo = {
-          icon: 'follow-purple',
-          text: `${identity2} follows ${identity1}`
-        };
-      }
-    }
+    // if (user1FollowsUser2OnFarcaster || user2FollowsUser1OnFarcaster) {
+    //   const identity1 = address1?.startsWith('0x')
+    //     ? farcasterSocials1[0].profileName
+    //     : address1;
+    //   const identity2 = address2?.startsWith('0x')
+    //     ? farcasterSocials2[0].profileName
+    //     : address2;
+
+    //   if (user1FollowsUser2OnFarcaster && user2FollowsUser1OnFarcaster) {
+    //     followData.farcaster.followInfo = {
+    //       icon: 'mutual-follow',
+    //       text: 'Mutual follow'
+    //     };
+    //   } else if (user1FollowsUser2OnFarcaster) {
+    //     followData.farcaster.followInfo = {
+    //       icon: 'follow-purple',
+    //       text: `${identity1} follows ${identity2}`
+    //     };
+    //   } else if (user2FollowsUser1OnFarcaster) {
+    //     followData.farcaster.followInfo = {
+    //       icon: 'follow-purple',
+    //       text: `${identity2} follows ${identity1}`
+    //     };
+    //   }
+    // }
     // for farcaster socials for identity1
     followData.farcaster.sections.push({
-      name: identity1,
+      name: address1,
       values: farcasterSocials1.map(item => ({
         profileName1: item.profileName,
         profileTokenId1: item.profileTokenId,
@@ -88,7 +96,7 @@ const getSocialFollowInfo = (
     });
     // for farcaster socials for identity2
     followData.farcaster.sections.push({
-      name: identity2,
+      name: address2,
       values: farcasterSocials2.map(item => ({
         profileName1: item.profileName,
         profileTokenId1: item.profileTokenId,
@@ -107,27 +115,34 @@ const getSocialFollowInfo = (
       sections: []
     };
     // for lens follower info
-    if (user1FollowsUser2OnLens || user2FollowsUser1OnLens) {
-      if (user1FollowsUser2OnLens && user2FollowsUser1OnLens) {
-        followData.lens.followInfo = {
-          icon: 'mutual-follow',
-          text: 'Mutual follow'
-        };
-      } else if (user1FollowsUser2OnLens) {
-        followData.lens.followInfo = {
-          icon: 'follow-purple',
-          text: `${identity1} follows ${identity2}`
-        };
-      } else if (user2FollowsUser1OnLens) {
-        followData.lens.followInfo = {
-          icon: 'follow-purple',
-          text: `${identity2} follows ${identity1}`
-        };
-      }
-    }
+    // if (user1FollowsUser2OnLens || user2FollowsUser1OnLens) {
+    //   const identity1 = address1?.startsWith('0x')
+    //     ? lensSocials1[0].profileName
+    //     : address1;
+    //   const identity2 = address2?.startsWith('0x')
+    //     ? lensSocials2[0].profileName
+    //     : address2;
+
+    //   if (user1FollowsUser2OnLens && user2FollowsUser1OnLens) {
+    //     followData.lens.followInfo = {
+    //       icon: 'mutual-follow',
+    //       text: 'Mutual follow'
+    //     };
+    //   } else if (user1FollowsUser2OnLens) {
+    //     followData.lens.followInfo = {
+    //       icon: 'follow-purple',
+    //       text: `${identity1} follows ${identity2}`
+    //     };
+    //   } else if (user2FollowsUser1OnLens) {
+    //     followData.lens.followInfo = {
+    //       icon: 'follow-purple',
+    //       text: `${identity2} follows ${identity1}`
+    //     };
+    //   }
+    // }
     // for farcaster socials for identity1
     followData.lens.sections.push({
-      name: identity1,
+      name: address1,
       values: lensSocials1.map(item => ({
         profileName1: item.profileName,
         profileTokenId1: item.profileTokenId,
@@ -137,7 +152,7 @@ const getSocialFollowInfo = (
     });
     // for farcaster socials for identity2
     followData.lens.sections.push({
-      name: identity2,
+      name: address2,
       values: lensSocials2.map(item => ({
         profileName1: item.profileName,
         profileTokenId1: item.profileTokenId,
@@ -220,22 +235,25 @@ function SocialsOverlapComponent() {
   );
 
   const handleFollowValue = useCallback(
-    ({ dappName, profileName1 }: FollowCombinationParams) => {
-      handleAddressValue(profileName1, dappName);
-      // TODO: Uncomment for social-follow v3
-      // setData(
-      //   {
-      //     activeSocialInfo: getActiveSocialInfoString({
-      //       profileNames: [profileName1, profileName2],
-      //       profileTokenIds: [profileTokenId1, profileTokenId2],
-      //       dappName,
-      //       followerTab
-      //     })
-      //   },
-      //   { updateQueryParams: true }
-      // );
+    ({
+      dappName,
+      profileName1,
+      profileTokenId1,
+      followerTab
+    }: FollowCombinationParams) => {
+      setData(
+        {
+          activeSocialInfo: getActiveSocialInfoString({
+            profileNames: [profileName1],
+            profileTokenIds: [profileTokenId1],
+            dappName,
+            followerTab
+          })
+        },
+        { updateQueryParams: true }
+      );
     },
-    [handleAddressValue]
+    [setData]
   );
 
   const handleAddressClick = useCallback(
@@ -313,7 +331,7 @@ function SocialsOverlapComponent() {
         <div
           data-loader-type="block"
           data-loader-height="auto"
-          className="h-full p-5 flex-1"
+          className="h-full py-5 pl-5 pr-2.5 flex-1"
         >
           {primaryEnsSections.length > 0 && (
             <SocialCombination
@@ -326,7 +344,7 @@ function SocialsOverlapComponent() {
           )}
           {ensSections.length > 0 && (
             <SocialCombination
-              name="both have more ENS names"
+              name="both have ENS names"
               type="ens"
               sections={ensSections}
               image={iconMap['ens']}
