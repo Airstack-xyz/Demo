@@ -28,7 +28,7 @@ export function Score({
           >
             <Profile social={socials[0]} domain={domains[0]} />
           </Link>
-          <div className="mt-2.5 text-xs font-medium w-24 ellipsis">
+          <div className="mt-2.5 text-xs sm:text-sm font-medium w-24 ellipsis">
             {domains[0]?.name}
           </div>
         </div>
@@ -47,7 +47,7 @@ export function Score({
           >
             <Profile social={socials[1]} domain={domains[1]} />
           </Link>
-          <div className="mt-2.5 text-xs font-medium w-24 ellipsis">
+          <div className="mt-2.5 text-xs sm:text-sm font-medium w-24 ellipsis">
             {domains[1]?.name}
           </div>
         </div>
