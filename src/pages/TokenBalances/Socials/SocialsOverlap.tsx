@@ -90,6 +90,9 @@ const getSocialFollowInfo = (
       values: farcasterSocials1.map(item => ({
         profileName1: item.profileName,
         profileTokenId1: item.profileTokenId,
+        // TODO: Remove count for social-follow-v3
+        followerCount: item.followerCount,
+        followingCount: item.followingCount,
         profileName2: farcasterSocials2[0].profileName,
         profileTokenId2: farcasterSocials2[0].profileTokenId
       }))
@@ -100,6 +103,9 @@ const getSocialFollowInfo = (
       values: farcasterSocials2.map(item => ({
         profileName1: item.profileName,
         profileTokenId1: item.profileTokenId,
+        // TODO: Remove count for social-follow-v3
+        followerCount: item.followerCount,
+        followingCount: item.followingCount,
         profileName2: farcasterSocials1[0].profileName,
         profileTokenId2: farcasterSocials1[0].profileTokenId
       }))
@@ -114,6 +120,15 @@ const getSocialFollowInfo = (
       dappName: 'lens',
       sections: []
     };
+    // find default lens profiles based on:
+    const defaultProfile1 =
+      lensSocials1.find(item => item.isDefault) ||
+      lensSocials1.find(item => item.followingCount > 0) ||
+      lensSocials1[0];
+    const defaultProfile2 =
+      lensSocials2.find(item => item.isDefault) ||
+      lensSocials2.find(item => item.followingCount > 0) ||
+      lensSocials2[0];
     // for lens follower info
     // if (user1FollowsUser2OnLens || user2FollowsUser1OnLens) {
     //   const identity1 = address1?.startsWith('0x')
@@ -146,6 +161,9 @@ const getSocialFollowInfo = (
       values: lensSocials1.map(item => ({
         profileName1: item.profileName,
         profileTokenId1: item.profileTokenId,
+        // TODO: Remove count for social-follow-v3
+        followerCount: item.followerCount,
+        followingCount: defaultProfile1.followingCount,
         profileName2: lensSocials2[0].profileName,
         profileTokenId2: lensSocials2[0].profileTokenId
       }))
@@ -156,6 +174,9 @@ const getSocialFollowInfo = (
       values: lensSocials2.map(item => ({
         profileName1: item.profileName,
         profileTokenId1: item.profileTokenId,
+        // TODO: Remove count for social-follow-v3
+        followerCount: item.followerCount,
+        followingCount: defaultProfile2.followingCount,
         profileName2: lensSocials1[0].profileName,
         profileTokenId2: lensSocials1[0].profileTokenId
       }))
@@ -239,6 +260,8 @@ function SocialsOverlapComponent() {
       dappName,
       profileName1,
       profileTokenId1,
+      followerCount,
+      followingCount,
       followerTab
     }: FollowCombinationParams) => {
       setData(
@@ -247,6 +270,8 @@ function SocialsOverlapComponent() {
             profileNames: [profileName1],
             profileTokenIds: [profileTokenId1],
             dappName,
+            followerCount,
+            followingCount,
             followerTab
           })
         },

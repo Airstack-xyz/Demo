@@ -8,6 +8,8 @@ export type FollowCombinationParams = {
   profileTokenId1: string;
   profileName2: string;
   profileTokenId2: string;
+  followerCount?: number;
+  followingCount?: number;
   followerTab?: boolean;
 };
 
@@ -18,6 +20,8 @@ export type FollowCombinationSectionType = {
     profileTokenId1: string;
     profileName2: string;
     profileTokenId2: string;
+    followerCount?: number;
+    followingCount?: number;
   }[];
 };
 
