@@ -8,6 +8,11 @@ export const mutualFollower = `query Followings($user: Identity!) {
           domains {
             name
             isPrimary
+            tokenNft {
+              tokenId
+              address
+              blockchain
+            }
           }
           mutualFollower: socialFollowers(
             input: {filter: {identity: {_eq: $user}, dappName: {_eq: farcaster}}}
@@ -32,6 +37,11 @@ export const mutualFollower = `query Followings($user: Identity!) {
           domains {
             name
             isPrimary
+            tokenNft {
+              tokenId
+              address
+              blockchain
+            }
           }
           mutualFollower: socialFollowers(
             input: {filter: {identity: {_eq: $user}, dappName: {_eq: lens}}}

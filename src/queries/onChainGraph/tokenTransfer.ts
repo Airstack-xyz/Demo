@@ -9,10 +9,20 @@ export const tokenSentQuery = `query TokenSent($user: Identity!) {
           addresses
           primaryDomain {
             name
+            tokenNft {
+              tokenId
+              address
+              blockchain
+            }
           }
           domains {
             name
             isPrimary
+            tokenNft {
+              tokenId
+              address
+              blockchain
+            }
           }
           socials {
             dappName
@@ -36,10 +46,20 @@ export const tokenSentQuery = `query TokenSent($user: Identity!) {
           addresses
           primaryDomain {
             name
+            tokenNft {
+              tokenId
+              address
+              blockchain
+            }
           }
           domains {
             name
             isPrimary
+            tokenNft {
+              tokenId
+              address
+              blockchain
+            }
           }
           socials {
             dappName
@@ -66,10 +86,20 @@ export const tokenReceivedQuery = `query TokenReceived($user: Identity!) {
           addresses
           primaryDomain {
             name
+            tokenNft {
+              tokenId
+              address
+              blockchain
+            }
           }
           domains {
             name
             isPrimary
+            tokenNft {
+              tokenId
+              address
+              blockchain
+            }
           }
           socials {
             dappName
@@ -93,10 +123,20 @@ export const tokenReceivedQuery = `query TokenReceived($user: Identity!) {
           addresses
           primaryDomain {
             name
+            tokenNft {
+              tokenId
+              address
+              blockchain
+            }
           }
           domains {
             name
             isPrimary
+            tokenNft {
+              tokenId
+              address
+              blockchain
+            }
           }
           socials {
             dappName

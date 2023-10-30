@@ -99,22 +99,31 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
     domains {
       isPrimary
       name
+      tokenNft {
+        tokenId
+        address
+        blockchain
+      }
     }
     farcasterSocials: socials(input: {filter: {dappName: {_eq: farcaster}}}) {
       isDefault
       blockchain
       profileName
-      profileTokenId
+      profileImage
       followerCount
       followingCount
+      profileTokenId
+      profileTokenAddress
     }
     lensSocials: socials(input: {filter: {dappName: {_eq: lens}}}) {
       isDefault
       blockchain
       profileName
-      profileTokenId
+      profileImage
       followerCount
       followingCount
+      profileTokenId
+      profileTokenAddress
     }
     xmtp {
       isXMTPEnabled
