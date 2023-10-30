@@ -36,7 +36,7 @@ function SocialSection({
       </div>
       <ul className="overflow-hidden">
         {items?.map((value, index) => (
-          <li key={index} className="mb-1 last:mb-0 flex">
+          <li key={index} className="flex">
             <div
               className={classNames('px-3 py-1 rounded-18 ellipsis', {
                 'hover:bg-glass cursor-pointer': typeof value !== 'object'

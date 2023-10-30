@@ -4,7 +4,6 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { SocialOverlapQuery } from '../../../queries';
-import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
 import { SectionHeader } from '../SectionHeader';
 import {
@@ -110,17 +109,17 @@ const getSocialFollowInfo = (
     // for lens follower info
     if (user1FollowsUser2OnLens || user2FollowsUser1OnLens) {
       if (user1FollowsUser2OnLens && user2FollowsUser1OnLens) {
-        followData.farcaster.followInfo = {
+        followData.lens.followInfo = {
           icon: 'mutual-follow',
           text: 'Mutual follow'
         };
       } else if (user1FollowsUser2OnLens) {
-        followData.farcaster.followInfo = {
+        followData.lens.followInfo = {
           icon: 'follow-purple',
           text: `${identity1} follows ${identity2}`
         };
       } else if (user2FollowsUser1OnLens) {
-        followData.farcaster.followInfo = {
+        followData.lens.followInfo = {
           icon: 'follow-purple',
           text: `${identity2} follows ${identity1}`
         };
@@ -194,30 +193,6 @@ function SocialsOverlapComponent() {
     });
   }, []);
 
-  const handleFollowValue = useCallback(
-    ({
-      dappName,
-      profileName1,
-      profileTokenId1,
-      profileName2,
-      profileTokenId2,
-      followerTab
-    }: FollowCombinationParams) => {
-      setData(
-        {
-          activeSocialInfo: getActiveSocialInfoString({
-            profileNames: [profileName1, profileName2],
-            profileTokenIds: [profileTokenId1, profileTokenId2],
-            dappName,
-            followerTab
-          })
-        },
-        { updateQueryParams: true }
-      );
-    },
-    [setData]
-  );
-
   const handleAddressValue = useCallback(
     (value: unknown, type?: string) => {
       if (typeof value !== 'string' || value == '--') return;
@@ -242,6 +217,25 @@ function SocialsOverlapComponent() {
       );
     },
     [setData]
+  );
+
+  const handleFollowValue = useCallback(
+    ({ dappName, profileName1 }: FollowCombinationParams) => {
+      handleAddressValue(profileName1, dappName);
+      // TODO: Uncomment for social-follow v3
+      // setData(
+      //   {
+      //     activeSocialInfo: getActiveSocialInfoString({
+      //       profileNames: [profileName1, profileName2],
+      //       profileTokenIds: [profileTokenId1, profileTokenId2],
+      //       dappName,
+      //       followerTab
+      //     })
+      //   },
+      //   { updateQueryParams: true }
+      // );
+    },
+    [handleAddressValue]
   );
 
   const handleAddressClick = useCallback(

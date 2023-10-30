@@ -195,7 +195,7 @@ export const SocialOverlapQuery = `query GetSocialOverlap($identity1: Identity!,
       isXMTPEnabled
     }
     farcasterFollowers: socialFollowers(
-      input: {filter: {identity: {_eq: $identity2}, dappName: {_eq: farcaster}}, limit: 1}
+      input: {filter: {identity: {_eq: $identity1}, dappName: {_eq: farcaster}}, limit: 1}
     ) {
       Follower {
         id
@@ -203,7 +203,7 @@ export const SocialOverlapQuery = `query GetSocialOverlap($identity1: Identity!,
       }
     }
     lensFollowers: socialFollowers(
-      input: {filter: {identity: {_eq: $identity2}, dappName: {_eq: lens}}, limit: 1}
+      input: {filter: {identity: {_eq: $identity1}, dappName: {_eq: lens}}, limit: 1}
     ) {
       Follower {
         id

@@ -64,7 +64,7 @@ function FollowCombinationSection({
       </div>
       <ul className="overflow-hidden">
         {items?.map((item, index) => (
-          <li key={index} className="mb-1 last:mb-0 flex">
+          <li key={index} className="flex">
             <div
               className="px-3 py-1 rounded-18 ellipsis hover:bg-glass cursor-pointer"
               onClick={() => onFollowClick?.({ dappName, ...item })}
@@ -110,10 +110,13 @@ type FollowInfoProps = {
 function FollowInfo({ icon, text, className }: FollowInfoProps) {
   return (
     <div
-      className={classNames('flex items-center text-text-secondary', className)}
+      className={classNames(
+        'flex items-center font-medium text-text-secondary',
+        className
+      )}
     >
-      <Icon name={icon} height={16} width={16} />
-      <span className="ml-1">{text}</span>
+      <Icon name={icon} className="mr-1" height={16} width={16} />
+      {text}
     </div>
   );
 }
@@ -157,14 +160,14 @@ export function FollowCombination({
           onShowMoreClick={onShowMoreClick}
         />
       ))}
-      <button
+      {/* <button
         onClick={() =>
           onFollowClick?.({ dappName, ...sections?.[0].values?.[0] })
         }
         className="text-text-button font-bold cursor-pointer mt-2 ml-[34px]"
       >
         See overlap {'->'}
-      </button>
+      </button> */}
     </div>
   );
 }
