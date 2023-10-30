@@ -164,14 +164,6 @@ export function FollowCombination({
           onShowMoreClick={onShowMoreClick}
         />
       ))}
-      {/* <button
-        onClick={() =>
-          onFollowClick?.({ dappName, ...sections?.[0].values?.[0] })
-        }
-        className="text-text-button font-bold cursor-pointer mt-2 ml-[34px]"
-      >
-        See overlap {'->'}
-      </button> */}
     </div>
   );
 }
