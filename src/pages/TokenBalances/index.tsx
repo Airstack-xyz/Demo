@@ -10,7 +10,7 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
-import { SocialQuery } from '../../queries';
+import { SocialOverlapQuery, SocialQuery } from '../../queries';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { SortBy, defaultSortOrder } from '../../Components/Filters/SortBy';
 import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
@@ -43,6 +43,7 @@ import {
   getAllActiveTokenInfo
 } from '../../utils/activeTokenInfoString';
 import { AllFilters } from '../../Components/Filters/AllFilters';
+import { SocialsOverlap } from './Socials/SocialsOverlap';
 import { ScoreOverview } from '../OnchainGraph/CommonScore/ScoreOverview';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
@@ -60,9 +61,15 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
 
   return (
     <aside className="w-full min-w-full sm:w-[305px] sm:min-w-[305px] sm:ml-16">
-      {address.length <= 1 && !hideSocials && (
+      {address.length == 1 && !hideSocials && (
         <>
           <Socials />
+          <div className="mt-11"></div>
+        </>
+      )}
+      {address.length == 2 && !hideSocials && (
+        <>
+          <SocialsOverlap />
           <div className="mt-11"></div>
         </>
       )}
@@ -260,16 +267,28 @@ function TokenBalancePage() {
     }
 
     if (!showTokenDetails && !socialInfo.isApplicable) {
-      const socialLink = createAppUrlWithQuery(SocialQuery, {
-        identity: query
-      });
-
       options.push({
         label: 'Token Balances (ERC20)',
         link: erc20Link
       });
 
       if (address.length === 1) {
+        const socialLink = createAppUrlWithQuery(SocialQuery, {
+          identity: address[0]
+        });
+
+        options.push({
+          label: 'Socials, Domains & XMTP',
+          link: socialLink
+        });
+      }
+
+      if (address.length === 2) {
+        const socialLink = createAppUrlWithQuery(SocialOverlapQuery, {
+          identity1: address[0],
+          identity2: address[1]
+        });
+
         options.push({
           label: 'Socials, Domains & XMTP',
           link: socialLink
@@ -404,8 +423,7 @@ function TokenBalancePage() {
     socialInfo.profileTokenIds,
     socialInfo.followingData,
     socialInfo.profileNames,
-    token,
-    query
+    token
   ]);
 
   const { tab1Header, tab2Header } = useMemo(() => {
