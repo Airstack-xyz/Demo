@@ -13,6 +13,7 @@ import {
 } from './dataFetchers';
 import { Score } from './Score';
 import { Domain, Social, Wallet } from '../../TokenBalances/types';
+import { getProfileDataFromSocial } from './Score/utils';
 
 function Loader() {
   return (
@@ -116,39 +117,23 @@ export function ScoreOverview() {
     const domains: [Domain | null, Domain | null] = [null, null];
     const profiles: [Social | null, Social | null] = [null, null];
 
-    function getData(index: number) {
-      let domain = socials[index]?.primaryDomain;
-
-      if (!domain) {
-        socials[index]?.domains?.forEach(_domain => {
-          if (_domain.isPrimary) {
-            domain = _domain;
-          }
-          if (!domain) {
-            domain = _domain;
-          }
-        });
-      }
-      domains[index] = domain || null;
-
-      // prefer input address if it is an ENS domain
-      if (address[index].endsWith('.eth') && domains[index]) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        domains[index]!.name = address[index];
-      }
-
-      const lens = socials[index]?.socials.find(
-        social => social.dappName === 'lens'
+    {
+      const { domain, profile } = getProfileDataFromSocial(
+        socials[0],
+        address[0]
       );
-
-      const farcaster = socials[index]?.socials?.find(
-        social => social.dappName === 'farcaster'
-      );
-      profiles[index] = farcaster?.profileImage ? farcaster : lens || null;
+      domains[0] = domain;
+      profiles[0] = profile;
     }
 
-    getData(0);
-    getData(1);
+    {
+      const { domain, profile } = getProfileDataFromSocial(
+        socials[1],
+        address[1]
+      );
+      domains[1] = domain;
+      profiles[1] = profile;
+    }
 
     return [domains, profiles];
   }, [address, socials]);

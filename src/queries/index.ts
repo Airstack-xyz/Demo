@@ -109,9 +109,11 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
       isDefault
       blockchain
       profileName
-      profileTokenId
+      profileImage
       followerCount
       followingCount
+      profileTokenId
+      profileTokenAddress
     }
     lensSocials: socials(input: {filter: {dappName: {_eq: lens}}}) {
       isDefault
