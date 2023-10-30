@@ -12,7 +12,7 @@ import {
   getDomainName
 } from './dataFetchers';
 import { Score } from './Score';
-import { Social, Wallet } from '../../TokenBalances/types';
+import { Domain, Social, Wallet } from '../../TokenBalances/types';
 
 function Loader() {
   return (
@@ -113,23 +113,34 @@ export function ScoreOverview() {
   }, [address, getSocials]);
 
   const [domains, profiles] = useMemo(() => {
-    const domains = ['', ''];
+    const domains: [Domain | null, Domain | null] = [null, null];
     const profiles: [Social | null, Social | null] = [null, null];
 
     function getData(index: number) {
-      domains[index] =
-        socials[index]?.primaryDomain?.name ||
-        socials[index]?.domains?.[0]?.name ||
-        address[index];
+      let domain = socials[index]?.primaryDomain;
+
+      if (!domain) {
+        socials[index]?.domains?.forEach(_domain => {
+          if (_domain.isPrimary) {
+            domain = _domain;
+          }
+          if (!domain) {
+            domain = _domain;
+          }
+        });
+      }
+      domains[index] = domain || null;
 
       // prefer input address if it is an ENS domain
-      if (address[index].endsWith('.eth')) {
-        domains[index] = address[index];
+      if (address[index].endsWith('.eth') && domains[index]) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        domains[index]!.name = address[index];
       }
 
       const lens = socials[index]?.socials.find(
         social => social.dappName === 'lens'
       );
+
       const farcaster = socials[index]?.socials?.find(
         social => social.dappName === 'farcaster'
       );
