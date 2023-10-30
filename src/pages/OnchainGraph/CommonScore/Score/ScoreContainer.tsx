@@ -73,7 +73,7 @@ export function ScoreContainer({ score }: { score: number }) {
             rx="40.5"
             stroke="url(#paint5_linear_2461_128244)"
           />
-          <circle cx="101" cy="40" r="38.5" stroke="white" stroke-width="3" />
+          <circle cx="101" cy="40" r="38.5" stroke="white" strokeWidth="3" />
         </mask>
         <g mask="url(#mask0_2461_128244)">
           <rect
@@ -93,9 +93,9 @@ export function ScoreContainer({ score }: { score: number }) {
             y2="40"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="0.346334" stop-color="white" stop-opacity="0" />
-            <stop offset="1" stop-color="white" stop-opacity="0" />
+            <stop stopColor="white" />
+            <stop offset="0.346334" stopColor="white" stopOpacity="0" />
+            <stop offset="1" stopColor="white" stopOpacity="0" />
           </linearGradient>
           <linearGradient
             id="paint1_linear_2461_128244"
@@ -105,9 +105,9 @@ export function ScoreContainer({ score }: { score: number }) {
             y2="40"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="0.169249" stop-color="white" stop-opacity="0" />
-            <stop offset="1" stop-color="white" stop-opacity="0" />
+            <stop stopColor="white" />
+            <stop offset="0.169249" stopColor="white" stopOpacity="0" />
+            <stop offset="1" stopColor="white" stopOpacity="0" />
           </linearGradient>
           <linearGradient
             id="paint2_linear_2461_128244"
@@ -117,9 +117,9 @@ export function ScoreContainer({ score }: { score: number }) {
             y2="40"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="0.0859152" stop-color="white" stop-opacity="0" />
-            <stop offset="1" stop-color="white" stop-opacity="0" />
+            <stop stopColor="white" />
+            <stop offset="0.0859152" stopColor="white" stopOpacity="0" />
+            <stop offset="1" stopColor="white" stopOpacity="0" />
           </linearGradient>
           <linearGradient
             id="paint3_linear_2461_128244"
@@ -129,9 +129,9 @@ export function ScoreContainer({ score }: { score: number }) {
             y2="41"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="0.346334" stop-color="white" stop-opacity="0" />
-            <stop offset="1" stop-color="white" stop-opacity="0" />
+            <stop stopColor="white" />
+            <stop offset="0.346334" stopColor="white" stopOpacity="0" />
+            <stop offset="1" stopColor="white" stopOpacity="0" />
           </linearGradient>
           <linearGradient
             id="paint4_linear_2461_128244"
@@ -141,9 +141,9 @@ export function ScoreContainer({ score }: { score: number }) {
             y2="41"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="0.169249" stop-color="white" stop-opacity="0" />
-            <stop offset="1" stop-color="white" stop-opacity="0" />
+            <stop stopColor="white" />
+            <stop offset="0.169249" stopColor="white" stopOpacity="0" />
+            <stop offset="1" stopColor="white" stopOpacity="0" />
           </linearGradient>
           <linearGradient
             id="paint5_linear_2461_128244"
@@ -153,9 +153,9 @@ export function ScoreContainer({ score }: { score: number }) {
             y2="41"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="white" />
-            <stop offset="0.0859152" stop-color="white" stop-opacity="0" />
-            <stop offset="1" stop-color="white" stop-opacity="0" />
+            <stop stopColor="white" />
+            <stop offset="0.0859152" stopColor="white" stopOpacity="0" />
+            <stop offset="1" stopColor="white" stopOpacity="0" />
           </linearGradient>
           <linearGradient
             id="paint6_linear_2461_128244"
@@ -165,8 +165,8 @@ export function ScoreContainer({ score }: { score: number }) {
             y2="42.5239"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stop-color="#4B97F7" />
-            <stop offset="1" stop-color="#FF284B" />
+            <stop stopColor="#4B97F7" />
+            <stop offset="1" stopColor="#FF284B" />
           </linearGradient>
         </defs>
       </svg>
