@@ -23,11 +23,8 @@ type AssetProps = ComponentProps<typeof AirstackAsset> & {
 };
 
 export function Asset({ image, useImageOnError, ...props }: AssetProps) {
-  // TODO: using error count to prevent infinite api calls on error, this is a temporary fix, this needs to be fixed in the SDK
-  const [hasError, setHasError] = useState(false);
   // TODO: there is no image for gnosis chain in the api, so we use a placeholder, remove this when we have the image
   if (
-    hasError ||
     (props.chain as string) === 'gnosis' ||
     !props.address ||
     !props.tokenId
@@ -37,9 +34,6 @@ export function Asset({ image, useImageOnError, ...props }: AssetProps) {
 
   return (
     <AirstackAsset
-      onError={() => {
-        setHasError(true);
-      }}
       preset="medium"
       error={
         useImageOnError && image ? (
