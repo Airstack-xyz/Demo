@@ -166,7 +166,7 @@ export const Search = memo(function Search() {
 
         let isValid =
           word.startsWith('fc_fname:') ||
-          Boolean(word.match(/.*\.(eth|lens)$/));
+          Boolean(word.match(/(.*\.(eth|lens)|lens\/@.*)$/));
         // check if it is a valid address
         isValid = isValid || word.startsWith('0x');
         if (!isValid) return;

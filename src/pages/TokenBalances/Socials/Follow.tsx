@@ -15,8 +15,6 @@ type Section = {
   profileTokenId?: string;
   followerCount?: number;
   followingCount?: number;
-  hideFollowerCount?: boolean;
-  hideFollowingCount?: boolean;
 };
 
 export type FollowType = {
@@ -38,8 +36,6 @@ function FollowSection({
   profileTokenId,
   followerCount,
   followingCount,
-  hideFollowerCount,
-  hideFollowingCount,
   image,
   isFirstSection,
   onFollowClick
@@ -79,7 +75,7 @@ function FollowSection({
           </button>
         </div>
       </div>
-      {followerCount != undefined && !hideFollowerCount && (
+      {followerCount != undefined && (
         <div className="flex items-center mt-2 text-text-secondary">
           <div className="flex-1 ml-[34px]">Followers</div>
           <div className="w-1/2">
@@ -92,7 +88,7 @@ function FollowSection({
           </div>
         </div>
       )}
-      {followingCount != undefined && !hideFollowingCount && (
+      {followingCount != undefined && (
         <div className="flex items-center mt-2 text-text-secondary">
           <div className="flex-1 ml-[34px]">Following</div>
           <div className="w-1/2">
