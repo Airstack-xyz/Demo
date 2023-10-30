@@ -10,7 +10,7 @@ export type FollowParams = {
   followerTab?: boolean;
 };
 
-type Section = {
+export type FollowSectionType = {
   profileName: string;
   profileTokenId?: string;
   followerCount?: number;
@@ -21,7 +21,7 @@ type Section = {
 
 export type FollowType = {
   dappName: string;
-  sections: Section[];
+  sections: FollowSectionType[];
 };
 
 type FollowSectionProps = {
@@ -30,28 +30,28 @@ type FollowSectionProps = {
   isFirstSection?: boolean;
   onFollowClick?: (params: FollowParams) => void;
   onShowMoreClick?: (values: string[], type?: string) => void;
-} & Section;
+} & FollowSectionType;
 
 function FollowSection({
   dappName,
+  image,
   profileName,
   profileTokenId,
   followerCount,
   followingCount,
   hideFollowerCount,
   hideFollowingCount,
-  image,
   isFirstSection,
   onFollowClick
 }: FollowSectionProps) {
-  const getSocialClickHandler = (follow?: boolean) => () => {
+  const getSocialClickHandler = (followerTab?: boolean) => () => {
     onFollowClick?.({
       profileName,
       profileTokenId,
       dappName,
       followerCount,
       followingCount,
-      followerTab: follow
+      followerTab
     });
   };
 
@@ -112,7 +112,7 @@ function FollowSection({
 type FollowProps = {
   image: string;
   onFollowClick?: (params: FollowParams) => void;
-  onShowMoreClick?: (sections: Section[], dappName?: string) => void;
+  onShowMoreClick?: (sections: FollowSectionType[], dappName?: string) => void;
 } & FollowType;
 
 const maxItemCount = Infinity; // Not showing show more for v1 release
