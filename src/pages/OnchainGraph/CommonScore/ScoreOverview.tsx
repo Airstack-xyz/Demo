@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getDefaultScoreMap } from '../utils';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { Icon, IconType } from '../../../Components/Icon';
@@ -12,6 +12,8 @@ import {
   getDomainName
 } from './dataFetchers';
 import { Score } from './Score';
+import { Domain, Social, Wallet } from '../../TokenBalances/types';
+import { getProfileDataFromSocial } from './Score/utils';
 
 function Loader() {
   return (
@@ -55,7 +57,10 @@ function TextWithIcon({
 }
 
 export function ScoreOverview() {
-  const [domains, setDomains] = useState(['', '']);
+  const [socials, setSocials] = useState<[Wallet | null, Wallet | null]>([
+    null,
+    null
+  ]);
   const [loading, setLoading] = useState(false);
   const [{ address }] = useSearchInput();
   const [nftCount, setNftCount] = useState({
@@ -80,18 +85,18 @@ export function ScoreOverview() {
     sent: false,
     received: false
   });
+
+  const getSocials = useCallback(async () => {
+    const social1 = await getDomainName(address[0]);
+    const social2 = await getDomainName(address[1]);
+    setSocials([social1, social2]);
+    return [social1, social2];
+  }, [address]);
+
   useEffect(() => {
     async function run() {
       setLoading(true);
-      const domains = ['', ''];
-      const domainForIdentityOne = await getDomainName(address[0]);
-      domains[0] = domainForIdentityOne || address[0];
-
-      const domainForIdentityTwo = await getDomainName(address[1]);
-      domains[1] = domainForIdentityTwo || address[1];
-
-      setDomains(domains);
-
+      await getSocials();
       await fetchPoaps(address, (count: number) => setPoapsCount(count));
       const { lens, farcaster } = await fetchMutualFollowings(address);
       setFollow({ lens, farcaster });
@@ -106,9 +111,32 @@ export function ScoreOverview() {
       setLoading(false);
     }
     run();
-  }, [address]);
+  }, [address, getSocials]);
 
-  const loader = loading && <Loader />;
+  const [domains, profiles] = useMemo(() => {
+    const domains: [Domain | null, Domain | null] = [null, null];
+    const profiles: [Social | null, Social | null] = [null, null];
+
+    {
+      const { domain, profile } = getProfileDataFromSocial(
+        socials[0],
+        address[0]
+      );
+      domains[0] = domain;
+      profiles[0] = profile;
+    }
+
+    {
+      const { domain, profile } = getProfileDataFromSocial(
+        socials[1],
+        address[1]
+      );
+      domains[1] = domain;
+      profiles[1] = profile;
+    }
+
+    return [domains, profiles];
+  }, [address, socials]);
 
   const score = useMemo(() => {
     let _score = 0;
@@ -146,21 +174,26 @@ export function ScoreOverview() {
     tokenTransfer.received,
     tokenTransfer.sent
   ]);
+
   const { lens, farcaster } = follow;
   const totalNFTCount = nftCount.ethereum + nftCount.polygon;
   const hasFarcasterFollow = farcaster.following || farcaster.followedBy;
   const hasLensFollow = lens.following || lens.followedBy;
   const hasTokenTransfer = tokenTransfer.sent || tokenTransfer.received;
+  const loader = loading && <Loader />;
 
   return (
-    <div className="h-[236px] bg-glass flex items-center border-solid-stroke rounded-18">
-      <Score score={score} />
+    <div className="h-auto sm:h-[236px] bg-glass flex flex-col sm:flex-row items-center border-solid-stroke rounded-18">
+      <Score score={score} domains={domains} socials={profiles} />
       <div
-        className={classnames('p-3 sm:p-7 overflow-hidden text-sm flex-1', {
-          'skeleton-loader': loading
-        })}
+        className={classnames(
+          'p-3 sm:p-7 overflow-hidden text-sm flex-1 w-full sm:w-auto mt-2 sm:mt-0',
+          {
+            'skeleton-loader': loading
+          }
+        )}
       >
-        <div className="p-5">
+        <div className="p-2 sm:p-0">
           {hasTokenTransfer && (
             <TextWithIcon
               icon="token-sent"
@@ -168,9 +201,9 @@ export function ScoreOverview() {
                 tokenTransfer?.sent && tokenTransfer?.received
                   ? `Sent/Received tokens`
                   : tokenTransfer?.sent
-                  ? `${domains[0]} Sent tokens ${domains[0]}`
+                  ? `${domains[0]?.name} Sent tokens ${domains[0]?.name}`
                   : tokenTransfer?.received
-                  ? `${domains[1]} Sent tokens ${domains[0]}`
+                  ? `${domains[1]?.name} Sent tokens ${domains[0]?.name}`
                   : ''
               }
             />
@@ -195,9 +228,9 @@ export function ScoreOverview() {
                 farcaster.following && farcaster.followedBy
                   ? 'Farcaster mutual follow'
                   : farcaster.followedBy
-                  ? `${domains[1]} follows ${domains[0]} on Farcaster`
+                  ? `${domains[1]?.name} follows ${domains[0]?.name} on Farcaster`
                   : farcaster.following
-                  ? `${domains[0]} follows ${domains[1]} on Farcaster`
+                  ? `${domains[0]?.name} follows ${domains[1]?.name} on Farcaster`
                   : ''
               }
               height={17}
@@ -211,9 +244,9 @@ export function ScoreOverview() {
                 lens.following && lens.followedBy
                   ? 'Lens mutual follow'
                   : lens.followedBy
-                  ? `${domains[1]} follows ${domains[0]} on Lens`
+                  ? `${domains[1]?.name} follows ${domains[0]?.name} on Lens`
                   : lens.following
-                  ? `${domains[0]} follows ${domains[1]} on Lens`
+                  ? `${domains[0]?.name} follows ${domains[1]?.name} on Lens`
                   : ''
               }
             />
