@@ -58,7 +58,9 @@ export type IconType =
   | 'lens'
   | 'community'
   | 'info-circle'
-  | 'overview';
+  | 'overview'
+  | 'follow-purple'
+  | 'mutual-follow';
 
 export type IconProps = {
   name: IconType;

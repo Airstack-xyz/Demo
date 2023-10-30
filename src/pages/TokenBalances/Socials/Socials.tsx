@@ -1,21 +1,28 @@
 import { useLazyQuery } from '@airstack/airstack-react';
 import classNames from 'classnames';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  ReactNode,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState
+} from 'react';
 import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { SocialQuery } from '../../../queries';
 import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
 import { SectionHeader } from '../SectionHeader';
-import { Wallet as WalletType } from '../types';
+import { WalletType } from './types';
 import { Follow, FollowParams, FollowType } from './Follow';
 import { Social } from './Social';
 import { XMTP } from './XMTP';
 import { Icon } from '../../../Components/Icon';
 import { Link } from 'react-router-dom';
 
-const getFollowInfo = (socials: WalletType['socials']) => {
-  const followMap: Record<string, FollowType> = {
+const getSocialFollowInfo = (wallet: WalletType) => {
+  const followData: Record<'farcaster' | 'lens', FollowType> = {
     farcaster: {
       dappName: 'farcaster',
       sections: []
@@ -26,21 +33,19 @@ const getFollowInfo = (socials: WalletType['socials']) => {
     }
   };
 
-  const farcasterSocials = socials.filter(
-    item => item.dappName === 'farcaster'
-  );
-  const lensSocials = socials.filter(item => item.dappName === 'lens');
+  const farcasterSocials = wallet?.farcasterSocials || [];
+  const lensSocials = wallet?.lensSocials || [];
 
   // For farcaster:
-  if (farcasterSocials?.length > 0) {
-    followMap['farcaster'].sections = farcasterSocials.map(item => ({
+  if (farcasterSocials.length > 0) {
+    followData.farcaster.sections = farcasterSocials.map(item => ({
       profileName: item.profileName,
       profileTokenId: item.profileTokenId,
       followerCount: item.followerCount,
       followingCount: item.followingCount
     }));
   } else {
-    followMap['farcaster'].sections = [
+    followData.farcaster.sections = [
       {
         profileName: '--'
       }
@@ -55,7 +60,7 @@ const getFollowInfo = (socials: WalletType['socials']) => {
       lensSocials.find(item => item.followingCount > 0) ||
       lensSocials[0];
 
-    followMap['lens'].sections.push({
+    followData.lens.sections.push({
       profileName: defaultProfile.profileName,
       profileTokenId: defaultProfile.profileTokenId,
       followerCount: defaultProfile.followerCount,
@@ -63,7 +68,7 @@ const getFollowInfo = (socials: WalletType['socials']) => {
     });
     lensSocials.forEach(item => {
       if (item.profileName !== defaultProfile.profileName) {
-        followMap['lens'].sections.push({
+        followData.lens.sections.push({
           profileName: item.profileName,
           profileTokenId: item.profileTokenId,
           followerCount: item.followerCount,
@@ -73,14 +78,14 @@ const getFollowInfo = (socials: WalletType['socials']) => {
       }
     });
   } else {
-    followMap['lens'].sections = [
+    followData.lens.sections = [
       {
         profileName: '--'
       }
     ];
   }
 
-  return Object.values(followMap);
+  return Object.values(followData);
 };
 
 const iconMap: Record<string, string> = {
@@ -104,7 +109,7 @@ function SocialsComponent() {
   const [{ address }, setData] = useSearchInput();
   const [fetchData, { data, loading }] = useLazyQuery(SocialQuery);
 
-  const wallet = (data?.Wallet || {}) as WalletType;
+  const wallet = data?.Wallet as WalletType;
 
   useEffect(() => {
     if (address.length > 0) {
@@ -113,16 +118,6 @@ function SocialsComponent() {
       });
     }
   }, [fetchData, address]);
-
-  const domainsList = useMemo(
-    () => wallet?.domains?.map(({ name }) => name),
-    [wallet?.domains]
-  );
-
-  const xmtpEnabled = useMemo(
-    () => wallet?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled),
-    [wallet?.xmtp]
-  );
 
   const handleShowMoreClick = useCallback((values: string[], type?: string) => {
     setModalData({
@@ -203,23 +198,41 @@ function SocialsComponent() {
     [handleModalClose, handleAddressValue]
   );
 
-  const follows = useMemo(
-    () => getFollowInfo(wallet?.socials || []),
-    [wallet?.socials]
-  );
+  const { primaryEnsValues, ensValues, xmtpValues } = useMemo(() => {
+    const primaryEnsValues: ReactNode[] = [];
+    const ensValues: ReactNode[] = [];
+    const xmtpValues: ReactNode[] = [];
 
-  const primaryEnsValues = wallet?.primaryDomain?.name
-    ? [wallet.primaryDomain.name]
-    : ['--'];
-  const ensValues =
-    domainsList && domainsList.length > 0 ? domainsList : ['--'];
+    if (wallet?.primaryDomain?.name) {
+      primaryEnsValues.push(wallet.primaryDomain.name);
+    } else {
+      primaryEnsValues.push('--');
+    }
+    if (wallet?.domains?.length > 0) {
+      ensValues.push(...wallet.domains.map(({ name }) => name));
+    } else {
+      ensValues.push('--');
+    }
+    if (wallet?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled)) {
+      xmtpValues.push(<XMTP />);
+    } else {
+      xmtpValues.push('--');
+    }
+
+    return {
+      primaryEnsValues,
+      ensValues,
+      xmtpValues
+    };
+  }, [wallet]);
+
+  const follows = useMemo(() => getSocialFollowInfo(wallet), [wallet]);
 
   return (
     <div className="w-full sm:w-auto">
       <div className="hidden sm:block">
         <SectionHeader iconName="socials-flat" heading="Socials" />
       </div>
-
       <Link
         className="rounded-18 border-solid-stroke mt-3.5 bg-glass hover:bg-glass-1 p-5 mb-5 flex items-center"
         to={`/onchain-graph?identity=${address[0]}`}
@@ -231,10 +244,9 @@ function SocialsComponent() {
           </span>
         </>
       </Link>
-
       <div
         className={classNames(
-          'rounded-18  border-solid-stroke mt-3.5 min-h-[250px] flex flex-col bg-glass',
+          'rounded-18 border-solid-stroke mt-3.5 min-h-[250px] flex flex-col bg-glass',
           {
             'skeleton-loader': loading
           }
@@ -268,11 +280,7 @@ function SocialsComponent() {
               onFollowClick={handleFollowValue}
             />
           ))}
-          <Social
-            name="XMTP"
-            values={xmtpEnabled ? [<XMTP />] : ['--']}
-            image={iconMap['xmtp']}
-          />
+          <Social name="XMTP" values={xmtpValues} image={iconMap['xmtp']} />
         </div>
       </div>
       {modalData.isOpen && (
