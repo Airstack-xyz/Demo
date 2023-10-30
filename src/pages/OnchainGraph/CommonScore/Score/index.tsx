@@ -15,9 +15,9 @@ export function Score({
   socials: [Social | null, Social | null];
 }) {
   return (
-    <div className="bg-glass flex justify-center items-center max-w-[480px] h-full px-3 sm:px-7 py-7 rounded-tl-18 rounded-bl-none sm:rounded-bl-18 z-10 w-full sm:w-auto">
+    <div className="bg-glass flex justify-center items-center w-full sm:w-[480px] h-full px-3 sm:px-7 py-7 rounded-tl-18 rounded-bl-none sm:rounded-bl-18 z-10">
       <div className="flex mt-0 sm:mt-2">
-        <div className="flex flex-col items-center relative">
+        <div className="flex flex-col items-center relative text-center">
           <Link
             to={createTokenBalancesUrl({
               address: domains[0]?.name || '',
@@ -36,7 +36,7 @@ export function Score({
           <ScoreContainer score={score} />
           <MatchInfo />
         </div>
-        <div className="flex flex-col items-center relative">
+        <div className="flex flex-col items-center relative text-center">
           <Link
             to={createTokenBalancesUrl({
               address: domains[1]?.name || '',
