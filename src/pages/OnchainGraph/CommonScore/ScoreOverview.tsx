@@ -201,9 +201,9 @@ export function ScoreOverview() {
                 tokenTransfer?.sent && tokenTransfer?.received
                   ? `Sent/Received tokens`
                   : tokenTransfer?.sent
-                  ? `${domains[0]} Sent tokens ${domains[0]}`
+                  ? `${domains[0]?.name} Sent tokens ${domains[0]?.name}`
                   : tokenTransfer?.received
-                  ? `${domains[1]} Sent tokens ${domains[0]}`
+                  ? `${domains[1]?.name} Sent tokens ${domains[0]?.name}`
                   : ''
               }
             />
@@ -228,9 +228,9 @@ export function ScoreOverview() {
                 farcaster.following && farcaster.followedBy
                   ? 'Farcaster mutual follow'
                   : farcaster.followedBy
-                  ? `${domains[1]} follows ${domains[0]} on Farcaster`
+                  ? `${domains[1]?.name} follows ${domains[0]?.name} on Farcaster`
                   : farcaster.following
-                  ? `${domains[0]} follows ${domains[1]} on Farcaster`
+                  ? `${domains[0]?.name} follows ${domains[1]?.name} on Farcaster`
                   : ''
               }
               height={17}
@@ -244,9 +244,9 @@ export function ScoreOverview() {
                 lens.following && lens.followedBy
                   ? 'Lens mutual follow'
                   : lens.followedBy
-                  ? `${domains[1]} follows ${domains[0]} on Lens`
+                  ? `${domains[1]?.name} follows ${domains[0]?.name} on Lens`
                   : lens.following
-                  ? `${domains[0]} follows ${domains[1]} on Lens`
+                  ? `${domains[0]?.name} follows ${domains[1]?.name} on Lens`
                   : ''
               }
             />

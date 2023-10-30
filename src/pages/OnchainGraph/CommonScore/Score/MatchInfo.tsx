@@ -6,7 +6,7 @@ import { getDefaultScoreMap } from '../../utils';
 export function MatchInfo() {
   const scoreMap = useMemo(() => getDefaultScoreMap(), []);
   return (
-    <div className="flex items-center absolute -bottom-6">
+    <div className="flex items-center absolute -bottom-0">
       <span className="text-xs text-text-secondary mr-1">on-chain match</span>
       <div className="relative">
         <Icon name="info-circle" height={14} width={14} className="peer" />
