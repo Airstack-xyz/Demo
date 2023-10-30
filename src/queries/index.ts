@@ -105,10 +105,16 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
         blockchain
       }
     }
-    socials(input: {limit: 200}) {
+    farcasterSocials: socials(input: {filter: {dappName: {_eq: farcaster}}}) {
       isDefault
-      dappName
-      dappSlug
+      blockchain
+      profileName
+      profileTokenId
+      followerCount
+      followingCount
+    }
+    lensSocials: socials(input: {filter: {dappName: {_eq: lens}}}) {
+      isDefault
       blockchain
       profileName
       profileImage
@@ -119,6 +125,97 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
     }
     xmtp {
       isXMTPEnabled
+    }
+  }
+}`;
+
+export const SocialOverlapQuery = `query GetSocialOverlap($identity1: Identity!, $identity2: Identity!) {
+  wallet1: Wallet(input: {identity: $identity1, blockchain: ethereum}) {
+    addresses
+    primaryDomain {
+      name
+    }
+    domains {
+      name
+    }
+    farcasterSocials: socials(input: {filter: {dappName: {_eq: farcaster}}}) {
+      isDefault
+      blockchain
+      profileName
+      profileTokenId
+      followerCount
+      followingCount
+    }
+    lensSocials: socials(input: {filter: {dappName: {_eq: lens}}}) {
+      isDefault
+      blockchain
+      profileName
+      profileTokenId
+      followerCount
+      followingCount
+    }
+    xmtp {
+      isXMTPEnabled
+    }
+    farcasterFollowers: socialFollowers(
+      input: {filter: {identity: {_eq: $identity2}, dappName: {_eq: farcaster}}, limit: 1}
+    ) {
+      Follower {
+        id
+        followerTokenId
+      }
+    }
+    lensFollowers: socialFollowers(
+      input: {filter: {identity: {_eq: $identity2}, dappName: {_eq: lens}}, limit: 1}
+    ) {
+      Follower {
+        id
+        followerTokenId
+      }
+    }
+  }
+  wallet2: Wallet(input: {identity: $identity2, blockchain: ethereum}) {
+    addresses
+    primaryDomain {
+      name
+    }
+    domains {
+      name
+    }
+    farcasterSocials: socials(input: {filter: {dappName: {_eq: farcaster}}}) {
+      isDefault
+      blockchain
+      profileName
+      profileTokenId
+      followerCount
+      followingCount
+    }
+    lensSocials: socials(input: {filter: {dappName: {_eq: lens}}}) {
+      isDefault
+      blockchain
+      profileName
+      profileTokenId
+      followerCount
+      followingCount
+    }
+    xmtp {
+      isXMTPEnabled
+    }
+    farcasterFollowers: socialFollowers(
+      input: {filter: {identity: {_eq: $identity1}, dappName: {_eq: farcaster}}, limit: 1}
+    ) {
+      Follower {
+        id
+        followerTokenId
+      }
+    }
+    lensFollowers: socialFollowers(
+      input: {filter: {identity: {_eq: $identity1}, dappName: {_eq: lens}}, limit: 1}
+    ) {
+      Follower {
+        id
+        followerTokenId
+      }
     }
   }
 }`;

@@ -1,2 +1,2 @@
-// eslint-disable-next-line react-refresh/only-export-components
-export * from './Socials';
+export { Socials } from './Socials';
+export { SocialsOverlap } from './SocialsOverlap';
