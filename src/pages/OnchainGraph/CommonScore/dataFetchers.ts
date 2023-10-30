@@ -242,10 +242,6 @@ export async function fetchMutualFollowings(address: string[]) {
 }
 
 export async function getDomainName(identity: string) {
-  // if (identity.endsWith('.eth')) {
-  //   return identity;
-  // }
-
   const { data } = await fetchQuery<{
     Wallet: Wallet;
   }>(SocialQuery, {
