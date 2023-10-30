@@ -75,20 +75,8 @@ export function ERC6551TokenHolder({
     [socialDetails?.xmtp]
   );
 
-  const [lens, farcaster] = useMemo(() => {
-    let lens = '';
-    let farcaster = '';
-    const socials = socialDetails?.socials || [];
-    socials.forEach(({ dappName, profileName }) => {
-      if (dappName === 'lens') {
-        lens = profileName;
-      }
-      if (dappName === 'farcaster') {
-        farcaster = profileName;
-      }
-    });
-    return [lens, farcaster];
-  }, [socialDetails?.socials]);
+  const lens = socialDetails?.lensSocials?.[0]?.profileName || '';
+  const farcaster = socialDetails?.farcasterSocials?.[0]?.profileName || '';
 
   const otherENS = useMemo(() => {
     const domains = socialDetails?.domains || [];
