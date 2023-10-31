@@ -512,12 +512,14 @@ function TokenBalancePage() {
                 icon="nft-flat"
                 header={tab1Header}
                 active={!showSocials}
+                className="max-w-[50%] overflow-hidden"
                 onClick={() => setShowSocials(false)}
               />
               <Tab
                 icon="erc20"
                 header={tab2Header}
                 active={showSocials}
+                className="max-w-[50%] overflow-hidden"
                 onClick={() => setShowSocials(true)}
               />
             </TabContainer>

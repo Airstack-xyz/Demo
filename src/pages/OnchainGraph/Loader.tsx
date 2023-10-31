@@ -78,14 +78,14 @@ const CloseIcon = () => (
     <path
       d="M7 7L15 15"
       stroke="#0E0E12"
-      stroke-width="0.888889"
-      stroke-linecap="round"
+      strokeWidth="0.888889"
+      strokeLinecap="round"
     />
     <path
       d="M7 15L15 7"
       stroke="#0E0E12"
-      stroke-width="0.888889"
-      stroke-linecap="round"
+      strokeWidth="0.888889"
+      strokeLinecap="round"
     />
   </svg>
 );

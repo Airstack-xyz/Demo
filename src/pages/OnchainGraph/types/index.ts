@@ -114,7 +114,12 @@ export interface Transfer {
 
 export interface Domain {
   name: string;
-  isPrimary: boolean;
+  isPrimary?: boolean;
+  tokenNft: {
+    tokenId: string;
+    address: string;
+    blockchain: string;
+  };
 }
 
 export interface Xmtp {
@@ -160,9 +165,7 @@ export interface TokenBalance2 {
 
 export type RecommendedUser = {
   addresses?: string[];
-  primaryDomain?: {
-    name: string;
-  };
+  primaryDomain?: Domain;
   domains?: Domain[];
   socials?: Social[];
   xmtp?: Xmtp[];
