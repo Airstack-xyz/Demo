@@ -1,21 +1,26 @@
 export const POAP_OPTION_ID = 'ID_POAP';
 export const ADDRESS_OPTION_ID = 'ID_ADDRESS';
-export const MENTION_COUNT = 10;
+export const ADVANCED_SEARCH_OPTION_ID = 'ID_ADVANCED_SEARCH';
+
+export const MENTION_COUNT = 8;
+export const MENTION_MARKUP = '#⎱__display__⎱(__id__)';
+export const MENTION_REGEX = /#⎱([^⎱]+)⎱\(([^)]+?)\)/;
+
 export const HELP_TEXT = `Hi👋
 
-I’m an AI assistant that knows everything about the Airstack APIs.
+I'm an AI assistant that knows everything about the Airstack APIs.
 
 I can help you write queries and get the APIs you need.
 
 I currently support the following blockchains: Ethereum. Polygon. I have access to the entire histories as well as new transactions within seconds.
 
-I’m also really strong on web3 identities, token balances, and collectibles. I can retrieve ENS, Farcaster, Lens, POAPs, NFT collection holders, and ERC-20 balances.
+I'm also really strong on web3 identities, token balances, and collectibles. I can retrieve ENS, Farcaster, Lens, POAPs, NFT collection holders, and ERC-20 balances.
 
 I also have access to all sales data from OpenSea, Blur, Rarible. 
 
 And I can retrieve resized NFT images in 4 different sizes.
 
-Here’s a tip. If you type “@“ in the entry box you can choose from over 10000 tokens, NFT collections and POAPs by name. If you don’t find the one you are looking for you can always enter a contract address.
+Here's a tip. If you type “@“ in the entry box you can choose from over 10000 tokens, NFT collections and POAPs by name. If you don't find the one you are looking for you can always enter a contract address.
 
 Here are some example questions you can ask me:
 
@@ -31,19 +36,19 @@ Show all @orangeDAO holders and their ENS and web3 socials
 
 export const HELP_TEXT_HTML_STRING = `Hi👋
 
-I’m an AI assistant that knows everything about the Airstack APIs.
+I'm an AI assistant that knows everything about the Airstack APIs.
 
 I can help you write queries and get the APIs you need.
 
 I currently support the following blockchains: Ethereum. Polygon. I have access to the entire histories as well as new transactions within seconds.
 
-I’m also really strong on web3 identities, token balances, and collectibles. I can retrieve ENS, Farcaster, Lens, POAPs, NFT collection holders, and ERC-20 balances.
+I'm also really strong on web3 identities, token balances, and collectibles. I can retrieve ENS, Farcaster, Lens, POAPs, NFT collection holders, and ERC-20 balances.
 
 I also have access to all sales data from OpenSea, Blur, Rarible. 
 
 And I can retrieve resized NFT images in 4 different sizes.
 
-Here’s a tip. If you type <b>“@“</b> in the entry box you can choose from over 10000 tokens, NFT collections and POAPs by name. If you don’t find the one you are looking for you can always enter a contract address.
+Here's a tip. If you type <b>“@“</b> in the entry box you can choose from over 10000 tokens, NFT collections and POAPs by name. If you don't find the one you are looking for you can always enter a contract address.
 
 Here are some example questions you can ask me:
 

@@ -11,6 +11,7 @@ type FilterPlaceholderProps = {
   icon?: IconType;
   label: string;
   className?: string;
+  tabIndex?: number;
   onClick?: () => void;
 };
 
@@ -20,10 +21,12 @@ export function FilterPlaceholder({
   icon,
   label,
   className,
+  tabIndex,
   onClick
 }: FilterPlaceholderProps) {
   return (
     <button
+      tabIndex={tabIndex}
       disabled={isDisabled}
       className={classNames(
         filterPlaceholderClass,

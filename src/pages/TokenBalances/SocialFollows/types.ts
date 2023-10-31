@@ -1,5 +1,5 @@
 import { Chain } from '@airstack/airstack-react/constants';
-import { MentionValues } from '../../../Components/Input/utils';
+import { MentionData } from '../../../Components/Input/types';
 
 export type SocialsResponse = {
   Socials: {
@@ -136,7 +136,7 @@ export type SocialFollowQueryFilters = {
 export type SocialFollowLogicalFilters = {
   alsoFollow?: string;
   mutualFollow?: boolean;
-  holdingData?: MentionValues | null;
+  holdingData?: MentionData | null;
   lensSocial?: boolean;
   farcasterSocial?: boolean;
 };

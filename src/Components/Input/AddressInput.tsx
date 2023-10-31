@@ -1,5 +1,6 @@
 import './input-styles.css';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
 type AddressInputProps = {
   top: string;
   left: string;
@@ -21,7 +22,7 @@ export function AddressInput({
 
   useEffect(() => {
     // In safari when focusing on input, using autofocus or programmatically,
-    // the carret is not visible in the input even though the input is focused.
+    // the caret is not visible in the input even though the input is focused.
     // User will not be type in the input unless they click on it.
     // This is a workaround to fix this issue
 

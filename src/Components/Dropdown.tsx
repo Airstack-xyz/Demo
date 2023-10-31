@@ -1,13 +1,13 @@
 import { ReactNode, useCallback, useState } from 'react';
 import { useOutsideClick } from '../hooks/useOutsideClick';
+import classnames from 'classnames';
 
 export type Option = {
   label: string;
   value: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-} & Record<string, any>;
+};
 
-export function Dropdown({
+export function Dropdown<T extends Option = Option>({
   options,
   selected,
   closeOnSelect = false,
@@ -16,34 +16,32 @@ export function Dropdown({
   onChange,
   disabled,
   heading,
-  footerComponent
+  footerComponent,
+  optionsContainerClassName
 }: {
-  options: Option[];
-  selected?: Option[];
+  options: T[];
+  selected?: T[];
   closeOnSelect?: boolean;
-  renderPlaceholder: (
-    option: Option[],
-    isOpen: boolean,
-    isDisabled?: boolean
-  ) => ReactNode;
+  optionsContainerClassName?: string;
+  renderPlaceholder: (option: T[], isOpen: boolean) => ReactNode;
   renderOption: (params: {
-    option: Option;
-    selected: Option[];
+    option: T;
+    selected: T[];
     isSelected: boolean;
-    setSelected: (selected: Option[]) => void;
+    setSelected: (selected: T[]) => void;
   }) => ReactNode;
-  onChange: (selected: Option[]) => void;
+  onChange: (selected: T[]) => void;
   disabled?: boolean;
   heading?: string;
   footerComponent?: ReactNode;
 }) {
-  const [_selected, setSelected] = useState<Option[]>([]);
+  const [_selected, setSelected] = useState<T[]>([]);
   const [show, setShow] = useState(false);
 
   const containerRef = useOutsideClick<HTMLDivElement>(() => setShow(false));
 
   const handleSelection = useCallback(
-    (newSelection: Option[]) => {
+    (newSelection: T[]) => {
       if (selected === undefined) {
         setSelected(newSelection);
       }
@@ -63,11 +61,14 @@ export function Dropdown({
       ref={containerRef}
     >
       <div onClick={() => setShow(show => (disabled ? false : !show))}>
-        {renderPlaceholder(actualSelected, show, disabled)}
+        {renderPlaceholder(actualSelected, show)}
       </div>
       {show && (
         <div
-          className="bg-glass rounded-18 p-1 mt-1 flex flex-col absolute z-20 min-w-[110%] left-0 top-full"
+          className={classnames(
+            'bg-glass rounded-18 p-1 mt-1 flex flex-col absolute z-20 min-w-[110%] left-0 top-full',
+            optionsContainerClassName
+          )}
           onClick={() => setShow(false)}
         >
           {!!heading && (
