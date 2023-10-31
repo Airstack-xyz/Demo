@@ -42,7 +42,7 @@ const minItemCount = 1;
 type FollowCombinationSectionProps = {
   dappName: string;
   onFollowClick?: (params: FollowCombinationParams) => void;
-  onShowMoreClick?: (values: string[], type?: string) => void;
+  onShowMoreClick?: (address: string, values: string[], type?: string) => void;
 } & FollowCombinationSectionType;
 
 function FollowCombinationSection({
@@ -91,7 +91,7 @@ function FollowCombinationSection({
           <li
             onClick={() => {
               if (showMax && values.length > maxItemCount) {
-                onShowMoreClick?.([values[0].profileName1], dappName);
+                onShowMoreClick?.(name, [values[0].profileName1], dappName);
                 return;
               }
             }}
@@ -127,7 +127,7 @@ function FollowInfo({ icon, text, className }: FollowInfoProps) {
 
 type FollowCombinationProps = {
   onFollowClick?: (params: FollowCombinationParams) => void;
-  onShowMoreClick?: (values: string[], type?: string) => void;
+  onShowMoreClick?: (address: string, values: string[], type?: string) => void;
 } & FollowCombinationType;
 
 export function FollowCombination({

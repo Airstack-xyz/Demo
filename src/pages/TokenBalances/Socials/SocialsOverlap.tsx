@@ -410,7 +410,7 @@ function SocialsOverlapComponent() {
           heading={`All ENS names of ${modalData.modalFor}`}
           isOpen={modalData.isOpen}
           dataType={modalData.dataType}
-          addresses={address}
+          addresses={[modalData.modalFor]}
           onRequestClose={handleModalClose}
           onAddressClick={handleAddressClick}
         />
