@@ -10,7 +10,7 @@ type SocialSectionProps = {
   values: ReactNode[];
   type?: string;
   onAddressClick?: (value: unknown, type?: string) => void;
-  onShowMoreClick?: (values: string[], type?: string) => void;
+  onShowMoreClick?: (address: string, values: string[], type?: string) => void;
 };
 
 function SocialSection({
@@ -61,7 +61,7 @@ function SocialSection({
           <li
             onClick={() => {
               if (showMax && values.length > maxItemCount) {
-                onShowMoreClick?.(values as string[], type);
+                onShowMoreClick?.(name || '', values as string[], type);
                 return;
               }
             }}
@@ -81,7 +81,7 @@ type SocialProps = {
   image: string;
   sections?: SocialSectionType[];
   onAddressClick?: (value: unknown, type?: string) => void;
-  onShowMoreClick?: (values: string[], type?: string) => void;
+  onShowMoreClick?: (address: string, values: string[], type?: string) => void;
 };
 
 export function SocialCombination({
