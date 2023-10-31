@@ -269,7 +269,7 @@ export function ERC20Tokens() {
         data-loader-height="auto"
       >
         {tokens.length === 0 && !loading && (
-          <div className="flex flex-1 justify-center text-xs">
+          <div className="flex flex-1 justify-center p-2 text-xs">
             No data found!
           </div>
         )}

@@ -28,10 +28,20 @@ export const poapsByEventIdsQuery = `query PoapsByEventId($poaps: [String!]) {
             addresses
             primaryDomain {
               name
+              tokenNft {
+                tokenId
+                address
+                blockchain
+              }
             }
             domains {
               name
               isPrimary
+              tokenNft {
+                tokenId
+                address
+                blockchain
+              }
             }
             socials {
               dappName

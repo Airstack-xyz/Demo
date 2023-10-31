@@ -9,10 +9,20 @@ export const socialFollowingsQuery = `query Followings($user: Identity!, $dappNa
           addresses
           primaryDomain {
             name
+            tokenNft {
+              tokenId
+              address
+              blockchain
+            }
           }
           domains {
             name
             isPrimary
+            tokenNft {
+              tokenId
+              address
+              blockchain
+            }
           }
           socials {
             dappName
@@ -50,10 +60,20 @@ export const socialFollowersQuery = `query Followers($user: Identity!, $dappName
         addresses
         primaryDomain {
           name
+          tokenNft {
+            tokenId
+            address
+            blockchain
+          }
         }
         domains {
           name
           isPrimary
+          tokenNft {
+            tokenId
+            address
+            blockchain
+          }
         }
         socials {
           dappName
