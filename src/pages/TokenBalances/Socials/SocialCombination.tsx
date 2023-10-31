@@ -6,7 +6,7 @@ const maxItemCount = 7;
 const minItemCount = 1;
 
 type SocialSectionProps = {
-  name?: string;
+  name: string;
   values: ReactNode[];
   type?: string;
   onAddressClick?: (value: unknown, type?: string) => void;
@@ -61,7 +61,7 @@ function SocialSection({
           <li
             onClick={() => {
               if (showMax && values.length > maxItemCount) {
-                onShowMoreClick?.(values as string[], type);
+                onShowMoreClick?.([name], type);
                 return;
               }
             }}

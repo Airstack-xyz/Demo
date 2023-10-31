@@ -400,10 +400,10 @@ function SocialsOverlapComponent() {
       </div>
       {modalData.isOpen && (
         <LazyAddressesModal
-          heading={`All ENS names of ${address[0]}`}
+          heading={`All ENS names of ${modalData.addresses[0]}`}
           isOpen={modalData.isOpen}
           dataType={modalData.dataType}
-          addresses={address}
+          addresses={modalData.addresses}
           onRequestClose={handleModalClose}
           onAddressClick={handleAddressClick}
         />
