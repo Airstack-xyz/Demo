@@ -12,8 +12,8 @@ import {
 
 export const ID_REGEX = /#⎱.+?⎱\((.+?)\)\s*/g;
 export const NAME_REGEX = /#⎱(.+?)⎱\(.+?\)/g;
-export const REGEX_LAST_WORD_STARTS_WITH_AT = /^\s*(?!lens\/)@[^\s]*$/g;
-export const REGEX_FIRST_WORD_IS_AT = /^(?!lens\/)@[^\s]*/g;
+export const REGEX_LAST_WORD_STARTS_WITH_AT = /\s*@[^\s]*$/g;
+export const REGEX_FIRST_WORD_IS_AT = /^@[^\s]*/g;
 
 const REGEX_FIRST_WORD = /([^\s]*)/;
 
@@ -81,7 +81,10 @@ export function highlightMentionText(root: HTMLElement, matched = false) {
   });
 }
 
-export function highlightMention(el: HTMLTextAreaElement | null) {
+export function highlightMention(
+  el: HTMLTextAreaElement | null,
+  disableHighlighting?: boolean
+) {
   if (!el) return;
   const root = getNode(el.parentElement as HTMLElement) as HTMLElement;
   const targetNode = root.nextSibling as HTMLElement;
@@ -89,7 +92,9 @@ export function highlightMention(el: HTMLTextAreaElement | null) {
 
   const callback = () => {
     root.innerHTML = targetNode.innerHTML;
-    highlightMentionText(root);
+    if (!disableHighlighting) {
+      highlightMentionText(root);
+    }
   };
   const observer = new MutationObserver(callback);
   observer.observe(targetNode, config);
