@@ -191,12 +191,10 @@ function SocialsOverlapComponent() {
     isOpen: boolean;
     dataType?: string;
     addresses: string[];
-    modalFor: string;
   }>({
     isOpen: false,
     dataType: '',
-    addresses: [],
-    modalFor: ''
+    addresses: []
   });
 
   const [{ address }, setData] = useSearchInput();
@@ -215,24 +213,19 @@ function SocialsOverlapComponent() {
     }
   }, [fetchData, address]);
 
-  const handleShowMoreClick = useCallback(
-    (address: string, values: string[], type?: string) => {
-      setModalData({
-        isOpen: true,
-        dataType: type,
-        addresses: values,
-        modalFor: address
-      });
-    },
-    []
-  );
+  const handleShowMoreClick = useCallback((values: string[], type?: string) => {
+    setModalData({
+      isOpen: true,
+      dataType: type,
+      addresses: values
+    });
+  }, []);
 
   const handleModalClose = useCallback(() => {
     setModalData({
       isOpen: false,
       dataType: '',
-      addresses: [],
-      modalFor: ''
+      addresses: []
     });
   }, []);
 
@@ -407,10 +400,10 @@ function SocialsOverlapComponent() {
       </div>
       {modalData.isOpen && (
         <LazyAddressesModal
-          heading={`All ENS names of ${modalData.modalFor}`}
+          heading={`All ENS names of ${modalData.addresses[0]}`}
           isOpen={modalData.isOpen}
           dataType={modalData.dataType}
-          addresses={address}
+          addresses={modalData.addresses}
           onRequestClose={handleModalClose}
           onAddressClick={handleAddressClick}
         />
