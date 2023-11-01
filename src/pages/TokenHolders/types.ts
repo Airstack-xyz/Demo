@@ -89,6 +89,7 @@ export interface Xmtp {
 export interface TotalSupply {
   ethereum: Supply;
   polygon: Supply;
+  base: Supply;
 }
 export interface Supply {
   totalSupply: string;

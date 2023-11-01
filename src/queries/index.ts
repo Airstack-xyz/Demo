@@ -1,30 +1,3 @@
-export const POAPQuery = `query GetPOAPs($owner: Identity, $limit: Int $sortBy: OrderBy) {
-  Poaps(input: {filter: {owner: {_eq: $owner}}, blockchain: ALL, limit: $limit, order:{createdAtBlockNumber: $sortBy}}) {
-    Poap {
-      id
-      blockchain
-      tokenId
-      tokenAddress
-      poapEvent {
-        city
-        eventName
-        startDate
-        eventId
-        logo: contentValue {
-          image {
-            small
-            medium
-          }
-        }
-      }
-    }
-    pageInfo {
-      nextCursor
-      prevCursor
-    }
-  }
-}`;
-
 export const SocialQuery = `query GetSocial($identity: Identity!) {
   Wallet(input: {identity: $identity, blockchain: ethereum}) {
     addresses
@@ -333,41 +306,8 @@ export const TokenTotalSupplyQuery = `query GetTotalSupply($tokenAddress: Addres
   polygon: Token(input: {address: $tokenAddress, blockchain: polygon}) {
     totalSupply
   }
-}`;
-
-export const TokenOverviewQuery = `query TokenOverviewQuery($tokenAddress: Address) {
-  ethereum: TokenHolders(
-    input: {filter: {tokenAddress: {_eq: $tokenAddress}, inputType: {_eq: token}}, blockchain: ethereum}
-  ) {
-    ensUsersCount
-    farcasterProfileCount
-    lensProfileCount
-    primaryEnsUsersCount
-    totalHolders
-    xmtpUsersCount
-  }
-  polygon: TokenHolders(
-    input: {filter: {tokenAddress: {_eq: $tokenAddress}, inputType: {_eq: token}}, blockchain: polygon}
-  ) {
-    ensUsersCount
-    farcasterProfileCount
-    lensProfileCount
-    primaryEnsUsersCount
-    totalHolders
-    xmtpUsersCount
-  }
-}`;
-
-export const PoapOverviewQuery = `query GetPoapOverview($eventId: String) {
-  ethereum: TokenHolders(
-    input: {filter: {eventId: {_eq: $eventId}, inputType: {_eq: poap}}, blockchain: ethereum}
-  ) {
-    ensUsersCount
-    farcasterProfileCount
-    lensProfileCount
-    primaryEnsUsersCount
-    totalHolders
-    xmtpUsersCount
+  base: Token(input: {address: $tokenAddress, blockchain: base}) {
+    totalSupply
   }
 }`;
 

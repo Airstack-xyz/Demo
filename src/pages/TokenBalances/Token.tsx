@@ -6,7 +6,7 @@ import { createTokenHolderUrl } from '../../utils/createTokenUrl';
 import { PoapsType, TokenType as TokenType } from './types';
 import { Asset } from '../../Components/Asset';
 import classNames from 'classnames';
-import { Nft } from './erc20-types';
+import { Nft } from './erc20.types';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
 
