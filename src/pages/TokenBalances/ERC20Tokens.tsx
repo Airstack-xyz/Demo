@@ -14,7 +14,7 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { formatNumber } from '../../utils/formatNumber';
 import './erc20.styles.css';
-import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { emit } from '../../utils/eventEmitter/eventEmitter';
 import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
 import { defaultSortOrder } from '../../Components/Filters/SortBy';
@@ -102,11 +102,11 @@ export function ERC20Tokens() {
 
   const query = useMemo(() => {
     const fetchAllBlockchains =
-      blockchainType.length === 2 || blockchainType.length === 0;
+      blockchainType.length === 3 || blockchainType.length === 0;
 
     const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
-    return createNftWithCommonOwnersQuery(owners, _blockchain);
+    return getNftWithCommonOwnersQuery(owners, _blockchain);
   }, [blockchainType, owners]);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

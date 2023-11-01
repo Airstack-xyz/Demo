@@ -41,13 +41,15 @@ export function useFetchTokens() {
         };
       }
 
-      const ethTokenBalances: Token[] =
+      const ethereumTokenBalances: Token[] =
         tokensData?.ethereum?.TokenBalance || [];
       const polygonTokenBalances: Token[] =
         tokensData?.polygon?.TokenBalance || [];
+      const baseTokenBalances: Token[] = tokensData?.base?.TokenBalance || [];
 
-      const token = (ethTokenBalances[0] ||
-        polygonTokenBalances[0]) as TokenBalance;
+      const token = (ethereumTokenBalances[0] ||
+        polygonTokenBalances[0] ||
+        baseTokenBalances[0]) as TokenBalance;
 
       if (!token) return null;
 

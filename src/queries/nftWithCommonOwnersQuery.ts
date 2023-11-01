@@ -110,7 +110,7 @@ token {
   }
 }`;
 
-export function getQueryForBlockchain(owners: string[], blockchain: string) {
+function getQueryForBlockchain(owners: string[], blockchain: string) {
   const children =
     owners.length === 1 ? fields : getQueryWithFilter(owners, 1, blockchain);
   return `
@@ -126,7 +126,7 @@ export function getQueryForBlockchain(owners: string[], blockchain: string) {
     }`;
 }
 
-export function createNftWithCommonOwnersQuery(
+export function getNftWithCommonOwnersQuery(
   owners: string[],
   blockchain: string | null
 ) {

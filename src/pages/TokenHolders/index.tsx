@@ -44,7 +44,7 @@ import {
   erc20TokenDetailsQuery
 } from '../../queries/tokenDetails';
 import { useTokenDetails } from '../../store/tokenDetails';
-import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { tokenTypes } from '../TokenBalances/constants';
 import { accountOwnerQuery } from '../../queries/accountsQuery';
 import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
@@ -292,10 +292,7 @@ export function TokenHolders() {
           link: erc6551AccountsQueryLink
         });
 
-        const tokensQuery = createNftWithCommonOwnersQuery(
-          [accountAddress],
-          null
-        );
+        const tokensQuery = getNftWithCommonOwnersQuery([accountAddress], null);
 
         const nftLink = createAppUrlWithQuery(tokensQuery, {
           limit: 10,

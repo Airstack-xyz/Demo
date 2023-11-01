@@ -14,6 +14,7 @@ export type Token = TokenBalance &
 export type TokensData = {
   ethereum: { TokenBalance: Token[] };
   polygon: { TokenBalance: Token[] };
+  base: { TokenBalance: Token[] };
   Poaps: PoapsData['Poaps'];
 };
 

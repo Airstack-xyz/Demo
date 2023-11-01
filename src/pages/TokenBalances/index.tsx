@@ -13,7 +13,7 @@ import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
 import { SocialOverlapQuery, SocialQuery } from '../../queries';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { SortBy, defaultSortOrder } from '../../Components/Filters/SortBy';
-import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
 import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
@@ -202,7 +202,7 @@ function TokenBalancePage() {
     const detailTokensVisible = hasERC6551 && accountAddress;
 
     const fetchAllBlockchains =
-      blockchainType.length === 2 || blockchainType.length === 0;
+      blockchainType.length === 3 || blockchainType.length === 0;
 
     const _owners = detailTokensVisible ? [accountAddress] : address;
     const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
@@ -241,7 +241,7 @@ function TokenBalancePage() {
     let nftLink = '';
     let erc20Link = '';
 
-    const tokensQuery = createNftWithCommonOwnersQuery(_owners, _blockchain);
+    const tokensQuery = getNftWithCommonOwnersQuery(_owners, _blockchain);
 
     nftLink = createAppUrlWithQuery(tokensQuery, {
       limit: 10,

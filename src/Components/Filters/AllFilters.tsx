@@ -38,7 +38,11 @@ export function AllFilters() {
 
   const appliedBlockchainFilter = useMemo(() => {
     const filterValue = blockchainType[0];
-    if (filterValue === 'ethereum' || filterValue === 'polygon') {
+    if (
+      filterValue === 'ethereum' ||
+      filterValue === 'polygon' ||
+      filterValue === 'base'
+    ) {
       return filterValue;
     }
     return defaultBlockchainFilter;

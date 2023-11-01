@@ -78,9 +78,10 @@ function TokensComponent(props: TokenProps) {
   const isPoap = tokenType === 'POAP';
 
   const canFetchPoap = useMemo(() => {
-    const hasPolygonChainFilter =
-      blockchainType.length === 1 && blockchainType[0] === 'polygon';
-    return !hasPolygonChainFilter && (!tokenType || isPoap);
+    const hasPolygonOrBaseChainFilter =
+      blockchainType.length === 1 &&
+      (blockchainType[0] === 'polygon' || blockchainType[0] === 'base');
+    return !hasPolygonOrBaseChainFilter && (!tokenType || isPoap);
   }, [blockchainType, isPoap, tokenType]);
 
   const handleNext = useCallback(() => {

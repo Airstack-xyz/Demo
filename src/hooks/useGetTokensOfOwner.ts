@@ -1,6 +1,6 @@
 import { config } from '@airstack/airstack-react/config';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createNftWithCommonOwnersQuery } from '../queries/nftWithCommonOwnersQuery';
+import { getNftWithCommonOwnersQuery } from '../queries/nftWithCommonOwnersQuery';
 import { UserInputs } from './useSearchInput';
 import { defaultSortOrder } from '../Components/Filters/SortBy';
 import { tokenTypes } from '../pages/TokenBalances/constants';
@@ -32,10 +32,10 @@ export function useGetTokensOfOwner(
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
   const tokensRef = useRef<TokenType[]>([]);
   const fetchAllBlockchains =
-    blockchainType.length === 2 || blockchainType.length === 0;
+    blockchainType.length === 3 || blockchainType.length === 0;
 
   const query = useMemo(() => {
-    return createNftWithCommonOwnersQuery(
+    return getNftWithCommonOwnersQuery(
       owners,
       fetchAllBlockchains ? null : blockchainType[0]
     );
@@ -85,14 +85,22 @@ export function useGetTokensOfOwner(
 
   useEffect(() => {
     if (!tokensData) return;
-    const { ethereum, polygon } = tokensData;
-    let ethTokens = ethereum?.TokenBalance || [];
-    let maticTokens = polygon?.TokenBalance || [];
-    const processedTokenCount = ethTokens.length + maticTokens.length;
+    const { ethereum, polygon, base } = tokensData;
+    let ethereumTokenBalances = ethereum?.TokenBalance || [];
+    let polygonTokenBalances = polygon?.TokenBalance || [];
+    let baseTokenBalances = base?.TokenBalance || [];
+
+    const processedTokenCount =
+      ethereumTokenBalances.length +
+      polygonTokenBalances.length +
+      baseTokenBalances.length;
     setProcessedTokensCount(count => count + processedTokenCount);
 
-    if (ethTokens.length > 0 && ethTokens[0]?.token?.tokenBalances) {
-      ethTokens = ethTokens
+    if (
+      ethereumTokenBalances.length > 0 &&
+      ethereumTokenBalances[0]?.token?.tokenBalances
+    ) {
+      ethereumTokenBalances = ethereumTokenBalances
         .filter((token: CommonTokenType) =>
           Boolean(token?.token?.tokenBalances?.length)
         )
@@ -101,8 +109,11 @@ export function useGetTokensOfOwner(
           return token;
         }, []);
     }
-    if (maticTokens.length > 0 && maticTokens[0]?.token?.tokenBalances) {
-      maticTokens = maticTokens
+    if (
+      polygonTokenBalances.length > 0 &&
+      polygonTokenBalances[0]?.token?.tokenBalances
+    ) {
+      polygonTokenBalances = polygonTokenBalances
         .filter((token: CommonTokenType) =>
           Boolean(token?.token?.tokenBalances?.length)
         )
@@ -111,7 +122,24 @@ export function useGetTokensOfOwner(
           return token;
         }, []);
     }
-    let tokens = [...ethTokens, ...maticTokens];
+    if (
+      baseTokenBalances.length > 0 &&
+      baseTokenBalances[0]?.token?.tokenBalances
+    ) {
+      baseTokenBalances = baseTokenBalances
+        .filter((token: CommonTokenType) =>
+          Boolean(token?.token?.tokenBalances?.length)
+        )
+        .map((token: CommonTokenType) => {
+          token._common_tokens = token.token.tokenBalances || null;
+          return token;
+        }, []);
+    }
+    let tokens = [
+      ...ethereumTokenBalances,
+      ...polygonTokenBalances,
+      ...baseTokenBalances
+    ];
 
     if (is6551) {
       tokens = tokens.filter((token: CommonTokenType) => {

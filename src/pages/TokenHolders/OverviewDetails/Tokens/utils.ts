@@ -45,11 +45,16 @@ export function getTokenList(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tokenBalances = tokensData?.Poaps?.Poap as any;
   } else {
-    const ethTokenBalances: TokenType[] =
+    const ethereumTokenBalances: TokenType[] =
       tokensData.ethereum?.TokenBalance || [];
     const polygonTokenBalances: TokenType[] =
       tokensData.polygon?.TokenBalance || [];
-    tokenBalances = [...ethTokenBalances, ...polygonTokenBalances];
+    const baseTokenBalances: TokenType[] = tokensData.base?.TokenBalance || [];
+    tokenBalances = [
+      ...ethereumTokenBalances,
+      ...polygonTokenBalances,
+      ...baseTokenBalances
+    ];
   }
 
   const originalSize = tokenBalances.length;
