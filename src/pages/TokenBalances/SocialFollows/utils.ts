@@ -143,7 +143,8 @@ function filterByHoldings(items: Follow[]) {
     return (
       follow?.poapHoldings?.length > 0 ||
       follow?.ethereumHoldings?.length > 0 ||
-      follow?.polygonHoldings?.length > 0
+      follow?.polygonHoldings?.length > 0 ||
+      follow?.baseHoldings?.length > 0
     );
   });
 }

@@ -10,9 +10,16 @@ export function getCommonPoapAndNftOwnersQueryWithFilters(
   hasSocialFilters = false,
   hasPrimaryDomainFilter = false
 ) {
-  return `query CommonPoapAndNftOwners($limit: Int${
-    hasSocialFilters ? ', $socialFilters: [SocialDappName!]' : ''
-  }${hasPrimaryDomainFilter ? ', $hasPrimaryDomain: Boolean' : ''}) {
+  const variables = ['$limit: Int'];
+  if (hasSocialFilters) {
+    variables.push('$socialFilters: [SocialDappName!]');
+  }
+  if (hasPrimaryDomainFilter) {
+    variables.push('$hasPrimaryDomain: Boolean');
+  }
+  const variablesString = variables.join(',');
+
+  return `query CommonPoapAndNftOwners(${variablesString}) {
     Poaps(
       input: {filter: {eventId: {_eq: "${
         eventId.address

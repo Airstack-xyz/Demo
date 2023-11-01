@@ -1,68 +1,3 @@
-export const TokensQuery = `query GetTokens($owner: Identity, $tokenType: [TokenType!], $limit: Int) {
-  ethereum: TokenBalances(
-    input: {filter: {owner: {_eq: $owner}, tokenType: {_in: $tokenType}}, blockchain: ethereum, limit: $limit, order: {lastUpdatedTimestamp: DESC}}
-  ) {
-    TokenBalance {
-      amount
-      tokenType
-      blockchain
-      tokenAddress
-      formattedAmount
-      tokenNfts {
-        tokenId
-        contentValue {
-          image {
-            small
-            large
-            extraSmall
-            medium
-            original
-          }
-        }
-      }
-      token {
-        name
-        symbol
-      }
-    }
-    pageInfo {
-      nextCursor
-      prevCursor
-    }
-  }
-  polygon: TokenBalances(
-    input: {filter: {owner: {_eq: $owner}, tokenType: {_in: $tokenType}}, blockchain: polygon, limit: $limit, order: {lastUpdatedTimestamp: DESC}}
-  ) {
-    TokenBalance {
-      amount
-      tokenType
-      blockchain
-      tokenAddress
-      formattedAmount
-      tokenNfts {
-        tokenId
-        contentValue {
-          image {
-            small
-            large
-            extraSmall
-            medium
-            original
-          }
-        }
-      }
-      token {
-        name
-        symbol
-      }
-    }
-    pageInfo {
-      nextCursor
-      prevCursor
-    }
-  }
-}`;
-
 export const POAPQuery = `query GetPOAPs($owner: Identity, $limit: Int $sortBy: OrderBy) {
   Poaps(input: {filter: {owner: {_eq: $owner}}, blockchain: ALL, limit: $limit, order:{createdAtBlockNumber: $sortBy}}) {
     Poap {
@@ -267,24 +202,54 @@ export const AdvancedSearchAIMentionsQuery = `
   }
 `;
 
-export const ERC20TokensQuery = `query ERC20TokensQuery($owner: Identity, $limit: Int) {
-  ethereum: TokenBalances(
-    input: {filter: {owner: {_eq: $owner}, tokenType: {_eq: ERC20}}, blockchain: ethereum, limit: $limit, order: {lastUpdatedTimestamp: DESC}}
+const getTokenOwnerSubQuery = (blockchain: string) => {
+  return `${blockchain}: TokenBalances(
+    input: {filter: {tokenAddress: {_eq: $tokenAddress}}, blockchain: ${blockchain}, limit: $limit}
   ) {
     TokenBalance {
-      amount
-      tokenType
-      blockchain
       tokenAddress
+      tokenId
+      blockchain
+      tokenType
       formattedAmount
       token {
         name
         symbol
         logo {
+          medium
           small
         }
         projectDetails {
           imageUrl
+        }
+      }
+      tokenNfts {
+        contentValue {
+          video
+          image {
+            small
+            medium
+          }
+        }
+      }
+      owner {
+        identity
+        addresses
+        socials {
+          blockchain
+          dappSlug
+          profileName
+        }
+        primaryDomain {
+          name
+        }
+        domains {
+          chainId
+          dappName
+          name
+        }
+        xmtp {
+          isXMTPEnabled
         }
       }
     }
@@ -292,145 +257,13 @@ export const ERC20TokensQuery = `query ERC20TokensQuery($owner: Identity, $limit
       nextCursor
       prevCursor
     }
-  }
-  polygon: TokenBalances(
-    input: {filter: {owner: {_eq: $owner}, tokenType: {_eq: ERC20}}, blockchain: polygon, limit: $limit, order: {lastUpdatedTimestamp: DESC}}
-  ) {
-    TokenBalance {
-      amount
-      tokenType
-      blockchain
-      tokenAddress
-      formattedAmount
-      token {
-        name
-        symbol
-        logo {
-          small
-        }
-        projectDetails {
-          imageUrl
-        }
-      }
-    }
-    pageInfo {
-      nextCursor
-      prevCursor
-    }
-  }
-}`;
+  }`;
+};
 
 export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $limit: Int) {
-  ethereum: TokenBalances(
-    input: {filter: {tokenAddress: {_eq: $tokenAddress}}, blockchain: ethereum, limit: $limit}
-  ) {
-    TokenBalance {
-      tokenAddress
-      tokenId
-      blockchain
-      tokenType
-      formattedAmount
-      token {
-        name
-        symbol
-        logo {
-          medium
-          small
-        }
-        projectDetails {
-          imageUrl
-        }
-      }
-      tokenNfts {
-        contentValue {
-          video
-          image {
-            small
-            medium
-          }
-        }
-      }
-      owner {
-        identity
-        addresses
-        socials {
-          blockchain
-          dappSlug
-          profileName
-        }
-        primaryDomain {
-          name
-        }
-        domains {
-          chainId
-          dappName
-          name
-        }
-        xmtp {
-          isXMTPEnabled
-        }
-      }
-    }
-    pageInfo {
-      nextCursor
-      prevCursor
-    }
-  }
-  polygon: TokenBalances(
-    input: {filter: {tokenAddress: {_eq: $tokenAddress}}, blockchain: polygon, limit: $limit}
-  ) {
-    TokenBalance {
-      tokenAddress
-      tokenId
-      blockchain
-      tokenType
-      formattedAmount
-      token {
-        name
-        symbol
-        logo {
-          medium
-          small
-        }
-        projectDetails {
-          imageUrl
-        }
-      }
-      tokenNfts {
-        contentValue {
-          video
-          image {
-            small
-            medium
-          }
-        }
-      }
-      owner {
-        identity
-        addresses
-        socials {
-          blockchain
-          dappSlug
-          profileName
-        }
-        primaryDomain {
-          name
-        }
-        domains {
-          chainId
-          dappName
-          name
-        }
-        xmtp {
-          isXMTPEnabled
-        }
-      }
-    }
-    pageInfo {
-      nextCursor
-      prevCursor
-    }
-  }
+  ${getTokenOwnerSubQuery('ethereum')}
+  ${getTokenOwnerSubQuery('polygon')}
+  ${getTokenOwnerSubQuery('base')}
 }`;
 
 export const PoapOwnerQuery = `query GetPoapHolders($eventId: [String!], $limit: Int) {

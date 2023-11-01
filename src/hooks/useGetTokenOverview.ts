@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { apiKey } from '../constants';
-import { getOverviewQuery } from '../queries/tokensQuery';
+import { getOverviewQuery } from '../queries/overviewQuery';
 import { OverviewData } from '../pages/TokenHolders/types';
 
 const API = 'https://api.beta.airstack.xyz/gql';

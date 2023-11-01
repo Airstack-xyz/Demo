@@ -8,6 +8,9 @@ export interface AccountsRequestData {
   polygon: {
     Account: Account[];
   };
+  base: {
+    Account: Account[];
+  };
 }
 
 export interface Account {
@@ -30,8 +33,12 @@ export interface TokenBalance {
 
 function formatData(data: AccountsRequestData) {
   if (!data) return null;
-  const { ethereum, polygon } = data;
-  const accounts = [...(ethereum?.Account || []), ...(polygon?.Account || [])];
+  const { ethereum, polygon, base } = data;
+  const accounts = [
+    ...(ethereum?.Account || []),
+    ...(polygon?.Account || []),
+    ...(base?.Account || [])
+  ];
   const account = accounts.find(account => account.tokenAddress);
   return account
     ? {

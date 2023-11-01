@@ -25,7 +25,7 @@ import {
 } from '../../queries/commonNftOwnersQuery';
 import { sortAddressByPoapFirst } from '../../utils/sortAddressByPoapFirst';
 import { getCommonPoapAndNftOwnersQuery } from '../../queries/commonPoapAndNftOwnersQuery';
-import { createCommonOwnersPOAPsQuery } from '../../queries/commonOwnersPOAPsQuery';
+import { getCommonOwnersPOAPsQuery } from '../../queries/commonOwnersPOAPsQuery';
 import {
   getCommonNftOwnersQueryWithFilters,
   getNftOwnersQueryWithFilters
@@ -185,7 +185,7 @@ export function TokenHolders() {
 
     if (!activeTokenInfo && !hasERC6551) {
       if (hasPoap) {
-        const poapsQuery = createCommonOwnersPOAPsQuery(address);
+        const poapsQuery = getCommonOwnersPOAPsQuery(address);
 
         const poapLink = createAppUrlWithQuery(poapsQuery, {
           limit: 20
