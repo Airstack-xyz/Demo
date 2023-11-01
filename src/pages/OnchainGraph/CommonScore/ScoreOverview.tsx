@@ -65,7 +65,8 @@ export function ScoreOverview() {
   const [{ address }] = useSearchInput();
   const [nftCount, setNftCount] = useState({
     ethereum: 0,
-    polygon: 0
+    polygon: 0,
+    base: 0
   });
   const [poapsCount, setPoapsCount] = useState(0);
   const [follow, setFollow] = useState({
@@ -100,10 +101,11 @@ export function ScoreOverview() {
       await fetchPoaps(address, (count: number) => setPoapsCount(count));
       const { lens, farcaster } = await fetchMutualFollowings(address);
       setFollow({ lens, farcaster });
-      await fetchNfts(address, ({ ethCount, polygonCount }) =>
+      await fetchNfts(address, ({ ethCount, polygonCount, baseCount }) =>
         setNftCount({
           ethereum: ethCount,
-          polygon: polygonCount
+          polygon: polygonCount,
+          base: baseCount
         })
       );
       const { tokenSent, tokenReceived } = await fetchTokensTransfer(address);
@@ -165,9 +167,11 @@ export function ScoreOverview() {
     _score += poapsCount * scoreMap.commonPoaps;
     _score += nftCount.ethereum * scoreMap.commonEthNfts;
     _score += nftCount.polygon * scoreMap.commonPolygonNfts;
+    _score += nftCount.base * scoreMap.commonBaseNfts;
     return _score;
   }, [
     follow,
+    nftCount.base,
     nftCount.ethereum,
     nftCount.polygon,
     poapsCount,
@@ -176,7 +180,7 @@ export function ScoreOverview() {
   ]);
 
   const { lens, farcaster } = follow;
-  const totalNFTCount = nftCount.ethereum + nftCount.polygon;
+  const totalNFTCount = nftCount.ethereum + nftCount.polygon + nftCount.base;
   const hasFarcasterFollow = farcaster.following || farcaster.followedBy;
   const hasLensFollow = lens.following || lens.followedBy;
   const hasTokenTransfer = tokenTransfer.sent || tokenTransfer.received;

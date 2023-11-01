@@ -45,13 +45,13 @@ export function getTokenList(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tokenBalances = tokensData?.Poaps?.Poap as any;
   } else {
-    const ethereumTokenBalances: TokenType[] =
+    const ethTokenBalances: TokenType[] =
       tokensData.ethereum?.TokenBalance || [];
     const polygonTokenBalances: TokenType[] =
       tokensData.polygon?.TokenBalance || [];
     const baseTokenBalances: TokenType[] = tokensData.base?.TokenBalance || [];
     tokenBalances = [
-      ...ethereumTokenBalances,
+      ...ethTokenBalances,
       ...polygonTokenBalances,
       ...baseTokenBalances
     ];

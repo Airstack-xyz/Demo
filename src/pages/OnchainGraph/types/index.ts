@@ -191,7 +191,7 @@ export type RecommendedUser = {
     tokenNfts?: {
       tokenId: string;
     };
-    blockchain?: 'ethereum' | 'polygon';
+    blockchain?: 'ethereum' | 'polygon' | 'base';
   }[];
   _score?: number;
   _farcasterAddresses?: string[];

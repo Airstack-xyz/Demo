@@ -20,7 +20,8 @@ export const defaultScoreMap = {
   followingOnFarcaster: 5,
   commonPoaps: 7,
   commonEthNfts: 5,
-  commonPolygonNfts: 0
+  commonPolygonNfts: 0,
+  commonBaseNfts: 0
 };
 export type ScoreMap = typeof defaultScoreMap;
 
@@ -63,5 +64,9 @@ export const scoreOptions: {
   {
     label: 'Pol. NFTs in common (each)',
     value: 'commonPolygonNfts'
+  },
+  {
+    label: 'Base NFTs in common (each)',
+    value: 'commonBaseNfts'
   }
 ];

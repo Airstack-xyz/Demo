@@ -86,21 +86,21 @@ export function useGetTokensOfOwner(
   useEffect(() => {
     if (!tokensData) return;
     const { ethereum, polygon, base } = tokensData;
-    let ethereumTokenBalances = ethereum?.TokenBalance || [];
+    let ethTokenBalances = ethereum?.TokenBalance || [];
     let polygonTokenBalances = polygon?.TokenBalance || [];
     let baseTokenBalances = base?.TokenBalance || [];
 
     const processedTokenCount =
-      ethereumTokenBalances.length +
+      ethTokenBalances.length +
       polygonTokenBalances.length +
       baseTokenBalances.length;
     setProcessedTokensCount(count => count + processedTokenCount);
 
     if (
-      ethereumTokenBalances.length > 0 &&
-      ethereumTokenBalances[0]?.token?.tokenBalances
+      ethTokenBalances.length > 0 &&
+      ethTokenBalances[0]?.token?.tokenBalances
     ) {
-      ethereumTokenBalances = ethereumTokenBalances
+      ethTokenBalances = ethTokenBalances
         .filter((token: CommonTokenType) =>
           Boolean(token?.token?.tokenBalances?.length)
         )
@@ -136,7 +136,7 @@ export function useGetTokensOfOwner(
         }, []);
     }
     let tokens = [
-      ...ethereumTokenBalances,
+      ...ethTokenBalances,
       ...polygonTokenBalances,
       ...baseTokenBalances
     ];

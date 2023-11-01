@@ -14,7 +14,7 @@ const MAX_ITEMS = 10000;
 function formatData(
   data: TokenBalance[],
   _recommendedUsers: RecommendedUser[] = [],
-  blockchain: 'ethereum' | 'polygon'
+  blockchain: 'ethereum' | 'polygon' | 'base'
 ) {
   const recommendedUsers: RecommendedUser[] = [..._recommendedUsers];
 
@@ -73,7 +73,7 @@ function formatData(
 
 export function useGetNFTs(
   address: string,
-  blockchain: 'ethereum' | 'polygon' = 'ethereum'
+  blockchain: 'ethereum' | 'polygon' | 'base' = 'ethereum'
 ) {
   const requestCanceled = useRef(false);
   const { setData, setTotalScannedDocuments } = useOnchainGraphContext();
