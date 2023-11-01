@@ -69,6 +69,7 @@ export interface Owner {
 export interface Social {
   blockchain: string;
   dappSlug: string;
+  dappName: string;
   profileName: string;
 }
 

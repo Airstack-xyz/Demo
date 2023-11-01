@@ -48,6 +48,7 @@ export function getCommonPoapAndNftOwnersQueryWithFilters(
               socials${hasSocialFilters ? socialInput : ''} {
                 blockchain
                 dappSlug
+                dappName
                 profileName
               }
               primaryDomain {

@@ -41,10 +41,14 @@ export function NFTInfo({
   });
 
   useEffect(() => {
+    // Don't fetch tokenHolders data for gnosis blockchain (api doesn't support that)
+    if (blockchain === 'gnosis') {
+      return;
+    }
     if (!loadingHolder || holderData) {
       fetchHolders();
     }
-  }, [fetchHolders, holderData, loadingHolder]);
+  }, [blockchain, fetchHolders, holderData, loadingHolder]);
 
   const expandDetails =
     nft?.type === 'ERC1155' ||

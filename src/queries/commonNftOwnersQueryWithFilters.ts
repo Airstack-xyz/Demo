@@ -39,6 +39,7 @@ const getCommonNftOwnersSubQueryWithFilters = (
             socials${hasSocialFilters ? socialInput : ''} {
               blockchain
               dappSlug
+              dappName
               profileName
             }
             primaryDomain {
@@ -111,6 +112,7 @@ const getNftOwnersSubQueryWithFilters = (
           socials${hasSocialFilters ? socialInput : ''} {
             blockchain
             dappSlug
+            dappName
             profileName
           }
           primaryDomain {

@@ -32,6 +32,7 @@ function getFields(hasSocialFilters = false, hasPrimaryDomainFilter = false) {
      socials${hasSocialFilters ? socialInput : ''} {
        blockchain
        dappSlug
+       dappName
        profileName
      }
      primaryDomain {

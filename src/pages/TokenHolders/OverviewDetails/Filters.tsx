@@ -93,7 +93,6 @@ export function Filters() {
         <ul className="absolute top-full right-0 z-10 bg-glass p-3 rounded-18 border-solid-stroke mt-1 text-xs [&>li]:mb-1.5 ">
           {options.map(({ label, value }) => {
             if (value === activeView) return null;
-
             return (
               <li key={value} className="-mx-3">
                 <label className="whitespace-nowrap flex items-center py-1.5 px-3 cursor-pointer hover:bg-glass">
