@@ -65,7 +65,7 @@ function Token({
   const assets = useMemo(() => {
     if (!address || !tokenId) return null;
     if (!hasERC6551) {
-      return [
+      return (
         <Asset
           image={image}
           address={address}
@@ -75,7 +75,7 @@ function Token({
           useImageOnError={isPoap}
           containerClassName="w-full h-full [&>img]:w-full [&>img]:min-w-full"
         />
-      ];
+      );
     }
     const assets = [
       {
@@ -183,6 +183,7 @@ function Token({
 }
 
 const MAX_TOKENS = 2;
+
 export const TokenCombination = memo(function TokenCombination({
   token: tokenProp
 }: TokenProps) {
