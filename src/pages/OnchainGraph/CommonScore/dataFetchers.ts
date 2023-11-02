@@ -182,8 +182,6 @@ export async function fetchMutualFollowings(address: string[]) {
           following.followingAddress.domains?.some(x => x.name === address)
         );
 
-      // console.log({ domains: following.followingAddress.domains });
-
       if (match) {
         isFollowing = true;
         followedBy =

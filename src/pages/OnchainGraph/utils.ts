@@ -68,16 +68,30 @@ export function filterDuplicatedAndCalculateScore(
         return true;
       });
 
-      const ethNftCount = uniqueNfts.filter(
-        nft => nft.blockchain === 'ethereum'
-      ).length;
-      const polygonNftCount = uniqueNfts.filter(
-        nft => nft.blockchain === 'polygon'
-      ).length;
+      let ethNftCount = 0;
+      let polygonNftCount = 0;
+      let baseNftCount = 0;
+
+      uniqueNfts.forEach(nft => {
+        switch (nft.blockchain) {
+          case 'ethereum':
+            ethNftCount += 1;
+            break;
+          case 'polygon':
+            polygonNftCount += 1;
+            break;
+          case 'base':
+            baseNftCount += 1;
+            break;
+        }
+      });
+
       score +=
         scoreMap.commonEthNfts * ethNftCount +
-        scoreMap.commonPolygonNfts * polygonNftCount;
+        scoreMap.commonPolygonNfts * polygonNftCount +
+        scoreMap.commonBaseNfts * baseNftCount;
     }
+
     let uniquePoaps: RecommendedUser['poaps'] = [];
     if (user.poaps) {
       const existingPoaps: Record<string, boolean> = {};
