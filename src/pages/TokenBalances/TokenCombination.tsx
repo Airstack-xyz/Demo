@@ -65,17 +65,15 @@ function Token({
   const assets = useMemo(() => {
     if (!address || !tokenId) return null;
     if (!hasERC6551) {
-      return [
-        <Asset
-          image={image}
-          address={address}
-          tokenId={tokenId}
-          chain={blockchain}
-          preset="medium"
-          useImageOnError={isPoap}
-          containerClassName="w-full h-full [&>img]:w-full [&>img]:min-w-full"
-        />
-      ];
+      <Asset
+        image={image}
+        address={address}
+        tokenId={tokenId}
+        chain={blockchain}
+        preset="medium"
+        useImageOnError={isPoap}
+        containerClassName="w-full h-full [&>img]:w-full [&>img]:min-w-full"
+      />;
     }
     const assets = [
       {
