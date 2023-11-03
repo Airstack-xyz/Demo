@@ -123,14 +123,14 @@ function UserInfo({
         farcasterUserName = social.profileName;
       }
     });
-    let domain = user?.primaryDomain?.name || '';
-    if (domain) {
-      user.domains?.forEach(({ name, isPrimary }) => {
-        if (isPrimary) {
-          domain = name;
+    let domain = user?.primaryDomain;
+    if (!domain) {
+      user.domains?.forEach(_domain => {
+        if (_domain.isPrimary) {
+          domain = _domain;
         }
         if (!domain) {
-          domain = name;
+          domain = _domain;
         }
       });
     }
@@ -139,21 +139,34 @@ function UserInfo({
       farcasterUserName,
       domain
     };
-  }, [user.domains, user?.primaryDomain?.name, user.socials]);
+  }, [user.domains, user?.primaryDomain, user.socials]);
 
+  const domainName = domain?.name || '';
   const profileName =
-    domain || lensUserName || farcasterUserName || address || '';
+    domainName || lensUserName || farcasterUserName || address || '';
 
-  const blockchain =
-    social?.blockchain !== 'ethereum' && social?.blockchain !== 'polygon'
-      ? ''
-      : social?.blockchain;
+  const hasDomainToken = domain?.tokenNft;
+
+  let blockchain = hasDomainToken
+    ? domain?.tokenNft?.blockchain
+    : social?.blockchain;
+
+  blockchain =
+    blockchain !== 'ethereum' && blockchain !== 'polygon' ? '' : blockchain;
+
+  const tokenId = hasDomainToken
+    ? domain?.tokenNft?.tokenId
+    : social?.profileTokenId;
+
+  const tokenAddress = hasDomainToken
+    ? domain?.tokenNft?.address
+    : social?.profileTokenAddress;
 
   return (
     <div
       className="h-full w-full cursor-pointer"
       onClick={() => {
-        onClick?.(domain || address);
+        onClick?.(domainName || address);
       }}
     >
       <div className="flex p-5 bg-glass overflow-hidden">
@@ -163,10 +176,10 @@ function UserInfo({
               preset="medium"
               containerClassName="w-full h-full flex items-center justify-center"
               chain={blockchain as Chain}
-              tokenId={blockchain ? social?.profileTokenId || '' : ''}
+              tokenId={blockchain ? tokenId || '' : ''}
               address={
                 // if there is profile image then set address to empty string so that it doesn't show the token image
-                social?.profileImage ? '' : social?.profileTokenAddress || ''
+                social?.profileImage ? '' : tokenAddress || ''
               }
               image={social?.profileImage}
               useImageOnError
@@ -194,7 +207,7 @@ function UserInfo({
           {user.xmtp && (
             <IconWithTooltip icon="xmtp-grey" text="xmtp enabled" />
           )}
-          {domain && <IconWithTooltip icon="ens-grey" text={domain} />}
+          {domain && <IconWithTooltip icon="ens-grey" text={domainName} />}
           {lensUserName && (
             <IconWithTooltip icon="lens-grey" text={lensUserName} />
           )}

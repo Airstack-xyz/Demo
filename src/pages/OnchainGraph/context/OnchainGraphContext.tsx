@@ -40,7 +40,17 @@ export interface SocialData {
       name: string;
       isPrimary: string;
     }[];
-    socials?: {
+    lensSocials?: {
+      isDefault: boolean;
+      dappName: string;
+      dappSlug: string;
+      blockchain: string;
+      profileName: string;
+      profileTokenId: string;
+      followerCount: number;
+      followingCount: number;
+    }[];
+    farcasterSocials?: {
       isDefault: boolean;
       dappName: string;
       dappSlug: string;
@@ -66,14 +76,8 @@ function getIdentitiesFromSocial(data: SocialData) {
     return null;
   }
 
-  user.socials?.forEach(social => {
-    if (social.dappName === 'lens') {
-      lensUsername = social.profileName;
-    }
-    if (social.dappName === 'farcaster') {
-      farcasterUsername = social.profileName;
-    }
-  });
+  lensUsername = user?.lensSocials?.[0]?.profileName || '';
+  farcasterUsername = user?.farcasterSocials?.[0]?.profileName || '';
 
   let ens = user?.primaryDomain?.name || '';
 

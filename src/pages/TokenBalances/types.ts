@@ -96,18 +96,21 @@ export interface SocialsType {
 
 export interface Wallet {
   addresses: string[];
-  primaryDomain: PrimaryDomain;
+  primaryDomain: Domain;
   domains: Domain[];
-  socials: Social[];
+  farcasterSocials: Social[];
+  lensSocials: Social[];
   xmtp: Xmtp[];
-}
-
-export interface PrimaryDomain {
-  name: string;
 }
 
 export interface Domain {
   name: string;
+  isPrimary?: boolean;
+  tokenNft: {
+    tokenId: string;
+    address: string;
+    blockchain: string;
+  };
 }
 
 export interface Social {
@@ -116,9 +119,11 @@ export interface Social {
   dappName: string;
   dappSlug: string;
   profileName: string;
+  profileImage: string;
   profileTokenId: string;
   followerCount: number;
   followingCount: number;
+  profileTokenAddress: string;
 }
 
 export interface Xmtp {
