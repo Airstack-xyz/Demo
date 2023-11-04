@@ -27,16 +27,4 @@ export type WalletType = {
   xmtp: {
     isXMTPEnabled: boolean;
   }[];
-  farcasterFollowers?: {
-    Follower: {
-      id: string;
-      followerTokenId: string;
-    }[];
-  };
-  lensFollowers?: {
-    Follower: {
-      id: string;
-      followerTokenId: string;
-    }[];
-  };
 };

@@ -159,22 +159,6 @@ export const SocialOverlapQuery = `query GetSocialOverlap($identity1: Identity!,
     xmtp {
       isXMTPEnabled
     }
-    farcasterFollowers: socialFollowers(
-      input: {filter: {identity: {_eq: $identity2}, dappName: {_eq: farcaster}}, limit: 1}
-    ) {
-      Follower {
-        id
-        followerTokenId
-      }
-    }
-    lensFollowers: socialFollowers(
-      input: {filter: {identity: {_eq: $identity2}, dappName: {_eq: lens}}, limit: 1}
-    ) {
-      Follower {
-        id
-        followerTokenId
-      }
-    }
   }
   wallet2: Wallet(input: {identity: $identity2, blockchain: ethereum}) {
     addresses
@@ -202,22 +186,6 @@ export const SocialOverlapQuery = `query GetSocialOverlap($identity1: Identity!,
     }
     xmtp {
       isXMTPEnabled
-    }
-    farcasterFollowers: socialFollowers(
-      input: {filter: {identity: {_eq: $identity1}, dappName: {_eq: farcaster}}, limit: 1}
-    ) {
-      Follower {
-        id
-        followerTokenId
-      }
-    }
-    lensFollowers: socialFollowers(
-      input: {filter: {identity: {_eq: $identity1}, dappName: {_eq: lens}}, limit: 1}
-    ) {
-      Follower {
-        id
-        followerTokenId
-      }
     }
   }
 }`;
