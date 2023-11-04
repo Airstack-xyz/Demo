@@ -56,8 +56,10 @@ export function Card({
         />
       ) : (
         <LazyImage
-          className="w-[180px] h-[180px] object-cover rounded-2xl"
+          className="object-cover rounded-2xl"
           src={item.profileImage}
+          height={180}
+          width={180}
         />
       )}
       <div className="p-6 w-full">
