@@ -54,29 +54,12 @@ const getSocialFollowInfo = (wallet: WalletType) => {
 
   // For lens:
   if (lensSocials.length > 0) {
-    // find default lens profile based on:
-    const defaultProfile =
-      lensSocials.find(item => item.isDefault) ||
-      lensSocials.find(item => item.followingCount > 0) ||
-      lensSocials[0];
-
-    followData.lens.sections.push({
-      profileName: defaultProfile.profileName,
-      profileTokenId: defaultProfile.profileTokenId,
-      followerCount: defaultProfile.followerCount,
-      followingCount: defaultProfile.followingCount
-    });
-    lensSocials.forEach(item => {
-      if (item.profileName !== defaultProfile.profileName) {
-        followData.lens.sections.push({
-          profileName: item.profileName,
-          profileTokenId: item.profileTokenId,
-          followerCount: item.followerCount,
-          followingCount: defaultProfile.followingCount,
-          hideFollowingCount: true
-        });
-      }
-    });
+    followData.lens.sections = lensSocials.map(item => ({
+      profileName: item.profileName,
+      profileTokenId: item.profileTokenId,
+      followerCount: item.followerCount,
+      followingCount: item.followingCount
+    }));
   } else {
     followData.lens.sections = [
       {
@@ -255,7 +238,7 @@ function SocialsComponent() {
         <div
           data-loader-type="block"
           data-loader-height="auto"
-          className="h-full p-5 flex-1"
+          className="h-full py-5 pl-5 pr-2.5 flex-1"
         >
           <Social
             name="Primary ENS"

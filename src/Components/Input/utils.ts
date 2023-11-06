@@ -81,7 +81,10 @@ export function highlightMentionText(root: HTMLElement, matched = false) {
   });
 }
 
-export function highlightMention(el: HTMLTextAreaElement | null) {
+export function highlightMention(
+  el: HTMLTextAreaElement | null,
+  disableHighlighting?: boolean
+) {
   if (!el) return;
   const root = getNode(el.parentElement as HTMLElement) as HTMLElement;
   const targetNode = root.nextSibling as HTMLElement;
@@ -89,7 +92,9 @@ export function highlightMention(el: HTMLTextAreaElement | null) {
 
   const callback = () => {
     root.innerHTML = targetNode.innerHTML;
-    highlightMentionText(root);
+    if (!disableHighlighting) {
+      highlightMentionText(root);
+    }
   };
   const observer = new MutationObserver(callback);
   observer.observe(targetNode, config);

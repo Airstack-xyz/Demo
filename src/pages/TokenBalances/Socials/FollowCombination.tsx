@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Icon, IconType } from '../../../Components/Icon';
-import classNames from 'classnames';
+import { IconType } from '../../../Components/Icon';
 
 export type FollowCombinationParams = {
   dappName: string;
@@ -105,26 +104,6 @@ function FollowCombinationSection({
   );
 }
 
-type FollowInfoProps = {
-  icon: IconType;
-  text: string;
-  className?: string;
-};
-
-function FollowInfo({ icon, text, className }: FollowInfoProps) {
-  return (
-    <div
-      className={classNames(
-        'flex items-center font-medium text-text-secondary',
-        className
-      )}
-    >
-      <Icon name={icon} height={16} width={16} />
-      <span className="ml-1 ellipsis">{text}</span>
-    </div>
-  );
-}
-
 type FollowCombinationProps = {
   onFollowClick?: (params: FollowCombinationParams) => void;
   onShowMoreClick?: (values: string[], type?: string) => void;
@@ -135,7 +114,6 @@ export function FollowCombination({
   image,
   dappName,
   sections,
-  followInfo,
   onFollowClick,
   onShowMoreClick
 }: FollowCombinationProps) {
@@ -147,13 +125,6 @@ export function FollowCombination({
         </div>
         <span className="first-letter:uppercase">{name}</span>
       </div>
-      {followInfo && (
-        <FollowInfo
-          icon={followInfo.icon}
-          text={followInfo.text}
-          className="mt-2 mb-1.5 ml-[34px]"
-        />
-      )}
       {sections?.map(item => (
         <FollowCombinationSection
           key={item.name}
