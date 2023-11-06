@@ -6,11 +6,11 @@ const maxItemCount = 7;
 const minItemCount = 1;
 
 type SocialSectionProps = {
-  name?: string;
+  name: string;
   values: ReactNode[];
   type?: string;
   onAddressClick?: (value: unknown, type?: string) => void;
-  onShowMoreClick?: (address: string, values: string[], type?: string) => void;
+  onShowMoreClick?: (values: string[], type?: string) => void;
 };
 
 function SocialSection({
@@ -61,7 +61,7 @@ function SocialSection({
           <li
             onClick={() => {
               if (showMax && values.length > maxItemCount) {
-                onShowMoreClick?.(name || '', values as string[], type);
+                onShowMoreClick?.([name], type);
                 return;
               }
             }}
@@ -81,7 +81,7 @@ type SocialProps = {
   image: string;
   sections?: SocialSectionType[];
   onAddressClick?: (value: unknown, type?: string) => void;
-  onShowMoreClick?: (address: string, values: string[], type?: string) => void;
+  onShowMoreClick?: (values: string[], type?: string) => void;
 };
 
 export function SocialCombination({
