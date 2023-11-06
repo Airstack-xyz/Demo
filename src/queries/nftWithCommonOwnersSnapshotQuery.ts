@@ -1,6 +1,6 @@
 import { SnapshotFilterType } from '../Components/Filters/SnapshotFilter';
 
-const recursiveFields = `
+const fields = `
   amount
   tokenType
   blockchain
@@ -52,7 +52,7 @@ function getSubQueryWithFilter(
 ): string {
   const children =
     owners.length - 1 === index
-      ? recursiveFields
+      ? fields
       : getSubQueryWithFilter(owners, index + 1, blockchain);
   return `
     token {
@@ -71,7 +71,7 @@ function getSubQueryWithFilter(
   `;
 }
 
-const fields = `
+const parentFields = `
   blockchain
   tokenAddress
   tokenType
@@ -113,19 +113,16 @@ const fields = `
 `;
 
 function getSubQueryForBlockchain({
-  isEthereum,
   owners,
-  appliedSnapshotFilter
+  appliedSnapshotFilter,
+  blockchain
 }: {
-  isEthereum?: boolean;
   owners: string[];
   appliedSnapshotFilter: SnapshotFilterType;
+  blockchain: string;
 }) {
-  const blockchain = isEthereum ? 'ethereum' : 'polygon';
   const children =
-    owners.length === 1
-      ? recursiveFields
-      : getSubQueryWithFilter(owners, 1, blockchain);
+    owners.length === 1 ? fields : getSubQueryWithFilter(owners, 1, blockchain);
 
   const filters = [
     `owner: {_eq: "${owners[0]}"}`,
@@ -147,14 +144,14 @@ function getSubQueryForBlockchain({
   return `
     ${blockchain}: Snapshots(input: {filter: {${filtersString}}, blockchain: ${blockchain}, limit: $limit}) {
       TokenBalance: Snapshot {
-        ${owners.length > 1 ? fields : ''}
+        ${owners.length > 1 ? parentFields : ''}
         ${children}
       }
     }
   `;
 }
 
-export function createNftWithCommonOwnersSnapshotQuery({
+export function getNftWithCommonOwnersSnapshotQuery({
   owners,
   blockchain,
   appliedSnapshotFilter
@@ -164,11 +161,6 @@ export function createNftWithCommonOwnersSnapshotQuery({
   appliedSnapshotFilter: SnapshotFilterType;
 }) {
   if (!owners.length) return '';
-
-  const commonParams = {
-    owners,
-    appliedSnapshotFilter
-  };
 
   const variables = ['$tokenType: [TokenType!]', '$limit: Int'];
   switch (appliedSnapshotFilter) {
@@ -184,22 +176,21 @@ export function createNftWithCommonOwnersSnapshotQuery({
   }
   const variablesString = variables.join(',');
 
+  const subQueries: string[] = [];
+  ['ethereum', 'polygon', 'base'].forEach(_blockchain => {
+    if (!blockchain || blockchain === _blockchain) {
+      subQueries.push(
+        getSubQueryForBlockchain({
+          owners,
+          appliedSnapshotFilter,
+          blockchain: _blockchain
+        })
+      );
+    }
+  });
+  const subQueriesString = subQueries.join('\n');
+
   return `query GetTokens(${variablesString}) {
-    ${
-      !blockchain || blockchain === 'ethereum'
-        ? getSubQueryForBlockchain({
-            isEthereum: true,
-            ...commonParams
-          })
-        : ''
-    }
-    ${
-      !blockchain || blockchain === 'polygon'
-        ? getSubQueryForBlockchain({
-            isEthereum: false,
-            ...commonParams
-          })
-        : ''
-    }
+    ${subQueriesString}
   }`;
 }

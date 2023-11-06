@@ -1,11 +1,11 @@
 import { config } from '@airstack/airstack-react/config';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createNftWithCommonOwnersQuery } from '../queries/nftWithCommonOwnersQuery';
-import { defaultSortOrder } from '../Components/Filters/SortBy';
+import { getNftWithCommonOwnersQuery } from '../queries/nftWithCommonOwnersQuery';
 import { UserInputs } from './useSearchInput';
+import { defaultSortOrder } from '../Components/Filters/SortBy';
 import { tokenTypes } from '../pages/TokenBalances/constants';
 import { CommonTokenType, TokenType } from '../pages/TokenBalances/types';
-import { createNftWithCommonOwnersSnapshotQuery } from '../queries/nftWithCommonOwnersSnapshotQuery';
+import { getNftWithCommonOwnersSnapshotQuery } from '../queries/nftWithCommonOwnersSnapshotQuery';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import {
   getActiveSnapshotInfo,
@@ -49,18 +49,18 @@ export function useGetTokensOfOwner(
 
   const query = useMemo(() => {
     const fetchAllBlockchains =
-      blockchainType.length === 2 || blockchainType.length === 0;
+      blockchainType.length === 3 || blockchainType.length === 0;
 
     const blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
     if (snapshotInfo.isApplicable) {
-      return createNftWithCommonOwnersSnapshotQuery({
+      return getNftWithCommonOwnersSnapshotQuery({
         owners,
         blockchain: blockchain,
         appliedSnapshotFilter: snapshotInfo.appliedFilter
       });
     }
-    return createNftWithCommonOwnersQuery(owners, blockchain);
+    return getNftWithCommonOwnersQuery(owners, blockchain);
   }, [
     blockchainType,
     snapshotInfo.isApplicable,
@@ -129,14 +129,22 @@ export function useGetTokensOfOwner(
 
   useEffect(() => {
     if (!tokensData) return;
-    const { ethereum, polygon } = tokensData;
-    let ethTokens = ethereum?.TokenBalance || [];
-    let maticTokens = polygon?.TokenBalance || [];
-    const processedTokenCount = ethTokens.length + maticTokens.length;
+    const { ethereum, polygon, base } = tokensData;
+    let ethTokenBalances = ethereum?.TokenBalance || [];
+    let polygonTokenBalances = polygon?.TokenBalance || [];
+    let baseTokenBalances = base?.TokenBalance || [];
+
+    const processedTokenCount =
+      ethTokenBalances.length +
+      polygonTokenBalances.length +
+      baseTokenBalances.length;
     setProcessedTokensCount(count => count + processedTokenCount);
 
-    if (ethTokens.length > 0 && ethTokens[0]?.token?.tokenBalances) {
-      ethTokens = ethTokens
+    if (
+      ethTokenBalances.length > 0 &&
+      ethTokenBalances[0]?.token?.tokenBalances
+    ) {
+      ethTokenBalances = ethTokenBalances
         .filter((token: CommonTokenType) =>
           Boolean(token?.token?.tokenBalances?.length)
         )
@@ -145,8 +153,11 @@ export function useGetTokensOfOwner(
           return token;
         }, []);
     }
-    if (maticTokens.length > 0 && maticTokens[0]?.token?.tokenBalances) {
-      maticTokens = maticTokens
+    if (
+      polygonTokenBalances.length > 0 &&
+      polygonTokenBalances[0]?.token?.tokenBalances
+    ) {
+      polygonTokenBalances = polygonTokenBalances
         .filter((token: CommonTokenType) =>
           Boolean(token?.token?.tokenBalances?.length)
         )
@@ -155,7 +166,24 @@ export function useGetTokensOfOwner(
           return token;
         }, []);
     }
-    let tokens = [...ethTokens, ...maticTokens];
+    if (
+      baseTokenBalances.length > 0 &&
+      baseTokenBalances[0]?.token?.tokenBalances
+    ) {
+      baseTokenBalances = baseTokenBalances
+        .filter((token: CommonTokenType) =>
+          Boolean(token?.token?.tokenBalances?.length)
+        )
+        .map((token: CommonTokenType) => {
+          token._common_tokens = token.token.tokenBalances || null;
+          return token;
+        }, []);
+    }
+    let tokens = [
+      ...ethTokenBalances,
+      ...polygonTokenBalances,
+      ...baseTokenBalances
+    ];
 
     if (is6551) {
       tokens = tokens.filter((token: CommonTokenType) => {

@@ -10,7 +10,7 @@ const socialInput = '(input: {filter: {dappName: {_in: $socialFilters}}})';
 const primaryDomainInput =
   '(input: {filter: {isPrimary: {_eq: $hasPrimaryDomain}}})';
 
-const createBaseQuery = (
+const getFields = (
   hasSocialFilters = false,
   hasPrimaryDomainFilter = false
 ) => {
@@ -43,6 +43,7 @@ const createBaseQuery = (
       socials${hasSocialFilters ? socialInput : ''} {
         blockchain
         dappSlug
+        dappName
         profileName
       }
       primaryDomain {
@@ -67,7 +68,7 @@ function getQueryWithFilter(
 ): string {
   const children =
     tokens.length - 1 === index
-      ? createBaseQuery(hasSocialFilters, hasPrimaryDomainFilter)
+      ? getFields(hasSocialFilters, hasPrimaryDomainFilter)
       : getQueryWithFilter(
           tokens,
           index + 1,
@@ -106,33 +107,36 @@ export const getFilterableTokensQuery = (
 ) => {
   const children =
     tokenAddress.length === 1
-      ? createBaseQuery(hasSocialFilters, hasPrimaryDomainFilter)
+      ? getFields(hasSocialFilters, hasPrimaryDomainFilter)
       : getQueryWithFilter(
           tokenAddress,
           1,
           hasSocialFilters,
           hasPrimaryDomainFilter
         );
-  return `query GetTokenHolders($limit: Int${
-    hasSocialFilters ? ', $socialFilters: [SocialDappName!]' : ''
-  }${hasPrimaryDomainFilter ? ', $hasPrimaryDomain: Boolean' : ''}) {
-    ethereum: TokenBalances(
-      input: {filter: {tokenAddress: {_eq: "${
-        tokenAddress[0]
-      }"}}, blockchain: ethereum, limit: $limit}
-    ) {
-      TokenBalance {
-        ${children}
-      }
-    }
-    polygon: TokenBalances(
-      input: {filter: {tokenAddress: {_eq: "${
-        tokenAddress[0]
-      }"}}, blockchain: polygon, limit: $limit}
-    ) {
-      TokenBalance {
-        ${children}
-      }
-    }
+
+  const variables = ['$limit: Int'];
+  if (hasSocialFilters) {
+    variables.push('$socialFilters: [SocialDappName!]');
+  }
+  if (hasPrimaryDomainFilter) {
+    variables.push('$hasPrimaryDomain: Boolean');
+  }
+  const variablesString = variables.join(',');
+
+  const subQueries: string[] = [];
+  ['ethereum', 'polygon', 'base'].forEach(blockchain => {
+    subQueries.push(`${blockchain}: TokenBalances(
+        input: {filter: {tokenAddress: {_eq: "${tokenAddress[0]}"}}, blockchain: ${blockchain}, limit: $limit}
+      ) {
+        TokenBalance {
+          ${children}
+        }
+      }`);
+  });
+  const subQueriesString = subQueries.join('\n');
+
+  return `query GetTokenHolders(${variablesString}) {
+    ${subQueriesString}
   }`;
 };

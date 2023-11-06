@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { KeyValue } from '../KeyValue';
-import { Attribute, Nft, TokenTransfer } from '../../erc20-types';
+import { Attribute, Nft, TokenTransfer } from '../../erc20.types';
 import { ERC20TokenDetailsResponse } from '../types';
 import { LoaderItem } from './LoaderItem';
 import { CopyButton } from './CopyButton';
@@ -41,10 +41,14 @@ export function NFTInfo({
   });
 
   useEffect(() => {
+    // Don't fetch tokenHolders data for gnosis blockchain (api doesn't support that)
+    if (blockchain === 'gnosis') {
+      return;
+    }
     if (!loadingHolder || holderData) {
       fetchHolders();
     }
-  }, [fetchHolders, holderData, loadingHolder]);
+  }, [blockchain, fetchHolders, holderData, loadingHolder]);
 
   const expandDetails =
     nft?.type === 'ERC1155' ||

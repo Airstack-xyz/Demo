@@ -3,6 +3,7 @@ import { Domain, Social } from './index';
 export interface TokenQueryResponse {
   Ethereum: TokenSent;
   Polygon: TokenSent;
+  Base: TokenSent;
 }
 
 export interface TokenSent {

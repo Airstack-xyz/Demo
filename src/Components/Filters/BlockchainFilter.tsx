@@ -5,7 +5,7 @@ import { Dropdown, Option } from '../Dropdown';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 
-export type BlockchainFilterType = 'all' | 'ethereum' | 'polygon';
+export type BlockchainFilterType = 'all' | 'ethereum' | 'polygon' | 'base';
 
 export const defaultBlockchainFilter: BlockchainFilterType = 'all';
 
@@ -26,6 +26,10 @@ export const blockchainOptions: BlockchainOption[] = [
   {
     label: 'Polygon',
     value: 'polygon'
+  },
+  {
+    label: 'Base',
+    value: 'base'
   }
 ];
 
@@ -69,11 +73,13 @@ export function BlockchainFilter({ disabled }: { disabled?: boolean }) {
 
   const selected = useMemo(() => {
     const filterValue = blockchainType[0];
-    if (filterValue === 'ethereum') {
-      return [blockchainOptions[1]];
-    }
-    if (filterValue === 'polygon') {
-      return [blockchainOptions[2]];
+    switch (filterValue) {
+      case 'ethereum':
+        return [blockchainOptions[1]];
+      case 'polygon':
+        return [blockchainOptions[2]];
+      case 'base':
+        return [blockchainOptions[3]];
     }
     return [blockchainOptions[0]];
   }, [blockchainType]);

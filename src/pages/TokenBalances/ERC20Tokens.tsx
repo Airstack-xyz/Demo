@@ -1,28 +1,29 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import classNames from 'classnames';
 import {
-  useState,
+  ComponentProps,
+  useCallback,
   useEffect,
   useMemo,
-  useCallback,
-  ComponentProps,
-  useRef
+  useRef,
+  useState
 } from 'react';
-import { SectionHeader } from './SectionHeader';
-import { CommonTokenType, TokenType } from './types';
-import classNames from 'classnames';
-import { useSearchInput } from '../../hooks/useSearchInput';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { formatNumber } from '../../utils/formatNumber';
-import './erc20.styles.css';
-import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
-import { emit } from '../../utils/eventEmitter/eventEmitter';
-import { createNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
+import { defaultSortOrder } from '../../Components/Filters/SortBy';
+import { useSearchInput } from '../../hooks/useSearchInput';
+import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { getNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
 import {
   getActiveSnapshotInfo,
   getSnapshotQueryFilters
 } from '../../utils/activeSnapshotInfoString';
 import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
-import { defaultSortOrder } from '../../Components/Filters/SortBy';
+import { emit } from '../../utils/eventEmitter/eventEmitter';
+import { formatNumber } from '../../utils/formatNumber';
+import { SectionHeader } from './SectionHeader';
+import { CommonTokenType, TokenType } from './types';
+
+import './erc20.styles.css';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
@@ -121,18 +122,18 @@ export function ERC20Tokens() {
 
   const query = useMemo(() => {
     const fetchAllBlockchains =
-      blockchainType.length === 2 || blockchainType.length === 0;
+      blockchainType.length === 3 || blockchainType.length === 0;
 
     const blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
     if (snapshotInfo.isApplicable) {
-      return createNftWithCommonOwnersSnapshotQuery({
+      return getNftWithCommonOwnersSnapshotQuery({
         owners,
         blockchain: blockchain,
         appliedSnapshotFilter: snapshotInfo.appliedFilter
       });
     }
-    return createNftWithCommonOwnersQuery(owners, blockchain);
+    return getNftWithCommonOwnersQuery(owners, blockchain);
   }, [
     blockchainType,
     snapshotInfo.isApplicable,
@@ -142,13 +143,21 @@ export function ERC20Tokens() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onData = useCallback((data: any) => {
-    const { ethereum, polygon } = data;
-    let ethTokens = ethereum?.TokenBalance || [];
-    let maticTokens = polygon?.TokenBalance || [];
-    const totalTokens = ethTokens.length + maticTokens.length;
+    const { ethereum, polygon, base } = data;
+    let ethTokenBalances = ethereum?.TokenBalance || [];
+    let polygonTokenBalances = polygon?.TokenBalance || [];
+    let baseTokenBalances = base?.TokenBalance || [];
 
-    if (ethTokens.length > 0 && ethTokens[0]?.token?.tokenBalances) {
-      ethTokens = ethTokens
+    const totalTokens =
+      ethTokenBalances.length +
+      polygonTokenBalances.length +
+      baseTokenBalances.length;
+
+    if (
+      ethTokenBalances.length > 0 &&
+      ethTokenBalances[0]?.token?.tokenBalances
+    ) {
+      ethTokenBalances = ethTokenBalances
         .filter(
           (token: CommonTokenType) => token.token.tokenBalances.length > 0
         )
@@ -158,8 +167,11 @@ export function ERC20Tokens() {
           return items;
         }, []);
     }
-    if (maticTokens.length > 0 && maticTokens[0]?.token?.tokenBalances) {
-      maticTokens = maticTokens
+    if (
+      polygonTokenBalances.length > 0 &&
+      polygonTokenBalances[0]?.token?.tokenBalances
+    ) {
+      polygonTokenBalances = polygonTokenBalances
         .filter(
           (token: CommonTokenType) => token.token.tokenBalances.length > 0
         )
@@ -169,9 +181,35 @@ export function ERC20Tokens() {
           return items;
         }, []);
     }
-    tokensRef.current = [...tokensRef.current, ...ethTokens, ...maticTokens];
+    if (
+      baseTokenBalances.length > 0 &&
+      baseTokenBalances[0]?.token?.tokenBalances
+    ) {
+      baseTokenBalances = baseTokenBalances
+        .filter(
+          (token: CommonTokenType) => token.token.tokenBalances.length > 0
+        )
+        .reduce((items: TokenType[], token: CommonTokenType) => {
+          items.push(token.token.tokenBalances[0]);
+          //   token.token.tokenBalances.forEach(item => items.push(item));
+          return items;
+        }, []);
+    }
+
+    tokensRef.current = [
+      ...tokensRef.current,
+      ...ethTokenBalances,
+      ...polygonTokenBalances,
+      ...baseTokenBalances
+    ];
+
     setTotalProcessedTokens(count => count + totalTokens);
-    setTokens(tokens => [...tokens, ...ethTokens, ...maticTokens]);
+    setTokens(tokens => [
+      ...tokens,
+      ...ethTokenBalances,
+      ...polygonTokenBalances,
+      ...baseTokenBalances
+    ]);
   }, []);
 
   const [fetch, { data: erc20Data, pagination }] = useLazyQueryWithPagination(

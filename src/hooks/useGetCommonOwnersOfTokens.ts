@@ -46,6 +46,9 @@ type CommonOwner = {
   polygon: {
     TokenBalance: NestedTokenBalance | Token[];
   };
+  base: {
+    TokenBalance: NestedTokenBalance | Token[];
+  };
 };
 
 const LIMIT = 200;
@@ -123,15 +126,17 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
 
     let tokenBalances = [];
 
-    const ownersInEth = data?.ethereum as CommonOwner['ethereum'];
+    const ownersInEthereum = data?.ethereum as CommonOwner['ethereum'];
     const ownersInPolygon = data?.polygon as CommonOwner['polygon'];
+    const ownersInBase = data?.base as CommonOwner['base'];
 
     if (hasPoap) {
       tokenBalances = data.Poaps?.Poap;
     } else {
       tokenBalances = [
-        ...(ownersInEth?.TokenBalance || []),
-        ...(ownersInPolygon?.TokenBalance || [])
+        ...(ownersInEthereum?.TokenBalance || []),
+        ...(ownersInPolygon?.TokenBalance || []),
+        ...(ownersInBase?.TokenBalance || [])
       ];
     }
 

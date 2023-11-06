@@ -122,12 +122,6 @@ export function getCommonNftOwnersSnapshotQuery({
   address2: TokenAddress;
   appliedSnapshotFilter: SnapshotFilterType;
 }) {
-  const commonParams = {
-    address1,
-    address2,
-    appliedSnapshotFilter
-  };
-
   const variables = ['$limit: Int'];
   switch (appliedSnapshotFilter) {
     case 'customDate':
@@ -142,15 +136,19 @@ export function getCommonNftOwnersSnapshotQuery({
   }
   const variablesString = variables.join(',');
 
+  const subQueriesString = ['ethereum', 'polygon', 'base']
+    .map(blockchain =>
+      getCommonNftOwnersSubQueryForBlockchain({
+        blockchain,
+        address1,
+        address2,
+        appliedSnapshotFilter
+      })
+    )
+    .join('\n');
+
   return `query CommonNftOwners(${variablesString}) {
-    ${getCommonNftOwnersSubQueryForBlockchain({
-      blockchain: 'ethereum',
-      ...commonParams
-    })}
-    ${getCommonNftOwnersSubQueryForBlockchain({
-      blockchain: 'polygon',
-      ...commonParams
-    })}
+    ${subQueriesString}
   }`;
 }
 
@@ -240,11 +238,6 @@ export function getNftOwnersSnapshotQuery({
   address: string;
   appliedSnapshotFilter: SnapshotFilterType;
 }) {
-  const commonParams = {
-    address,
-    appliedSnapshotFilter
-  };
-
   const variables = ['$limit: Int'];
   switch (appliedSnapshotFilter) {
     case 'customDate':
@@ -259,14 +252,17 @@ export function getNftOwnersSnapshotQuery({
   }
   const variablesString = variables.join(',');
 
+  const subQueriesString = ['ethereum', 'polygon', 'base']
+    .map(blockchain =>
+      getNftOwnersSubQueryForBlockchain({
+        blockchain,
+        address,
+        appliedSnapshotFilter
+      })
+    )
+    .join('\n');
+
   return `query NftOwners(${variablesString}) {
-    ${getNftOwnersSubQueryForBlockchain({
-      blockchain: 'ethereum',
-      ...commonParams
-    })}
-    ${getNftOwnersSubQueryForBlockchain({
-      blockchain: 'polygon',
-      ...commonParams
-    })}
+    ${subQueriesString}
   }`;
 }

@@ -49,7 +49,12 @@ export function getTokenList(
       tokensData.ethereum?.TokenBalance || [];
     const polygonTokenBalances: TokenType[] =
       tokensData.polygon?.TokenBalance || [];
-    tokenBalances = [...ethTokenBalances, ...polygonTokenBalances];
+    const baseTokenBalances: TokenType[] = tokensData.base?.TokenBalance || [];
+    tokenBalances = [
+      ...ethTokenBalances,
+      ...polygonTokenBalances,
+      ...baseTokenBalances
+    ];
   }
 
   const originalSize = tokenBalances.length;

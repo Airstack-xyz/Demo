@@ -59,6 +59,7 @@ function getCommonNftOwnersSubQueryForBlockchain({
                 socials${hasSocialFilters ? socialInput : ''} {
                   blockchain
                   dappSlug
+                  dappName
                   profileName
                 }
                 primaryDomain {
@@ -93,14 +94,6 @@ export function getCommonNftOwnersSnapshotQueryWithFilters({
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }) {
-  const commonParams = {
-    address1,
-    address2,
-    appliedSnapshotFilter,
-    hasSocialFilters,
-    hasPrimaryDomain
-  };
-
   const variables = ['$limit: Int'];
   switch (appliedSnapshotFilter) {
     case 'customDate':
@@ -113,23 +106,29 @@ export function getCommonNftOwnersSnapshotQueryWithFilters({
       variables.push('$timestamp: Int!');
       break;
   }
-  if (commonParams.hasSocialFilters) {
+  if (hasSocialFilters) {
     variables.push('$socialFilters: [SocialDappName!]');
   }
-  if (commonParams.hasPrimaryDomain) {
+  if (hasPrimaryDomain) {
     variables.push('$hasPrimaryDomain: Boolean');
   }
   const variablesString = variables.join(',');
 
+  const subQueriesString = ['ethereum', 'polygon', 'base']
+    .map(blockchain =>
+      getCommonNftOwnersSubQueryForBlockchain({
+        blockchain,
+        address1,
+        address2,
+        appliedSnapshotFilter,
+        hasSocialFilters,
+        hasPrimaryDomain
+      })
+    )
+    .join('\n');
+
   return `query CommonNftOwners(${variablesString}) {
-    ${getCommonNftOwnersSubQueryForBlockchain({
-      blockchain: 'ethereum',
-      ...commonParams
-    })}
-    ${getCommonNftOwnersSubQueryForBlockchain({
-      blockchain: 'polygon',
-      ...commonParams
-    })}
+    ${subQueriesString}
   }`;
 }
 
@@ -173,6 +172,7 @@ function getNftOwnersSubQueryForBlockchain({
           socials${hasSocialFilters ? socialInput : ''} {
             blockchain
             dappSlug
+            dappName
             profileName
           }
           primaryDomain {
@@ -203,13 +203,6 @@ export function getNftOwnersSnapshotQueryWithFilters({
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }) {
-  const commonParams = {
-    address,
-    appliedSnapshotFilter,
-    hasSocialFilters,
-    hasPrimaryDomain
-  };
-
   const variables = ['$limit: Int'];
   switch (appliedSnapshotFilter) {
     case 'customDate':
@@ -222,22 +215,27 @@ export function getNftOwnersSnapshotQueryWithFilters({
       variables.push('$timestamp: Int!');
       break;
   }
-  if (commonParams.hasSocialFilters) {
+  if (hasSocialFilters) {
     variables.push('$socialFilters: [SocialDappName!]');
   }
-  if (commonParams.hasPrimaryDomain) {
+  if (hasPrimaryDomain) {
     variables.push('$hasPrimaryDomain: Boolean');
   }
   const variablesString = variables.join(',');
 
+  const subQueriesString = ['ethereum', 'polygon', 'base']
+    .map(blockchain =>
+      getNftOwnersSubQueryForBlockchain({
+        blockchain,
+        address,
+        appliedSnapshotFilter,
+        hasSocialFilters,
+        hasPrimaryDomain
+      })
+    )
+    .join('\n');
+
   return `query NftOwners(${variablesString}) {
-    ${getNftOwnersSubQueryForBlockchain({
-      blockchain: 'ethereum',
-      ...commonParams
-    })}
-    ${getNftOwnersSubQueryForBlockchain({
-      blockchain: 'polygon',
-      ...commonParams
-    })}
+    ${subQueriesString}
   }`;
 }

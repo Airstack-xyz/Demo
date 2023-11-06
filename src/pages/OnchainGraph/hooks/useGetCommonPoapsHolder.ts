@@ -109,7 +109,7 @@ export function useGetCommonPoapsHolder(address: string) {
         return false;
       }
       const eventIds = data?.Poaps.Poap?.map(poap => poap?.eventId) ?? [];
-      await await fetchPoapData(eventIds);
+      await fetchPoapData(eventIds);
       const shouldFetchMore = totalItemsCount.current < MAX_ITEMS;
       if (shouldFetchMore) {
         setTotalScannedDocuments(count => count + QUERY_LIMIT);

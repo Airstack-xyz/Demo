@@ -14,6 +14,7 @@ export type Token = TokenBalance &
 export type TokensData = {
   ethereum: { TokenBalance: Token[] };
   polygon: { TokenBalance: Token[] };
+  base: { TokenBalance: Token[] };
   Poaps: PoapsData['Poaps'];
 };
 
@@ -67,8 +68,8 @@ export interface Owner {
 
 export interface Social {
   blockchain: string;
-  dappName: string;
   dappSlug: string;
+  dappName: string;
   profileName: string;
 }
 
@@ -89,6 +90,7 @@ export interface Xmtp {
 export interface TotalSupply {
   ethereum: Supply;
   polygon: Supply;
+  base: Supply;
 }
 export interface Supply {
   totalSupply: string;

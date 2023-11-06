@@ -13,14 +13,14 @@ import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
 import { SocialOverlapQuery, SocialQuery } from '../../queries';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { SortBy, defaultSortOrder } from '../../Components/Filters/SortBy';
-import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
 import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { BlockchainFilter } from '../../Components/Filters/BlockchainFilter';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import { AllFilters } from '../../Components/Filters/AllFilters';
-import { createNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
+import { getNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
 import { TokenDetails } from './ERC6551/TokenDetails';
 import {
   AccountOwner,
@@ -220,7 +220,7 @@ function TokenBalancePage() {
     const detailTokensVisible = hasERC6551 && accountAddress;
 
     const fetchAllBlockchains =
-      blockchainType.length === 2 || blockchainType.length === 0;
+      blockchainType.length === 3 || blockchainType.length === 0;
 
     const owners = detailTokensVisible ? [accountAddress] : address;
     const blockchain = fetchAllBlockchains ? null : blockchainType[0];
@@ -262,7 +262,7 @@ function TokenBalancePage() {
 
     if (snapshotInfo.isApplicable) {
       const queryFilters = getSnapshotQueryFilters(snapshotInfo);
-      const tokensQuery = createNftWithCommonOwnersSnapshotQuery({
+      const tokensQuery = getNftWithCommonOwnersSnapshotQuery({
         owners,
         blockchain,
         appliedSnapshotFilter: snapshotInfo.appliedFilter
@@ -280,7 +280,7 @@ function TokenBalancePage() {
         ...queryFilters
       });
     } else {
-      const tokensQuery = createNftWithCommonOwnersQuery(owners, blockchain);
+      const tokensQuery = getNftWithCommonOwnersQuery(owners, blockchain);
 
       nftLink = createAppUrlWithQuery(tokensQuery, {
         limit: 10,

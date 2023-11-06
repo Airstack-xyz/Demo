@@ -1,3 +1,5 @@
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import classNames from 'classnames';
 import {
   ComponentProps,
   memo,
@@ -7,42 +9,40 @@ import {
   useRef,
   useState
 } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { useNavigate } from 'react-router-dom';
+import { LazyAddressesModal } from '../../../../Components/LazyAddressesModal';
+import { StatusLoader } from '../../../../Components/StatusLoader';
+import { useLoaderContext } from '../../../../hooks/useLoader';
 import {
   resetCachedUserInputs,
   useSearchInput
 } from '../../../../hooks/useSearchInput';
-import { useLazyQueryWithPagination } from '@airstack/airstack-react';
-import { Header } from './Header';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { Poap, Token as TokenType, TokensData } from '../../types';
-import { filterTokens, getRequestFilters } from './filters';
-import { Token } from './Token';
-import classNames from 'classnames';
-import { StatusLoader } from '../../../../Components/StatusLoader';
-import { useLoaderContext } from '../../../../hooks/useLoader';
-import { getFilterablePoapsQuery } from '../../../../queries/overviewDetailsPoap';
 import {
   getCommonNftOwnersQueryWithFilters,
   getNftOwnersQueryWithFilters
 } from '../../../../queries/commonNftOwnersQueryWithFilters';
-import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../../../queries/commonPoapAndNftOwnersQueryWithFilters';
 import {
   getCommonNftOwnersSnapshotQueryWithFilters,
   getNftOwnersSnapshotQueryWithFilters
 } from '../../../../queries/commonNftOwnersSnapshotQueryWithFilters';
-import { sortByAddressByNonERC20First } from '../../../../utils/getNFTQueryForTokensHolder';
+import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../../../queries/commonPoapAndNftOwnersQueryWithFilters';
+import { getFilterablePoapsQuery } from '../../../../queries/overviewDetailsPoap';
 import { useOverviewTokens } from '../../../../store/tokenHoldersOverview';
-import { getPoapList, getTokenList } from './utils';
-import { sortAddressByPoapFirst } from '../../../../utils/sortAddressByPoapFirst';
 import {
   getActiveSnapshotInfo,
   getSnapshotQueryFilters
 } from '../../../../utils/activeSnapshotInfoString';
 import { createTokenBalancesUrl } from '../../../../utils/createTokenUrl';
-import { useNavigate } from 'react-router-dom';
-import { LazyAddressesModal } from '../../../../Components/LazyAddressesModal';
+import { sortByAddressByNonERC20First } from '../../../../utils/getNFTQueryForTokensHolder';
+import { sortAddressByPoapFirst } from '../../../../utils/sortAddressByPoapFirst';
+import { Poap, Token as TokenType, TokensData } from '../../types';
+import { Header } from './Header';
+import { Token } from './Token';
+import { filterTokens, getRequestFilters } from './filters';
+import { getPoapList, getTokenList } from './utils';
 
-const MAX_LIMIT = 200;
+const LIMIT = 200;
 const MIN_LIMIT = 20;
 
 const loaderData = Array(6).fill({});
@@ -90,21 +90,6 @@ function Loader() {
   );
 }
 
-// function sortArray(array: TokenAddress[]) {
-//   const startsWith0x: TokenAddress[] = [];
-//   const notStartsWith0x: TokenAddress[] = [];
-
-//   for (const item of array) {
-//     if (item.address.startsWith('0x')) {
-//       startsWith0x.push(item);
-//     } else {
-//       notStartsWith0x.push(item);
-//     }
-//   }
-
-//   return [...notStartsWith0x, ...startsWith0x];
-// }
-
 export function TokensComponent() {
   const ownersSetRef = useRef<Set<string>>(new Set());
   const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
@@ -125,7 +110,7 @@ export function TokensComponent() {
   });
   const [loaderData, setLoaderData] = useState({
     isVisible: false,
-    total: MAX_LIMIT,
+    total: LIMIT,
     matching: 0
   });
 
@@ -273,13 +258,13 @@ export function TokensComponent() {
       setTokens([]);
       setLoaderData({
         isVisible: true,
-        total: MAX_LIMIT,
+        total: LIMIT,
         matching: 0
       });
 
       if (hasPoap) {
         fetchPoap({
-          limit: MAX_LIMIT,
+          limit: LIMIT,
           ...requestFilters
         });
         return;
@@ -288,13 +273,13 @@ export function TokensComponent() {
       if (snapshotInfo.isApplicable) {
         const queryFilters = getSnapshotQueryFilters(snapshotInfo);
         fetchTokens({
-          limit: MAX_LIMIT,
+          limit: LIMIT,
           ...queryFilters,
           ...requestFilters
         });
       } else {
         fetchTokens({
-          limit: MAX_LIMIT,
+          limit: LIMIT,
           ...requestFilters
         });
       }
