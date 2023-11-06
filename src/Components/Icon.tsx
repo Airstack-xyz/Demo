@@ -18,6 +18,7 @@ export type IconType =
   | 'ethereum'
   | 'polygon'
   | 'gnosis'
+  | 'base'
   | 'token-balances'
   | 'token-holders'
   | 'erc20'
@@ -60,7 +61,9 @@ export type IconType =
   | 'info-circle'
   | 'overview'
   | 'follow-purple'
-  | 'mutual-follow';
+  | 'mutual-follow'
+  | 'follower-gray'
+  | 'following-gray';
 
 export type IconProps = {
   name: IconType;
