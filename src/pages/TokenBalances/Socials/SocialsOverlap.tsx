@@ -120,15 +120,6 @@ const getSocialFollowInfo = (
       dappName: 'lens',
       sections: []
     };
-    // find default lens profiles based on:
-    const defaultProfile1 =
-      lensSocials1.find(item => item.isDefault) ||
-      lensSocials1.find(item => item.followingCount > 0) ||
-      lensSocials1[0];
-    const defaultProfile2 =
-      lensSocials2.find(item => item.isDefault) ||
-      lensSocials2.find(item => item.followingCount > 0) ||
-      lensSocials2[0];
     // for lens follower info
     // if (user1FollowsUser2OnLens || user2FollowsUser1OnLens) {
     //   const identity1 = address1?.startsWith('0x')
@@ -163,7 +154,7 @@ const getSocialFollowInfo = (
         profileTokenId1: item.profileTokenId,
         // TODO: Remove count for social-follow-v3
         followerCount: item.followerCount,
-        followingCount: defaultProfile1.followingCount,
+        followingCount: item.followingCount,
         profileName2: lensSocials2[0].profileName,
         profileTokenId2: lensSocials2[0].profileTokenId
       }))
@@ -176,7 +167,7 @@ const getSocialFollowInfo = (
         profileTokenId1: item.profileTokenId,
         // TODO: Remove count for social-follow-v3
         followerCount: item.followerCount,
-        followingCount: defaultProfile2.followingCount,
+        followingCount: item.followingCount,
         profileName2: lensSocials1[0].profileName,
         profileTokenId2: lensSocials1[0].profileTokenId
       }))
@@ -191,12 +182,10 @@ function SocialsOverlapComponent() {
     isOpen: boolean;
     dataType?: string;
     addresses: string[];
-    modalFor: string;
   }>({
     isOpen: false,
     dataType: '',
-    addresses: [],
-    modalFor: ''
+    addresses: []
   });
 
   const [{ address }, setData] = useSearchInput();
@@ -215,24 +204,19 @@ function SocialsOverlapComponent() {
     }
   }, [fetchData, address]);
 
-  const handleShowMoreClick = useCallback(
-    (address: string, values: string[], type?: string) => {
-      setModalData({
-        isOpen: true,
-        dataType: type,
-        addresses: values,
-        modalFor: address
-      });
-    },
-    []
-  );
+  const handleShowMoreClick = useCallback((values: string[], type?: string) => {
+    setModalData({
+      isOpen: true,
+      dataType: type,
+      addresses: values
+    });
+  }, []);
 
   const handleModalClose = useCallback(() => {
     setModalData({
       isOpen: false,
       dataType: '',
-      addresses: [],
-      modalFor: ''
+      addresses: []
     });
   }, []);
 
@@ -407,10 +391,10 @@ function SocialsOverlapComponent() {
       </div>
       {modalData.isOpen && (
         <LazyAddressesModal
-          heading={`All ENS names of ${modalData.modalFor}`}
+          heading={`All ENS names of ${modalData.addresses[0]}`}
           isOpen={modalData.isOpen}
           dataType={modalData.dataType}
-          addresses={address}
+          addresses={modalData.addresses}
           onRequestClose={handleModalClose}
           onAddressClick={handleAddressClick}
         />

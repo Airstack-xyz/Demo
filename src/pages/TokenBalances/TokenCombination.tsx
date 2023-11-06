@@ -67,6 +67,7 @@ function Token({
     if (!hasERC6551) {
       return (
         <Asset
+          key="token-image"
           image={image}
           address={address}
           tokenId={tokenId}

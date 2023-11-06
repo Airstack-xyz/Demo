@@ -22,8 +22,6 @@ export const getSocialFollowersQuery = ({
   if (queryFilters.profileTokenId) {
     variables.push('$profileTokenId: String!');
     filters.push('followingProfileId: {_eq: $profileTokenId}');
-  } else {
-    filters.push('identity: {_eq: $identity}');
   }
 
   if (queryFilters.followCount) {
