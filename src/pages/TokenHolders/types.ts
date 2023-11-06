@@ -26,7 +26,7 @@ export type PoapsData = {
 
 export type TokenAddress = {
   address: string;
-  blockchain: string;
+  blockchain?: string;
 };
 
 export type Poap = {

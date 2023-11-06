@@ -1,4 +1,5 @@
 import { SnapshotFilterType } from '../Components/Filters/SnapshotFilter';
+import { tokenBlockchains } from '../constants';
 
 const fields = `
   amount
@@ -114,11 +115,11 @@ const parentFields = `
 
 function getSubQueryForBlockchain({
   owners,
-  appliedSnapshotFilter,
+  snapshotFilter,
   blockchain
 }: {
   owners: string[];
-  appliedSnapshotFilter: SnapshotFilterType;
+  snapshotFilter: SnapshotFilterType;
   blockchain: string;
 }) {
   const children =
@@ -128,7 +129,7 @@ function getSubQueryForBlockchain({
     `owner: {_eq: "${owners[0]}"}`,
     `tokenType: {_in: $tokenType}`
   ];
-  switch (appliedSnapshotFilter) {
+  switch (snapshotFilter) {
     case 'customDate':
       filters.push('date: {_eq: $customDate}');
       break;
@@ -154,16 +155,16 @@ function getSubQueryForBlockchain({
 export function getNftWithCommonOwnersSnapshotQuery({
   owners,
   blockchain,
-  appliedSnapshotFilter
+  snapshotFilter
 }: {
   owners: string[];
   blockchain: string | null;
-  appliedSnapshotFilter: SnapshotFilterType;
+  snapshotFilter: SnapshotFilterType;
 }) {
   if (!owners.length) return '';
 
   const variables = ['$tokenType: [TokenType!]', '$limit: Int'];
-  switch (appliedSnapshotFilter) {
+  switch (snapshotFilter) {
     case 'customDate':
       variables.push('$customDate: String!');
       break;
@@ -177,12 +178,12 @@ export function getNftWithCommonOwnersSnapshotQuery({
   const variablesString = variables.join(',');
 
   const subQueries: string[] = [];
-  ['ethereum', 'polygon', 'base'].forEach(_blockchain => {
+  tokenBlockchains.forEach(_blockchain => {
     if (!blockchain || blockchain === _blockchain) {
       subQueries.push(
         getSubQueryForBlockchain({
           owners,
-          appliedSnapshotFilter,
+          snapshotFilter,
           blockchain: _blockchain
         })
       );

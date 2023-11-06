@@ -126,11 +126,11 @@ export function TokenHolders() {
     if (address.length === 1) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQuery({
-          address: address[0].address,
-          appliedSnapshotFilter: snapshotInfo.appliedFilter
+          address: address[0],
+          snapshotFilter: snapshotInfo.appliedFilter
         });
       }
-      return getNftOwnersQuery(address[0].address);
+      return getNftOwnersQuery(address[0]);
     }
     if (hasSomePoap) {
       const tokens = sortAddressByPoapFirst(address);
@@ -140,7 +140,7 @@ export function TokenHolders() {
       return getCommonNftOwnersSnapshotQuery({
         address1: address[0],
         address2: address[1],
-        appliedSnapshotFilter: snapshotInfo.appliedFilter
+        snapshotFilter: snapshotInfo.appliedFilter
       });
     }
     return getCommonNftOwnersQuery(address[0], address[1]);
@@ -159,14 +159,14 @@ export function TokenHolders() {
     if (address.length === 1) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQueryWithFilters({
-          address: address[0].address,
-          appliedSnapshotFilter: snapshotInfo.appliedFilter,
+          address: address[0],
+          snapshotFilter: snapshotInfo.appliedFilter,
           hasSocialFilters,
           hasPrimaryDomain
         });
       }
       return getNftOwnersQueryWithFilters(
-        address[0].address,
+        address[0],
         hasSocialFilters,
         hasPrimaryDomain
       );
@@ -184,7 +184,7 @@ export function TokenHolders() {
       return getCommonNftOwnersSnapshotQueryWithFilters({
         address1: address[0],
         address2: address[1],
-        appliedSnapshotFilter: snapshotInfo.appliedFilter,
+        snapshotFilter: snapshotInfo.appliedFilter,
         hasSocialFilters,
         hasPrimaryDomain
       });

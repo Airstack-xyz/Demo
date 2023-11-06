@@ -1,3 +1,4 @@
+import { tokenBlockchains } from '../constants';
 import { TokenAddress } from '../pages/TokenHolders/types';
 
 const getCommonNftOwnersSubQuery = (
@@ -95,18 +96,22 @@ export function getCommonNftOwnersQuery(
   token1: TokenAddress,
   token2: TokenAddress
 ) {
-  const subQueriesString = ['ethereum', 'polygon', 'base']
-    .map(blockchain => getCommonNftOwnersSubQuery(blockchain, token1, token2))
-    .join('\n');
+  const subQueries: string[] = [];
+  tokenBlockchains.forEach(_blockchain => {
+    if (!token1.blockchain || token1.blockchain === _blockchain) {
+      subQueries.push(getCommonNftOwnersSubQuery(_blockchain, token1, token2));
+    }
+  });
+  const subQueriesString = subQueries.join('\n');
 
   return `query CommonNftOwners($limit: Int) {
     ${subQueriesString}
   }`;
 }
 
-const getNftOwnersSubQuery = (blockchain: string, token: string) => {
+const getNftOwnersSubQuery = (blockchain: string, token: TokenAddress) => {
   return `${blockchain}: TokenBalances(
-  input: {filter: {tokenAddress: {_eq: "${token}"}}, blockchain: ${blockchain}, limit: $limit}
+  input: {filter: {tokenAddress: {_eq: "${token.address}"}}, blockchain: ${blockchain}, limit: $limit}
 ) {
   TokenBalance {
     tokenId
@@ -160,10 +165,14 @@ const getNftOwnersSubQuery = (blockchain: string, token: string) => {
 }`;
 };
 
-export function getNftOwnersQuery(token: string) {
-  const subQueriesString = ['ethereum', 'polygon', 'base']
-    .map(blockchain => getNftOwnersSubQuery(blockchain, token))
-    .join('\n');
+export function getNftOwnersQuery(token: TokenAddress) {
+  const subQueries: string[] = [];
+  tokenBlockchains.forEach(_blockchain => {
+    if (!token.blockchain || token.blockchain === _blockchain) {
+      subQueries.push(getNftOwnersSubQuery(_blockchain, token));
+    }
+  });
+  const subQueriesString = subQueries.join('\n');
 
   return `query NftOwners($limit: Int) {
     ${subQueriesString}

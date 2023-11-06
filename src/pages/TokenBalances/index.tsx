@@ -265,7 +265,7 @@ function TokenBalancePage() {
       const tokensQuery = getNftWithCommonOwnersSnapshotQuery({
         owners,
         blockchain,
-        appliedSnapshotFilter: snapshotInfo.appliedFilter
+        snapshotFilter: snapshotInfo.appliedFilter
       });
 
       nftLink = createAppUrlWithQuery(tokensQuery, {

@@ -1,3 +1,5 @@
+import { tokenBlockchains } from '../constants';
+
 const fields = `
 amount
 tokenType
@@ -133,7 +135,7 @@ export function getNftWithCommonOwnersQuery(
   if (!owners.length) return '';
 
   const subQueries: string[] = [];
-  ['ethereum', 'polygon', 'base'].forEach(_blockchain => {
+  tokenBlockchains.forEach(_blockchain => {
     if (!blockchain || blockchain === _blockchain) {
       subQueries.push(getQueryForBlockchain(owners, _blockchain));
     }

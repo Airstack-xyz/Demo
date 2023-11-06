@@ -130,7 +130,7 @@ export function ERC20Tokens() {
       return getNftWithCommonOwnersSnapshotQuery({
         owners,
         blockchain: blockchain,
-        appliedSnapshotFilter: snapshotInfo.appliedFilter
+        snapshotFilter: snapshotInfo.appliedFilter
       });
     }
     return getNftWithCommonOwnersQuery(owners, blockchain);

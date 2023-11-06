@@ -1,3 +1,4 @@
+import { tokenBlockchains } from '../constants';
 import {
   SocialFollowLogicalFilters,
   SocialFollowQueryFilters
@@ -90,7 +91,7 @@ export const getSocialFollowingsQuery = ({
         }
       }`);
     } else {
-      ['ethereum', 'polygon', 'base'].forEach((_blockchain: string) => {
+      tokenBlockchains.forEach(_blockchain => {
         if (!blockchain || blockchain === _blockchain || token === 'ADDRESS') {
           logicalQueries.push(`${_blockchain}Holdings: tokenBalances(
               input: {filter: {tokenAddress: {_eq: "${address}"}}, blockchain: ${_blockchain}, limit: 1}

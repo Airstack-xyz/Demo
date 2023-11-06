@@ -74,11 +74,11 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     if (tokenAddress.length === 1) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQuery({
-          address: tokenAddress[0].address,
-          appliedSnapshotFilter: snapshotInfo.appliedFilter
+          address: tokenAddress[0],
+          snapshotFilter: snapshotInfo.appliedFilter
         });
       }
-      return getNftOwnersQuery(tokenAddress[0].address);
+      return getNftOwnersQuery(tokenAddress[0]);
     }
     if (hasPoap) {
       const tokens = sortAddressByPoapFirst(tokenAddress);
@@ -88,7 +88,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
       return getCommonNftOwnersSnapshotQuery({
         address1: tokenAddress[0],
         address2: tokenAddress[1],
-        appliedSnapshotFilter: snapshotInfo.appliedFilter
+        snapshotFilter: snapshotInfo.appliedFilter
       });
     }
     return getCommonNftOwnersQuery(tokenAddress[0], tokenAddress[1]);

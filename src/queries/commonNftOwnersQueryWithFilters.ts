@@ -1,3 +1,4 @@
+import { tokenBlockchains } from '../constants';
 import { TokenAddress } from '../pages/TokenHolders/types';
 
 const socialInput = '(input: {filter: {dappName: {_in: $socialFilters}}})';
@@ -75,17 +76,21 @@ export function getCommonNftOwnersQueryWithFilters(
   }
   const variablesString = variables.join(',');
 
-  const subQueriesString = ['ethereum', 'polygon', 'base']
-    .map(blockchain =>
-      getCommonNftOwnersSubQueryWithFilters(
-        blockchain,
-        token1,
-        token2,
-        hasSocialFilters,
-        hasPrimaryDomainFilter
-      )
-    )
-    .join('\n');
+  const subQueries: string[] = [];
+  tokenBlockchains.forEach(_blockchain => {
+    if (!token1.blockchain || token1.blockchain === _blockchain) {
+      subQueries.push(
+        getCommonNftOwnersSubQueryWithFilters(
+          _blockchain,
+          token1,
+          token2,
+          hasSocialFilters,
+          hasPrimaryDomainFilter
+        )
+      );
+    }
+  });
+  const subQueriesString = subQueries.join('\n');
 
   return `query CommonNftOwners(${variablesString}) {
     ${subQueriesString}
@@ -94,7 +99,7 @@ export function getCommonNftOwnersQueryWithFilters(
 
 const getNftOwnersSubQueryWithFilters = (
   blockchain: string,
-  token: string,
+  token: TokenAddress,
   hasSocialFilters = false,
   hasPrimaryDomainFilter = false
 ) => {
@@ -132,7 +137,7 @@ const getNftOwnersSubQueryWithFilters = (
 };
 
 export function getNftOwnersQueryWithFilters(
-  token: string,
+  token: TokenAddress,
   hasSocialFilters = false,
   hasPrimaryDomainFilter = false
 ) {
@@ -145,16 +150,20 @@ export function getNftOwnersQueryWithFilters(
   }
   const variablesString = variables.join(',');
 
-  const subQueriesString = ['ethereum', 'polygon', 'base']
-    .map(blockchain =>
-      getNftOwnersSubQueryWithFilters(
-        blockchain,
-        token,
-        hasSocialFilters,
-        hasPrimaryDomainFilter
-      )
-    )
-    .join('\n');
+  const subQueries: string[] = [];
+  tokenBlockchains.forEach(_blockchain => {
+    if (!token.blockchain || token.blockchain === _blockchain) {
+      subQueries.push(
+        getNftOwnersSubQueryWithFilters(
+          _blockchain,
+          token,
+          hasSocialFilters,
+          hasPrimaryDomainFilter
+        )
+      );
+    }
+  });
+  const subQueriesString = subQueries.join('\n');
 
   return `query NftOwners(${variablesString}) {
     ${subQueriesString}

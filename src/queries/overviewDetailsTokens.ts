@@ -1,3 +1,5 @@
+import { tokenBlockchains } from '../constants';
+
 export const POAPSupplyQuery = `query PoapTotalSupply($eventId: String!) {
     PoapEvents(input: {filter: {eventId: {_eq: $eventId}}, blockchain: ALL}) {
       PoapEvent {
@@ -125,7 +127,7 @@ export const getFilterableTokensQuery = (
   const variablesString = variables.join(',');
 
   const subQueries: string[] = [];
-  ['ethereum', 'polygon', 'base'].forEach(blockchain => {
+  tokenBlockchains.forEach(blockchain => {
     subQueries.push(`${blockchain}: TokenBalances(
         input: {filter: {tokenAddress: {_eq: "${tokenAddress[0]}"}}, blockchain: ${blockchain}, limit: $limit}
       ) {

@@ -138,14 +138,14 @@ export function TokensComponent() {
     if (address.length === 1) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQueryWithFilters({
-          address: address[0].address,
-          appliedSnapshotFilter: snapshotInfo.appliedFilter,
+          address: address[0],
+          snapshotFilter: snapshotInfo.appliedFilter,
           hasSocialFilters: hasSocialFilters,
           hasPrimaryDomain: hasPrimaryDomain
         });
       }
       return getNftOwnersQueryWithFilters(
-        address[0].address,
+        address[0],
         hasSocialFilters,
         hasPrimaryDomain
       );
@@ -163,7 +163,7 @@ export function TokensComponent() {
       return getCommonNftOwnersSnapshotQueryWithFilters({
         address1: address[0],
         address2: address[1],
-        appliedSnapshotFilter: snapshotInfo.appliedFilter,
+        snapshotFilter: snapshotInfo.appliedFilter,
         hasSocialFilters: hasSocialFilters,
         hasPrimaryDomain: hasPrimaryDomain
       });
