@@ -67,12 +67,12 @@ function FollowSection({
           )}
         </div>
         <div className="text-text-secondary w-1/2">
-          <button
+          <div
             className="px-3 py-1 rounded-18 hover:bg-glass cursor-pointer ellipsis"
             onClick={getSocialClickHandler()}
           >
             {profileName}
-          </button>
+          </div>
         </div>
       </div>
       {followerCount != undefined && (

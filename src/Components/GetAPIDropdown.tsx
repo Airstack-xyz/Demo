@@ -13,11 +13,15 @@ type Options = {
 export function GetAPIDropdown({
   options,
   disabled,
-  dropdownAlignment = 'left'
+  dropdownAlignment = 'left',
+  hideFooter,
+  hideDesktopNudge
 }: {
   options: Options[];
   disabled?: boolean;
   dropdownAlignment?: 'left' | 'center' | 'right';
+  hideFooter?: boolean;
+  hideDesktopNudge?: boolean;
 }) {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -41,6 +45,8 @@ export function GetAPIDropdown({
     setIsModalVisible(false);
   }, []);
 
+  const showDesktopNudgeModal = !hideDesktopNudge && isMobile;
+
   return (
     <>
       <div
@@ -55,7 +61,9 @@ export function GetAPIDropdown({
               'cursor-not-allowed pointer-events-none opacity-80': disabled
             }
           )}
-          onClick={isMobile ? handleModalOpen : handleDropdownToggle}
+          onClick={
+            showDesktopNudgeModal ? handleModalOpen : handleDropdownToggle
+          }
           disabled={disabled}
         >
           <Icon name="tools" className="mr-1" height={16} width={16} />
@@ -83,9 +91,11 @@ export function GetAPIDropdown({
                 {label}
               </a>
             ))}
-            <div className="pt-1 pb-3 px-5 text-[10px]">
-              *APIs will reflect the applied filters
-            </div>
+            {!hideFooter && (
+              <div className="pt-1 pb-3 px-5 text-[10px]">
+                *APIs will reflect the applied filters
+              </div>
+            )}
           </div>
         )}
       </div>
