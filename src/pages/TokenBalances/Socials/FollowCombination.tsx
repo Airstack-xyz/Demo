@@ -91,7 +91,7 @@ function FollowCombinationSection({
           <li
             onClick={() => {
               if (showMax && values.length > maxItemCount) {
-                onShowMoreClick?.([values[0].profileName1], dappName);
+                onShowMoreClick?.([name], dappName);
                 return;
               }
             }}
