@@ -3,7 +3,7 @@ import { apiKey } from '../constants';
 import { getOverviewQuery } from '../queries/overviewQuery';
 import { OverviewData } from '../pages/TokenHolders/types';
 
-const API = 'https://api.beta.airstack.xyz/gql';
+const API = 'https://api.dev.airstack.xyz/gql';
 
 type Variable = {
   polygonTokens: string[];
