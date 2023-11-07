@@ -115,6 +115,8 @@ export function TokenHolders() {
   const hasSomePoap = tokenAddress.some(token => !token.startsWith('0x'));
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
+  const isCombination = tokenAddress.length > 1;
+
   const address = useMemo(() => {
     return sortByAddressByNonERC20First(tokenAddress, overviewTokens, hasPoap);
   }, [hasPoap, tokenAddress, overviewTokens]);
@@ -435,13 +437,16 @@ export function TokenHolders() {
     [address, activeSnapshotInfo]
   );
 
-  const renderFilterContent = () => {
-    // TODO: remove snapshot disable condition when snapshots for other blockchains is deployed
-    const disabledTooltipMessage =
-      !address?.[0]?.blockchain || address?.[0]?.blockchain !== 'base'
-        ? 'Snapshots are available for base tokens only'
-        : '';
+  const snapshotTooltipMessage = useMemo(() => {
+    if (isCombination) return 'Snapshots is disabled for combinations';
+    if (hasPoap) return 'Snapshots is disabled for POAP';
+    // TODO: remove below snapshot disable condition when snapshots for other blockchains is deployed
+    const blockchain = address?.[0]?.blockchain;
+    if (!blockchain || blockchain !== 'base')
+      return 'Snapshots is only enabled for Base chain';
+  }, [address, hasPoap, isCombination]);
 
+  const renderFilterContent = () => {
     if (activeTokenInfo) {
       return (
         <div className="flex justify-center w-full">
@@ -450,12 +455,14 @@ export function TokenHolders() {
       );
     }
 
+    const isSnapshotFilterDisabled = Boolean(snapshotTooltipMessage);
+
     return (
       <div className="flex justify-between w-full">
         <div className="flex-row-center gap-3.5">
           <SnapshotFilter
-            disabled={hasSomePoap}
-            disabledTooltipMessage={disabledTooltipMessage}
+            disabled={isSnapshotFilterDisabled}
+            disabledTooltipMessage={snapshotTooltipMessage}
           />
         </div>
         <GetAPIDropdown

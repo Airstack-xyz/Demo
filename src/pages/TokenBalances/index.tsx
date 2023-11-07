@@ -210,6 +210,7 @@ function TokenBalancePage() {
   const token = activeTokens[activeTokens.length - 1];
 
   const isCombination = address.length > 1;
+  const isPoap = tokenType === 'POAP';
 
   const showTokenDetails = Boolean(activeTokenInfo || account);
   const hideBackBreadcrumb = Boolean(account);
@@ -482,6 +483,12 @@ function TokenBalancePage() {
     [address, blockchainType, tokenType, sortOrder, activeSnapshotInfo]
   );
 
+  const snapshotTooltipMessage = useMemo(() => {
+    if (isCombination) return 'Snapshots is disabled for combinations';
+    if (isPoap) return 'Snapshots is disabled for POAP';
+    return;
+  }, [isCombination, isPoap]);
+
   const isQueryExists = query && query.length > 0;
 
   const renderFilterContent = () => {
@@ -492,16 +499,30 @@ function TokenBalancePage() {
         </div>
       );
     }
+
+    const isSnapshotFilterDisabled = Boolean(snapshotTooltipMessage);
+
+    const isBlockchainFilterDisabled = isPoap || snapshotInfo.isApplicable;
+
+    const isSortByDisabled = snapshotInfo.isApplicable;
+
     return (
       <div className="flex justify-between w-full z-[21]">
         <div className="flex-row-center gap-3.5">
           {isMobile ? (
-            <AllFilters />
+            <AllFilters
+              snapshotDisabled={isSnapshotFilterDisabled}
+              blockchainDisabled={isBlockchainFilterDisabled}
+              sortByDisabled={isSortByDisabled}
+            />
           ) : (
             <>
-              <SnapshotFilter />
-              <BlockchainFilter />
-              <SortBy />
+              <SnapshotFilter
+                disabled={isSnapshotFilterDisabled}
+                disabledTooltipMessage={snapshotTooltipMessage}
+              />
+              <BlockchainFilter disabled={isBlockchainFilterDisabled} />
+              <SortBy disabled={isSortByDisabled} />
             </>
           )}
         </div>

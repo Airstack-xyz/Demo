@@ -68,20 +68,6 @@ const getLabelAndIcon = ({
   return { label, icon };
 };
 
-const getTooltipMessage = ({
-  forCombination,
-  forPoap,
-  defaultMessage
-}: {
-  forCombination?: boolean;
-  forPoap?: boolean;
-  defaultMessage?: string;
-}) => {
-  if (forCombination) return 'Snapshots is disabled for combinations';
-  if (forPoap) return 'Snapshots is disabled for POAP';
-  return defaultMessage;
-};
-
 export function SnapshotTooltip({ message }: { message?: string }) {
   return (
     <div className="absolute left-4 top-4 z-20">
@@ -93,7 +79,7 @@ export function SnapshotTooltip({ message }: { message?: string }) {
   );
 }
 
-export function SnapshotToastMessage({ message }: { message: string }) {
+export function SnapshotToast({ message }: { message: string }) {
   return (
     <div className="fixed bottom-10 left-1/2 -translate-x-1/2 rounded-[30px] w-max py-2 px-5 flex bg-[#5398FF] text-sm font-semibold z-50">
       <Icon name="eye" height={20} width={20} className="mr-2" />
@@ -114,8 +100,7 @@ export function SnapshotFilter({
   disabled?: boolean;
   disabledTooltipMessage?: string;
 }) {
-  const [{ address, tokenType, activeSnapshotInfo }, setData] =
-    useSearchInput();
+  const [{ activeSnapshotInfo }, setData] = useSearchInput();
 
   const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
@@ -168,25 +153,9 @@ export function SnapshotFilter({
     setIsDatePickerVisible(false)
   );
 
-  const isCombination = address.length > 1;
-  const isPoap = tokenType === 'POAP';
+  const enableTooltipHover = disabled || Boolean(disabledTooltipMessage);
 
-  const enableTooltipHover =
-    isCombination || isPoap || Boolean(disabledTooltipMessage);
-
-  const isFilterDisabled = disabled || enableTooltipHover;
-
-  // Reset snapshot filter for combinations and poaps
-  useEffect(() => {
-    if (isFilterDisabled) {
-      setData(
-        {
-          activeSnapshotInfo: undefined
-        },
-        { updateQueryParams: true }
-      );
-    }
-  }, [isFilterDisabled, setData]);
+  const isFilterDisabled = disabled;
 
   useEffect(() => {
     setBlockNumber(snapshotInfo.blockNumber);
@@ -260,9 +229,13 @@ export function SnapshotFilter({
         snapshotData.blockNumber = blockNumber;
         break;
       case 'customDate':
-        snapshotData.customDate = (customDate as Date)
-          .toISOString()
-          .split('T')[0];
+        {
+          const date = customDate as Date;
+          const dateString = `${date.getFullYear()}-${
+            date.getMonth() + 1
+          }-${date.getDate()}`;
+          snapshotData.customDate = dateString;
+        }
         break;
       case 'timestamp':
         snapshotData.timestamp = timestamp;
@@ -270,12 +243,12 @@ export function SnapshotFilter({
     }
 
     const filterValues: Partial<CachedQuery> = {
-      sortOrder: defaultSortOrder, // for snapshot query resetting sort order
       activeSnapshotInfo: getActiveSnapshotInfoString(snapshotData)
     };
 
-    // TODO: Remove this blockchain restriction when snapshot is released for other blockchains
     if (currentFilter !== 'today') {
+      filterValues.sortOrder = defaultSortOrder; // for snapshot query reset sort order
+      // TODO: Remove this blockchain restriction when snapshot is released for other blockchains
       filterValues.blockchainType = ['base'];
     }
 
@@ -312,14 +285,8 @@ export function SnapshotFilter({
           icon={icon}
           onClick={handleDropdownToggle}
         />
-        {isFilterDisabled && isTooltipVisible && (
-          <SnapshotTooltip
-            message={getTooltipMessage({
-              forCombination: isCombination,
-              forPoap: isPoap,
-              defaultMessage: disabledTooltipMessage
-            })}
-          />
+        {enableTooltipHover && isTooltipVisible && (
+          <SnapshotTooltip message={disabledTooltipMessage} />
         )}
         {isDropdownVisible && (
           <div className="before:bg-glass before:absolute before:inset-0 before:-z-10 before:rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">
@@ -410,7 +377,7 @@ export function SnapshotFilter({
         )}
       </div>
       {snapshotInfo.appliedFilter !== defaultSnapshotFilter &&
-        snackbarMessage && <SnapshotToastMessage message={snackbarMessage} />}
+        snackbarMessage && <SnapshotToast message={snackbarMessage} />}
     </>
   );
 }

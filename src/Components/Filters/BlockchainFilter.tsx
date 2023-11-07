@@ -1,10 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { Dropdown, Option } from '../Dropdown';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
-import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
 
 export type BlockchainFilterType = 'all' | 'ethereum' | 'polygon' | 'base';
 
@@ -37,47 +36,9 @@ export const blockchainOptions: BlockchainOption[] = [
 export function BlockchainFilter({ disabled }: { disabled?: boolean }) {
   const [searchInputs, setData] = useSearchInput();
 
-  const activeSnapshotInfo = searchInputs.activeSnapshotInfo;
-  const tokenType = searchInputs.tokenType;
   const blockchainType = searchInputs.blockchainType as BlockchainFilterType[];
 
-  const snapshotInfo = useMemo(
-    () => getActiveSnapshotInfo(activeSnapshotInfo),
-    [activeSnapshotInfo]
-  );
-
-  const isPoap = tokenType === 'POAP';
-
-  const isFilterDisabled = disabled || isPoap || snapshotInfo.isApplicable;
-  const hasBlockchainFilterApplied = blockchainType.length > 0;
-
-  // Reset blockchain filter if POAP filter is applied
-  useEffect(() => {
-    // TODO: Remove below base restriction when snapshots is released for other blockchains
-    if (snapshotInfo.isApplicable) {
-      setData(
-        {
-          blockchainType: ['base']
-        },
-        { updateQueryParams: true }
-      );
-      return;
-    }
-    // ====================================================================================
-    if (isFilterDisabled && hasBlockchainFilterApplied) {
-      setData(
-        {
-          blockchainType: []
-        },
-        { updateQueryParams: true }
-      );
-    }
-  }, [
-    hasBlockchainFilterApplied,
-    isFilterDisabled,
-    setData,
-    snapshotInfo.isApplicable
-  ]);
+  const isFilterDisabled = disabled;
 
   const handleChange = useCallback(
     (selected: Option[]) => {
