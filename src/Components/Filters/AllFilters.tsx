@@ -265,6 +265,8 @@ export function AllFilters() {
     // For snapshot query resetting sort order
     if (snapshotInfo.isApplicable) {
       filterValues.sortOrder = defaultSortOrder;
+      // TODO: Remove below blockchain restriction when snapshot is released for other blockchains
+      filterValues.blockchainType = ['base'];
     } else {
       filterValues.sortOrder = currentSortOrder || defaultSortOrder;
     }

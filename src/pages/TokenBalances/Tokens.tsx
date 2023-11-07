@@ -18,7 +18,7 @@ export function TokensLoader() {
     <>
       {loaderData.map((_, index) => (
         <div className="skeleton-loader" key={index}>
-          <Token key={index} token={null} />
+          <Token key={index} token={null} hideHoldersButton />
         </div>
       ))}
     </>
@@ -175,7 +175,13 @@ function TokensComponent(props: TokenProps) {
             return <TokenWithERC6551 key={`${index}-${id}`} token={token} />;
           }
 
-          return <Token key={`${index}-${id}`} token={token} />;
+          return (
+            <Token
+              key={`${index}-${id}`}
+              token={token}
+              hideHoldersButton={loading}
+            />
+          );
         })}
         {loading && <TokensLoader />}
       </InfiniteScroll>

@@ -95,7 +95,7 @@ const filterInputClass =
   'bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none';
 
 export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
-  const [{ address, tokenType, activeSnapshotInfo }, setData] =
+  const [{ address, tokenType, blockchainType, activeSnapshotInfo }, setData] =
     useSearchInput();
 
   const snapshotInfo = useMemo(
@@ -249,6 +249,7 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
     setData(
       {
         sortOrder: defaultSortOrder, // for snapshot query resetting sort order
+        blockchainType: currentFilter !== 'today' ? ['base'] : blockchainType, // TODO: Remove this blockchain restriction when snapshot is released for other blockchains
         activeSnapshotInfo: getActiveSnapshotInfoString(snapshotData)
       },
       { updateQueryParams: true }
