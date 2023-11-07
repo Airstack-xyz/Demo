@@ -1,5 +1,5 @@
 import { SnapshotFilterType } from '../Components/Filters/SnapshotFilter';
-import { tokenBlockchains } from '../constants';
+import { snapshotBlockchains } from '../constants';
 
 const fields = `
   amount
@@ -178,7 +178,7 @@ export function getNftWithCommonOwnersSnapshotQuery({
   const variablesString = variables.join(',');
 
   const subQueries: string[] = [];
-  tokenBlockchains.forEach(_blockchain => {
+  snapshotBlockchains.forEach(_blockchain => {
     if (!blockchain || blockchain === _blockchain) {
       subQueries.push(
         getSubQueryForBlockchain({

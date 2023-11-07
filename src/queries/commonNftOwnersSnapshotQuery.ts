@@ -1,5 +1,5 @@
 import { SnapshotFilterType } from '../Components/Filters/SnapshotFilter';
-import { tokenBlockchains } from '../constants';
+import { snapshotBlockchains } from '../constants';
 import { TokenAddress } from '../pages/TokenHolders/types';
 
 function getCommonNftOwnersSubQueryForBlockchain({
@@ -137,7 +137,7 @@ export function getCommonNftOwnersSnapshotQuery({
   }
   const variablesString = variables.join(',');
   const subQueries: string[] = [];
-  tokenBlockchains.forEach(_blockchain => {
+  snapshotBlockchains.forEach(_blockchain => {
     if (!address1.blockchain || address1.blockchain === _blockchain) {
       subQueries.push(
         getCommonNftOwnersSubQueryForBlockchain({
@@ -257,7 +257,7 @@ export function getNftOwnersSnapshotQuery({
   const variablesString = variables.join(',');
 
   const subQueries: string[] = [];
-  tokenBlockchains.forEach(_blockchain => {
+  snapshotBlockchains.forEach(_blockchain => {
     if (!address.blockchain || address.blockchain === _blockchain) {
       subQueries.push(
         getNftOwnersSubQueryForBlockchain({
