@@ -9,6 +9,7 @@ type Variable = {
   polygonTokens: string[];
   eventIds: string[];
   ethereumTokens: string[];
+  baseTokens: string[];
 };
 
 export function useGetTokenOverview() {
@@ -37,11 +38,12 @@ export function useGetTokenOverview() {
 
     let requestAborted = false;
     try {
-      const query = getOverviewQuery(
-        !!variables.polygonTokens?.length,
-        !!variables.eventIds?.length,
-        !!variables.ethereumTokens?.length
-      );
+      const query = getOverviewQuery({
+        hasPolygon: !!variables.polygonTokens?.length,
+        hasEvents: !!variables.eventIds?.length,
+        hasEthereum: !!variables.ethereumTokens?.length,
+        hasBase: !!variables.baseTokens?.length
+      });
       abortControllerRef.current = new AbortController();
       const res = await fetch(API, {
         method: 'POST',
