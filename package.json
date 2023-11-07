@@ -11,7 +11,8 @@
     "ts-lint": "tsc --noEmit --incremental",
     "preview": "vite preview",
     "prepare": "husky install",
-    "pre-commit": "npm run lint && npm run ts-lint"
+    "pre-commit": "npm run lint && npm run ts-lint",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@airstack/airstack-react": "^0.5.7",
@@ -19,6 +20,7 @@
     "comlink": "^4.4.1",
     "i": "^0.3.7",
     "npm": "^9.8.0",
+    "patch-package": "^8.0.0",
     "react": "^18.2.0",
     "react-calendar": "^4.6.0",
     "react-dom": "^18.2.0",
