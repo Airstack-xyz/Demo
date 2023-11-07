@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
-import { useSearchInput } from '../../hooks/useSearchInput';
+import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
 import { formatDate } from '../../utils';
 import { DatePicker, DateValue } from '../DatePicker';
 import { Icon, IconType } from '../Icon';
@@ -70,14 +70,16 @@ const getLabelAndIcon = ({
 
 const getTooltipMessage = ({
   forCombination,
-  forPoap
+  forPoap,
+  customMessage
 }: {
   forCombination?: boolean;
   forPoap?: boolean;
+  customMessage?: string;
 }) => {
   if (forCombination) return 'Snapshots is disabled for combinations';
   if (forPoap) return 'Snapshots is disabled for POAP';
-  return '';
+  return customMessage;
 };
 
 export function SnapshotToastMessage({ message }: { message: string }) {
@@ -94,8 +96,14 @@ const currentDate = new Date();
 const filterInputClass =
   'bg-transparent border-b border-white ml-10 mr-4 mb-2 caret-white outline-none rounded-none';
 
-export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
-  const [{ address, tokenType, blockchainType, activeSnapshotInfo }, setData] =
+export function SnapshotFilter({
+  disabled,
+  disabledTooltipMessage
+}: {
+  disabled?: boolean;
+  disabledTooltipMessage?: string;
+}) {
+  const [{ address, tokenType, activeSnapshotInfo }, setData] =
     useSearchInput();
 
   const snapshotInfo = useMemo(
@@ -150,9 +158,10 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   const isCombination = address.length > 1;
   const isPoap = tokenType === 'POAP';
 
-  const enableTooltipHover = isCombination || isPoap;
+  const enableTooltipHover =
+    isCombination || isPoap || Boolean(disabledTooltipMessage);
 
-  const isFilterDisabled = disabled || isCombination || isPoap;
+  const isFilterDisabled = disabled || enableTooltipHover;
 
   // Reset snapshot filter for combinations and poaps
   useEffect(() => {
@@ -247,15 +256,18 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
         break;
     }
 
+    const filterValues: Partial<CachedQuery> = {
+      sortOrder: defaultSortOrder, // for snapshot query resetting sort order
+      activeSnapshotInfo: getActiveSnapshotInfoString(snapshotData)
+    };
+
+    // TODO: Remove this blockchain restriction when snapshot is released for other blockchains
+    if (currentFilter !== 'today') {
+      filterValues.blockchainType = ['base'];
+    }
+
     setIsDropdownVisible(false);
-    setData(
-      {
-        sortOrder: defaultSortOrder, // for snapshot query resetting sort order
-        blockchainType: currentFilter !== 'today' ? ['base'] : blockchainType, // TODO: Remove this blockchain restriction when snapshot is released for other blockchains
-        activeSnapshotInfo: getActiveSnapshotInfoString(snapshotData)
-      },
-      { updateQueryParams: true }
-    );
+    setData(filterValues, { updateQueryParams: true });
   };
 
   const handleKeyboardKeyUp = (
@@ -293,7 +305,8 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
             <div className="bg-glass-1 rounded-[16px] py-1.5 px-3 w-max text-text-secondary">
               {getTooltipMessage({
                 forCombination: isCombination,
-                forPoap: isPoap
+                forPoap: isPoap,
+                customMessage: disabledTooltipMessage
               })}
             </div>
           </div>

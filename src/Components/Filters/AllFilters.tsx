@@ -130,13 +130,15 @@ export function AllFilters() {
 
   useEffect(() => {
     const filterValues: Partial<CachedQuery> = {};
-    // If snapshot query, reset sort filter
-    if (snapshotInfo.isApplicable) {
-      filterValues.sortOrder = defaultSortOrder;
-    }
     // If POAP filter is applied, reset blockchain filter
     if (isPoap) {
       filterValues.blockchainType = [];
+    }
+    // If snapshot query, reset sort filter
+    if (snapshotInfo.isApplicable) {
+      filterValues.sortOrder = defaultSortOrder;
+      // TODO: Remove below base restriction when snapshots is released for other blockchains
+      filterValues.blockchainType = ['base'];
     }
     // If POAP and combinations, reset snapshot filter
     if (isPoap || isCombination) {

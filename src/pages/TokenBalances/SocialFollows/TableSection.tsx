@@ -160,7 +160,6 @@ export function TableSection({
     if (tableItemsRef.current.length < MIN_LIMIT && hasNextPage) {
       getNextPage();
     } else {
-      tableItemsRef.current = [];
       setLoaderData(prev => ({
         ...prev,
         isVisible: false

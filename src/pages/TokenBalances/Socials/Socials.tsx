@@ -238,7 +238,7 @@ function SocialsComponent() {
         <div
           data-loader-type="block"
           data-loader-height="auto"
-          className="h-full p-5 flex-1"
+          className="h-full py-5 pl-5 pr-2.5 flex-1"
         >
           <Social
             name="Primary ENS"

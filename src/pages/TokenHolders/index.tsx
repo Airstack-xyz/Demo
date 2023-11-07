@@ -433,8 +433,10 @@ export function TokenHolders() {
 
   const renderFilterContent = () => {
     // TODO: remove snapshot disable condition when snapshots for other blockchains is deployed
-    const isNotBaseToken =
-      !address?.[0]?.blockchain || address?.[0]?.blockchain !== 'base';
+    const disabledTooltipMessage =
+      !address?.[0]?.blockchain || address?.[0]?.blockchain !== 'base'
+        ? 'Snapshots are available for base tokens only'
+        : '';
 
     if (activeTokenInfo) {
       return (
@@ -447,7 +449,10 @@ export function TokenHolders() {
     return (
       <div className="flex justify-between w-full">
         <div className="flex-row-center gap-3.5">
-          <SnapshotFilter disabled={hasSomePoap || isNotBaseToken} />
+          <SnapshotFilter
+            disabled={hasSomePoap}
+            disabledTooltipMessage={disabledTooltipMessage}
+          />
         </div>
         <GetAPIDropdown
           options={options}
