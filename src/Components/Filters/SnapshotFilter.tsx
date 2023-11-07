@@ -120,7 +120,9 @@ export function SnapshotFilter({
 
   const [blockNumber, setBlockNumber] = useState('');
   const [timestamp, setTimestamp] = useState('');
-  const [customDate, setCustomDate] = useState<DateValue>(currentDate);
+  const [customDate, setCustomDate] = useState<DateValue>(() =>
+    snapshotInfo.customDate ? new Date(snapshotInfo.customDate) : new Date()
+  );
 
   const [isTooltipVisible, setIsTooltipVisible] = useState(false);
 

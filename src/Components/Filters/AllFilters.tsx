@@ -96,7 +96,9 @@ export function AllFilters() {
 
   const [blockNumber, setBlockNumber] = useState('');
   const [timestamp, setTimestamp] = useState('');
-  const [customDate, setCustomDate] = useState<DateValue>(currentDate);
+  const [customDate, setCustomDate] = useState<DateValue>(() =>
+    snapshotInfo.customDate ? new Date(snapshotInfo.customDate) : new Date()
+  );
 
   const handleDropdownHide = useCallback(() => {
     setIsDropdownVisible(false);

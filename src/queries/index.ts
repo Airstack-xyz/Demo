@@ -179,6 +179,7 @@ const getTokenOwnerSubQuery = (blockchain: string) => {
         socials {
           blockchain
           dappSlug
+          dappName
           profileName
         }
         primaryDomain {

@@ -91,8 +91,6 @@ export function TokenHolders() {
     setShowTokensOrOverview(true);
   }, [tokenAddress]);
 
-  const tokensKey = useMemo(() => tokenAddress.join(','), [tokenAddress]);
-
   const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
     [activeSnapshotInfo]
@@ -430,6 +428,12 @@ export function TokenHolders() {
     showTokensOrOverview && !hasMultipleERC20 && !activeTokenInfo;
 
   const isQueryExists = query && query.length > 0;
+
+  // force the component to re-render when any of the search input change, so that the tokens are reset and refetch
+  const tokensKey = useMemo(
+    () => `${address}-${activeSnapshotInfo}`,
+    [address, activeSnapshotInfo]
+  );
 
   const renderFilterContent = () => {
     // TODO: remove snapshot disable condition when snapshots for other blockchains is deployed

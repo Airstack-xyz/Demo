@@ -104,7 +104,9 @@ const getNftOwnersSubQueryWithFilters = (
   hasPrimaryDomainFilter = false
 ) => {
   return `${blockchain}: TokenBalances(
-      input: {filter: {tokenAddress: {_eq: "${token}"}}, blockchain: ${blockchain}, limit: $limit}
+      input: {filter: {tokenAddress: {_eq: "${
+        token.address
+      }"}}, blockchain: ${blockchain}, limit: $limit}
     ) {
       TokenBalance {
         tokenId

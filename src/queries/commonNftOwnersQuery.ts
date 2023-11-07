@@ -72,6 +72,7 @@ const getCommonNftOwnersSubQuery = (
           socials {
             blockchain
             dappSlug
+            dappName
             profileName
           }
           primaryDomain {
@@ -147,6 +148,7 @@ const getNftOwnersSubQuery = (blockchain: string, token: TokenAddress) => {
       socials {
         blockchain
         dappSlug
+        dappName
         profileName
       }
       primaryDomain {

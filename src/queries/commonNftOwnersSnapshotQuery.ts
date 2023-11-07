@@ -165,7 +165,7 @@ function getNftOwnersSubQueryForBlockchain({
   blockchain: string;
   snapshotFilter: SnapshotFilterType;
 }) {
-  const filters = [`tokenAddress: {_eq: "${address}"}`];
+  const filters = [`tokenAddress: {_eq: "${address.address}"}`];
   switch (snapshotFilter) {
     case 'customDate':
       filters.push('date: {_eq: $customDate}');
