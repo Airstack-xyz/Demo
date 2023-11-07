@@ -71,16 +71,27 @@ const getLabelAndIcon = ({
 const getTooltipMessage = ({
   forCombination,
   forPoap,
-  customMessage
+  defaultMessage
 }: {
   forCombination?: boolean;
   forPoap?: boolean;
-  customMessage?: string;
+  defaultMessage?: string;
 }) => {
   if (forCombination) return 'Snapshots is disabled for combinations';
   if (forPoap) return 'Snapshots is disabled for POAP';
-  return customMessage;
+  return defaultMessage;
 };
+
+export function SnapshotTooltip({ message }: { message?: string }) {
+  return (
+    <div className="absolute left-4 top-4 z-20">
+      <img src="images/cursor.svg" height={30} width={30} />
+      <div className="bg-glass-1 rounded-[16px] py-1.5 px-3 w-max text-text-secondary">
+        {message}
+      </div>
+    </div>
+  );
+}
 
 export function SnapshotToastMessage({ message }: { message: string }) {
   return (
@@ -302,16 +313,13 @@ export function SnapshotFilter({
           onClick={handleDropdownToggle}
         />
         {isFilterDisabled && isTooltipVisible && (
-          <div className="absolute left-4 top-4 z-20">
-            <img src="images/cursor.svg" height={30} width={30} />
-            <div className="bg-glass-1 rounded-[16px] py-1.5 px-3 w-max text-text-secondary">
-              {getTooltipMessage({
-                forCombination: isCombination,
-                forPoap: isPoap,
-                customMessage: disabledTooltipMessage
-              })}
-            </div>
-          </div>
+          <SnapshotTooltip
+            message={getTooltipMessage({
+              forCombination: isCombination,
+              forPoap: isPoap,
+              defaultMessage: disabledTooltipMessage
+            })}
+          />
         )}
         {isDropdownVisible && (
           <div className="before:bg-glass before:absolute before:inset-0 before:-z-10 before:rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">

@@ -1,8 +1,14 @@
-export function getOverviewQuery(
-  hasPolygon: boolean,
-  hasEvents: boolean,
-  hasEthereum: boolean
-) {
+export function getOverviewQuery({
+  hasPolygon,
+  hasEvents,
+  hasEthereum,
+  hasBase
+}: {
+  hasPolygon: boolean;
+  hasEvents: boolean;
+  hasEthereum: boolean;
+  hasBase: boolean;
+}) {
   const variables = [];
   const filters = [];
   if (hasPolygon) {
@@ -16,6 +22,10 @@ export function getOverviewQuery(
   if (hasEthereum) {
     variables.push('$ethereumTokens: [Address!]');
     filters.push(`eventId: {_intersection: $ethereumTokens}`);
+  }
+  if (hasBase) {
+    variables.push('$baseTokens: [Address!]');
+    filters.push(`baseTokens: {_intersection: $baseTokens}`);
   }
   const variablesString = variables.join(',');
   const filtersString = filters.join(',');
