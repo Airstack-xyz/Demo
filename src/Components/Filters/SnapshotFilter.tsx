@@ -229,9 +229,13 @@ export function SnapshotFilter({
         snapshotData.blockNumber = blockNumber;
         break;
       case 'customDate':
-        snapshotData.customDate = (customDate as Date)
-          .toISOString()
-          .split('T')[0];
+        {
+          const date = customDate as Date;
+          const dateString = `${date.getFullYear()}-${
+            date.getMonth() + 1
+          }-${date.getDate()}`;
+          snapshotData.customDate = dateString;
+        }
         break;
       case 'timestamp':
         snapshotData.timestamp = timestamp;
