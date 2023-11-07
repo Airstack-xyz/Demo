@@ -150,6 +150,8 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
   const isCombination = address.length > 1;
   const isPoap = tokenType === 'POAP';
 
+  const enableTooltipHover = isCombination || isPoap;
+
   const isFilterDisabled = disabled || isCombination || isPoap;
 
   // Reset snapshot filter for combinations and poaps
@@ -275,8 +277,8 @@ export function SnapshotFilter({ disabled }: { disabled?: boolean }) {
       <div
         className="text-xs font-medium relative flex flex-col items-end"
         ref={dropdownContainerRef}
-        onMouseEnter={isFilterDisabled ? handleTooltipShow : undefined}
-        onMouseLeave={isFilterDisabled ? handleTooltipHide : undefined}
+        onMouseEnter={enableTooltipHover ? handleTooltipShow : undefined}
+        onMouseLeave={enableTooltipHover ? handleTooltipHide : undefined}
       >
         <FilterPlaceholder
           isDisabled={isFilterDisabled}

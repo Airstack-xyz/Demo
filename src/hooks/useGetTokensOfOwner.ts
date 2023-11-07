@@ -13,7 +13,7 @@ import {
 } from '../utils/activeSnapshotInfoString';
 
 const LIMIT = 20;
-const LIMIT_COMBINATIONS = 100;
+const LIMIT_COMBINATIONS = 25;
 
 type Inputs = Pick<
   UserInputs,

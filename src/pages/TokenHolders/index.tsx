@@ -432,6 +432,10 @@ export function TokenHolders() {
   const isQueryExists = query && query.length > 0;
 
   const renderFilterContent = () => {
+    // TODO: remove snapshot disable condition when snapshots for other blockchains is deployed
+    const isNotBaseToken =
+      !address?.[0]?.blockchain || address?.[0]?.blockchain !== 'base';
+
     if (activeTokenInfo) {
       return (
         <div className="flex justify-center w-full">
@@ -443,7 +447,7 @@ export function TokenHolders() {
     return (
       <div className="flex justify-between w-full">
         <div className="flex-row-center gap-3.5">
-          <SnapshotFilter disabled={hasSomePoap} />
+          <SnapshotFilter disabled={hasSomePoap || isNotBaseToken} />
         </div>
         <GetAPIDropdown
           options={options}
