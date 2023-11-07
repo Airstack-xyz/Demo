@@ -1,10 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { Dropdown, Option } from '../Dropdown';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
-import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
 
 export type SortOrderType = 'DESC' | 'ASC';
 
@@ -29,27 +28,9 @@ export const sortOptions: SortOption[] = [
 export function SortBy({ disabled }: { disabled?: boolean }) {
   const [searchInputs, setData] = useSearchInput();
 
-  const activeSnapshotInfo = searchInputs.activeSnapshotInfo;
   const sortOrder = searchInputs.sortOrder as SortOrderType;
 
-  const snapshotInfo = useMemo(
-    () => getActiveSnapshotInfo(activeSnapshotInfo),
-    [activeSnapshotInfo]
-  );
-
-  const isFilterDisabled = disabled || snapshotInfo.isApplicable;
-
-  // Reset sort filter for snapshot query
-  useEffect(() => {
-    if (isFilterDisabled) {
-      setData(
-        {
-          sortOrder: defaultSortOrder
-        },
-        { updateQueryParams: true }
-      );
-    }
-  }, [isFilterDisabled, setData]);
+  const isFilterDisabled = disabled;
 
   const handleChange = useCallback(
     (selected: Option[]) => {

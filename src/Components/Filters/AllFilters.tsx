@@ -8,7 +8,7 @@ import { FilterOption } from './FilterOption';
 import { filterPlaceholderClass } from './FilterPlaceholder';
 import {
   SnapshotFilterType,
-  SnapshotToastMessage,
+  SnapshotToast,
   defaultSnapshotFilter,
   getSnackbarMessage
 } from './SnapshotFilter';
@@ -53,11 +53,17 @@ const filterInputClass =
 
 const currentDate = new Date();
 
-export function AllFilters() {
+export function AllFilters({
+  snapshotDisabled,
+  blockchainDisabled,
+  sortByDisabled
+}: {
+  snapshotDisabled?: boolean;
+  blockchainDisabled?: boolean;
+  sortByDisabled?: boolean;
+}) {
   const [searchInputs, setData] = useSearchInput();
 
-  const address = searchInputs.address;
-  const tokenType = searchInputs.tokenType;
   const activeSnapshotInfo = searchInputs.activeSnapshotInfo;
   const blockchainType = searchInputs.blockchainType as BlockchainFilterType[];
   const sortOrder = searchInputs.sortOrder as SortOrderType;
@@ -126,28 +132,6 @@ export function AllFilters() {
   const datePickerContainerRef = useOutsideClick<HTMLDivElement>(() =>
     setIsDatePickerVisible(false)
   );
-
-  const isPoap = tokenType === 'POAP';
-  const isCombination = address.length > 1;
-
-  useEffect(() => {
-    const filterValues: Partial<CachedQuery> = {};
-    // If POAP filter is applied, reset blockchain filter
-    if (isPoap) {
-      filterValues.blockchainType = [];
-    }
-    // If snapshot query, reset sort filter
-    if (snapshotInfo.isApplicable) {
-      filterValues.sortOrder = defaultSortOrder;
-      // TODO: Remove below base restriction when snapshots is released for other blockchains
-      filterValues.blockchainType = ['base'];
-    }
-    // If POAP and combinations, reset snapshot filter
-    if (isPoap || isCombination) {
-      filterValues.activeSnapshotInfo = undefined;
-    }
-    setData(filterValues, { updateQueryParams: true });
-  }, [snapshotInfo.isApplicable, isPoap, isCombination, setData]);
 
   useEffect(() => {
     setCurrentSnapshotFilter(snapshotInfo.appliedFilter);
@@ -265,10 +249,9 @@ export function AllFilters() {
       filterValues.blockchainType = [currentBlockchainFilter];
     }
 
-    // For sort filter
-    // For snapshot query resetting sort order
-    if (snapshotInfo.isApplicable) {
-      filterValues.sortOrder = defaultSortOrder;
+    // For snapshot filter
+    if (currentSnapshotFilter !== 'today') {
+      filterValues.sortOrder = defaultSortOrder; // for snapshot query reset sort order
       // TODO: Remove below blockchain restriction when snapshot is released for other blockchains
       filterValues.blockchainType = ['base'];
     } else {
@@ -288,7 +271,7 @@ export function AllFilters() {
   };
 
   const renderSnapshotSection = () => {
-    const isDisabled = isCombination || isPoap;
+    const isDisabled = snapshotDisabled;
     return (
       <>
         <div
@@ -368,7 +351,7 @@ export function AllFilters() {
   };
 
   const renderBlockchainSection = () => {
-    const isDisabled = isPoap;
+    const isDisabled = blockchainDisabled;
     return (
       <>
         <div
@@ -392,7 +375,7 @@ export function AllFilters() {
   };
 
   const renderSortSection = () => {
-    const isDisabled = snapshotInfo.isApplicable;
+    const isDisabled = sortByDisabled;
     return (
       <>
         <div
@@ -461,7 +444,7 @@ export function AllFilters() {
         )}
       </div>
       {snapshotInfo.appliedFilter !== defaultSnapshotFilter &&
-        snackbarMessage && <SnapshotToastMessage message={snackbarMessage} />}
+        snackbarMessage && <SnapshotToast message={snackbarMessage} />}
     </>
   );
 }
