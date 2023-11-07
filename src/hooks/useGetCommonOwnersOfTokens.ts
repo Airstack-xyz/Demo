@@ -84,7 +84,9 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     if (
       hasPoap
         ? !data.Poaps?.Poap
-        : !data.ethereum?.TokenBalance && !data?.polygon?.TokenBalance
+        : !data?.ethereum?.TokenBalance &&
+          !data?.polygon?.TokenBalance &&
+          !data?.base?.TokenBalance
     ) {
       // if there is no data, hide the loader
       setLoading(false);
