@@ -5,3 +5,4 @@ export const tokenTypesForFilter = [
   'ERC6551',
   'POAP'
 ] as const;
+export const tokenTypesForSnapshot = ['ERC721', 'ERC1155', 'ERC6551'] as const;

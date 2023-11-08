@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { memo, useCallback, useMemo } from 'react';
 import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
 import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
-import { tokenTypes, tokenTypesForFilter } from './constants';
+import { tokenTypesForFilter, tokenTypesForSnapshot } from './constants';
 
 const buttonClass =
   'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light';
@@ -23,22 +23,19 @@ function FiltersComponent() {
       if (filter === 'All') {
         filterValues.tokenType = '';
       }
-      // Reset blockchain filter if POAP filter is applied
+      // Reset blockchain/snapshot filter if POAP filter is applied
       if (filter === 'POAP') {
         filterValues.blockchainType = [];
-      }
-      // Reset snapshot filter if POAP filter is applied
-      if (snapshotInfo.isApplicable) {
         filterValues.activeSnapshotInfo = undefined;
       }
       setData(filterValues, { updateQueryParams: true });
     },
-    [tokenType, snapshotInfo.isApplicable, setData]
+    [tokenType, setData]
   );
 
   const filters = useMemo(() => {
     if (snapshotInfo.isApplicable) {
-      return ['All', ...tokenTypes];
+      return ['All', ...tokenTypesForSnapshot];
     }
     return ['All', ...tokenTypesForFilter];
   }, [snapshotInfo.isApplicable]);

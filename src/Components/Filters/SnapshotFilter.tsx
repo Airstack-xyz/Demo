@@ -1,18 +1,19 @@
 /* eslint-disable react-refresh/only-export-components */
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { useMatch } from 'react-router-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
 import { formatDate } from '../../utils';
+import {
+  SnapshotInfo,
+  getActiveSnapshotInfo,
+  getActiveSnapshotInfoString
+} from '../../utils/activeSnapshotInfoString';
 import { DatePicker, DateValue } from '../DatePicker';
 import { Icon, IconType } from '../Icon';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 import { defaultSortOrder } from './SortBy';
-import {
-  getActiveSnapshotInfoString,
-  getActiveSnapshotInfo,
-  SnapshotInfo
-} from '../../utils/activeSnapshotInfoString';
 
 export type SnapshotFilterType =
   | 'today'
@@ -22,22 +23,22 @@ export type SnapshotFilterType =
 
 export const defaultSnapshotFilter: SnapshotFilterType = 'today';
 
-export const getSnackbarMessage = ({
-  appliedFilter,
-  blockNumber,
-  customDate,
-  timestamp
-}: SnapshotInfo) => {
+export const getSnackbarMessage = (
+  { appliedFilter, blockNumber, customDate, timestamp }: SnapshotInfo,
+  isTokenBalancesPage = true
+) => {
   let message = '';
+  const page = isTokenBalancesPage ? 'balances' : 'holders';
+  // TODO: Remove 'base' keyword when snapshot is released for other blockchains
   switch (appliedFilter) {
     case 'blockNumber':
-      message = `Viewing balances as of block no. ${blockNumber}`;
+      message = `Viewing base ${page} as of block no. ${blockNumber}`;
       break;
     case 'customDate':
-      message = `Viewing holders as of ${formatDate(customDate)}`;
+      message = `Viewing base ${page} as of ${formatDate(customDate)}`;
       break;
     case 'timestamp':
-      message = `Viewing balances as of timestamp ${timestamp}`;
+      message = `Viewing base ${page} as of timestamp ${timestamp}`;
       break;
   }
   return message;
@@ -49,7 +50,7 @@ const getLabelAndIcon = ({
   customDate,
   timestamp
 }: SnapshotInfo) => {
-  let label = 'Today';
+  let label = 'Now';
   let icon: IconType = 'calendar';
   switch (appliedFilter) {
     case 'blockNumber':
@@ -101,6 +102,8 @@ export function SnapshotFilter({
   disabledTooltipMessage?: string;
 }) {
   const [{ activeSnapshotInfo }, setData] = useSearchInput();
+
+  const isTokenBalancesPage = !!useMatch('/token-balances');
 
   const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
@@ -172,8 +175,8 @@ export function SnapshotFilter({
   ]);
 
   const snackbarMessage = useMemo(
-    () => getSnackbarMessage(snapshotInfo),
-    [snapshotInfo]
+    () => getSnackbarMessage(snapshotInfo, isTokenBalancesPage),
+    [isTokenBalancesPage, snapshotInfo]
   );
 
   const { label, icon } = useMemo(
@@ -250,6 +253,8 @@ export function SnapshotFilter({
       filterValues.sortOrder = defaultSortOrder; // for snapshot query reset sort order
       // TODO: Remove this blockchain restriction when snapshot is released for other blockchains
       filterValues.blockchainType = ['base'];
+    } else {
+      filterValues.blockchainType = [];
     }
 
     setIsDropdownVisible(false);
@@ -294,7 +299,7 @@ export function SnapshotFilter({
               Balance as of
             </div>
             <FilterOption
-              label="Today"
+              label="Now"
               isSelected={currentFilter === 'today'}
               onClick={handleFilterOptionClick('today')}
             />

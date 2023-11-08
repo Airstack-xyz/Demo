@@ -286,7 +286,7 @@ export function AllFilters({
           Balance as of
         </div>
         <FilterOption
-          label="Today"
+          label="Now"
           isDisabled={isDisabled}
           isSelected={currentSnapshotFilter === 'today'}
           onClick={handleSnapshotFilterOptionClick('today')}
@@ -301,7 +301,7 @@ export function AllFilters({
           {currentSnapshotFilter === 'customDate' && (
             <div
               className="ml-10 mr-4 mb-2 cursor-pointer"
-              onClick={handleDatePickerShow}
+              onClick={isDisabled ? undefined : handleDatePickerShow}
             >
               {formattedDate}
             </div>
@@ -322,7 +322,7 @@ export function AllFilters({
           isSelected={currentSnapshotFilter === 'blockNumber'}
           onClick={handleSnapshotFilterOptionClick('blockNumber')}
         />
-        {currentSnapshotFilter === 'blockNumber' && (
+        {currentSnapshotFilter === 'blockNumber' && !isDisabled && (
           <input
             autoFocus
             type="text"
@@ -339,7 +339,7 @@ export function AllFilters({
           isSelected={currentSnapshotFilter === 'timestamp'}
           onClick={handleSnapshotFilterOptionClick('timestamp')}
         />
-        {currentSnapshotFilter === 'timestamp' && (
+        {currentSnapshotFilter === 'timestamp' && !isDisabled && (
           <input
             autoFocus
             type="text"

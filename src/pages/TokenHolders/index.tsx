@@ -443,7 +443,7 @@ export function TokenHolders() {
     // TODO: remove below snapshot disable condition when snapshots for other blockchains is deployed
     const blockchain = address?.[0]?.blockchain;
     if (!blockchain || blockchain !== 'base')
-      return 'Snapshots is only enabled for Base chain';
+      return 'Snapshots is only enabled for Base tokens';
   }, [address, hasPoap, isCombination]);
 
   const renderFilterContent = () => {
