@@ -437,13 +437,20 @@ export function TokenHolders() {
     [address, activeSnapshotInfo]
   );
 
-  const snapshotTooltipMessage = useMemo(() => {
-    if (isCombination) return 'Snapshots is disabled for combinations';
-    if (hasPoap) return 'Snapshots is disabled for POAP';
+  const { snapshotTooltipMessage } = useMemo(() => {
+    let snapshotTooltipMessage = '';
+    if (hasPoap) {
+      snapshotTooltipMessage = 'Snapshots is disabled for POAP';
+    }
+    if (isCombination) {
+      snapshotTooltipMessage = 'Snapshots is disabled for combinations';
+    }
     // TODO: remove below snapshot disable condition when snapshots for other blockchains is deployed
     const blockchain = address?.[0]?.blockchain;
-    if (!blockchain || blockchain !== 'base')
-      return 'Snapshots is only enabled for Base tokens';
+    if (!blockchain || blockchain !== 'base') {
+      snapshotTooltipMessage = 'Snapshots is only enabled for Base tokens';
+    }
+    return { snapshotTooltipMessage };
   }, [address, hasPoap, isCombination]);
 
   const renderFilterContent = () => {

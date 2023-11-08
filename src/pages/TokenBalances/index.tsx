@@ -483,11 +483,32 @@ function TokenBalancePage() {
     [address, blockchainType, tokenType, sortOrder, activeSnapshotInfo]
   );
 
-  const snapshotTooltipMessage = useMemo(() => {
-    if (isCombination) return 'Snapshots is disabled for combinations';
-    if (isPoap) return 'Snapshots is disabled for POAP';
-    return;
-  }, [isCombination, isPoap]);
+  const {
+    snapshotTooltipMessage,
+    blockchainTooltipMessage,
+    sortByTooltipMessage
+  } = useMemo(() => {
+    let snapshotTooltipMessage = '';
+    let blockchainTooltipMessage = '';
+    let sortByTooltipMessage = '';
+    if (isPoap) {
+      snapshotTooltipMessage = 'Snapshots is disabled for POAP';
+      blockchainTooltipMessage = 'Blockchain is disabled for POAP';
+    }
+    if (isCombination) {
+      snapshotTooltipMessage = 'Snapshots is disabled for combinations';
+    }
+    if (snapshotInfo.isApplicable) {
+      // TODO: Update blockchain tooltip message when snapshot is released for other blockchains
+      blockchainTooltipMessage = 'Snapshots is only enabled for Base chain';
+      sortByTooltipMessage = 'Sorting is disabled for Snapshots';
+    }
+    return {
+      snapshotTooltipMessage,
+      blockchainTooltipMessage,
+      sortByTooltipMessage
+    };
+  }, [isCombination, isPoap, snapshotInfo.isApplicable]);
 
   const isQueryExists = query && query.length > 0;
 
@@ -502,9 +523,9 @@ function TokenBalancePage() {
 
     const isSnapshotFilterDisabled = Boolean(snapshotTooltipMessage);
 
-    const isBlockchainFilterDisabled = isPoap || snapshotInfo.isApplicable;
+    const isBlockchainFilterDisabled = Boolean(blockchainTooltipMessage);
 
-    const isSortByDisabled = snapshotInfo.isApplicable;
+    const isSortByDisabled = Boolean(sortByTooltipMessage);
 
     return (
       <div className="flex justify-between w-full z-[21]">
@@ -521,8 +542,14 @@ function TokenBalancePage() {
                 disabled={isSnapshotFilterDisabled}
                 disabledTooltipMessage={snapshotTooltipMessage}
               />
-              <BlockchainFilter disabled={isBlockchainFilterDisabled} />
-              <SortBy disabled={isSortByDisabled} />
+              <BlockchainFilter
+                disabled={isBlockchainFilterDisabled}
+                disabledTooltipMessage={blockchainTooltipMessage}
+              />
+              <SortBy
+                disabled={isSortByDisabled}
+                disabledTooltipMessage={sortByTooltipMessage}
+              />
             </>
           )}
         </div>
