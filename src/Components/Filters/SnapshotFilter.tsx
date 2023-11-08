@@ -1,18 +1,26 @@
 /* eslint-disable react-refresh/only-export-components */
-import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from 'react';
+import { useMatch } from 'react-router-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
 import { formatDate } from '../../utils';
+import {
+  SnapshotInfo,
+  getActiveSnapshotInfo,
+  getActiveSnapshotInfoString
+} from '../../utils/activeSnapshotInfoString';
 import { DatePicker, DateValue } from '../DatePicker';
 import { Icon, IconType } from '../Icon';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 import { defaultSortOrder } from './SortBy';
-import {
-  getActiveSnapshotInfoString,
-  getActiveSnapshotInfo,
-  SnapshotInfo
-} from '../../utils/activeSnapshotInfoString';
 
 export type SnapshotFilterType =
   | 'today'
@@ -22,22 +30,22 @@ export type SnapshotFilterType =
 
 export const defaultSnapshotFilter: SnapshotFilterType = 'today';
 
-export const getSnackbarMessage = ({
-  appliedFilter,
-  blockNumber,
-  customDate,
-  timestamp
-}: SnapshotInfo) => {
+export const getSnackbarMessage = (
+  { appliedFilter, blockNumber, customDate, timestamp }: SnapshotInfo,
+  isTokenBalancesPage = true
+) => {
   let message = '';
+  const page = isTokenBalancesPage ? 'balances' : 'holders';
+  // TODO: Remove 'base' keyword when snapshot is released for other blockchains
   switch (appliedFilter) {
     case 'blockNumber':
-      message = `Viewing balances as of block no. ${blockNumber}`;
+      message = `Viewing base ${page} as of block no. ${blockNumber}`;
       break;
     case 'customDate':
-      message = `Viewing holders as of ${formatDate(customDate)}`;
+      message = `Viewing base ${page} as of ${formatDate(customDate)}`;
       break;
     case 'timestamp':
-      message = `Viewing balances as of timestamp ${timestamp}`;
+      message = `Viewing base ${page} as of timestamp ${timestamp}`;
       break;
   }
   return message;
@@ -49,7 +57,7 @@ const getLabelAndIcon = ({
   customDate,
   timestamp
 }: SnapshotInfo) => {
-  let label = 'Today';
+  let label = 'Now';
   let icon: IconType = 'calendar';
   switch (appliedFilter) {
     case 'blockNumber':
@@ -102,6 +110,8 @@ export function SnapshotFilter({
 }) {
   const [{ activeSnapshotInfo }, setData] = useSearchInput();
 
+  const isTokenBalancesPage = !!useMatch('/token-balances');
+
   const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
     [activeSnapshotInfo]
@@ -120,14 +130,26 @@ export function SnapshotFilter({
     snapshotInfo.customDate ? new Date(snapshotInfo.customDate) : new Date()
   );
 
-  const [isTooltipVisible, setIsTooltipVisible] = useState(false);
-
   const handleTooltipShow = useCallback(() => {
-    setIsTooltipVisible(true);
+    if (tooltipContainerRef.current) {
+      tooltipContainerRef.current.style.display = 'block';
+    }
   }, []);
 
   const handleTooltipHide = useCallback(() => {
-    setIsTooltipVisible(false);
+    if (tooltipContainerRef.current) {
+      tooltipContainerRef.current.style.display = 'none';
+    }
+  }, []);
+
+  const handleTooltipMove = useCallback((event: React.MouseEvent) => {
+    if (tooltipContainerRef.current && buttonContainerRef.current) {
+      const rect = buttonContainerRef.current.getBoundingClientRect();
+      const left = event.clientX - rect.left + 20;
+      const top = event.clientY - rect.top - 3;
+      tooltipContainerRef.current.style.left = `${left}px`;
+      tooltipContainerRef.current.style.top = `${top}px`;
+    }
   }, []);
 
   const handleDropdownHide = useCallback(() => {
@@ -153,7 +175,10 @@ export function SnapshotFilter({
     setIsDatePickerVisible(false)
   );
 
-  const enableTooltipHover = disabled || Boolean(disabledTooltipMessage);
+  const tooltipContainerRef = useRef<HTMLDivElement>(null);
+  const buttonContainerRef = useRef<HTMLDivElement>(null);
+
+  const enableTooltipHover = disabled && Boolean(disabledTooltipMessage);
 
   const isFilterDisabled = disabled;
 
@@ -172,8 +197,8 @@ export function SnapshotFilter({
   ]);
 
   const snackbarMessage = useMemo(
-    () => getSnackbarMessage(snapshotInfo),
-    [snapshotInfo]
+    () => getSnackbarMessage(snapshotInfo, isTokenBalancesPage),
+    [isTokenBalancesPage, snapshotInfo]
   );
 
   const { label, icon } = useMemo(
@@ -250,6 +275,8 @@ export function SnapshotFilter({
       filterValues.sortOrder = defaultSortOrder; // for snapshot query reset sort order
       // TODO: Remove this blockchain restriction when snapshot is released for other blockchains
       filterValues.blockchainType = ['base'];
+    } else {
+      filterValues.blockchainType = [];
     }
 
     setIsDropdownVisible(false);
@@ -275,26 +302,35 @@ export function SnapshotFilter({
       <div
         className="text-xs font-medium relative flex flex-col items-end"
         ref={dropdownContainerRef}
-        onMouseEnter={enableTooltipHover ? handleTooltipShow : undefined}
-        onMouseLeave={enableTooltipHover ? handleTooltipHide : undefined}
       >
-        <FilterPlaceholder
-          isDisabled={isFilterDisabled}
-          isOpen={isDropdownVisible}
-          label={label}
-          icon={icon}
-          onClick={handleDropdownToggle}
-        />
-        {enableTooltipHover && isTooltipVisible && (
-          <SnapshotTooltip message={disabledTooltipMessage} />
-        )}
+        <div
+          className="relative"
+          ref={buttonContainerRef}
+          onMouseEnter={enableTooltipHover ? handleTooltipShow : undefined}
+          onMouseLeave={enableTooltipHover ? handleTooltipHide : undefined}
+          onMouseMove={enableTooltipHover ? handleTooltipMove : undefined}
+        >
+          <FilterPlaceholder
+            isDisabled={isFilterDisabled}
+            isOpen={isDropdownVisible}
+            label={label}
+            icon={icon}
+            onClick={handleDropdownToggle}
+          />
+          <div
+            ref={tooltipContainerRef}
+            className="absolute hidden before-bg-glass-1 before:rounded-[16px] before:-z-10 rounded-[16px] py-1.5 px-3 w-max text-text-secondary z-[50]"
+          >
+            {disabledTooltipMessage}
+          </div>
+        </div>
         {isDropdownVisible && (
-          <div className="before:bg-glass before:absolute before:inset-0 before:-z-10 before:rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">
+          <div className="before-bg-glass before:-z-10 before:rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">
             <div className="font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap">
               Balance as of
             </div>
             <FilterOption
-              label="Today"
+              label="Now"
               isSelected={currentFilter === 'today'}
               onClick={handleFilterOptionClick('today')}
             />
