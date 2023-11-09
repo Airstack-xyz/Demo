@@ -147,27 +147,27 @@ export function ScoreOverview() {
     const { lens, farcaster } = follow;
 
     if (lens.following) {
-      _score += scoreMap.followingOnLens;
+      _score += scoreMap.followingOnLens || 0;
     }
     if (lens.followedBy) {
-      _score += scoreMap.followedByOnLens;
+      _score += scoreMap.followedByOnLens || 0;
     }
     if (farcaster.following) {
-      _score += scoreMap.followingOnFarcaster;
+      _score += scoreMap.followingOnFarcaster || 0;
     }
     if (farcaster.followedBy) {
-      _score += scoreMap.followedByOnFarcaster;
+      _score += scoreMap.followedByOnFarcaster || 0;
     }
     if (tokenTransfer.sent) {
-      _score += scoreMap.tokenSent;
+      _score += scoreMap.tokenSent || 0;
     }
     if (tokenTransfer.received) {
-      _score += scoreMap.tokenReceived;
+      _score += scoreMap.tokenReceived || 0;
     }
-    _score += poapsCount * scoreMap.commonPoaps;
-    _score += nftCount.ethereum * scoreMap.commonEthNfts;
-    _score += nftCount.polygon * scoreMap.commonPolygonNfts;
-    _score += nftCount.base * scoreMap.commonBaseNfts;
+    _score += (poapsCount || 0) * scoreMap.commonPoaps;
+    _score += (nftCount.ethereum || 0) * scoreMap.commonEthNfts;
+    _score += (nftCount.polygon || 0) * scoreMap.commonPolygonNfts;
+    _score += (nftCount.base || 0) * scoreMap.commonBaseNfts;
     return _score;
   }, [
     follow,

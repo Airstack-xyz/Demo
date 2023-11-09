@@ -311,7 +311,7 @@ export function ScoreContainer({ score }: { score: number }) {
   const isMobile = isMobileDevice();
   return (
     <div className="relative flex items-center justify-center">
-      <span className="absolute text-3xl font-semibold">{score}</span>
+      <span className="absolute text-3xl font-semibold">{score || 0}</span>
       {isMobile ? mobileGraphics : desktopGraphics}
     </div>
   );
