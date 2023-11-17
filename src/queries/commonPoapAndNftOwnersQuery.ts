@@ -66,6 +66,7 @@ export function getCommonPoapAndNftOwnersQuery(
               addresses
               socials {
                 blockchain
+                dappName
                 dappSlug
                 profileName
               }

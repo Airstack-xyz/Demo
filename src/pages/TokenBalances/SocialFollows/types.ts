@@ -103,6 +103,7 @@ export type Wallet = {
   poapHoldings: Holding[];
   ethereumHoldings: Holding[];
   polygonHoldings: Holding[];
+  baseHoldings: Holding[];
   identity: string;
   addresses: string[];
   socials: {

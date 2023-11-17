@@ -28,7 +28,7 @@ export function OverviewDetails() {
       <div>
         <div className="flex items-center justify-between mb-4 px-2 sm:px-0">
           <div className="flex items-center text-xs sm:text-base mx-w-[100%] sm:max-w-[80%] overflow-hidden">
-            <div className="flex items-center w-[60%] sm:w-auto overflow-hidden mr-1">
+            <div className="flex items-center w-[60%] sm:w-auto overflow-hidden">
               <div
                 className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
                 onClick={handleGoBack}
@@ -38,11 +38,11 @@ export function OverviewDetails() {
                   Holders of {activeViewToken}
                 </span>
               </div>
-              <span className="mx-2.5 text-text-secondary">/</span>
+              <span className="text-text-secondary">/</span>
             </div>
-            <div className="flex items-center flex-1">
+            <div className="flex items-center flex-1 px-2">
               <Icon name="table-view" height={20} width={20} className="mr-1" />{' '}
-              <span>
+              <span className="ellipsis">
                 {count === '0' ? '--' : count}{' '}
                 {imageAndSubTextMap[activeView as string]?.subText}
               </span>

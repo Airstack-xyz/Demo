@@ -65,7 +65,8 @@ export function ScoreOverview() {
   const [{ address }] = useSearchInput();
   const [nftCount, setNftCount] = useState({
     ethereum: 0,
-    polygon: 0
+    polygon: 0,
+    base: 0
   });
   const [poapsCount, setPoapsCount] = useState(0);
   const [follow, setFollow] = useState({
@@ -100,10 +101,11 @@ export function ScoreOverview() {
       await fetchPoaps(address, (count: number) => setPoapsCount(count));
       const { lens, farcaster } = await fetchMutualFollowings(address);
       setFollow({ lens, farcaster });
-      await fetchNfts(address, ({ ethCount, polygonCount }) =>
+      await fetchNfts(address, ({ ethCount, polygonCount, baseCount }) =>
         setNftCount({
           ethereum: ethCount,
-          polygon: polygonCount
+          polygon: polygonCount,
+          base: baseCount
         })
       );
       const { tokenSent, tokenReceived } = await fetchTokensTransfer(address);
@@ -145,29 +147,31 @@ export function ScoreOverview() {
     const { lens, farcaster } = follow;
 
     if (lens.following) {
-      _score += scoreMap.followingOnLens;
+      _score += scoreMap.followingOnLens || 0;
     }
     if (lens.followedBy) {
-      _score += scoreMap.followedByOnLens;
+      _score += scoreMap.followedByOnLens || 0;
     }
     if (farcaster.following) {
-      _score += scoreMap.followingOnFarcaster;
+      _score += scoreMap.followingOnFarcaster || 0;
     }
     if (farcaster.followedBy) {
-      _score += scoreMap.followedByOnFarcaster;
+      _score += scoreMap.followedByOnFarcaster || 0;
     }
     if (tokenTransfer.sent) {
-      _score += scoreMap.tokenSent;
+      _score += scoreMap.tokenSent || 0;
     }
     if (tokenTransfer.received) {
-      _score += scoreMap.tokenReceived;
+      _score += scoreMap.tokenReceived || 0;
     }
-    _score += poapsCount * scoreMap.commonPoaps;
-    _score += nftCount.ethereum * scoreMap.commonEthNfts;
-    _score += nftCount.polygon * scoreMap.commonPolygonNfts;
+    _score += (poapsCount || 0) * scoreMap.commonPoaps;
+    _score += (nftCount.ethereum || 0) * scoreMap.commonEthNfts;
+    _score += (nftCount.polygon || 0) * scoreMap.commonPolygonNfts;
+    _score += (nftCount.base || 0) * scoreMap.commonBaseNfts;
     return _score;
   }, [
     follow,
+    nftCount.base,
     nftCount.ethereum,
     nftCount.polygon,
     poapsCount,
@@ -176,7 +180,7 @@ export function ScoreOverview() {
   ]);
 
   const { lens, farcaster } = follow;
-  const totalNFTCount = nftCount.ethereum + nftCount.polygon;
+  const totalNFTCount = nftCount.ethereum + nftCount.polygon + nftCount.base;
   const hasFarcasterFollow = farcaster.following || farcaster.followedBy;
   const hasLensFollow = lens.following || lens.followedBy;
   const hasTokenTransfer = tokenTransfer.sent || tokenTransfer.received;

@@ -18,7 +18,7 @@ export function TokensLoader() {
     <>
       {loaderData.map((_, index) => (
         <div className="skeleton-loader" key={index}>
-          <Token key={index} token={null} />
+          <Token key={index} token={null} hideHoldersButton />
         </div>
       ))}
     </>
@@ -27,7 +27,11 @@ export function TokensLoader() {
 
 type TokenProps = Pick<
   UserInputs,
-  'address' | 'tokenType' | 'blockchainType' | 'sortOrder'
+  | 'address'
+  | 'tokenType'
+  | 'blockchainType'
+  | 'sortOrder'
+  | 'activeSnapshotInfo'
 > & {
   poapDisabled?: boolean;
   includeERC20?: boolean;
@@ -38,6 +42,7 @@ function TokensComponent(props: TokenProps) {
     tokenType: tokenType = '',
     blockchainType,
     sortOrder,
+    activeSnapshotInfo,
     includeERC20,
     poapDisabled
   } = props;
@@ -52,6 +57,7 @@ function TokensComponent(props: TokenProps) {
     tokenType,
     blockchainType,
     sortOrder,
+    activeSnapshotInfo,
     includeERC20
   };
 
@@ -78,10 +84,13 @@ function TokensComponent(props: TokenProps) {
   const isPoap = tokenType === 'POAP';
 
   const canFetchPoap = useMemo(() => {
-    const hasPolygonChainFilter =
-      blockchainType.length === 1 && blockchainType[0] === 'polygon';
-    return !hasPolygonChainFilter && (!tokenType || isPoap);
-  }, [blockchainType, isPoap, tokenType]);
+    const hasPolygonOrBaseChainFilter =
+      blockchainType.length === 1 &&
+      (blockchainType[0] === 'polygon' || blockchainType[0] === 'base');
+    return (
+      !hasPolygonOrBaseChainFilter && !poapDisabled && (!tokenType || isPoap)
+    );
+  }, [blockchainType, isPoap, poapDisabled, tokenType]);
 
   const handleNext = useCallback(() => {
     if (!loadingTokens && !isPoap && hasNextPageTokens) {
@@ -166,7 +175,13 @@ function TokensComponent(props: TokenProps) {
             return <TokenWithERC6551 key={`${index}-${id}`} token={token} />;
           }
 
-          return <Token key={`${index}-${id}`} token={token} />;
+          return (
+            <Token
+              key={`${index}-${id}`}
+              token={token}
+              hideHoldersButton={loading}
+            />
+          );
         })}
         {loading && <TokensLoader />}
       </InfiniteScroll>

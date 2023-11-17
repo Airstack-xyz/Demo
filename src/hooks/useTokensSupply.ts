@@ -32,10 +32,13 @@ export function useTokensSupply() {
       if (_totalSupply?.ethereum?.totalSupply) {
         supply += parseInt(_totalSupply.ethereum.totalSupply);
       }
-
       if (_totalSupply?.polygon?.totalSupply) {
         supply += parseInt(_totalSupply.polygon.totalSupply);
       }
+      if (_totalSupply?.base?.totalSupply) {
+        supply += parseInt(_totalSupply.base.totalSupply);
+      }
+
       return supply;
     },
     []

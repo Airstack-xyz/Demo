@@ -12,7 +12,7 @@ export function MatchInfo() {
         <Icon name="info-circle" height={14} width={14} className="peer" />
         <div className="bg-tertiary z-10 text-xs absolute w-[270px] leading-loose rounded-18 hidden peer-hover:block hover:block pb-2 -right-16 sm:right-auto">
           <div className="px-5 py-2 font-bold">
-            How’s this score calculated?
+            How's this score calculated?
           </div>
           <div className="bg-glass flex items-center justify-between px-5 py-2 text-text-secondary font-medium">
             <div>Criteria</div>

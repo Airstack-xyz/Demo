@@ -11,6 +11,15 @@ import {
   getNftOwnersQuery
 } from '../queries/commonNftOwnersQuery';
 import { sortAddressByPoapFirst } from '../utils/sortAddressByPoapFirst';
+import { useSearchInput } from './useSearchInput';
+import {
+  getCommonNftOwnersSnapshotQuery,
+  getNftOwnersSnapshotQuery
+} from '../queries/commonNftOwnersSnapshotQuery';
+import {
+  getActiveSnapshotInfo,
+  getSnapshotQueryFilters
+} from '../utils/activeSnapshotInfoString';
 
 type Token = TokenType & {
   _poapEvent?: Poap['poapEvent'];
@@ -37,6 +46,9 @@ type CommonOwner = {
   polygon: {
     TokenBalance: NestedTokenBalance | Token[];
   };
+  base: {
+    TokenBalance: NestedTokenBalance | Token[];
+  };
 };
 
 const LIMIT = 200;
@@ -49,19 +61,43 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
 
+  const [{ activeSnapshotInfo }] = useSearchInput();
+
   const hasPoap = tokenAddress.some(token => !token.address.startsWith('0x'));
 
-  const query = useMemo(() => {
-    if (tokenAddress.length === 0) return '';
+  const snapshotInfo = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
 
-    if (tokenAddress.length === 1)
-      return getNftOwnersQuery(tokenAddress[0].address);
+  const query = useMemo(() => {
+    if (tokenAddress.length === 1) {
+      if (snapshotInfo.isApplicable) {
+        return getNftOwnersSnapshotQuery({
+          address: tokenAddress[0],
+          snapshotFilter: snapshotInfo.appliedFilter
+        });
+      }
+      return getNftOwnersQuery(tokenAddress[0]);
+    }
     if (hasPoap) {
       const tokens = sortAddressByPoapFirst(tokenAddress);
       return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
     }
+    if (snapshotInfo.isApplicable) {
+      return getCommonNftOwnersSnapshotQuery({
+        address1: tokenAddress[0],
+        address2: tokenAddress[1],
+        snapshotFilter: snapshotInfo.appliedFilter
+      });
+    }
     return getCommonNftOwnersQuery(tokenAddress[0], tokenAddress[1]);
-  }, [hasPoap, tokenAddress]);
+  }, [
+    tokenAddress,
+    hasPoap,
+    snapshotInfo.isApplicable,
+    snapshotInfo.appliedFilter
+  ]);
 
   const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
 
@@ -81,7 +117,9 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     if (
       hasPoap
         ? !data.Poaps?.Poap
-        : !data.ethereum?.TokenBalance && !data?.polygon?.TokenBalance
+        : !data?.ethereum?.TokenBalance &&
+          !data?.polygon?.TokenBalance &&
+          !data?.base?.TokenBalance
     ) {
       // if there is no data, hide the loader
       setLoading(false);
@@ -90,15 +128,17 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
 
     let tokenBalances = [];
 
-    const ownersInEth = data?.ethereum as CommonOwner['ethereum'];
+    const ownersInEthereum = data?.ethereum as CommonOwner['ethereum'];
     const ownersInPolygon = data?.polygon as CommonOwner['polygon'];
+    const ownersInBase = data?.base as CommonOwner['base'];
 
     if (hasPoap) {
       tokenBalances = data.Poaps?.Poap;
     } else {
       tokenBalances = [
-        ...(ownersInEth?.TokenBalance || []),
-        ...(ownersInPolygon?.TokenBalance || [])
+        ...(ownersInEthereum?.TokenBalance || []),
+        ...(ownersInPolygon?.TokenBalance || []),
+        ...(ownersInBase?.TokenBalance || [])
       ];
     }
 
@@ -163,11 +203,23 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     setLoading(true);
     setTokens([]);
     ownersSetRef.current = new Set();
-    fetch({
-      limit: fetchSingleToken ? MIN_LIMIT : LIMIT
-    });
+
+    const limit = fetchSingleToken ? MIN_LIMIT : LIMIT;
+
+    if (snapshotInfo.isApplicable) {
+      const queryFilters = getSnapshotQueryFilters(snapshotInfo);
+      fetch({
+        limit: limit,
+        ...queryFilters
+      });
+    } else {
+      fetch({
+        limit: limit
+      });
+    }
+
     setProcessedTokensCount(LIMIT);
-  }, [fetch, fetchSingleToken, tokenAddress.length]);
+  }, [tokenAddress.length, fetchSingleToken, snapshotInfo, fetch]);
 
   return {
     fetch: getTokens,

@@ -77,6 +77,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
     if (shouldFetchHoldersCount && tokenDetails.length > 0) {
       const polygonTokens: string[] = [];
       const ethereumTokens: string[] = [];
+      const baseTokens: string[] = [];
       const eventIds: string[] = [];
 
       tokenDetails.forEach(token => {
@@ -84,16 +85,23 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
           eventIds.push(token.eventId);
           return;
         }
-        if (token.blockchain === 'polygon') {
-          polygonTokens.push(token.tokenAddress);
-        } else {
-          ethereumTokens.push(token.tokenAddress);
+        switch (token.blockchain) {
+          case 'ethereum':
+            ethereumTokens.push(token.tokenAddress);
+            break;
+          case 'polygon':
+            polygonTokens.push(token.tokenAddress);
+            break;
+          case 'base':
+            baseTokens.push(token.tokenAddress);
+            break;
         }
       });
 
       fetchTokenOverview({
         ethereumTokens,
         polygonTokens,
+        baseTokens,
         eventIds
       });
     }
@@ -282,6 +290,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
           const supply = totalSupply?.[key.toLocaleLowerCase()];
           return (
             <span
+              key={`${key}-${index}`}
               className={classNames('flex', {
                 'max-w-[50%]': tokenDetails.length > 1
               })}

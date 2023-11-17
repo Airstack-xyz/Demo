@@ -16,8 +16,7 @@ export const getSocialFollowFilterData = ({
   mention,
   dappName,
   identities,
-  profileTokenIds,
-  isFollowerQuery
+  profileTokenIds
 }: {
   filters: string[];
   mention?: MentionData | null;
@@ -27,16 +26,10 @@ export const getSocialFollowFilterData = ({
   isFollowerQuery: boolean;
 }) => {
   const queryFilters: SocialFollowQueryFilters = {
-    dappName
+    dappName,
+    profileTokenId: profileTokenIds[0]
   };
   const logicalFilters: SocialFollowLogicalFilters = {};
-
-  // filter by profile ids for farcaster and lens (follower query only)
-  if (dappName === 'farcaster' || (dappName === 'lens' && isFollowerQuery)) {
-    queryFilters.profileTokenId = profileTokenIds[0];
-  } else {
-    queryFilters.identity = identities[0];
-  }
 
   if (mention) {
     logicalFilters.holdingData = mention;
@@ -143,7 +136,8 @@ function filterByHoldings(items: Follow[]) {
     return (
       follow?.poapHoldings?.length > 0 ||
       follow?.ethereumHoldings?.length > 0 ||
-      follow?.polygonHoldings?.length > 0
+      follow?.polygonHoldings?.length > 0 ||
+      follow?.baseHoldings?.length > 0
     );
   });
 }

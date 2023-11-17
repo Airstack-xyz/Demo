@@ -18,14 +18,17 @@ export async function fetchNfts(
   address: string[],
   onCountChange?: ({
     ethCount,
-    polygonCount
+    polygonCount,
+    baseCount
   }: {
     ethCount: number;
     polygonCount: number;
+    baseCount: number;
   }) => void
 ) {
   let ethCount = 0;
   let polygonCount = 0;
+  let baseCount = 0;
   const visited = new Set<string>();
 
   const request = fetchQueryWithPagination(commonNFTTokens, {
@@ -34,41 +37,52 @@ export async function fetchNfts(
   });
 
   await paginateRequest(request, async data => {
-    const { ethereum, polygon } = data;
-    let ethTokens: CommonTokenType[] = ethereum?.TokenBalance || [];
-    let maticTokens: CommonTokenType[] = polygon?.TokenBalance || [];
+    const { ethereum, polygon, base } = data;
+    let ethTokenBalances: CommonTokenType[] = ethereum?.TokenBalance || [];
+    let polygonTokenBalances: CommonTokenType[] = polygon?.TokenBalance || [];
+    let baseTokenBalances: CommonTokenType[] = base?.TokenBalance || [];
 
-    if (ethTokens.length > 0) {
-      ethTokens = ethTokens.filter(token => {
-        if (nftsToIgnore.includes(token?.tokenAddress)) return false;
-
-        const isDuplicate = visited.has(token?.tokenAddress);
-        visited.add(token?.tokenAddress);
-        return Boolean(token?.token?.tokenBalances?.length) && !isDuplicate;
-      });
-    }
-    if (maticTokens.length > 0) {
-      maticTokens = maticTokens.filter(token => {
+    if (ethTokenBalances.length > 0) {
+      ethTokenBalances = ethTokenBalances.filter(token => {
         if (nftsToIgnore.includes(token?.tokenAddress)) return false;
         const isDuplicate = visited.has(token?.tokenAddress);
         visited.add(token?.tokenAddress);
         return Boolean(token?.token?.tokenBalances?.length) && !isDuplicate;
       });
     }
+    if (polygonTokenBalances.length > 0) {
+      polygonTokenBalances = polygonTokenBalances.filter(token => {
+        if (nftsToIgnore.includes(token?.tokenAddress)) return false;
+        const isDuplicate = visited.has(token?.tokenAddress);
+        visited.add(token?.tokenAddress);
+        return Boolean(token?.token?.tokenBalances?.length) && !isDuplicate;
+      });
+    }
+    if (baseTokenBalances.length > 0) {
+      baseTokenBalances = baseTokenBalances.filter(token => {
+        if (nftsToIgnore.includes(token?.tokenAddress)) return false;
+        const isDuplicate = visited.has(token?.tokenAddress);
+        visited.add(token?.tokenAddress);
+        return Boolean(token?.token?.tokenBalances?.length) && !isDuplicate;
+      });
+    }
 
-    ethCount += ethTokens.length;
-    polygonCount += maticTokens.length;
+    ethCount += ethTokenBalances.length;
+    polygonCount += polygonTokenBalances.length;
+    baseCount += baseTokenBalances.length;
 
     onCountChange?.({
       ethCount,
-      polygonCount
+      polygonCount,
+      baseCount
     });
 
     return true;
   });
   return {
     ethCount,
-    polygonCount
+    polygonCount,
+    baseCount
   };
 }
 
@@ -111,11 +125,14 @@ export async function fetchTokensTransfer(address: string[]) {
       from: address[1]
     }
   );
+
   if (data?.Ethereum?.TokenTransfer?.length) {
     tokenSent = true;
   }
-
   if (data?.Polygon?.TokenTransfer?.length) {
+    tokenSent = true;
+  }
+  if (data?.Base?.TokenTransfer?.length) {
     tokenSent = true;
   }
 
@@ -126,13 +143,17 @@ export async function fetchTokensTransfer(address: string[]) {
       from: address[0]
     }
   );
+
   if (data2?.Ethereum?.TokenTransfer?.length) {
     tokenReceived = true;
   }
-
   if (data2?.Polygon?.TokenTransfer?.length) {
     tokenReceived = true;
   }
+  if (data2?.Base?.TokenTransfer?.length) {
+    tokenReceived = true;
+  }
+
   return { tokenSent, tokenReceived };
 }
 
@@ -160,8 +181,6 @@ export async function fetchMutualFollowings(address: string[]) {
         Boolean(
           following.followingAddress.domains?.some(x => x.name === address)
         );
-
-      // console.log({ domains: following.followingAddress.domains });
 
       if (match) {
         isFollowing = true;

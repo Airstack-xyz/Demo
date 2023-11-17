@@ -1,7 +1,7 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Poap, TokenAddress } from '../pages/TokenHolders/types';
-import { createCommonOwnersPOAPsQuery } from '../queries/commonOwnersPOAPsQuery';
+import { getCommonOwnersPOAPsQuery } from '../queries/commonOwnersPOAPsQuery';
 
 type Token = Poap;
 type NestedTokenBalance = {
@@ -30,10 +30,7 @@ export function useGetCommonOwnersOfPoaps(eventIds: TokenAddress[]) {
   const [loading, setLoading] = useState(false);
   const [poaps, setPoaps] = useState<Token[]>([]);
   const [processedPoapsCount, setProcessedPoapsCount] = useState(LIMIT);
-  const query = useMemo(
-    () => createCommonOwnersPOAPsQuery(eventIds),
-    [eventIds]
-  );
+  const query = useMemo(() => getCommonOwnersPOAPsQuery(eventIds), [eventIds]);
   const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
 
   const { hasNextPage, getNextPage } = pagination;

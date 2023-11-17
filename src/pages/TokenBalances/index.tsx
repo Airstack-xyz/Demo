@@ -13,11 +13,14 @@ import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
 import { SocialOverlapQuery, SocialQuery } from '../../queries';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { SortBy, defaultSortOrder } from '../../Components/Filters/SortBy';
-import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
 import { useMatch } from 'react-router-dom';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { BlockchainFilter } from '../../Components/Filters/BlockchainFilter';
+import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
+import { AllFilters } from '../../Components/Filters/AllFilters';
+import { getNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
 import { TokenDetails } from './ERC6551/TokenDetails';
 import {
   AccountOwner,
@@ -30,6 +33,10 @@ import {
   erc20TokenDetailsQuery
 } from '../../queries/tokenDetails';
 import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
+import {
+  getActiveSnapshotInfo,
+  getSnapshotQueryFilters
+} from '../../utils/activeSnapshotInfoString';
 import { SocialFollows } from './SocialFollows/SocialFollows';
 import { Tab, TabContainer } from '../../Components/Tab';
 import { getActiveSocialInfo } from '../../utils/activeSocialInfoString';
@@ -42,7 +49,6 @@ import {
   addToActiveTokenInfo,
   getAllActiveTokenInfo
 } from '../../utils/activeTokenInfoString';
-import { AllFilters } from '../../Components/Filters/AllFilters';
 import { SocialsOverlap } from './Socials/SocialsOverlap';
 import { ScoreOverview } from '../OnchainGraph/CommonScore/ScoreOverview';
 
@@ -51,12 +57,15 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
 }: {
   hideSocials?: boolean;
 }) {
-  const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
+  const [
+    { address, tokenType, blockchainType, sortOrder, activeSnapshotInfo }
+  ] = useSearchInput();
 
   // force the component to re-render when any of the search input change, so that the ERC20 can reset, refetch
   const erc20Key = useMemo(
-    () => `${address.join(',')}-${blockchainType}-${tokenType}-${sortOrder}`,
-    [address, blockchainType, tokenType, sortOrder]
+    () =>
+      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${activeSnapshotInfo}`,
+    [address, blockchainType, tokenType, sortOrder, activeSnapshotInfo]
   );
 
   return (
@@ -85,7 +94,9 @@ function TokenContainer({
   loading: boolean;
   poapDisabled?: boolean;
 }) {
-  const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
+  const [
+    { address, tokenType, blockchainType, sortOrder, activeSnapshotInfo }
+  ] = useSearchInput();
 
   if (!loading) {
     <div>
@@ -101,6 +112,7 @@ function TokenContainer({
       tokenType={tokenType}
       blockchainType={blockchainType}
       sortOrder={sortOrder}
+      activeSnapshotInfo={activeSnapshotInfo}
       poapDisabled={poapDisabled}
     />
   );
@@ -114,6 +126,7 @@ function TokenBalancePage() {
       blockchainType,
       sortOrder,
       activeTokenInfo,
+      activeSnapshotInfo,
       activeSocialInfo
     },
     setData
@@ -184,6 +197,11 @@ function TokenBalancePage() {
     return [];
   }, [activeTokenInfo]);
 
+  const snapshotInfo = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
+
   const socialInfo = useMemo(
     () => getActiveSocialInfo(activeSocialInfo),
     [activeSocialInfo]
@@ -192,6 +210,7 @@ function TokenBalancePage() {
   const token = activeTokens[activeTokens.length - 1];
 
   const isCombination = address.length > 1;
+  const isPoap = tokenType === 'POAP';
 
   const showTokenDetails = Boolean(activeTokenInfo || account);
   const hideBackBreadcrumb = Boolean(account);
@@ -202,19 +221,19 @@ function TokenBalancePage() {
     const detailTokensVisible = hasERC6551 && accountAddress;
 
     const fetchAllBlockchains =
-      blockchainType.length === 2 || blockchainType.length === 0;
+      blockchainType.length === 3 || blockchainType.length === 0;
 
-    const _owners = detailTokensVisible ? [accountAddress] : address;
-    const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
-    const _sortBy = sortOrder ? sortOrder : defaultSortOrder;
+    const owners = detailTokensVisible ? [accountAddress] : address;
+    const blockchain = fetchAllBlockchains ? null : blockchainType[0];
+    const sortBy = sortOrder ? sortOrder : defaultSortOrder;
 
-    let _tokenType = ['ERC721', 'ERC1155'];
+    let tokenFilters = ['ERC721', 'ERC1155'];
 
     if (tokenType) {
       if (tokenType === 'ERC6551') {
-        _tokenType = ['ERC721'];
+        tokenFilters = ['ERC721'];
       } else {
-        _tokenType = [tokenType];
+        tokenFilters = [tokenType];
       }
     }
 
@@ -222,14 +241,15 @@ function TokenBalancePage() {
 
     if (
       !showTokenDetails &&
+      !snapshotInfo.isApplicable &&
       !socialInfo.isApplicable &&
       (!tokenType || tokenType === 'POAP')
     ) {
-      const poapsQuery = poapsOfCommonOwnersQuery(address);
+      const poapsQuery = poapsOfCommonOwnersQuery(owners);
 
       const poapLink = createAppUrlWithQuery(poapsQuery, {
         limit: 10,
-        sortBy: _sortBy
+        sortBy
       });
 
       options.push({
@@ -241,19 +261,40 @@ function TokenBalancePage() {
     let nftLink = '';
     let erc20Link = '';
 
-    const tokensQuery = createNftWithCommonOwnersQuery(_owners, _blockchain);
+    if (snapshotInfo.isApplicable) {
+      const queryFilters = getSnapshotQueryFilters(snapshotInfo);
+      const tokensQuery = getNftWithCommonOwnersSnapshotQuery({
+        owners,
+        blockchain,
+        snapshotFilter: snapshotInfo.appliedFilter
+      });
 
-    nftLink = createAppUrlWithQuery(tokensQuery, {
-      limit: 10,
-      sortBy: _sortBy,
-      tokenType: _tokenType
-    });
+      nftLink = createAppUrlWithQuery(tokensQuery, {
+        limit: 10,
+        tokenType: tokenFilters,
+        ...queryFilters
+      });
 
-    erc20Link = createAppUrlWithQuery(tokensQuery, {
-      limit: 50,
-      sortBy: _sortBy,
-      tokenType: ['ERC20']
-    });
+      erc20Link = createAppUrlWithQuery(tokensQuery, {
+        limit: 50,
+        tokenType: ['ERC20'],
+        ...queryFilters
+      });
+    } else {
+      const tokensQuery = getNftWithCommonOwnersQuery(owners, blockchain);
+
+      nftLink = createAppUrlWithQuery(tokensQuery, {
+        limit: 10,
+        sortBy: sortBy,
+        tokenType: tokenFilters
+      });
+
+      erc20Link = createAppUrlWithQuery(tokensQuery, {
+        limit: 50,
+        sortBy: sortBy,
+        tokenType: ['ERC20']
+      });
+    }
 
     if (
       (!showTokenDetails || detailTokensVisible) &&
@@ -387,7 +428,7 @@ function TokenBalancePage() {
       );
 
       const socialDetailsLink = createAppUrlWithQuery(socialDetailsQuery, {
-        identities: address,
+        identities: owners,
         profileNames: socialInfo.profileNames,
         dappName: socialInfo.dappName
       });
@@ -417,6 +458,7 @@ function TokenBalancePage() {
     sortOrder,
     tokenType,
     showTokenDetails,
+    snapshotInfo,
     socialInfo.isApplicable,
     socialInfo.dappName,
     socialInfo.followerData,
@@ -436,9 +478,33 @@ function TokenBalancePage() {
 
   // force the component to re-render when any of the search input change, so that the tokens are reset and refetch
   const tokensKey = useMemo(
-    () => `${address.join(',')}-${blockchainType}-${tokenType}-${sortOrder}`,
-    [address, blockchainType, tokenType, sortOrder]
+    () =>
+      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${activeSnapshotInfo}`,
+    [address, blockchainType, tokenType, sortOrder, activeSnapshotInfo]
   );
+
+  const { snapshotTooltip, blockchainTooltip, sortByTooltip } = useMemo(() => {
+    let snapshotTooltip = '';
+    let blockchainTooltip = '';
+    let sortByTooltip = '';
+    if (isPoap) {
+      snapshotTooltip = 'Snapshots is disabled for POAP';
+      blockchainTooltip = 'Blockchain is disabled for POAP';
+    }
+    if (isCombination) {
+      snapshotTooltip = 'Snapshots is disabled for combinations';
+    }
+    if (snapshotInfo.isApplicable) {
+      // TODO: Update blockchain tooltip message when snapshot is released for other blockchains
+      blockchainTooltip = 'Snapshots is only enabled for Base chain';
+      sortByTooltip = 'Sorting is disabled for Snapshots';
+    }
+    return {
+      snapshotTooltip,
+      blockchainTooltip,
+      sortByTooltip
+    };
+  }, [isCombination, isPoap, snapshotInfo.isApplicable]);
 
   const isQueryExists = query && query.length > 0;
 
@@ -450,16 +516,36 @@ function TokenBalancePage() {
         </div>
       );
     }
+
+    const isSnapshotFilterDisabled = Boolean(snapshotTooltip);
+
+    const isBlockchainFilterDisabled = Boolean(blockchainTooltip);
+
+    const isSortByDisabled = Boolean(sortByTooltip);
+
     return (
       <div className="flex justify-between w-full z-[21]">
         <div className="flex-row-center gap-3.5">
           {isMobile ? (
-            <AllFilters />
+            <AllFilters
+              snapshotDisabled={isSnapshotFilterDisabled}
+              blockchainDisabled={isBlockchainFilterDisabled}
+              sortByDisabled={isSortByDisabled}
+            />
           ) : (
             <>
-              {/* <SnapshotFilter /> */}
-              <BlockchainFilter />
-              <SortBy />
+              <SnapshotFilter
+                disabled={isSnapshotFilterDisabled}
+                disabledTooltip={snapshotTooltip}
+              />
+              <BlockchainFilter
+                disabled={isBlockchainFilterDisabled}
+                disabledTooltip={blockchainTooltip}
+              />
+              <SortBy
+                disabled={isSortByDisabled}
+                disabledTooltip={sortByTooltip}
+              />
             </>
           )}
         </div>
@@ -531,10 +617,18 @@ function TokenBalancePage() {
             showSocials ? (
               <SocialsAndERC20 />
             ) : (
-              <TokenContainer key={tokensKey} loading={loadingAccount} />
+              <TokenContainer
+                key={tokensKey}
+                loading={loadingAccount}
+                poapDisabled={snapshotInfo.isApplicable}
+              />
             )
           ) : (
-            <TokenContainer key={tokensKey} loading={loadingAccount} />
+            <TokenContainer
+              key={tokensKey}
+              loading={loadingAccount}
+              poapDisabled={snapshotInfo.isApplicable}
+            />
           )}
         </div>
         {!isMobile && <SocialsAndERC20 />}

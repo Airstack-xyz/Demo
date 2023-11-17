@@ -17,8 +17,9 @@ export type CachedQuery = {
   activeViewToken: string;
   activeViewCount: string;
   blockchainType: string[];
-  activeTokenInfo: string;
   sortOrder: string;
+  activeTokenInfo: string;
+  activeSnapshotInfo: string;
   activeSocialInfo: string;
 };
 
@@ -159,6 +160,7 @@ export function useSearchInput(
         : null,
       activeView: isTokenBalances ? '' : searchParams.get('activeView') || '',
       activeTokenInfo: searchParams.get('activeTokenInfo') || '',
+      activeSnapshotInfo: searchParams.get('activeSnapshotInfo') || '',
       tokenFilters: !isTokenBalances ? getData('tokenFilters', true) : [],
       activeViewToken: isTokenBalances ? '' : getData('activeViewToken'),
       activeViewCount: isTokenBalances ? '' : getData('activeViewCount'),

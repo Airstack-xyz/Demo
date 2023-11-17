@@ -25,7 +25,7 @@ const mobileGraphics = (
         rx="34.7983"
         transform="matrix(-1 0 0 1 87.8358 0.865234)"
         stroke="url(#paint0_linear_2511_1773)"
-        stroke-width="0.864198"
+        strokeWidth="0.864198"
       />
       <rect
         opacity="0.75"
@@ -36,7 +36,7 @@ const mobileGraphics = (
         rx="34.7983"
         transform="matrix(-1 0 0 1 70.6528 0.865234)"
         stroke="url(#paint1_linear_2511_1773)"
-        stroke-width="0.864198"
+        strokeWidth="0.864198"
       />
       <rect
         x="52.1732"
@@ -45,7 +45,7 @@ const mobileGraphics = (
         height="70"
         rx="34.7983"
         stroke="url(#paint2_linear_2511_1773)"
-        stroke-width="0.864198"
+        strokeWidth="0.864198"
       />
       <rect
         opacity="0.75"
@@ -55,12 +55,12 @@ const mobileGraphics = (
         height="70"
         rx="34.7983"
         stroke="url(#paint3_linear_2511_1773)"
-        stroke-width="0.864198"
+        strokeWidth="0.864198"
       />
       <path
         d="M102.858 34.5679C102.858 52.9505 88.0454 67.8395 69.7885 67.8395C51.5317 67.8395 36.7187 52.9505 36.7187 34.5679C36.7187 16.1853 51.5317 1.2963 69.7885 1.2963C88.0454 1.2963 102.858 16.1853 102.858 34.5679Z"
         stroke="white"
-        stroke-width="2.59259"
+        strokeWidth="2.59259"
       />
     </mask>
     <g mask="url(#mask0_2511_1773)">
@@ -81,9 +81,9 @@ const mobileGraphics = (
         y2="34.5679"
         gradientUnits="userSpaceOnUse"
       >
-        <stop stop-color="white" />
-        <stop offset="0.346334" stop-color="white" stop-opacity="0" />
-        <stop offset="1" stop-color="white" stop-opacity="0" />
+        <stop stopColor="white" />
+        <stop offset="0.346334" stopColor="white" stopOpacity="0" />
+        <stop offset="1" stopColor="white" stopOpacity="0" />
       </linearGradient>
       <linearGradient
         id="paint1_linear_2511_1773"
@@ -93,9 +93,9 @@ const mobileGraphics = (
         y2="34.5679"
         gradientUnits="userSpaceOnUse"
       >
-        <stop stop-color="white" />
-        <stop offset="0.169249" stop-color="white" stop-opacity="0" />
-        <stop offset="1" stop-color="white" stop-opacity="0" />
+        <stop stopColor="white" />
+        <stop offset="0.169249" stopColor="white" stopOpacity="0" />
+        <stop offset="1" stopColor="white" stopOpacity="0" />
       </linearGradient>
       <linearGradient
         id="paint2_linear_2511_1773"
@@ -105,9 +105,9 @@ const mobileGraphics = (
         y2="35.4331"
         gradientUnits="userSpaceOnUse"
       >
-        <stop stop-color="white" />
-        <stop offset="0.346334" stop-color="white" stop-opacity="0" />
-        <stop offset="1" stop-color="white" stop-opacity="0" />
+        <stop stopColor="white" />
+        <stop offset="0.346334" stopColor="white" stopOpacity="0" />
+        <stop offset="1" stopColor="white" stopOpacity="0" />
       </linearGradient>
       <linearGradient
         id="paint3_linear_2511_1773"
@@ -117,9 +117,9 @@ const mobileGraphics = (
         y2="35.4331"
         gradientUnits="userSpaceOnUse"
       >
-        <stop stop-color="white" />
-        <stop offset="0.169249" stop-color="white" stop-opacity="0" />
-        <stop offset="1" stop-color="white" stop-opacity="0" />
+        <stop stopColor="white" />
+        <stop offset="0.169249" stopColor="white" stopOpacity="0" />
+        <stop offset="1" stopColor="white" stopOpacity="0" />
       </linearGradient>
       <linearGradient
         id="paint4_linear_2511_1773"
@@ -129,8 +129,8 @@ const mobileGraphics = (
         y2="36.7489"
         gradientUnits="userSpaceOnUse"
       >
-        <stop stop-color="#4B97F7" />
-        <stop offset="1" stop-color="#FF284B" />
+        <stop stopColor="#4B97F7" />
+        <stop offset="1" stopColor="#FF284B" />
       </linearGradient>
     </defs>
   </svg>
@@ -311,7 +311,7 @@ export function ScoreContainer({ score }: { score: number }) {
   const isMobile = isMobileDevice();
   return (
     <div className="relative flex items-center justify-center">
-      <span className="absolute text-3xl font-semibold">{score}</span>
+      <span className="absolute text-3xl font-semibold">{score || 0}</span>
       {isMobile ? mobileGraphics : desktopGraphics}
     </div>
   );

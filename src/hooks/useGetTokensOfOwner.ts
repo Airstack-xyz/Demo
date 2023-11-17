@@ -1,18 +1,27 @@
 import { config } from '@airstack/airstack-react/config';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createNftWithCommonOwnersQuery } from '../queries/nftWithCommonOwnersQuery';
+import { getNftWithCommonOwnersQuery } from '../queries/nftWithCommonOwnersQuery';
 import { UserInputs } from './useSearchInput';
 import { defaultSortOrder } from '../Components/Filters/SortBy';
 import { tokenTypes } from '../pages/TokenBalances/constants';
 import { CommonTokenType, TokenType } from '../pages/TokenBalances/types';
+import { getNftWithCommonOwnersSnapshotQuery } from '../queries/nftWithCommonOwnersSnapshotQuery';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import {
+  getActiveSnapshotInfo,
+  getSnapshotQueryFilters
+} from '../utils/activeSnapshotInfoString';
 
 const LIMIT = 20;
-const LIMIT_COMBINATIONS = 100;
+const LIMIT_COMBINATIONS = 25;
 
 type Inputs = Pick<
   UserInputs,
-  'address' | 'tokenType' | 'blockchainType' | 'sortOrder'
+  | 'address'
+  | 'tokenType'
+  | 'blockchainType'
+  | 'sortOrder'
+  | 'activeSnapshotInfo'
 > & {
   includeERC20?: boolean;
 };
@@ -22,24 +31,42 @@ export function useGetTokensOfOwner(
 ) {
   const {
     address: owners,
-    tokenType: tokenType = '',
+    tokenType = '',
     blockchainType,
     sortOrder,
+    activeSnapshotInfo,
     includeERC20
   } = inputs;
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
   const tokensRef = useRef<TokenType[]>([]);
-  const fetchAllBlockchains =
-    blockchainType.length === 2 || blockchainType.length === 0;
+
+  const snapshotInfo = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
 
   const query = useMemo(() => {
-    return createNftWithCommonOwnersQuery(
-      owners,
-      fetchAllBlockchains ? null : blockchainType[0]
-    );
-  }, [blockchainType, fetchAllBlockchains, owners]);
+    const fetchAllBlockchains =
+      blockchainType.length === 3 || blockchainType.length === 0;
+
+    const blockchain = fetchAllBlockchains ? null : blockchainType[0];
+
+    if (snapshotInfo.isApplicable) {
+      return getNftWithCommonOwnersSnapshotQuery({
+        owners,
+        blockchain: blockchain,
+        snapshotFilter: snapshotInfo.appliedFilter
+      });
+    }
+    return getNftWithCommonOwnersQuery(owners, blockchain);
+  }, [
+    blockchainType,
+    snapshotInfo.isApplicable,
+    snapshotInfo.appliedFilter,
+    owners
+  ]);
 
   const isPoap = tokenType === 'POAP';
   const is6551 = tokenType === 'ERC6551';
@@ -55,44 +82,69 @@ export function useGetTokensOfOwner(
   useEffect(() => {
     if (owners.length === 0) return;
 
+    const isPoap = tokenType === 'POAP';
+
     if (!tokenType || !isPoap) {
       setLoading(true);
       visitedTokensSetRef.current = new Set();
       tokensRef.current = [];
-      fetchTokens({
-        limit: owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT,
-        sortBy: sortOrder ? sortOrder : defaultSortOrder,
-        tokenType:
-          tokenType && tokenType.length > 0 && !is6551
-            ? [tokenType]
-            : tokenTypes.filter(
-                tokenType => includeERC20 || tokenType !== 'ERC20'
-              )
-      });
+
+      const limit = owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT;
+      const tokenFilters =
+        tokenType && tokenType.length > 0 && !is6551
+          ? [tokenType]
+          : tokenTypes.filter(
+              tokenType => includeERC20 || tokenType !== 'ERC20'
+            );
+      const sortBy = sortOrder ? sortOrder : defaultSortOrder;
+
+      // For snapshots different variables are being passed
+      if (snapshotInfo.isApplicable) {
+        const queryFilters = getSnapshotQueryFilters(snapshotInfo);
+        fetchTokens({
+          limit,
+          tokenType: tokenFilters,
+          ...queryFilters
+        });
+      } else {
+        fetchTokens({
+          limit,
+          tokenType: tokenFilters,
+          sortBy
+        });
+      }
     }
 
     setProcessedTokensCount(LIMIT);
   }, [
-    blockchainType,
     fetchTokens,
     includeERC20,
     is6551,
     isPoap,
     owners,
+    snapshotInfo,
     sortOrder,
     tokenType
   ]);
 
   useEffect(() => {
     if (!tokensData) return;
-    const { ethereum, polygon } = tokensData;
-    let ethTokens = ethereum?.TokenBalance || [];
-    let maticTokens = polygon?.TokenBalance || [];
-    const processedTokenCount = ethTokens.length + maticTokens.length;
+    const { ethereum, polygon, base } = tokensData;
+    let ethTokenBalances = ethereum?.TokenBalance || [];
+    let polygonTokenBalances = polygon?.TokenBalance || [];
+    let baseTokenBalances = base?.TokenBalance || [];
+
+    const processedTokenCount =
+      ethTokenBalances.length +
+      polygonTokenBalances.length +
+      baseTokenBalances.length;
     setProcessedTokensCount(count => count + processedTokenCount);
 
-    if (ethTokens.length > 0 && ethTokens[0]?.token?.tokenBalances) {
-      ethTokens = ethTokens
+    if (
+      ethTokenBalances.length > 0 &&
+      ethTokenBalances[0]?.token?.tokenBalances
+    ) {
+      ethTokenBalances = ethTokenBalances
         .filter((token: CommonTokenType) =>
           Boolean(token?.token?.tokenBalances?.length)
         )
@@ -101,8 +153,11 @@ export function useGetTokensOfOwner(
           return token;
         }, []);
     }
-    if (maticTokens.length > 0 && maticTokens[0]?.token?.tokenBalances) {
-      maticTokens = maticTokens
+    if (
+      polygonTokenBalances.length > 0 &&
+      polygonTokenBalances[0]?.token?.tokenBalances
+    ) {
+      polygonTokenBalances = polygonTokenBalances
         .filter((token: CommonTokenType) =>
           Boolean(token?.token?.tokenBalances?.length)
         )
@@ -111,7 +166,24 @@ export function useGetTokensOfOwner(
           return token;
         }, []);
     }
-    let tokens = [...ethTokens, ...maticTokens];
+    if (
+      baseTokenBalances.length > 0 &&
+      baseTokenBalances[0]?.token?.tokenBalances
+    ) {
+      baseTokenBalances = baseTokenBalances
+        .filter((token: CommonTokenType) =>
+          Boolean(token?.token?.tokenBalances?.length)
+        )
+        .map((token: CommonTokenType) => {
+          token._common_tokens = token.token.tokenBalances || null;
+          return token;
+        }, []);
+    }
+    let tokens = [
+      ...ethTokenBalances,
+      ...polygonTokenBalances,
+      ...baseTokenBalances
+    ];
 
     if (is6551) {
       tokens = tokens.filter((token: CommonTokenType) => {

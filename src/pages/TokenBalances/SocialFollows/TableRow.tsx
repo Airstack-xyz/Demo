@@ -4,8 +4,8 @@ import { Icon } from '../../../Components/Icon';
 import LazyImage from '../../../Components/LazyImage';
 import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
 import { WalletAddress } from '../../../Components/WalletAddress';
-import { Follow } from './types';
 import { formatNumber } from '../../../utils/formatNumber';
+import { Follow } from './types';
 
 export function TableRowLoader() {
   return (
@@ -26,11 +26,7 @@ export function TableRow({
   item: Follow;
   isFollowerQuery: boolean;
   isLensDapp: boolean;
-  onShowMoreClick: (
-    addresses: string[],
-    dataType?: string,
-    identity?: string
-  ) => void;
+  onShowMoreClick: (addresses: string[], dataType?: string) => void;
   onAddressClick: (address: string, dataType?: string) => void;
   onAssetClick: (
     tokenAddress: string,
@@ -39,7 +35,8 @@ export function TableRow({
     eventId?: string
   ) => void;
 }) {
-  const wallet = isFollowerQuery ? item.followerAddress : item.followingAddress;
+  const wallet =
+    (isFollowerQuery ? item.followerAddress : item.followingAddress) || {};
 
   const profileTokenId = isFollowerQuery
     ? item.followerProfileId
@@ -62,19 +59,22 @@ export function TableRow({
 
   const ens = wallet?.domains?.map(v => v.name) || [];
 
-  const walletAddress = Array.isArray(wallet?.addresses)
-    ? wallet?.addresses[0]
-    : '';
+  const walletAddresses = wallet?.addresses || [];
+
+  const walletAddress = walletAddresses[0] || '';
 
   const xmtpEnabled = wallet?.xmtp?.find(v => v.isXMTPEnabled);
 
   const userId = social?.userId;
 
+  const getShowMoreHandler = (addresses: string[], type: string) => () =>
+    onShowMoreClick?.([...addresses, ...walletAddresses], type);
+
   const lensCell = (
     <ListWithMoreOptions
       list={lensAddresses}
       listFor="lens"
-      onShowMore={() => onShowMoreClick([primaryEns], 'lens')}
+      onShowMore={getShowMoreHandler(lensAddresses, 'lens')}
       onItemClick={onAddressClick}
     />
   );
@@ -83,7 +83,7 @@ export function TableRow({
     <ListWithMoreOptions
       list={farcasterAddresses}
       listFor="farcaster"
-      onShowMore={() => onShowMoreClick([primaryEns], 'farcaster')}
+      onShowMore={getShowMoreHandler(farcasterAddresses, 'farcaster')}
       onItemClick={onAddressClick}
     />
   );
@@ -132,7 +132,8 @@ export function TableRow({
     const holding =
       wallet?.poapHoldings?.[0] ||
       wallet?.ethereumHoldings?.[0] ||
-      wallet?.polygonHoldings?.[0];
+      wallet?.polygonHoldings?.[0] ||
+      wallet?.baseHoldings?.[0];
 
     if (holding) {
       const holdingEventId = holding?.poapEvent?.eventId;
@@ -193,8 +194,10 @@ export function TableRow({
 
   return (
     <tr>
-      <td className="flex gap-2 [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:shrink-0">
-        {renderAssets()}
+      <td>
+        <div className="flex gap-2 [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:shrink-0">
+          {renderAssets()}
+        </div>
       </td>
       <td>{isLensDapp ? lensCell : farcasterCell}</td>
       {!isLensDapp && <td>{userId ? `#${userId}` : '--'}</td>}
@@ -209,9 +212,7 @@ export function TableRow({
         <ListWithMoreOptions
           list={ens}
           listFor="ens"
-          onShowMore={() =>
-            onShowMoreClick(wallet?.addresses, 'ens', primaryEns)
-          }
+          onShowMore={getShowMoreHandler(ens, 'ens')}
           onItemClick={onAddressClick}
         />
       </td>

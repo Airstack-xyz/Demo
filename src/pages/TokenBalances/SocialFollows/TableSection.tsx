@@ -42,7 +42,6 @@ function TableLoader() {
 type ModalData = {
   isOpen: boolean;
   dataType?: string;
-  identity?: string;
   addresses: string[];
 };
 
@@ -79,7 +78,6 @@ export function TableSection({
   const [modalData, setModalData] = useState<ModalData>({
     isOpen: false,
     dataType: '',
-    identity: '',
     addresses: []
   });
   const [loaderData, setLoaderData] = useState({
@@ -162,7 +160,6 @@ export function TableSection({
     if (tableItemsRef.current.length < MIN_LIMIT && hasNextPage) {
       getNextPage();
     } else {
-      tableItemsRef.current = [];
       setLoaderData(prev => ({
         ...prev,
         isVisible: false
@@ -246,7 +243,8 @@ export function TableSection({
             tokenId,
             blockchain,
             eventId
-          )
+          ),
+          activeSnapshotInfo: ''
         },
         { updateQueryParams: true }
       );
@@ -254,16 +252,11 @@ export function TableSection({
     [setQueryData]
   );
 
-  const handleShowMoreClick = (
-    addresses: string[],
-    dataType?: string,
-    identity?: string
-  ) => {
+  const handleShowMoreClick = (addresses: string[], dataType?: string) => {
     setModalData({
       isOpen: true,
       dataType,
-      addresses,
-      identity
+      addresses
     });
   };
 
@@ -359,9 +352,7 @@ export function TableSection({
       </div>
       {modalData.isOpen && (
         <LazyAddressesModal
-          heading={`All ${modalData.dataType} names of ${
-            modalData?.identity || modalData.addresses[0]
-          }`}
+          heading={`All ${modalData.dataType} names of ${modalData.addresses[0]}`}
           isOpen={modalData.isOpen}
           addresses={modalData.addresses}
           dataType={modalData.dataType}

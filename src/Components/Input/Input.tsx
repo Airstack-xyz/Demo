@@ -126,8 +126,8 @@ export function InputWithMention({
 
   useEffect(() => {
     inputRef.current?.setAttribute('autocomplete', 'off');
-    return highlightMention(inputRef.current);
-  }, []);
+    return highlightMention(inputRef.current, disableSuggestions);
+  }, [disableSuggestions]);
 
   const handleUserInput = useCallback(
     ({ target: { value } }: { target: { value: string } }) => {

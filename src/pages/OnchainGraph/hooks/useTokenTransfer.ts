@@ -83,14 +83,21 @@ export function useTokenTransfer(
       if (requestCanceled.current && window.onchainGraphRequestCanceled) {
         return false;
       }
-      const ethData = (data?.Ethereum?.TokenTransfer ?? []).map(
+      const ethTokenTransfers = (data?.Ethereum?.TokenTransfer ?? []).map(
         transfer => transfer.account
       );
-      const polygonData = (data?.Polygon?.TokenTransfer ?? []).map(
+      const polygonTokenTransfers = (data?.Polygon?.TokenTransfer ?? []).map(
+        transfer => transfer.account
+      );
+      const baseTokenTransfers = (data?.Polygon?.TokenTransfer ?? []).map(
         transfer => transfer.account
       );
 
-      const tokenTransfer = [...ethData, ...polygonData] as Transfer[];
+      const tokenTransfer = [
+        ...ethTokenTransfers,
+        ...polygonTokenTransfers,
+        ...baseTokenTransfers
+      ] as Transfer[];
       totalItemsCount.current += tokenTransfer.length;
       setData(recommendedUsers =>
         formatData(tokenTransfer, recommendedUsers, transferType === 'sent')
