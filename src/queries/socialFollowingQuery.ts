@@ -155,9 +155,15 @@ export const getSocialFollowingsQuery = ({
             dappName
             dappSlug
             profileName
+            profileHandle
             profileImage
             profileTokenId
             profileTokenAddress
+            profileImageContentValue {
+              image {
+                extraSmall
+              }
+            }
           }
           primaryDomain {
             name
