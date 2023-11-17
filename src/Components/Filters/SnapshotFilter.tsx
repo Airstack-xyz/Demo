@@ -103,10 +103,10 @@ const filterInputClass =
 
 export function SnapshotFilter({
   disabled,
-  disabledTooltipMessage
+  disabledTooltip
 }: {
   disabled?: boolean;
-  disabledTooltipMessage?: string;
+  disabledTooltip?: string;
 }) {
   const [{ activeSnapshotInfo }, setData] = useSearchInput();
 
@@ -178,7 +178,7 @@ export function SnapshotFilter({
   const tooltipContainerRef = useRef<HTMLDivElement>(null);
   const buttonContainerRef = useRef<HTMLDivElement>(null);
 
-  const enableTooltipHover = disabled && Boolean(disabledTooltipMessage);
+  const enableTooltipHover = disabled && Boolean(disabledTooltip);
 
   const isFilterDisabled = disabled;
 
@@ -321,7 +321,7 @@ export function SnapshotFilter({
             ref={tooltipContainerRef}
             className="absolute hidden before-bg-glass-1 before:rounded-[16px] before:-z-10 rounded-[16px] py-1.5 px-3 w-max text-text-secondary z-[50]"
           >
-            {disabledTooltipMessage}
+            {disabledTooltip}
           </div>
         </div>
         {isDropdownVisible && (

@@ -437,20 +437,20 @@ export function TokenHolders() {
     [address, activeSnapshotInfo]
   );
 
-  const { snapshotTooltipMessage } = useMemo(() => {
-    let snapshotTooltipMessage = '';
+  const { snapshotTooltip } = useMemo(() => {
+    let snapshotTooltip = '';
     if (hasPoap) {
-      snapshotTooltipMessage = 'Snapshots is disabled for POAP';
+      snapshotTooltip = 'Snapshots is disabled for POAP';
     }
     if (isCombination) {
-      snapshotTooltipMessage = 'Snapshots is disabled for combinations';
+      snapshotTooltip = 'Snapshots is disabled for combinations';
     }
     // TODO: remove below snapshot disable condition when snapshots for other blockchains is deployed
     const blockchain = address?.[0]?.blockchain;
     if (!blockchain || blockchain !== 'base') {
-      snapshotTooltipMessage = 'Snapshots is only enabled for Base tokens';
+      snapshotTooltip = 'Snapshots is only enabled for Base tokens';
     }
-    return { snapshotTooltipMessage };
+    return { snapshotTooltip };
   }, [address, hasPoap, isCombination]);
 
   const renderFilterContent = () => {
@@ -462,14 +462,14 @@ export function TokenHolders() {
       );
     }
 
-    const isSnapshotFilterDisabled = Boolean(snapshotTooltipMessage);
+    const isSnapshotFilterDisabled = Boolean(snapshotTooltip);
 
     return (
       <div className="flex justify-between w-full">
         <div className="flex-row-center gap-3.5">
           <SnapshotFilter
             disabled={isSnapshotFilterDisabled}
-            disabledTooltipMessage={snapshotTooltipMessage}
+            disabledTooltip={snapshotTooltip}
           />
         </div>
         <GetAPIDropdown

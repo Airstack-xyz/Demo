@@ -483,30 +483,26 @@ function TokenBalancePage() {
     [address, blockchainType, tokenType, sortOrder, activeSnapshotInfo]
   );
 
-  const {
-    snapshotTooltipMessage,
-    blockchainTooltipMessage,
-    sortByTooltipMessage
-  } = useMemo(() => {
-    let snapshotTooltipMessage = '';
-    let blockchainTooltipMessage = '';
-    let sortByTooltipMessage = '';
+  const { snapshotTooltip, blockchainTooltip, sortByTooltip } = useMemo(() => {
+    let snapshotTooltip = '';
+    let blockchainTooltip = '';
+    let sortByTooltip = '';
     if (isPoap) {
-      snapshotTooltipMessage = 'Snapshots is disabled for POAP';
-      blockchainTooltipMessage = 'Blockchain is disabled for POAP';
+      snapshotTooltip = 'Snapshots is disabled for POAP';
+      blockchainTooltip = 'Blockchain is disabled for POAP';
     }
     if (isCombination) {
-      snapshotTooltipMessage = 'Snapshots is disabled for combinations';
+      snapshotTooltip = 'Snapshots is disabled for combinations';
     }
     if (snapshotInfo.isApplicable) {
       // TODO: Update blockchain tooltip message when snapshot is released for other blockchains
-      blockchainTooltipMessage = 'Snapshots is only enabled for Base chain';
-      sortByTooltipMessage = 'Sorting is disabled for Snapshots';
+      blockchainTooltip = 'Snapshots is only enabled for Base chain';
+      sortByTooltip = 'Sorting is disabled for Snapshots';
     }
     return {
-      snapshotTooltipMessage,
-      blockchainTooltipMessage,
-      sortByTooltipMessage
+      snapshotTooltip,
+      blockchainTooltip,
+      sortByTooltip
     };
   }, [isCombination, isPoap, snapshotInfo.isApplicable]);
 
@@ -521,11 +517,11 @@ function TokenBalancePage() {
       );
     }
 
-    const isSnapshotFilterDisabled = Boolean(snapshotTooltipMessage);
+    const isSnapshotFilterDisabled = Boolean(snapshotTooltip);
 
-    const isBlockchainFilterDisabled = Boolean(blockchainTooltipMessage);
+    const isBlockchainFilterDisabled = Boolean(blockchainTooltip);
 
-    const isSortByDisabled = Boolean(sortByTooltipMessage);
+    const isSortByDisabled = Boolean(sortByTooltip);
 
     return (
       <div className="flex justify-between w-full z-[21]">
@@ -540,15 +536,15 @@ function TokenBalancePage() {
             <>
               <SnapshotFilter
                 disabled={isSnapshotFilterDisabled}
-                disabledTooltipMessage={snapshotTooltipMessage}
+                disabledTooltip={snapshotTooltip}
               />
               <BlockchainFilter
                 disabled={isBlockchainFilterDisabled}
-                disabledTooltipMessage={blockchainTooltipMessage}
+                disabledTooltip={blockchainTooltip}
               />
               <SortBy
                 disabled={isSortByDisabled}
-                disabledTooltipMessage={sortByTooltipMessage}
+                disabledTooltip={sortByTooltip}
               />
             </>
           )}
