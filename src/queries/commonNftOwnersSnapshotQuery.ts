@@ -92,15 +92,13 @@ function getCommonNftOwnersSubQueryForBlockchain({
               socials {
                 blockchain
                 dappName
-                dappSlug
                 profileName
+                profileHandle
               }
               primaryDomain {
                 name
               }
               domains {
-                chainId
-                dappName
                 name
               }
               xmtp {
@@ -215,15 +213,13 @@ function getNftOwnersSubQueryForBlockchain({
           socials {
             blockchain
             dappName
-            dappSlug
             profileName
+            profileHandle
           }
           primaryDomain {
             name
           }
           domains {
-            chainId
-            dappName
             name
           }
           xmtp {

@@ -45,6 +45,7 @@ export const nftQuery = `query NFTs($addresses: [Address!], $blockchain: TokenBl
             dappName
             blockchain
             profileName
+            profileHandle
             profileImage
             profileTokenId
             profileTokenAddress

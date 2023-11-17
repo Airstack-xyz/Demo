@@ -1,24 +1,25 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { useNavigate } from 'react-router-dom';
+import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
+import { StatusLoader } from '../../../Components/StatusLoader';
+import { useGetCommonOwnersOfPoaps } from '../../../hooks/useGetCommonOwnersOfPoaps';
+import { useGetCommonOwnersOfTokens } from '../../../hooks/useGetCommonOwnersOfTokens';
 import {
   resetCachedUserInputs,
   useSearchInput
 } from '../../../hooks/useSearchInput';
-import { Header } from './Header';
-import { useNavigate } from 'react-router-dom';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { AssetType, Token } from './Token';
-import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
-import { useGetCommonOwnersOfTokens } from '../../../hooks/useGetCommonOwnersOfTokens';
-import { useGetCommonOwnersOfPoaps } from '../../../hooks/useGetCommonOwnersOfPoaps';
-import { StatusLoader } from '../../../Components/StatusLoader';
 import {
   TokenHolder,
   useOverviewTokens
 } from '../../../store/tokenHoldersOverview';
-import { sortByAddressByNonERC20First } from '../../../utils/getNFTQueryForTokensHolder';
+import { formatAddress } from '../../../utils';
 import { getActiveSnapshotInfo } from '../../../utils/activeSnapshotInfoString';
 import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
-import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
+import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
+import { sortByAddressByNonERC20First } from '../../../utils/getNFTQueryForTokensHolder';
+import { Header } from './Header';
+import { AssetType, Token } from './Token';
 
 const loaderData = Array(6).fill({});
 
@@ -141,9 +142,8 @@ export function TokensComponent() {
 
   const handleAddressClick = useCallback(
     (address: string, type?: string) => {
-      const isFarcaster = type?.includes('farcaster');
       const url = createTokenBalancesUrl({
-        address: isFarcaster ? `fc_fname:${address}` : address,
+        address: formatAddress(address, type),
         blockchain: 'ethereum',
         inputType: 'ADDRESS'
       });

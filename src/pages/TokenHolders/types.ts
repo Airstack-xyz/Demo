@@ -68,9 +68,9 @@ export interface Owner {
 
 export interface Social {
   blockchain: string;
-  dappSlug: string;
   dappName: string;
   profileName: string;
+  profileHandle: string;
 }
 
 export interface PrimaryDomain {
@@ -78,7 +78,6 @@ export interface PrimaryDomain {
 }
 
 export interface Domain {
-  chainId: string;
   dappName: string;
   name: string;
 }

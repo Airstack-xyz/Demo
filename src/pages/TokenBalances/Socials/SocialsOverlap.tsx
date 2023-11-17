@@ -4,6 +4,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { SocialOverlapQuery } from '../../../queries';
+import { formatAddress } from '../../../utils';
 import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
 import { SectionHeader } from '../SectionHeader';
@@ -224,20 +225,19 @@ function SocialsOverlapComponent() {
     (value: unknown, type?: string) => {
       if (typeof value !== 'string' || value == '--') return;
 
-      const isFarcaster = type?.includes('farcaster');
-      const farcasterId = `fc_fname:${value}`;
+      const addressValue = formatAddress(value, type);
 
       const rawInput = createFormattedRawInput({
         type: 'ADDRESS',
-        address: isFarcaster ? farcasterId : value,
-        label: isFarcaster ? farcasterId : value,
+        address: addressValue,
+        label: addressValue,
         blockchain: 'ethereum'
       });
 
       setData(
         {
           rawInput: rawInput,
-          address: isFarcaster ? [farcasterId] : [value],
+          address: [addressValue],
           inputType: 'ADDRESS'
         },
         { updateQueryParams: true }

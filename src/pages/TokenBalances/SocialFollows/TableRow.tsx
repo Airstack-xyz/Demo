@@ -48,13 +48,12 @@ export function TableRow({
     v => v.profileTokenId === profileTokenId
   );
 
-  const lensAddresses =
-    wallet?.socials
-      ?.filter(v => v.dappName === 'lens')
-      .map(v => v.profileName) || [];
+  const lensSocials = wallet?.socials?.filter(v => v.dappName === 'lens') || [];
+  const lensAddresses = lensSocials.map(v => v.profileName);
+  const lensHandles = lensSocials.map(v => v.profileHandle);
   const farcasterAddresses =
     wallet?.socials
-      ?.filter(v => v.dappName === 'farcaster')
+      ?.filter(v => v.profileName && v.dappName === 'farcaster')
       .map(v => v.profileName) || [];
 
   const ens = wallet?.domains?.map(v => v.name) || [];
@@ -72,7 +71,7 @@ export function TableRow({
 
   const lensCell = (
     <ListWithMoreOptions
-      list={lensAddresses}
+      list={lensHandles}
       listFor="lens"
       onShowMore={getShowMoreHandler(lensAddresses, 'lens')}
       onItemClick={onAddressClick}

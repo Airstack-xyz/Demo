@@ -11,6 +11,19 @@ export function formatDate(dateValue: string | Date | undefined) {
   });
 }
 
+export function formatAddress(address: string, type?: string) {
+  if (!address) {
+    return address;
+  }
+  switch (type) {
+    case 'farcaster':
+      return address.startsWith('fc_fname:') ? address : `fc_fname:${address}`;
+    case 'lens':
+      return address.startsWith('lens/') ? address : `lens/${address}`;
+  }
+  return address;
+}
+
 export const pluralize = (
   count: number | null | undefined,
   noun: string | null | undefined,

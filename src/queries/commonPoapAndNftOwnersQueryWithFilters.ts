@@ -47,16 +47,14 @@ export function getCommonPoapAndNftOwnersQueryWithFilters(
               addresses
               socials${hasSocialFilters ? socialInput : ''} {
                 blockchain
-                dappSlug
                 dappName
                 profileName
+                profileHandle
               }
               primaryDomain {
                 name
               }
               domains${hasPrimaryDomainFilter ? primaryDomainInput : ''} {
-                chainId
-                dappName
                 name
               }
               xmtp {

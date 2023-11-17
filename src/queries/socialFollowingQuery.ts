@@ -136,7 +136,6 @@ export const getSocialFollowingsQuery = ({
         id
         blockchain
         dappName
-        dappSlug
         followerProfileId
         followingProfileId
         followingAddress {
@@ -146,8 +145,8 @@ export const getSocialFollowingsQuery = ({
             userId
             blockchain
             dappName
-            dappSlug
             profileName
+            profileHandle
             profileImage
             profileTokenId
             profileTokenAddress

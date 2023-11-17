@@ -47,6 +47,7 @@ export const poapsByEventIdsQuery = `query PoapsByEventId($poaps: [String!]) {
               dappName
               blockchain
               profileName
+              profileHandle
               profileImage
               profileTokenId
               profileTokenAddress

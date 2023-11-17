@@ -117,8 +117,8 @@ export interface Social {
   isDefault: boolean;
   blockchain: string;
   dappName: string;
-  dappSlug: string;
   profileName: string;
+  profileHandle: string;
   profileImage: string;
   profileTokenId: string;
   followerCount: number;
@@ -179,7 +179,6 @@ export interface PrimaryDomain {
 }
 
 export interface Domain {
-  chainId: string;
   dappName: string;
   owner: string;
   name: string;

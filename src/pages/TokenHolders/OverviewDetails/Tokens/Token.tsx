@@ -19,13 +19,13 @@ export function Token({
   const ens = owner?.domains?.map(domain => domain.name) || [];
   const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
 
-  const lensAddresses =
-    owner?.socials
-      ?.filter(item => item.dappName === 'lens')
-      .map(item => item.profileName) || [];
+  const lensSocials =
+    owner?.socials?.filter(item => item.dappName === 'lens') || [];
+  const lensAddresses = lensSocials.map(item => item.profileName);
+  const lensHandles = lensSocials.map(item => item.profileHandle);
   const farcasterAddresses =
     owner?.socials
-      ?.filter(item => item.dappName === 'farcaster')
+      ?.filter(item => item.profileName && item.dappName === 'farcaster')
       .map(item => item.profileName) || [];
 
   const getShowMoreHandler = (addresses: string[], type: string) => () =>
@@ -56,7 +56,7 @@ export function Token({
       </td>
       <td>
         <ListWithMoreOptions
-          list={lensAddresses}
+          list={lensHandles}
           listFor="lens"
           onShowMore={getShowMoreHandler(lensAddresses, 'lens')}
           onItemClick={onAddressClick}
