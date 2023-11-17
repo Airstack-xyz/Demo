@@ -120,15 +120,6 @@ const getSocialFollowInfo = (
       dappName: 'lens',
       sections: []
     };
-    // find default lens profiles based on:
-    const defaultProfile1 =
-      lensSocials1.find(item => item.isDefault) ||
-      lensSocials1.find(item => item.followingCount > 0) ||
-      lensSocials1[0];
-    const defaultProfile2 =
-      lensSocials2.find(item => item.isDefault) ||
-      lensSocials2.find(item => item.followingCount > 0) ||
-      lensSocials2[0];
     // for lens follower info
     // if (user1FollowsUser2OnLens || user2FollowsUser1OnLens) {
     //   const identity1 = address1?.startsWith('0x')
@@ -163,7 +154,7 @@ const getSocialFollowInfo = (
         profileTokenId1: item.profileTokenId,
         // TODO: Remove count for social-follow-v3
         followerCount: item.followerCount,
-        followingCount: defaultProfile1.followingCount,
+        followingCount: item.followingCount,
         profileName2: lensSocials2[0].profileName,
         profileTokenId2: lensSocials2[0].profileTokenId
       }))
@@ -176,7 +167,7 @@ const getSocialFollowInfo = (
         profileTokenId1: item.profileTokenId,
         // TODO: Remove count for social-follow-v3
         followerCount: item.followerCount,
-        followingCount: defaultProfile2.followingCount,
+        followingCount: item.followingCount,
         profileName2: lensSocials1[0].profileName,
         profileTokenId2: lensSocials1[0].profileTokenId
       }))

@@ -15,8 +15,6 @@ export type FollowSectionType = {
   profileTokenId?: string;
   followerCount?: number;
   followingCount?: number;
-  hideFollowerCount?: boolean;
-  hideFollowingCount?: boolean;
 };
 
 export type FollowType = {
@@ -39,8 +37,6 @@ function FollowSection({
   profileTokenId,
   followerCount,
   followingCount,
-  hideFollowerCount,
-  hideFollowingCount,
   isFirstSection,
   onFollowClick
 }: FollowSectionProps) {
@@ -70,16 +66,18 @@ function FollowSection({
             </div>
           )}
         </div>
-        <div className="text-text-secondary w-1/2">
-          <button
-            className="px-3 py-1 rounded-18 hover:bg-glass cursor-pointer ellipsis"
-            onClick={getSocialClickHandler()}
-          >
-            {profileName}
-          </button>
-        </div>
+        <ul className="text-text-secondary w-1/2 overflow-hidden">
+          <li className="flex">
+            <div
+              className="px-3 py-1 rounded-18 ellipsis hover:bg-glass cursor-pointer"
+              onClick={getSocialClickHandler()}
+            >
+              {profileName}
+            </div>
+          </li>
+        </ul>
       </div>
-      {followerCount != undefined && !hideFollowerCount && (
+      {followerCount != undefined && (
         <div className="flex items-center mt-2 text-text-secondary">
           <div className="flex-1 ml-[34px]">Followers</div>
           <div className="w-1/2">
@@ -92,7 +90,7 @@ function FollowSection({
           </div>
         </div>
       )}
-      {followingCount != undefined && !hideFollowingCount && (
+      {followingCount != undefined && (
         <div className="flex items-center mt-2 text-text-secondary">
           <div className="flex-1 ml-[34px]">Following</div>
           <div className="w-1/2">
