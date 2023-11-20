@@ -186,6 +186,9 @@ export function ScoreOverview() {
   const hasTokenTransfer = tokenTransfer.sent || tokenTransfer.received;
   const loader = loading && <Loader />;
 
+  // eslint-disable-next-line no-console
+  console.log(score, { poapsCount, nftCount, follow });
+
   return (
     <div className="h-auto sm:h-[236px] bg-glass flex flex-col sm:flex-row items-center border-solid-stroke rounded-18">
       <Score score={score} domains={domains} socials={profiles} />
