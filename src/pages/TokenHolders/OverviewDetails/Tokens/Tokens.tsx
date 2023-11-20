@@ -29,6 +29,7 @@ import {
 import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../../../queries/commonPoapAndNftOwnersQueryWithFilters';
 import { getFilterablePoapsQuery } from '../../../../queries/overviewDetailsPoap';
 import { useOverviewTokens } from '../../../../store/tokenHoldersOverview';
+import { formatAddress } from '../../../../utils';
 import {
   getActiveSnapshotInfo,
   getSnapshotQueryFilters
@@ -337,9 +338,8 @@ export function TokensComponent() {
 
   const handleAddressClick = useCallback(
     (address: string, type = '') => {
-      const isFarcaster = type?.includes('farcaster');
       const url = createTokenBalancesUrl({
-        address: isFarcaster ? `fc_fname:${address}` : address,
+        address: formatAddress(address, type),
         blockchain: 'ethereum',
         inputType: 'ADDRESS'
       });
