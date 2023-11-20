@@ -8,10 +8,21 @@ import * as Comlink from 'comlink';
 
 export function getDefaultScoreMap(): ScoreMap {
   const savedScoreMap = localStorage.getItem(SCORE_KEY);
-  const savedScore: null | ScoreMap = savedScoreMap
-    ? JSON.parse(savedScoreMap)
-    : null;
-  return savedScore || defaultScoreMap;
+  if (!savedScoreMap) {
+    return defaultScoreMap;
+  }
+  try {
+    const savedScore = JSON.parse(savedScoreMap);
+    // Sync localStorage scoreMap with defaultScoreMap
+    // Syncing prevents NaN score issue in OnChain graph
+    const keys = Object.keys(defaultScoreMap) as Array<keyof ScoreMap>;
+    keys.forEach(key => {
+      savedScore[key] = savedScore[key] ?? defaultScoreMap[key] ?? 0;
+    });
+    return savedScore;
+  } catch (_err) {
+    return defaultScoreMap;
+  }
 }
 
 export function filterDuplicatedAndCalculateScore(
