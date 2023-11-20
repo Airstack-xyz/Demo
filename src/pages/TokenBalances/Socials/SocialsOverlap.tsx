@@ -33,23 +33,14 @@ const getSocialFollowInfo = (
 
   const [address1, address2] = address || [];
 
-  const farcasterSocials1 = wallet1?.farcasterSocials || [];
+  // For Farcaster profile - we need to ignore if results for an address does not have 'profileName'
+  const farcasterSocials1 =
+    wallet1?.farcasterSocials?.filter(item => item.profileName) || [];
   const lensSocials1 = wallet1?.lensSocials || [];
-  // const user1FollowsUser2OnFarcaster = Boolean(
-  //   wallet1?.farcasterFollowers?.Follower?.length
-  // );
-  // const user1FollowsUser2OnLens = Boolean(
-  //   wallet1?.lensFollowers?.Follower?.length
-  // );
-
-  const farcasterSocials2 = wallet2?.farcasterSocials || [];
+  // For Farcaster profile - we need to ignore if results for an address does not have 'profileName'
+  const farcasterSocials2 =
+    wallet2?.farcasterSocials?.filter(item => item.profileName) || [];
   const lensSocials2 = wallet2?.lensSocials || [];
-  // const user2FollowsUser1OnFarcaster = Boolean(
-  //   wallet2?.farcasterFollowers?.Follower?.length
-  // );
-  // const user2FollowsUser1OnLens = Boolean(
-  //   wallet2?.lensFollowers?.Follower?.length
-  // );
 
   // For farcaster:
   if (farcasterSocials1.length > 0 && farcasterSocials2.length > 0) {
@@ -59,37 +50,12 @@ const getSocialFollowInfo = (
       dappName: 'farcaster',
       sections: []
     };
-    // for farcaster follower info
-    // if (user1FollowsUser2OnFarcaster || user2FollowsUser1OnFarcaster) {
-    //   const identity1 = address1?.startsWith('0x')
-    //     ? farcasterSocials1[0].profileName
-    //     : address1;
-    //   const identity2 = address2?.startsWith('0x')
-    //     ? farcasterSocials2[0].profileName
-    //     : address2;
-
-    //   if (user1FollowsUser2OnFarcaster && user2FollowsUser1OnFarcaster) {
-    //     followData.farcaster.followInfo = {
-    //       icon: 'mutual-follow',
-    //       text: 'Mutual follow'
-    //     };
-    //   } else if (user1FollowsUser2OnFarcaster) {
-    //     followData.farcaster.followInfo = {
-    //       icon: 'follow-purple',
-    //       text: `${identity1} follows ${identity2}`
-    //     };
-    //   } else if (user2FollowsUser1OnFarcaster) {
-    //     followData.farcaster.followInfo = {
-    //       icon: 'follow-purple',
-    //       text: `${identity2} follows ${identity1}`
-    //     };
-    //   }
-    // }
     // for farcaster socials for identity1
     followData.farcaster.sections.push({
       name: address1,
       values: farcasterSocials1.map(item => ({
         profileName1: item.profileName,
+        profileHandle1: item.profileHandle,
         profileTokenId1: item.profileTokenId,
         // TODO: Remove count for social-follow-v3
         followerCount: item.followerCount,
@@ -103,6 +69,7 @@ const getSocialFollowInfo = (
       name: address2,
       values: farcasterSocials2.map(item => ({
         profileName1: item.profileName,
+        profileHandle1: item.profileHandle,
         profileTokenId1: item.profileTokenId,
         // TODO: Remove count for social-follow-v3
         followerCount: item.followerCount,
@@ -121,37 +88,12 @@ const getSocialFollowInfo = (
       dappName: 'lens',
       sections: []
     };
-    // for lens follower info
-    // if (user1FollowsUser2OnLens || user2FollowsUser1OnLens) {
-    //   const identity1 = address1?.startsWith('0x')
-    //     ? lensSocials1[0].profileName
-    //     : address1;
-    //   const identity2 = address2?.startsWith('0x')
-    //     ? lensSocials2[0].profileName
-    //     : address2;
-
-    //   if (user1FollowsUser2OnLens && user2FollowsUser1OnLens) {
-    //     followData.lens.followInfo = {
-    //       icon: 'mutual-follow',
-    //       text: 'Mutual follow'
-    //     };
-    //   } else if (user1FollowsUser2OnLens) {
-    //     followData.lens.followInfo = {
-    //       icon: 'follow-purple',
-    //       text: `${identity1} follows ${identity2}`
-    //     };
-    //   } else if (user2FollowsUser1OnLens) {
-    //     followData.lens.followInfo = {
-    //       icon: 'follow-purple',
-    //       text: `${identity2} follows ${identity1}`
-    //     };
-    //   }
-    // }
     // for farcaster socials for identity1
     followData.lens.sections.push({
       name: address1,
       values: lensSocials1.map(item => ({
         profileName1: item.profileName,
+        profileHandle1: item.profileHandle,
         profileTokenId1: item.profileTokenId,
         // TODO: Remove count for social-follow-v3
         followerCount: item.followerCount,
@@ -165,6 +107,7 @@ const getSocialFollowInfo = (
       name: address2,
       values: lensSocials2.map(item => ({
         profileName1: item.profileName,
+        profileHandle1: item.profileHandle,
         profileTokenId1: item.profileTokenId,
         // TODO: Remove count for social-follow-v3
         followerCount: item.followerCount,

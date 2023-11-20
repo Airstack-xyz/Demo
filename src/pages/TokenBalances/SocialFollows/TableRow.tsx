@@ -89,7 +89,12 @@ export function TableRow({
 
   const renderAssets = () => {
     const assets: ReactNode[] = [];
-    if (isLensDapp && social) {
+
+    const profileImageUrl = isLensDapp
+      ? social?.profileImageContentValue?.image?.extraSmall
+      : social?.profileImage;
+
+    if (!profileImageUrl && social) {
       assets.push(
         <div
           key="profile-token"
@@ -106,7 +111,7 @@ export function TableRow({
             preset="extraSmall"
             containerClassName="h-[50px] w-[50px]"
             imgProps={{
-              className: 'max-w-[50px] max-h-[50px]'
+              className: 'max-h-[50px] max-w-[50px]'
             }}
             chain={social.blockchain}
             tokenId={social.profileTokenId}
@@ -122,7 +127,7 @@ export function TableRow({
         <div key="profile-image">
           <LazyImage
             className="h-[50px] w-[50px] object-cover rounded"
-            src={social?.profileImage}
+            src={profileImageUrl}
           />
         </div>
       );

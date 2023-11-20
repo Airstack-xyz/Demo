@@ -150,6 +150,11 @@ export const getSocialFollowersQuery = ({
             profileImage
             profileTokenId
             profileTokenAddress
+            profileImageContentValue {
+              image {
+                extraSmall
+              }
+            }
           }
           primaryDomain {
             name

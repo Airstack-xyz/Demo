@@ -315,9 +315,7 @@ export function TableSection({
                     followData.mentionRawText ? 'w-[200px]' : undefined
                   }
                 >
-                  {isLensDapp || followData.mentionRawText
-                    ? 'Token image'
-                    : 'Profile image'}
+                  {followData.mentionRawText ? 'Token image' : 'Profile image'}
                 </th>
                 <th>{isLensDapp ? 'Lens' : 'Farcaster'}</th>
                 {!isLensDapp && <th>FID</th>}
