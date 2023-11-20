@@ -1,9 +1,10 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { Dropdown, Option } from '../Dropdown';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
+import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
 
 export type SortOrderType = 'DESC' | 'ASC';
 
@@ -27,43 +28,25 @@ export const sortOptions: SortOption[] = [
 
 export function SortBy({
   disabled,
-  disabledTooltip
+  disabledTooltipText
 }: {
   disabled?: boolean;
-  disabledTooltip?: string;
+  disabledTooltipText?: string;
 }) {
   const [searchInputs, setData] = useSearchInput();
+  const {
+    tooltipRef,
+    containerRef,
+    handleTooltipShow,
+    handleTooltipHide,
+    handleTooltipMove
+  } = useDisabledTooltip();
 
   const sortOrder = searchInputs.sortOrder as SortOrderType;
 
-  const tooltipContainerRef = useRef<HTMLDivElement>(null);
-  const buttonContainerRef = useRef<HTMLDivElement>(null);
-
-  const enableTooltipHover = disabled && Boolean(disabledTooltip);
+  const enableTooltipHover = disabled && Boolean(disabledTooltipText);
 
   const isFilterDisabled = disabled;
-
-  const handleTooltipShow = useCallback(() => {
-    if (tooltipContainerRef.current) {
-      tooltipContainerRef.current.style.display = 'block';
-    }
-  }, []);
-
-  const handleTooltipHide = useCallback(() => {
-    if (tooltipContainerRef.current) {
-      tooltipContainerRef.current.style.display = 'none';
-    }
-  }, []);
-
-  const handleTooltipMove = useCallback((event: React.MouseEvent) => {
-    if (tooltipContainerRef.current && buttonContainerRef.current) {
-      const rect = buttonContainerRef.current.getBoundingClientRect();
-      const left = event.clientX - rect.left + 20;
-      const top = event.clientY - rect.top - 3;
-      tooltipContainerRef.current.style.left = `${left}px`;
-      tooltipContainerRef.current.style.top = `${top}px`;
-    }
-  }, []);
 
   const handleChange = useCallback(
     (selected: Option[]) => {
@@ -91,7 +74,7 @@ export function SortBy({
       renderPlaceholder={(selected, isOpen) => (
         <div
           className="relative"
-          ref={buttonContainerRef}
+          ref={containerRef}
           onMouseEnter={enableTooltipHover ? handleTooltipShow : undefined}
           onMouseLeave={enableTooltipHover ? handleTooltipHide : undefined}
           onMouseMove={enableTooltipHover ? handleTooltipMove : undefined}
@@ -102,12 +85,11 @@ export function SortBy({
             isDisabled={isFilterDisabled}
             label={selected[0].label}
           />
-          <div
-            ref={tooltipContainerRef}
-            className="absolute hidden before-bg-glass-1 before:rounded-[16px] before:-z-10 rounded-[16px] py-1.5 px-3 w-max text-text-secondary z-[50]"
-          >
-            {disabledTooltip}
-          </div>
+          <DisabledTooltip
+            isEnabled={enableTooltipHover}
+            tooltipRef={tooltipRef}
+            tooltipText={disabledTooltipText}
+          />
         </div>
       )}
       renderOption={({ option, isSelected, setSelected }) => (
