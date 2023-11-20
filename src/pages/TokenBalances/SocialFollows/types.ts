@@ -14,6 +14,7 @@ export type Social = {
   dappName: string;
   dappSlug: string;
   profileName: string;
+  profileHandle: string;
   profileDisplayName: string;
   profileBio: string;
   profileImage: string;
@@ -21,9 +22,13 @@ export type Social = {
   profileTokenAddress: string;
   followerCount: number;
   followingCount: number;
-  userAddress: string;
   profileCreatedAtBlockTimestamp: string;
   profileCreatedAtBlockNumber: number;
+  profileImageContentValue: {
+    image: {
+      small: string;
+    };
+  };
 };
 
 export type SocialFollowResponse = {
@@ -111,9 +116,15 @@ export type Wallet = {
     dappName: string;
     dappSlug: string;
     profileName: string;
+    profileHandle: string;
     profileImage: string;
     profileTokenId: string;
     profileTokenAddress: string;
+    profileImageContentValue: {
+      image: {
+        extraSmall: string;
+      };
+    };
   }[];
   primaryDomain: {
     name: string;

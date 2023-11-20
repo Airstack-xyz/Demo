@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 
 export type FollowParams = {
   dappName: string;
-  profileName: string;
+  profileName?: string;
   profileTokenId?: string;
   followerCount?: number;
   followingCount?: number;
@@ -11,7 +11,8 @@ export type FollowParams = {
 };
 
 export type FollowSectionType = {
-  profileName: string;
+  profileName?: string;
+  profileHandle: string;
   profileTokenId?: string;
   followerCount?: number;
   followingCount?: number;
@@ -34,6 +35,7 @@ function FollowSection({
   dappName,
   image,
   profileName,
+  profileHandle,
   profileTokenId,
   followerCount,
   followingCount,
@@ -72,7 +74,7 @@ function FollowSection({
               className="px-3 py-1 rounded-18 ellipsis hover:bg-glass cursor-pointer"
               onClick={getSocialClickHandler()}
             >
-              {profileName}
+              {profileHandle}
             </div>
           </li>
         </ul>

@@ -43,13 +43,16 @@ export function Card({
   item: Social;
   isLensDapp: boolean;
 }) {
+  const profileImageUrl = isLensDapp
+    ? item.profileImageContentValue?.image?.small
+    : item.profileImage;
   return (
     <div className="flex-1 flex max-sm:flex-col items-center">
-      {isLensDapp ? (
+      {!profileImageUrl ? (
         <Asset
           preset="medium"
           containerClassName="h-[180px] w-[180px]"
-          imgProps={{ className: 'max-w-[180px] max-h-[180px]' }}
+          imgProps={{ className: 'max-h-[180px] max-w-[180px]' }}
           chain={item.blockchain}
           tokenId={item.profileTokenId}
           address={item.profileTokenAddress}
@@ -57,14 +60,14 @@ export function Card({
       ) : (
         <LazyImage
           className="object-cover rounded-2xl h-[180px] w-[180px]"
-          src={item.profileImage}
+          src={profileImageUrl}
           height={180}
           width={180}
         />
       )}
       <div className="p-6 w-full">
         <div className="flex items-center max-sm:justify-center">
-          <div className="mr-1 text-base">{item.profileName}</div>
+          <div className="mr-1 text-base">{item.profileHandle}</div>
           <div className="text-text-secondary text-sm">
             #{item.profileTokenId}
           </div>
