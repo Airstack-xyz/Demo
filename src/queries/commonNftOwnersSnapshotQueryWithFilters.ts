@@ -41,7 +41,7 @@ function getCommonNftOwnersSubQueryForBlockchain({
           owner {
             tokenBalances(input: {filter: {tokenAddress: {_eq:"${
               address2.address
-            }"}}, blockchain: ${address2.blockchain}}) {
+            }"}}, blockchain: ${address2.blockchain || 'ethereum'}}) {
               tokenId
               tokenAddress
               tokenType

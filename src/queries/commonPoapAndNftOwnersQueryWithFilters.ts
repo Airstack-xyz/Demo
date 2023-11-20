@@ -29,7 +29,7 @@ export function getCommonPoapAndNftOwnersQueryWithFilters(
         owner {
           tokenBalances(input: {filter: {tokenAddress: {_eq: "${
             tokenId.address
-          }"}}, blockchain: ${tokenId.blockchain}}) {
+          }"}}, blockchain: ${tokenId.blockchain || 'ethereum'}}) {
             tokenId
             tokenAddress
             tokenType

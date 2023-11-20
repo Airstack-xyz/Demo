@@ -7,7 +7,9 @@ const getCommonNftOwnersSubQuery = (
   token2: TokenAddress
 ) => {
   return `${blockchain}: TokenBalances(
-  input: {filter: {tokenAddress: {_eq: "${token1.address}"}}, blockchain: ${blockchain}, limit: $limit}
+  input: {filter: {tokenAddress: {_eq: "${
+    token1.address
+  }"}}, blockchain: ${blockchain}, limit: $limit}
 ) {
   TokenBalance {
     tokenId
@@ -38,7 +40,9 @@ const getCommonNftOwnersSubQuery = (
       }
     }
     owner {
-      tokenBalances(input: {filter: {tokenAddress: {_eq: "${token2.address}"}}, blockchain: ${token2.blockchain}}) {
+      tokenBalances(input: {filter: {tokenAddress: {_eq: "${
+        token2.address
+      }"}}, blockchain: ${token2.blockchain || 'ethereum'}}) {
         tokenId
         tokenAddress
         tokenType

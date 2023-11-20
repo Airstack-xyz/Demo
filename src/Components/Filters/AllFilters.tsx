@@ -283,7 +283,7 @@ export function AllFilters({
             'opacity-50': isDisabled
           })}
         >
-          Balance as of
+          Balances as of
         </div>
         <FilterOption
           label="Now"

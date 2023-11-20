@@ -21,7 +21,7 @@ const getCommonNftOwnersSubQueryWithFilters = (
       owner {
         tokenBalances(input: {filter: {tokenAddress: {_eq: "${
           token2.address
-        }"}}, blockchain: ${token2.blockchain}}) {
+        }"}}, blockchain: ${token2.blockchain || 'ethereum'}}) {
           tokenId
           tokenAddress
           tokenType

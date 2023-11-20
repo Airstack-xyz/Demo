@@ -1,12 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMatch } from 'react-router-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
@@ -18,6 +11,7 @@ import {
 } from '../../utils/activeSnapshotInfoString';
 import { DatePicker, DateValue } from '../DatePicker';
 import { Icon, IconType } from '../Icon';
+import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 import { defaultSortOrder } from './SortBy';
@@ -39,13 +33,13 @@ export const getSnackbarMessage = (
   // TODO: Remove 'base' keyword when snapshot is released for other blockchains
   switch (appliedFilter) {
     case 'blockNumber':
-      message = `Viewing base ${page} as of block no. ${blockNumber}`;
+      message = `Viewing Base ${page} as of block no. ${blockNumber}`;
       break;
     case 'customDate':
-      message = `Viewing base ${page} as of ${formatDate(customDate)}`;
+      message = `Viewing Base ${page} as of ${formatDate(customDate)}`;
       break;
     case 'timestamp':
-      message = `Viewing base ${page} as of timestamp ${timestamp}`;
+      message = `Viewing Base ${page} as of timestamp ${timestamp}`;
       break;
   }
   return message;
@@ -109,6 +103,13 @@ export function SnapshotFilter({
   disabledTooltip?: string;
 }) {
   const [{ activeSnapshotInfo }, setData] = useSearchInput();
+  const {
+    tooltipRef,
+    containerRef,
+    handleTooltipShow,
+    handleTooltipHide,
+    handleTooltipMove
+  } = useDisabledTooltip();
 
   const isTokenBalancesPage = !!useMatch('/token-balances');
 
@@ -129,28 +130,6 @@ export function SnapshotFilter({
   const [customDate, setCustomDate] = useState<DateValue>(() =>
     snapshotInfo.customDate ? new Date(snapshotInfo.customDate) : new Date()
   );
-
-  const handleTooltipShow = useCallback(() => {
-    if (tooltipContainerRef.current) {
-      tooltipContainerRef.current.style.display = 'block';
-    }
-  }, []);
-
-  const handleTooltipHide = useCallback(() => {
-    if (tooltipContainerRef.current) {
-      tooltipContainerRef.current.style.display = 'none';
-    }
-  }, []);
-
-  const handleTooltipMove = useCallback((event: React.MouseEvent) => {
-    if (tooltipContainerRef.current && buttonContainerRef.current) {
-      const rect = buttonContainerRef.current.getBoundingClientRect();
-      const left = event.clientX - rect.left + 20;
-      const top = event.clientY - rect.top - 3;
-      tooltipContainerRef.current.style.left = `${left}px`;
-      tooltipContainerRef.current.style.top = `${top}px`;
-    }
-  }, []);
 
   const handleDropdownHide = useCallback(() => {
     setIsDropdownVisible(false);
@@ -174,9 +153,6 @@ export function SnapshotFilter({
   const datePickerContainerRef = useOutsideClick<HTMLDivElement>(() =>
     setIsDatePickerVisible(false)
   );
-
-  const tooltipContainerRef = useRef<HTMLDivElement>(null);
-  const buttonContainerRef = useRef<HTMLDivElement>(null);
 
   const enableTooltipHover = disabled && Boolean(disabledTooltip);
 
@@ -305,7 +281,7 @@ export function SnapshotFilter({
       >
         <div
           className="relative"
-          ref={buttonContainerRef}
+          ref={containerRef}
           onMouseEnter={enableTooltipHover ? handleTooltipShow : undefined}
           onMouseLeave={enableTooltipHover ? handleTooltipHide : undefined}
           onMouseMove={enableTooltipHover ? handleTooltipMove : undefined}
@@ -317,17 +293,16 @@ export function SnapshotFilter({
             icon={icon}
             onClick={handleDropdownToggle}
           />
-          <div
-            ref={tooltipContainerRef}
-            className="absolute hidden before-bg-glass-1 before:rounded-[16px] before:-z-10 rounded-[16px] py-1.5 px-3 w-max text-text-secondary z-[50]"
-          >
-            {disabledTooltip}
-          </div>
+          <DisabledTooltip
+            isEnabled={enableTooltipHover}
+            tooltipRef={tooltipRef}
+            tooltipText={disabledTooltip}
+          />
         </div>
         {isDropdownVisible && (
           <div className="before-bg-glass before:-z-10 before:rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">
             <div className="font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap">
-              Balance as of
+              Balances as of
             </div>
             <FilterOption
               label="Now"
