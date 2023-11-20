@@ -536,15 +536,15 @@ function TokenBalancePage() {
             <>
               <SnapshotFilter
                 disabled={isSnapshotFilterDisabled}
-                disabledTooltip={snapshotTooltip}
+                disabledTooltipText={snapshotTooltip}
               />
               <BlockchainFilter
                 disabled={isBlockchainFilterDisabled}
-                disabledTooltip={blockchainTooltip}
+                disabledTooltipText={blockchainTooltip}
               />
               <SortBy
                 disabled={isSortByDisabled}
-                disabledTooltip={sortByTooltip}
+                disabledTooltipText={sortByTooltip}
               />
             </>
           )}

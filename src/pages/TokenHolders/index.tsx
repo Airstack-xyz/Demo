@@ -62,10 +62,12 @@ import { tokenTypes } from '../TokenBalances/constants';
 import { accountOwnerQuery } from '../../queries/accountsQuery';
 import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
 import { defaultSortOrder } from '../../Components/Filters/SortBy';
+import { getAllWordsAndMentions } from '../../Components/Input/utils';
 
 export function TokenHolders() {
   const [
     {
+      rawInput,
       address: tokenAddress,
       activeView,
       tokenFilters,
@@ -116,6 +118,13 @@ export function TokenHolders() {
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
   const isCombination = tokenAddress.length > 1;
+
+  // Have info about blockchain of entered mention input
+  const mentionBlockchain = useMemo(() => {
+    return getAllWordsAndMentions(rawInput).map(item =>
+      item?.mention?.token === 'ADDRESS' ? null : item?.mention?.blockchain
+    );
+  }, [rawInput]);
 
   const address = useMemo(() => {
     return sortByAddressByNonERC20First(tokenAddress, overviewTokens, hasPoap);
@@ -437,8 +446,11 @@ export function TokenHolders() {
     [address, activeSnapshotInfo]
   );
 
-  const { snapshotTooltip } = useMemo(() => {
+  const { snapshotTooltip, hideTooltipIcon } = useMemo(() => {
+    const isOverviewTokensLoading = overviewTokens?.length === 0;
+    const blockchain = address?.[0]?.blockchain || mentionBlockchain[0];
     let snapshotTooltip = '';
+    let hideTooltipIcon = false;
     if (hasPoap) {
       snapshotTooltip = 'Snapshots is disabled for POAP';
     }
@@ -446,12 +458,24 @@ export function TokenHolders() {
       snapshotTooltip = 'Snapshots is disabled for combinations';
     }
     // TODO: remove below snapshot disable condition when snapshots for other blockchains is deployed
-    const blockchain = address?.[0]?.blockchain;
-    if (!blockchain || blockchain !== 'base') {
+    if (isOverviewTokensLoading) {
+      if (!blockchain) {
+        snapshotTooltip = 'Please wait until the loading takes place';
+        hideTooltipIcon = true;
+      } else if (blockchain !== 'base') {
+        snapshotTooltip = 'Snapshots is only enabled for Base tokens';
+      }
+    } else if (blockchain && blockchain !== 'base') {
       snapshotTooltip = 'Snapshots is only enabled for Base tokens';
     }
-    return { snapshotTooltip };
-  }, [address, hasPoap, isCombination]);
+    return { snapshotTooltip, hideTooltipIcon };
+  }, [
+    address,
+    hasPoap,
+    isCombination,
+    mentionBlockchain,
+    overviewTokens?.length
+  ]);
 
   const renderFilterContent = () => {
     if (activeTokenInfo) {
@@ -469,12 +493,13 @@ export function TokenHolders() {
         <div className="flex-row-center gap-3.5">
           <SnapshotFilter
             disabled={isSnapshotFilterDisabled}
-            disabledTooltip={snapshotTooltip}
+            disabledTooltipText={snapshotTooltip}
+            hideDisabledTooltipIcon={hideTooltipIcon}
           />
         </div>
         <GetAPIDropdown
           options={options}
-          disabled={overviewTokens.length === 0}
+          disabled={overviewTokens?.length === 0}
         />
       </div>
     );

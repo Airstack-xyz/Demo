@@ -97,10 +97,12 @@ const filterInputClass =
 
 export function SnapshotFilter({
   disabled,
-  disabledTooltip
+  disabledTooltipText,
+  hideDisabledTooltipIcon
 }: {
   disabled?: boolean;
-  disabledTooltip?: string;
+  disabledTooltipText?: string;
+  hideDisabledTooltipIcon?: boolean;
 }) {
   const [{ activeSnapshotInfo }, setData] = useSearchInput();
   const {
@@ -154,7 +156,7 @@ export function SnapshotFilter({
     setIsDatePickerVisible(false)
   );
 
-  const enableTooltipHover = disabled && Boolean(disabledTooltip);
+  const enableTooltipHover = disabled && Boolean(disabledTooltipText);
 
   const isFilterDisabled = disabled;
 
@@ -296,7 +298,8 @@ export function SnapshotFilter({
           <DisabledTooltip
             isEnabled={enableTooltipHover}
             tooltipRef={tooltipRef}
-            tooltipText={disabledTooltip}
+            tooltipText={disabledTooltipText}
+            tooltipIconHidden={hideDisabledTooltipIcon}
           />
         </div>
         {isDropdownVisible && (

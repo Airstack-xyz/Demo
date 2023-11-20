@@ -28,10 +28,10 @@ export const sortOptions: SortOption[] = [
 
 export function SortBy({
   disabled,
-  disabledTooltip
+  disabledTooltipText
 }: {
   disabled?: boolean;
-  disabledTooltip?: string;
+  disabledTooltipText?: string;
 }) {
   const [searchInputs, setData] = useSearchInput();
   const {
@@ -44,7 +44,7 @@ export function SortBy({
 
   const sortOrder = searchInputs.sortOrder as SortOrderType;
 
-  const enableTooltipHover = disabled && Boolean(disabledTooltip);
+  const enableTooltipHover = disabled && Boolean(disabledTooltipText);
 
   const isFilterDisabled = disabled;
 
@@ -88,7 +88,7 @@ export function SortBy({
           <DisabledTooltip
             isEnabled={enableTooltipHover}
             tooltipRef={tooltipRef}
-            tooltipText={disabledTooltip}
+            tooltipText={disabledTooltipText}
           />
         </div>
       )}

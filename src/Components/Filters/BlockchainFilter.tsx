@@ -36,10 +36,10 @@ export const blockchainOptions: BlockchainOption[] = [
 
 export function BlockchainFilter({
   disabled,
-  disabledTooltip
+  disabledTooltipText
 }: {
   disabled?: boolean;
-  disabledTooltip?: string;
+  disabledTooltipText?: string;
 }) {
   const [searchInputs, setData] = useSearchInput();
   const {
@@ -52,7 +52,7 @@ export function BlockchainFilter({
 
   const blockchainType = searchInputs.blockchainType as BlockchainFilterType[];
 
-  const enableTooltipHover = disabled && Boolean(disabledTooltip);
+  const enableTooltipHover = disabled && Boolean(disabledTooltipText);
 
   const isFilterDisabled = disabled;
 
@@ -108,7 +108,7 @@ export function BlockchainFilter({
           <DisabledTooltip
             isEnabled={enableTooltipHover}
             tooltipRef={tooltipRef}
-            tooltipText={disabledTooltip}
+            tooltipText={disabledTooltipText}
           />
         </div>
       )}
