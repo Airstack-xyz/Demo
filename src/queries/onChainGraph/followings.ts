@@ -28,6 +28,7 @@ export const socialFollowingsQuery = `query Followings($user: Identity!, $dappNa
             dappName
             blockchain
             profileName
+            profileHandle
             profileImage
             profileTokenId
             profileTokenAddress
@@ -42,6 +43,7 @@ export const socialFollowingsQuery = `query Followings($user: Identity!, $dappNa
               followerAddress {
                 socials {
                   profileName
+                  profileHandle
                 }
               }
             }
@@ -79,6 +81,7 @@ export const socialFollowersQuery = `query Followers($user: Identity!, $dappName
           dappName
           blockchain
           profileName
+          profileHandle
           profileImage
           profileTokenId
           profileTokenAddress
@@ -93,6 +96,7 @@ export const socialFollowersQuery = `query Followers($user: Identity!, $dappName
             followerAddress {
               socials {
                 profileName
+                profileHandle
               }
             }
           }

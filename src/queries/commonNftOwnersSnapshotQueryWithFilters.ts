@@ -59,16 +59,14 @@ function getCommonNftOwnersSubQueryForBlockchain({
                 addresses
                 socials${hasSocialFilters ? socialInput : ''} {
                   blockchain
-                  dappSlug
                   dappName
                   profileName
+                  profileHandle
                 }
                 primaryDomain {
                   name
                 }
                 domains${hasPrimaryDomain ? primaryDomainInput : ''} {
-                  chainId
-                  dappName
                   name
                 }
                 xmtp {
@@ -176,16 +174,14 @@ function getNftOwnersSubQueryForBlockchain({
           addresses
           socials${hasSocialFilters ? socialInput : ''} {
             blockchain
-            dappSlug
             dappName
             profileName
+            profileHandle
           }
           primaryDomain {
             name
           }
           domains${hasPrimaryDomain ? primaryDomainInput : ''} {
-            chainId
-            dappName
             name
           }
           xmtp {

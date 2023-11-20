@@ -4,6 +4,7 @@ export type SocialType = {
   isDefault: boolean;
   blockchain: string;
   profileName: string;
+  profileHandle: string;
   profileTokenId: string;
   followerCount: number;
   followingCount: number;

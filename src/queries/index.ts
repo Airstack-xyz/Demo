@@ -17,6 +17,7 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
       isDefault
       blockchain
       profileName
+      profileHandle
       profileImage
       followerCount
       followingCount
@@ -27,6 +28,7 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
       isDefault
       blockchain
       profileName
+      profileHandle
       profileImage
       followerCount
       followingCount
@@ -52,6 +54,7 @@ export const SocialOverlapQuery = `query GetSocialOverlap($identity1: Identity!,
       isDefault
       blockchain
       profileName
+      profileHandle
       profileTokenId
       followerCount
       followingCount
@@ -60,6 +63,7 @@ export const SocialOverlapQuery = `query GetSocialOverlap($identity1: Identity!,
       isDefault
       blockchain
       profileName
+      profileHandle
       profileTokenId
       followerCount
       followingCount
@@ -80,6 +84,7 @@ export const SocialOverlapQuery = `query GetSocialOverlap($identity1: Identity!,
       isDefault
       blockchain
       profileName
+      profileHandle
       profileTokenId
       followerCount
       followingCount
@@ -88,6 +93,7 @@ export const SocialOverlapQuery = `query GetSocialOverlap($identity1: Identity!,
       isDefault
       blockchain
       profileName
+      profileHandle
       profileTokenId
       followerCount
       followingCount
@@ -178,16 +184,14 @@ const getTokenOwnerSubQuery = (blockchain: string) => {
         addresses
         socials {
           blockchain
-          dappSlug
           dappName
           profileName
+          profileHandle
         }
         primaryDomain {
           name
         }
         domains {
-          chainId
-          dappName
           name
         }
         xmtp {
@@ -246,15 +250,13 @@ export const PoapOwnerQuery = `query GetPoapHolders($eventId: [String!], $limit:
         socials {
           blockchain
           dappName
-          dappSlug
           profileName
+          profileHandle
         }
         primaryDomain {
           name
         }
         domains {
-          chainId
-          dappName
           name
         }
         xmtp {

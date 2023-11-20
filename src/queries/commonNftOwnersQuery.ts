@@ -71,16 +71,14 @@ const getCommonNftOwnersSubQuery = (
           addresses
           socials {
             blockchain
-            dappSlug
             dappName
             profileName
+            profileHandle
           }
           primaryDomain {
             name
           }
           domains {
-            chainId
-            dappName
             name
           }
           xmtp {
@@ -147,16 +145,14 @@ const getNftOwnersSubQuery = (blockchain: string, token: TokenAddress) => {
       addresses
       socials {
         blockchain
-        dappSlug
         dappName
         profileName
+        profileHandle
       }
       primaryDomain {
         name
       }
       domains {
-        chainId
-        dappName
         name
       }
       xmtp {

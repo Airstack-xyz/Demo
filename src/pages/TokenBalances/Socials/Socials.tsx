@@ -1,6 +1,6 @@
 import { useLazyQuery } from '@airstack/airstack-react';
 import classNames from 'classnames';
-import React, {
+import {
   ReactNode,
   memo,
   useCallback,
@@ -8,18 +8,19 @@ import React, {
   useMemo,
   useState
 } from 'react';
+import { Link } from 'react-router-dom';
+import { Icon } from '../../../Components/Icon';
 import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { SocialQuery } from '../../../queries';
+import { formatAddress } from '../../../utils';
 import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
 import { SectionHeader } from '../SectionHeader';
-import { WalletType } from './types';
 import { Follow, FollowParams, FollowType } from './Follow';
 import { Social } from './Social';
 import { XMTP } from './XMTP';
-import { Icon } from '../../../Components/Icon';
-import { Link } from 'react-router-dom';
+import { WalletType } from './types';
 
 const getSocialFollowInfo = (wallet: WalletType) => {
   const followData: Record<'farcaster' | 'lens', FollowType> = {
@@ -33,13 +34,16 @@ const getSocialFollowInfo = (wallet: WalletType) => {
     }
   };
 
-  const farcasterSocials = wallet?.farcasterSocials || [];
+  // For Farcaster profile - we need to ignore if results for an address does not have 'profileName'
+  const farcasterSocials =
+    wallet?.farcasterSocials?.filter(item => item.profileName) || [];
   const lensSocials = wallet?.lensSocials || [];
 
   // For farcaster:
   if (farcasterSocials.length > 0) {
     followData.farcaster.sections = farcasterSocials.map(item => ({
       profileName: item.profileName,
+      profileHandle: item.profileHandle,
       profileTokenId: item.profileTokenId,
       followerCount: item.followerCount,
       followingCount: item.followingCount
@@ -47,7 +51,7 @@ const getSocialFollowInfo = (wallet: WalletType) => {
   } else {
     followData.farcaster.sections = [
       {
-        profileName: '--'
+        profileHandle: '--'
       }
     ];
   }
@@ -56,6 +60,7 @@ const getSocialFollowInfo = (wallet: WalletType) => {
   if (lensSocials.length > 0) {
     followData.lens.sections = lensSocials.map(item => ({
       profileName: item.profileName,
+      profileHandle: item.profileHandle,
       profileTokenId: item.profileTokenId,
       followerCount: item.followerCount,
       followingCount: item.followingCount
@@ -63,7 +68,7 @@ const getSocialFollowInfo = (wallet: WalletType) => {
   } else {
     followData.lens.sections = [
       {
-        profileName: '--'
+        profileHandle: '--'
       }
     ];
   }
@@ -151,20 +156,19 @@ function SocialsComponent() {
     (value: unknown, type?: string) => {
       if (typeof value !== 'string' || value == '--') return;
 
-      const isFarcaster = type?.includes('farcaster');
-      const farcasterId = `fc_fname:${value}`;
+      const addressValue = formatAddress(value, type);
 
       const rawInput = createFormattedRawInput({
         type: 'ADDRESS',
-        address: isFarcaster ? farcasterId : value,
-        label: isFarcaster ? farcasterId : value,
+        address: addressValue,
+        label: addressValue,
         blockchain: 'ethereum'
       });
 
       setData(
         {
           rawInput: rawInput,
-          address: isFarcaster ? [farcasterId] : [value],
+          address: [addressValue],
           inputType: 'ADDRESS'
         },
         { updateQueryParams: true }

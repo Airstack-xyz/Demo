@@ -32,15 +32,13 @@ owner {
   socials {
     blockchain
     dappName
-    dappSlug
     profileName
+    profileHandle
   }
   primaryDomain {
     name
   }
   domains {
-    chainId
-    dappName
     name
   }
   xmtp {

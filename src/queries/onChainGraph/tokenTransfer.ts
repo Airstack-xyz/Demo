@@ -30,6 +30,7 @@ const getTokenSentSubQuery = (blockchain: string) => {
           dappName
           blockchain
           profileName
+          profileHandle
           profileImage
           profileTokenId
           profileTokenAddress
@@ -77,6 +78,7 @@ const getTokenReceivedSubQuery = (blockchain: string) => {
           dappName
           blockchain
           profileName
+          profileHandle
           profileImage
           profileTokenId
           profileTokenAddress

@@ -12,8 +12,8 @@ export type Social = {
   isDefault: boolean;
   blockchain: Chain;
   dappName: string;
-  dappSlug: string;
   profileName: string;
+  profileHandle: string;
   profileDisplayName: string;
   profileBio: string;
   profileImage: string;
@@ -21,9 +21,13 @@ export type Social = {
   profileTokenAddress: string;
   followerCount: number;
   followingCount: number;
-  userAddress: string;
   profileCreatedAtBlockTimestamp: string;
   profileCreatedAtBlockNumber: number;
+  profileImageContentValue: {
+    image: {
+      small: string;
+    };
+  };
 };
 
 export type SocialFollowResponse = {
@@ -39,7 +43,6 @@ export type Follow = {
   id: string;
   blockchain: Chain;
   dappName: string;
-  dappSlug: string;
   followerProfileId: string;
   followingProfileId: string;
   followerAddress: Wallet;
@@ -110,11 +113,16 @@ export type Wallet = {
     userId: string;
     blockchain: Chain;
     dappName: string;
-    dappSlug: string;
     profileName: string;
+    profileHandle: string;
     profileImage: string;
     profileTokenId: string;
     profileTokenAddress: string;
+    profileImageContentValue: {
+      image: {
+        extraSmall: string;
+      };
+    };
   }[];
   primaryDomain: {
     name: string;
