@@ -91,18 +91,48 @@ export function TableRow({
   const renderAssets = () => {
     const assets: ReactNode[] = [];
 
-    assets.push(
-      <div key="profile-image">
-        <LazyImage
-          className="h-[50px] w-[50px] object-cover rounded"
-          src={
-            isLensDapp
-              ? social?.profileImageContentValue?.image?.extraSmall
-              : social?.profileImage
+    const profileImageUrl = isLensDapp
+      ? social?.profileImageContentValue?.image?.extraSmall
+      : social?.profileImage;
+
+    if (!profileImageUrl && social) {
+      assets.push(
+        <div
+          key="profile-token"
+          className="cursor-pointer"
+          onClick={() =>
+            onAssetClick(
+              social.profileTokenAddress,
+              social.profileTokenId,
+              social.blockchain
+            )
           }
-        />
-      </div>
-    );
+        >
+          <Asset
+            preset="extraSmall"
+            containerClassName="h-[50px] w-[50px]"
+            imgProps={{
+              className: 'max-h-[50px] max-w-[50px]'
+            }}
+            chain={social.blockchain}
+            tokenId={social.profileTokenId}
+            address={social.profileTokenAddress}
+          />
+          <div className="mt-2">
+            {profileTokenId ? `#${profileTokenId}` : '--'}
+          </div>
+        </div>
+      );
+    } else {
+      assets.push(
+        <div key="profile-image">
+          <LazyImage
+            className="h-[50px] w-[50px] object-cover rounded"
+            src={profileImageUrl}
+          />
+        </div>
+      );
+    }
 
     const holding =
       wallet?.poapHoldings?.[0] ||
