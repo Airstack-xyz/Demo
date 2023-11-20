@@ -109,6 +109,7 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
       isDefault
       blockchain
       profileName
+      profileHandle
       profileImage
       followerCount
       followingCount
@@ -119,6 +120,7 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
       isDefault
       blockchain
       profileName
+      profileHandle
       profileImage
       followerCount
       followingCount
@@ -144,6 +146,7 @@ export const SocialOverlapQuery = `query GetSocialOverlap($identity1: Identity!,
       isDefault
       blockchain
       profileName
+      profileHandle
       profileTokenId
       followerCount
       followingCount
@@ -152,6 +155,7 @@ export const SocialOverlapQuery = `query GetSocialOverlap($identity1: Identity!,
       isDefault
       blockchain
       profileName
+      profileHandle
       profileTokenId
       followerCount
       followingCount
@@ -172,6 +176,7 @@ export const SocialOverlapQuery = `query GetSocialOverlap($identity1: Identity!,
       isDefault
       blockchain
       profileName
+      profileHandle
       profileTokenId
       followerCount
       followingCount
@@ -180,6 +185,7 @@ export const SocialOverlapQuery = `query GetSocialOverlap($identity1: Identity!,
       isDefault
       blockchain
       profileName
+      profileHandle
       profileTokenId
       followerCount
       followingCount

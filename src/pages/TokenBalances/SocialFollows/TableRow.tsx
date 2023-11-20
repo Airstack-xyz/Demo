@@ -54,11 +54,11 @@ export function TableRow({
   const lensAddresses =
     wallet?.socials
       ?.filter(v => v.dappName === 'lens')
-      .map(v => v.profileName) || [];
+      .map(v => v.profileHandle) || [];
   const farcasterAddresses =
     wallet?.socials
-      ?.filter(v => v.dappName === 'farcaster')
-      .map(v => v.profileName) || [];
+      ?.filter(v => v.profileName && v.dappName === 'farcaster')
+      .map(v => v.profileHandle) || [];
 
   const ens = wallet?.domains?.map(v => v.name) || [];
 
@@ -90,7 +90,12 @@ export function TableRow({
 
   const renderAssets = () => {
     const assets: ReactNode[] = [];
-    if (isLensDapp && social) {
+
+    const profileImageUrl = isLensDapp
+      ? social?.profileImageContentValue?.image?.extraSmall
+      : social?.profileImage;
+
+    if (!profileImageUrl && social) {
       assets.push(
         <div
           key="profile-token"
@@ -107,7 +112,7 @@ export function TableRow({
             preset="extraSmall"
             containerClassName="h-[50px] w-[50px]"
             imgProps={{
-              className: 'max-w-[50px] max-h-[50px]'
+              className: 'max-h-[50px] max-w-[50px]'
             }}
             chain={social.blockchain}
             tokenId={social.profileTokenId}
@@ -123,7 +128,7 @@ export function TableRow({
         <div key="profile-image">
           <LazyImage
             className="h-[50px] w-[50px] object-cover rounded"
-            src={social?.profileImage}
+            src={profileImageUrl}
           />
         </div>
       );
