@@ -10,20 +10,21 @@ import {
 } from '../../../hooks/useSearchInput';
 import { getSocialFollowersQuery } from '../../../queries/socialFollowersQuery';
 import { getSocialFollowingsQuery } from '../../../queries/socialFollowingQuery';
+import { formatAddress } from '../../../utils';
 import {
   SocialInfo,
   getActiveSocialInfoString
 } from '../../../utils/activeSocialInfoString';
+import { getActiveTokenInfoString } from '../../../utils/activeTokenInfoString';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 import { isMobileDevice } from '../../../utils/isMobileDevice';
 import { showToast } from '../../../utils/showToast';
 import { Filters } from './Filters';
 import { MentionInput, MentionOutput } from './MentionInput';
 import { TableRow, TableRowLoader } from './TableRow';
+import './styles.css';
 import { Follow, SocialFollowResponse } from './types';
 import { filterTableItems, getSocialFollowFilterData } from './utils';
-import { getActiveTokenInfoString } from '../../../utils/activeTokenInfoString';
-import './styles.css';
 
 const LOADING_ROW_COUNT = 6;
 
@@ -217,9 +218,8 @@ export function TableSection({
 
   const handleAddressClick = useCallback(
     (address: string, type?: string) => {
-      const isFarcaster = type === 'farcaster';
       const url = createTokenBalancesUrl({
-        address: isFarcaster ? `fc_fname:${address}` : address,
+        address: formatAddress(address, type),
         blockchain: 'ethereum',
         inputType: 'ADDRESS'
       });
@@ -321,9 +321,7 @@ export function TableSection({
                     followData.mentionRawText ? 'w-[200px]' : undefined
                   }
                 >
-                  {isLensDapp || followData.mentionRawText
-                    ? 'Token image'
-                    : 'Profile image'}
+                  {followData.mentionRawText ? 'Token image' : 'Profile image'}
                 </th>
                 <th>{isLensDapp ? 'Lens' : 'Farcaster'}</th>
                 {!isLensDapp && <th>FID</th>}

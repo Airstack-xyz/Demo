@@ -16,6 +16,7 @@ export type FollowCombinationSectionType = {
   name: string;
   values: {
     profileName1: string;
+    profileHandle1: string;
     profileTokenId1: string;
     profileName2: string;
     profileTokenId2: string;
@@ -72,7 +73,7 @@ function FollowCombinationSection({
               className="px-3 py-1 rounded-18 ellipsis hover:bg-glass cursor-pointer"
               onClick={() => onFollowClick?.({ dappName, ...item })}
             >
-              {item.profileName1}
+              {item.profileHandle1}
             </div>
           </li>
         ))}

@@ -9,6 +9,7 @@ export const socialDetailsQuery = `query SocialDetails($identities: [Identity!],
       dappName
       dappSlug
       profileName
+      profileHandle
       profileDisplayName
       profileBio
       profileImage
@@ -16,9 +17,13 @@ export const socialDetailsQuery = `query SocialDetails($identities: [Identity!],
       profileTokenAddress
       followerCount
       followingCount
-      userAddress
       profileCreatedAtBlockTimestamp
       profileCreatedAtBlockNumber
+      profileImageContentValue {
+        image {
+          small
+        }
+      }
     }
   }
 }`;
