@@ -11,13 +11,17 @@ import {
 import { FilterOption } from './FilterOption';
 import { filterPlaceholderClass } from './FilterPlaceholder';
 import { SortOrderType, defaultSortOrder, sortOptions } from './SortBy';
+import { ToggleSwitch } from '../ToggleSwitch';
+import { SpamFilterType, defaultSpamFilter } from './SpamFilter';
 
 const getAppliedFilterCount = ({
   appliedBlockchainFilter,
-  appliedSortOrder
+  appliedSortOrder,
+  appliedFilterSpam
 }: {
   appliedBlockchainFilter: BlockchainFilterType;
   appliedSortOrder: SortOrderType;
+  appliedFilterSpam: SpamFilterType;
 }) => {
   let count = 0;
   if (appliedBlockchainFilter != defaultBlockchainFilter) {
@@ -26,15 +30,31 @@ const getAppliedFilterCount = ({
   if (appliedSortOrder != defaultSortOrder) {
     count += 1;
   }
+  if (appliedFilterSpam != defaultSpamFilter) {
+    count += 1;
+  }
   return count;
 };
 
 const sectionHeaderClass =
   'font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap';
 
-export function AllFilters() {
-  const [{ address, blockchainType, tokenType, sortOrder }, setData] =
-    useSearchInput();
+export function AllFilters({
+  blockchainDisabled,
+  sortByDisabled,
+  spamFilterDisabled
+}: {
+  blockchainDisabled?: boolean;
+  sortByDisabled?: boolean;
+  spamFilterDisabled?: boolean;
+}) {
+  const [searchInputs, setData] = useSearchInput();
+
+  const address = searchInputs.address;
+  const tokenType = searchInputs.tokenType;
+  const blockchainType = searchInputs.blockchainType as BlockchainFilterType[];
+  const sortOrder = searchInputs.sortOrder as SortOrderType;
+  const spamFilter = searchInputs.spamFilter as SpamFilterType;
 
   const appliedBlockchainFilter = useMemo(() => {
     const filterValue = blockchainType[0];
@@ -48,10 +68,15 @@ export function AllFilters() {
     return sortOrder === 'ASC' ? 'ASC' : defaultSortOrder;
   }, [sortOrder]);
 
+  const appliedSpamFilter = useMemo(() => {
+    return spamFilter === '1' ? '1' : defaultSpamFilter;
+  }, [spamFilter]);
+
   const [currentBlockchainFilter, setCurrentBlockchainFilter] = useState(
     appliedBlockchainFilter
   );
   const [currentSortOrder, setCurrentSortOrder] = useState(appliedSortOrder);
+  const [currentSpamFilter, setCurrentSpamFilter] = useState(appliedSpamFilter);
 
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
 
@@ -59,7 +84,8 @@ export function AllFilters() {
     setIsDropdownVisible(false);
     setCurrentBlockchainFilter(appliedBlockchainFilter);
     setCurrentSortOrder(appliedSortOrder);
-  }, [appliedBlockchainFilter, appliedSortOrder]);
+    setCurrentSpamFilter(appliedSpamFilter);
+  }, [appliedBlockchainFilter, appliedSpamFilter, appliedSortOrder]);
 
   const dropdownContainerRef =
     useOutsideClick<HTMLDivElement>(handleDropdownHide);
@@ -79,15 +105,17 @@ export function AllFilters() {
   useEffect(() => {
     setCurrentBlockchainFilter(appliedBlockchainFilter);
     setCurrentSortOrder(appliedSortOrder);
-  }, [appliedBlockchainFilter, appliedSortOrder]);
+    setCurrentSpamFilter(appliedSpamFilter);
+  }, [appliedBlockchainFilter, appliedSpamFilter, appliedSortOrder]);
 
   const appliedFilterCount = useMemo(
     () =>
       getAppliedFilterCount({
         appliedBlockchainFilter: appliedBlockchainFilter,
-        appliedSortOrder: appliedSortOrder
+        appliedSortOrder: appliedSortOrder,
+        appliedFilterSpam: appliedSpamFilter
       }),
-    [appliedBlockchainFilter, appliedSortOrder]
+    [appliedBlockchainFilter, appliedSpamFilter, appliedSortOrder]
   );
 
   const handleDropdownToggle = useCallback(() => {
@@ -108,6 +136,10 @@ export function AllFilters() {
     []
   );
 
+  const handleSpamFilterClick = useCallback(() => {
+    setCurrentSpamFilter(prevValue => (prevValue === '1' ? '0' : '1'));
+  }, []);
+
   // Not enclosing in useCallback as its dependencies will change every time
   const handleApplyClick = () => {
     const filterValues: Partial<CachedQuery> = {};
@@ -122,12 +154,15 @@ export function AllFilters() {
     // For sort filter
     filterValues.sortOrder = currentSortOrder || defaultSortOrder;
 
+    // For spam filter
+    filterValues.spamFilter = currentSpamFilter || defaultSpamFilter;
+
     setIsDropdownVisible(false);
     setData(filterValues, { updateQueryParams: true });
   };
 
   const renderBlockchainSection = () => {
-    const isDisabled = isPoap;
+    const isDisabled = isPoap || blockchainDisabled;
     return (
       <>
         <div
@@ -151,17 +186,42 @@ export function AllFilters() {
   };
 
   const renderSortSection = () => {
+    const isDisabled = sortByDisabled;
     return (
       <>
-        <div className={sectionHeaderClass}>Sort by</div>
+        <div
+          className={classNames(sectionHeaderClass, {
+            'opacity-50': isDisabled
+          })}
+        >
+          Sort by
+        </div>
         {sortOptions.map(item => (
           <FilterOption
             key={item.value}
             label={item.label}
+            isDisabled={isDisabled}
             isSelected={currentSortOrder === item.value}
             onClick={handleSortOrderOptionClick(item.value)}
           />
         ))}
+      </>
+    );
+  };
+
+  const renderSpamSection = () => {
+    const isDisabled = spamFilterDisabled;
+    const isChecked = currentSpamFilter === '1';
+    return (
+      <>
+        <ToggleSwitch
+          className="py-2 px-3.5"
+          label="Filter Spam"
+          labelClassName="text-xs font-bold text-white"
+          checked={isChecked}
+          disabled={isDisabled}
+          onClick={handleSpamFilterClick}
+        />
       </>
     );
   };
@@ -185,6 +245,7 @@ export function AllFilters() {
           <div className="before-bg-glass before:z-[-1] before:rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">
             {renderBlockchainSection()}
             {renderSortSection()}
+            {renderSpamSection()}
             <div className="p-2 mt-1 flex justify-center gap-5">
               <button
                 type="button"

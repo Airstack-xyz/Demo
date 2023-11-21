@@ -305,7 +305,7 @@ export function TokensComponent() {
         <StatusLoader
           total={loaderStats.total}
           matching={loaderStats.matching}
-          tokenName={activeViewToken || ''}
+          totalSuffix={activeViewToken || ''}
         />
       </>
     );
@@ -371,7 +371,7 @@ export function TokensComponent() {
         <StatusLoader
           total={loaderStats.total}
           matching={loaderStats.matching}
-          tokenName={activeViewToken || ''}
+          totalSuffix={activeViewToken || ''}
         />
       )}
     </>

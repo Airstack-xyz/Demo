@@ -45,6 +45,7 @@ import {
 import { AllFilters } from '../../Components/Filters/AllFilters';
 import { SocialsOverlap } from './Socials/SocialsOverlap';
 import { ScoreOverview } from '../OnchainGraph/CommonScore/ScoreOverview';
+import { SpamFilter } from '../../Components/Filters/SpamFilter';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -460,6 +461,7 @@ function TokenBalancePage() {
               {/* <SnapshotFilter /> */}
               <BlockchainFilter />
               <SortBy />
+              <SpamFilter />
             </>
           )}
         </div>
