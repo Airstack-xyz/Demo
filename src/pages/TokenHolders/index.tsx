@@ -451,12 +451,6 @@ export function TokenHolders() {
     const blockchain = address?.[0]?.blockchain || mentionBlockchain[0];
     let snapshotTooltip = '';
     let hideTooltipIcon = false;
-    if (hasPoap) {
-      snapshotTooltip = 'Snapshots is disabled for POAP';
-    }
-    if (isCombination) {
-      snapshotTooltip = 'Snapshots is disabled for combinations';
-    }
     // TODO: remove below snapshot disable condition when snapshots for other blockchains is deployed
     if (isOverviewTokensLoading) {
       if (!blockchain) {
@@ -467,6 +461,12 @@ export function TokenHolders() {
       }
     } else if (blockchain && blockchain !== 'base') {
       snapshotTooltip = 'Snapshots is only enabled for Base tokens';
+    }
+    if (hasPoap) {
+      snapshotTooltip = 'Snapshots is disabled for POAP';
+    }
+    if (isCombination) {
+      snapshotTooltip = 'Snapshots is disabled for combinations';
     }
     return { snapshotTooltip, hideTooltipIcon };
   }, [
