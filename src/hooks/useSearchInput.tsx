@@ -160,7 +160,7 @@ export function useSearchInput(
         : null,
       activeView: isTokenBalances ? '' : searchParams.get('activeView') || '',
       activeTokenInfo: searchParams.get('activeTokenInfo') || '',
-      activeSnapshotInfo: searchParams.get('activeSnapshotInfo') || '',
+      activeSnapshotInfo: getData('activeSnapshotInfo'),
       tokenFilters: !isTokenBalances ? getData('tokenFilters', true) : [],
       activeViewToken: isTokenBalances ? '' : getData('activeViewToken'),
       activeViewCount: isTokenBalances ? '' : getData('activeViewCount'),
