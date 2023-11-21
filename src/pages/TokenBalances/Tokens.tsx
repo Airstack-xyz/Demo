@@ -65,7 +65,7 @@ function TokensComponent(props: TokenProps) {
   const {
     loading: loadingPoaps,
     getNext: getNextPoaps,
-    processedTokensCount: processedPoapsCount,
+    processedPoapsCount,
     hasNextPage: hasNextPagePoaps
   } = useGetPoapsOfOwner(inputs, handleTokens, poapDisabled);
 
