@@ -10,6 +10,35 @@ import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 const LIMIT = 20;
 const LIMIT_COMBINATIONS = 100;
 
+function filterByIsSpam(tokens: TokenType[]) {
+  return tokens?.filter(
+    item => item?.token?.isSpam === false || item?.token?.isSpam === undefined
+  );
+}
+
+function filterTokens(
+  tokens: CommonTokenType[],
+  isSpamFilteringEnabled?: boolean
+) {
+  if (tokens.length > 0 && tokens[0]?.token?.tokenBalances) {
+    tokens = tokens
+      .filter((token: CommonTokenType) =>
+        Boolean(token?.token?.tokenBalances?.length)
+      )
+      .map((token: CommonTokenType) => {
+        token._common_tokens = token.token.tokenBalances || null;
+        if (isSpamFilteringEnabled) {
+          token._common_tokens = filterByIsSpam(token._common_tokens) || null;
+        }
+        return token;
+      })
+      .filter((token: CommonTokenType) =>
+        Boolean(token?._common_tokens?.length)
+      );
+  }
+  return tokens;
+}
+
 type Inputs = Pick<
   UserInputs,
   'address' | 'tokenType' | 'blockchainType' | 'sortOrder' | 'spamFilter'
@@ -95,26 +124,9 @@ export function useGetTokensOfOwner(
     const processedTokenCount = ethTokens.length + maticTokens.length;
     setProcessedTokensCount(count => count + processedTokenCount);
 
-    if (ethTokens.length > 0 && ethTokens[0]?.token?.tokenBalances) {
-      ethTokens = ethTokens
-        .filter((token: CommonTokenType) =>
-          Boolean(token?.token?.tokenBalances?.length)
-        )
-        .map((token: CommonTokenType) => {
-          token._common_tokens = token.token.tokenBalances || null;
-          return token;
-        }, []);
-    }
-    if (maticTokens.length > 0 && maticTokens[0]?.token?.tokenBalances) {
-      maticTokens = maticTokens
-        .filter((token: CommonTokenType) =>
-          Boolean(token?.token?.tokenBalances?.length)
-        )
-        .map((token: CommonTokenType) => {
-          token._common_tokens = token.token.tokenBalances || null;
-          return token;
-        }, []);
-    }
+    ethTokens = filterTokens(ethTokens, isSpamFilteringEnabled);
+    maticTokens = filterTokens(maticTokens, isSpamFilteringEnabled);
+
     let tokens = [...ethTokens, ...maticTokens];
 
     if (is6551) {
@@ -131,10 +143,7 @@ export function useGetTokensOfOwner(
 
     if (isSpamFilteringEnabled) {
       const beforeCount = tokens.length;
-      tokens = tokens.filter(
-        item =>
-          item?.token?.isSpam === false || item?.token?.isSpam === undefined
-      );
+      tokens = filterByIsSpam(tokens);
       const afterCount = tokens.length;
       setSpamTokensCount(count => count + beforeCount - afterCount);
     }

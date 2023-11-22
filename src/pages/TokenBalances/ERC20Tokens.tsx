@@ -87,6 +87,25 @@ function Loader() {
   );
 }
 
+function filterByIsSpam(tokens: TokenType[]) {
+  return tokens?.filter(
+    item => item?.token?.isSpam === false || item?.token?.isSpam === undefined
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function filterTokens(tokens: any) {
+  if (tokens.length > 0 && tokens[0]?.token?.tokenBalances) {
+    tokens = tokens
+      .filter((item: CommonTokenType) => item.token.tokenBalances.length > 0)
+      .reduce((items: TokenType[], token: CommonTokenType) => {
+        items.push(token.token.tokenBalances[0]);
+        return items;
+      }, []);
+  }
+  return tokens;
+}
+
 const LIMIT = 20;
 const MIN_LIMIT = 10;
 
@@ -128,34 +147,14 @@ export function ERC20Tokens() {
       const totalTokens = ethTokens.length + maticTokens.length;
       setTotalProcessedTokens(count => count + totalTokens);
 
-      if (ethTokens.length > 0 && ethTokens[0]?.token?.tokenBalances) {
-        ethTokens = ethTokens
-          .filter(
-            (token: CommonTokenType) => token.token.tokenBalances.length > 0
-          )
-          .reduce((items: TokenType[], token: CommonTokenType) => {
-            items.push(token.token.tokenBalances[0]);
-            return items;
-          }, []);
-      }
-      if (maticTokens.length > 0 && maticTokens[0]?.token?.tokenBalances) {
-        maticTokens = maticTokens
-          .filter(
-            (token: CommonTokenType) => token.token.tokenBalances.length > 0
-          )
-          .reduce((items: TokenType[], token: CommonTokenType) => {
-            items.push(token.token.tokenBalances[0]);
-            return items;
-          }, []);
-      }
+      ethTokens = filterTokens(ethTokens);
+      maticTokens = filterTokens(maticTokens);
+
       let filteredTokens = [...ethTokens, ...maticTokens];
 
       if (isSpamFilteringEnabled) {
         const beforeCount = filteredTokens.length;
-        filteredTokens = filteredTokens.filter(
-          item =>
-            item?.token?.isSpam === false || item?.token?.isSpam === undefined
-        );
+        filteredTokens = filterByIsSpam(filteredTokens);
         const afterCount = filteredTokens.length;
         setSpamTokensCount(count => count + beforeCount - afterCount);
       }
