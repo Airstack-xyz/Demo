@@ -21,7 +21,7 @@ export function getOverviewQuery({
   }
   if (hasEthereum) {
     variables.push('$ethereumTokens: [Address!]');
-    filters.push(`eventId: {_intersection: $ethereumTokens}`);
+    filters.push(`ethereumTokens: {_intersection: $ethereumTokens}`);
   }
   if (hasBase) {
     variables.push('$baseTokens: [Address!]');
