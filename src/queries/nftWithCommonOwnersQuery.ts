@@ -73,15 +73,57 @@ function getQueryWithFilter(
         }`;
 }
 
+const tokenId = `blockchain
+tokenAddress
+tokenType
+tokenNfts {
+  tokenId
+  contentValue {
+      image {
+        medium
+      }
+  }
+  erc6551Accounts {
+    address {
+      addresses
+      tokenBalances {
+        tokenAddress
+        tokenId
+        tokenNfts {
+          contentValue {
+            image {
+              medium
+            }
+          }
+        }
+      }
+    }
+  }
+}
+token {
+  isSpam
+  name
+  symbol
+  logo {
+    small
+  }
+  projectDetails {
+    imageUrl
+  }
+}`;
+
 export function getQueryForBlockchain(owners: string[], isEth: boolean) {
   const blockchain = isEth ? 'ethereum' : 'polygon';
   const children =
     owners.length === 1 ? fields : getQueryWithFilter(owners, 1, blockchain);
   return `
     ${blockchain}: TokenBalances(
-      input: {filter: {owner: {_eq: "${owners[0]}"}, tokenType: {_in: $tokenType}}, blockchain: ${blockchain}, limit: $limit, order: {lastUpdatedTimestamp: $sortBy}}
+      input: {filter: {owner: {_eq: "${
+        owners[0]
+      }"}, tokenType: {_in: $tokenType}}, blockchain: ${blockchain}, limit: $limit, order: {lastUpdatedTimestamp: $sortBy}}
     ) {
       TokenBalance {
+        ${owners.length > 1 ? tokenId : ''}
         ${children}
       }
     }`;
