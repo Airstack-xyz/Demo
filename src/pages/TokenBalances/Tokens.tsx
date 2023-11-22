@@ -6,7 +6,6 @@ import { Token } from './Token';
 import { useGetTokensOfOwner } from '../../hooks/useGetTokensOfOwner';
 import { useGetPoapsOfOwner } from '../../hooks/useGetPoapsOfOwner';
 import { emit } from '../../utils/eventEmitter/eventEmitter';
-import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenCombination } from './TokenCombination';
 import classNames from 'classnames';
 import { TokenWithERC6551 } from './TokenWithERC6551';
@@ -27,7 +26,7 @@ export function TokensLoader() {
 
 type TokenProps = Pick<
   UserInputs,
-  'address' | 'tokenType' | 'blockchainType' | 'sortOrder'
+  'address' | 'tokenType' | 'blockchainType' | 'sortOrder' | 'spamFilter'
 > & {
   poapDisabled?: boolean;
   includeERC20?: boolean;
@@ -38,6 +37,7 @@ function TokensComponent(props: TokenProps) {
     tokenType: tokenType = '',
     blockchainType,
     sortOrder,
+    spamFilter,
     includeERC20,
     poapDisabled
   } = props;
@@ -52,6 +52,7 @@ function TokensComponent(props: TokenProps) {
     tokenType,
     blockchainType,
     sortOrder,
+    spamFilter,
     includeERC20
   };
 
@@ -59,6 +60,7 @@ function TokensComponent(props: TokenProps) {
     loading: loadingTokens,
     hasNextPage: hasNextPageTokens,
     processedTokensCount,
+    spamTokensCount,
     getNext: getNextTokens
   } = useGetTokensOfOwner(inputs, handleTokens);
 
@@ -73,7 +75,7 @@ function TokensComponent(props: TokenProps) {
     if (owners.length === 0) return;
     // reset tokens when search input changes
     setTokens([]);
-  }, [blockchainType, owners, sortOrder, tokenType]);
+  }, [blockchainType, owners, sortOrder, tokenType, spamFilter]);
 
   const isPoap = tokenType === 'POAP';
 
@@ -110,9 +112,16 @@ function TokensComponent(props: TokenProps) {
     emit('token-balances:tokens', {
       matched: tokens.length,
       total: totalProcessedTokens,
+      spam: spamTokensCount,
       loading
     });
-  }, [processedPoapsCount, processedTokensCount, tokens.length, loading]);
+  }, [
+    processedPoapsCount,
+    processedTokensCount,
+    tokens.length,
+    loading,
+    spamTokensCount
+  ]);
 
   if (tokens.length === 0 && !loading) {
     return (
@@ -122,14 +131,12 @@ function TokensComponent(props: TokenProps) {
 
   const hasCombination = owners.length > 1;
   const hasNextPage = hasNextPageTokens || hasNextPagePoaps;
-  const showStatusLoader = loading && hasCombination;
 
   if (tokens.length === 0 && loading) {
     return (
       <div>
         <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">
           <TokensLoader />
-          {showStatusLoader && <TokenBalancesLoaderWithInfo />}
         </div>
       </div>
     );
@@ -170,7 +177,6 @@ function TokensComponent(props: TokenProps) {
         })}
         {loading && <TokensLoader />}
       </InfiniteScroll>
-      {showStatusLoader && <TokenBalancesLoaderWithInfo />}
     </>
   );
 }

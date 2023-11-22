@@ -12,7 +12,7 @@ const LIMIT_COMBINATIONS = 100;
 
 type Inputs = Pick<
   UserInputs,
-  'address' | 'tokenType' | 'blockchainType' | 'sortOrder'
+  'address' | 'tokenType' | 'blockchainType' | 'sortOrder' | 'spamFilter'
 > & {
   includeERC20?: boolean;
 };
@@ -25,11 +25,13 @@ export function useGetTokensOfOwner(
     tokenType: tokenType = '',
     blockchainType,
     sortOrder,
+    spamFilter,
     includeERC20
   } = inputs;
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
+  const [spamTokensCount, setSpamTokensCount] = useState(0);
   const tokensRef = useRef<TokenType[]>([]);
   const fetchAllBlockchains =
     blockchainType.length === 2 || blockchainType.length === 0;
@@ -43,6 +45,8 @@ export function useGetTokensOfOwner(
 
   const isPoap = tokenType === 'POAP';
   const is6551 = tokenType === 'ERC6551';
+
+  const isSpamFilteringEnabled = spamFilter === '1';
 
   const [
     fetchTokens,
@@ -125,6 +129,16 @@ export function useGetTokensOfOwner(
       });
     }
 
+    if (isSpamFilteringEnabled) {
+      const beforeCount = tokens.length;
+      tokens = tokens.filter(
+        item =>
+          item?.token?.isSpam === false || item?.token?.isSpam === undefined
+      );
+      const afterCount = tokens.length;
+      setSpamTokensCount(count => count + beforeCount - afterCount);
+    }
+
     tokensRef.current = [...tokensRef.current, ...tokens];
     onDataReceived(tokens);
 
@@ -135,7 +149,14 @@ export function useGetTokensOfOwner(
     }
     setLoading(false);
     tokensRef.current = [];
-  }, [getNextPage, hasNextPage, is6551, onDataReceived, tokensData]);
+  }, [
+    getNextPage,
+    hasNextPage,
+    is6551,
+    isSpamFilteringEnabled,
+    onDataReceived,
+    tokensData
+  ]);
 
   const getNext = useCallback(() => {
     if (!hasNextPage) return;
@@ -149,7 +170,8 @@ export function useGetTokensOfOwner(
       loading,
       hasNextPage,
       processedTokensCount,
+      spamTokensCount,
       getNext
     };
-  }, [loading, hasNextPage, processedTokensCount, getNext]);
+  }, [loading, hasNextPage, processedTokensCount, spamTokensCount, getNext]);
 }
