@@ -10,6 +10,8 @@ type LoaderData = {
   loading: boolean;
 };
 
+const LOADER_HIDE_DELAY = 1000;
+
 export function TokenBalancesLoaderWithInfo() {
   const [{ address, spamFilter }] = useSearchInput();
   const [tokensData, setTokensData] = useState<LoaderData>({
@@ -25,9 +27,26 @@ export function TokenBalancesLoaderWithInfo() {
     loading: false
   });
 
+  const [isLoaderVisible, setIsLoaderVisible] = useState(false);
+
   const isSpamFilteringEnabled = spamFilter !== '0';
 
   const noLoader = address.length === 1 && !isSpamFilteringEnabled;
+
+  const showLoader = tokensData.loading || ERC20Data.loading;
+
+  useEffect(() => {
+    let timerId: NodeJS.Timeout;
+    if (showLoader) {
+      setIsLoaderVisible(true);
+    } else {
+      // Need to hide loader after some delay, so that last count info be displayed
+      timerId = setTimeout(() => setIsLoaderVisible(false), LOADER_HIDE_DELAY);
+    }
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [showLoader]);
 
   useEffect(() => {
     if (noLoader) return;
@@ -50,7 +69,7 @@ export function TokenBalancesLoaderWithInfo() {
     };
   }, [address.length, noLoader]);
 
-  if (noLoader || (!tokensData.loading && !ERC20Data.loading)) return null;
+  if (noLoader || !isLoaderVisible) return null;
 
   const totalSpam = isSpamFilteringEnabled
     ? tokensData.spam + ERC20Data.spam
