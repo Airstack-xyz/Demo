@@ -190,7 +190,7 @@ export function Token({
                   )}
                 </div>
                 {isCombination && (
-                  <div className="text-[10px] mt-1 text-center">
+                  <div className="text-[10px] mt-1 text-center ellipsis max-w-[50px]">
                     {formattedAmount || `#${tokenId}`}
                   </div>
                 )}

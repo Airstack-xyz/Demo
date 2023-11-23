@@ -183,7 +183,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
       if (image)
         return (
           <div
-            className={classNames({
+            className={classNames('flex-row-center', {
               flex: address.length === 1
             })}
           >
@@ -197,7 +197,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
               videoProps={{
                 controls: false
               }}
-              containerClassName="w-full [&>img]:w-full"
+              containerClassName="w-full [&>img]:w-full [&>video]:aspect-square [&>video]:object-cover"
             />
           </div>
         );
@@ -208,7 +208,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
           preset="medium"
           image={image}
           chain={blockchain as Chain}
-          containerClassName="[&>img]:w-full"
+          containerClassName="[&>img]:w-full [&>video]:aspect-square [&>video]:object-cover"
         />
       );
     });
