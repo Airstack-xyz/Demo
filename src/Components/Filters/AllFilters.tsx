@@ -69,7 +69,7 @@ export function AllFilters({
   }, [sortOrder]);
 
   const appliedSpamFilter = useMemo(() => {
-    return spamFilter === '1' ? '1' : defaultSpamFilter;
+    return spamFilter === '0' ? '0' : defaultSpamFilter;
   }, [spamFilter]);
 
   const [currentBlockchainFilter, setCurrentBlockchainFilter] = useState(
@@ -211,7 +211,7 @@ export function AllFilters({
 
   const renderSpamSection = () => {
     const isDisabled = spamFilterDisabled;
-    const isChecked = currentSpamFilter === '1';
+    const isChecked = currentSpamFilter !== '0';
     return (
       <>
         <ToggleSwitch

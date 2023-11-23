@@ -25,7 +25,7 @@ export function TokenBalancesLoaderWithInfo() {
     loading: false
   });
 
-  const isSpamFilteringEnabled = spamFilter === '1';
+  const isSpamFilteringEnabled = spamFilter !== '0';
 
   const noLoader = address.length === 1 && !isSpamFilteringEnabled;
 

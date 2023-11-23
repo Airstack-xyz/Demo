@@ -546,7 +546,7 @@ function TokenBalancePage() {
           )}
         </div>
         {!isMobile && <SocialsAndERC20 />}
-        <TokenBalancesLoaderWithInfo />
+        <TokenBalancesLoaderWithInfo key={tokensKey} />
       </div>
     );
   };

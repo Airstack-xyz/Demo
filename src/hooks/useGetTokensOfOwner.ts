@@ -1,4 +1,3 @@
-import { config } from '@airstack/airstack-react/config';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createNftWithCommonOwnersQuery } from '../queries/nftWithCommonOwnersQuery';
 import { UserInputs } from './useSearchInput';
@@ -75,7 +74,7 @@ export function useGetTokensOfOwner(
   const isPoap = tokenType === 'POAP';
   const is6551 = tokenType === 'ERC6551';
 
-  const isSpamFilteringEnabled = spamFilter === '1';
+  const isSpamFilteringEnabled = spamFilter !== '0';
 
   const [
     fetchTokens,
@@ -83,7 +82,7 @@ export function useGetTokensOfOwner(
       data: tokensData,
       pagination: { getNextPage, hasNextPage }
     }
-  ] = useLazyQueryWithPagination(query, {}, config);
+  ] = useLazyQueryWithPagination(query, {}, { cache: false });
 
   useEffect(() => {
     if (owners.length === 0) return;

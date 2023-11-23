@@ -4,12 +4,12 @@ import { ToggleSwitch } from '../ToggleSwitch';
 
 export type SpamFilterType = '1' | '0';
 
-export const defaultSpamFilter = '0';
+export const defaultSpamFilter = '1';
 
 export function SpamFilter({ disabled }: { disabled?: boolean }) {
   const [{ spamFilter }, setData] = useSearchInput();
 
-  const isSwitchChecked = spamFilter === '1';
+  const isSwitchChecked = spamFilter !== '0';
 
   const handleToggle = () => {
     setData(

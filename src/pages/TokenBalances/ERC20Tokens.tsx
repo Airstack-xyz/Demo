@@ -127,7 +127,7 @@ export function ERC20Tokens() {
   const tokensRef = useRef<TokenType[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const isSpamFilteringEnabled = spamFilter === '1';
+  const isSpamFilteringEnabled = spamFilter !== '0';
 
   const query = useMemo(() => {
     const fetchAllBlockchains =
