@@ -58,18 +58,18 @@ function TokensComponent(props: TokenProps) {
   };
 
   const {
-    loading: loadingTokens,
-    hasNextPage: hasNextPageTokens,
-    processedTokensCount,
-    getNext: getNextTokens
-  } = useGetTokensOfOwner(inputs, handleTokens);
-
-  const {
     loading: loadingPoaps,
     getNext: getNextPoaps,
     processedPoapsCount,
     hasNextPage: hasNextPagePoaps
   } = useGetPoapsOfOwner(inputs, handleTokens, poapDisabled);
+
+  const {
+    loading: loadingTokens,
+    hasNextPage: hasNextPageTokens,
+    processedTokensCount,
+    getNext: getNextTokens
+  } = useGetTokensOfOwner(inputs, handleTokens);
 
   useEffect(() => {
     if (owners.length === 0) return;
