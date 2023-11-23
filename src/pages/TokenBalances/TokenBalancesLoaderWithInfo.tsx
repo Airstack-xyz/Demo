@@ -6,30 +6,28 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 type LoaderData = {
   matched: number;
   total: number;
-  spam: number;
   loading: boolean;
 };
+
+// Show some default total count instead of zero, so that in loader 'Scanning 0 records' is not shown
+const DEFAULT_TOTAL_COUNT = 10;
 
 const LOADER_HIDE_DELAY = 1000;
 
 export function TokenBalancesLoaderWithInfo() {
-  const [{ address, spamFilter }] = useSearchInput();
+  const [{ address }] = useSearchInput();
   const [tokensData, setTokensData] = useState<LoaderData>({
     total: 0,
     matched: 0,
-    spam: 0,
     loading: false
   });
   const [ERC20Data, setERC20Data] = useState<LoaderData>({
     total: 0,
     matched: 0,
-    spam: 0,
     loading: false
   });
 
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
-
-  const isSpamFilteringEnabled = spamFilter !== '0';
 
   const noLoader = address.length < 2;
 
@@ -71,22 +69,8 @@ export function TokenBalancesLoaderWithInfo() {
 
   if (noLoader || !isLoaderVisible) return null;
 
-  const totalSpam = isSpamFilteringEnabled
-    ? tokensData.spam + ERC20Data.spam
-    : undefined;
-
   const totalMatching = tokensData.matched + ERC20Data.matched;
+  const totalCount = tokensData.total + ERC20Data.total || DEFAULT_TOTAL_COUNT;
 
-  const totalCount = tokensData.total + ERC20Data.total;
-
-  return (
-    <StatusLoader
-      total={totalCount}
-      spam={totalSpam}
-      matching={totalMatching}
-      totalSuffix="balances"
-      spamSuffix="spam tokens"
-      matchingSuffix="relevant balances"
-    />
-  );
+  return <StatusLoader total={totalCount} matching={totalMatching} />;
 }

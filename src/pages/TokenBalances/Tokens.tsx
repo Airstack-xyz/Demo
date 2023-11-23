@@ -31,6 +31,7 @@ type TokenProps = Pick<
   poapDisabled?: boolean;
   includeERC20?: boolean;
 };
+
 function TokensComponent(props: TokenProps) {
   const {
     address: owners,
@@ -60,7 +61,6 @@ function TokensComponent(props: TokenProps) {
     loading: loadingTokens,
     hasNextPage: hasNextPageTokens,
     processedTokensCount,
-    spamTokensCount,
     getNext: getNextTokens
   } = useGetTokensOfOwner(inputs, handleTokens);
 
@@ -111,16 +111,9 @@ function TokensComponent(props: TokenProps) {
     emit('token-balances:tokens', {
       matched: tokens.length,
       total: totalProcessedTokens,
-      spam: spamTokensCount,
       loading
     });
-  }, [
-    processedPoapsCount,
-    processedTokensCount,
-    tokens.length,
-    loading,
-    spamTokensCount
-  ]);
+  }, [processedPoapsCount, processedTokensCount, tokens.length, loading]);
 
   if (tokens.length === 0 && !loading) {
     return (

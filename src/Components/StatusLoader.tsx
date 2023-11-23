@@ -3,19 +3,15 @@ import classNames from 'classnames';
 type LoaderProps = {
   total: number;
   matching: number;
-  spam?: number;
   totalSuffix?: string;
-  spamSuffix?: string;
   matchingSuffix?: string;
 };
 
 export function StatusLoader({
   total,
   matching,
-  spam,
   totalSuffix = 'records',
-  spamSuffix = 'tokens',
-  matchingSuffix = 'records'
+  matchingSuffix = 'matching results'
 }: LoaderProps) {
   const renderRow = (prefix: string, count: number, suffix: string) => {
     return (
@@ -35,7 +31,6 @@ export function StatusLoader({
     <div className="fixed inset-5 sm:inset-10 flex justify-center items-end pointer-events-none z-[25]">
       <div className="bg-glass rounded-18 p-8 border-solid-stroke max-w-[90%] sm:max-w-[500px]">
         {renderRow('Scanning', total, totalSuffix)}
-        {spam === undefined ? null : renderRow('Filtered', spam, spamSuffix)}
         {renderRow('Found', matching, matchingSuffix)}
       </div>
     </div>

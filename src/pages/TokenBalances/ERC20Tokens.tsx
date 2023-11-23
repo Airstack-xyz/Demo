@@ -94,7 +94,7 @@ function filterByIsSpam(tokens: TokenType[]) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function filterTokens(tokens: any) {
+function processTokens(tokens: any) {
   if (tokens.length > 0 && tokens[0]?.token?.tokenBalances) {
     tokens = tokens
       .filter((item: CommonTokenType) => item.token.tokenBalances.length > 0)
@@ -111,7 +111,6 @@ const MIN_LIMIT = 10;
 
 export function ERC20Tokens() {
   const [totalProcessedTokens, setTotalProcessedTokens] = useState(0);
-  const [spamTokensCount, setSpamTokensCount] = useState(0);
   const [tokens, setTokens] = useState<TokenType[]>([]);
   const [
     {
@@ -147,16 +146,13 @@ export function ERC20Tokens() {
       const totalTokens = ethTokens.length + maticTokens.length;
       setTotalProcessedTokens(count => count + totalTokens);
 
-      ethTokens = filterTokens(ethTokens);
-      maticTokens = filterTokens(maticTokens);
+      ethTokens = processTokens(ethTokens);
+      maticTokens = processTokens(maticTokens);
 
       let filteredTokens = [...ethTokens, ...maticTokens];
 
       if (isSpamFilteringEnabled) {
-        const beforeCount = filteredTokens.length;
         filteredTokens = filterByIsSpam(filteredTokens);
-        const afterCount = filteredTokens.length;
-        setSpamTokensCount(count => count + beforeCount - afterCount);
       }
 
       tokensRef.current = [...tokensRef.current, ...filteredTokens];
@@ -221,11 +217,10 @@ export function ERC20Tokens() {
   useEffect(() => {
     emit('token-balances:ERC20', {
       matched: tokens.length,
-      total: totalProcessedTokens || LIMIT,
-      spam: spamTokensCount,
+      total: totalProcessedTokens,
       loading
     });
-  }, [loading, spamTokensCount, tokens.length, totalProcessedTokens]);
+  }, [loading, tokens.length, totalProcessedTokens]);
 
   return (
     <div>

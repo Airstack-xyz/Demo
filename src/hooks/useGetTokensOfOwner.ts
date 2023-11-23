@@ -15,7 +15,7 @@ function filterByIsSpam(tokens: TokenType[]) {
   );
 }
 
-function filterTokens(
+function processTokens(
   tokens: CommonTokenType[],
   isSpamFilteringEnabled?: boolean
 ) {
@@ -59,7 +59,6 @@ export function useGetTokensOfOwner(
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [processedTokensCount, setProcessedTokensCount] = useState(0);
-  const [spamTokensCount, setSpamTokensCount] = useState(0);
   const tokensRef = useRef<TokenType[]>([]);
   const fetchAllBlockchains =
     blockchainType.length === 2 || blockchainType.length === 0;
@@ -123,8 +122,8 @@ export function useGetTokensOfOwner(
     const processedTokenCount = ethTokens.length + maticTokens.length;
     setProcessedTokensCount(count => count + processedTokenCount);
 
-    ethTokens = filterTokens(ethTokens, isSpamFilteringEnabled);
-    maticTokens = filterTokens(maticTokens, isSpamFilteringEnabled);
+    ethTokens = processTokens(ethTokens, isSpamFilteringEnabled);
+    maticTokens = processTokens(maticTokens, isSpamFilteringEnabled);
 
     let tokens = [...ethTokens, ...maticTokens];
 
@@ -141,10 +140,7 @@ export function useGetTokensOfOwner(
     }
 
     if (isSpamFilteringEnabled) {
-      const beforeCount = tokens.length;
       tokens = filterByIsSpam(tokens);
-      const afterCount = tokens.length;
-      setSpamTokensCount(count => count + beforeCount - afterCount);
     }
 
     tokensRef.current = [...tokensRef.current, ...tokens];
@@ -178,8 +174,7 @@ export function useGetTokensOfOwner(
       loading,
       hasNextPage,
       processedTokensCount,
-      spamTokensCount,
       getNext
     };
-  }, [loading, hasNextPage, processedTokensCount, spamTokensCount, getNext]);
+  }, [loading, hasNextPage, processedTokensCount, getNext]);
 }
