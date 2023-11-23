@@ -17,11 +17,11 @@ import { SpamFilterType, defaultSpamFilter } from './SpamFilter';
 const getAppliedFilterCount = ({
   appliedBlockchainFilter,
   appliedSortOrder,
-  appliedFilterSpam
+  appliedSpamFilter
 }: {
   appliedBlockchainFilter: BlockchainFilterType;
   appliedSortOrder: SortOrderType;
-  appliedFilterSpam: SpamFilterType;
+  appliedSpamFilter: SpamFilterType;
 }) => {
   let count = 0;
   if (appliedBlockchainFilter != defaultBlockchainFilter) {
@@ -30,7 +30,7 @@ const getAppliedFilterCount = ({
   if (appliedSortOrder != defaultSortOrder) {
     count += 1;
   }
-  if (appliedFilterSpam != defaultSpamFilter) {
+  if (appliedSpamFilter != defaultSpamFilter) {
     count += 1;
   }
   return count;
@@ -113,7 +113,7 @@ export function AllFilters({
       getAppliedFilterCount({
         appliedBlockchainFilter: appliedBlockchainFilter,
         appliedSortOrder: appliedSortOrder,
-        appliedFilterSpam: appliedSpamFilter
+        appliedSpamFilter: appliedSpamFilter
       }),
     [appliedBlockchainFilter, appliedSpamFilter, appliedSortOrder]
   );
