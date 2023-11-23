@@ -300,6 +300,11 @@ function TokenBalancePage() {
           link: socialLink
         });
       }
+
+      options.push({
+        label: 'Spam Filters Guide',
+        link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/xmtp/spam-filters'
+      });
     }
 
     if (showTokenDetails && token) {
