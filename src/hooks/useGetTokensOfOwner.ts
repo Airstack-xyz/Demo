@@ -15,10 +15,7 @@ function filterByIsSpam(tokens: TokenType[]) {
   );
 }
 
-function processTokens(
-  tokens: CommonTokenType[],
-  isSpamFilteringEnabled?: boolean
-) {
+function processTokens(tokens: CommonTokenType[]) {
   if (tokens.length > 0 && tokens[0]?.token?.tokenBalances) {
     tokens = tokens
       .filter((token: CommonTokenType) =>
@@ -26,14 +23,8 @@ function processTokens(
       )
       .map((token: CommonTokenType) => {
         token._common_tokens = token.token.tokenBalances || null;
-        if (isSpamFilteringEnabled) {
-          token._common_tokens = filterByIsSpam(token._common_tokens) || null;
-        }
         return token;
-      })
-      .filter((token: CommonTokenType) =>
-        Boolean(token?._common_tokens?.length)
-      );
+      });
   }
   return tokens;
 }
@@ -122,8 +113,8 @@ export function useGetTokensOfOwner(
     const processedTokenCount = ethTokens.length + maticTokens.length;
     setProcessedTokensCount(count => count + processedTokenCount);
 
-    ethTokens = processTokens(ethTokens, isSpamFilteringEnabled);
-    maticTokens = processTokens(maticTokens, isSpamFilteringEnabled);
+    ethTokens = processTokens(ethTokens);
+    maticTokens = processTokens(maticTokens);
 
     let tokens = [...ethTokens, ...maticTokens];
 
@@ -141,6 +132,16 @@ export function useGetTokensOfOwner(
 
     if (isSpamFilteringEnabled) {
       tokens = filterByIsSpam(tokens);
+      if (tokens.length > 0 && tokens[0]?._common_tokens) {
+        tokens = tokens
+          .map((token: CommonTokenType) => {
+            token._common_tokens = filterByIsSpam(token._common_tokens || []);
+            return token;
+          })
+          .filter((token: CommonTokenType) =>
+            Boolean(token?._common_tokens?.length)
+          );
+      }
     }
 
     tokensRef.current = [...tokensRef.current, ...tokens];
