@@ -188,7 +188,9 @@ export function TableRow({
             address={holdingTokenAddress}
             useImageOnError={isPoap}
           />
-          <div className="mt-2">{holdingText || '--'}</div>
+          <div className="mt-2 ellipsis max-w-[50px]">
+            {holdingText || '--'}
+          </div>
         </div>
       );
     }
