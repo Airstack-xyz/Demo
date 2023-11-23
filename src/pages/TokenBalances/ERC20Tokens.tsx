@@ -88,9 +88,7 @@ function Loader() {
 }
 
 function filterByIsSpam(tokens: TokenType[]) {
-  return tokens?.filter(
-    item => item?.token?.isSpam === false || item?.token?.isSpam === undefined
-  );
+  return tokens?.filter(item => item?.token?.isSpam !== true);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

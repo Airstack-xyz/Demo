@@ -10,9 +10,7 @@ const LIMIT = 20;
 const LIMIT_COMBINATIONS = 100;
 
 function filterByIsSpam(tokens: TokenType[]) {
-  return tokens?.filter(
-    item => item?.token?.isSpam === false || item?.token?.isSpam === undefined
-  );
+  return tokens?.filter(item => item?.token?.isSpam !== true);
 }
 
 function processTokens(tokens: CommonTokenType[]) {
