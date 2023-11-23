@@ -58,7 +58,7 @@ export function useGetTokensOfOwner(
   } = inputs;
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
-  const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
+  const [processedTokensCount, setProcessedTokensCount] = useState(0);
   const [spamTokensCount, setSpamTokensCount] = useState(0);
   const tokensRef = useRef<TokenType[]>([]);
   const fetchAllBlockchains =
@@ -103,7 +103,7 @@ export function useGetTokensOfOwner(
       });
     }
 
-    setProcessedTokensCount(LIMIT);
+    setProcessedTokensCount(0);
   }, [
     blockchainType,
     fetchTokens,

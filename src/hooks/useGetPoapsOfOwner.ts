@@ -21,7 +21,7 @@ export function useGetPoapsOfOwner(
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const tokensRef = useRef<PoapType[]>([]);
-  const [processedPoapsCount, setProcessedPoapsCount] = useState(LIMIT);
+  const [processedPoapsCount, setProcessedPoapsCount] = useState(0);
   const isPoap = tokenType === 'POAP';
   const searchingCommonPoaps = owners.length > 1;
 
@@ -55,7 +55,7 @@ export function useGetPoapsOfOwner(
       limit: owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT,
       sortBy: sortOrder ? sortOrder : defaultSortOrder
     });
-    setProcessedPoapsCount(LIMIT);
+    setProcessedPoapsCount(0);
   }, [
     canFetchPoap,
     fetchTokens,

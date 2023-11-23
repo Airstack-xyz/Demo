@@ -107,8 +107,7 @@ function TokensComponent(props: TokenProps) {
   const loading = loadingTokens || loadingPoaps;
 
   useEffect(() => {
-    const totalProcessedTokens =
-      processedTokensCount + processedPoapsCount || 40;
+    const totalProcessedTokens = processedTokensCount + processedPoapsCount;
     emit('token-balances:tokens', {
       matched: tokens.length,
       total: totalProcessedTokens,
