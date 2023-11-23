@@ -82,7 +82,7 @@ export function useGetTokensOfOwner(
       data: tokensData,
       pagination: { getNextPage, hasNextPage }
     }
-  ] = useLazyQueryWithPagination(query, {}, { cache: false });
+  ] = useLazyQueryWithPagination(query, {});
 
   useEffect(() => {
     if (owners.length === 0) return;

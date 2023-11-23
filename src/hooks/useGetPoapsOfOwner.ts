@@ -42,7 +42,7 @@ export function useGetPoapsOfOwner(
       data,
       pagination: { getNextPage, hasNextPage }
     }
-  ] = useLazyQueryWithPagination(query, {}, { cache: false });
+  ] = useLazyQueryWithPagination(query, {});
 
   const tokensData = !canFetchPoap ? null : data;
 

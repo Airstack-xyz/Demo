@@ -168,7 +168,7 @@ export function ERC20Tokens() {
   const [fetch, { data: erc20Data, pagination }] = useLazyQueryWithPagination(
     query,
     {},
-    { cache: false, onCompleted: handleData }
+    { onCompleted: handleData }
   );
 
   let data = erc20Data;
