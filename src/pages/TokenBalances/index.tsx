@@ -551,7 +551,7 @@ function TokenBalancePage() {
           )}
         </div>
         {!isMobile && <SocialsAndERC20 />}
-        <TokenBalancesLoaderWithInfo key={tokensKey} />
+        {isCombination && <TokenBalancesLoaderWithInfo key={tokensKey} />}
       </div>
     );
   };

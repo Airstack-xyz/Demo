@@ -31,7 +31,7 @@ export function TokenBalancesLoaderWithInfo() {
 
   const isSpamFilteringEnabled = spamFilter !== '0';
 
-  const noLoader = address.length === 1 && !isSpamFilteringEnabled;
+  const noLoader = address.length < 2;
 
   const showLoader = tokensData.loading || ERC20Data.loading;
 
