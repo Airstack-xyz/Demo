@@ -1,5 +1,5 @@
-import { SnapshotFilterType } from '../Components/Filters/SnapshotFilter';
-import { snapshotBlockchains } from '../constants';
+import { SnapshotFilterType } from '../../Components/Filters/SnapshotFilter';
+import { snapshotBlockchains } from '../../constants';
 
 const fields = `
   amount
@@ -35,6 +35,7 @@ const fields = `
     }
   }
   token {
+    isSpam
     name
     symbol
     logo {
@@ -57,6 +58,7 @@ function getSubQueryWithFilter(
       : getSubQueryWithFilter(owners, index + 1, blockchain);
   return `
     token {
+      isSpam
       name
       symbol
       logo {
@@ -102,6 +104,7 @@ const parentFields = `
     }
   }
   token {
+    isSpam
     name
     symbol
     logo {

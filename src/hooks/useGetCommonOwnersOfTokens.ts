@@ -5,21 +5,22 @@ import {
   TokenAddress,
   Token as TokenType
 } from '../pages/TokenHolders/types';
-import { getCommonPoapAndNftOwnersQuery } from '../queries/commonPoapAndNftOwnersQuery';
+import {
+  getCommonNftOwnersSnapshotQuery,
+  getNftOwnersSnapshotQuery
+} from '../queries/Snapshots/commonNftOwnersSnapshotQuery';
 import {
   getCommonNftOwnersQuery,
   getNftOwnersQuery
 } from '../queries/commonNftOwnersQuery';
-import { sortAddressByPoapFirst } from '../utils/sortAddressByPoapFirst';
-import { useSearchInput } from './useSearchInput';
-import {
-  getCommonNftOwnersSnapshotQuery,
-  getNftOwnersSnapshotQuery
-} from '../queries/commonNftOwnersSnapshotQuery';
+import { getCommonPoapAndNftOwnersQuery } from '../queries/commonPoapAndNftOwnersQuery';
+import { TokenBlockchain } from '../types';
 import {
   getActiveSnapshotInfo,
   getSnapshotQueryFilters
 } from '../utils/activeSnapshotInfoString';
+import { sortAddressByPoapFirst } from '../utils/sortAddressByPoapFirst';
+import { useSearchInput } from './useSearchInput';
 
 type Token = TokenType & {
   _poapEvent?: Poap['poapEvent'];
@@ -40,13 +41,7 @@ type NestedTokenBalance = (Pick<
   })[];
 
 type CommonOwner = {
-  ethereum: {
-    TokenBalance: NestedTokenBalance | Token[];
-  };
-  polygon: {
-    TokenBalance: NestedTokenBalance | Token[];
-  };
-  base: {
+  [Key in TokenBlockchain]: {
     TokenBalance: NestedTokenBalance | Token[];
   };
 };

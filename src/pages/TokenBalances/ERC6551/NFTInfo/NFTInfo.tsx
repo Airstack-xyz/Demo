@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { KeyValue } from '../KeyValue';
-import { Attribute, Nft, TokenTransfer } from '../../erc20.types';
+import { Attribute, Nft, TokenTransfer } from '../../ERC20/types';
 import { ERC20TokenDetailsResponse } from '../types';
 import { LoaderItem } from './LoaderItem';
 import { CopyButton } from './CopyButton';

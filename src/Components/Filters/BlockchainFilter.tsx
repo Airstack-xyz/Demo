@@ -1,12 +1,15 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useCallback, useMemo } from 'react';
+import { tokenBlockchains } from '../../constants';
 import { useSearchInput } from '../../hooks/useSearchInput';
+import { TokenBlockchain } from '../../types';
+import { capitalizeFirstLetter } from '../../utils';
 import { Dropdown, Option } from '../Dropdown';
+import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
-import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
 
-export type BlockchainFilterType = 'all' | 'ethereum' | 'polygon' | 'base';
+export type BlockchainFilterType = 'all' | TokenBlockchain;
 
 export const defaultBlockchainFilter: BlockchainFilterType = 'all';
 
@@ -20,18 +23,10 @@ export const blockchainOptions: BlockchainOption[] = [
     label: 'All chains',
     value: 'all'
   },
-  {
-    label: 'Ethereum',
-    value: 'ethereum'
-  },
-  {
-    label: 'Polygon',
-    value: 'polygon'
-  },
-  {
-    label: 'Base',
-    value: 'base'
-  }
+  ...tokenBlockchains.map(item => ({
+    label: capitalizeFirstLetter(item),
+    value: item
+  }))
 ];
 
 export function BlockchainFilter({
@@ -73,13 +68,9 @@ export function BlockchainFilter({
 
   const selected = useMemo(() => {
     const filterValue = blockchainType[0];
-    switch (filterValue) {
-      case 'ethereum':
-        return [blockchainOptions[1]];
-      case 'polygon':
-        return [blockchainOptions[2]];
-      case 'base':
-        return [blockchainOptions[3]];
+    const option = blockchainOptions.find(item => item.value === filterValue);
+    if (option) {
+      return [option];
     }
     return [blockchainOptions[0]];
   }, [blockchainType]);

@@ -9,21 +9,22 @@ import {
   useState
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { defaultSortOrder } from '../../Components/Filters/SortBy';
-import { useSearchInput } from '../../hooks/useSearchInput';
-import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
-import { getNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
+import { defaultSortOrder } from '../../../Components/Filters/SortBy';
+import { tokenBlockchains } from '../../../constants';
+import { useSearchInput } from '../../../hooks/useSearchInput';
+import { getNftWithCommonOwnersSnapshotQuery } from '../../../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
+import { getNftWithCommonOwnersQuery } from '../../../queries/nftWithCommonOwnersQuery';
 import {
   getActiveSnapshotInfo,
   getSnapshotQueryFilters
-} from '../../utils/activeSnapshotInfoString';
-import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
-import { emit } from '../../utils/eventEmitter/eventEmitter';
-import { formatNumber } from '../../utils/formatNumber';
-import { SectionHeader } from './SectionHeader';
-import { CommonTokenType, TokenType } from './types';
+} from '../../../utils/activeSnapshotInfoString';
+import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
+import { emit } from '../../../utils/eventEmitter/eventEmitter';
+import { formatNumber } from '../../../utils/formatNumber';
+import { SectionHeader } from '../SectionHeader';
+import { CommonTokenType, TokenType } from '../types';
 
-import './erc20.styles.css';
+import './styles.css';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
@@ -93,6 +94,23 @@ function Loader() {
   );
 }
 
+function filterByIsSpam(tokens: TokenType[]) {
+  return tokens?.filter(item => item?.token?.isSpam !== true);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function processTokens(tokens: any) {
+  if (tokens.length > 0 && tokens[0]?.token?.tokenBalances) {
+    tokens = tokens
+      .filter((item: CommonTokenType) => item.token.tokenBalances.length > 0)
+      .reduce((items: TokenType[], token: CommonTokenType) => {
+        items.push(token.token.tokenBalances[0]);
+        return items;
+      }, []);
+  }
+  return tokens;
+}
+
 const LIMIT = 20;
 const MIN_LIMIT = 10;
 
@@ -105,6 +123,7 @@ export function ERC20Tokens() {
       tokenType,
       blockchainType,
       sortOrder,
+      spamFilter,
       activeTokenInfo,
       activeSnapshotInfo
     },
@@ -115,6 +134,8 @@ export function ERC20Tokens() {
 
   const isCombination = owners.length > 1;
 
+  const isSpamFilteringEnabled = spamFilter !== '0';
+
   const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
     [activeSnapshotInfo]
@@ -122,7 +143,8 @@ export function ERC20Tokens() {
 
   const query = useMemo(() => {
     const fetchAllBlockchains =
-      blockchainType.length === 3 || blockchainType.length === 0;
+      blockchainType.length === tokenBlockchains.length ||
+      blockchainType.length === 0;
 
     const blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
@@ -141,81 +163,45 @@ export function ERC20Tokens() {
     owners
   ]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onData = useCallback((data: any) => {
-    const { ethereum, polygon, base } = data;
-    let ethTokenBalances = ethereum?.TokenBalance || [];
-    let polygonTokenBalances = polygon?.TokenBalance || [];
-    let baseTokenBalances = base?.TokenBalance || [];
+  const handleData = useCallback(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (data: any) => {
+      const { ethereum, polygon, base } = data;
+      let ethTokenBalances = ethereum?.TokenBalance || [];
+      let polygonTokenBalances = polygon?.TokenBalance || [];
+      let baseTokenBalances = base?.TokenBalance || [];
 
-    const totalTokens =
-      ethTokenBalances.length +
-      polygonTokenBalances.length +
-      baseTokenBalances.length;
+      const processedTokenCount =
+        ethTokenBalances.length +
+        polygonTokenBalances.length +
+        baseTokenBalances.length;
 
-    if (
-      ethTokenBalances.length > 0 &&
-      ethTokenBalances[0]?.token?.tokenBalances
-    ) {
-      ethTokenBalances = ethTokenBalances
-        .filter(
-          (token: CommonTokenType) => token.token.tokenBalances.length > 0
-        )
-        .reduce((items: TokenType[], token: CommonTokenType) => {
-          items.push(token.token.tokenBalances[0]);
-          //   token.token.tokenBalances.forEach(item => items.push(item));
-          return items;
-        }, []);
-    }
-    if (
-      polygonTokenBalances.length > 0 &&
-      polygonTokenBalances[0]?.token?.tokenBalances
-    ) {
-      polygonTokenBalances = polygonTokenBalances
-        .filter(
-          (token: CommonTokenType) => token.token.tokenBalances.length > 0
-        )
-        .reduce((items: TokenType[], token: CommonTokenType) => {
-          items.push(token.token.tokenBalances[0]);
-          //   token.token.tokenBalances.forEach(item => items.push(item));
-          return items;
-        }, []);
-    }
-    if (
-      baseTokenBalances.length > 0 &&
-      baseTokenBalances[0]?.token?.tokenBalances
-    ) {
-      baseTokenBalances = baseTokenBalances
-        .filter(
-          (token: CommonTokenType) => token.token.tokenBalances.length > 0
-        )
-        .reduce((items: TokenType[], token: CommonTokenType) => {
-          items.push(token.token.tokenBalances[0]);
-          //   token.token.tokenBalances.forEach(item => items.push(item));
-          return items;
-        }, []);
-    }
+      setTotalProcessedTokens(count => count + processedTokenCount);
 
-    tokensRef.current = [
-      ...tokensRef.current,
-      ...ethTokenBalances,
-      ...polygonTokenBalances,
-      ...baseTokenBalances
-    ];
+      ethTokenBalances = processTokens(ethTokenBalances);
+      polygonTokenBalances = processTokens(polygonTokenBalances);
+      baseTokenBalances = processTokens(baseTokenBalances);
 
-    setTotalProcessedTokens(count => count + totalTokens);
-    setTokens(tokens => [
-      ...tokens,
-      ...ethTokenBalances,
-      ...polygonTokenBalances,
-      ...baseTokenBalances
-    ]);
-  }, []);
+      let filteredTokens = [
+        ...ethTokenBalances,
+        ...polygonTokenBalances,
+        ...baseTokenBalances
+      ];
+
+      if (isSpamFilteringEnabled) {
+        filteredTokens = filterByIsSpam(filteredTokens);
+      }
+
+      tokensRef.current = [...tokensRef.current, ...filteredTokens];
+      setTokens(prevTokens => [...prevTokens, ...filteredTokens]);
+    },
+    [isSpamFilteringEnabled]
+  );
 
   const [fetch, { data: erc20Data, pagination }] = useLazyQueryWithPagination(
     query,
     {},
-    { cache: false, onCompleted: onData }
+    { onCompleted: handleData }
   );
 
   let data = erc20Data;
@@ -249,7 +235,7 @@ export function ERC20Tokens() {
       }
     }
     /*
-      Even though ERC20 tokens are not dependant on tokenType, we added tokenType to the dependency array to force a refetch when tokenType changes.
+      Even though ERC20 tokens are not dependant on tokenType we added tokenType to the dependency array to force a refetch when tokenType changes.
       Without this, the tokens list would be unable to fetch additional pages since the window scroll height would be too great (too many ERC20 items).
       InfiniteScroll depends on the window scroll height, if the height is too high, user will have to scroll to the bottom to initiate a pagination call.
     */
@@ -259,6 +245,7 @@ export function ERC20Tokens() {
     tokenType,
     blockchainType,
     sortOrder,
+    spamFilter,
     snapshotInfo
   ]);
 
@@ -283,7 +270,7 @@ export function ERC20Tokens() {
   useEffect(() => {
     emit('token-balances:ERC20', {
       matched: tokens.length,
-      total: totalProcessedTokens || LIMIT,
+      total: totalProcessedTokens,
       loading
     });
   }, [loading, tokens.length, totalProcessedTokens]);

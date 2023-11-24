@@ -23,7 +23,7 @@ import { Filters } from './Filters';
 import { MentionInput, MentionOutput } from './MentionInput';
 import { TableRow, TableRowLoader } from './TableRow';
 import './styles.css';
-import { Follow, SocialFollowResponse } from './types';
+import { Follow, SocialFollowQueryFilters } from './types';
 import { filterTableItems, getSocialFollowFilterData } from './utils';
 
 const LOADING_ROW_COUNT = 6;
@@ -40,16 +40,23 @@ function TableLoader() {
   );
 }
 
+type SocialFollowResponse = {
+  SocialFollowers: {
+    Follower: Follow[];
+  };
+  SocialFollowings: {
+    Following: Follow[];
+  };
+};
+
+type SocialFollowVariables = SocialFollowQueryFilters & {
+  limit: number;
+};
+
 type ModalData = {
   isOpen: boolean;
   dataType?: string;
   addresses: string[];
-};
-
-type TableSectionProps = {
-  identities: string[];
-  socialInfo: SocialInfo;
-  setQueryData: UpdateUserInputs;
 };
 
 const mentionValidationFn = ({ mentions }: MentionOutput) => {
@@ -67,7 +74,11 @@ export function TableSection({
   identities,
   socialInfo,
   setQueryData
-}: TableSectionProps) {
+}: {
+  identities: string[];
+  socialInfo: SocialInfo;
+  setQueryData: UpdateUserInputs;
+}) {
   const navigate = useNavigate();
 
   const [tableItems, setTableItems] = useState<Follow[]>([]);
@@ -148,11 +159,10 @@ export function TableSection({
     [followData, isFollowerQuery, socialInfo.dappName]
   );
 
-  const [fetchData, { loading, pagination }] = useLazyQueryWithPagination(
-    query,
-    {},
-    { onCompleted: handleData, cache: false }
-  );
+  const [fetchData, { loading, pagination }] = useLazyQueryWithPagination<
+    SocialFollowResponse,
+    SocialFollowVariables
+  >(query, undefined, { onCompleted: handleData, cache: false });
 
   const { hasNextPage, getNextPage } = pagination;
 

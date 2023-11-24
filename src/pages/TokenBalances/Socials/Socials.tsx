@@ -22,7 +22,7 @@ import { Social } from './Social';
 import { XMTP } from './XMTP';
 import { WalletType } from './types';
 
-const getSocialFollowInfo = (wallet: WalletType) => {
+const getSocialFollowInfo = (wallet?: WalletType) => {
   const followData: Record<'farcaster' | 'lens', FollowType> = {
     farcaster: {
       dappName: 'farcaster',
@@ -83,6 +83,14 @@ const iconMap: Record<string, string> = {
   ens: '/images/ens.svg'
 };
 
+type SocialResponse = {
+  Wallet: WalletType;
+};
+
+type SocialVariables = {
+  identity: string;
+};
+
 function SocialsComponent() {
   const [modalData, setModalData] = useState<{
     isOpen: boolean;
@@ -95,9 +103,12 @@ function SocialsComponent() {
   });
 
   const [{ address }, setData] = useSearchInput();
-  const [fetchData, { data, loading }] = useLazyQuery(SocialQuery);
+  const [fetchData, { data, loading }] = useLazyQuery<
+    SocialResponse,
+    SocialVariables
+  >(SocialQuery);
 
-  const wallet = data?.Wallet as WalletType;
+  const wallet = data?.Wallet;
 
   useEffect(() => {
     if (address.length > 0) {
@@ -195,7 +206,7 @@ function SocialsComponent() {
     } else {
       primaryEnsValues.push('--');
     }
-    if (wallet?.domains?.length > 0) {
+    if (wallet && wallet?.domains?.length > 0) {
       ensValues.push(...wallet.domains.map(({ name }) => name));
     } else {
       ensValues.push('--');
@@ -275,7 +286,7 @@ function SocialsComponent() {
           heading={`All ENS names of ${address[0]}`}
           isOpen={modalData.isOpen}
           dataType={modalData.dataType}
-          addresses={wallet.addresses}
+          addresses={wallet?.addresses || []}
           onRequestClose={handleModalClose}
           onAddressClick={handleAddressClick}
         />

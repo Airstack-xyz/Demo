@@ -1,7 +1,7 @@
-import { capitalizeFirstLetter } from '../../utils';
+import { tokenBlockchains } from '../../constants';
 
 const getTokenSentSubQuery = (blockchain: string) => {
-  return `${capitalizeFirstLetter(blockchain)}: TokenTransfers(
+  return `${blockchain}: TokenTransfers(
     input: {filter: {from: {_eq: $from}, _and: {to: {_eq: $to}}}, blockchain: ${blockchain}, limit: 200}
   ) {
     TokenTransfer {
@@ -13,7 +13,7 @@ const getTokenSentSubQuery = (blockchain: string) => {
 };
 
 export const tokenSentQuery = `query TokenSent($from: Identity!, $to: Identity!) {
-    ${getTokenSentSubQuery('ethereum')}
-    ${getTokenSentSubQuery('polygon')}
-    ${getTokenSentSubQuery('base')}
-  }`;
+  ${tokenBlockchains
+    .map(blockchain => getTokenSentSubQuery(blockchain))
+    .join('\n')}
+}`;

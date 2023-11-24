@@ -30,15 +30,6 @@ export type Social = {
   };
 };
 
-export type SocialFollowResponse = {
-  SocialFollowers: {
-    Follower: Follow[];
-  };
-  SocialFollowings: {
-    Following: Follow[];
-  };
-};
-
 export type Follow = {
   id: string;
   blockchain: Chain;

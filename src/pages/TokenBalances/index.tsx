@@ -3,7 +3,7 @@ import { Search } from '../../Components/Search';
 import { Layout } from '../../Components/Layout';
 import { Socials } from './Socials';
 import { Tokens, TokensLoader } from './Tokens';
-import { ERC20Tokens } from './ERC20Tokens';
+import { ERC20Tokens } from './ERC20/ERC20Tokens';
 import { Filters } from './Filters';
 import { SectionHeader } from './SectionHeader';
 import { useSearchInput } from '../../hooks/useSearchInput';
@@ -20,7 +20,7 @@ import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { BlockchainFilter } from '../../Components/Filters/BlockchainFilter';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import { AllFilters } from '../../Components/Filters/AllFilters';
-import { getNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
+import { getNftWithCommonOwnersSnapshotQuery } from '../../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
 import { TokenDetails } from './ERC6551/TokenDetails';
 import {
   AccountOwner,
@@ -51,6 +51,8 @@ import {
 } from '../../utils/activeTokenInfoString';
 import { SocialsOverlap } from './Socials/SocialsOverlap';
 import { ScoreOverview } from '../OnchainGraph/CommonScore/ScoreOverview';
+import { SpamFilter } from '../../Components/Filters/SpamFilter';
+import { tokenBlockchains } from '../../constants';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -58,14 +60,28 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials?: boolean;
 }) {
   const [
-    { address, tokenType, blockchainType, sortOrder, activeSnapshotInfo }
+    {
+      address,
+      tokenType,
+      blockchainType,
+      sortOrder,
+      spamFilter,
+      activeSnapshotInfo
+    }
   ] = useSearchInput();
 
   // force the component to re-render when any of the search input change, so that the ERC20 can reset, refetch
   const erc20Key = useMemo(
     () =>
-      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${activeSnapshotInfo}`,
-    [address, blockchainType, tokenType, sortOrder, activeSnapshotInfo]
+      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${spamFilter}-${activeSnapshotInfo}`,
+    [
+      address,
+      blockchainType,
+      tokenType,
+      sortOrder,
+      spamFilter,
+      activeSnapshotInfo
+    ]
   );
 
   return (
@@ -95,7 +111,14 @@ function TokenContainer({
   poapDisabled?: boolean;
 }) {
   const [
-    { address, tokenType, blockchainType, sortOrder, activeSnapshotInfo }
+    {
+      address,
+      tokenType,
+      blockchainType,
+      sortOrder,
+      spamFilter,
+      activeSnapshotInfo
+    }
   ] = useSearchInput();
 
   if (!loading) {
@@ -112,6 +135,7 @@ function TokenContainer({
       tokenType={tokenType}
       blockchainType={blockchainType}
       sortOrder={sortOrder}
+      spamFilter={spamFilter}
       activeSnapshotInfo={activeSnapshotInfo}
       poapDisabled={poapDisabled}
     />
@@ -125,6 +149,7 @@ function TokenBalancePage() {
       tokenType,
       blockchainType,
       sortOrder,
+      spamFilter,
       activeTokenInfo,
       activeSnapshotInfo,
       activeSocialInfo
@@ -221,7 +246,8 @@ function TokenBalancePage() {
     const detailTokensVisible = hasERC6551 && accountAddress;
 
     const fetchAllBlockchains =
-      blockchainType.length === 3 || blockchainType.length === 0;
+      blockchainType.length === tokenBlockchains.length ||
+      blockchainType.length === 0;
 
     const owners = detailTokensVisible ? [accountAddress] : address;
     const blockchain = fetchAllBlockchains ? null : blockchainType[0];
@@ -335,6 +361,11 @@ function TokenBalancePage() {
           link: socialLink
         });
       }
+
+      options.push({
+        label: 'Spam Filters Guide',
+        link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/xmtp/spam-filters'
+      });
     }
 
     if (showTokenDetails && token) {
@@ -479,8 +510,15 @@ function TokenBalancePage() {
   // force the component to re-render when any of the search input change, so that the tokens are reset and refetch
   const tokensKey = useMemo(
     () =>
-      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${activeSnapshotInfo}`,
-    [address, blockchainType, tokenType, sortOrder, activeSnapshotInfo]
+      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${spamFilter}-${activeSnapshotInfo}`,
+    [
+      address,
+      blockchainType,
+      tokenType,
+      sortOrder,
+      spamFilter,
+      activeSnapshotInfo
+    ]
   );
 
   const { snapshotTooltip, blockchainTooltip, sortByTooltip } = useMemo(() => {
@@ -546,6 +584,7 @@ function TokenBalancePage() {
                 disabled={isSortByDisabled}
                 disabledTooltipText={sortByTooltip}
               />
+              <SpamFilter />
             </>
           )}
         </div>
@@ -632,7 +671,7 @@ function TokenBalancePage() {
           )}
         </div>
         {!isMobile && <SocialsAndERC20 />}
-        <TokenBalancesLoaderWithInfo />
+        {isCombination && <TokenBalancesLoaderWithInfo key={tokensKey} />}
       </div>
     );
   };

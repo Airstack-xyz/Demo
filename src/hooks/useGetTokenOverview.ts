@@ -18,7 +18,7 @@ export function useGetTokenOverview() {
   const [error, setError] = useState<null | string>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchTokenOverview = useCallback(async (tokenAddress: Variable) => {
+  const fetchTokenOverview = useCallback(async (data: Variable) => {
     if (abortControllerRef.current) {
       // abort previous request
       abortControllerRef.current.abort();
@@ -29,8 +29,8 @@ export function useGetTokenOverview() {
     setError(null);
 
     const variables: Partial<Variable> = {};
-    for (const key in tokenAddress) {
-      const value = tokenAddress[key as keyof Variable];
+    for (const key in data) {
+      const value = data[key as keyof Variable];
       if (value && value.length > 0) {
         variables[key as keyof Variable] = value;
       }

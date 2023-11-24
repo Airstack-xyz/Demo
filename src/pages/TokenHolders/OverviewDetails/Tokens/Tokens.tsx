@@ -25,7 +25,7 @@ import {
 import {
   getCommonNftOwnersSnapshotQueryWithFilters,
   getNftOwnersSnapshotQueryWithFilters
-} from '../../../../queries/commonNftOwnersSnapshotQueryWithFilters';
+} from '../../../../queries/Snapshots/commonNftOwnersSnapshotQueryWithFilters';
 import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../../../queries/commonPoapAndNftOwnersQueryWithFilters';
 import { getFilterablePoapsQuery } from '../../../../queries/overviewDetailsPoap';
 import { useOverviewTokens } from '../../../../store/tokenHoldersOverview';
@@ -43,7 +43,7 @@ import { Token } from './Token';
 import { filterTokens, getRequestFilters } from './filters';
 import { getPoapList, getTokenList } from './utils';
 
-const LIMIT = 200;
+const LIMIT = 100;
 const MIN_LIMIT = 20;
 
 const loaderData = Array(6).fill({});
@@ -364,7 +364,7 @@ export function TokensComponent() {
         <StatusLoader
           total={loaderData.total}
           matching={loaderData.matching}
-          tokenName={activeViewToken || ''}
+          totalSuffix={activeViewToken || ''}
         />
       </>
     );
@@ -415,7 +415,7 @@ export function TokensComponent() {
         <StatusLoader
           total={loaderData.total}
           matching={loaderData.matching}
-          tokenName={activeViewToken || ''}
+          totalSuffix={activeViewToken || ''}
         />
       )}
     </>

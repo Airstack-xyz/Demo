@@ -1,17 +1,12 @@
 import { useLazyQuery } from '@airstack/airstack-react';
 import { accountOwnerQuery } from '../queries/accountsQuery';
+import { TokenBlockchain } from '../types';
 
-export interface AccountsRequestData {
-  ethereum: {
+export type AccountsRequestData = {
+  [Key in TokenBlockchain]: {
     Account: Account[];
   };
-  polygon: {
-    Account: Account[];
-  };
-  base: {
-    Account: Account[];
-  };
-}
+};
 
 export interface Account {
   tokenId: string;

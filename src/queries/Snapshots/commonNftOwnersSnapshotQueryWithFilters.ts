@@ -1,17 +1,25 @@
-import { SnapshotFilterType } from '../Components/Filters/SnapshotFilter';
-import { snapshotBlockchains } from '../constants';
-import { TokenAddress } from '../pages/TokenHolders/types';
+import { SnapshotFilterType } from '../../Components/Filters/SnapshotFilter';
+import { snapshotBlockchains } from '../../constants';
+import { TokenAddress } from '../../pages/TokenHolders/types';
+
+const socialInput = '(input: {filter: {dappName: {_in: $socialFilters}}})';
+const primaryDomainInput =
+  '(input: {filter: {isPrimary: {_eq: $hasPrimaryDomain}}})';
 
 function getCommonNftOwnersSubQueryForBlockchain({
   address1,
   address2,
   blockchain,
-  snapshotFilter
+  snapshotFilter,
+  hasSocialFilters,
+  hasPrimaryDomain
 }: {
   address1: TokenAddress;
   address2: TokenAddress;
   blockchain: string;
   snapshotFilter: SnapshotFilterType;
+  hasSocialFilters: boolean;
+  hasPrimaryDomain: boolean;
 }) {
   const filters = [`tokenAddress: {_eq: "${address1.address}"}`];
   switch (snapshotFilter) {
@@ -28,100 +36,62 @@ function getCommonNftOwnersSubQueryForBlockchain({
   const filtersString = filters.join(',');
 
   return `
-    ${blockchain}: Snapshots(input: {filter: {${filtersString}}, blockchain: ${blockchain}, limit: $limit}) {
-      TokenBalance: Snapshot {
-        tokenId
-        tokenAddress
-        tokenType
-        formattedAmount
-        blockchain
-        token {
-          logo {
-            small
-          }
-          projectDetails {
-            imageUrl
-          }
-        }
-        tokenNfts: tokenNft {
-          contentValue {
-            video
-            image {
-              small
-              medium
-            }
-          }
-          erc6551Accounts {
-            address {
-              identity
-            }
-          }
-        }
-        owner {
-          tokenBalances(input: {filter :{tokenAddress: {_eq: "${
-            address2.address
-          }"}}, blockchain: ${address2.blockchain || 'ethereum'}}) {
-            tokenId
-            tokenAddress
-            tokenType
-            formattedAmount
-            blockchain
-            token {
-              logo {
-                small
-              }
-              projectDetails {
-                imageUrl
-              }
-            }
-            tokenNfts {
-              contentValue {
-                video
-                image {
+    ${blockchain}: Snapshots(input :{filter: {${filtersString}}, blockchain: ${blockchain}, limit: $limit}) {
+        TokenBalance: Snapshot {
+          owner {
+            tokenBalances(input: {filter: {tokenAddress: {_eq:"${
+              address2.address
+            }"}}, blockchain: ${address2.blockchain || 'ethereum'}}) {
+              tokenId
+              tokenAddress
+              tokenType
+              formattedAmount
+              token {
+                logo {
                   small
-                  medium
+                }
+                projectDetails {
+                  imageUrl
                 }
               }
-              erc6551Accounts {
-                address {
-                  identity
+              owner {
+                identity
+                addresses
+                socials${hasSocialFilters ? socialInput : ''} {
+                  blockchain
+                  dappName
+                  profileName
+                  profileHandle
                 }
-              }
-            }
-            owner {
-              identity
-              addresses
-              socials {
-                blockchain
-                dappName
-                profileName
-                profileHandle
-              }
-              primaryDomain {
-                name
-              }
-              domains {
-                name
-              }
-              xmtp {
-                isXMTPEnabled
+                primaryDomain {
+                  name
+                }
+                domains${hasPrimaryDomain ? primaryDomainInput : ''} {
+                  name
+                }
+                xmtp {
+                  isXMTPEnabled
+                }
               }
             }
           }
         }
       }
-    }
-  `;
+    `;
 }
 
-export function getCommonNftOwnersSnapshotQuery({
+export function getCommonNftOwnersSnapshotQueryWithFilters({
   address1,
   address2,
-  snapshotFilter
+  snapshotFilter,
+  hasSocialFilters = false,
+  hasPrimaryDomain = false
 }: {
   address1: TokenAddress;
   address2: TokenAddress;
   snapshotFilter: SnapshotFilterType;
+  hasSocialFilters?: boolean;
+  hasPrimaryDomain?: boolean;
 }) {
   const variables = ['$limit: Int'];
   switch (snapshotFilter) {
@@ -135,7 +105,14 @@ export function getCommonNftOwnersSnapshotQuery({
       variables.push('$timestamp: Int!');
       break;
   }
+  if (hasSocialFilters) {
+    variables.push('$socialFilters: [SocialDappName!]');
+  }
+  if (hasPrimaryDomain) {
+    variables.push('$hasPrimaryDomain: Boolean');
+  }
   const variablesString = variables.join(',');
+
   const subQueries: string[] = [];
   snapshotBlockchains.forEach(_blockchain => {
     if (!address1.blockchain || address1.blockchain === _blockchain) {
@@ -144,7 +121,9 @@ export function getCommonNftOwnersSnapshotQuery({
           blockchain: _blockchain,
           address1,
           address2,
-          snapshotFilter
+          snapshotFilter,
+          hasSocialFilters,
+          hasPrimaryDomain
         })
       );
     }
@@ -159,11 +138,15 @@ export function getCommonNftOwnersSnapshotQuery({
 function getNftOwnersSubQueryForBlockchain({
   address,
   blockchain,
-  snapshotFilter
+  snapshotFilter,
+  hasSocialFilters,
+  hasPrimaryDomain
 }: {
   address: TokenAddress;
   blockchain: string;
   snapshotFilter: SnapshotFilterType;
+  hasSocialFilters?: boolean;
+  hasPrimaryDomain?: boolean;
 }) {
   const filters = [`tokenAddress: {_eq: "${address.address}"}`];
   switch (snapshotFilter) {
@@ -180,39 +163,16 @@ function getNftOwnersSubQueryForBlockchain({
   const filtersString = filters.join(',');
 
   return `
-    ${blockchain}: Snapshots(input: {filter :{${filtersString}}, blockchain: ${blockchain}, limit: $limit}) {
-      TokenBalance: Snapshot {
+    ${blockchain}: Snapshots(input: {filter: {${filtersString}}, blockchain: ${blockchain}, limit: $limit}) {
+      TokenBalance : Snapshot {
         tokenId
         tokenAddress
         tokenType
         formattedAmount
-        blockchain
-        token {
-          logo {
-            small
-          }
-          projectDetails {
-            imageUrl
-          }
-        }
-        tokenNfts: tokenNft {
-          contentValue {
-            video
-            image {
-              small
-              medium
-            }
-          }
-          erc6551Accounts {
-            address {
-              identity
-            }
-          }
-        }
         owner {
           identity
           addresses
-          socials {
+          socials${hasSocialFilters ? socialInput : ''} {
             blockchain
             dappName
             profileName
@@ -221,7 +181,7 @@ function getNftOwnersSubQueryForBlockchain({
           primaryDomain {
             name
           }
-          domains {
+          domains${hasPrimaryDomain ? primaryDomainInput : ''} {
             name
           }
           xmtp {
@@ -233,12 +193,16 @@ function getNftOwnersSubQueryForBlockchain({
   `;
 }
 
-export function getNftOwnersSnapshotQuery({
+export function getNftOwnersSnapshotQueryWithFilters({
   address,
-  snapshotFilter
+  snapshotFilter,
+  hasSocialFilters = false,
+  hasPrimaryDomain = false
 }: {
   address: TokenAddress;
   snapshotFilter: SnapshotFilterType;
+  hasSocialFilters?: boolean;
+  hasPrimaryDomain?: boolean;
 }) {
   const variables = ['$limit: Int'];
   switch (snapshotFilter) {
@@ -252,6 +216,12 @@ export function getNftOwnersSnapshotQuery({
       variables.push('$timestamp: Int!');
       break;
   }
+  if (hasSocialFilters) {
+    variables.push('$socialFilters: [SocialDappName!]');
+  }
+  if (hasPrimaryDomain) {
+    variables.push('$hasPrimaryDomain: Boolean');
+  }
   const variablesString = variables.join(',');
 
   const subQueries: string[] = [];
@@ -261,7 +231,9 @@ export function getNftOwnersSnapshotQuery({
         getNftOwnersSubQueryForBlockchain({
           blockchain: _blockchain,
           address,
-          snapshotFilter
+          snapshotFilter,
+          hasSocialFilters,
+          hasPrimaryDomain
         })
       );
     }
