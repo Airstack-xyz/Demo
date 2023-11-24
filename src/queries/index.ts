@@ -273,16 +273,16 @@ export const PoapOwnerQuery = `query GetPoapHolders($eventId: [String!], $limit:
   }
 }`;
 
+const getTokenTotalSupplySubQuery = (blockchain: string) => {
+  return `${blockchain}: Token(input: {address: $tokenAddress, blockchain: ${blockchain}}) {
+    totalSupply
+  }`;
+};
+
 export const TokenTotalSupplyQuery = `query GetTotalSupply($tokenAddress: Address!) {
-  ethereum: Token(input: {address: $tokenAddress, blockchain: ethereum}) {
-    totalSupply
-  }
-  polygon: Token(input: {address: $tokenAddress, blockchain: polygon}) {
-    totalSupply
-  }
-  base: Token(input: {address: $tokenAddress, blockchain: base}) {
-    totalSupply
-  }
+  ${tokenBlockchains
+    .map(blockchain => getTokenTotalSupplySubQuery(blockchain))
+    .join('\n')}
 }`;
 
 export const DomainsQuery = `query GetDomains($addresses: [Identity!] $limit:Int) {

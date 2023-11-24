@@ -1,10 +1,9 @@
 import { tokenBlockchains } from '../../constants';
 import { QUERY_LIMIT } from '../../pages/OnchainGraph/constants';
-import { capitalizeFirstLetter } from '../../utils';
 
 const getTokenSentSubQuery = (blockchain: string) => {
   return `
-  ${capitalizeFirstLetter(blockchain)}: TokenTransfers(
+  ${blockchain}: TokenTransfers(
     input: {filter: {from: {_eq: $user}}, blockchain: ${blockchain}, limit: ${QUERY_LIMIT}}
   ) {
     TokenTransfer {
@@ -52,7 +51,7 @@ export const tokenSentQuery = `query TokenSent($user: Identity!) {
 }`;
 
 const getTokenReceivedSubQuery = (blockchain: string) => {
-  return `${capitalizeFirstLetter(blockchain)}: TokenTransfers(
+  return `${blockchain}: TokenTransfers(
     input: {filter: {to: {_eq: $user}}, blockchain: ${blockchain}, limit: ${QUERY_LIMIT}}
   ) {
     TokenTransfer {

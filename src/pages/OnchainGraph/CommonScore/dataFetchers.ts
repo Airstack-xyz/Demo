@@ -14,6 +14,18 @@ import { TokenQueryResponse } from '../types/tokenSentReceived';
 import { tokenSentQuery } from '../../../queries/onChainGraphForTwoAddresses/tokens';
 import { SocialQuery } from '../../../queries';
 
+const processTokens = (tokens: CommonTokenType[], visited: Set<string>) => {
+  if (tokens.length > 0) {
+    tokens = tokens.filter(token => {
+      if (nftsToIgnore.includes(token?.tokenAddress)) return false;
+      const isDuplicate = visited.has(token?.tokenAddress);
+      visited.add(token?.tokenAddress);
+      return Boolean(token?.token?.tokenBalances?.length) && !isDuplicate;
+    });
+  }
+  return tokens;
+};
+
 export async function fetchNfts(
   address: string[],
   onCountChange?: ({
@@ -42,30 +54,9 @@ export async function fetchNfts(
     let polygonTokenBalances: CommonTokenType[] = polygon?.TokenBalance || [];
     let baseTokenBalances: CommonTokenType[] = base?.TokenBalance || [];
 
-    if (ethTokenBalances.length > 0) {
-      ethTokenBalances = ethTokenBalances.filter(token => {
-        if (nftsToIgnore.includes(token?.tokenAddress)) return false;
-        const isDuplicate = visited.has(token?.tokenAddress);
-        visited.add(token?.tokenAddress);
-        return Boolean(token?.token?.tokenBalances?.length) && !isDuplicate;
-      });
-    }
-    if (polygonTokenBalances.length > 0) {
-      polygonTokenBalances = polygonTokenBalances.filter(token => {
-        if (nftsToIgnore.includes(token?.tokenAddress)) return false;
-        const isDuplicate = visited.has(token?.tokenAddress);
-        visited.add(token?.tokenAddress);
-        return Boolean(token?.token?.tokenBalances?.length) && !isDuplicate;
-      });
-    }
-    if (baseTokenBalances.length > 0) {
-      baseTokenBalances = baseTokenBalances.filter(token => {
-        if (nftsToIgnore.includes(token?.tokenAddress)) return false;
-        const isDuplicate = visited.has(token?.tokenAddress);
-        visited.add(token?.tokenAddress);
-        return Boolean(token?.token?.tokenBalances?.length) && !isDuplicate;
-      });
-    }
+    ethTokenBalances = processTokens(ethTokenBalances, visited);
+    polygonTokenBalances = processTokens(polygonTokenBalances, visited);
+    baseTokenBalances = processTokens(baseTokenBalances, visited);
 
     ethCount += ethTokenBalances.length;
     polygonCount += polygonTokenBalances.length;
@@ -126,13 +117,13 @@ export async function fetchTokensTransfer(address: string[]) {
     }
   );
 
-  if (data?.Ethereum?.TokenTransfer?.length) {
+  if (data?.ethereum?.TokenTransfer?.length) {
     tokenSent = true;
   }
-  if (data?.Polygon?.TokenTransfer?.length) {
+  if (data?.polygon?.TokenTransfer?.length) {
     tokenSent = true;
   }
-  if (data?.Base?.TokenTransfer?.length) {
+  if (data?.base?.TokenTransfer?.length) {
     tokenSent = true;
   }
 
@@ -144,13 +135,13 @@ export async function fetchTokensTransfer(address: string[]) {
     }
   );
 
-  if (data2?.Ethereum?.TokenTransfer?.length) {
+  if (data2?.ethereum?.TokenTransfer?.length) {
     tokenReceived = true;
   }
-  if (data2?.Polygon?.TokenTransfer?.length) {
+  if (data2?.polygon?.TokenTransfer?.length) {
     tokenReceived = true;
   }
-  if (data2?.Base?.TokenTransfer?.length) {
+  if (data2?.base?.TokenTransfer?.length) {
     tokenReceived = true;
   }
 

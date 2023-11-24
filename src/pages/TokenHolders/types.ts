@@ -1,3 +1,4 @@
+import { TokenBlockchain } from '../../types';
 import { TokenBalance, ContentValue } from '../TokenBalances/types';
 
 export type Token = TokenBalance &
@@ -12,11 +13,8 @@ export type Token = TokenBalance &
   };
 
 export type TokensData = {
-  ethereum: { TokenBalance: Token[] };
-  polygon: { TokenBalance: Token[] };
-  base: { TokenBalance: Token[] };
-  Poaps: PoapsData['Poaps'];
-};
+  [Key in TokenBlockchain]: { TokenBalance: Token[] };
+} & PoapsData;
 
 export type PoapsData = {
   Poaps: {
@@ -86,11 +84,10 @@ export interface Xmtp {
   isXMTPEnabled: boolean;
 }
 
-export interface TotalSupply {
-  ethereum: Supply;
-  polygon: Supply;
-  base: Supply;
-}
+export type TotalSupply = {
+  [Key in TokenBlockchain]: Supply;
+};
+
 export interface Supply {
   totalSupply: string;
 }

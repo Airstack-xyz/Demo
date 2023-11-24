@@ -2,13 +2,14 @@
 import { useCallback, useMemo } from 'react';
 import { tokenBlockchains } from '../../constants';
 import { useSearchInput } from '../../hooks/useSearchInput';
+import { TokenBlockchain } from '../../types';
 import { capitalizeFirstLetter } from '../../utils';
 import { Dropdown, Option } from '../Dropdown';
 import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 
-export type BlockchainFilterType = 'all' | (typeof tokenBlockchains)[number];
+export type BlockchainFilterType = 'all' | TokenBlockchain;
 
 export const defaultBlockchainFilter: BlockchainFilterType = 'all';
 
