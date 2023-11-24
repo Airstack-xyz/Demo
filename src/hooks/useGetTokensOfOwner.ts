@@ -1,4 +1,3 @@
-import { config } from '@airstack/airstack-react/config';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createNftWithCommonOwnersQuery } from '../queries/nftWithCommonOwnersQuery';
 import { UserInputs } from './useSearchInput';
@@ -10,9 +9,27 @@ import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 const LIMIT = 20;
 const LIMIT_COMBINATIONS = 100;
 
+function filterByIsSpam(tokens: TokenType[]) {
+  return tokens?.filter(item => item?.token?.isSpam !== true);
+}
+
+function processTokens(tokens: CommonTokenType[]) {
+  if (tokens.length > 0 && tokens[0]?.token?.tokenBalances) {
+    tokens = tokens
+      .filter((token: CommonTokenType) =>
+        Boolean(token?.token?.tokenBalances?.length)
+      )
+      .map((token: CommonTokenType) => {
+        token._common_tokens = token.token.tokenBalances || null;
+        return token;
+      });
+  }
+  return tokens;
+}
+
 type Inputs = Pick<
   UserInputs,
-  'address' | 'tokenType' | 'blockchainType' | 'sortOrder'
+  'address' | 'tokenType' | 'blockchainType' | 'sortOrder' | 'spamFilter'
 > & {
   includeERC20?: boolean;
 };
@@ -25,11 +42,12 @@ export function useGetTokensOfOwner(
     tokenType: tokenType = '',
     blockchainType,
     sortOrder,
+    spamFilter,
     includeERC20
   } = inputs;
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
-  const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
+  const [processedTokensCount, setProcessedTokensCount] = useState(0);
   const tokensRef = useRef<TokenType[]>([]);
   const fetchAllBlockchains =
     blockchainType.length === 2 || blockchainType.length === 0;
@@ -44,13 +62,15 @@ export function useGetTokensOfOwner(
   const isPoap = tokenType === 'POAP';
   const is6551 = tokenType === 'ERC6551';
 
+  const isSpamFilteringEnabled = spamFilter !== '0';
+
   const [
     fetchTokens,
     {
       data: tokensData,
       pagination: { getNextPage, hasNextPage }
     }
-  ] = useLazyQueryWithPagination(query, {}, config);
+  ] = useLazyQueryWithPagination(query, {});
 
   useEffect(() => {
     if (owners.length === 0) return;
@@ -71,7 +91,7 @@ export function useGetTokensOfOwner(
       });
     }
 
-    setProcessedTokensCount(LIMIT);
+    setProcessedTokensCount(0);
   }, [
     blockchainType,
     fetchTokens,
@@ -91,26 +111,9 @@ export function useGetTokensOfOwner(
     const processedTokenCount = ethTokens.length + maticTokens.length;
     setProcessedTokensCount(count => count + processedTokenCount);
 
-    if (ethTokens.length > 0 && ethTokens[0]?.token?.tokenBalances) {
-      ethTokens = ethTokens
-        .filter((token: CommonTokenType) =>
-          Boolean(token?.token?.tokenBalances?.length)
-        )
-        .map((token: CommonTokenType) => {
-          token._common_tokens = token.token.tokenBalances || null;
-          return token;
-        }, []);
-    }
-    if (maticTokens.length > 0 && maticTokens[0]?.token?.tokenBalances) {
-      maticTokens = maticTokens
-        .filter((token: CommonTokenType) =>
-          Boolean(token?.token?.tokenBalances?.length)
-        )
-        .map((token: CommonTokenType) => {
-          token._common_tokens = token.token.tokenBalances || null;
-          return token;
-        }, []);
-    }
+    ethTokens = processTokens(ethTokens);
+    maticTokens = processTokens(maticTokens);
+
     let tokens = [...ethTokens, ...maticTokens];
 
     if (is6551) {
@@ -125,6 +128,20 @@ export function useGetTokensOfOwner(
       });
     }
 
+    if (isSpamFilteringEnabled) {
+      tokens = filterByIsSpam(tokens);
+      if (tokens.length > 0 && tokens[0]?._common_tokens) {
+        tokens = tokens
+          .map((token: CommonTokenType) => {
+            token._common_tokens = filterByIsSpam(token._common_tokens || []);
+            return token;
+          })
+          .filter((token: CommonTokenType) =>
+            Boolean(token?._common_tokens?.length)
+          );
+      }
+    }
+
     tokensRef.current = [...tokensRef.current, ...tokens];
     onDataReceived(tokens);
 
@@ -135,7 +152,14 @@ export function useGetTokensOfOwner(
     }
     setLoading(false);
     tokensRef.current = [];
-  }, [getNextPage, hasNextPage, is6551, onDataReceived, tokensData]);
+  }, [
+    getNextPage,
+    hasNextPage,
+    is6551,
+    isSpamFilteringEnabled,
+    onDataReceived,
+    tokensData
+  ]);
 
   const getNext = useCallback(() => {
     if (!hasNextPage) return;

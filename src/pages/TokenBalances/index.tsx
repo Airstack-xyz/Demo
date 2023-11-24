@@ -45,18 +45,21 @@ import {
 import { AllFilters } from '../../Components/Filters/AllFilters';
 import { SocialsOverlap } from './Socials/SocialsOverlap';
 import { ScoreOverview } from '../OnchainGraph/CommonScore/ScoreOverview';
+import { SpamFilter } from '../../Components/Filters/SpamFilter';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
 }: {
   hideSocials?: boolean;
 }) {
-  const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
+  const [{ address, tokenType, blockchainType, sortOrder, spamFilter }] =
+    useSearchInput();
 
   // force the component to re-render when any of the search input change, so that the ERC20 can reset, refetch
   const erc20Key = useMemo(
-    () => `${address.join(',')}-${blockchainType}-${tokenType}-${sortOrder}`,
-    [address, blockchainType, tokenType, sortOrder]
+    () =>
+      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${spamFilter}`,
+    [address, blockchainType, tokenType, sortOrder, spamFilter]
   );
 
   return (
@@ -85,7 +88,8 @@ function TokenContainer({
   loading: boolean;
   poapDisabled?: boolean;
 }) {
-  const [{ address, tokenType, blockchainType, sortOrder }] = useSearchInput();
+  const [{ address, tokenType, blockchainType, sortOrder, spamFilter }] =
+    useSearchInput();
 
   if (!loading) {
     <div>
@@ -101,6 +105,7 @@ function TokenContainer({
       tokenType={tokenType}
       blockchainType={blockchainType}
       sortOrder={sortOrder}
+      spamFilter={spamFilter}
       poapDisabled={poapDisabled}
     />
   );
@@ -113,6 +118,7 @@ function TokenBalancePage() {
       tokenType,
       blockchainType,
       sortOrder,
+      spamFilter,
       activeTokenInfo,
       activeSocialInfo
     },
@@ -294,6 +300,11 @@ function TokenBalancePage() {
           link: socialLink
         });
       }
+
+      options.push({
+        label: 'Spam Filters Guide',
+        link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/xmtp/spam-filters'
+      });
     }
 
     if (showTokenDetails && token) {
@@ -436,8 +447,9 @@ function TokenBalancePage() {
 
   // force the component to re-render when any of the search input change, so that the tokens are reset and refetch
   const tokensKey = useMemo(
-    () => `${address.join(',')}-${blockchainType}-${tokenType}-${sortOrder}`,
-    [address, blockchainType, tokenType, sortOrder]
+    () =>
+      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${spamFilter}`,
+    [address, blockchainType, tokenType, sortOrder, spamFilter]
   );
 
   const isQueryExists = query && query.length > 0;
@@ -460,6 +472,7 @@ function TokenBalancePage() {
               {/* <SnapshotFilter /> */}
               <BlockchainFilter />
               <SortBy />
+              <SpamFilter />
             </>
           )}
         </div>
@@ -538,7 +551,7 @@ function TokenBalancePage() {
           )}
         </div>
         {!isMobile && <SocialsAndERC20 />}
-        <TokenBalancesLoaderWithInfo />
+        {isCombination && <TokenBalancesLoaderWithInfo key={tokensKey} />}
       </div>
     );
   };
