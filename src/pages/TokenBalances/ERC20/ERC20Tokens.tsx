@@ -9,21 +9,22 @@ import {
   useState
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { defaultSortOrder } from '../../Components/Filters/SortBy';
-import { useSearchInput } from '../../hooks/useSearchInput';
-import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
-import { getNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
+import { defaultSortOrder } from '../../../Components/Filters/SortBy';
+import { tokenBlockchains } from '../../../constants';
+import { useSearchInput } from '../../../hooks/useSearchInput';
+import { getNftWithCommonOwnersSnapshotQuery } from '../../../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
+import { getNftWithCommonOwnersQuery } from '../../../queries/nftWithCommonOwnersQuery';
 import {
   getActiveSnapshotInfo,
   getSnapshotQueryFilters
-} from '../../utils/activeSnapshotInfoString';
-import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
-import { emit } from '../../utils/eventEmitter/eventEmitter';
-import { formatNumber } from '../../utils/formatNumber';
-import { SectionHeader } from './SectionHeader';
-import { CommonTokenType, TokenType } from './types';
+} from '../../../utils/activeSnapshotInfoString';
+import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
+import { emit } from '../../../utils/eventEmitter/eventEmitter';
+import { formatNumber } from '../../../utils/formatNumber';
+import { SectionHeader } from '../SectionHeader';
+import { CommonTokenType, TokenType } from '../types';
 
-import './erc20.styles.css';
+import './styles.css';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
@@ -142,7 +143,8 @@ export function ERC20Tokens() {
 
   const query = useMemo(() => {
     const fetchAllBlockchains =
-      blockchainType.length === 3 || blockchainType.length === 0;
+      blockchainType.length === tokenBlockchains.length ||
+      blockchainType.length === 0;
 
     const blockchain = fetchAllBlockchains ? null : blockchainType[0];
 

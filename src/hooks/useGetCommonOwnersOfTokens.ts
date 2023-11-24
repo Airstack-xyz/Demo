@@ -15,7 +15,7 @@ import { useSearchInput } from './useSearchInput';
 import {
   getCommonNftOwnersSnapshotQuery,
   getNftOwnersSnapshotQuery
-} from '../queries/commonNftOwnersSnapshotQuery';
+} from '../queries/Snapshots/commonNftOwnersSnapshotQuery';
 import {
   getActiveSnapshotInfo,
   getSnapshotQueryFilters

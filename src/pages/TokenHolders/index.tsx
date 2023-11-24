@@ -47,11 +47,11 @@ import { useTokenDetails } from '../../store/tokenDetails';
 import {
   getCommonNftOwnersSnapshotQuery,
   getNftOwnersSnapshotQuery
-} from '../../queries/commonNftOwnersSnapshotQuery';
+} from '../../queries/Snapshots/commonNftOwnersSnapshotQuery';
 import {
   getCommonNftOwnersSnapshotQueryWithFilters,
   getNftOwnersSnapshotQueryWithFilters
-} from '../../queries/commonNftOwnersSnapshotQueryWithFilters';
+} from '../../queries/Snapshots/commonNftOwnersSnapshotQueryWithFilters';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import {
   getActiveSnapshotInfo,

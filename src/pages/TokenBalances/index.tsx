@@ -3,7 +3,7 @@ import { Search } from '../../Components/Search';
 import { Layout } from '../../Components/Layout';
 import { Socials } from './Socials';
 import { Tokens, TokensLoader } from './Tokens';
-import { ERC20Tokens } from './ERC20Tokens';
+import { ERC20Tokens } from './ERC20/ERC20Tokens';
 import { Filters } from './Filters';
 import { SectionHeader } from './SectionHeader';
 import { useSearchInput } from '../../hooks/useSearchInput';
@@ -20,7 +20,7 @@ import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { BlockchainFilter } from '../../Components/Filters/BlockchainFilter';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import { AllFilters } from '../../Components/Filters/AllFilters';
-import { getNftWithCommonOwnersSnapshotQuery } from '../../queries/nftWithCommonOwnersSnapshotQuery';
+import { getNftWithCommonOwnersSnapshotQuery } from '../../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
 import { TokenDetails } from './ERC6551/TokenDetails';
 import {
   AccountOwner,
@@ -52,6 +52,7 @@ import {
 import { SocialsOverlap } from './Socials/SocialsOverlap';
 import { ScoreOverview } from '../OnchainGraph/CommonScore/ScoreOverview';
 import { SpamFilter } from '../../Components/Filters/SpamFilter';
+import { tokenBlockchains } from '../../constants';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -245,7 +246,8 @@ function TokenBalancePage() {
     const detailTokensVisible = hasERC6551 && accountAddress;
 
     const fetchAllBlockchains =
-      blockchainType.length === 3 || blockchainType.length === 0;
+      blockchainType.length === tokenBlockchains.length ||
+      blockchainType.length === 0;
 
     const owners = detailTokensVisible ? [accountAddress] : address;
     const blockchain = fetchAllBlockchains ? null : blockchainType[0];

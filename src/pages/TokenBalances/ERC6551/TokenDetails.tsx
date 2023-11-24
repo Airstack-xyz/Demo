@@ -13,7 +13,7 @@ import {
   ERC20Response,
   Nft,
   TokenTransfer
-} from '../erc20.types';
+} from '../ERC20/types';
 import { NestedTokens } from './NestedTokens';
 import { useCallback, useEffect, useRef } from 'react';
 import {

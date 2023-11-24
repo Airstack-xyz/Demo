@@ -1,5 +1,5 @@
-import { SnapshotFilterType } from '../Components/Filters/SnapshotFilter';
-import { snapshotBlockchains } from '../constants';
+import { SnapshotFilterType } from '../../Components/Filters/SnapshotFilter';
+import { snapshotBlockchains } from '../../constants';
 
 const fields = `
   amount

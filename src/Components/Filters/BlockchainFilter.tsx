@@ -5,8 +5,10 @@ import { Dropdown, Option } from '../Dropdown';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
+import { tokenBlockchains } from '../../constants';
+import { capitalizeFirstLetter } from '../../utils';
 
-export type BlockchainFilterType = 'all' | 'ethereum' | 'polygon' | 'base';
+export type BlockchainFilterType = 'all' | (typeof tokenBlockchains)[number];
 
 export const defaultBlockchainFilter: BlockchainFilterType = 'all';
 
@@ -20,18 +22,10 @@ export const blockchainOptions: BlockchainOption[] = [
     label: 'All chains',
     value: 'all'
   },
-  {
-    label: 'Ethereum',
-    value: 'ethereum'
-  },
-  {
-    label: 'Polygon',
-    value: 'polygon'
-  },
-  {
-    label: 'Base',
-    value: 'base'
-  }
+  ...tokenBlockchains.map(item => ({
+    label: capitalizeFirstLetter(item),
+    value: item
+  }))
 ];
 
 export function BlockchainFilter({

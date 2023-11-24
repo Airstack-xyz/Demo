@@ -25,7 +25,7 @@ import {
 import {
   getCommonNftOwnersSnapshotQueryWithFilters,
   getNftOwnersSnapshotQueryWithFilters
-} from '../../../../queries/commonNftOwnersSnapshotQueryWithFilters';
+} from '../../../../queries/Snapshots/commonNftOwnersSnapshotQueryWithFilters';
 import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../../../queries/commonPoapAndNftOwnersQueryWithFilters';
 import { getFilterablePoapsQuery } from '../../../../queries/overviewDetailsPoap';
 import { useOverviewTokens } from '../../../../store/tokenHoldersOverview';

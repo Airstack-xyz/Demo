@@ -1,10 +1,11 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { defaultSortOrder } from '../Components/Filters/SortBy';
+import { tokenBlockchains } from '../constants';
 import { tokenTypes } from '../pages/TokenBalances/constants';
 import { CommonTokenType, TokenType } from '../pages/TokenBalances/types';
+import { getNftWithCommonOwnersSnapshotQuery } from '../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
 import { getNftWithCommonOwnersQuery } from '../queries/nftWithCommonOwnersQuery';
-import { getNftWithCommonOwnersSnapshotQuery } from '../queries/nftWithCommonOwnersSnapshotQuery';
 import {
   getActiveSnapshotInfo,
   getSnapshotQueryFilters
@@ -68,7 +69,8 @@ export function useGetTokensOfOwner(
 
   const query = useMemo(() => {
     const fetchAllBlockchains =
-      blockchainType.length === 3 || blockchainType.length === 0;
+      blockchainType.length === tokenBlockchains.length ||
+      blockchainType.length === 0;
 
     const blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
