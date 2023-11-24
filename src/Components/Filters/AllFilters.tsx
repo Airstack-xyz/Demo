@@ -2,8 +2,18 @@ import classNames from 'classnames';
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
+import {
+  getActiveSnapshotInfo,
+  getActiveSnapshotInfoString
+} from '../../utils/activeSnapshotInfoString';
 import { DatePicker, DateValue } from '../DatePicker';
 import { Icon } from '../Icon';
+import { ToggleSwitch } from '../ToggleSwitch';
+import {
+  BlockchainFilterType,
+  blockchainOptions,
+  defaultBlockchainFilter
+} from './BlockchainFilter';
 import { FilterOption } from './FilterOption';
 import { filterPlaceholderClass } from './FilterPlaceholder';
 import {
@@ -13,24 +23,18 @@ import {
   getSnackbarMessage
 } from './SnapshotFilter';
 import { SortOrderType, defaultSortOrder, sortOptions } from './SortBy';
-import {
-  BlockchainFilterType,
-  blockchainOptions,
-  defaultBlockchainFilter
-} from './BlockchainFilter';
-import {
-  getActiveSnapshotInfoString,
-  getActiveSnapshotInfo
-} from '../../utils/activeSnapshotInfoString';
+import { SpamFilterType, defaultSpamFilter } from './SpamFilter';
 
 const getAppliedFilterCount = ({
   appliedSnapshotFilter,
   appliedBlockchainFilter,
-  appliedSortOrder
+  appliedSortOrder,
+  appliedSpamFilter
 }: {
   appliedSnapshotFilter: SnapshotFilterType;
   appliedBlockchainFilter: BlockchainFilterType;
   appliedSortOrder: SortOrderType;
+  appliedSpamFilter: SpamFilterType;
 }) => {
   let count = 0;
   if (appliedSnapshotFilter != defaultSnapshotFilter) {
@@ -40,6 +44,9 @@ const getAppliedFilterCount = ({
     count += 1;
   }
   if (appliedSortOrder != defaultSortOrder) {
+    count += 1;
+  }
+  if (appliedSpamFilter != defaultSpamFilter) {
     count += 1;
   }
   return count;
@@ -56,17 +63,20 @@ const currentDate = new Date();
 export function AllFilters({
   snapshotDisabled,
   blockchainDisabled,
-  sortByDisabled
+  sortByDisabled,
+  spamFilterDisabled
 }: {
   snapshotDisabled?: boolean;
   blockchainDisabled?: boolean;
   sortByDisabled?: boolean;
+  spamFilterDisabled?: boolean;
 }) {
   const [searchInputs, setData] = useSearchInput();
 
   const activeSnapshotInfo = searchInputs.activeSnapshotInfo;
   const blockchainType = searchInputs.blockchainType as BlockchainFilterType[];
   const sortOrder = searchInputs.sortOrder as SortOrderType;
+  const spamFilter = searchInputs.spamFilter as SpamFilterType;
 
   const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
@@ -89,6 +99,10 @@ export function AllFilters({
     return sortOrder === 'ASC' ? 'ASC' : defaultSortOrder;
   }, [sortOrder]);
 
+  const appliedSpamFilter = useMemo(() => {
+    return spamFilter === '0' ? '0' : defaultSpamFilter;
+  }, [spamFilter]);
+
   const [currentSnapshotFilter, setCurrentSnapshotFilter] = useState(
     snapshotInfo.appliedFilter
   );
@@ -96,6 +110,7 @@ export function AllFilters({
     appliedBlockchainFilter
   );
   const [currentSortOrder, setCurrentSortOrder] = useState(appliedSortOrder);
+  const [currentSpamFilter, setCurrentSpamFilter] = useState(appliedSpamFilter);
 
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
@@ -117,13 +132,15 @@ export function AllFilters({
     setCurrentSnapshotFilter(snapshotInfo.appliedFilter);
     setCurrentBlockchainFilter(appliedBlockchainFilter);
     setCurrentSortOrder(appliedSortOrder);
+    setCurrentSpamFilter(appliedSpamFilter);
   }, [
     snapshotInfo.blockNumber,
     snapshotInfo.customDate,
     snapshotInfo.timestamp,
     snapshotInfo.appliedFilter,
     appliedBlockchainFilter,
-    appliedSortOrder
+    appliedSortOrder,
+    appliedSpamFilter
   ]);
 
   const dropdownContainerRef =
@@ -137,6 +154,7 @@ export function AllFilters({
     setCurrentSnapshotFilter(snapshotInfo.appliedFilter);
     setCurrentBlockchainFilter(appliedBlockchainFilter);
     setCurrentSortOrder(appliedSortOrder);
+    setCurrentSpamFilter(appliedSpamFilter);
     setBlockNumber(snapshotInfo.blockNumber);
     setCustomDate(
       snapshotInfo.customDate ? new Date(snapshotInfo.customDate) : new Date()
@@ -145,6 +163,7 @@ export function AllFilters({
   }, [
     appliedBlockchainFilter,
     appliedSortOrder,
+    appliedSpamFilter,
     snapshotInfo.appliedFilter,
     snapshotInfo.blockNumber,
     snapshotInfo.customDate,
@@ -161,9 +180,15 @@ export function AllFilters({
       getAppliedFilterCount({
         appliedSnapshotFilter: snapshotInfo.appliedFilter,
         appliedBlockchainFilter: appliedBlockchainFilter,
-        appliedSortOrder: appliedSortOrder
+        appliedSortOrder: appliedSortOrder,
+        appliedSpamFilter: appliedSpamFilter
       }),
-    [snapshotInfo.appliedFilter, appliedBlockchainFilter, appliedSortOrder]
+    [
+      snapshotInfo.appliedFilter,
+      appliedBlockchainFilter,
+      appliedSortOrder,
+      appliedSpamFilter
+    ]
   );
 
   const handleDropdownToggle = useCallback(() => {
@@ -219,6 +244,10 @@ export function AllFilters({
     []
   );
 
+  const handleSpamFilterClick = useCallback(() => {
+    setCurrentSpamFilter(prevValue => (prevValue === '1' ? '0' : '1'));
+  }, []);
+
   // Not enclosing in useCallback as its dependencies will change every time
   const handleApplyClick = () => {
     const snapshotData: Record<string, string> = {};
@@ -261,6 +290,9 @@ export function AllFilters({
     } else {
       filterValues.sortOrder = currentSortOrder || defaultSortOrder;
     }
+
+    // For spam filter
+    filterValues.spamFilter = currentSpamFilter || defaultSpamFilter;
 
     setIsDropdownVisible(false);
     setData(filterValues, { updateQueryParams: true });
@@ -402,6 +434,23 @@ export function AllFilters({
     );
   };
 
+  const renderSpamSection = () => {
+    const isDisabled = spamFilterDisabled;
+    const isChecked = currentSpamFilter !== '0';
+    return (
+      <>
+        <ToggleSwitch
+          className="py-2 px-3.5"
+          label="Filter Spam"
+          labelClassName="text-xs font-bold text-white"
+          checked={isChecked}
+          disabled={isDisabled}
+          onClick={handleSpamFilterClick}
+        />
+      </>
+    );
+  };
+
   const formattedDate = customDate?.toLocaleString(undefined, {
     day: 'numeric',
     month: 'short',
@@ -428,6 +477,7 @@ export function AllFilters({
             {renderSnapshotSection()}
             {renderBlockchainSection()}
             {renderSortSection()}
+            {renderSpamSection()}
             <div className="p-2 mt-1 flex justify-center gap-5">
               <button
                 type="button"

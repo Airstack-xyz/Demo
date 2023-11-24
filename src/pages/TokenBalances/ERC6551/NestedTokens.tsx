@@ -160,6 +160,7 @@ export function NestedTokens({
             <Tokens
               {...tokensProps}
               blockchainType={[blockchain]}
+              spamFilter="0"
               poapDisabled
               includeERC20
             />

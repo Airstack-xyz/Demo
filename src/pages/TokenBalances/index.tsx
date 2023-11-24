@@ -51,6 +51,7 @@ import {
 } from '../../utils/activeTokenInfoString';
 import { SocialsOverlap } from './Socials/SocialsOverlap';
 import { ScoreOverview } from '../OnchainGraph/CommonScore/ScoreOverview';
+import { SpamFilter } from '../../Components/Filters/SpamFilter';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -58,14 +59,28 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials?: boolean;
 }) {
   const [
-    { address, tokenType, blockchainType, sortOrder, activeSnapshotInfo }
+    {
+      address,
+      tokenType,
+      blockchainType,
+      sortOrder,
+      spamFilter,
+      activeSnapshotInfo
+    }
   ] = useSearchInput();
 
   // force the component to re-render when any of the search input change, so that the ERC20 can reset, refetch
   const erc20Key = useMemo(
     () =>
-      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${activeSnapshotInfo}`,
-    [address, blockchainType, tokenType, sortOrder, activeSnapshotInfo]
+      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${spamFilter}-${activeSnapshotInfo}`,
+    [
+      address,
+      blockchainType,
+      tokenType,
+      sortOrder,
+      spamFilter,
+      activeSnapshotInfo
+    ]
   );
 
   return (
@@ -95,7 +110,14 @@ function TokenContainer({
   poapDisabled?: boolean;
 }) {
   const [
-    { address, tokenType, blockchainType, sortOrder, activeSnapshotInfo }
+    {
+      address,
+      tokenType,
+      blockchainType,
+      sortOrder,
+      spamFilter,
+      activeSnapshotInfo
+    }
   ] = useSearchInput();
 
   if (!loading) {
@@ -112,6 +134,7 @@ function TokenContainer({
       tokenType={tokenType}
       blockchainType={blockchainType}
       sortOrder={sortOrder}
+      spamFilter={spamFilter}
       activeSnapshotInfo={activeSnapshotInfo}
       poapDisabled={poapDisabled}
     />
@@ -125,6 +148,7 @@ function TokenBalancePage() {
       tokenType,
       blockchainType,
       sortOrder,
+      spamFilter,
       activeTokenInfo,
       activeSnapshotInfo,
       activeSocialInfo
@@ -335,6 +359,11 @@ function TokenBalancePage() {
           link: socialLink
         });
       }
+
+      options.push({
+        label: 'Spam Filters Guide',
+        link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/xmtp/spam-filters'
+      });
     }
 
     if (showTokenDetails && token) {
@@ -479,8 +508,15 @@ function TokenBalancePage() {
   // force the component to re-render when any of the search input change, so that the tokens are reset and refetch
   const tokensKey = useMemo(
     () =>
-      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${activeSnapshotInfo}`,
-    [address, blockchainType, tokenType, sortOrder, activeSnapshotInfo]
+      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${spamFilter}-${activeSnapshotInfo}`,
+    [
+      address,
+      blockchainType,
+      tokenType,
+      sortOrder,
+      spamFilter,
+      activeSnapshotInfo
+    ]
   );
 
   const { snapshotTooltip, blockchainTooltip, sortByTooltip } = useMemo(() => {
@@ -546,6 +582,7 @@ function TokenBalancePage() {
                 disabled={isSortByDisabled}
                 disabledTooltipText={sortByTooltip}
               />
+              <SpamFilter />
             </>
           )}
         </div>
@@ -632,7 +669,7 @@ function TokenBalancePage() {
           )}
         </div>
         {!isMobile && <SocialsAndERC20 />}
-        <TokenBalancesLoaderWithInfo />
+        {isCombination && <TokenBalancesLoaderWithInfo key={tokensKey} />}
       </div>
     );
   };

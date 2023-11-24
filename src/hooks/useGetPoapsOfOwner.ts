@@ -21,7 +21,7 @@ export function useGetPoapsOfOwner(
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const tokensRef = useRef<PoapType[]>([]);
-  const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
+  const [processedPoapsCount, setProcessedPoapsCount] = useState(0);
   const isPoap = tokenType === 'POAP';
   const searchingCommonPoaps = owners.length > 1;
 
@@ -43,7 +43,7 @@ export function useGetPoapsOfOwner(
       data,
       pagination: { getNextPage, hasNextPage }
     }
-  ] = useLazyQueryWithPagination(query);
+  ] = useLazyQueryWithPagination(query, {});
 
   const tokensData = !canFetchPoap ? null : data;
 
@@ -56,7 +56,7 @@ export function useGetPoapsOfOwner(
       limit: owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT,
       sortBy: sortOrder ? sortOrder : defaultSortOrder
     });
-    setProcessedTokensCount(LIMIT);
+    setProcessedPoapsCount(0);
   }, [
     canFetchPoap,
     fetchTokens,
@@ -70,7 +70,7 @@ export function useGetPoapsOfOwner(
   useEffect(() => {
     if (!tokensData) return;
     let poaps = tokensData?.Poaps?.Poap || [];
-    const processedTokensCount = poaps.length;
+    const processedPoapsCount = poaps.length;
     if (poaps.length > 0 && searchingCommonPoaps) {
       poaps = poaps.reduce((items: CommonPoapType[], poap: CommonPoapType) => {
         if (poap?.poapEvent?.poaps?.length > 0) {
@@ -81,7 +81,7 @@ export function useGetPoapsOfOwner(
       }, []);
     }
     tokensRef.current = [...tokensRef.current, ...poaps];
-    setProcessedTokensCount(count => count + processedTokensCount);
+    setProcessedPoapsCount(count => count + processedPoapsCount);
     onDataReceived(poaps);
     if (hasNextPage && tokensRef.current.length < LIMIT) {
       setLoading(true);
@@ -110,8 +110,8 @@ export function useGetPoapsOfOwner(
     return {
       loading,
       hasNextPage,
-      processedTokensCount,
+      processedPoapsCount,
       getNext
     };
-  }, [loading, hasNextPage, processedTokensCount, getNext]);
+  }, [loading, hasNextPage, processedPoapsCount, getNext]);
 }
