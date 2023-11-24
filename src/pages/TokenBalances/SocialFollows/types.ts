@@ -1,12 +1,6 @@
 import { Chain } from '@airstack/airstack-react/constants';
 import { MentionData } from '../../../Components/Input/types';
 
-export type SocialsResponse = {
-  Socials: {
-    Social: Social[];
-  };
-};
-
 export type Social = {
   id: string;
   isDefault: boolean;
