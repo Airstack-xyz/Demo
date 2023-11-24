@@ -42,10 +42,10 @@ function TokensComponent(props: TokenProps) {
     includeERC20,
     poapDisabled
   } = props;
-  const [tokens, setTokens] = useState<(TokenType | PoapType)[]>([]);
+  const [tokens, setTokens] = useState<(TokenType | PoapType)[] | null>(null);
 
   const handleTokens = useCallback((tokens: (TokenType | PoapType)[]) => {
-    setTokens(existingTokens => [...existingTokens, ...tokens]);
+    setTokens(prevTokens => [...(prevTokens || []), ...tokens]);
   }, []);
 
   const inputs = {
@@ -66,9 +66,9 @@ function TokensComponent(props: TokenProps) {
 
   const {
     loading: loadingTokens,
-    hasNextPage: hasNextPageTokens,
+    getNext: getNextTokens,
     processedTokensCount,
-    getNext: getNextTokens
+    hasNextPage: hasNextPageTokens
   } = useGetTokensOfOwner(inputs, handleTokens);
 
   useEffect(() => {
@@ -106,16 +106,20 @@ function TokensComponent(props: TokenProps) {
 
   const loading = loadingTokens || loadingPoaps;
 
+  const tokensLength = tokens?.length ?? 0;
+
   useEffect(() => {
     const totalProcessedTokens = processedTokensCount + processedPoapsCount;
     emit('token-balances:tokens', {
-      matched: tokens.length,
+      matched: tokensLength,
       total: totalProcessedTokens,
       loading
     });
-  }, [processedPoapsCount, processedTokensCount, tokens.length, loading]);
+  }, [processedPoapsCount, processedTokensCount, tokensLength, loading]);
 
-  if (tokens.length === 0 && !loading) {
+  // Using tokens?.length here because first time tokens will null initially
+  // Don't want to show 'No data found!' when data is restored from cache
+  if (tokens?.length === 0 && !loading) {
     return (
       <div className="flex flex-1 justify-center mt-10">No data found!</div>
     );
@@ -124,7 +128,7 @@ function TokensComponent(props: TokenProps) {
   const hasCombination = owners.length > 1;
   const hasNextPage = hasNextPageTokens || hasNextPagePoaps;
 
-  if (tokens.length === 0 && loading) {
+  if (tokensLength === 0 && loading) {
     return (
       <div>
         <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">
@@ -138,7 +142,7 @@ function TokensComponent(props: TokenProps) {
     <>
       <InfiniteScroll
         next={handleNext}
-        dataLength={tokens.length}
+        dataLength={tokensLength}
         hasMore={hasNextPage}
         loader={null}
         className={classNames(
@@ -149,7 +153,7 @@ function TokensComponent(props: TokenProps) {
           }
         )}
       >
-        {tokens.map((token, index) => {
+        {tokens?.map((token, index) => {
           const id =
             (token as PoapType)?.tokenId ||
             (token as TokenType)?.tokenNfts?.tokenId;
