@@ -1,3 +1,5 @@
+import { tokenBlockchains } from '../constants';
+
 const getAccountsSubQuery = (blockchain: string) => {
   return `${blockchain}: Accounts(
     input: {blockchain: ${blockchain}, filter: {address: {_eq: $accountAddress}}}
@@ -21,7 +23,7 @@ const getAccountsSubQuery = (blockchain: string) => {
 };
 
 export const accountOwnerQuery = `query AccountQuery($accountAddress: Identity) {
-  ${getAccountsSubQuery('ethereum')}
-  ${getAccountsSubQuery('polygon')}
-  ${getAccountsSubQuery('base')}
+  ${tokenBlockchains
+    .map(blockchain => getAccountsSubQuery(blockchain))
+    .join('\n')}
 }`;

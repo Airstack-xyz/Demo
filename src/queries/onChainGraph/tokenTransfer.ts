@@ -1,3 +1,4 @@
+import { tokenBlockchains } from '../../constants';
 import { QUERY_LIMIT } from '../../pages/OnchainGraph/constants';
 import { capitalizeFirstLetter } from '../../utils';
 
@@ -45,10 +46,10 @@ const getTokenSentSubQuery = (blockchain: string) => {
 };
 
 export const tokenSentQuery = `query TokenSent($user: Identity!) {
-    ${getTokenSentSubQuery('ethereum')}
-    ${getTokenSentSubQuery('polygon')}
-    ${getTokenSentSubQuery('base')}
-  }`;
+  ${tokenBlockchains
+    .map(blockchain => getTokenSentSubQuery(blockchain))
+    .join('\n')}
+}`;
 
 const getTokenReceivedSubQuery = (blockchain: string) => {
   return `${capitalizeFirstLetter(blockchain)}: TokenTransfers(
@@ -92,7 +93,7 @@ const getTokenReceivedSubQuery = (blockchain: string) => {
 };
 
 export const tokenReceivedQuery = `query TokenReceived($user: Identity!) {
-    ${getTokenReceivedSubQuery('ethereum')}
-    ${getTokenReceivedSubQuery('polygon')}
-    ${getTokenReceivedSubQuery('base')}
-  }`;
+  ${tokenBlockchains
+    .map(blockchain => getTokenReceivedSubQuery(blockchain))
+    .join('\n')}
+}`;

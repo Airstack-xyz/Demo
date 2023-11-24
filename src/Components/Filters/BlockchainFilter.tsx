@@ -1,12 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
 import { useCallback, useMemo } from 'react';
+import { tokenBlockchains } from '../../constants';
 import { useSearchInput } from '../../hooks/useSearchInput';
+import { capitalizeFirstLetter } from '../../utils';
 import { Dropdown, Option } from '../Dropdown';
+import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
-import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
-import { tokenBlockchains } from '../../constants';
-import { capitalizeFirstLetter } from '../../utils';
 
 export type BlockchainFilterType = 'all' | (typeof tokenBlockchains)[number];
 
@@ -67,13 +67,9 @@ export function BlockchainFilter({
 
   const selected = useMemo(() => {
     const filterValue = blockchainType[0];
-    switch (filterValue) {
-      case 'ethereum':
-        return [blockchainOptions[1]];
-      case 'polygon':
-        return [blockchainOptions[2]];
-      case 'base':
-        return [blockchainOptions[3]];
+    const option = blockchainOptions.find(item => item.value === filterValue);
+    if (option) {
+      return [option];
     }
     return [blockchainOptions[0]];
   }, [blockchainType]);

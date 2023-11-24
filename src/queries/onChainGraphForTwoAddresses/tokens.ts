@@ -1,3 +1,4 @@
+import { tokenBlockchains } from '../../constants';
 import { capitalizeFirstLetter } from '../../utils';
 
 const getTokenSentSubQuery = (blockchain: string) => {
@@ -13,7 +14,7 @@ const getTokenSentSubQuery = (blockchain: string) => {
 };
 
 export const tokenSentQuery = `query TokenSent($from: Identity!, $to: Identity!) {
-    ${getTokenSentSubQuery('ethereum')}
-    ${getTokenSentSubQuery('polygon')}
-    ${getTokenSentSubQuery('base')}
-  }`;
+  ${tokenBlockchains
+    .map(blockchain => getTokenSentSubQuery(blockchain))
+    .join('\n')}
+}`;

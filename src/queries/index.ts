@@ -1,3 +1,5 @@
+import { tokenBlockchains } from '../constants';
+
 export const SocialQuery = `query GetSocial($identity: Identity!) {
   Wallet(input: {identity: $identity, blockchain: ethereum}) {
     addresses
@@ -207,9 +209,9 @@ const getTokenOwnerSubQuery = (blockchain: string) => {
 };
 
 export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $limit: Int) {
-  ${getTokenOwnerSubQuery('ethereum')}
-  ${getTokenOwnerSubQuery('polygon')}
-  ${getTokenOwnerSubQuery('base')}
+  ${tokenBlockchains
+    .map(blockchain => getTokenOwnerSubQuery(blockchain))
+    .join('\n')}
 }`;
 
 export const PoapOwnerQuery = `query GetPoapHolders($eventId: [String!], $limit: Int) {

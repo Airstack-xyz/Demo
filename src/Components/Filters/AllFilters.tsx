@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { tokenBlockchains } from '../../constants';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
 import {
@@ -85,11 +86,7 @@ export function AllFilters({
 
   const appliedBlockchainFilter = useMemo(() => {
     const filterValue = blockchainType[0];
-    if (
-      filterValue === 'ethereum' ||
-      filterValue === 'polygon' ||
-      filterValue === 'base'
-    ) {
+    if (tokenBlockchains.find(item => item === filterValue)) {
       return filterValue;
     }
     return defaultBlockchainFilter;

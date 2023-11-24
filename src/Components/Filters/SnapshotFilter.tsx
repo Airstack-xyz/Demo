@@ -30,7 +30,7 @@ export const getSnackbarMessage = (
 ) => {
   let message = '';
   const page = isTokenBalancesPage ? 'balances' : 'holders';
-  // TODO: Remove 'base' keyword when snapshot is released for other blockchains
+  // TODO: Remove 'Base' keyword when snapshot is released for other blockchains
   switch (appliedFilter) {
     case 'blockNumber':
       message = `Viewing Base ${page} as of block no. ${blockNumber}`;

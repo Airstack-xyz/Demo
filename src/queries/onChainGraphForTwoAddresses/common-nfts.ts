@@ -1,3 +1,5 @@
+import { tokenBlockchains } from '../../constants';
+
 const getCommonNFTTokensSubQuery = (blockchain: string) => {
   return `${blockchain}: TokenBalances(
     input: {filter: {owner: {_eq: $identity}, tokenType: {_in: [ERC721]}}, blockchain: ${blockchain}, limit: 200}
@@ -16,7 +18,7 @@ const getCommonNFTTokensSubQuery = (blockchain: string) => {
 };
 
 export const commonNFTTokens = `query GetTokens($identity: Identity!, $identity2: Identity!) {
-  ${getCommonNFTTokensSubQuery('ethereum')}
-  ${getCommonNFTTokensSubQuery('polygon')}
-  ${getCommonNFTTokensSubQuery('base')}
+  ${tokenBlockchains
+    .map(blockchain => getCommonNFTTokensSubQuery(blockchain))
+    .join('\n')}
 }`;
