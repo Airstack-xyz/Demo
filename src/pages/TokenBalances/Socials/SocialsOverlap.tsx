@@ -25,9 +25,9 @@ const iconMap: Record<string, string> = {
 };
 
 const getSocialFollowInfo = (
-  wallet1: WalletType,
-  wallet2: WalletType,
-  address: string[]
+  wallet1?: WalletType,
+  wallet2?: WalletType,
+  address?: string[]
 ) => {
   const followData: Record<string, FollowCombinationType> = {};
 
@@ -121,6 +121,16 @@ const getSocialFollowInfo = (
   return Object.values(followData);
 };
 
+type SocialOverlapResponse = {
+  wallet1: WalletType;
+  wallet2: WalletType;
+};
+
+type SocialOverlapVariables = {
+  identity1: string;
+  identity2: string;
+};
+
 function SocialsOverlapComponent() {
   const [modalData, setModalData] = useState<{
     isOpen: boolean;
@@ -133,11 +143,13 @@ function SocialsOverlapComponent() {
   });
 
   const [{ address }, setData] = useSearchInput();
-  const [fetchData, { data, loading, error }] =
-    useLazyQuery(SocialOverlapQuery);
+  const [fetchData, { data, loading, error }] = useLazyQuery<
+    SocialOverlapResponse,
+    SocialOverlapVariables
+  >(SocialOverlapQuery);
 
-  const wallet1 = data?.wallet1 as WalletType;
-  const wallet2 = data?.wallet2 as WalletType;
+  const wallet1 = data?.wallet1;
+  const wallet2 = data?.wallet2;
 
   useEffect(() => {
     if (address.length > 0) {
@@ -234,7 +246,12 @@ function SocialsOverlapComponent() {
         { name: address[1], values: [wallet2.primaryDomain.name] }
       );
     }
-    if (wallet1?.domains?.length > 0 && wallet2?.domains?.length > 0) {
+    if (
+      wallet1 &&
+      wallet1?.domains?.length > 0 &&
+      wallet2 &&
+      wallet2?.domains?.length > 0
+    ) {
       ensSections.push(
         { name: address[0], values: wallet1.domains.map(({ name }) => name) },
         { name: address[1], values: wallet2.domains.map(({ name }) => name) }
