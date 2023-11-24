@@ -307,11 +307,24 @@ const desktopGraphics = (
   </svg>
 );
 
-export function ScoreContainer({ score }: { score: number }) {
+export function ScoreContainer({
+  score,
+  isLoading
+}: {
+  score: number;
+  isLoading: boolean;
+}) {
   const isMobile = isMobileDevice();
+  const showScore = score > 0 || !isLoading;
   return (
     <div className="relative flex items-center justify-center">
-      <span className="absolute text-3xl font-semibold">{score}</span>
+      <span className="absolute text-3xl font-semibold">
+        {showScore ? (
+          score
+        ) : (
+          <img src="images/loader.svg" height={20} width={30} />
+        )}
+      </span>
       {isMobile ? mobileGraphics : desktopGraphics}
     </div>
   );

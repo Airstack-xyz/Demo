@@ -41,6 +41,7 @@ export interface Image {
 }
 
 export interface Token {
+  isSpam: boolean;
   name: string;
   symbol: string;
   tokenType: string;

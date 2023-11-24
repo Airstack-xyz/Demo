@@ -34,6 +34,7 @@ const fields = `
             }
         }
         token {
+            isSpam
             name
             symbol
             logo {
@@ -55,6 +56,7 @@ function getQueryWithFilter(
       ? fields
       : getQueryWithFilter(owners, index + 1, blockchain);
   return `token {
+        isSpam
         name
         symbol
         logo {
@@ -99,6 +101,7 @@ tokenNfts {
   }
 }
 token {
+  isSpam
   name
   symbol
   logo {

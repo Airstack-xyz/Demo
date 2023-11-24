@@ -19,6 +19,7 @@ export type CachedQuery = {
   blockchainType: string[];
   activeTokenInfo: string;
   sortOrder: string;
+  spamFilter: string;
   activeSocialInfo: string;
 };
 
@@ -164,6 +165,7 @@ export function useSearchInput(
       activeViewCount: isTokenBalances ? '' : getData('activeViewCount'),
       blockchainType: getData('blockchainType', true),
       sortOrder: getData('sortOrder'),
+      spamFilter: getData('spamFilter'),
       activeSocialInfo: searchParams.get('activeSocialInfo') || ''
     };
 

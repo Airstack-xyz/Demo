@@ -8,11 +8,13 @@ import { Link } from 'react-router-dom';
 export function Score({
   score,
   domains,
-  socials
+  socials,
+  isLoading
 }: {
   score: number;
   domains: [Domain | null, Domain | null];
   socials: [Social | null, Social | null];
+  isLoading: boolean;
 }) {
   return (
     <div className="bg-glass flex justify-center items-center w-full sm:w-[480px] h-full px-3 sm:px-7 py-7 rounded-tl-18 rounded-bl-none sm:rounded-bl-18 z-10">
@@ -33,7 +35,7 @@ export function Score({
           </div>
         </div>
         <div className="relative flex justify-center pb-6 mx-3">
-          <ScoreContainer score={score} />
+          <ScoreContainer score={score} isLoading={isLoading} />
           <MatchInfo />
         </div>
         <div className="flex flex-col items-center relative text-center">
