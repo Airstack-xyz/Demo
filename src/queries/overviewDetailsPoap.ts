@@ -11,17 +11,21 @@ function getFields(hasSocialFilters = false, hasPrimaryDomainFilter = false) {
    tokenAddress
    eventId
    poapEvent {
-     contentValue {
-       image {
-         small
-       }
-       video
-       audio
-     }
-     logo: contentValue {
-       image {
-         small
-       }
+      contentValue {
+        image {
+          small
+        }
+        video {
+          original
+        }
+        audio {
+          original
+        }
+      }
+      logo: contentValue {
+        image {
+          small
+        }
      }
      blockchain
      eventName

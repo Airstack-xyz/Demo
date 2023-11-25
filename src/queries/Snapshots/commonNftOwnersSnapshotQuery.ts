@@ -45,7 +45,9 @@ function getCommonNftOwnersSubQueryForBlockchain({
         }
         tokenNfts: tokenNft {
           contentValue {
-            video
+            video {
+              original
+            }
             image {
               small
               medium
@@ -76,7 +78,9 @@ function getCommonNftOwnersSubQueryForBlockchain({
             }
             tokenNfts {
               contentValue {
-                video
+                video {
+                  original
+                }
                 image {
                   small
                   medium
@@ -197,7 +201,9 @@ function getNftOwnersSubQueryForBlockchain({
         }
         tokenNfts: tokenNft {
           contentValue {
-            video
+            video {
+              original
+            }
             image {
               small
               medium
