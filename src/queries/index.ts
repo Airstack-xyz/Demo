@@ -317,7 +317,9 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
       }
       tokenNfts {
         contentValue {
-          video
+          video {
+            original
+          }
           image {
             small
             medium
@@ -372,7 +374,9 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
       }
       tokenNfts {
         contentValue {
-          video
+          video {
+            original
+          }
           image {
             small
             medium
@@ -424,8 +428,12 @@ export const PoapOwnerQuery = `query GetPoapHolders($eventId: [String!], $limit:
             extraSmall
             small
           }
-          video
-          audio
+          video {
+            original
+          }
+          audio {
+            original
+          }
         }
         logo: contentValue {
           image {

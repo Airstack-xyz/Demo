@@ -21,7 +21,9 @@ const createBaseQuery = (
     tokenType
     tokenNfts {
       contentValue {
-        video
+        video {
+          original
+        }
         image {
           small
         }
@@ -91,7 +93,9 @@ function getQueryWithFilter(
         }
         tokenNfts {
           contentValue {
-            video
+            video {
+              original
+            }
             image {
               small
             }

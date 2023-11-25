@@ -15,7 +15,9 @@ token {
 }
 tokenNfts {
   contentValue {
-    video
+    video {
+      original
+    }
     image {
       small
     }
@@ -54,8 +56,12 @@ poapEvent {
       extraSmall
       small
     }
-    video
-    audio
+    video {
+      original
+    }
+    audio {
+      original
+    }
   }
   logo: contentValue {
     image {

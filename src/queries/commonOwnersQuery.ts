@@ -15,7 +15,9 @@ token {
 }
 tokenNfts {
   contentValue {
-    video
+    video {
+      original
+    }
     image {
       small
     }
