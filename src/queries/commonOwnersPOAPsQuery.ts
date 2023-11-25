@@ -14,8 +14,12 @@ poapEvent {
       extraSmall
       small
     }
-    video
-    audio
+    video {
+      original
+    }
+    audio {
+      original
+    }
   }
   logo: contentValue {
     image {
@@ -78,8 +82,12 @@ export function getCommonOwnersPOAPsQuery(tokenIds: TokenAddress[]) {
             image {
               small
             }
-            video
-            audio
+            video {
+              original
+            }
+            audio {
+              original
+            }
           }
           logo: contentValue {
             image {

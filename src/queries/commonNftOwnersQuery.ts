@@ -27,7 +27,9 @@ const getCommonNftOwnersSubQuery = (
     }
     tokenNfts {
       contentValue {
-        video
+        video {
+          original
+        }
         image {
           small
           medium
@@ -58,7 +60,9 @@ const getCommonNftOwnersSubQuery = (
         }
         tokenNfts {
           contentValue {
-            video
+            video {
+              original
+            }
             image {
               small
               medium
@@ -132,7 +136,9 @@ const getNftOwnersSubQuery = (blockchain: string, token: TokenAddress) => {
     }
     tokenNfts {
       contentValue {
-        video
+        video {
+          original
+        }
         image {
           small
           medium
