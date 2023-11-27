@@ -182,7 +182,7 @@ export function Token({
               },
               index
             ) => (
-              <div className="mr-1.5 last:!mr-0">
+              <div key={index} className="mr-1.5 last:!mr-0">
                 <div
                   className="relative token-img-wrapper w-[50px] h-[50px] rounded-md overflow-hidden flex-col-center cursor-pointer"
                   onClick={() => {
