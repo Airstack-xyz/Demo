@@ -360,7 +360,7 @@ export function TokenHolders() {
         item => item?.token === 'ERC20' || item?.token === 'TOKEN'
       );
     return {
-      hasMultipleERC20: erc20Mentions.length > 1 || erc20Tokens.length > 1,
+      hasMultipleERC20: erc20Mentions?.length > 1 || erc20Tokens?.length > 1,
       hasEveryERC20: hasEveryERC20Mention || hasEveryERC20Token
     };
   }, [overviewTokens, mentions]);
