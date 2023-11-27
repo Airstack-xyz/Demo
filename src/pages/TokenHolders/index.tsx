@@ -103,7 +103,9 @@ export function TokenHolders() {
   const { hasERC20Mention } = useMemo(() => {
     const mentions = getAllWordsAndMentions(rawInput).map(item => item.mention);
     const hasERC20Mention =
-      mentions?.every(item => item?.token === 'ERC20') ?? false;
+      mentions?.every(
+        item => item?.token === 'ERC20' || item?.token === 'TOKEN'
+      ) ?? false;
     return {
       mentions,
       hasERC20Mention
