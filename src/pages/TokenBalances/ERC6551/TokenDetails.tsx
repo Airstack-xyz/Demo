@@ -353,7 +353,7 @@ export function TokenDetails(props: {
                 >
                   {!loading && isActiveToken ? (
                     <>
-                      <span className=" ellipsis">
+                      <span className="ellipsis">
                         Details of{' '}
                         {isPoap
                           ? poap?.poapEvent.eventName

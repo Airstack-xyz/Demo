@@ -119,13 +119,15 @@ export function TokenHolders() {
 
   const isCombination = tokenAddress.length > 1;
 
-  const { mentions, hasSomeERC20Mention } = useMemo(() => {
+  const { mentions, hasERC20Mention } = useMemo(() => {
     const mentions = getAllWordsAndMentions(rawInput).map(item => item.mention);
-    const hasSomeERC20Mention =
-      mentions?.some(item => item?.token === 'ERC20') ?? false;
+    const hasERC20Mention =
+      mentions?.every(
+        item => item?.token === 'ERC20' || item?.token === 'TOKEN'
+      ) ?? false;
     return {
       mentions,
-      hasSomeERC20Mention
+      hasERC20Mention
     };
   }, [rawInput]);
 
@@ -439,7 +441,7 @@ export function TokenHolders() {
   }, []);
 
   // Don't show summary for ERC20 token and snapshots
-  const showSummary = !snapshotInfo.isApplicable && !hasSomeERC20Mention;
+  const showSummary = !snapshotInfo.isApplicable && !hasERC20Mention;
 
   const showTokens =
     showTokensOrOverview && !hasMultipleERC20 && !activeTokenInfo;
