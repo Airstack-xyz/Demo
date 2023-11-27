@@ -119,11 +119,14 @@ export function TokenHolders() {
 
   const isCombination = tokenAddress.length > 1;
 
-  // Have info about blockchain of entered mention input
-  const mentionBlockchain = useMemo(() => {
-    return getAllWordsAndMentions(rawInput).map(item =>
-      item?.mention?.token === 'ADDRESS' ? null : item?.mention?.blockchain
-    );
+  const { mentions, hasSomeERC20Mention } = useMemo(() => {
+    const mentions = getAllWordsAndMentions(rawInput).map(item => item.mention);
+    const hasSomeERC20Mention =
+      mentions?.some(item => item?.token === 'ERC20') ?? false;
+    return {
+      mentions,
+      hasSomeERC20Mention
+    };
   }, [rawInput]);
 
   const address = useMemo(() => {
@@ -435,6 +438,9 @@ export function TokenHolders() {
     setShowTokensOrOverview(false);
   }, []);
 
+  // Don't show summary for ERC20 token and snapshots
+  const showSummary = !snapshotInfo.isApplicable && !hasSomeERC20Mention;
+
   const showTokens =
     showTokensOrOverview && !hasMultipleERC20 && !activeTokenInfo;
 
@@ -448,7 +454,7 @@ export function TokenHolders() {
 
   const { snapshotTooltip, hideTooltipIcon } = useMemo(() => {
     const isOverviewTokensLoading = overviewTokens?.length === 0;
-    const blockchain = address?.[0]?.blockchain || mentionBlockchain[0];
+    const blockchain = address?.[0]?.blockchain || mentions?.[0]?.blockchain;
     let snapshotTooltip = '';
     let hideTooltipIcon = false;
     // TODO: remove below snapshot disable condition when snapshots for other blockchains is deployed
@@ -469,13 +475,7 @@ export function TokenHolders() {
       snapshotTooltip = 'Snapshots is disabled for combinations';
     }
     return { snapshotTooltip, hideTooltipIcon };
-  }, [
-    address,
-    hasPoap,
-    isCombination,
-    mentionBlockchain,
-    overviewTokens?.length
-  ]);
+  }, [address, hasPoap, isCombination, mentions, overviewTokens?.length]);
 
   const renderFilterContent = () => {
     if (activeTokenInfo) {
@@ -526,7 +526,7 @@ export function TokenHolders() {
               className="flex flex-col justify-center mt-7 max-w-[950px] mx-auto"
               key={query}
             >
-              {!snapshotInfo.isApplicable && (
+              {showSummary && (
                 <HoldersOverview onAddress404={handleInvalidAddress} />
               )}
               {showTokens && (

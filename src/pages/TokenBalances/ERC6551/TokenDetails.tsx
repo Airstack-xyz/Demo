@@ -355,13 +355,19 @@ export function TokenDetails(props: {
                     <>
                       <span className=" ellipsis">
                         Details of{' '}
-                        {isPoap ? poap?.poapEvent.eventName : nft?.token?.name}
+                        {isPoap
+                          ? poap?.poapEvent.eventName
+                          : erc20Token?.name || nft?.token?.name}
                       </span>
-                      (
-                      <span className="min-w-[20px] max-w-[100px] ellipsis">
-                        #{activeTokenId}
-                      </span>
-                      )
+                      {activeTokenId ? (
+                        <>
+                          (
+                          <span className="min-w-[20px] max-w-[100px] ellipsis">
+                            #{activeTokenId}
+                          </span>
+                          )
+                        </>
+                      ) : null}
                     </>
                   ) : (
                     <span>#{_tokenId}</span>
