@@ -26,6 +26,11 @@ export default defineConfig(({ mode }) => {
     ],
     define: {
       'process.env': publicVariables
+    },
+    resolve: {
+      alias: {
+        '@airstack/airstack-react': '/airstack-react-sdk'
+      }
     }
   };
 });
