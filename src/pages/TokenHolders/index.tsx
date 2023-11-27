@@ -100,13 +100,13 @@ export function TokenHolders() {
   const hasSomePoap = tokenAddress.some(token => !token.startsWith('0x'));
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
-  const { hasSomeERC20Mention } = useMemo(() => {
+  const { hasERC20Mention } = useMemo(() => {
     const mentions = getAllWordsAndMentions(rawInput).map(item => item.mention);
-    const hasSomeERC20Mention =
-      mentions?.some(item => item?.token === 'ERC20') ?? false;
+    const hasERC20Mention =
+      mentions?.every(item => item?.token === 'ERC20') ?? false;
     return {
       mentions,
-      hasSomeERC20Mention
+      hasERC20Mention
     };
   }, [rawInput]);
 
@@ -361,7 +361,7 @@ export function TokenHolders() {
   const showInCenter = isHome;
 
   // Don't show summary for ERC20 token
-  const showSummary = !hasSomeERC20Mention;
+  const showSummary = !hasERC20Mention;
 
   const showTokens =
     showTokensOrOverview && !hasMultipleERC20 && !activeTokenInfo;
