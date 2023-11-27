@@ -175,6 +175,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
       if (image)
         return (
           <div
+            key={tokenId}
             className={classNames({
               flex: address.length === 1
             })}
@@ -282,6 +283,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
           const supply = totalSupply?.[key.toLocaleLowerCase()];
           return (
             <span
+              key={index}
               className={classNames('flex', {
                 'max-w-[50%]': tokenDetails.length > 1
               })}
