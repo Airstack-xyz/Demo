@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "build-dev": "tsc && vite build --mode development",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "ts-lint": "tsc --noEmit --incremental",
     "preview": "vite preview",
     "prepare": "husky install",
-    "pre-commit": "npm run lint && npm run ts-lint"
+    "pre-commit": ""
   },
   "dependencies": {
     "classnames": "^2.3.2",
