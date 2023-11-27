@@ -49,10 +49,17 @@ import { tokenTypes } from '../TokenBalances/constants';
 import { accountOwnerQuery } from '../../queries/accountsQuery';
 import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
 import { defaultSortOrder } from '../../Components/Filters/SortBy';
+import { getAllWordsAndMentions } from '../../Components/Input/utils';
 
 export function TokenHolders() {
   const [
-    { address: tokenAddress, activeView, tokenFilters, activeTokenInfo },
+    {
+      rawInput,
+      address: tokenAddress,
+      activeView,
+      tokenFilters,
+      activeTokenInfo
+    },
     setData
   ] = useSearchInput();
   const [{ hasERC6551, owner, accountAddress }] = useTokenDetails([
@@ -92,6 +99,16 @@ export function TokenHolders() {
 
   const hasSomePoap = tokenAddress.some(token => !token.startsWith('0x'));
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
+
+  const { hasSomeERC20Mention } = useMemo(() => {
+    const mentions = getAllWordsAndMentions(rawInput).map(item => item.mention);
+    const hasSomeERC20Mention =
+      mentions?.some(item => item?.token === 'ERC20') ?? false;
+    return {
+      mentions,
+      hasSomeERC20Mention
+    };
+  }, [rawInput]);
 
   const address = useMemo(() => {
     return sortByAddressByNonERC20First(tokenAddress, overviewTokens, hasPoap);
@@ -343,6 +360,9 @@ export function TokenHolders() {
 
   const showInCenter = isHome;
 
+  // Don't show summary for ERC20 token
+  const showSummary = !hasSomeERC20Mention;
+
   const showTokens =
     showTokensOrOverview && !hasMultipleERC20 && !activeTokenInfo;
 
@@ -382,7 +402,9 @@ export function TokenHolders() {
               className="flex flex-col justify-center mt-7 max-w-[950px] mx-auto"
               key={query}
             >
-              <HoldersOverview onAddress404={handleInvalidAddress} />
+              {showSummary && (
+                <HoldersOverview onAddress404={handleInvalidAddress} />
+              )}
               {showTokens && (
                 <>
                   {activeView && <OverviewDetails />}
