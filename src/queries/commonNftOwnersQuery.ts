@@ -24,7 +24,9 @@ export function getCommonNftOwnersQuery(
         }
         tokenNfts {
           contentValue {
-            video
+            video {
+              original
+            }
             image {
               small
               medium
@@ -53,7 +55,9 @@ export function getCommonNftOwnersQuery(
             }
             tokenNfts {
               contentValue {
-                video
+                video {
+                  original
+                }
                 image {
                   small
                   medium
@@ -108,7 +112,9 @@ export function getCommonNftOwnersQuery(
         }
         tokenNfts {
           contentValue {
-            video
+            video {
+              original
+            }
             image {
               small
               medium
@@ -137,7 +143,9 @@ export function getCommonNftOwnersQuery(
             }
             tokenNfts {
               contentValue {
-                video
+                video {
+                  original
+                }
                 image {
                   small
                   medium
@@ -197,7 +205,9 @@ export function getNftOwnersQuery(token: string) {
         }
         tokenNfts {
           contentValue {
-            video
+            video {
+              original
+            }
             image {
               small
               medium
@@ -250,7 +260,9 @@ export function getNftOwnersQuery(token: string) {
         }
         tokenNfts {
           contentValue {
-            video
+            video {
+              original
+            }
             image {
               small
               medium
