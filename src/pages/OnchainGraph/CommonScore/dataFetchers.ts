@@ -1,18 +1,19 @@
 import { fetchQuery, fetchQueryWithPagination } from '@airstack/airstack-react';
-import { paginateRequest } from '../utils';
+import { tokenBlockchains } from '../../../constants';
+import { SocialQuery } from '../../../queries';
+import { commonNFTTokens } from '../../../queries/onChainGraphForTwoAddresses/common-nfts';
+import { commonPoapsQuery } from '../../../queries/onChainGraphForTwoAddresses/common-poaps';
+import { mutualFollower } from '../../../queries/onChainGraphForTwoAddresses/followings';
+import { tokenSentQuery } from '../../../queries/onChainGraphForTwoAddresses/tokens';
 import {
   CommonPoapType,
   CommonTokenType,
   Wallet
 } from '../../TokenBalances/types';
 import { nftsToIgnore } from '../constants';
-import { commonNFTTokens } from '../../../queries/onChainGraphForTwoAddresses/common-nfts';
-import { commonPoapsQuery } from '../../../queries/onChainGraphForTwoAddresses/common-poaps';
-import { mutualFollower } from '../../../queries/onChainGraphForTwoAddresses/followings';
 import { Following, SocialQueryResponse } from '../types/social';
 import { TokenQueryResponse } from '../types/tokenSentReceived';
-import { tokenSentQuery } from '../../../queries/onChainGraphForTwoAddresses/tokens';
-import { SocialQuery } from '../../../queries';
+import { paginateRequest } from '../utils';
 
 const processTokens = (tokens: CommonTokenType[], visited: Set<string>) => {
   if (tokens.length > 0) {
@@ -117,15 +118,9 @@ export async function fetchTokensTransfer(address: string[]) {
     }
   );
 
-  if (data?.ethereum?.TokenTransfer?.length) {
-    tokenSent = true;
-  }
-  if (data?.polygon?.TokenTransfer?.length) {
-    tokenSent = true;
-  }
-  if (data?.base?.TokenTransfer?.length) {
-    tokenSent = true;
-  }
+  tokenSent = tokenBlockchains.some(
+    blockchain => data?.[blockchain]?.TokenTransfer?.length
+  );
 
   const { data: data2 } = await fetchQueryWithPagination<TokenQueryResponse>(
     tokenSentQuery,
@@ -135,15 +130,9 @@ export async function fetchTokensTransfer(address: string[]) {
     }
   );
 
-  if (data2?.ethereum?.TokenTransfer?.length) {
-    tokenReceived = true;
-  }
-  if (data2?.polygon?.TokenTransfer?.length) {
-    tokenReceived = true;
-  }
-  if (data2?.base?.TokenTransfer?.length) {
-    tokenReceived = true;
-  }
+  tokenReceived = tokenBlockchains.some(
+    blockchain => data2?.[blockchain]?.TokenTransfer?.length
+  );
 
   return { tokenSent, tokenReceived };
 }

@@ -9,6 +9,7 @@ import { useOnchainGraphContext } from './useOnchainGraphContext';
 import { RecommendedUser } from '../types';
 import { MAX_ITEMS, QUERY_LIMIT } from '../constants';
 import { paginateRequest } from '../utils';
+import { tokenBlockchains } from '../../../constants';
 
 export function formatData(
   data: Transfer[],
@@ -83,25 +84,21 @@ export function useTokenTransfer(
       if (requestCanceled.current && window.onchainGraphRequestCanceled) {
         return false;
       }
-      const ethTokenTransfers = (data?.ethereum?.TokenTransfer ?? []).map(
-        transfer => transfer.account
-      );
-      const polygonTokenTransfers = (data?.polygon?.TokenTransfer ?? []).map(
-        transfer => transfer.account
-      );
-      const baseTokenTransfers = (data?.base?.TokenTransfer ?? []).map(
-        transfer => transfer.account
-      );
 
-      const tokenTransfer = [
-        ...ethTokenTransfers,
-        ...polygonTokenTransfers,
-        ...baseTokenTransfers
-      ] as Transfer[];
-      totalItemsCount.current += tokenTransfer.length;
+      const tokenTransfers = [] as Transfer[];
+
+      tokenBlockchains.forEach(blockchain => {
+        const transfers =
+          data?.[blockchain]?.TokenTransfer?.map(
+            item => item.account as Transfer
+          ) ?? [];
+        tokenTransfers.push(...transfers);
+      });
+
+      totalItemsCount.current += tokenTransfers.length;
 
       setData(recommendedUsers =>
-        formatData(tokenTransfer, recommendedUsers, transferType === 'sent')
+        formatData(tokenTransfers, recommendedUsers, transferType === 'sent')
       );
 
       const shouldFetchMore = totalItemsCount.current < MAX_ITEMS;

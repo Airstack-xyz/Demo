@@ -3,7 +3,7 @@ import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMatch } from 'react-router-dom';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
-import { formatDate } from '../../utils';
+import { capitalizeFirstLetter, formatDate } from '../../utils';
 import {
   SnapshotInfo,
   getActiveSnapshotInfo,
@@ -26,20 +26,24 @@ export const defaultSnapshotFilter: SnapshotFilterType = 'today';
 
 export const getSnackbarMessage = (
   { appliedFilter, blockNumber, customDate, timestamp }: SnapshotInfo,
+  blockchainType: string[],
   isTokenBalancesPage = true
 ) => {
   let message = '';
+  const blockchain =
+    blockchainType?.length === 1
+      ? `${capitalizeFirstLetter(blockchainType[0])} `
+      : '';
   const page = isTokenBalancesPage ? 'balances' : 'holders';
-  // TODO: Remove 'Base' keyword when snapshot is released for other blockchains
   switch (appliedFilter) {
     case 'blockNumber':
-      message = `Viewing Base ${page} as of block no. ${blockNumber}`;
+      message = `Viewing ${blockchain}${page} as of block no. ${blockNumber}`;
       break;
     case 'customDate':
-      message = `Viewing Base ${page} as of ${formatDate(customDate)}`;
+      message = `Viewing ${blockchain}${page} as of ${formatDate(customDate)}`;
       break;
     case 'timestamp':
-      message = `Viewing Base ${page} as of timestamp ${timestamp}`;
+      message = `Viewing ${blockchain}${page} as of timestamp ${timestamp}`;
       break;
   }
   return message;
@@ -104,7 +108,7 @@ export function SnapshotFilter({
   disabledTooltipText?: string;
   hideDisabledTooltipIcon?: boolean;
 }) {
-  const [{ activeSnapshotInfo }, setData] = useSearchInput();
+  const [{ blockchainType, activeSnapshotInfo }, setData] = useSearchInput();
   const {
     tooltipRef,
     containerRef,
@@ -175,8 +179,8 @@ export function SnapshotFilter({
   ]);
 
   const snackbarMessage = useMemo(
-    () => getSnackbarMessage(snapshotInfo, isTokenBalancesPage),
-    [isTokenBalancesPage, snapshotInfo]
+    () => getSnackbarMessage(snapshotInfo, blockchainType, isTokenBalancesPage),
+    [blockchainType, isTokenBalancesPage, snapshotInfo]
   );
 
   const { label, icon } = useMemo(
@@ -252,7 +256,7 @@ export function SnapshotFilter({
     if (currentFilter !== 'today') {
       filterValues.sortOrder = defaultSortOrder; // for snapshot query reset sort order
       // TODO: Remove this blockchain restriction when snapshot is released for other blockchains
-      filterValues.blockchainType = ['base'];
+      filterValues.blockchainType = ['ethereum'];
     } else {
       filterValues.blockchainType = [];
     }

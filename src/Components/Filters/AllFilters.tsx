@@ -168,8 +168,8 @@ export function AllFilters({
   ]);
 
   const snackbarMessage = useMemo(
-    () => getSnackbarMessage(snapshotInfo),
-    [snapshotInfo]
+    () => getSnackbarMessage(snapshotInfo, blockchainType),
+    [blockchainType, snapshotInfo]
   );
 
   const appliedFilterCount = useMemo(
@@ -283,7 +283,7 @@ export function AllFilters({
     if (currentSnapshotFilter !== 'today') {
       filterValues.sortOrder = defaultSortOrder; // for snapshot query reset sort order
       // TODO: Remove below blockchain restriction when snapshot is released for other blockchains
-      filterValues.blockchainType = ['base'];
+      filterValues.blockchainType = ['ethereum'];
     } else {
       filterValues.sortOrder = currentSortOrder || defaultSortOrder;
     }

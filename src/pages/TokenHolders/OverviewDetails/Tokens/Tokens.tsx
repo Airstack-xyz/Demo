@@ -201,8 +201,13 @@ export function TokensComponent() {
     (tokensData: TokensData) => {
       if (!tokensData) return;
       const [tokens, size] = hasPoap
-        ? getPoapList(tokensData, hasMultipleTokens)
-        : getTokenList(tokensData, hasMultipleTokens, hasSomePoap);
+        ? getPoapList({ tokensData, hasMultipleTokens })
+        : getTokenList({
+            tokensData,
+            hasMultipleTokens,
+            hasSomePoap,
+            isSnapshotApplicable: snapshotInfo.isApplicable
+          });
 
       const filteredTokens = filterTokens(filters, tokens).filter(token => {
         const address = token?.owner?.identity;
@@ -221,7 +226,13 @@ export function TokensComponent() {
       }));
       setTokens(prev => [...prev, ...filteredTokens]);
     },
-    [filters, hasMultipleTokens, hasPoap, hasSomePoap]
+    [
+      filters,
+      hasMultipleTokens,
+      hasPoap,
+      hasSomePoap,
+      snapshotInfo.isApplicable
+    ]
   );
 
   const [

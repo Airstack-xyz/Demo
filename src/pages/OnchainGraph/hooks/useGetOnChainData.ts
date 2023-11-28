@@ -25,7 +25,8 @@ export function useGetOnChainData(address: string) {
     address,
     'polygon'
   );
-  const [fetchBaseNft, cancelBaseRequest] = useGetNFTs(address, 'base');
+  // TODO: Uncomment when base blockchain is deployed
+  // const [fetchBaseNft, cancelBaseRequest] = useGetNFTs(address, 'base');
 
   const [fetchTokenSent, cancelSentRequest] = useTokenTransfer(address, 'sent');
   const [fetchTokenReceived, cancelReceivedRequest] = useTokenTransfer(
@@ -45,14 +46,14 @@ export function useGetOnChainData(address: string) {
     await fetchLensFollowers();
     await fetchEthNft();
     await fetchPolygonNft();
-    await fetchBaseNft();
+    // TODO: Uncomment when base blockchain is deployed
+    // await fetchBaseNft();
     await fetchTokenSent();
     await fetchTokenReceived();
     setLoading(false);
     loadingRef.current = false;
   }, [
     address,
-    fetchBaseNft,
     fetchEthNft,
     fetchFarcasterFollowers,
     fetchFarcasterFollowings,
@@ -73,13 +74,13 @@ export function useGetOnChainData(address: string) {
     cancelLensFollowersRequest();
     cancelEthRequest();
     cancelPolygonRequest();
-    cancelBaseRequest();
+    // TODO: Uncomment when base blockchain is deployed
+    // cancelBaseRequest();
     cancelSentRequest();
     cancelReceivedRequest();
     setLoading(false);
     loadingRef.current = false;
   }, [
-    cancelBaseRequest,
     cancelEthRequest,
     cancelFarcasterFollowersRequest,
     cancelFarcasterFollowingRequest,

@@ -55,7 +55,8 @@ import {
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import {
   getActiveSnapshotInfo,
-  getSnapshotQueryFilters
+  getSnapshotQueryFilters,
+  checkSupportForSnapshots
 } from '../../utils/activeSnapshotInfoString';
 import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { tokenTypes } from '../TokenBalances/constants';
@@ -64,6 +65,7 @@ import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
 import { defaultSortOrder } from '../../Components/Filters/SortBy';
 import { getAllWordsAndMentions } from '../../Components/Input/utils';
 import { showToast } from '../../utils/showToast';
+import { capitalizeFirstLetter } from '../../utils';
 
 export function TokenHolders() {
   const [
@@ -478,16 +480,23 @@ export function TokenHolders() {
     const blockchain = address?.[0]?.blockchain || mentions?.[0]?.blockchain;
     let snapshotTooltip = '';
     let hideTooltipIcon = false;
-    // TODO: remove below snapshot disable condition when snapshots for other blockchains is deployed
     if (isOverviewTokensLoading) {
       if (!blockchain) {
         snapshotTooltip = 'Please wait until the loading takes place';
         hideTooltipIcon = true;
-      } else if (blockchain !== 'base') {
-        snapshotTooltip = 'Snapshots is only enabled for Base tokens';
+      } else if (!isCombination && !checkSupportForSnapshots(blockchain)) {
+        snapshotTooltip = `Snapshots is not enabled for ${capitalizeFirstLetter(
+          blockchain
+        )} tokens`;
       }
-    } else if (blockchain && blockchain !== 'base') {
-      snapshotTooltip = 'Snapshots is only enabled for Base tokens';
+    } else if (
+      blockchain &&
+      !isCombination &&
+      !checkSupportForSnapshots(blockchain)
+    ) {
+      snapshotTooltip = `Snapshots is not enabled for ${capitalizeFirstLetter(
+        blockchain
+      )} tokens`;
     }
     if (hasPoap) {
       snapshotTooltip = 'Snapshots is disabled for POAP';

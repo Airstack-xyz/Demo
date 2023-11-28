@@ -534,7 +534,7 @@ function TokenBalancePage() {
     }
     if (snapshotInfo.isApplicable) {
       // TODO: Update blockchain tooltip message when snapshot is released for other blockchains
-      blockchainTooltip = 'Snapshots is only enabled for Base chain';
+      blockchainTooltip = 'Snapshots is only enabled for Ethereum chain';
       sortByTooltip = 'Sorting is disabled for Snapshots';
     }
     return {

@@ -1,5 +1,6 @@
 import { Chain } from '@airstack/airstack-react/constants';
 import { MentionData } from '../../../Components/Input/types';
+import { TokenBlockchain } from '../../../types';
 
 export type Social = {
   id: string;
@@ -80,18 +81,6 @@ export type Wallet = {
     Follower: Follow[];
     Following: Follow[];
   };
-  lensSocials: {
-    id: string;
-    profileTokenId: string;
-  }[];
-  farcasterSocials: {
-    id: string;
-    profileTokenId: string;
-  }[];
-  poapHoldings: Holding[];
-  ethereumHoldings: Holding[];
-  polygonHoldings: Holding[];
-  baseHoldings: Holding[];
   identity: string;
   addresses: string[];
   socials: {
@@ -109,6 +98,14 @@ export type Wallet = {
       };
     };
   }[];
+  lensSocials: {
+    id: string;
+    profileTokenId: string;
+  }[];
+  farcasterSocials: {
+    id: string;
+    profileTokenId: string;
+  }[];
   primaryDomain: {
     name: string;
   };
@@ -118,6 +115,9 @@ export type Wallet = {
   xmtp: {
     isXMTPEnabled: boolean;
   }[];
+  poapHoldings: Holding[];
+} & {
+  [Key in `${TokenBlockchain}Holdings`]: Holding[];
 };
 
 export type SocialFollowQueryFilters = {

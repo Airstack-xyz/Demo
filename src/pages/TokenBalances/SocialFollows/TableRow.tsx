@@ -4,6 +4,7 @@ import { Icon } from '../../../Components/Icon';
 import LazyImage from '../../../Components/LazyImage';
 import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
 import { WalletAddress } from '../../../Components/WalletAddress';
+import { tokenBlockchains } from '../../../constants';
 import { formatNumber } from '../../../utils/formatNumber';
 import { Follow } from './types';
 
@@ -133,11 +134,17 @@ export function TableRow({
       );
     }
 
-    const holding =
-      wallet?.poapHoldings?.[0] ||
-      wallet?.ethereumHoldings?.[0] ||
-      wallet?.polygonHoldings?.[0] ||
-      wallet?.baseHoldings?.[0];
+    let holding = wallet?.poapHoldings?.[0];
+
+    if (!holding) {
+      for (let i = 0; i < tokenBlockchains.length; i++) {
+        const blockchain = tokenBlockchains[i];
+        if (wallet?.[`${blockchain}Holdings`]?.length > 0) {
+          holding = wallet[`${blockchain}Holdings`][0];
+          break;
+        }
+      }
+    }
 
     if (holding) {
       const holdingEventId = holding?.poapEvent?.eventId;
