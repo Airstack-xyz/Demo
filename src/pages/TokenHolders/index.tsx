@@ -63,6 +63,7 @@ import { accountOwnerQuery } from '../../queries/accountsQuery';
 import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
 import { defaultSortOrder } from '../../Components/Filters/SortBy';
 import { getAllWordsAndMentions } from '../../Components/Input/utils';
+import { showToast } from '../../utils/showToast';
 
 export function TokenHolders() {
   const [
@@ -81,8 +82,10 @@ export function TokenHolders() {
     'owner',
     'accountAddress'
   ]);
-  const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
+  const [{ tokens: _overviewTokens }] = useOverviewTokens(['tokens']);
   const [showTokensOrOverview, setShowTokensOrOverview] = useState(true);
+
+  const overviewTokens = _overviewTokens as TokenHolder[];
 
   const addressRef = useRef<null | string[]>(null);
   const isHome = useMatch('/');
@@ -119,16 +122,8 @@ export function TokenHolders() {
 
   const isCombination = tokenAddress.length > 1;
 
-  const { mentions, hasERC20Mention } = useMemo(() => {
-    const mentions = getAllWordsAndMentions(rawInput).map(item => item.mention);
-    const hasERC20Mention =
-      mentions?.every(
-        item => item?.token === 'ERC20' || item?.token === 'TOKEN'
-      ) ?? false;
-    return {
-      mentions,
-      hasERC20Mention
-    };
+  const mentions = useMemo(() => {
+    return getAllWordsAndMentions(rawInput).map(item => item.mention);
   }, [rawInput]);
 
   const address = useMemo(() => {
@@ -429,19 +424,43 @@ export function TokenHolders() {
     accountAddress
   ]);
 
-  const hasMultipleERC20 = useMemo(() => {
-    const erc20Tokens = overviewTokens.filter(
-      (token: TokenHolder) => token.tokenType === 'ERC20'
+  const { hasMultipleERC20, hasEveryERC20 } = useMemo(() => {
+    const erc20Tokens = overviewTokens?.filter(
+      item => item.tokenType === 'ERC20'
     );
-    return erc20Tokens.length > 1;
-  }, [overviewTokens]);
+    const erc20Mentions = mentions?.filter(
+      item => item?.token === 'ERC20' || item?.token === 'TOKEN'
+    );
+    const hasEveryERC20Token =
+      overviewTokens?.length > 0 &&
+      overviewTokens.every(item => item.tokenType === 'ERC20');
+    const hasEveryERC20Mention =
+      mentions?.length > 0 &&
+      mentions.every(
+        item => item?.token === 'ERC20' || item?.token === 'TOKEN'
+      );
+    return {
+      hasMultipleERC20: erc20Mentions?.length > 1 || erc20Tokens?.length > 1,
+      hasEveryERC20: hasEveryERC20Mention || hasEveryERC20Token
+    };
+  }, [overviewTokens, mentions]);
+
+  useEffect(() => {
+    // ERC20 tokens have a large number of holders so we don't allow multiple ERC20 tokens to be searched at once
+    if (hasMultipleERC20) {
+      showToast('Try to combine ERC20 tokens with NFTs or POAPs', 'negative');
+    }
+  }, [hasMultipleERC20]);
 
   const handleInvalidAddress = useCallback(() => {
     setShowTokensOrOverview(false);
   }, []);
 
-  // Don't show summary for ERC20 token and snapshots
-  const showSummary = !snapshotInfo.isApplicable && !hasERC20Mention;
+  const showSummary =
+    !snapshotInfo.isApplicable && // Don't show summary for snapshots
+    !hasEveryERC20 && // Don't show summary for only ERC20 tokens
+    !hasMultipleERC20 && // Don't show summary for ERC20 combinations
+    !activeView; // Don't show summary for overview details
 
   const showTokens =
     showTokensOrOverview && !hasMultipleERC20 && !activeTokenInfo;
