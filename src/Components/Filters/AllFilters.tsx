@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { snapshotBlockchains, tokenBlockchains } from '../../constants';
+import { snapshotBlockchains } from '../../constants';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
 import {
@@ -84,13 +84,19 @@ export function AllFilters({
     [activeSnapshotInfo]
   );
 
+  const blockchainOptions = useMemo(
+    () => getBlockchainOptions(snapshotInfo.isApplicable),
+    [snapshotInfo.isApplicable]
+  );
+
   const appliedBlockchainFilter = useMemo(() => {
     const filterValue = blockchainType[0];
-    if (tokenBlockchains.find(item => item === filterValue)) {
-      return filterValue;
+    const option = blockchainOptions.find(item => item.value === filterValue);
+    if (option) {
+      return option.value;
     }
     return defaultBlockchainFilter;
-  }, [blockchainType]);
+  }, [blockchainOptions, blockchainType]);
 
   const appliedSortOrder = useMemo(() => {
     return sortOrder === 'ASC' ? 'ASC' : defaultSortOrder;
@@ -99,11 +105,6 @@ export function AllFilters({
   const appliedSpamFilter = useMemo(() => {
     return spamFilter === '0' ? '0' : defaultSpamFilter;
   }, [spamFilter]);
-
-  const blockchainOptions = useMemo(
-    () => getBlockchainOptions(snapshotInfo.isApplicable),
-    [snapshotInfo.isApplicable]
-  );
 
   const [currentSnapshotFilter, setCurrentSnapshotFilter] = useState(
     snapshotInfo.appliedFilter
