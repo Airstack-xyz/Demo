@@ -25,7 +25,7 @@ const loaderData = Array(6).fill({});
 
 function Loader() {
   return (
-    <table className="w-auto text-xs table-fixed sm:w-full">
+    <table className="text-xs table-fixed w-full">
       <tbody>
         {loaderData.map((_, index) => (
           <tr

@@ -1,10 +1,14 @@
+import { snapshotBlockchains, tokenBlockchains } from '../../../../constants';
 import { Poap, PoapsData, Token as TokenType, TokensData } from '../../types';
 import { removeDuplicateOwners } from './filters';
 
-export function getPoapList(
-  tokensData: PoapsData,
+export function getPoapList({
+  tokensData,
   hasMultipleTokens = false
-): [Poap[], number] {
+}: {
+  tokensData: PoapsData;
+  hasMultipleTokens?: boolean;
+}): [Poap[], number] {
   const poaps = tokensData?.Poaps?.Poap || [];
   if (!hasMultipleTokens) {
     return [removeDuplicateOwners(poaps) as Poap[], poaps.length];
@@ -34,27 +38,31 @@ export function getPoapList(
   return [poapsWithValues, poaps.length];
 }
 
-export function getTokenList(
-  tokensData: TokensData,
+export function getTokenList({
+  tokensData,
   hasMultipleTokens = false,
-  hasSomePoap = false
-): [TokenType[], number] {
+  hasSomePoap = false,
+  isSnapshotApplicable
+}: {
+  tokensData: TokensData;
+  hasMultipleTokens?: boolean;
+  hasSomePoap?: boolean;
+  isSnapshotApplicable?: boolean;
+}): [TokenType[], number] {
   let tokenBalances: TokenType[] = [];
 
   if (hasSomePoap) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tokenBalances = tokensData?.Poaps?.Poap as any;
   } else {
-    const ethTokenBalances: TokenType[] =
-      tokensData.ethereum?.TokenBalance || [];
-    const polygonTokenBalances: TokenType[] =
-      tokensData.polygon?.TokenBalance || [];
-    const baseTokenBalances: TokenType[] = tokensData.base?.TokenBalance || [];
-    tokenBalances = [
-      ...ethTokenBalances,
-      ...polygonTokenBalances,
-      ...baseTokenBalances
-    ];
+    const appropriateBlockchains = isSnapshotApplicable
+      ? snapshotBlockchains
+      : tokenBlockchains;
+
+    appropriateBlockchains.forEach(blockchain => {
+      const balances = tokensData?.[blockchain]?.TokenBalance || [];
+      tokenBalances.push(...balances);
+    });
   }
 
   const originalSize = tokenBalances.length;

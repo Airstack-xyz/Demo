@@ -55,7 +55,8 @@ import {
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import {
   getActiveSnapshotInfo,
-  getSnapshotQueryFilters
+  getSnapshotQueryFilters,
+  checkSupportForSnapshot
 } from '../../utils/activeSnapshotInfoString';
 import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { tokenTypes } from '../TokenBalances/constants';
@@ -63,6 +64,8 @@ import { accountOwnerQuery } from '../../queries/accountsQuery';
 import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
 import { defaultSortOrder } from '../../Components/Filters/SortBy';
 import { getAllWordsAndMentions } from '../../Components/Input/utils';
+import { showToast } from '../../utils/showToast';
+import { capitalizeFirstLetter } from '../../utils';
 
 export function TokenHolders() {
   const [
@@ -81,8 +84,10 @@ export function TokenHolders() {
     'owner',
     'accountAddress'
   ]);
-  const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
+  const [{ tokens: _overviewTokens }] = useOverviewTokens(['tokens']);
   const [showTokensOrOverview, setShowTokensOrOverview] = useState(true);
+
+  const overviewTokens = _overviewTokens as TokenHolder[];
 
   const addressRef = useRef<null | string[]>(null);
   const isHome = useMatch('/');
@@ -119,11 +124,8 @@ export function TokenHolders() {
 
   const isCombination = tokenAddress.length > 1;
 
-  // Have info about blockchain of entered mention input
-  const mentionBlockchain = useMemo(() => {
-    return getAllWordsAndMentions(rawInput).map(item =>
-      item?.mention?.token === 'ADDRESS' ? null : item?.mention?.blockchain
-    );
+  const mentions = useMemo(() => {
+    return getAllWordsAndMentions(rawInput).map(item => item.mention);
   }, [rawInput]);
 
   const address = useMemo(() => {
@@ -424,16 +426,43 @@ export function TokenHolders() {
     accountAddress
   ]);
 
-  const hasMultipleERC20 = useMemo(() => {
-    const erc20Tokens = overviewTokens.filter(
-      (token: TokenHolder) => token.tokenType === 'ERC20'
+  const { hasMultipleERC20, hasEveryERC20 } = useMemo(() => {
+    const erc20Tokens = overviewTokens?.filter(
+      item => item.tokenType === 'ERC20'
     );
-    return erc20Tokens.length > 1;
-  }, [overviewTokens]);
+    const erc20Mentions = mentions?.filter(
+      item => item?.token === 'ERC20' || item?.token === 'TOKEN'
+    );
+    const hasEveryERC20Token =
+      overviewTokens?.length > 0 &&
+      overviewTokens.every(item => item.tokenType === 'ERC20');
+    const hasEveryERC20Mention =
+      mentions?.length > 0 &&
+      mentions.every(
+        item => item?.token === 'ERC20' || item?.token === 'TOKEN'
+      );
+    return {
+      hasMultipleERC20: erc20Mentions?.length > 1 || erc20Tokens?.length > 1,
+      hasEveryERC20: hasEveryERC20Mention || hasEveryERC20Token
+    };
+  }, [overviewTokens, mentions]);
+
+  useEffect(() => {
+    // ERC20 tokens have a large number of holders so we don't allow multiple ERC20 tokens to be searched at once
+    if (hasMultipleERC20) {
+      showToast('Try to combine ERC20 tokens with NFTs or POAPs', 'negative');
+    }
+  }, [hasMultipleERC20]);
 
   const handleInvalidAddress = useCallback(() => {
     setShowTokensOrOverview(false);
   }, []);
+
+  const showSummary =
+    !snapshotInfo.isApplicable && // Don't show summary for snapshots
+    !hasEveryERC20 && // Don't show summary for only ERC20 tokens
+    !hasMultipleERC20 && // Don't show summary for ERC20 combinations
+    !activeView; // Don't show summary for overview details
 
   const showTokens =
     showTokensOrOverview && !hasMultipleERC20 && !activeTokenInfo;
@@ -448,19 +477,26 @@ export function TokenHolders() {
 
   const { snapshotTooltip, hideTooltipIcon } = useMemo(() => {
     const isOverviewTokensLoading = overviewTokens?.length === 0;
-    const blockchain = address?.[0]?.blockchain || mentionBlockchain[0];
+    const blockchain = address?.[0]?.blockchain || mentions?.[0]?.blockchain;
     let snapshotTooltip = '';
     let hideTooltipIcon = false;
-    // TODO: remove below snapshot disable condition when snapshots for other blockchains is deployed
     if (isOverviewTokensLoading) {
       if (!blockchain) {
         snapshotTooltip = 'Please wait until the loading takes place';
         hideTooltipIcon = true;
-      } else if (blockchain !== 'base') {
-        snapshotTooltip = 'Snapshots is only enabled for Base tokens';
+      } else if (!isCombination && !checkSupportForSnapshot(blockchain)) {
+        snapshotTooltip = `Snapshots is not available for ${capitalizeFirstLetter(
+          blockchain
+        )} tokens`;
       }
-    } else if (blockchain && blockchain !== 'base') {
-      snapshotTooltip = 'Snapshots is only enabled for Base tokens';
+    } else if (
+      blockchain &&
+      !isCombination &&
+      !checkSupportForSnapshot(blockchain)
+    ) {
+      snapshotTooltip = `Snapshots is not available for ${capitalizeFirstLetter(
+        blockchain
+      )} tokens`;
     }
     if (hasPoap) {
       snapshotTooltip = 'Snapshots is disabled for POAP';
@@ -469,13 +505,7 @@ export function TokenHolders() {
       snapshotTooltip = 'Snapshots is disabled for combinations';
     }
     return { snapshotTooltip, hideTooltipIcon };
-  }, [
-    address,
-    hasPoap,
-    isCombination,
-    mentionBlockchain,
-    overviewTokens?.length
-  ]);
+  }, [address, hasPoap, isCombination, mentions, overviewTokens?.length]);
 
   const renderFilterContent = () => {
     if (activeTokenInfo) {
@@ -526,7 +556,7 @@ export function TokenHolders() {
               className="flex flex-col justify-center mt-7 max-w-[950px] mx-auto"
               key={query}
             >
-              {!snapshotInfo.isApplicable && (
+              {showSummary && (
                 <HoldersOverview onAddress404={handleInvalidAddress} />
               )}
               {showTokens && (

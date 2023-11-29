@@ -77,7 +77,7 @@ function TableRow({ isLoader, children, ...props }: TableRowProps) {
 
 function Loader() {
   return (
-    <table className="w-auto text-xs table-fixed sm:w-full">
+    <table className="text-xs table-fixed w-full">
       <tbody>
         {loaderData.map((_, index) => (
           <TableRow isLoader={true} key={index}>
@@ -201,8 +201,13 @@ export function TokensComponent() {
     (tokensData: TokensData) => {
       if (!tokensData) return;
       const [tokens, size] = hasPoap
-        ? getPoapList(tokensData, hasMultipleTokens)
-        : getTokenList(tokensData, hasMultipleTokens, hasSomePoap);
+        ? getPoapList({ tokensData, hasMultipleTokens })
+        : getTokenList({
+            tokensData,
+            hasMultipleTokens,
+            hasSomePoap,
+            isSnapshotApplicable: snapshotInfo.isApplicable
+          });
 
       const filteredTokens = filterTokens(filters, tokens).filter(token => {
         const address = token?.owner?.identity;
@@ -221,7 +226,13 @@ export function TokensComponent() {
       }));
       setTokens(prev => [...prev, ...filteredTokens]);
     },
-    [filters, hasMultipleTokens, hasPoap, hasSomePoap]
+    [
+      filters,
+      hasMultipleTokens,
+      hasPoap,
+      hasSomePoap,
+      snapshotInfo.isApplicable
+    ]
   );
 
   const [

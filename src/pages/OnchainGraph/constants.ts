@@ -64,9 +64,10 @@ export const scoreOptions: {
   {
     label: 'Pol. NFTs in common (each)',
     value: 'commonPolygonNfts'
-  },
-  {
-    label: 'Base NFTs in common (each)',
-    value: 'commonBaseNfts'
   }
+  // TODO: Uncomment when base blockchain is deployed
+  // {
+  //   label: 'Base NFTs in common (each)',
+  //   value: 'commonBaseNfts'
+  // }
 ];

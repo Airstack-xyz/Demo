@@ -13,7 +13,6 @@ import {
   TokenHolder,
   useOverviewTokens
 } from '../../../store/tokenHoldersOverview';
-import { showToast } from '../../../utils/showToast';
 import { useGetAccountOwner } from '../../../hooks/useGetAccountOwner';
 import { ERC6551TokenHolder } from '../ERC6551TokenHolder';
 import { Details } from './Details';
@@ -114,19 +113,6 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
     tokenDetails
   ]);
 
-  const hasMultipleERC20 = useMemo(() => {
-    const erc20Tokens = tokenDetails.filter(
-      token => token.tokenType === 'ERC20'
-    );
-    return erc20Tokens.length > 1;
-  }, [tokenDetails]);
-
-  useEffect(() => {
-    if (hasMultipleERC20) {
-      showToast('Try to combine ERC20 tokens with NFTs or POAPs', 'negative');
-    }
-  }, [hasMultipleERC20]);
-
   const isERC20 = useMemo(() => {
     return (
       tokenDetails.length > 0 &&
@@ -183,6 +169,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
       if (image)
         return (
           <div
+            key={tokenId}
             className={classNames('flex-row-center', {
               flex: address.length === 1
             })}

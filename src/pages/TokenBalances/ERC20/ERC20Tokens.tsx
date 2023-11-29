@@ -10,7 +10,7 @@ import {
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { defaultSortOrder } from '../../../Components/Filters/SortBy';
-import { tokenBlockchains } from '../../../constants';
+import { snapshotBlockchains, tokenBlockchains } from '../../../constants';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { getNftWithCommonOwnersSnapshotQuery } from '../../../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
 import { getNftWithCommonOwnersQuery } from '../../../queries/nftWithCommonOwnersQuery';
@@ -166,27 +166,24 @@ export function ERC20Tokens() {
   const handleData = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (data: any) => {
-      const { ethereum, polygon, base } = data;
-      let ethTokenBalances = ethereum?.TokenBalance || [];
-      let polygonTokenBalances = polygon?.TokenBalance || [];
-      let baseTokenBalances = base?.TokenBalance || [];
+      const appropriateBlockchains = snapshotInfo.isApplicable
+        ? snapshotBlockchains
+        : tokenBlockchains;
 
-      const processedTokenCount =
-        ethTokenBalances.length +
-        polygonTokenBalances.length +
-        baseTokenBalances.length;
+      let processedTokenCount = 0;
 
+      appropriateBlockchains.forEach(blockchain => {
+        const tokenBalances = data?.[blockchain]?.TokenBalance || [];
+        processedTokenCount += tokenBalances.length;
+      });
       setTotalProcessedTokens(count => count + processedTokenCount);
 
-      ethTokenBalances = processTokens(ethTokenBalances);
-      polygonTokenBalances = processTokens(polygonTokenBalances);
-      baseTokenBalances = processTokens(baseTokenBalances);
+      let filteredTokens: TokenType[] = [];
 
-      let filteredTokens = [
-        ...ethTokenBalances,
-        ...polygonTokenBalances,
-        ...baseTokenBalances
-      ];
+      appropriateBlockchains.forEach(blockchain => {
+        const tokenBalances = data?.[blockchain]?.TokenBalance || [];
+        filteredTokens.push(...processTokens(tokenBalances));
+      });
 
       if (isSpamFilteringEnabled) {
         filteredTokens = filterByIsSpam(filteredTokens);
@@ -195,7 +192,7 @@ export function ERC20Tokens() {
       tokensRef.current = [...tokensRef.current, ...filteredTokens];
       setTokens(prevTokens => [...prevTokens, ...filteredTokens]);
     },
-    [isSpamFilteringEnabled]
+    [isSpamFilteringEnabled, snapshotInfo.isApplicable]
   );
 
   const [fetch, { data: erc20Data, pagination }] = useLazyQueryWithPagination(

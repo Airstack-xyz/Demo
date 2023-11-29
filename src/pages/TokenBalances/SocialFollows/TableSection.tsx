@@ -182,6 +182,10 @@ export function TableSection({
     tableItemsRef.current = [];
     tableIdsSetRef.current = new Set();
     setTableItems([]);
+    setLoaderData(prev => ({
+      ...prev,
+      isVisible: true
+    }));
     fetchData({
       limit: MAX_LIMIT,
       ...filterData.queryFilters

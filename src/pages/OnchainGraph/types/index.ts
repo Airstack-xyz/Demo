@@ -1,3 +1,5 @@
+import { TokenBlockchain } from '../../../types';
+
 declare global {
   interface Window {
     onchainGraphRequestCanceled: boolean;
@@ -191,7 +193,7 @@ export type RecommendedUser = {
     tokenNfts?: {
       tokenId: string;
     };
-    blockchain?: 'ethereum' | 'polygon' | 'base';
+    blockchain?: TokenBlockchain;
   }[];
   _score?: number;
   _farcasterAddresses?: string[];

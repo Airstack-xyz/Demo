@@ -1,7 +1,7 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { defaultSortOrder } from '../Components/Filters/SortBy';
-import { tokenBlockchains } from '../constants';
+import { snapshotBlockchains, tokenBlockchains } from '../constants';
 import { tokenTypes } from '../pages/TokenBalances/constants';
 import { CommonTokenType, TokenType } from '../pages/TokenBalances/types';
 import { getNftWithCommonOwnersSnapshotQuery } from '../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
@@ -22,10 +22,8 @@ function filterByIsSpam(tokens: TokenType[]) {
 function processTokens(tokens: CommonTokenType[]) {
   if (tokens.length > 0 && tokens[0]?.token?.tokenBalances) {
     tokens = tokens
-      .filter((token: CommonTokenType) =>
-        Boolean(token?.token?.tokenBalances?.length)
-      )
-      .map((token: CommonTokenType) => {
+      .filter(token => Boolean(token?.token?.tokenBalances?.length))
+      .map(token => {
         token._common_tokens = token.token.tokenBalances || null;
         return token;
       });
@@ -152,29 +150,28 @@ export function useGetTokensOfOwner(
 
   useEffect(() => {
     if (!tokensData) return;
-    const { ethereum, polygon, base } = tokensData;
-    let ethTokenBalances = ethereum?.TokenBalance || [];
-    let polygonTokenBalances = polygon?.TokenBalance || [];
-    let baseTokenBalances = base?.TokenBalance || [];
 
-    const processedTokenCount =
-      ethTokenBalances.length +
-      polygonTokenBalances.length +
-      baseTokenBalances.length;
+    const appropriateBlockchains = snapshotInfo.isApplicable
+      ? snapshotBlockchains
+      : tokenBlockchains;
+
+    let processedTokenCount = 0;
+
+    appropriateBlockchains.forEach(blockchain => {
+      const balances = tokensData?.[blockchain]?.TokenBalance || [];
+      processedTokenCount += balances.length;
+    });
     setProcessedTokensCount(count => count + processedTokenCount);
 
-    ethTokenBalances = processTokens(ethTokenBalances);
-    polygonTokenBalances = processTokens(polygonTokenBalances);
-    baseTokenBalances = processTokens(baseTokenBalances);
+    let tokens: TokenType[] | CommonTokenType[] = [];
 
-    let tokens = [
-      ...ethTokenBalances,
-      ...polygonTokenBalances,
-      ...baseTokenBalances
-    ];
+    appropriateBlockchains.forEach(blockchain => {
+      const balances = tokensData?.[blockchain]?.TokenBalance || [];
+      tokens.push(...processTokens(balances));
+    });
 
     if (is6551) {
-      tokens = tokens.filter((token: CommonTokenType) => {
+      tokens = (tokens as CommonTokenType[]).filter(token => {
         const commonTokens = token?._common_tokens || [];
         return (
           token?.tokenNfts?.erc6551Accounts?.length > 0 ||
@@ -188,14 +185,12 @@ export function useGetTokensOfOwner(
     if (isSpamFilteringEnabled) {
       tokens = filterByIsSpam(tokens);
       if (tokens.length > 0 && tokens[0]?._common_tokens) {
-        tokens = tokens
-          .map((token: CommonTokenType) => {
+        tokens = (tokens as CommonTokenType[])
+          .map(token => {
             token._common_tokens = filterByIsSpam(token._common_tokens || []);
             return token;
           })
-          .filter((token: CommonTokenType) =>
-            Boolean(token?._common_tokens?.length)
-          );
+          .filter(token => Boolean(token?._common_tokens?.length));
       }
     }
 
@@ -215,6 +210,7 @@ export function useGetTokensOfOwner(
     is6551,
     isSpamFilteringEnabled,
     onDataReceived,
+    snapshotInfo.isApplicable,
     tokensData
   ]);
 

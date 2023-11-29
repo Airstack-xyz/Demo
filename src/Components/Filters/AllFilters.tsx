@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { tokenBlockchains } from '../../constants';
+import { snapshotBlockchains, tokenBlockchains } from '../../constants';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
 import {
@@ -12,8 +12,8 @@ import { Icon } from '../Icon';
 import { ToggleSwitch } from '../ToggleSwitch';
 import {
   BlockchainFilterType,
-  blockchainOptions,
-  defaultBlockchainFilter
+  defaultBlockchainFilter,
+  getBlockchainOptions
 } from './BlockchainFilter';
 import { FilterOption } from './FilterOption';
 import { filterPlaceholderClass } from './FilterPlaceholder';
@@ -100,6 +100,11 @@ export function AllFilters({
     return spamFilter === '0' ? '0' : defaultSpamFilter;
   }, [spamFilter]);
 
+  const blockchainOptions = useMemo(
+    () => getBlockchainOptions(snapshotInfo.isApplicable),
+    [snapshotInfo.isApplicable]
+  );
+
   const [currentSnapshotFilter, setCurrentSnapshotFilter] = useState(
     snapshotInfo.appliedFilter
   );
@@ -168,8 +173,8 @@ export function AllFilters({
   ]);
 
   const snackbarMessage = useMemo(
-    () => getSnackbarMessage(snapshotInfo),
-    [snapshotInfo]
+    () => getSnackbarMessage(snapshotInfo, blockchainType),
+    [blockchainType, snapshotInfo]
   );
 
   const appliedFilterCount = useMemo(
@@ -282,8 +287,11 @@ export function AllFilters({
     // For snapshot filter
     if (currentSnapshotFilter !== 'today') {
       filterValues.sortOrder = defaultSortOrder; // for snapshot query reset sort order
-      // TODO: Remove below blockchain restriction when snapshot is released for other blockchains
-      filterValues.blockchainType = ['base'];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: snapshotBlockchains can be configured
+      if (snapshotBlockchains.length === 1) {
+        filterValues.blockchainType = [snapshotBlockchains[0]];
+      }
     } else {
       filterValues.sortOrder = currentSortOrder || defaultSortOrder;
     }
@@ -398,7 +406,7 @@ export function AllFilters({
           <FilterOption
             key={item.value}
             label={item.label}
-            isDisabled={isDisabled}
+            isDisabled={isDisabled || item.disabled}
             isSelected={currentBlockchainFilter === item.value}
             onClick={handleBlockchainFilterOptionClick(item.value)}
           />

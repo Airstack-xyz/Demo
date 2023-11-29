@@ -1,12 +1,13 @@
 import { fetchQueryWithPagination } from '@airstack/airstack-react';
-import { nftAddressesQuery, nftQuery } from '../../../queries/onChainGraph/nft';
-import { useCallback, useRef } from 'react';
-import { NFTQueryResponse, TokenBalance } from '../types/nft';
 import { FetchPaginatedQueryReturnType } from '@airstack/airstack-react/types';
+import { useCallback, useRef } from 'react';
+import { nftAddressesQuery, nftQuery } from '../../../queries/onChainGraph/nft';
+import { TokenBlockchain } from '../../../types';
 import { QUERY_LIMIT, nftsToIgnore } from '../constants';
 import { RecommendedUser } from '../types';
-import { useOnchainGraphContext } from './useOnchainGraphContext';
+import { NFTQueryResponse, TokenBalance } from '../types/nft';
 import { paginateRequest } from '../utils';
+import { useOnchainGraphContext } from './useOnchainGraphContext';
 
 const maxAddressPerQuery = 100;
 const MAX_ITEMS = 10000;
@@ -14,7 +15,7 @@ const MAX_ITEMS = 10000;
 function formatData(
   data: TokenBalance[],
   _recommendedUsers: RecommendedUser[] = [],
-  blockchain: 'ethereum' | 'polygon' | 'base'
+  blockchain: TokenBlockchain
 ) {
   const recommendedUsers: RecommendedUser[] = [..._recommendedUsers];
 
@@ -73,7 +74,7 @@ function formatData(
 
 export function useGetNFTs(
   address: string,
-  blockchain: 'ethereum' | 'polygon' | 'base' = 'ethereum'
+  blockchain: TokenBlockchain = 'ethereum'
 ) {
   const requestCanceled = useRef(false);
   const { setData, setTotalScannedDocuments } = useOnchainGraphContext();

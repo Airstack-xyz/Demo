@@ -1,4 +1,5 @@
 import { SnapshotFilterType } from '../Components/Filters/SnapshotFilter';
+import { snapshotBlockchains } from '../constants';
 
 export function getActiveSnapshotInfoString({
   blockNumber,
@@ -52,4 +53,8 @@ export const getSnapshotQueryFilters = (snapshotInfo: SnapshotInfo) => {
   }
 
   return queryFilters;
+};
+
+export const checkSupportForSnapshot = (chain: string) => {
+  return snapshotBlockchains.findIndex(_chain => _chain === chain) !== -1;
 };
