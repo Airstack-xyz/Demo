@@ -11,6 +11,8 @@ import {
   Wallet
 } from '../../TokenBalances/types';
 import { nftsToIgnore } from '../constants';
+import { CommonPoapsQueryResponse } from '../types/common-poaps';
+import { CommonNFTQueryResponse, NFTCountData } from '../types/nft';
 import { Following, SocialQueryResponse } from '../types/social';
 import { TokenQueryResponse } from '../types/tokenSentReceived';
 import { paginateRequest } from '../utils';
@@ -29,52 +31,48 @@ const processTokens = (tokens: CommonTokenType[], visited: Set<string>) => {
 
 export async function fetchNfts(
   address: string[],
-  onCountChange?: ({
-    ethCount,
-    polygonCount,
-    baseCount
-  }: {
-    ethCount: number;
-    polygonCount: number;
-    baseCount: number;
-  }) => void
-) {
-  let ethCount = 0;
+  onCountChange?: (params: NFTCountData) => void
+): Promise<NFTCountData> {
+  let ethereumCount = 0;
   let polygonCount = 0;
-  let baseCount = 0;
   const visited = new Set<string>();
 
-  const request = fetchQueryWithPagination(commonNFTTokens, {
-    identity: address[0],
-    identity2: address[1]
-  });
+  const request = fetchQueryWithPagination<CommonNFTQueryResponse>(
+    commonNFTTokens,
+    {
+      identity1: address[0],
+      identity2: address[1]
+    }
+  );
 
   await paginateRequest(request, async data => {
-    const { ethereum, polygon, base } = data;
-    let ethTokenBalances: CommonTokenType[] = ethereum?.TokenBalance || [];
-    let polygonTokenBalances: CommonTokenType[] = polygon?.TokenBalance || [];
-    let baseTokenBalances: CommonTokenType[] = base?.TokenBalance || [];
+    if (!data) {
+      return false;
+    }
+    const { ethereum, polygon } = data;
+    let ethereumBalances = ethereum?.TokenBalance || [];
+    let polygonBalances = polygon?.TokenBalance || [];
+    // TODO: Uncomment when base blockchain is deployed
+    // let baseBalances = base?.TokenBalance || [];
 
-    ethTokenBalances = processTokens(ethTokenBalances, visited);
-    polygonTokenBalances = processTokens(polygonTokenBalances, visited);
-    baseTokenBalances = processTokens(baseTokenBalances, visited);
+    ethereumBalances = processTokens(ethereumBalances, visited);
+    polygonBalances = processTokens(polygonBalances, visited);
+    // TODO: Uncomment when base blockchain is deployed
+    // baseBalances = processTokens(baseBalances, visited);
 
-    ethCount += ethTokenBalances.length;
-    polygonCount += polygonTokenBalances.length;
-    baseCount += baseTokenBalances.length;
+    ethereumCount += ethereumBalances.length;
+    polygonCount += polygonBalances.length;
 
     onCountChange?.({
-      ethCount,
-      polygonCount,
-      baseCount
+      ethereumCount,
+      polygonCount
     });
 
     return true;
   });
   return {
-    ethCount,
-    polygonCount,
-    baseCount
+    ethereumCount,
+    polygonCount
   };
 }
 
@@ -84,12 +82,18 @@ export async function fetchPoaps(
 ) {
   let count = 0;
 
-  const request = fetchQueryWithPagination(commonPoapsQuery, {
-    identity: address[0],
-    identity2: address[1]
-  });
+  const request = fetchQueryWithPagination<CommonPoapsQueryResponse>(
+    commonPoapsQuery,
+    {
+      identity1: address[0],
+      identity2: address[1]
+    }
+  );
 
   await paginateRequest(request, async data => {
+    if (!data) {
+      return false;
+    }
     let poaps = data?.Poaps?.Poap || [];
     if (poaps.length > 0) {
       poaps = poaps.reduce((items: CommonPoapType[], poap: CommonPoapType) => {

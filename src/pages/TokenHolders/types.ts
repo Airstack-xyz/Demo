@@ -29,7 +29,7 @@ export type TokenAddress = {
 
 export type Poap = {
   id: string;
-  blockchain: string;
+  blockchain: TokenBlockchain;
   tokenId: string;
   tokenType: string;
   tokenAddress: string;

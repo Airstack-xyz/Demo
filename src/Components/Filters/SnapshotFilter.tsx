@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMatch } from 'react-router-dom';
+import { snapshotBlockchains } from '../../constants';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
 import { capitalizeFirstLetter, formatDate } from '../../utils';
@@ -255,8 +256,11 @@ export function SnapshotFilter({
 
     if (currentFilter !== 'today') {
       filterValues.sortOrder = defaultSortOrder; // for snapshot query reset sort order
-      // TODO: Remove this blockchain restriction when snapshot is released for other blockchains
-      filterValues.blockchainType = ['ethereum'];
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: snapshotBlockchains can be configured
+      if (snapshotBlockchains.length === 1) {
+        filterValues.blockchainType = [snapshotBlockchains[0]];
+      }
     } else {
       filterValues.blockchainType = [];
     }

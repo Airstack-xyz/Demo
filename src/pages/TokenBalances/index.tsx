@@ -52,7 +52,7 @@ import {
 import { SocialsOverlap } from './Socials/SocialsOverlap';
 import { ScoreOverview } from '../OnchainGraph/CommonScore/ScoreOverview';
 import { SpamFilter } from '../../Components/Filters/SpamFilter';
-import { tokenBlockchains } from '../../constants';
+import { snapshotBlockchains, tokenBlockchains } from '../../constants';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -533,9 +533,14 @@ function TokenBalancePage() {
       snapshotTooltip = 'Snapshots is disabled for combinations';
     }
     if (snapshotInfo.isApplicable) {
-      // TODO: Update blockchain tooltip message when snapshot is released for other blockchains
-      blockchainTooltip = 'Snapshots is only enabled for Ethereum chain';
       sortByTooltip = 'Sorting is disabled for Snapshots';
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: Unreachable code error
+      if (snapshotBlockchains.length === 1) {
+        blockchainTooltip = `Snapshots is only enabled for ${capitalizeFirstLetter(
+          snapshotBlockchains[0]
+        )} chain`;
+      }
     }
     return {
       snapshotTooltip,
