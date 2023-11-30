@@ -18,7 +18,13 @@ import { ERC6551TokenHolder } from '../ERC6551TokenHolder';
 import { Details } from './Details';
 import { TokenDetailsReset } from '../../../store/tokenDetails';
 
-function Overview({ onAddress404 }: { onAddress404?: () => void }) {
+function Overview({
+  onAddress404,
+  hideOverview
+}: {
+  onAddress404?: () => void;
+  hideOverview?: boolean;
+}) {
   const [{ address, activeView, activeTokenInfo }] = useSearchInput();
 
   const isPoap = address.every(token => !token.startsWith('0x'));
@@ -310,7 +316,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
     );
   }
 
-  if (isERC20 || activeView) return null;
+  if (isERC20 || activeView || hideOverview) return null;
 
   // eslint-disable-next-line
   // @ts-ignore

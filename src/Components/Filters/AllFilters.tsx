@@ -292,7 +292,8 @@ export function AllFilters({
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore: snapshotBlockchains can be configured
         snapshotBlockchains.length === 1 ||
-        (blockchainType.length && !checkSupportForSnapshot(blockchainType[0]))
+        (blockchainType.length === 1 &&
+          !checkSupportForSnapshot(blockchainType[0]))
       ) {
         filterValues.blockchainType = [snapshotBlockchains[0]];
       }
