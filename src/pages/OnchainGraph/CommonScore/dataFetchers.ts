@@ -35,6 +35,7 @@ export async function fetchNfts(
 ): Promise<NFTCountData> {
   let ethereumCount = 0;
   let polygonCount = 0;
+  let baseCount = 0;
   const visited = new Set<string>();
 
   const request = fetchQueryWithPagination<CommonNFTQueryResponse>(
@@ -49,30 +50,31 @@ export async function fetchNfts(
     if (!data) {
       return false;
     }
-    const { ethereum, polygon } = data;
+    const { ethereum, polygon, base } = data;
     let ethereumBalances = ethereum?.TokenBalance || [];
     let polygonBalances = polygon?.TokenBalance || [];
-    // TODO: Uncomment when base blockchain is deployed
-    // let baseBalances = base?.TokenBalance || [];
+    let baseBalances = base?.TokenBalance || [];
 
     ethereumBalances = processTokens(ethereumBalances, visited);
     polygonBalances = processTokens(polygonBalances, visited);
-    // TODO: Uncomment when base blockchain is deployed
-    // baseBalances = processTokens(baseBalances, visited);
+    baseBalances = processTokens(baseBalances, visited);
 
     ethereumCount += ethereumBalances.length;
     polygonCount += polygonBalances.length;
+    baseCount += baseBalances.length;
 
     onCountChange?.({
       ethereumCount,
-      polygonCount
+      polygonCount,
+      baseCount
     });
 
     return true;
   });
   return {
     ethereumCount,
-    polygonCount
+    polygonCount,
+    baseCount
   };
 }
 

@@ -174,8 +174,8 @@ export function AllFilters({
   ]);
 
   const snackbarMessage = useMemo(
-    () => getSnackbarMessage(snapshotInfo, blockchainType),
-    [blockchainType, snapshotInfo]
+    () => getSnackbarMessage(snapshotInfo),
+    [snapshotInfo]
   );
 
   const appliedFilterCount = useMemo(
