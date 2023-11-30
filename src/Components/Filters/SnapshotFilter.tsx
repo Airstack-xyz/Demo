@@ -7,6 +7,7 @@ import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
 import { capitalizeFirstLetter, formatDate } from '../../utils';
 import {
   SnapshotInfo,
+  checkSupportForSnapshot,
   getActiveSnapshotInfo,
   getActiveSnapshotInfoString
 } from '../../utils/activeSnapshotInfoString';
@@ -256,9 +257,12 @@ export function SnapshotFilter({
 
     if (currentFilter !== 'today') {
       filterValues.sortOrder = defaultSortOrder; // for snapshot query reset sort order
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: snapshotBlockchains can be configured
-      if (snapshotBlockchains.length === 1) {
+      if (
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore: snapshotBlockchains can be configured
+        snapshotBlockchains.length === 1 ||
+        (blockchainType.length && !checkSupportForSnapshot(blockchainType[0]))
+      ) {
         filterValues.blockchainType = [snapshotBlockchains[0]];
       }
     } else {
