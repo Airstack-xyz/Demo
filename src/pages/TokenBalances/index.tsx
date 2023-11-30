@@ -1,58 +1,58 @@
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { Search } from '../../Components/Search';
-import { Layout } from '../../Components/Layout';
-import { Socials } from './Socials';
-import { Tokens, TokensLoader } from './Tokens';
-import { ERC20Tokens } from './ERC20/ERC20Tokens';
-import { Filters } from './Filters';
-import { SectionHeader } from './SectionHeader';
-import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
-import { isMobileDevice } from '../../utils/isMobileDevice';
-import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
-import { SocialOverlapQuery, SocialQuery } from '../../queries';
-import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
-import { SortBy, defaultSortOrder } from '../../Components/Filters/SortBy';
-import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
-import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMatch } from 'react-router-dom';
-import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
+import { AllFilters } from '../../Components/Filters/AllFilters';
 import { BlockchainFilter } from '../../Components/Filters/BlockchainFilter';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
-import { AllFilters } from '../../Components/Filters/AllFilters';
-import { getNftWithCommonOwnersSnapshotQuery } from '../../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
-import { TokenDetails } from './ERC6551/TokenDetails';
+import { SortBy, defaultSortOrder } from '../../Components/Filters/SortBy';
+import { SpamFilter } from '../../Components/Filters/SpamFilter';
+import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
+import { Layout } from '../../Components/Layout';
+import { Search } from '../../Components/Search';
+import { Tab, TabContainer } from '../../Components/Tab';
+import { snapshotBlockchains } from '../../constants';
 import {
   AccountOwner,
   useGetAccountOwner
 } from '../../hooks/useGetAccountOwner';
+import { useSearchInput } from '../../hooks/useSearchInput';
+import { SocialOverlapQuery, SocialQuery } from '../../queries';
+import { getNftWithCommonOwnersSnapshotQuery } from '../../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
+import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
+import { socialDetailsQuery } from '../../queries/socialDetails';
+import { getSocialFollowersQuery } from '../../queries/socialFollowersQuery';
+import { getSocialFollowingsQuery } from '../../queries/socialFollowingQuery';
 import {
-  poapDetailsQuery,
-  tokenDetailsQuery,
+  erc20TokenDetailsQuery,
   erc6551TokensQuery,
-  erc20TokenDetailsQuery
+  poapDetailsQuery,
+  tokenDetailsQuery
 } from '../../queries/tokenDetails';
 import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
+import { capitalizeFirstLetter } from '../../utils';
 import {
   getActiveSnapshotInfo,
   getSnapshotQueryFilters
 } from '../../utils/activeSnapshotInfoString';
-import { SocialFollows } from './SocialFollows/SocialFollows';
-import { Tab, TabContainer } from '../../Components/Tab';
 import { getActiveSocialInfo } from '../../utils/activeSocialInfoString';
-import { socialDetailsQuery } from '../../queries/socialDetails';
-import { capitalizeFirstLetter } from '../../utils';
-import { getSocialFollowFilterData } from './SocialFollows/utils';
-import { getSocialFollowersQuery } from '../../queries/socialFollowersQuery';
-import { getSocialFollowingsQuery } from '../../queries/socialFollowingQuery';
 import {
   addToActiveTokenInfo,
   getAllActiveTokenInfo
 } from '../../utils/activeTokenInfoString';
-import { SocialsOverlap } from './Socials/SocialsOverlap';
+import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
+import { isMobileDevice } from '../../utils/isMobileDevice';
 import { ScoreOverview } from '../OnchainGraph/CommonScore/ScoreOverview';
-import { SpamFilter } from '../../Components/Filters/SpamFilter';
-import { snapshotBlockchains, tokenBlockchains } from '../../constants';
+import { ERC20Tokens } from './ERC20/ERC20Tokens';
+import { TokenDetails } from './ERC6551/TokenDetails';
+import { Filters } from './Filters';
+import { SectionHeader } from './SectionHeader';
+import { SocialFollows } from './SocialFollows/SocialFollows';
+import { getSocialFollowFilterData } from './SocialFollows/utils';
+import { Socials } from './Socials';
+import { SocialsOverlap } from './Socials/SocialsOverlap';
+import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
+import { Tokens, TokensLoader } from './Tokens';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -245,9 +245,7 @@ function TokenBalancePage() {
 
     const detailTokensVisible = hasERC6551 && accountAddress;
 
-    const fetchAllBlockchains =
-      blockchainType.length === tokenBlockchains.length ||
-      blockchainType.length === 0;
+    const fetchAllBlockchains = blockchainType?.length === 0;
 
     const owners = detailTokensVisible ? [accountAddress] : address;
     const blockchain = fetchAllBlockchains ? null : blockchainType[0];
