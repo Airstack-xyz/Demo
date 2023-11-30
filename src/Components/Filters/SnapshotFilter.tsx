@@ -4,7 +4,7 @@ import { useMatch } from 'react-router-dom';
 import { snapshotBlockchains } from '../../constants';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
-import { capitalizeFirstLetter, formatDate } from '../../utils';
+import { formatDate } from '../../utils';
 import {
   SnapshotInfo,
   checkSupportForSnapshot,
@@ -28,24 +28,19 @@ export const defaultSnapshotFilter: SnapshotFilterType = 'today';
 
 export const getSnackbarMessage = (
   { appliedFilter, blockNumber, customDate, timestamp }: SnapshotInfo,
-  blockchainType: string[],
   isTokenBalancesPage = true
 ) => {
   let message = '';
-  const blockchain =
-    blockchainType?.length === 1
-      ? `${capitalizeFirstLetter(blockchainType[0])} `
-      : '';
   const page = isTokenBalancesPage ? 'balances' : 'holders';
   switch (appliedFilter) {
     case 'blockNumber':
-      message = `Viewing ${blockchain}${page} as of block no. ${blockNumber}`;
+      message = `Viewing ${page} as of block no. ${blockNumber}`;
       break;
     case 'customDate':
-      message = `Viewing ${blockchain}${page} as of ${formatDate(customDate)}`;
+      message = `Viewing ${page} as of ${formatDate(customDate)}`;
       break;
     case 'timestamp':
-      message = `Viewing ${blockchain}${page} as of timestamp ${timestamp}`;
+      message = `Viewing ${page} as of timestamp ${timestamp}`;
       break;
   }
   return message;
@@ -181,8 +176,8 @@ export function SnapshotFilter({
   ]);
 
   const snackbarMessage = useMemo(
-    () => getSnackbarMessage(snapshotInfo, blockchainType, isTokenBalancesPage),
-    [blockchainType, isTokenBalancesPage, snapshotInfo]
+    () => getSnackbarMessage(snapshotInfo, isTokenBalancesPage),
+    [isTokenBalancesPage, snapshotInfo]
   );
 
   const { label, icon } = useMemo(

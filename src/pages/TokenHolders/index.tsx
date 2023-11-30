@@ -527,10 +527,7 @@ export function TokenHolders() {
             hideDisabledTooltipIcon={hideTooltipIcon}
           />
         </div>
-        <GetAPIDropdown
-          options={options}
-          disabled={overviewTokens?.length === 0}
-        />
+        <GetAPIDropdown options={options} />
       </div>
     );
   };

@@ -32,6 +32,7 @@ import {
 import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
 import { capitalizeFirstLetter } from '../../utils';
 import {
+  checkSupportForSnapshot,
   getActiveSnapshotInfo,
   getSnapshotQueryFilters
 } from '../../utils/activeSnapshotInfoString';
@@ -523,6 +524,14 @@ function TokenBalancePage() {
     let snapshotTooltip = '';
     let blockchainTooltip = '';
     let sortByTooltip = '';
+    if (blockchainType?.length === 1) {
+      const blockchain = blockchainType[0];
+      if (blockchain && !checkSupportForSnapshot(blockchain)) {
+        snapshotTooltip = `Snapshots is disabled for ${capitalizeFirstLetter(
+          blockchain
+        )} chain`;
+      }
+    }
     if (isPoap) {
       snapshotTooltip = 'Snapshots is disabled for POAP';
       blockchainTooltip = 'Blockchain is disabled for POAP';
@@ -545,7 +554,7 @@ function TokenBalancePage() {
       blockchainTooltip,
       sortByTooltip
     };
-  }, [isCombination, isPoap, snapshotInfo.isApplicable]);
+  }, [blockchainType, isCombination, isPoap, snapshotInfo.isApplicable]);
 
   const isQueryExists = query && query.length > 0;
 

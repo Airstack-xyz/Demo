@@ -81,6 +81,7 @@ export function filterDuplicatedAndCalculateScore(
 
       let ethereumNftCount = 0;
       let polygonNftCount = 0;
+      let baseNftCount = 0;
 
       uniqueNfts.forEach(nft => {
         switch (nft.blockchain) {
@@ -90,17 +91,15 @@ export function filterDuplicatedAndCalculateScore(
           case 'polygon':
             polygonNftCount += 1;
             break;
-          // TODO: Uncomment when base blockchain is deployed
-          // case 'base':
-          //   baseNftCount += 1;
-          //   break;
+          case 'base':
+            baseNftCount += 1;
+            break;
         }
       });
 
       score += scoreMap.commonEthNfts * ethereumNftCount;
       score += scoreMap.commonPolygonNfts * polygonNftCount;
-      // TODO: Uncomment when base blockchain is deployed
-      // score += scoreMap.commonBaseNfts * baseNftCount;
+      score += scoreMap.commonBaseNfts * baseNftCount;
     }
 
     let uniquePoaps: RecommendedUser['poaps'] = [];
