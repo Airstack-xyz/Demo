@@ -265,10 +265,8 @@ export const Search = memo(function Search() {
         inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType']
       };
 
-      // For combination reset snapshot filter
-      if (address.length > 1) {
-        filterValues.activeSnapshotInfo = undefined;
-      }
+      // For every new search reset snapshot filter
+      filterValues.activeSnapshotInfo = undefined;
 
       setValue(rawTextWithMentions + padding);
       handleDataChange(filterValues);
