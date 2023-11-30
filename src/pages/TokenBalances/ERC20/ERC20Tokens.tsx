@@ -142,9 +142,7 @@ export function ERC20Tokens() {
   );
 
   const query = useMemo(() => {
-    const fetchAllBlockchains =
-      blockchainType.length === tokenBlockchains.length ||
-      blockchainType.length === 0;
+    const fetchAllBlockchains = blockchainType?.length === 0;
 
     const blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
