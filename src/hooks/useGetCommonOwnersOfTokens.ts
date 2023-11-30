@@ -111,8 +111,8 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     if (
       hasPoap
         ? !data.Poaps?.Poap
-        : appropriateBlockchains.every(
-            blockchain => !data?.[blockchain]?.TokenBalance
+        : !appropriateBlockchains.some(
+            blockchain => data?.[blockchain]?.TokenBalance
           )
     ) {
       // if there is no data, hide the loader

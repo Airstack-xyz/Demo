@@ -1,4 +1,4 @@
-import { TokenBlockchain } from '../../types';
+import { SnapshotBlockchain, TokenBlockchain } from '../../types';
 import { TokenBalance, ContentValue } from '../TokenBalances/types';
 
 export type Token = TokenBalance &
@@ -13,7 +13,7 @@ export type Token = TokenBalance &
   };
 
 export type TokensData = {
-  [Key in TokenBlockchain]: { TokenBalance: Token[] };
+  [Key in TokenBlockchain | SnapshotBlockchain]: { TokenBalance: Token[] };
 } & PoapsData;
 
 export type PoapsData = {
