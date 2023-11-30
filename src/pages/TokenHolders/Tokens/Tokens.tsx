@@ -104,7 +104,12 @@ export function TokensComponent() {
   const isPoap = inputType === 'POAP';
 
   useEffect(() => {
-    if (tokenAddress.length === 0 || hasMultipleERC20) return;
+    if (
+      tokenAddress.length === 0 ||
+      overviewTokens.length === 0 || // Important: Need to wait for overview tokens to resolved before fetching actual tokens
+      hasMultipleERC20
+    )
+      return;
 
     if (isPoap && shouldFetchPoaps) {
       fetchPoaps();
@@ -118,7 +123,8 @@ export function TokensComponent() {
     isPoap,
     shouldFetchPoaps,
     tokenAddress.length,
-    hasMultipleERC20
+    hasMultipleERC20,
+    overviewTokens.length
   ]);
 
   const handleShowMoreClick = useCallback(

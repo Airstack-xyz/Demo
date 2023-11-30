@@ -458,10 +458,10 @@ export function TokenHolders() {
     setShowTokensOrOverview(false);
   }, []);
 
-  const showSummary =
-    !snapshotInfo.isApplicable && // Don't show summary for snapshots
-    !hasEveryERC20 && // Don't show summary for only ERC20 tokens
-    !hasMultipleERC20 && // Don't show summary for ERC20 combinations
+  const showOverview =
+    !snapshotInfo.isApplicable && // Don't show overview for snapshots
+    !hasEveryERC20 && // Don't show overview for only ERC20 tokens
+    !hasMultipleERC20 && // Don't show overview for ERC20 combinations
     !activeView; // Don't show summary for overview details
 
   const showTokens =
@@ -553,9 +553,15 @@ export function TokenHolders() {
               className="flex flex-col justify-center mt-7 max-w-[950px] mx-auto"
               key={query}
             >
-              {showSummary && (
-                <HoldersOverview onAddress404={handleInvalidAddress} />
-              )}
+              {/* 
+                Overview token fetching happen inside HoldersOverview, that's 
+                why it is need to be mounted every time, even if we don't show ui 
+                TODO: Move overview fetching logic outside 
+               */}
+              <HoldersOverview
+                hideOverview={!showOverview}
+                onAddress404={handleInvalidAddress}
+              />
               {showTokens && (
                 <>
                   {activeView && <OverviewDetails />}
