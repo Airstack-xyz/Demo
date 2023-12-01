@@ -21,7 +21,7 @@ export const defaultScoreMap = {
   commonPoaps: 7,
   commonEthNfts: 5,
   commonPolygonNfts: 0,
-  commonBaseNfts: 0
+  commonBaseNfts: 3
 };
 export type ScoreMap = typeof defaultScoreMap;
 
