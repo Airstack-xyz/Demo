@@ -542,7 +542,7 @@ function TokenBalancePage() {
     if (snapshotInfo.isApplicable) {
       sortByTooltip = 'Sorting is disabled for Snapshots';
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: Unreachable code error
+      // @ts-ignore
       if (snapshotBlockchains.length === 1) {
         blockchainTooltip = `Snapshots is only enabled for ${capitalizeFirstLetter(
           snapshotBlockchains[0]

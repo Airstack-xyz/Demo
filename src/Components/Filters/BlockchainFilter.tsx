@@ -45,7 +45,7 @@ export const getBlockchainOptions = (isSnapshotApplicable?: boolean) => {
     // Find blockchains which are in snapshotBlockchains but not in tokenBlockchains
     const filteredBlockchains = snapshotBlockchains.filter(
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: tokenBlockchains and snapshotBlockchains can be configured
+      // @ts-ignore
       blockchain => tokenBlockchains.indexOf(blockchain) === -1
     );
 
