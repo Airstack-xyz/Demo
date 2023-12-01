@@ -15,11 +15,9 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@airstack/airstack-react": "^0.5.8",
+    "@airstack/airstack-react": "^0.6.0",
     "classnames": "^2.3.2",
     "comlink": "^4.4.1",
-    "i": "^0.3.7",
-    "npm": "^9.8.0",
     "patch-package": "^8.0.0",
     "react": "^18.2.0",
     "react-calendar": "^4.6.0",
