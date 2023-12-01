@@ -1,5 +1,5 @@
 diff --git a/node_modules/@airstack/airstack-react/constants/index.js b/node_modules/@airstack/airstack-react/constants/index.js
-index 4a428f6..95f89bc 100644
+index 46b0c00..d27328c 100644
 --- a/node_modules/@airstack/airstack-react/constants/index.js
 +++ b/node_modules/@airstack/airstack-react/constants/index.js
 @@ -1,4 +1,4 @@
@@ -8,12 +8,3 @@ index 4a428f6..95f89bc 100644
  var PresetPXSize = /* @__PURE__ */ ((PresetPXSize2) => {
    PresetPXSize2[PresetPXSize2["ExtraSmall"] = 125] = "ExtraSmall";
    PresetPXSize2[PresetPXSize2["Small"] = 250] = "Small";
-@@ -13,7 +13,7 @@ const PresetArray = [
-   750
-   /* Large */
- ];
--const API_ENDPOINT_PROD = "https://api.airstack.xyz/gql";
-+const API_ENDPOINT_PROD = "https://api.uat.airstack.xyz/gql";
- export {
-   AIRSTACK_ENDPOINT,
-   API_ENDPOINT_PROD,
