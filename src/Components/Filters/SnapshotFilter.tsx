@@ -254,7 +254,7 @@ export function SnapshotFilter({
       filterValues.sortOrder = defaultSortOrder; // for snapshot query reset sort order
       if (
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore: snapshotBlockchains can be configured
+        // @ts-ignore
         snapshotBlockchains.length === 1 ||
         (blockchainType.length === 1 &&
           !checkSupportForSnapshot(blockchainType[0]))
