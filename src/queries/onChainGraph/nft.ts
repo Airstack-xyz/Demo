@@ -49,6 +49,11 @@ export const nftQuery = `query NFTs($addresses: [Address!], $blockchain: TokenBl
             profileImage
             profileTokenId
             profileTokenAddress
+            profileImageContentValue {
+              image {
+                small
+              }
+            }
           }
           xmtp {
             isXMTPEnabled

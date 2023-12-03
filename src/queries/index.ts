@@ -25,6 +25,11 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
       followingCount
       profileTokenId
       profileTokenAddress
+      profileImageContentValue {
+        image {
+          small
+        }
+      }
     }
     lensSocials: socials(input: {filter: {dappName: {_eq: lens}}}) {
       isDefault
@@ -36,6 +41,11 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
       followingCount
       profileTokenId
       profileTokenAddress
+      profileImageContentValue {
+        image {
+          small
+        }
+      }
     }
     xmtp {
       isXMTPEnabled

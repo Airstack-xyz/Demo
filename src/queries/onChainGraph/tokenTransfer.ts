@@ -34,6 +34,11 @@ const getTokenSentSubQuery = (blockchain: string) => {
           profileImage
           profileTokenId
           profileTokenAddress
+          profileImageContentValue {
+            image {
+              small
+            }
+          }
         }
         xmtp {
           isXMTPEnabled
@@ -82,6 +87,11 @@ const getTokenReceivedSubQuery = (blockchain: string) => {
           profileImage
           profileTokenId
           profileTokenAddress
+          profileImageContentValue {
+            image {
+              small
+            }
+          }
         }
         xmtp {
           isXMTPEnabled

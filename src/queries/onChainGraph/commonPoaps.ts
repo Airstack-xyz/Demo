@@ -51,6 +51,11 @@ export const poapsByEventIdsQuery = `query PoapsByEventId($poaps: [String!]) {
               profileImage
               profileTokenId
               profileTokenAddress
+              profileImageContentValue {
+                image {
+                  small
+                }
+              }
             }
             xmtp {
               isXMTPEnabled

@@ -125,6 +125,11 @@ export interface Social {
   followerCount: number;
   followingCount: number;
   profileTokenAddress: string;
+  profileImageContentValue: {
+    image: {
+      small: string;
+    };
+  };
 }
 
 export interface Xmtp {
