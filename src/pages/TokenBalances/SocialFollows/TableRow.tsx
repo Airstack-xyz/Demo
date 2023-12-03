@@ -91,6 +91,7 @@ export function TableRow({
   const renderAssets = () => {
     const assets: ReactNode[] = [];
 
+    // for lens pick profile image url from profileImageContentValue
     const profileImageUrl = isLensDapp
       ? social?.profileImageContentValue?.image?.extraSmall
       : social?.profileImage;

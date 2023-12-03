@@ -32,6 +32,11 @@ export const socialFollowingsQuery = `query Followings($user: Identity!, $dappNa
             profileImage
             profileTokenId
             profileTokenAddress
+            profileImageContentValue {
+              image {
+                small
+              }
+            }
           }
           xmtp {
             isXMTPEnabled
@@ -85,6 +90,11 @@ export const socialFollowersQuery = `query Followers($user: Identity!, $dappName
           profileImage
           profileTokenId
           profileTokenAddress
+          profileImageContentValue {
+            image {
+              small
+            }
+          }
         }
         xmtp {
           isXMTPEnabled

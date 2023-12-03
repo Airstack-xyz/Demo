@@ -43,6 +43,7 @@ export function Card({
   item: Social;
   isLensDapp: boolean;
 }) {
+  // for lens pick profile image url from profileImageContentValue
   const profileImageUrl = isLensDapp
     ? item.profileImageContentValue?.image?.small
     : item.profileImage;

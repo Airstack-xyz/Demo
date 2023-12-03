@@ -206,6 +206,11 @@ export interface Social {
   profileTokenId: string;
   profileImage: string;
   profileTokenAddress: string;
+  profileImageContentValue: {
+    image: {
+      small: string;
+    };
+  };
 }
 
 export interface Xmtp {
