@@ -35,6 +35,7 @@ import {
   SearchAIMentionsResponse,
   SearchAIMentionsResults
 } from './types';
+import ImageWithFallback from '../ImageWithFallback';
 
 type Option = SearchAIMentionsResults & {
   id: string;
@@ -352,7 +353,17 @@ export function InputWithMention({
 
     return (
       <div className="suggestion">
-        <img src={suggestion.thumbnailURL || ''} alt={suggestion.display} />
+        <ImageWithFallback
+          height={18}
+          width={18}
+          src={suggestion?.image?.extraSmall}
+          alt={suggestion?.blockchain}
+          fallback={
+            suggestion?.blockchain
+              ? `/images/blockchains/${suggestion.blockchain}.png`
+              : ''
+          }
+        />
         <span className="text">
           <p className="text-left">
             {suggestion.display}

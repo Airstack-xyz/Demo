@@ -11,9 +11,8 @@ export type AdvancedSearchAIMentionsResults = {
   name: string;
   address: string;
   eventId: string | null;
-  blockchain: 'ethereum' | 'polygon' | 'gnosis';
+  blockchain: string;
   tokenType: string;
-  thumbnailURL: string | null;
   symbol: string | null;
   image: {
     medium: string | null;
