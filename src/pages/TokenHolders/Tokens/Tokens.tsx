@@ -22,7 +22,7 @@ const loaderData = Array(6).fill({});
 
 function Loader() {
   return (
-    <table className="w-auto text-xs table-fixed sm:w-full">
+    <table className="text-xs table-fixed w-full">
       <tbody>
         {loaderData.map((_, index) => (
           <tr
@@ -74,9 +74,9 @@ export function TokensComponent() {
   } = useGetCommonOwnersOfTokens(tokenAddress);
 
   const {
-    fetch: fetchPoap,
+    fetch: fetchPoaps,
     loading: loadingPoaps,
-    poaps,
+    poaps: poapsData,
     processedPoapsCount,
     ...paginationPoaps
   } = useGetCommonOwnersOfPoaps(tokenAddress);
@@ -99,13 +99,13 @@ export function TokensComponent() {
     if (tokenAddress.length === 0 || hasMultipleERC20) return;
 
     if (isPoap && shouldFetchPoaps) {
-      fetchPoap();
+      fetchPoaps();
       return;
     }
 
     fetchTokens();
   }, [
-    fetchPoap,
+    fetchPoaps,
     fetchTokens,
     isPoap,
     shouldFetchPoaps,
@@ -155,7 +155,7 @@ export function TokensComponent() {
     }
   }, [getNextPage, hasNextPage, loading]);
 
-  const tokens = shouldFetchPoaps ? poaps : tokensData;
+  const tokens = shouldFetchPoaps ? poapsData : tokensData;
   const totalProcessed = processedTokensCount + processedPoapsCount;
   const isCombination = address.length > 1;
   const showStatusLoader = loading && isCombination;

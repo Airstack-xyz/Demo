@@ -205,7 +205,9 @@ export const SearchAIMentionsQuery = `
         address
         eventId
         blockchain
-        thumbnailURL
+        image {
+          extraSmall
+        }
         metadata {
           tokenMints
         }
@@ -224,7 +226,6 @@ export const AdvancedSearchAIMentionsQuery = `
         eventId
         blockchain
         tokenType
-        thumbnailURL
         blockchain
         symbol
         image {
@@ -317,7 +318,9 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
       }
       tokenNfts {
         contentValue {
-          video
+          video {
+            original
+          }
           image {
             small
             medium
@@ -372,7 +375,9 @@ export const TokenOwnerQuery = `query GetTokenHolders($tokenAddress: Address, $l
       }
       tokenNfts {
         contentValue {
-          video
+          video {
+            original
+          }
           image {
             small
             medium
@@ -424,8 +429,12 @@ export const PoapOwnerQuery = `query GetPoapHolders($eventId: [String!], $limit:
             extraSmall
             small
           }
-          video
-          audio
+          video {
+            original
+          }
+          audio {
+            original
+          }
         }
         logo: contentValue {
           image {

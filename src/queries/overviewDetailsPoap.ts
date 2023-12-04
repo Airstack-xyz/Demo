@@ -15,8 +15,12 @@ function getFields(hasSocialFilters = false, hasPrimaryDomainFilter = false) {
        image {
          small
        }
-       video
-       audio
+       video {
+        original
+      }
+       audio {
+        original
+      }
      }
      logo: contentValue {
        image {

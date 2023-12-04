@@ -20,8 +20,12 @@ export function getCommonPoapAndNftOwnersQuery(
               small
               medium
             }
-            video
-            audio
+            video {
+              original
+            }
+            audio {
+              original
+            }
           }
           logo: contentValue {
             image {
@@ -49,7 +53,9 @@ export function getCommonPoapAndNftOwnersQuery(
             }
             tokenNfts {
               contentValue {
-                video
+                video {
+                  original
+                }
                 image {
                   small
                   medium
