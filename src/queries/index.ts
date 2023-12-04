@@ -205,7 +205,9 @@ export const SearchAIMentionsQuery = `
         address
         eventId
         blockchain
-        thumbnailURL
+        image {
+          extraSmall
+        }
         metadata {
           tokenMints
         }
@@ -224,7 +226,6 @@ export const AdvancedSearchAIMentionsQuery = `
         eventId
         blockchain
         tokenType
-        thumbnailURL
         blockchain
         symbol
         image {

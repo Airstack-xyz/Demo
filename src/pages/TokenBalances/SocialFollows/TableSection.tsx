@@ -285,6 +285,7 @@ export function TableSection({
 
   const mentionInputComponent = (
     <MentionInput
+      key={followData.mentionRawText}
       defaultValue={followData.mentionRawText}
       disabled={isInputDisabled}
       placeholder="Input a token to view overlap"
