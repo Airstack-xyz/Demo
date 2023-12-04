@@ -34,6 +34,6 @@ export function sortByAddressByNonERC20First(
 
   return address.map(address => ({
     address: address.toLowerCase(),
-    blockchain: 'ethereum'
+    blockchain: undefined // Causes token-balances and snapshots queries for all blockchains
   }));
 }

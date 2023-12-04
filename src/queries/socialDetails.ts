@@ -7,7 +7,6 @@ export const socialDetailsQuery = `query SocialDetails($identities: [Identity!],
       isDefault
       blockchain
       dappName
-      dappSlug
       profileName
       profileHandle
       profileDisplayName

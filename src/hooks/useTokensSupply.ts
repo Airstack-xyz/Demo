@@ -4,6 +4,7 @@ import { fetchQuery } from '@airstack/airstack-react';
 import { TokenTotalSupplyQuery } from '../queries';
 import { FetchQueryReturnType } from '@airstack/airstack-react/types';
 import { POAPSupplyQuery } from '../queries/overviewDetailsTokens';
+import { tokenBlockchains } from '../constants';
 
 type Result = Record<string, number>;
 
@@ -29,13 +30,12 @@ export function useTokensSupply() {
       const _totalSupply = totalSupply as TotalSupply;
       supply = 0;
 
-      if (_totalSupply?.ethereum?.totalSupply) {
-        supply += parseInt(_totalSupply.ethereum.totalSupply);
-      }
+      tokenBlockchains.forEach(blockchain => {
+        if (_totalSupply?.[blockchain]?.totalSupply) {
+          supply += parseInt(_totalSupply?.[blockchain]?.totalSupply);
+        }
+      });
 
-      if (_totalSupply?.polygon?.totalSupply) {
-        supply += parseInt(_totalSupply.polygon.totalSupply);
-      }
       return supply;
     },
     []

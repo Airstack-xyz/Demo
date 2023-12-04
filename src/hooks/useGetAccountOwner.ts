@@ -1,14 +1,17 @@
 import { useLazyQuery } from '@airstack/airstack-react';
+import { tokenBlockchains } from '../constants';
 import { accountOwnerQuery } from '../queries/accountsQuery';
+import { TokenBlockchain } from '../types';
 
-export interface AccountsRequestData {
-  ethereum: {
+export type AccountOwnerResponse = {
+  [Key in TokenBlockchain]: {
     Account: Account[];
   };
-  polygon: {
-    Account: Account[];
-  };
-}
+};
+
+export type AccountOwnerVariables = {
+  accountAddress: string;
+};
 
 export interface Account {
   tokenId: string;
@@ -28,11 +31,16 @@ export interface TokenBalance {
   };
 }
 
-function formatData(data: AccountsRequestData) {
+function formatData(data: AccountOwnerResponse) {
   if (!data) return null;
-  const { ethereum, polygon } = data;
-  const accounts = [...(ethereum?.Account || []), ...(polygon?.Account || [])];
-  const account = accounts.find(account => account.tokenAddress);
+  const tokenAccounts: Account[] = [];
+
+  tokenBlockchains.forEach(blockchain => {
+    const accounts = data?.[blockchain]?.Account || [];
+    tokenAccounts.push(...accounts);
+  });
+
+  const account = tokenAccounts.find(account => account.tokenAddress);
   return account
     ? {
         ...account,
@@ -40,6 +48,7 @@ function formatData(data: AccountsRequestData) {
       }
     : null;
 }
+
 export type AccountOwner = ReturnType<typeof formatData>;
 
 export function useGetAccountOwner(
@@ -47,7 +56,10 @@ export function useGetAccountOwner(
   onCompleted?: (data: AccountOwner) => void,
   onError?: () => void
 ) {
-  const [fetch, { data, loading }] = useLazyQuery(
+  const [fetch, { data, loading }] = useLazyQuery<
+    AccountOwner,
+    AccountOwnerVariables
+  >(
     accountOwnerQuery,
     {
       accountAddress
@@ -55,5 +67,5 @@ export function useGetAccountOwner(
     { dataFormatter: formatData, onCompleted, onError }
   );
 
-  return [fetch, data as AccountOwner, loading] as const;
+  return [fetch, data, loading] as const;
 }

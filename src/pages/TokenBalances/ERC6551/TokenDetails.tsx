@@ -13,7 +13,7 @@ import {
   ERC20Response,
   Nft,
   TokenTransfer
-} from '../erc20-types';
+} from '../ERC20/types';
 import { NestedTokens } from './NestedTokens';
 import { useCallback, useEffect, useRef } from 'react';
 import {
@@ -135,11 +135,13 @@ export function TokenDetails(props: {
   const { tokenId, eventId, blockchain, tokenAddress } =
     activeTokens[activeTokens.length - 1];
 
-  const [{ address, rawInput, inputType }, setSearchData] = useSearchInput();
+  const [{ address, rawInput, inputType, activeSnapshotInfo }, setSearchData] =
+    useSearchInput();
   const navigate = useNavigate();
   const isTokenBalances = !!useMatch('/token-balances');
+  const [, setDetails] = useTokenDetails(['hasERC6551']);
+
   const addressRef = useRef(address.join(','));
-  const setDetails = useTokenDetails(['hasERC6551'])[1];
 
   const [fetchToken, { data, loading: loadingToken }] = useLazyQuery(
     tokenDetailsQuery,
@@ -272,6 +274,8 @@ export function TokenDetails(props: {
   const loading = showLoader || loadingToken || loadingERC20 || loadingPoap;
   const hasChildren = !loading && !isPoap && nft?.erc6551Accounts?.length > 0;
 
+  const tokenKey = `${tokenAddress}-${tokenId}-${blockchain}-${activeSnapshotInfo}`;
+
   return (
     <div
       className={classNames(
@@ -387,8 +391,8 @@ export function TokenDetails(props: {
             <Token
               token={(erc20Data?.Token || poap || nft) as Nft}
               hideHoldersButton
-              key={`${tokenAddress}-${tokenId}-${blockchain}`}
               disabled
+              key={tokenKey}
             />
           </div>
           <div className="flex justify-center">
@@ -445,7 +449,7 @@ export function TokenDetails(props: {
           tokenId={tokenId}
           blockchain={blockchain}
           tokenAddress={tokenAddress}
-          key={`${tokenAddress}-${tokenId}-${blockchain}`}
+          key={tokenKey}
         />
       )}
     </div>

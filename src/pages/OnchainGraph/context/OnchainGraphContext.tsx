@@ -43,7 +43,6 @@ export interface SocialData {
     lensSocials?: {
       isDefault: boolean;
       dappName: string;
-      dappSlug: string;
       blockchain: string;
       profileName: string;
       profileTokenId: string;
@@ -53,7 +52,6 @@ export interface SocialData {
     farcasterSocials?: {
       isDefault: boolean;
       dappName: string;
-      dappSlug: string;
       blockchain: string;
       profileName: string;
       profileTokenId: string;

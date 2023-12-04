@@ -95,6 +95,10 @@ module.exports = {
         '.before-bg-glass': {
           // Use this class if bg-glass will used in nesting fashion, normally blur doesn't work correctly if applied in nested fashion
           '@apply before:bg-glass before:absolute before:inset-0': {}
+        },
+        '.before-bg-glass-1': {
+          // Use this class if bg-glass-1 will used in nesting fashion, normally blur doesn't work correctly if applied in nested fashion
+          '@apply before:bg-glass-1 before:absolute before:inset-0': {}
         }
       });
     }

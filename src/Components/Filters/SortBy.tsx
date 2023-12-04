@@ -1,13 +1,14 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { Dropdown, Option } from '../Dropdown';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
+import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
 
 export type SortOrderType = 'DESC' | 'ASC';
 
-export const defaultSortOrder = 'DESC';
+export const defaultSortOrder: SortOrderType = 'DESC';
 
 type SortOption = {
   label: string;
@@ -25,22 +26,27 @@ export const sortOptions: SortOption[] = [
   }
 ];
 
-export function SortBy({ disabled }: { disabled?: boolean }) {
-  const [{ sortOrder }, setData] = useSearchInput();
+export function SortBy({
+  disabled,
+  disabledTooltipText
+}: {
+  disabled?: boolean;
+  disabledTooltipText?: string;
+}) {
+  const [searchInputs, setData] = useSearchInput();
+  const {
+    tooltipRef,
+    containerRef,
+    handleTooltipShow,
+    handleTooltipHide,
+    handleTooltipMove
+  } = useDisabledTooltip();
+
+  const sortOrder = searchInputs.sortOrder as SortOrderType;
+
+  const enableTooltipHover = disabled && Boolean(disabledTooltipText);
 
   const isFilterDisabled = disabled;
-
-  // Reset sort filter for snapshot query
-  useEffect(() => {
-    if (isFilterDisabled) {
-      setData(
-        {
-          sortOrder: defaultSortOrder
-        },
-        { updateQueryParams: true }
-      );
-    }
-  }, [isFilterDisabled, setData]);
 
   const handleChange = useCallback(
     (selected: Option[]) => {
@@ -66,12 +72,25 @@ export function SortBy({ disabled }: { disabled?: boolean }) {
       onChange={handleChange}
       options={sortOptions}
       renderPlaceholder={(selected, isOpen) => (
-        <FilterPlaceholder
-          icon="sort"
-          isOpen={isOpen}
-          isDisabled={isFilterDisabled}
-          label={selected[0].label}
-        />
+        <div
+          className="relative"
+          ref={containerRef}
+          onMouseEnter={enableTooltipHover ? handleTooltipShow : undefined}
+          onMouseLeave={enableTooltipHover ? handleTooltipHide : undefined}
+          onMouseMove={enableTooltipHover ? handleTooltipMove : undefined}
+        >
+          <FilterPlaceholder
+            icon="sort"
+            isOpen={isOpen}
+            isDisabled={isFilterDisabled}
+            label={selected[0].label}
+          />
+          <DisabledTooltip
+            isEnabled={enableTooltipHover}
+            tooltipRef={tooltipRef}
+            tooltipText={disabledTooltipText}
+          />
+        </div>
       )}
       renderOption={({ option, isSelected, setSelected }) => (
         <FilterOption

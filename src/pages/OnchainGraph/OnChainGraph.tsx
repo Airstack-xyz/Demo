@@ -19,9 +19,9 @@ function ItemsLoader() {
   return (
     <>
       {loaderItems.map((_, index) => (
-        <div className="skeleton-loader" data-loader-type="block">
+        <div key={index} className="skeleton-loader" data-loader-type="block">
           {/* eslint-disable-next-line */}
-          <UserInfo key={index} identities={{} as any} />
+          <UserInfo identities={{} as any} />
         </div>
       ))}
     </>
