@@ -1,4 +1,4 @@
-import { Icon } from '../Icon';
+import { Icon, IconType } from '../Icon';
 import LazyImage from '../LazyImage';
 import { AdvancedSearchAIMentionsResults } from './types';
 import { getAssetAddress, getAssetImage } from './utils';
@@ -67,7 +67,7 @@ export default function Asset({
       <div className="w-full flex justify-end text-sm">
         <div className="rounded-full h-[32px] w-[32px] bg-glass border-solid-light">
           <Icon
-            name={blockchain}
+            name={blockchain as IconType}
             height={30}
             width={30}
             style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.4) 0px 0px 2px)' }}
