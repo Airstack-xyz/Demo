@@ -21,6 +21,7 @@ import {
   getSearchQuery,
   getUpdatedMentionValue
 } from './utils';
+import { ADDRESS_OPTION_ID, POAP_OPTION_ID } from '../Input/constants';
 
 const LOADING_ITEM_COUNT = 9;
 
@@ -93,23 +94,31 @@ const defaultSearchData: SearchDataType = {
 };
 
 export default function AdvancedSearch({
-  mentionInputSelector,
-  value,
+  mentionInputSelector, // query selector for mention-input element
+  mentionValue, // mention-input's value containing markup for mentions
+  displayValueStartIndex, // @mention starting index in mention-input's display value i.e. value visible to user
+  displayValueEndIndex, // @mention ending index in mention-input's display value i.e. value visible to user
   onChange,
   onClose
 }: {
   mentionInputSelector: string;
-  value: string;
+  mentionValue: string;
+  displayValueStartIndex: number;
+  displayValueEndIndex: number;
   onChange: (value: string) => void;
   onClose: () => void;
 }) {
   const [searchData, setSearchData] =
     useState<SearchDataType>(defaultSearchData);
   const [focusIndex, setFocusIndex] = useState(0);
-  const [customInputMode, setCustomInputMode] =
-    useState<CustomInputModeType | null>(null);
+  const [inputMode, setInputMode] = useState<CustomInputModeType | null>(null);
 
   const focusIndexRef = useRef(0);
+  const inputModeRef = useRef<CustomInputModeType | null>(null);
+
+  // store refs so that it can be used in events without triggering useEffect
+  focusIndexRef.current = focusIndex;
+  inputModeRef.current = inputMode;
 
   const {
     isLoading,
@@ -133,7 +142,6 @@ export default function AdvancedSearch({
     const activeItem = gridItems[itemIndex];
     if (activeItem) {
       activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      focusIndexRef.current = itemIndex;
       setFocusIndex(itemIndex);
     }
   }, []);
@@ -148,12 +156,14 @@ export default function AdvancedSearch({
   }, []);
 
   useEffect(() => {
-    const text = getDisplayValue(value);
-    const query = getSearchQuery(text, 0);
+    // convert mention-input's value containing markup for mentions to display value i.e. value visible to user
+    const displayValue = getDisplayValue(mentionValue);
+    // extract the query from display value bounded within start/end index
+    const query = getSearchQuery(displayValue, displayValueStartIndex);
     // if there is no matching query found
-    // if (query === null) {
-    //   onClose();
-    // }
+    if (query === null) {
+      onClose();
+    }
     if (query) {
       setSearchData(prev => ({
         ...prev,
@@ -163,11 +173,43 @@ export default function AdvancedSearch({
         items: []
       }));
     }
-  }, [value, onClose]);
+  }, [onClose, mentionValue, displayValueStartIndex]);
 
   useEffect(() => {
+    const mentionInputEl =
+      document.querySelector<HTMLTextAreaElement>(mentionInputSelector);
+
+    // set mention-input's caret to correct position
+    mentionInputEl?.setSelectionRange(
+      displayValueEndIndex,
+      displayValueEndIndex
+    );
+
+    function handleInputClick() {
+      const selectionStart = mentionInputEl?.selectionStart ?? -1;
+      // if mention-input's caret moves before @ position
+      if (selectionStart <= displayValueStartIndex) {
+        onClose();
+        return;
+      }
+      const substring =
+        mentionInputEl?.value.substring(
+          displayValueStartIndex,
+          selectionStart
+        ) || '';
+      // if mention-input's query contains whitespace
+      if (/\s/.test(substring)) {
+        onClose();
+        return;
+      }
+    }
+
     function handleKeyUp(event: KeyboardEvent) {
-      // disable ai-input's certain keys, so that they can be used in advanced search
+      // for custom input mode don't block enter keyboard event
+      if (event.key === 'Enter' && inputModeRef.current) {
+        return;
+      }
+      // disable mention-input's certain keys, so that they can be used in advanced search
       if (DISABLED_KEYS.includes(event.key)) {
         event.stopImmediatePropagation();
         event.preventDefault();
@@ -188,13 +230,28 @@ export default function AdvancedSearch({
         case 'Enter':
           selectGridItem();
           break;
+        case ' ':
+        case 'Escape':
+          onClose();
+          break;
       }
     }
+
     document.addEventListener('keyup', handleKeyUp, true);
+    mentionInputEl?.addEventListener('click', handleInputClick);
+
     return () => {
       document.removeEventListener('keyup', handleKeyUp, true);
+      mentionInputEl?.removeEventListener('click', handleInputClick);
     };
-  }, [focusGridItem, onClose, selectGridItem]);
+  }, [
+    displayValueEndIndex,
+    displayValueStartIndex,
+    focusGridItem,
+    mentionInputSelector,
+    onClose,
+    selectGridItem
+  ]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -245,7 +302,6 @@ export default function AdvancedSearch({
         items: [...prev.items, ...nextItems]
       }));
 
-      focusIndexRef.current = 0;
       setFocusIndex(0);
     }
 
@@ -259,7 +315,7 @@ export default function AdvancedSearch({
   const handleReloadData = useCallback(() => {
     setSearchData(prev => ({
       ...prev,
-      cursor: prev.cursor === null ? undefined : null, // Causes fetchData useEffect to invoke again
+      cursor: prev.cursor === null ? undefined : null, // causes fetchData useEffect to invoke again
       nextCursor: null,
       hasMore: true,
       items: []
@@ -297,31 +353,28 @@ export default function AdvancedSearch({
     }));
   }, []);
 
-  const handleMentionUpdate = (itemMention: string) => {
-    const mentionValue = getUpdatedMentionValue(value, itemMention, 0);
-    if (mentionValue !== null) {
+  const handleMentionUpdate = (mention: string) => {
+    const value = getUpdatedMentionValue(mentionValue, mention);
+    if (value !== null) {
       // append space to the value
-      const finalMentionValue = mentionValue.trim() + ' ';
-      onChange(finalMentionValue);
-      const aiInputEl =
+      const finalValue = value.trim() + ' ';
+      onChange(finalValue);
+      const mentionInputEl =
         document.querySelector<HTMLTextAreaElement>(mentionInputSelector);
       // focus and put caret to last position
-      aiInputEl?.focus();
-      aiInputEl?.setSelectionRange(
-        finalMentionValue.length,
-        finalMentionValue.length
-      );
+      mentionInputEl?.focus();
+      mentionInputEl?.setSelectionRange(finalValue.length, finalValue.length);
     }
     onClose();
   };
 
-  const handleCustomInputAdd = (itemMention: string) => {
-    handleMentionUpdate(itemMention);
+  const handleCustomInputAdd = (mention: string) => {
+    handleMentionUpdate(mention);
   };
 
   const handleItemSelect = (item: AdvancedSearchAIMentionsResults) => {
-    const itemMention = getSearchItemMention(item);
-    handleMentionUpdate(itemMention);
+    const mention = getSearchItemMention(item);
+    handleMentionUpdate(mention);
   };
 
   const isBlockchainFilterDisabled = selectedToken.value === 'POAP';
@@ -331,18 +384,18 @@ export default function AdvancedSearch({
   const errorOccurred = isError && !isLoading && items.length === 0;
 
   const showCustomInput =
-    customInputMode === 'ID_ADDRESS' || customInputMode === 'ID_POAP';
+    inputMode === ADDRESS_OPTION_ID || inputMode === POAP_OPTION_ID;
 
   return (
     <div
       id="advancedSearch"
       className={classNames(
         'pt-5 px-5 relative z-20 transition-all',
-        showCustomInput ? 'max-h-[100px]' : 'max-h-[648px]:'
+        showCustomInput ? 'h-[80px]' : 'h-[648px]'
       )}
     >
       {showCustomInput ? (
-        <CustomInput mode={customInputMode} onAdd={handleCustomInputAdd} />
+        <CustomInput mode={inputMode} onAdd={handleCustomInputAdd} />
       ) : (
         <>
           <div className="flex justify-between items-center">
@@ -389,7 +442,6 @@ export default function AdvancedSearch({
                 isFocused={focusIndex === index}
                 onClick={() => handleItemSelect(item)}
                 onMouseEnter={() => {
-                  focusIndexRef.current = index;
                   setFocusIndex(index);
                 }}
               />
@@ -399,12 +451,12 @@ export default function AdvancedSearch({
             <FooterButton
               icon="token-balances"
               text="Enter token contract address"
-              onClick={() => setCustomInputMode('ID_ADDRESS')}
+              onClick={() => setInputMode(ADDRESS_OPTION_ID)}
             />
             <FooterButton
               icon="poap-flat"
               text="Enter a POAP event ID"
-              onClick={() => setCustomInputMode('ID_POAP')}
+              onClick={() => setInputMode(POAP_OPTION_ID)}
             />
           </div>
         </>

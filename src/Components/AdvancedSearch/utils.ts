@@ -66,8 +66,8 @@ export const getDisplayValue = (mentionValue: string) => {
 
 export const getUpdatedMentionValue = (
   mentionValue: string,
-  itemMention: string,
-  indexInDisplayValue: number
+  mention: string,
+  indexInDisplayValue = 0
 ) => {
   // for the passed index in the displayValue, returns the corresponding index in mentionValue
   const positionInValue = mapPlainTextIndex(
@@ -81,8 +81,6 @@ export const getUpdatedMentionValue = (
   }
   return (
     mentionValue.substring(0, positionInValue) +
-    mentionValue
-      .substring(positionInValue)
-      .replace(SEARCH_TERM_REGEX, itemMention)
+    mentionValue.substring(positionInValue).replace(SEARCH_TERM_REGEX, mention)
   );
 };

@@ -24,6 +24,18 @@ type MentionInputProps = {
   onClear?: () => void;
 };
 
+type AdvancedSearchData = {
+  visible: boolean;
+  startIndex: number;
+  endIndex: number;
+};
+
+const defaultAdvancedSearchData: AdvancedSearchData = {
+  visible: false,
+  startIndex: -1,
+  endIndex: -1
+};
+
 const padding = '  ';
 
 export function MentionInput({
@@ -38,10 +50,12 @@ export function MentionInput({
 }: MentionInputProps) {
   const [value, setValue] = useState(defaultValue);
 
+  const [advancedSearchData, setAdvancedSearchData] =
+    useState<AdvancedSearchData>(defaultAdvancedSearchData);
+
   const isMobile = isMobileDevice();
 
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
-  const [isAdvancedSearchVisible, setIsAdvancedSearchVisible] = useState(false);
   const inputSectionRef = useRef<HTMLDivElement>(null);
   const buttonSectionRef = useRef<HTMLDivElement>(null);
 
@@ -56,7 +70,6 @@ export function MentionInput({
         !inputSectionRef.current?.contains(event.target as Node)
       ) {
         setIsInputSectionFocused(false);
-        setIsAdvancedSearchVisible(false);
       }
       // if click event is from input section not from button section
       else if (
@@ -64,9 +77,6 @@ export function MentionInput({
         !buttonSectionRef.current?.contains(event.target as Node)
       ) {
         setIsInputSectionFocused(true);
-        if (isAdvancedSearchEnabled) {
-          setIsAdvancedSearchVisible(true);
-        }
       }
     }
     document.addEventListener('click', handleClickOutside, true);
@@ -76,13 +86,13 @@ export function MentionInput({
   }, [isAdvancedSearchEnabled]);
 
   const handleInputClear = useCallback(() => {
-    if (isAdvancedSearchVisible) {
-      setIsAdvancedSearchVisible(false);
+    if (advancedSearchData.visible) {
+      setAdvancedSearchData(prev => ({ ...prev, visible: false }));
     } else {
       setValue('');
       onClear?.();
     }
-  }, [isAdvancedSearchVisible, onClear]);
+  }, [advancedSearchData.visible, onClear]);
 
   const handleInputSubmit = () => {
     handleSubmit(value);
@@ -118,12 +128,24 @@ export function MentionInput({
     setValue(rawText.trim() + padding);
   };
 
+  const showAdvancedSearch = useCallback(
+    (startIndex: number, endIndex: number) => {
+      setAdvancedSearchData({
+        visible: true,
+        startIndex,
+        endIndex
+      });
+    },
+    []
+  );
+
   const hideAdvancedSearch = useCallback(() => {
-    setIsAdvancedSearchVisible(false);
+    setAdvancedSearchData(prev => ({ ...prev, visible: false }));
   }, []);
 
-  const _disableSuggestions =
-    !isMobile || isAdvancedSearchVisible || disableSuggestions;
+  const enableAdvancedSearch = !isMobile;
+
+  const _disableSuggestions = enableAdvancedSearch || disableSuggestions;
 
   return (
     <div id="sf-input-section" className="relative z-10">
@@ -142,11 +164,12 @@ export function MentionInput({
             disableSuggestions={_disableSuggestions}
             onChange={setValue}
             onSubmit={handleSubmit}
+            showAdvancedSearch={showAdvancedSearch}
           />
           <div ref={buttonSectionRef} className="flex justify-end pl-2">
             {!!value && (
               <>
-                {!isInputSectionFocused || isAdvancedSearchVisible ? (
+                {!isInputSectionFocused || advancedSearchData.visible ? (
                   <button type="button" onClick={handleInputClear}>
                     <Icon name="close" width={14} height={14} />
                   </button>
@@ -159,7 +182,7 @@ export function MentionInput({
             )}
           </div>
         </div>
-        {isAdvancedSearchVisible && (
+        {advancedSearchData.visible && (
           <div className="before-bg-glass before:rounded-18 rounded-18 border-solid-stroke w-[min(60vw,786px)] absolute top-8">
             <div
               className="bg-primary/70 z-[-1] inset-0 fixed"
@@ -167,7 +190,9 @@ export function MentionInput({
             />
             <AdvancedSearch
               mentionInputSelector="#sf-input-section #mention-input"
-              value={value}
+              mentionValue={value}
+              displayValueStartIndex={advancedSearchData.startIndex}
+              displayValueEndIndex={advancedSearchData.endIndex}
               onChange={setValue}
               onClose={hideAdvancedSearch}
             />

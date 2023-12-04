@@ -37,7 +37,7 @@ export default function CustomInput({
       <input
         autoFocus
         type="text"
-        className="w-full pr-2 bg-transparent caret-white outline-none text-xs"
+        className="w-full px-2 bg-transparent caret-white outline-none text-xs"
         placeholder={
           mode === ADDRESS_OPTION_ID
             ? 'Enter contract address here'

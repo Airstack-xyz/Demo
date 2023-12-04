@@ -50,6 +50,18 @@ export function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
   );
 }
 
+type AdvancedSearchData = {
+  visible: boolean;
+  startIndex: number;
+  endIndex: number;
+};
+
+const defaultAdvancedSearchData: AdvancedSearchData = {
+  visible: false,
+  startIndex: -1,
+  endIndex: -1
+};
+
 const padding = '  ';
 
 export const Search = memo(function Search() {
@@ -68,13 +80,12 @@ export const Search = memo(function Search() {
 
   const [value, setValue] = useState(rawInput || '');
 
+  const [advancedSearchData, setAdvancedSearchData] =
+    useState<AdvancedSearchData>(defaultAdvancedSearchData);
+
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
-  const [isAdvancedSearchVisible, setIsAdvancedSearchVisible] = useState(false);
   const inputSectionRef = useRef<HTMLDivElement>(null);
   const buttonSectionRef = useRef<HTMLDivElement>(null);
-
-  // Need to show advanced only for desktop token-holders screen
-  const isAdvancedSearchEnabled = !isMobile && !isTokenBalances;
 
   useEffect(() => {
     if (isTokenBalances) {
@@ -104,7 +115,7 @@ export const Search = memo(function Search() {
         !inputSectionRef.current?.contains(event.target as Node)
       ) {
         setIsInputSectionFocused(false);
-        setIsAdvancedSearchVisible(false);
+        setAdvancedSearchData(prev => ({ ...prev, visible: false }));
       }
       // if click event is from input section not from button section
       else if (
@@ -112,16 +123,13 @@ export const Search = memo(function Search() {
         !buttonSectionRef.current?.contains(event.target as Node)
       ) {
         setIsInputSectionFocused(true);
-        if (isAdvancedSearchEnabled) {
-          setIsAdvancedSearchVisible(true);
-        }
       }
     }
     document.addEventListener('click', handleClickOutside, true);
     return () => {
       document.removeEventListener('click', handleClickOutside, true);
     };
-  }, [isAdvancedSearchEnabled]);
+  }, []);
 
   const handleDataChange = useCallback(
     (data: Partial<CachedQuery>) => {
@@ -282,7 +290,7 @@ export const Search = memo(function Search() {
   const handleSubmit = useCallback(
     (mentionValue: string) => {
       setIsInputSectionFocused(false);
-      setIsAdvancedSearchVisible(false);
+      setAdvancedSearchData(prev => ({ ...prev, visible: false }));
 
       const trimmedValue = mentionValue.trim();
 
@@ -310,12 +318,12 @@ export const Search = memo(function Search() {
   };
 
   const handleInputClear = useCallback(() => {
-    if (isAdvancedSearchVisible) {
-      setIsAdvancedSearchVisible(false);
+    if (advancedSearchData.visible) {
+      setAdvancedSearchData(prev => ({ ...prev, visible: false }));
     } else {
       setValue('');
     }
-  }, [isAdvancedSearchVisible]);
+  }, [advancedSearchData.visible]);
 
   const getTabChangeHandler = useCallback(
     (isTokenBalance: boolean) => {
@@ -331,8 +339,19 @@ export const Search = memo(function Search() {
     [isHome, navigate]
   );
 
+  const showAdvancedSearch = useCallback(
+    (startIndex: number, endIndex: number) => {
+      setAdvancedSearchData({
+        visible: true,
+        startIndex,
+        endIndex
+      });
+    },
+    []
+  );
+
   const hideAdvancedSearch = useCallback(() => {
-    setIsAdvancedSearchVisible(false);
+    setAdvancedSearchData(prev => ({ ...prev, visible: false }));
   }, []);
 
   const inputPlaceholder = isTokenBalances
@@ -341,10 +360,9 @@ export const Search = memo(function Search() {
 
   const showPrefixIcon = isHome && (!isInputSectionFocused || !value);
 
-  const disableHighlighting = isTokenBalances;
+  const enableAdvancedSearch = !isMobile && !isTokenBalances;
 
-  const disableSuggestions =
-    !isMobile || isTokenBalances || isAdvancedSearchVisible;
+  const disableSuggestions = isTokenBalances || enableAdvancedSearch;
 
   return (
     <div className="relative z-10">
@@ -382,13 +400,13 @@ export const Search = memo(function Search() {
           ref={inputSectionRef}
           className={classNames(
             'before-bg-glass before:rounded-18 before:border-solid-stroke transition-all absolute top-0',
-            isAdvancedSearchVisible ? 'w-[min(60vw,900px)]' : 'w-full'
+            advancedSearchData.visible ? 'w-[min(60vw,900px)]' : 'w-full'
           )}
         >
           <div
             className={classNames(
               'flex items-center h-[50px] w-full rounded-18 px-4 py-3 transition-all z-20 relative',
-              isAdvancedSearchVisible
+              advancedSearchData.visible
                 ? 'bg-[linear-gradient(137deg,#ffffff0f_-8.95%,#ffffff00_114%)]'
                 : ''
             )}
@@ -399,15 +417,17 @@ export const Search = memo(function Search() {
             <InputWithMention
               value={value}
               placeholder={inputPlaceholder}
-              disableHighlighting={disableHighlighting}
               disableSuggestions={disableSuggestions}
               onChange={setValue}
               onSubmit={handleSubmit}
+              showAdvancedSearch={
+                enableAdvancedSearch ? showAdvancedSearch : undefined
+              }
             />
             <div ref={buttonSectionRef} className="flex justify-end pl-3">
               {!!value && (
                 <>
-                  {!isInputSectionFocused || isAdvancedSearchVisible ? (
+                  {!isInputSectionFocused || advancedSearchData.visible ? (
                     <button
                       type="button"
                       className="text-right w-5"
@@ -424,7 +444,7 @@ export const Search = memo(function Search() {
               )}
             </div>
           </div>
-          {isAdvancedSearchVisible && (
+          {advancedSearchData.visible && (
             <>
               <div
                 className="bg-primary/70 z-[-1] inset-0 fixed"
@@ -432,7 +452,9 @@ export const Search = memo(function Search() {
               />
               <AdvancedSearch
                 mentionInputSelector="#main-input-section #mention-input"
-                value={value}
+                mentionValue={value}
+                displayValueStartIndex={advancedSearchData.startIndex}
+                displayValueEndIndex={advancedSearchData.endIndex}
                 onChange={setValue}
                 onClose={hideAdvancedSearch}
               />
