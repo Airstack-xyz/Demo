@@ -190,14 +190,19 @@ export const Search = memo(function Search() {
       }
 
       const rawTextWithMentions = rawInput.join(padding);
-      const searchData = {
+      const filterValues: Partial<CachedQuery> = {
         address,
-        blockchain: 'ethereum',
-        rawInput: rawTextWithMentions,
+        rawInput: rawInput.join(padding),
         inputType: 'ADDRESS' as UserInputs['inputType']
       };
+
+      // For combination reset snapshot filter
+      if (address.length > 1) {
+        filterValues.activeSnapshotInfo = undefined;
+      }
+
       setValue(rawTextWithMentions.trim() + padding);
-      handleDataChange(searchData);
+      handleDataChange(filterValues);
     },
     [handleDataChange]
   );
@@ -208,7 +213,6 @@ export const Search = memo(function Search() {
       const rawInput: string[] = [];
       let inputType: string | null = null;
       let hasInputTypeMismatch = false;
-      let blockchain = 'ethereum';
       let token = '';
       const wordsAndMentions = getAllWordsAndMentions(value);
 
@@ -216,7 +220,6 @@ export const Search = memo(function Search() {
         if (mention) {
           rawInput.push(rawValue);
           address.push(mention.eventId || mention.address);
-          blockchain = mention.blockchain || '';
           token = mention.token || '';
           const _inputType = mention.customInputType || '';
           hasInputTypeMismatch = hasInputTypeMismatch
@@ -256,14 +259,17 @@ export const Search = memo(function Search() {
       }
 
       const rawTextWithMentions = rawInput.join(padding);
-      const searchData = {
+      const filterValues: Partial<CachedQuery> = {
         address,
-        blockchain,
         rawInput: rawTextWithMentions,
         inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType']
       };
+
+      // For every new search reset snapshot filter
+      filterValues.activeSnapshotInfo = undefined;
+
       setValue(rawTextWithMentions + padding);
-      handleDataChange(searchData);
+      handleDataChange(filterValues);
     },
     [handleDataChange]
   );

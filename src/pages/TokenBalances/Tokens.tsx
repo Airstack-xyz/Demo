@@ -1,14 +1,14 @@
-import { useCallback, memo, useMemo, useState, useEffect } from 'react';
-import { PoapType, TokenType as TokenType } from './types';
-import { UserInputs } from '../../hooks/useSearchInput';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { Token } from './Token';
-import { useGetTokensOfOwner } from '../../hooks/useGetTokensOfOwner';
-import { useGetPoapsOfOwner } from '../../hooks/useGetPoapsOfOwner';
-import { emit } from '../../utils/eventEmitter/eventEmitter';
-import { TokenCombination } from './TokenCombination';
 import classNames from 'classnames';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { useGetPoapsOfOwner } from '../../hooks/useGetPoapsOfOwner';
+import { useGetTokensOfOwner } from '../../hooks/useGetTokensOfOwner';
+import { UserInputs } from '../../hooks/useSearchInput';
+import { emit } from '../../utils/eventEmitter/eventEmitter';
+import { Token } from './Token';
+import { TokenCombination } from './TokenCombination';
 import { TokenWithERC6551 } from './TokenWithERC6551';
+import { PoapType, TokenType } from './types';
 
 const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 
@@ -17,7 +17,7 @@ export function TokensLoader() {
     <>
       {loaderData.map((_, index) => (
         <div className="skeleton-loader" key={index}>
-          <Token key={index} token={null} />
+          <Token key={index} token={null} hideHoldersButton />
         </div>
       ))}
     </>
@@ -26,7 +26,12 @@ export function TokensLoader() {
 
 type TokenProps = Pick<
   UserInputs,
-  'address' | 'tokenType' | 'blockchainType' | 'sortOrder' | 'spamFilter'
+  | 'address'
+  | 'tokenType'
+  | 'blockchainType'
+  | 'sortOrder'
+  | 'spamFilter'
+  | 'activeSnapshotInfo'
 > & {
   poapDisabled?: boolean;
   includeERC20?: boolean;
@@ -39,6 +44,7 @@ function TokensComponent(props: TokenProps) {
     blockchainType,
     sortOrder,
     spamFilter,
+    activeSnapshotInfo,
     includeERC20,
     poapDisabled
   } = props;
@@ -54,6 +60,7 @@ function TokensComponent(props: TokenProps) {
     blockchainType,
     sortOrder,
     spamFilter,
+    activeSnapshotInfo,
     includeERC20
   };
 
@@ -71,19 +78,16 @@ function TokensComponent(props: TokenProps) {
     hasNextPage: hasNextPageTokens
   } = useGetTokensOfOwner(inputs, handleTokens);
 
-  useEffect(() => {
-    if (owners.length === 0) return;
-    // reset tokens when search input changes
-    setTokens([]);
-  }, [blockchainType, owners, sortOrder, tokenType, spamFilter]);
-
   const isPoap = tokenType === 'POAP';
 
   const canFetchPoap = useMemo(() => {
-    const hasPolygonChainFilter =
-      blockchainType.length === 1 && blockchainType[0] === 'polygon';
-    return !hasPolygonChainFilter && (!tokenType || isPoap);
-  }, [blockchainType, isPoap, tokenType]);
+    const hasPolygonOrBaseChainFilter =
+      blockchainType.length === 1 &&
+      (blockchainType[0] === 'polygon' || blockchainType[0] === 'base');
+    return (
+      !hasPolygonOrBaseChainFilter && !poapDisabled && (!tokenType || isPoap)
+    );
+  }, [blockchainType, isPoap, poapDisabled, tokenType]);
 
   const handleNext = useCallback(() => {
     if (!loadingTokens && !isPoap && hasNextPageTokens) {
@@ -169,7 +173,13 @@ function TokensComponent(props: TokenProps) {
             return <TokenWithERC6551 key={`${index}-${id}`} token={token} />;
           }
 
-          return <Token key={`${index}-${id}`} token={token} />;
+          return (
+            <Token
+              key={`${index}-${id}`}
+              token={token}
+              hideHoldersButton={loading}
+            />
+          );
         })}
         {loading && <TokensLoader />}
       </InfiniteScroll>

@@ -4,12 +4,20 @@ import { Icon } from '../../../Components/Icon';
 import classNames from 'classnames';
 import { useLoaderContext } from '../../../hooks/useLoader';
 
-type View = 'owners' | 'primaryEns' | 'ens' | 'lens' | 'farcaster' | 'xmtp';
+type FilterType =
+  | 'owners'
+  | 'primaryEns'
+  | 'ens'
+  | 'lens'
+  | 'farcaster'
+  | 'xmtp';
 
-const options: Array<{
+type FilterOption = {
   label: string;
-  value: View;
-}> = [
+  value: FilterType;
+};
+
+const options: FilterOption[] = [
   {
     label: 'has primary ENS',
     value: 'primaryEns'
@@ -46,6 +54,19 @@ export function Filters() {
     setShow(false);
     setSelected([]);
   }, []);
+
+  const handleApply = useCallback(() => {
+    setFilters(
+      {
+        tokenFilters: selected
+      },
+      {
+        updateQueryParams: true
+      }
+    );
+    setShow(false);
+    setSelected([]);
+  }, [selected, setFilters]);
 
   const getFilterSetter = useCallback(
     (filter: string) => () => {
@@ -92,8 +113,9 @@ export function Filters() {
       {show && (
         <ul className="absolute top-full right-0 z-10 bg-glass p-3 rounded-18 border-solid-stroke mt-1 text-xs [&>li]:mb-1.5 ">
           {options.map(({ label, value }) => {
-            if (value === activeView) return null;
-
+            if (value === activeView) {
+              return null;
+            }
             return (
               <li key={value} className="-mx-3">
                 <label className="whitespace-nowrap flex items-center py-1.5 px-3 cursor-pointer hover:bg-glass">
@@ -108,25 +130,18 @@ export function Filters() {
               </li>
             );
           })}
-          <li className="flex items-center mt-3 !mb-0">
+          <li className="flex items-center justify-center gap-5 mt-3 !mb-0">
             <button
-              className="rounded-18 bg-button-primary px-3 py-1.5 mr-4 disabled:opacity-75 disabled:cursor-not-allowed"
-              onClick={() => {
-                setFilters(
-                  {
-                    tokenFilters: selected
-                  },
-                  {
-                    updateQueryParams: true
-                  }
-                );
-                handleClose();
-              }}
+              className="rounded-18 bg-button-primary px-3 py-1.5 enabled:hover:opacity-60 disabled:opacity-75 disabled:cursor-not-allowed"
+              onClick={handleApply}
               disabled={!newFiltersApplied}
             >
               Apply
             </button>
-            <button className="px-3 py-1.5" onClick={handleClose}>
+            <button
+              className="px-3 py-1.5 enabled:hover:opacity-60"
+              onClick={handleClose}
+            >
               Close
             </button>
           </li>

@@ -8,10 +8,21 @@ import * as Comlink from 'comlink';
 
 export function getDefaultScoreMap(): ScoreMap {
   const savedScoreMap = localStorage.getItem(SCORE_KEY);
-  const savedScore: null | ScoreMap = savedScoreMap
-    ? JSON.parse(savedScoreMap)
-    : null;
-  return savedScore || defaultScoreMap;
+  if (!savedScoreMap) {
+    return defaultScoreMap;
+  }
+  try {
+    const savedScore = JSON.parse(savedScoreMap);
+    // Sync localStorage scoreMap with defaultScoreMap
+    // Syncing prevents NaN score issue in OnChain graph
+    const keys = Object.keys(defaultScoreMap) as Array<keyof ScoreMap>;
+    keys.forEach(key => {
+      savedScore[key] = savedScore[key] ?? defaultScoreMap[key] ?? 0;
+    });
+    return savedScore;
+  } catch (_err) {
+    return defaultScoreMap;
+  }
 }
 
 export function filterDuplicatedAndCalculateScore(
@@ -68,16 +79,29 @@ export function filterDuplicatedAndCalculateScore(
         return true;
       });
 
-      const ethNftCount = uniqueNfts.filter(
-        nft => nft.blockchain === 'ethereum'
-      ).length;
-      const polygonNftCount = uniqueNfts.filter(
-        nft => nft.blockchain === 'polygon'
-      ).length;
-      score +=
-        scoreMap.commonEthNfts * ethNftCount +
-        scoreMap.commonPolygonNfts * polygonNftCount;
+      let ethereumNftCount = 0;
+      let polygonNftCount = 0;
+      let baseNftCount = 0;
+
+      uniqueNfts.forEach(nft => {
+        switch (nft.blockchain) {
+          case 'ethereum':
+            ethereumNftCount += 1;
+            break;
+          case 'polygon':
+            polygonNftCount += 1;
+            break;
+          case 'base':
+            baseNftCount += 1;
+            break;
+        }
+      });
+
+      score += scoreMap.commonEthNfts * ethereumNftCount;
+      score += scoreMap.commonPolygonNfts * polygonNftCount;
+      score += scoreMap.commonBaseNfts * baseNftCount;
     }
+
     let uniquePoaps: RecommendedUser['poaps'] = [];
     if (user.poaps) {
       const existingPoaps: Record<string, boolean> = {};

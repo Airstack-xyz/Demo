@@ -35,6 +35,12 @@ type QueryResponse = {
   };
 };
 
+type QueryVariables = {
+  addresses: string[];
+  dappName?: string;
+  limit: number;
+};
+
 type LazyAddressesModalProps = {
   isOpen: boolean;
   heading: string;
@@ -79,7 +85,7 @@ export function LazyAddressesModal({
       loading,
       pagination: { hasNextPage, getNextPage }
     }
-  ] = useLazyQueryWithPagination(
+  ] = useLazyQueryWithPagination<QueryResponse, QueryVariables>(
     query,
     {
       addresses,

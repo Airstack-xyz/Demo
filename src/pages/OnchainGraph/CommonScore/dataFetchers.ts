@@ -1,74 +1,80 @@
 import { fetchQuery, fetchQueryWithPagination } from '@airstack/airstack-react';
-import { paginateRequest } from '../utils';
+import { tokenBlockchains } from '../../../constants';
+import { SocialQuery } from '../../../queries';
+import { commonNFTTokens } from '../../../queries/onChainGraphForTwoAddresses/common-nfts';
+import { commonPoapsQuery } from '../../../queries/onChainGraphForTwoAddresses/common-poaps';
+import { mutualFollower } from '../../../queries/onChainGraphForTwoAddresses/followings';
+import { tokenSentQuery } from '../../../queries/onChainGraphForTwoAddresses/tokens';
 import {
   CommonPoapType,
   CommonTokenType,
   Wallet
 } from '../../TokenBalances/types';
 import { nftsToIgnore } from '../constants';
-import { commonNFTTokens } from '../../../queries/onChainGraphForTwoAddresses/common-nfts';
-import { commonPoapsQuery } from '../../../queries/onChainGraphForTwoAddresses/common-poaps';
-import { mutualFollower } from '../../../queries/onChainGraphForTwoAddresses/followings';
+import { CommonPoapsQueryResponse } from '../types/common-poaps';
+import { CommonNFTQueryResponse, NFTCountData } from '../types/nft';
 import { Following, SocialQueryResponse } from '../types/social';
 import { TokenQueryResponse } from '../types/tokenSentReceived';
-import { tokenSentQuery } from '../../../queries/onChainGraphForTwoAddresses/tokens';
-import { SocialQuery } from '../../../queries';
+import { paginateRequest } from '../utils';
+
+const processTokens = (tokens: CommonTokenType[], visited: Set<string>) => {
+  if (tokens.length > 0) {
+    tokens = tokens.filter(token => {
+      if (nftsToIgnore.includes(token?.tokenAddress)) return false;
+      const isDuplicate = visited.has(token?.tokenAddress);
+      visited.add(token?.tokenAddress);
+      return Boolean(token?.token?.tokenBalances?.length) && !isDuplicate;
+    });
+  }
+  return tokens;
+};
 
 export async function fetchNfts(
   address: string[],
-  onCountChange?: ({
-    ethCount,
-    polygonCount
-  }: {
-    ethCount: number;
-    polygonCount: number;
-  }) => void
-) {
-  let ethCount = 0;
+  onCountChange?: (params: NFTCountData) => void
+): Promise<NFTCountData> {
+  let ethereumCount = 0;
   let polygonCount = 0;
+  let baseCount = 0;
   const visited = new Set<string>();
 
-  const request = fetchQueryWithPagination(commonNFTTokens, {
-    identity: address[0],
-    identity2: address[1]
-  });
+  const request = fetchQueryWithPagination<CommonNFTQueryResponse>(
+    commonNFTTokens,
+    {
+      identity1: address[0],
+      identity2: address[1]
+    }
+  );
 
   await paginateRequest(request, async data => {
-    const { ethereum, polygon } = data;
-    let ethTokens: CommonTokenType[] = ethereum?.TokenBalance || [];
-    let maticTokens: CommonTokenType[] = polygon?.TokenBalance || [];
-
-    if (ethTokens.length > 0) {
-      ethTokens = ethTokens.filter(token => {
-        if (nftsToIgnore.includes(token?.tokenAddress)) return false;
-
-        const isDuplicate = visited.has(token?.tokenAddress);
-        visited.add(token?.tokenAddress);
-        return Boolean(token?.token?.tokenBalances?.length) && !isDuplicate;
-      });
+    if (!data) {
+      return false;
     }
-    if (maticTokens.length > 0) {
-      maticTokens = maticTokens.filter(token => {
-        if (nftsToIgnore.includes(token?.tokenAddress)) return false;
-        const isDuplicate = visited.has(token?.tokenAddress);
-        visited.add(token?.tokenAddress);
-        return Boolean(token?.token?.tokenBalances?.length) && !isDuplicate;
-      });
-    }
+    const { ethereum, polygon, base } = data;
+    let ethereumBalances = ethereum?.TokenBalance || [];
+    let polygonBalances = polygon?.TokenBalance || [];
+    let baseBalances = base?.TokenBalance || [];
 
-    ethCount += ethTokens.length;
-    polygonCount += maticTokens.length;
+    ethereumBalances = processTokens(ethereumBalances, visited);
+    polygonBalances = processTokens(polygonBalances, visited);
+    baseBalances = processTokens(baseBalances, visited);
+
+    ethereumCount += ethereumBalances.length;
+    polygonCount += polygonBalances.length;
+    baseCount += baseBalances.length;
 
     onCountChange?.({
-      ethCount,
-      polygonCount
+      ethereumCount,
+      polygonCount,
+      baseCount
     });
 
     return true;
   });
   return {
-    ethCount,
-    polygonCount
+    ethereumCount,
+    polygonCount,
+    baseCount
   };
 }
 
@@ -78,12 +84,18 @@ export async function fetchPoaps(
 ) {
   let count = 0;
 
-  const request = fetchQueryWithPagination(commonPoapsQuery, {
-    identity: address[0],
-    identity2: address[1]
-  });
+  const request = fetchQueryWithPagination<CommonPoapsQueryResponse>(
+    commonPoapsQuery,
+    {
+      identity1: address[0],
+      identity2: address[1]
+    }
+  );
 
   await paginateRequest(request, async data => {
+    if (!data) {
+      return false;
+    }
     let poaps = data?.Poaps?.Poap || [];
     if (poaps.length > 0) {
       poaps = poaps.reduce((items: CommonPoapType[], poap: CommonPoapType) => {
@@ -111,13 +123,10 @@ export async function fetchTokensTransfer(address: string[]) {
       from: address[1]
     }
   );
-  if (data?.Ethereum?.TokenTransfer?.length) {
-    tokenSent = true;
-  }
 
-  if (data?.Polygon?.TokenTransfer?.length) {
-    tokenSent = true;
-  }
+  tokenSent = tokenBlockchains.some(
+    blockchain => data?.[blockchain]?.TokenTransfer?.length
+  );
 
   const { data: data2 } = await fetchQueryWithPagination<TokenQueryResponse>(
     tokenSentQuery,
@@ -126,13 +135,11 @@ export async function fetchTokensTransfer(address: string[]) {
       from: address[0]
     }
   );
-  if (data2?.Ethereum?.TokenTransfer?.length) {
-    tokenReceived = true;
-  }
 
-  if (data2?.Polygon?.TokenTransfer?.length) {
-    tokenReceived = true;
-  }
+  tokenReceived = tokenBlockchains.some(
+    blockchain => data2?.[blockchain]?.TokenTransfer?.length
+  );
+
   return { tokenSent, tokenReceived };
 }
 
@@ -160,8 +167,6 @@ export async function fetchMutualFollowings(address: string[]) {
         Boolean(
           following.followingAddress.domains?.some(x => x.name === address)
         );
-
-      // console.log({ domains: following.followingAddress.domains });
 
       if (match) {
         isFollowing = true;

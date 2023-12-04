@@ -23,7 +23,7 @@ import { Filters } from './Filters';
 import { MentionInput, MentionOutput } from './MentionInput';
 import { TableRow, TableRowLoader } from './TableRow';
 import './styles.css';
-import { Follow, SocialFollowResponse } from './types';
+import { Follow, SocialFollowQueryFilters } from './types';
 import { filterTableItems, getSocialFollowFilterData } from './utils';
 
 const LOADING_ROW_COUNT = 6;
@@ -40,17 +40,23 @@ function TableLoader() {
   );
 }
 
+type SocialFollowResponse = {
+  SocialFollowers: {
+    Follower: Follow[];
+  };
+  SocialFollowings: {
+    Following: Follow[];
+  };
+};
+
+type SocialFollowVariables = SocialFollowQueryFilters & {
+  limit: number;
+};
+
 type ModalData = {
   isOpen: boolean;
   dataType?: string;
-  identity?: string;
   addresses: string[];
-};
-
-type TableSectionProps = {
-  identities: string[];
-  socialInfo: SocialInfo;
-  setQueryData: UpdateUserInputs;
 };
 
 const mentionValidationFn = ({ mentions }: MentionOutput) => {
@@ -68,7 +74,11 @@ export function TableSection({
   identities,
   socialInfo,
   setQueryData
-}: TableSectionProps) {
+}: {
+  identities: string[];
+  socialInfo: SocialInfo;
+  setQueryData: UpdateUserInputs;
+}) {
   const navigate = useNavigate();
 
   const [tableItems, setTableItems] = useState<Follow[]>([]);
@@ -80,7 +90,6 @@ export function TableSection({
   const [modalData, setModalData] = useState<ModalData>({
     isOpen: false,
     dataType: '',
-    identity: '',
     addresses: []
   });
   const [loaderData, setLoaderData] = useState({
@@ -150,11 +159,10 @@ export function TableSection({
     [followData, isFollowerQuery, socialInfo.dappName]
   );
 
-  const [fetchData, { loading, pagination }] = useLazyQueryWithPagination(
-    query,
-    {},
-    { onCompleted: handleData, cache: false }
-  );
+  const [fetchData, { loading, pagination }] = useLazyQueryWithPagination<
+    SocialFollowResponse,
+    SocialFollowVariables
+  >(query, undefined, { onCompleted: handleData, cache: false });
 
   const { hasNextPage, getNextPage } = pagination;
 
@@ -174,6 +182,10 @@ export function TableSection({
     tableItemsRef.current = [];
     tableIdsSetRef.current = new Set();
     setTableItems([]);
+    setLoaderData(prev => ({
+      ...prev,
+      isVisible: true
+    }));
     fetchData({
       limit: MAX_LIMIT,
       ...filterData.queryFilters
@@ -245,7 +257,8 @@ export function TableSection({
             tokenId,
             blockchain,
             eventId
-          )
+          ),
+          activeSnapshotInfo: ''
         },
         { updateQueryParams: true }
       );
@@ -253,16 +266,11 @@ export function TableSection({
     [setQueryData]
   );
 
-  const handleShowMoreClick = (
-    addresses: string[],
-    dataType?: string,
-    identity?: string
-  ) => {
+  const handleShowMoreClick = (addresses: string[], dataType?: string) => {
     setModalData({
       isOpen: true,
       dataType,
-      addresses,
-      identity
+      addresses
     });
   };
 
@@ -356,9 +364,7 @@ export function TableSection({
       </div>
       {modalData.isOpen && (
         <LazyAddressesModal
-          heading={`All ${modalData.dataType} names of ${
-            modalData?.identity || modalData.addresses[0]
-          }`}
+          heading={`All ${modalData.dataType} names of ${modalData.addresses[0]}`}
           isOpen={modalData.isOpen}
           addresses={modalData.addresses}
           dataType={modalData.dataType}

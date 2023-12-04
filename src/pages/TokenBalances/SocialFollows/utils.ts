@@ -1,4 +1,5 @@
 import { MentionData } from '../../../Components/Input/types';
+import { tokenBlockchains } from '../../../constants';
 import {
   Follow,
   SocialFollowLogicalFilters,
@@ -135,8 +136,9 @@ function filterByHoldings(items: Follow[]) {
     const follow = item.followerAddress || item.followingAddress;
     return (
       follow?.poapHoldings?.length > 0 ||
-      follow?.ethereumHoldings?.length > 0 ||
-      follow?.polygonHoldings?.length > 0
+      tokenBlockchains.some(
+        blockchain => follow?.[`${blockchain}Holdings`]?.length
+      )
     );
   });
 }

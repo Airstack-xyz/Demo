@@ -118,13 +118,18 @@ export interface Social {
   isDefault: boolean;
   blockchain: string;
   dappName: string;
-  dappSlug: string;
   profileName: string;
+  profileHandle: string;
   profileImage: string;
   profileTokenId: string;
   followerCount: number;
   followingCount: number;
   profileTokenAddress: string;
+  profileImageContentValue: {
+    image: {
+      small: string;
+    };
+  };
 }
 
 export interface Xmtp {
@@ -180,7 +185,6 @@ export interface PrimaryDomain {
 }
 
 export interface Domain {
-  chainId: string;
   dappName: string;
   owner: string;
   name: string;
