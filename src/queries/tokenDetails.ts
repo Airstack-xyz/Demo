@@ -136,6 +136,7 @@ export const poapDetailsQuery = `query PoapDetails($eventId: [String!], $tokenAd
           }
         }
         eventName
+        eventURL
         startDate
         endDate
         endDate
