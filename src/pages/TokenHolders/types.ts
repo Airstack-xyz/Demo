@@ -1,3 +1,4 @@
+import { SnapshotBlockchain, TokenBlockchain } from '../../types';
 import { TokenBalance, ContentValue } from '../TokenBalances/types';
 
 export type Token = TokenBalance &
@@ -12,10 +13,8 @@ export type Token = TokenBalance &
   };
 
 export type TokensData = {
-  ethereum: { TokenBalance: Token[] };
-  polygon: { TokenBalance: Token[] };
-  Poaps: PoapsData['Poaps'];
-};
+  [Key in TokenBlockchain | SnapshotBlockchain]: { TokenBalance: Token[] };
+} & PoapsData;
 
 export type PoapsData = {
   Poaps: {
@@ -25,12 +24,12 @@ export type PoapsData = {
 
 export type TokenAddress = {
   address: string;
-  blockchain: string;
+  blockchain?: string;
 };
 
 export type Poap = {
   id: string;
-  blockchain: string;
+  blockchain: TokenBlockchain;
   tokenId: string;
   tokenType: string;
   tokenAddress: string;
@@ -67,8 +66,9 @@ export interface Owner {
 
 export interface Social {
   blockchain: string;
-  dappSlug: string;
+  dappName: string;
   profileName: string;
+  profileHandle: string;
 }
 
 export interface PrimaryDomain {
@@ -76,7 +76,6 @@ export interface PrimaryDomain {
 }
 
 export interface Domain {
-  chainId: string;
   dappName: string;
   name: string;
 }
@@ -85,10 +84,10 @@ export interface Xmtp {
   isXMTPEnabled: boolean;
 }
 
-export interface TotalSupply {
-  ethereum: Supply;
-  polygon: Supply;
-}
+export type TotalSupply = {
+  [Key in TokenBlockchain]: Supply;
+};
+
 export interface Supply {
   totalSupply: string;
 }

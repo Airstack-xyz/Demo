@@ -28,9 +28,15 @@ export const socialFollowingsQuery = `query Followings($user: Identity!, $dappNa
             dappName
             blockchain
             profileName
+            profileHandle
             profileImage
             profileTokenId
             profileTokenAddress
+            profileImageContentValue {
+              image {
+                small
+              }
+            }
           }
           xmtp {
             isXMTPEnabled
@@ -42,6 +48,7 @@ export const socialFollowingsQuery = `query Followings($user: Identity!, $dappNa
               followerAddress {
                 socials {
                   profileName
+                  profileHandle
                 }
               }
             }
@@ -79,9 +86,15 @@ export const socialFollowersQuery = `query Followers($user: Identity!, $dappName
           dappName
           blockchain
           profileName
+          profileHandle
           profileImage
           profileTokenId
           profileTokenAddress
+          profileImageContentValue {
+            image {
+              small
+            }
+          }
         }
         xmtp {
           isXMTPEnabled
@@ -93,6 +106,7 @@ export const socialFollowersQuery = `query Followers($user: Identity!, $dappName
             followerAddress {
               socials {
                 profileName
+                profileHandle
               }
             }
           }

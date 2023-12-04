@@ -43,6 +43,7 @@ export function Card({
   item: Social;
   isLensDapp: boolean;
 }) {
+  // for lens pick profile image url from profileImageContentValue
   const profileImageUrl = isLensDapp
     ? item.profileImageContentValue?.image?.small
     : item.profileImage;
@@ -59,7 +60,7 @@ export function Card({
         />
       ) : (
         <LazyImage
-          className="object-cover rounded-2xl h-[180px] w-[180px]"
+          className="object-cover rounded-2xl h-[180px] w-[180px] shrink-0"
           src={profileImageUrl}
           height={180}
           width={180}

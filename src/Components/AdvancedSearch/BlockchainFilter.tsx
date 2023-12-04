@@ -4,24 +4,18 @@ import { useCallback, useState } from 'react';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { Icon } from '../Icon';
 import { FilterPlaceholder } from '../Filters/FilterPlaceholder';
+import { mentionBlockchains } from '../../constants';
+import { capitalizeFirstLetter } from '../../utils';
 
 export const chainOptions = [
   {
     label: 'All chains',
     value: null
   },
-  {
-    label: 'Ethereum',
-    value: 'ethereum'
-  },
-  {
-    label: 'Polygon',
-    value: 'polygon'
-  },
-  {
-    label: 'Gnosis',
-    value: 'gnosis'
-  }
+  ...mentionBlockchains.map(item => ({
+    label: capitalizeFirstLetter(item),
+    value: item
+  }))
 ];
 
 export const defaultChainOption = chainOptions[0];

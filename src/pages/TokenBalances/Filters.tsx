@@ -1,53 +1,65 @@
 import classNames from 'classnames';
-import { useSearchInput } from '../../hooks/useSearchInput';
-import { tokenTypesForFilter } from './constants';
 import { memo, useCallback, useMemo } from 'react';
+import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
+import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
+import { tokenTypesForFilter, tokenTypesForSnapshot } from './constants';
 
 const buttonClass =
   'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light';
 
-export const Filters = memo(function Filters() {
-  const [{ tokenType: existingTokenType = '' }, setData] = useSearchInput();
+function FiltersComponent() {
+  const [{ tokenType, activeSnapshotInfo }, setData] = useSearchInput();
 
-  const getFilterHandler = useCallback(
-    (tokenType: string) => () => {
-      const input = {
-        tokenType:
-          existingTokenType.toLowerCase() === tokenType.toLowerCase()
-            ? ''
-            : tokenType
-      };
-      if (input.tokenType === 'All') {
-        input.tokenType = '';
-      }
-      setData(input, { updateQueryParams: true });
-    },
-    [existingTokenType, setData]
+  const snapshotInfo = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
   );
 
-  const filters = useMemo(() => ['All', ...tokenTypesForFilter], []);
+  const getFilterHandler = useCallback(
+    (filter: string) => () => {
+      const filterValues: Partial<CachedQuery> = {
+        tokenType: tokenType === filter ? '' : filter
+      };
+      if (filter === 'All') {
+        filterValues.tokenType = '';
+      }
+      // Reset blockchain/snapshot filter if POAP filter is applied
+      if (filter === 'POAP') {
+        filterValues.blockchainType = [];
+        filterValues.activeSnapshotInfo = undefined;
+      }
+      setData(filterValues, { updateQueryParams: true });
+    },
+    [tokenType, setData]
+  );
+
+  const filters = useMemo(() => {
+    if (snapshotInfo.isApplicable) {
+      return ['All', ...tokenTypesForSnapshot];
+    }
+    return ['All', ...tokenTypesForFilter];
+  }, [snapshotInfo.isApplicable]);
 
   return (
     <div className="flex items-center scroll-shadow-r">
       <div className="flex overflow-auto pr-[50px] no-scrollbar">
-        {filters.map(tokenType => {
+        {filters.map(filter => {
           return (
             <button
               className={classNames(buttonClass, {
                 '!border-white bg-secondary font-bold !text-text-primary':
-                  tokenType === 'All'
-                    ? !existingTokenType
-                    : existingTokenType.toLowerCase() ===
-                      tokenType.toLowerCase()
+                  filter === 'All' ? !tokenType : tokenType === filter
               })}
-              key={tokenType}
-              onClick={getFilterHandler(tokenType)}
+              key={filter}
+              onClick={getFilterHandler(filter)}
             >
-              {tokenType}
+              {filter}
             </button>
           );
         })}
       </div>
     </div>
   );
-});
+}
+
+export const Filters = memo(FiltersComponent);

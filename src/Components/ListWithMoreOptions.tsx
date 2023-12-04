@@ -13,7 +13,7 @@ export function ListWithMoreOptions({
   list: string[];
   listFor: string;
   onShowMore?: () => void;
-  onItemClick: (address: string, type: string) => void;
+  onItemClick?: (address: string, type?: string) => void;
 }) {
   const [showMax, setShowMax] = useState(false);
   const items = useMemo(() => {
@@ -25,7 +25,7 @@ export function ListWithMoreOptions({
 
   const getItemClickHandler = useCallback(
     (value: string) => () => {
-      onItemClick(value, listFor);
+      onItemClick?.(value, listFor);
     },
     [listFor, onItemClick]
   );

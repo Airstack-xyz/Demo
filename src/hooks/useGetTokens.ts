@@ -1,10 +1,11 @@
 import { useCallback, useState } from 'react';
-import { Token, Poap } from '../pages/TokenHolders/types';
+import { Poap } from '../pages/TokenHolders/types';
 import { fetchQuery } from '@airstack/airstack-react';
 import { PoapOwnerQuery, TokenOwnerQuery } from '../queries';
 import { FetchQueryReturnType } from '@airstack/airstack-react/types';
 import { TokenBalance } from '../pages/TokenBalances/types';
 import { useOverviewTokens } from '../store/tokenHoldersOverview';
+import { tokenBlockchains } from '../constants';
 
 export type OverviewTokenDetailsType = {
   name: string;
@@ -41,27 +42,29 @@ export function useFetchTokens() {
         };
       }
 
-      const ethTokenBalances: Token[] =
-        tokensData?.ethereum?.TokenBalance || [];
-      const polygonTokenBalances: Token[] =
-        tokensData?.polygon?.TokenBalance || [];
+      let tokenBalance: TokenBalance | null = null;
 
-      const token = (ethTokenBalances[0] ||
-        polygonTokenBalances[0]) as TokenBalance;
+      for (let i = 0; i < tokenBlockchains.length; i++) {
+        const blockchain = tokenBlockchains[i];
+        if (tokensData?.[blockchain]?.TokenBalance?.length > 0) {
+          tokenBalance = tokensData[blockchain].TokenBalance[0];
+          break;
+        }
+      }
 
-      if (!token) return null;
+      if (!tokenBalance) return null;
 
       return {
-        name: token?.token?.name || '',
-        tokenId: token?.tokenId || '',
-        tokenAddress: token?.tokenAddress || '',
+        name: tokenBalance?.token?.name || '',
+        tokenId: tokenBalance?.tokenId || '',
+        tokenAddress: tokenBalance?.tokenAddress || '',
         image:
-          token?.token?.logo?.medium ||
-          token?.tokenNfts?.contentValue?.image?.medium ||
-          token?.token?.projectDetails?.imageUrl ||
+          tokenBalance?.token?.logo?.medium ||
+          tokenBalance?.tokenNfts?.contentValue?.image?.medium ||
+          tokenBalance?.token?.projectDetails?.imageUrl ||
           '',
-        tokenType: token?.tokenType,
-        blockchain: token?.blockchain
+        tokenType: tokenBalance?.tokenType,
+        blockchain: tokenBalance?.blockchain
       };
     },
     []

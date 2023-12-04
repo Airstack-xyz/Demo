@@ -21,6 +21,7 @@ export const mutualFollower = `query Followings($user: Identity!) {
               followerAddress {
                 socials {
                   profileName
+                  profileHandle
                 }
               }
             }
@@ -50,6 +51,7 @@ export const mutualFollower = `query Followings($user: Identity!) {
               followerAddress {
                 socials {
                   profileName
+                  profileHandle
                 }
               }
             }
