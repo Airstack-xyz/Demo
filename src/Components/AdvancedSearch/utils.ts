@@ -4,10 +4,14 @@ import { MENTION_MARKUP, MENTION_REGEX } from '../Input/constants';
 import { mapPlainTextIndex, getPlainText } from '../Input/react-mentions/utils';
 import { AdvancedSearchAIMentionsResults } from './types';
 
-export const getItemMention = (item: AdvancedSearchAIMentionsResults) => {
+export const getSearchItemMention = (item: AdvancedSearchAIMentionsResults) => {
   return `#⎱${item.name}⎱(${item.address} ${item.type} ${item.blockchain} ${
     item.eventId || 'null'
   })`;
+};
+
+export const getCustomInputMention = (address: string, mode: string) => {
+  return `#⎱${address}⎱(${address}    ${mode})`;
 };
 
 const SEARCH_TERM_REGEX = /@(\w*)?/;

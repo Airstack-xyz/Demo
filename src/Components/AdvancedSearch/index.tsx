@@ -1,24 +1,26 @@
+import classNames from 'classnames';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { AdvancedSearchAIMentionsQuery } from '../../queries';
+import { Icon, IconType } from '../Icon';
+import { fetchAIMentions } from '../Input/utils';
 import Asset, { AssetLoader } from './Asset';
 import BlockchainFilter, {
   BlockchainSelectOption,
   defaultChainOption
 } from './BlockchainFilter';
+import CustomInput, { CustomInputModeType } from './CustomInput';
 import Filters, { TokenSelectOption, defaultTokenOption } from './Filters';
-import {
-  getDisplayValue,
-  getItemMention,
-  getSearchQuery,
-  getUpdatedMentionValue
-} from './utils';
 import {
   AdvancedSearchAIMentionsResponse,
   AdvancedSearchAIMentionsResults
 } from './types';
-import { Icon } from '../Icon';
-import { fetchAIMentions } from '../Input/utils';
-import { AdvancedSearchAIMentionsQuery } from '../../queries';
+import {
+  getDisplayValue,
+  getSearchItemMention,
+  getSearchQuery,
+  getUpdatedMentionValue
+} from './utils';
 
 const LOADING_ITEM_COUNT = 9;
 
@@ -34,16 +36,30 @@ function GridLoader() {
   );
 }
 
-type AdvancedSearchProps = {
-  mentionInputSelector: string;
-  mentionStartIndex: number;
-  mentionEndIndex: number;
-  mentionValue: string;
-  onChange: (value: string) => void;
-  onClose: () => void;
-};
+function FooterButton({
+  text,
+  icon,
+  onClick
+}: {
+  text: string;
+  icon: IconType;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={classNames(
+        'py-1.5 px-3 w-full flex-row-center rounded-full bg-glass-1 text-text-button font-medium border-[#0F0F0F] text-xs hover:bg-glass-1-light'
+      )}
+      onClick={onClick}
+    >
+      <Icon name={icon} className="mr-1.5" height={18} width={18} />
+      {text}
+    </button>
+  );
+}
 
-type SearchData = {
+type SearchDataType = {
   isLoading: boolean;
   isError?: boolean;
   searchTerm?: string | null;
@@ -53,7 +69,6 @@ type SearchData = {
   items: AdvancedSearchAIMentionsResults[];
   selectedToken: TokenSelectOption;
   selectedChain: BlockchainSelectOption;
-  focusIndex: number;
 };
 
 const LIMIT = 30;
@@ -66,7 +81,7 @@ const DISABLED_KEYS = [
   'Enter'
 ];
 
-const defaultSearchData: SearchData = {
+const defaultSearchData: SearchDataType = {
   isLoading: true,
   searchTerm: null,
   cursor: null,
@@ -74,19 +89,26 @@ const defaultSearchData: SearchData = {
   hasMore: true,
   items: [],
   selectedToken: defaultTokenOption,
-  selectedChain: defaultChainOption,
-  focusIndex: 0
+  selectedChain: defaultChainOption
 };
 
 export default function AdvancedSearch({
   mentionInputSelector,
-  mentionStartIndex,
-  mentionEndIndex,
-  mentionValue,
+  value,
   onChange,
   onClose
-}: AdvancedSearchProps) {
-  const [searchData, setSearchData] = useState<SearchData>(defaultSearchData);
+}: {
+  mentionInputSelector: string;
+  value: string;
+  onChange: (value: string) => void;
+  onClose: () => void;
+}) {
+  const [searchData, setSearchData] =
+    useState<SearchDataType>(defaultSearchData);
+  const [focusIndex, setFocusIndex] = useState(0);
+  const [customInputMode, setCustomInputMode] =
+    useState<CustomInputModeType | null>(null);
+
   const focusIndexRef = useRef(0);
 
   const {
@@ -97,8 +119,7 @@ export default function AdvancedSearch({
     hasMore,
     items,
     selectedChain,
-    selectedToken,
-    focusIndex
+    selectedToken
   } = searchData;
 
   const focusGridItem = useCallback((delta: number) => {
@@ -113,10 +134,7 @@ export default function AdvancedSearch({
     if (activeItem) {
       activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
       focusIndexRef.current = itemIndex;
-      setSearchData(prev => ({
-        ...prev,
-        focusIndex: itemIndex
-      }));
+      setFocusIndex(itemIndex);
     }
   }, []);
 
@@ -130,12 +148,12 @@ export default function AdvancedSearch({
   }, []);
 
   useEffect(() => {
-    const text = getDisplayValue(mentionValue);
-    const query = getSearchQuery(text, mentionStartIndex);
+    const text = getDisplayValue(value);
+    const query = getSearchQuery(text, 0);
     // if there is no matching query found
-    if (query === null) {
-      onClose();
-    }
+    // if (query === null) {
+    //   onClose();
+    // }
     if (query) {
       setSearchData(prev => ({
         ...prev,
@@ -145,30 +163,9 @@ export default function AdvancedSearch({
         items: []
       }));
     }
-  }, [mentionValue, onClose, mentionStartIndex]);
+  }, [value, onClose]);
 
   useEffect(() => {
-    const aiInputEl =
-      document.querySelector<HTMLTextAreaElement>(mentionInputSelector);
-
-    // set ai-input's caret to correct position
-    aiInputEl?.setSelectionRange(mentionEndIndex, mentionEndIndex);
-
-    function handleAIInputClick() {
-      const selectionStart = aiInputEl?.selectionStart ?? -1;
-      // if ai-input's caret moves before @ position
-      if (selectionStart <= mentionStartIndex) {
-        onClose();
-        return;
-      }
-      const substring =
-        aiInputEl?.value.substring(mentionStartIndex, selectionStart) || '';
-      // if ai-input's query contains whitespace
-      if (/\s/.test(substring)) {
-        onClose();
-        return;
-      }
-    }
     function handleKeyUp(event: KeyboardEvent) {
       // disable ai-input's certain keys, so that they can be used in advanced search
       if (DISABLED_KEYS.includes(event.key)) {
@@ -191,27 +188,13 @@ export default function AdvancedSearch({
         case 'Enter':
           selectGridItem();
           break;
-        case ' ':
-        case 'Escape':
-          onClose();
-          break;
       }
     }
-
     document.addEventListener('keyup', handleKeyUp, true);
-    aiInputEl?.addEventListener('click', handleAIInputClick);
     return () => {
       document.removeEventListener('keyup', handleKeyUp, true);
-      aiInputEl?.removeEventListener('click', handleAIInputClick);
     };
-  }, [
-    focusGridItem,
-    onClose,
-    mentionEndIndex,
-    mentionStartIndex,
-    selectGridItem,
-    mentionInputSelector
-  ]);
+  }, [focusGridItem, onClose, selectGridItem]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -252,16 +235,18 @@ export default function AdvancedSearch({
       const nextItems = data?.SearchAIMentions?.results || [];
       const nextCursor = data?.SearchAIMentions?.pageInfo?.nextCursor;
       const nextHasMore = !!nextCursor;
-      focusIndexRef.current = 0;
+
       setSearchData(prev => ({
         ...prev,
         isLoading: false,
         isError: false,
         hasMore: nextHasMore,
         nextCursor: nextCursor,
-        items: [...prev.items, ...nextItems],
-        focusIndex: 0
+        items: [...prev.items, ...nextItems]
       }));
+
+      focusIndexRef.current = 0;
+      setFocusIndex(0);
     }
 
     fetchData();
@@ -312,24 +297,31 @@ export default function AdvancedSearch({
     }));
   }, []);
 
-  const handleItemSelect = (item: AdvancedSearchAIMentionsResults) => {
-    const itemMention = getItemMention(item);
-    const value = getUpdatedMentionValue(
-      mentionValue,
-      itemMention,
-      mentionStartIndex
-    );
-    if (value !== null) {
+  const handleMentionUpdate = (itemMention: string) => {
+    const mentionValue = getUpdatedMentionValue(value, itemMention, 0);
+    if (mentionValue !== null) {
       // append space to the value
-      const finalValue = value.trim() + ' ';
-      onChange(finalValue);
+      const finalMentionValue = mentionValue.trim() + ' ';
+      onChange(finalMentionValue);
       const aiInputEl =
         document.querySelector<HTMLTextAreaElement>(mentionInputSelector);
       // focus and put caret to last position
       aiInputEl?.focus();
-      aiInputEl?.setSelectionRange(finalValue.length, finalValue.length);
+      aiInputEl?.setSelectionRange(
+        finalMentionValue.length,
+        finalMentionValue.length
+      );
     }
     onClose();
+  };
+
+  const handleCustomInputAdd = (itemMention: string) => {
+    handleMentionUpdate(itemMention);
+  };
+
+  const handleItemSelect = (item: AdvancedSearchAIMentionsResults) => {
+    const itemMention = getSearchItemMention(item);
+    handleMentionUpdate(itemMention);
   };
 
   const isBlockchainFilterDisabled = selectedToken.value === 'POAP';
@@ -338,58 +330,85 @@ export default function AdvancedSearch({
 
   const errorOccurred = isError && !isLoading && items.length === 0;
 
+  const showCustomInput =
+    customInputMode === 'ID_ADDRESS' || customInputMode === 'ID_POAP';
+
   return (
-    <div id="advancedSearch" className="pt-5 px-5 relative z-20">
-      <div className="flex justify-between items-center">
-        <Filters selectedOption={selectedToken} onSelect={handleTokenSelect} />
-        <BlockchainFilter
-          isDisabled={isBlockchainFilterDisabled}
-          selectedOption={selectedChain}
-          onSelect={handleChainSelect}
-        />
-      </div>
-      <InfiniteScroll
-        next={handleMoreFetch}
-        dataLength={items.length}
-        hasMore={hasMore}
-        loader={<GridLoader />}
-        height={508}
-        className="mt-5 pr-1 grid grid-cols-3 auto-rows-max gap-[25px] no-scrollbar"
-      >
-        {dataNotFound && (
-          <div className="p-2 text-center col-span-3">
-            No results to display!
+    <div
+      id="advancedSearch"
+      className={classNames(
+        'pt-5 px-5 relative z-20 transition-all',
+        showCustomInput ? 'max-h-[100px]' : 'max-h-[648px]:'
+      )}
+    >
+      {showCustomInput ? (
+        <CustomInput mode={customInputMode} onAdd={handleCustomInputAdd} />
+      ) : (
+        <>
+          <div className="flex justify-between items-center">
+            <Filters
+              selectedOption={selectedToken}
+              onSelect={handleTokenSelect}
+            />
+            <BlockchainFilter
+              isDisabled={isBlockchainFilterDisabled}
+              selectedOption={selectedChain}
+              onSelect={handleChainSelect}
+            />
           </div>
-        )}
-        {errorOccurred && (
-          <div className="p-2 flex-col-center col-span-3">
-            Error while fetching data!
-            <button
-              type="button"
-              className="flex-row-center text-base text-text-button font-bold mt-4"
-              onClick={handleReloadData}
-            >
-              <Icon name="refresh-blue" width={18} height={18} /> Try Again
-            </button>
+          <InfiniteScroll
+            next={handleMoreFetch}
+            dataLength={items.length}
+            hasMore={hasMore}
+            loader={<GridLoader />}
+            height={460}
+            className="mt-5 pr-1 grid grid-cols-3 auto-rows-max gap-[25px] no-scrollbar"
+          >
+            {dataNotFound && (
+              <div className="p-2 text-center col-span-3">
+                No results to display!
+              </div>
+            )}
+            {errorOccurred && (
+              <div className="p-2 flex-col-center col-span-3">
+                Error while fetching data!
+                <button
+                  type="button"
+                  className="flex-row-center text-base text-text-button font-bold mt-4"
+                  onClick={handleReloadData}
+                >
+                  <Icon name="refresh-blue" width={18} height={18} /> Try Again
+                </button>
+              </div>
+            )}
+            {isLoading && <GridLoader />}
+            {items.map((item, index) => (
+              <Asset
+                key={`${item.address}_${index}`}
+                item={item}
+                isFocused={focusIndex === index}
+                onClick={() => handleItemSelect(item)}
+                onMouseEnter={() => {
+                  focusIndexRef.current = index;
+                  setFocusIndex(index);
+                }}
+              />
+            ))}
+          </InfiniteScroll>
+          <div className="py-[20px] flex items-stretch gap-x-[20px]">
+            <FooterButton
+              icon="token-balances"
+              text="Enter token contract address"
+              onClick={() => setCustomInputMode('ID_ADDRESS')}
+            />
+            <FooterButton
+              icon="poap-flat"
+              text="Enter a POAP event ID"
+              onClick={() => setCustomInputMode('ID_POAP')}
+            />
           </div>
-        )}
-        {isLoading && <GridLoader />}
-        {items.map((item, index) => (
-          <Asset
-            key={`${item.address}_${index}`}
-            item={item}
-            isFocused={focusIndex === index}
-            onClick={() => handleItemSelect(item)}
-            onMouseEnter={() => {
-              focusIndexRef.current = index;
-              setSearchData(prev => ({
-                ...prev,
-                focusIndex: index
-              }));
-            }}
-          />
-        ))}
-      </InfiniteScroll>
+        </>
+      )}
     </div>
   );
 }

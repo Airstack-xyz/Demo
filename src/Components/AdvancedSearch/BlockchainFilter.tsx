@@ -56,7 +56,7 @@ export default function BlockchainFilter({
       <FilterPlaceholder
         tabIndex={-1}
         icon="blockchain-filter"
-        className="text-white"
+        className="text-white disabled:cursor-not-allowed"
         isOpen={isDropdownVisible}
         isDisabled={isDisabled}
         label={selectedOption.label}
