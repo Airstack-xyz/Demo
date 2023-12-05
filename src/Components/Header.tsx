@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 export function Header() {
+  const { loggedIn, user, loading, login, logout } = useAuth();
   return (
     <header className="fixed bg-glass-1 py-4 z-[100] top-0 left-0 right-0 max-sm:absolute">
       <div className="max-w-[1440px] mx-auto w-full flex items-center justify-center sm:justify-between px-8">
@@ -15,6 +17,18 @@ export function Header() {
           </Link>
         </div>
         <div className="hidden sm:flex-row-center">
+          {loggedIn ? (
+            <div>
+              <span>{user?.userName || 'no user name'}</span>
+              <button onClick={logout} disabled={loading}>
+                Logout
+              </button>
+            </div>
+          ) : (
+            <button onClick={login} disabled={loading}>
+              Login
+            </button>
+          )}
           <a
             className="text-text-button font-bold hover:bg-glass px-7 py-2 rounded-18  mr-2"
             href="https://github.com/Airstack-xyz/Demo"
