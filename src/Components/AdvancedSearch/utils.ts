@@ -36,7 +36,7 @@ export const getAssetAddress = (
 };
 
 const DEFAULT_IMAGE_REGEX =
-  /site\/images\/ai-suggestion-(eth|polygon|gnosis).png/;
+  /site\/images\/ai-suggestion-(eth|polygon|gnosis|base).png/;
 
 export const getAssetImage = (type: string, url?: string | null) => {
   if (!url) {

@@ -1,7 +1,7 @@
 import { Icon, IconType } from '../Icon';
 import LazyImage from '../LazyImage';
 import { AdvancedSearchAIMentionsResults } from './types';
-import { getAssetAddress, getAssetImage } from './utils';
+import { getAssetAddress } from './utils';
 import classNames from 'classnames';
 
 export const AssetLoader = () => {
@@ -38,8 +38,6 @@ export default function Asset({
     metadata
   } = item;
 
-  const assetImage = getAssetImage(type, image?.medium);
-
   const assetType = type === 'POAP' ? 'POAP' : tokenType;
 
   const assetAddress = getAssetAddress(type, eventId, address);
@@ -57,7 +55,7 @@ export default function Asset({
       <div className="absolute inset-0 flex-col-center">
         <LazyImage
           alt="asset-image"
-          src={assetImage}
+          src={image?.medium}
           className={classNames(
             'aspect-square',
             tokenType === 'ERC20' ? 'h-[50%]' : 'h-full'

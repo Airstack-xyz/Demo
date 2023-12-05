@@ -74,6 +74,9 @@ type SearchDataType = {
 
 const LIMIT = 30;
 
+const MAX_HEIGHT = 648;
+const MIN_HEIGHT = 80;
+
 const DISABLED_KEYS = [
   'ArrowUp',
   'ArrowDown',
@@ -353,8 +356,12 @@ export default function AdvancedSearch({
     }));
   }, []);
 
-  const handleMentionUpdate = (mention: string) => {
-    const value = getUpdatedMentionValue(mentionValue, mention);
+  const handleMentionChange = (mention: string) => {
+    const value = getUpdatedMentionValue(
+      mentionValue,
+      mention,
+      displayValueStartIndex
+    );
     if (value !== null) {
       // append space to the value
       const finalValue = value.trim() + ' ';
@@ -369,12 +376,12 @@ export default function AdvancedSearch({
   };
 
   const handleCustomInputAdd = (mention: string) => {
-    handleMentionUpdate(mention);
+    handleMentionChange(mention);
   };
 
   const handleItemSelect = (item: AdvancedSearchAIMentionsResults) => {
     const mention = getSearchItemMention(item);
-    handleMentionUpdate(mention);
+    handleMentionChange(mention);
   };
 
   const isBlockchainFilterDisabled = selectedToken.value === 'POAP';
@@ -391,7 +398,7 @@ export default function AdvancedSearch({
       id="advancedSearch"
       className={classNames(
         'pt-5 px-5 relative z-20 transition-all',
-        showCustomInput ? 'h-[80px]' : 'h-[648px]'
+        showCustomInput ? `h-[${MIN_HEIGHT}px]` : `h-[${MAX_HEIGHT}px]`
       )}
     >
       {showCustomInput ? (
@@ -414,7 +421,7 @@ export default function AdvancedSearch({
             dataLength={items.length}
             hasMore={hasMore}
             loader={<GridLoader />}
-            height={460}
+            height={MAX_HEIGHT - 140}
             className="mt-5 pr-1 grid grid-cols-3 auto-rows-max gap-[25px] no-scrollbar"
           >
             {dataNotFound && (
