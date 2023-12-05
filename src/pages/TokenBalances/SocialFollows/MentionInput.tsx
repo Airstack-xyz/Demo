@@ -143,10 +143,6 @@ export function MentionInput({
     setAdvancedSearchData(prev => ({ ...prev, visible: false }));
   }, []);
 
-  const enableAdvancedSearch = !isMobile;
-
-  const _disableSuggestions = enableAdvancedSearch || disableSuggestions;
-
   return (
     <div id="sf-input-section" className="relative z-10">
       <div ref={inputSectionRef}>
@@ -161,10 +157,10 @@ export function MentionInput({
             value={value}
             disabled={disabled}
             placeholder={placeholder}
-            disableSuggestions={_disableSuggestions}
+            disableSuggestions={disableSuggestions}
             onChange={setValue}
             onSubmit={handleSubmit}
-            showAdvancedSearch={showAdvancedSearch}
+            onAdvancedSearch={showAdvancedSearch}
           />
           <div ref={buttonSectionRef} className="flex justify-end pl-2">
             {!!value && (

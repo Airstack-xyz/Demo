@@ -362,7 +362,7 @@ export const Search = memo(function Search() {
 
   const enableAdvancedSearch = !isMobile && !isTokenBalances;
 
-  const disableSuggestions = isTokenBalances || enableAdvancedSearch;
+  const disableSuggestions = isTokenBalances;
 
   return (
     <div className="relative z-10">
@@ -420,7 +420,7 @@ export const Search = memo(function Search() {
               disableSuggestions={disableSuggestions}
               onChange={setValue}
               onSubmit={handleSubmit}
-              showAdvancedSearch={
+              onAdvancedSearch={
                 enableAdvancedSearch ? showAdvancedSearch : undefined
               }
             />
