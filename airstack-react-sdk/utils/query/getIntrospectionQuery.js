@@ -1,5 +1,6 @@
-import { API_ENDPOINT_PROD } from "../../constants/index.js";
+import { AIRSTACK_ENDPOINT } from "../../constants/index.js";
 import { introspectionQuery } from "../../constants/introspectionQuery.js";
+import { config } from "../../config.js";
 const mismatchedQueryMap = {
   socialfollowingsinput: "socialfollowinginput",
   socialfollowersinput: "socialfollowerinput"
@@ -15,10 +16,11 @@ async function getIntrospectionQueryMap() {
   if (inProgressRequest) {
     return inProgressRequest;
   }
-  inProgressRequest = fetch(API_ENDPOINT_PROD, {
+  inProgressRequest = fetch(AIRSTACK_ENDPOINT, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      Authorization: config.authKey
     },
     body: JSON.stringify({
       query: introspectionQuery,

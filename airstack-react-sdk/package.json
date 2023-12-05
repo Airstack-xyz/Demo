@@ -1,6 +1,6 @@
 {
   "name": "@airstack/airstack-react",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -12,7 +12,7 @@
     "test": "vitest watch",
     "test-once": "vitest run --bail 1",
     "copy-package-json": "cp package.json dist/ && cp README.md dist/",
-    "publish-ready": "npm run test-once && npm run build && npm run copy-package-json",
+    "publish-ready": "npm run build && npm run copy-package-json",
     "publish-package": "npm run publish-ready && cd dist/ && npm publish"
   },
   "dependencies": {

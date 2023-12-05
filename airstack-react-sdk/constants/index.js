@@ -13,10 +13,8 @@ const PresetArray = [
   750
   /* Large */
 ];
-const API_ENDPOINT_PROD = "https://api.airstack.xyz/gql";
 export {
   AIRSTACK_ENDPOINT,
-  API_ENDPOINT_PROD,
   PresetArray,
   PresetPXSize
 };

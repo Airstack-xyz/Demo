@@ -8,4 +8,3 @@ export declare enum PresetPXSize {
 export type PresetImageSize = "extraSmall" | "small" | "medium" | "large" | "original";
 export declare const PresetArray: PresetPXSize[];
 export type Chain = "ethereum" | "polygon";
-export declare const API_ENDPOINT_PROD = "https://api.airstack.xyz/gql";
