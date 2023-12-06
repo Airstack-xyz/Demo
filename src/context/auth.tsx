@@ -61,8 +61,9 @@ function Provider({ children }: AuthProviderProps) {
 
   const [_getUser, { loading: userLoading }] =
     useAppQuery<MeQueryType>(MeQuery);
+
   const [loginMutation, { loading: loginInProgress }] =
-    useAppQuery<Mutation['Login']>(LoginMutation);
+    useAppQuery<Mutation>(LoginMutation);
 
   const authenticated = auth?.authenticated;
   const user = authenticated ? me : null;
@@ -74,8 +75,11 @@ function Provider({ children }: AuthProviderProps) {
       }
 
       loginCompleted.current = true;
-      await loginMutation();
-      await _getUser();
+      const res = await loginMutation();
+
+      if (res.data?.Login) {
+        setMe(res.data.Login);
+      }
     },
     onError: error => {
       // eslint-disable-next-line no-console

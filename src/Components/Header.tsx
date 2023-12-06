@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
 export function Header() {
-  const { loggedIn, user, loading, login, logout } = useAuth();
+  const { user, loading, login, logout } = useAuth();
   return (
     <header className="fixed bg-glass-1 py-4 z-[100] top-0 left-0 right-0 max-sm:absolute">
       <div className="max-w-[1440px] mx-auto w-full flex items-center justify-center sm:justify-between px-8">
@@ -17,9 +17,9 @@ export function Header() {
           </Link>
         </div>
         <div className="hidden sm:flex-row-center">
-          {loggedIn ? (
+          {user ? (
             <div>
-              <span>{user?.userName || 'no user name'}</span>
+              <span>{user?.communicationEmail || 'no user name'} </span>
               <button onClick={logout} disabled={loading}>
                 Logout
               </button>
