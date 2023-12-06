@@ -448,9 +448,7 @@ export default function AdvancedSearch({
                 item={item}
                 isFocused={focusIndex === index}
                 onClick={() => handleItemSelect(item)}
-                onMouseEnter={() => {
-                  setFocusIndex(index);
-                }}
+                onMouseEnter={() => setFocusIndex(index)}
               />
             ))}
           </InfiniteScroll>

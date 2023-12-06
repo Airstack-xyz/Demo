@@ -35,23 +35,6 @@ export const getAssetAddress = (
   return `${address.slice(0, 6)}...${address.slice(-6)}`;
 };
 
-const DEFAULT_IMAGE_REGEX =
-  /site\/images\/ai-suggestion-(eth|polygon|gnosis|base).png/;
-
-export const getAssetImage = (type: string, url?: string | null) => {
-  if (!url) {
-    return '';
-  }
-  const [matched] = url.match(DEFAULT_IMAGE_REGEX) || [];
-  if (matched) {
-    if (type === 'NFT_COLLECTION') {
-      return ''; // Want to show placeholder image for NFTs if they have default image
-    }
-    return `https://assets.airstack.xyz/${matched}`;
-  }
-  return url;
-};
-
 const mentionConfig = [
   {
     displayTransform: (id: string, display: string) => display || id,
