@@ -48,7 +48,7 @@ export default function CustomInput({
       />
       <button
         onClick={handleAddClick}
-        className="text-text-button text-xs font-medium"
+        className="text-text-button text-xs font-bold"
       >
         ADD
       </button>
