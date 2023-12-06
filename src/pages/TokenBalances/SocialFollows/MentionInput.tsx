@@ -59,9 +59,6 @@ export function MentionInput({
   const inputSectionRef = useRef<HTMLDivElement>(null);
   const buttonSectionRef = useRef<HTMLDivElement>(null);
 
-  // Need to show advanced only for desktop screen
-  const isAdvancedSearchEnabled = !isMobile;
-
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       // if click event is outside input section
@@ -70,6 +67,7 @@ export function MentionInput({
         !inputSectionRef.current?.contains(event.target as Node)
       ) {
         setIsInputSectionFocused(false);
+        setAdvancedSearchData(prev => ({ ...prev, visible: false }));
       }
       // if click event is from input section not from button section
       else if (
@@ -83,7 +81,7 @@ export function MentionInput({
     return () => {
       document.removeEventListener('click', handleClickOutside, true);
     };
-  }, [isAdvancedSearchEnabled]);
+  }, []);
 
   const handleInputClear = useCallback(() => {
     if (advancedSearchData.visible) {
@@ -143,6 +141,8 @@ export function MentionInput({
     setAdvancedSearchData(prev => ({ ...prev, visible: false }));
   }, []);
 
+  const enableAdvancedSearch = !isMobile;
+
   return (
     <div id="sf-input-section" className="relative z-10">
       <div ref={inputSectionRef}>
@@ -160,7 +160,9 @@ export function MentionInput({
             disableSuggestions={disableSuggestions}
             onChange={setValue}
             onSubmit={handleSubmit}
-            onAdvancedSearch={showAdvancedSearch}
+            onAdvancedSearch={
+              enableAdvancedSearch ? showAdvancedSearch : undefined
+            }
           />
           <div ref={buttonSectionRef} className="flex justify-end pl-2">
             {!!value && (
