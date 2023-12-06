@@ -50,7 +50,7 @@ function FooterButton({
     <button
       type="button"
       className={classNames(
-        'py-1.5 px-3 w-full flex-row-center rounded-full bg-glass-1 text-text-button font-medium border border-[#434449] mix-blend-overlay text-xs hover:bg-glass-1-light'
+        'py-1.5 px-3 w-full flex-row-center rounded-full bg-glass-1 text-text-button font-medium border border-[#434449] text-xs hover:bg-glass-1-light'
       )}
       onClick={onClick}
     >
