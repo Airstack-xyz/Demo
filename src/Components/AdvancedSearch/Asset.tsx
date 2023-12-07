@@ -62,6 +62,7 @@ export default function Asset({
             'aspect-square',
             tokenType === 'ERC20' ? 'h-[50%]' : 'h-full'
           )}
+          errorPlaceholderClassName="!h-full"
         />
       </div>
       <div className="w-full flex justify-end text-sm">
