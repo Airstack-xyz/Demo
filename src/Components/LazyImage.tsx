@@ -1,6 +1,10 @@
+import classNames from 'classnames';
 import { ComponentProps, useState } from 'react';
 
 type LazyImageStatusType = 'loading' | 'loaded' | 'error';
+type Props = ComponentProps<'img'> & {
+  errorPlaceholderClassName?: string;
+};
 
 const LazyImage = ({
   src,
@@ -9,12 +13,17 @@ const LazyImage = ({
 }: {
   src?: string;
   alt?: string;
-} & ComponentProps<'img'>) => {
+} & Props) => {
   const [status, setStatus] = useState<LazyImageStatusType>('error');
   return (
     <>
       {status === 'error' && (
-        <img {...rest} src="images/placeholder.svg" alt="placeholder-img" />
+        <img
+          {...rest}
+          className={classNames(rest.className, rest.errorPlaceholderClassName)}
+          src="images/placeholder.svg"
+          alt="placeholder-img"
+        />
       )}
       {status === 'loading' && (
         <div className="skeleton-loader">
