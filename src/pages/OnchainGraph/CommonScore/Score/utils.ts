@@ -17,8 +17,8 @@ export function getProfileDataFromSocial(
     });
   }
 
-  // prefer input address if it is an ENS domain
-  if (address.endsWith('.eth') && domain) {
+  // prefer input address if it is not an farcaster and is ENS domain
+  if (!address.startsWith('fc_fname:') && address.endsWith('.eth') && domain) {
     domain.name = address;
   }
 
@@ -30,4 +30,12 @@ export function getProfileDataFromSocial(
     domain: domain || null,
     profile: farcaster?.profileImage ? farcaster : lens || null
   };
+}
+
+export function getUniqueAssociatedAddress(socials: Wallet['socials']) {
+  const associatedAddresses = socials
+    .map(social => social.userAssociatedAddresses)
+    .flat();
+
+  return [...new Set(associatedAddresses)];
 }

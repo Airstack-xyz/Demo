@@ -99,6 +99,9 @@ export interface Wallet {
   addresses: string[];
   primaryDomain: Domain;
   domains: Domain[];
+  socials: {
+    userAssociatedAddresses: string[];
+  }[];
   farcasterSocials: Social[];
   lensSocials: Social[];
   xmtp: Xmtp[];

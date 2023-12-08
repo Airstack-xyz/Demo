@@ -7,7 +7,10 @@ import { Domain, Social, Wallet } from '../../TokenBalances/types';
 import { NFTCountData } from '../types/nft';
 import { getDefaultScoreMap } from '../utils';
 import { Score } from './Score';
-import { getProfileDataFromSocial } from './Score/utils';
+import {
+  getProfileDataFromSocial,
+  getUniqueAssociatedAddress
+} from './Score/utils';
 import {
   fetchMutualFollowings,
   fetchNfts,
@@ -93,18 +96,27 @@ export function ScoreOverview() {
     const social1 = await getDomainName(address[0]);
     const social2 = await getDomainName(address[1]);
     setSocials([social1, social2]);
-    return [social1, social2];
+
+    const associatedAddresses = getUniqueAssociatedAddress(
+      social1?.socials || []
+    );
+
+    const associatedAddresses2 = getUniqueAssociatedAddress(
+      social2?.socials || []
+    );
+
+    return [associatedAddresses, associatedAddresses2] as [string[], string[]];
   }, [address]);
 
   useEffect(() => {
     async function run() {
       setLoading(true);
-      await getSocials();
-      await fetchPoaps(address, (count: number) => setPoapsCount(count));
-      const { lens, farcaster } = await fetchMutualFollowings(address);
+      const addresses = await getSocials();
+      await fetchPoaps(addresses, (count: number) => setPoapsCount(count));
+      const { lens, farcaster } = await fetchMutualFollowings(addresses);
       setFollow({ lens, farcaster });
-      await fetchNfts(address, countData => setNftCount(countData));
-      const { tokenSent, tokenReceived } = await fetchTokensTransfer(address);
+      await fetchNfts(addresses, countData => setNftCount(countData));
+      const { tokenSent, tokenReceived } = await fetchTokensTransfer(addresses);
       setTokenTransfer({ sent: tokenSent, received: tokenReceived });
       setLoading(false);
     }

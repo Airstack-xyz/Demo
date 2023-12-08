@@ -30,7 +30,7 @@ const processTokens = (tokens: CommonTokenType[], visited: Set<string>) => {
 };
 
 export async function fetchNfts(
-  address: string[],
+  address: [string[], string[]],
   onCountChange?: (params: NFTCountData) => void
 ): Promise<NFTCountData> {
   let ethereumCount = 0;
@@ -79,7 +79,7 @@ export async function fetchNfts(
 }
 
 export async function fetchPoaps(
-  address: string[],
+  address: [string[], string[]],
   onCountChange?: (count: number) => void
 ) {
   let count = 0;
@@ -112,7 +112,7 @@ export async function fetchPoaps(
   return count;
 }
 
-export async function fetchTokensTransfer(address: string[]) {
+export async function fetchTokensTransfer(address: [string[], string[]]) {
   let tokenSent = false;
   let tokenReceived = false;
 
@@ -143,7 +143,7 @@ export async function fetchTokensTransfer(address: string[]) {
   return { tokenSent, tokenReceived };
 }
 
-export async function fetchMutualFollowings(address: string[]) {
+export async function fetchMutualFollowings(address: [string[], string[]]) {
   const lens = {
     following: false,
     followedBy: false
@@ -154,19 +154,17 @@ export async function fetchMutualFollowings(address: string[]) {
     followedBy: false
   };
 
-  function checkIsFollowing(followings: Following[], address: string) {
+  function checkIsFollowing(followings: Following[], addresses: string[]) {
     let isFollowing = false;
     let followedBy = false;
     for (const following of followings) {
       if (!following.followingAddress) {
         continue;
       }
-      let match = following.followingAddress.addresses.some(x => x === address);
-      match =
-        match ||
-        Boolean(
-          following.followingAddress.domains?.some(x => x.name === address)
-        );
+
+      const match = following.followingAddress.addresses.some(x =>
+        addresses.includes(x)
+      );
 
       if (match) {
         isFollowing = true;

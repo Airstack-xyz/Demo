@@ -1,6 +1,6 @@
-export const mutualFollower = `query Followings($user: Identity!) {
+export const mutualFollower = `query Followings($user: [Identity!]) {
     farcasterFollowing: SocialFollowings(
-      input: {filter: {identity: {_eq: $user}, dappName: {_eq: farcaster}}, blockchain: ALL, limit: 200}
+      input: {filter: {identity: {_in: $user}, dappName: {_eq: farcaster}}, blockchain: ALL, limit: 200}
     ) {
       Following {
         followingAddress {
@@ -15,7 +15,7 @@ export const mutualFollower = `query Followings($user: Identity!) {
             }
           }
           mutualFollower: socialFollowers(
-            input: {filter: {identity: {_eq: $user}, dappName: {_eq: farcaster}}}
+            input: {filter: {identity: {_in: $user}, dappName: {_eq: farcaster}}}
           ) {
             Follower {
               followerAddress {
@@ -30,7 +30,7 @@ export const mutualFollower = `query Followings($user: Identity!) {
       }
     }
     lensFollowing: SocialFollowings(
-      input: {filter: {identity: {_eq: $user}, dappName: {_eq: lens}}, blockchain: ALL, limit: 200}
+      input: {filter: {identity: {_in: $user}, dappName: {_eq: lens}}, blockchain: ALL, limit: 200}
     ) {
       Following {
         followingAddress {
@@ -45,7 +45,7 @@ export const mutualFollower = `query Followings($user: Identity!) {
             }
           }
           mutualFollower: socialFollowers(
-            input: {filter: {identity: {_eq: $user}, dappName: {_eq: lens}}}
+            input: {filter: {identity: {_in: $user}, dappName: {_eq: lens}}}
           ) {
             Follower {
               followerAddress {

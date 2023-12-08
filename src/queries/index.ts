@@ -15,6 +15,9 @@ export const SocialQuery = `query GetSocial($identity: Identity!) {
         blockchain
       }
     }
+    socials{
+      userAssociatedAddresses
+    }
     farcasterSocials: socials(input: {filter: {dappName: {_eq: farcaster}}}) {
       isDefault
       blockchain
