@@ -2,6 +2,7 @@ import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
 import LazyImage from '../../../Components/LazyImage';
 import { formatDate } from '../../../utils';
+import { checkBlockchainSupportForToken } from '../../../utils/activeTokenInfoString';
 import { Social } from './types';
 
 export function CardLoader({ isLensDapp }: { isLensDapp: boolean }) {
@@ -47,9 +48,13 @@ export function Card({
   const profileImageUrl = isLensDapp
     ? item.profileImageContentValue?.image?.small
     : item.profileImage;
+
+  const useAssetComponent =
+    !profileImageUrl && checkBlockchainSupportForToken(item.blockchain);
+
   return (
     <div className="flex-1 flex max-sm:flex-col items-center">
-      {!profileImageUrl ? (
+      {useAssetComponent ? (
         <Asset
           preset="medium"
           containerClassName="h-[180px] w-[180px]"
