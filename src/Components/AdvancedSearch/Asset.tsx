@@ -43,6 +43,7 @@ export default function Asset({
   const assetAddress = getAssetAddress(type, eventId, address);
 
   const tokenMints = metadata?.tokenMints;
+  const showPOAPHolderCount = type === 'POAP' && Number.isInteger(tokenMints);
 
   return (
     <button
@@ -74,7 +75,7 @@ export default function Asset({
         <div className="h-[32px] rounded-3xl ml-2.5 border-solid-light flex-row-center px-2 bg-glass">
           {assetType}
         </div>
-        {!!tokenMints && (
+        {showPOAPHolderCount && (
           <div className="h-[32px] rounded-3xl ml-2.5 border-solid-light flex-row-center px-2.5 bg-glass">
             <Icon
               name="token-holders-white"

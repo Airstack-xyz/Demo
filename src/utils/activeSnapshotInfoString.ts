@@ -55,6 +55,6 @@ export const getSnapshotQueryFilters = (snapshotInfo: SnapshotInfo) => {
   return queryFilters;
 };
 
-export const checkSupportForSnapshot = (chain: string) => {
+export const checkBlockchainSupportForSnapshot = (chain: string) => {
   return snapshotBlockchains.findIndex(_chain => _chain === chain) !== -1;
 };

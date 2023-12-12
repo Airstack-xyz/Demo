@@ -11,7 +11,6 @@ import { Icon } from '../Icon';
 import { AddressInput } from './AddressInput';
 import {
   ADDRESS_OPTION_ID,
-  ADVANCED_SEARCH_OPTION_ID,
   MENTION_COUNT,
   MENTION_MARKUP,
   MENTION_REGEX,
@@ -315,14 +314,6 @@ export function InputWithMention({
   );
 
   const renderSuggestion = (suggestion: Option) => {
-    if (suggestion.id === ADVANCED_SEARCH_OPTION_ID) {
-      return (
-        <div className="addressOption">
-          <Icon name="filter" /> Advanced search
-        </div>
-      );
-    }
-
     if (suggestion.id === ADDRESS_OPTION_ID) {
       return (
         <div className="addressOption">

@@ -56,7 +56,7 @@ import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import {
   getActiveSnapshotInfo,
   getSnapshotQueryFilters,
-  checkSupportForSnapshot
+  checkBlockchainSupportForSnapshot
 } from '../../utils/activeSnapshotInfoString';
 import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { tokenTypes } from '../TokenBalances/constants';
@@ -484,7 +484,10 @@ export function TokenHolders() {
       if (!blockchain) {
         snapshotTooltip = 'Please wait until the loading takes place';
         hideTooltipIcon = true;
-      } else if (!isCombination && !checkSupportForSnapshot(blockchain)) {
+      } else if (
+        !isCombination &&
+        !checkBlockchainSupportForSnapshot(blockchain)
+      ) {
         snapshotTooltip = `Snapshots is not available for ${capitalizeFirstLetter(
           blockchain
         )} tokens`;
@@ -492,7 +495,7 @@ export function TokenHolders() {
     } else if (
       blockchain &&
       !isCombination &&
-      !checkSupportForSnapshot(blockchain)
+      !checkBlockchainSupportForSnapshot(blockchain)
     ) {
       snapshotTooltip = `Snapshots is not available for ${capitalizeFirstLetter(
         blockchain

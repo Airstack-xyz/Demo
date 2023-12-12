@@ -32,7 +32,7 @@ import {
 import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
 import { capitalizeFirstLetter } from '../../utils';
 import {
-  checkSupportForSnapshot,
+  checkBlockchainSupportForSnapshot,
   getActiveSnapshotInfo,
   getSnapshotQueryFilters
 } from '../../utils/activeSnapshotInfoString';
@@ -526,7 +526,7 @@ function TokenBalancePage() {
     let sortByTooltip = '';
     if (blockchainType?.length === 1) {
       const blockchain = blockchainType[0];
-      if (blockchain && !checkSupportForSnapshot(blockchain)) {
+      if (blockchain && !checkBlockchainSupportForSnapshot(blockchain)) {
         snapshotTooltip = `Snapshots is disabled for ${capitalizeFirstLetter(
           blockchain
         )} chain`;
