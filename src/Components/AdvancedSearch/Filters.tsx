@@ -4,7 +4,7 @@ import classNames from 'classnames';
 export const tokenOptions: TokenSelectOption[] = [
   {
     label: 'All',
-    value: null
+    value: 'all'
   },
   {
     label: 'ERC721',
@@ -28,7 +28,7 @@ export const defaultTokenOption = tokenOptions[0];
 
 export type TokenSelectOption = {
   label: string;
-  value: string | null;
+  value: string;
 };
 
 type FiltersProps = {
