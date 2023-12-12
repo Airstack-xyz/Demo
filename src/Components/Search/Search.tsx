@@ -62,6 +62,9 @@ const defaultAdvancedSearchData: AdvancedSearchData = {
   mentionEndIndex: -1
 };
 
+const ALLOWED_ADDRESS_REGEX =
+  /0x[a-fA-F0-9]+|.*\.(eth|lens|cb\.id)|(fc_name:|lens\/@).*/;
+
 const padding = '  ';
 
 export const Search = memo(function Search() {
@@ -164,11 +167,8 @@ export const Search = memo(function Search() {
           return;
         }
 
-        let isValid =
-          word.startsWith('fc_fname:') ||
-          Boolean(word.match(/(.*\.(eth|lens)|lens\/@.*)$/));
         // check if it is a valid address
-        isValid = isValid || word.startsWith('0x');
+        const isValid = ALLOWED_ADDRESS_REGEX.test(word);
         if (!isValid) return;
 
         address.push(word);
