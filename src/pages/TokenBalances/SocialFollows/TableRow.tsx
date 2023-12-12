@@ -100,7 +100,7 @@ export function TableRow({
     const useAssetComponent =
       !profileImageUrl &&
       social &&
-      checkBlockchainSupportForToken(item.blockchain);
+      checkBlockchainSupportForToken(social.blockchain);
 
     if (useAssetComponent) {
       assets.push(
