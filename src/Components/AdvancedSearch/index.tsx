@@ -136,15 +136,13 @@ export default function AdvancedSearch({
     if (query === null) {
       onClose();
     }
-    if (query) {
-      setSearchData(prev => ({
-        ...prev,
-        searchTerm: query,
-        cursor: null,
-        hasMore: true,
-        items: []
-      }));
-    }
+    setSearchData(prev => ({
+      ...prev,
+      searchTerm: query,
+      cursor: null,
+      hasMore: true,
+      items: []
+    }));
   }, [onClose, mentionValue, displayValueStartIndex]);
 
   useEffect(() => {
@@ -230,11 +228,16 @@ export default function AdvancedSearch({
         isError: false
       }));
 
+      // for first time if no filters are applied then -> fetch POAPs while keeping default filters selected
+      const shouldUseInitialFilters =
+        firstFetchRef.current &&
+        !(searchTerm || cursor || selectedToken.value || selectedChain.value);
+
       const [data, error] =
         await fetchAIMentions<AdvancedSearchAIMentionsResponse>({
           query: AdvancedSearchAIMentionsQuery,
           signal: controller.signal,
-          input: firstFetchRef.current // for first time fetch POAPs while keeping 'All' token filter selected
+          input: shouldUseInitialFilters
             ? {
                 limit: LIMIT,
                 tokenType: 'POAP'
