@@ -1,5 +1,6 @@
 import { Asset as AirstackAsset } from '@airstack/airstack-react';
 import { ComponentProps, useState } from 'react';
+import { checkBlockchainSupportForToken } from '../utils/activeTokenInfoString';
 
 export function Image(props: ComponentProps<'img'>) {
   const [error, setError] = useState(false);
@@ -23,9 +24,8 @@ type AssetProps = ComponentProps<typeof AirstackAsset> & {
 };
 
 export function Asset({ image, useImageOnError, ...props }: AssetProps) {
-  // TODO: there is no image for gnosis chain in the api, so we use a placeholder, remove this when we have the image
   if (
-    (props.chain as string) === 'gnosis' ||
+    !checkBlockchainSupportForToken(props.chain) || // check if blockchain is supported for token apis
     !props.address ||
     !props.tokenId
   ) {
