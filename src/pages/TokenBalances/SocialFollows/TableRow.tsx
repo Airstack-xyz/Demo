@@ -7,6 +7,7 @@ import { WalletAddress } from '../../../Components/WalletAddress';
 import { tokenBlockchains } from '../../../constants';
 import { formatNumber } from '../../../utils/formatNumber';
 import { Follow } from './types';
+import { checkBlockchainSupportForToken } from '../../../utils/activeTokenInfoString';
 
 export function TableRowLoader() {
   return (
@@ -96,7 +97,12 @@ export function TableRow({
       ? social?.profileImageContentValue?.image?.extraSmall
       : social?.profileImage;
 
-    if (!profileImageUrl && social) {
+    const useAssetComponent =
+      !profileImageUrl &&
+      social &&
+      checkBlockchainSupportForToken(item.blockchain);
+
+    if (useAssetComponent) {
       assets.push(
         <div
           key="profile-token"

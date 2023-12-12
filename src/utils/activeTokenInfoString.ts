@@ -1,3 +1,5 @@
+import { tokenBlockchains } from '../constants';
+
 export function getActiveTokenInfoString(
   tokenAddress: string,
   tokenId: string,
@@ -59,3 +61,7 @@ export function getActiveTokensInfoFromArray(tokens: any[]) {
     })
     .join(' ');
 }
+
+export const checkBlockchainSupportForToken = (chain?: string) => {
+  return tokenBlockchains.findIndex(_chain => _chain === chain) !== -1;
+};
