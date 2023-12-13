@@ -4,7 +4,7 @@ import { snapshotBlockchains, tokenBlockchains } from '../../constants';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
 import {
-  checkSupportForSnapshot,
+  checkBlockchainSupportForSnapshot,
   getActiveSnapshotInfo,
   getActiveSnapshotInfoString
 } from '../../utils/activeSnapshotInfoString';
@@ -296,7 +296,7 @@ export function AllFilters({
         // @ts-ignore
         snapshotBlockchains.length === 1 ||
         (blockchainType.length === 1 &&
-          !checkSupportForSnapshot(blockchainType[0]))
+          !checkBlockchainSupportForSnapshot(blockchainType[0]))
       ) {
         filterValues.blockchainType = [snapshotBlockchains[0]];
       }

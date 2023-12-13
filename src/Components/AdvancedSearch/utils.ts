@@ -4,10 +4,14 @@ import { MENTION_MARKUP, MENTION_REGEX } from '../Input/constants';
 import { mapPlainTextIndex, getPlainText } from '../Input/react-mentions/utils';
 import { AdvancedSearchAIMentionsResults } from './types';
 
-export const getItemMention = (item: AdvancedSearchAIMentionsResults) => {
+export const getSearchItemMention = (item: AdvancedSearchAIMentionsResults) => {
   return `#⎱${item.name}⎱(${item.address} ${item.type} ${item.blockchain} ${
     item.eventId || 'null'
   })`;
+};
+
+export const getCustomInputMention = (address: string, mode: string) => {
+  return `#⎱${address}⎱(${address}    ${mode})`;
 };
 
 const SEARCH_TERM_REGEX = /@(\w*)?/;
@@ -31,23 +35,6 @@ export const getAssetAddress = (
   return `${address.slice(0, 6)}...${address.slice(-6)}`;
 };
 
-const DEFAULT_IMAGE_REGEX =
-  /site\/images\/ai-suggestion-(eth|polygon|gnosis).png/;
-
-export const getAssetImage = (type: string, url?: string | null) => {
-  if (!url) {
-    return '';
-  }
-  const [matched] = url.match(DEFAULT_IMAGE_REGEX) || [];
-  if (matched) {
-    if (type === 'NFT_COLLECTION') {
-      return ''; // Want to show placeholder image for NFTs if they have default image
-    }
-    return `https://assets.airstack.xyz/${matched}`;
-  }
-  return url;
-};
-
 const mentionConfig = [
   {
     displayTransform: (id: string, display: string) => display || id,
@@ -62,8 +49,8 @@ export const getDisplayValue = (mentionValue: string) => {
 
 export const getUpdatedMentionValue = (
   mentionValue: string,
-  itemMention: string,
-  indexInDisplayValue: number
+  mention: string,
+  indexInDisplayValue = 0
 ) => {
   // for the passed index in the displayValue, returns the corresponding index in mentionValue
   const positionInValue = mapPlainTextIndex(
@@ -77,8 +64,6 @@ export const getUpdatedMentionValue = (
   }
   return (
     mentionValue.substring(0, positionInValue) +
-    mentionValue
-      .substring(positionInValue)
-      .replace(SEARCH_TERM_REGEX, itemMention)
+    mentionValue.substring(positionInValue).replace(SEARCH_TERM_REGEX, mention)
   );
 };
