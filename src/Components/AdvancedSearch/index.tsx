@@ -231,7 +231,11 @@ export default function AdvancedSearch({
       // for first time if no filters are applied then -> fetch POAPs while keeping default filters selected
       const shouldUseInitialFilters =
         firstFetchRef.current &&
-        !(searchTerm || selectedToken.value || selectedChain.value);
+        !(
+          searchTerm ||
+          selectedToken.value !== 'all' ||
+          selectedChain.value !== 'all'
+        );
 
       const [data, error] =
         await fetchAIMentions<AdvancedSearchAIMentionsResponse>({
