@@ -302,8 +302,8 @@ export const TokenTotalSupplyQuery = `query GetTotalSupply($tokenAddress: Addres
     .join('\n')}
 }`;
 
-export const DomainsQuery = `query GetDomains($addresses: [Identity!] $limit:Int) {
-  Domains(input: {filter: {owner: {_in: $addresses}}, blockchain: ethereum, limit:$limit}) {
+export const DomainsQuery = `query GetDomains($addresses: [Address!] $limit:Int) {
+  Domains(input: {filter: {resolvedAddress: {_in: $addresses}}, blockchain: ethereum, limit:$limit}) {
     Domain {
       id
       name

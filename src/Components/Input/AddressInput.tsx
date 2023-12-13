@@ -1,5 +1,6 @@
-import './input-styles.css';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
+import './styles.css';
 
 type AddressInputProps = {
   top: string;

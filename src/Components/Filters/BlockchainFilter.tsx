@@ -9,7 +9,7 @@ import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 import {
-  checkSupportForSnapshot,
+  checkBlockchainSupportForSnapshot,
   getActiveSnapshotInfo
 } from '../../utils/activeSnapshotInfoString';
 
@@ -36,7 +36,7 @@ export const getBlockchainOptions = (isSnapshotApplicable?: boolean) => {
       label: capitalizeFirstLetter(blockchain),
       value: blockchain,
       disabled: isSnapshotApplicable
-        ? !checkSupportForSnapshot(blockchain)
+        ? !checkBlockchainSupportForSnapshot(blockchain)
         : false
     });
   });

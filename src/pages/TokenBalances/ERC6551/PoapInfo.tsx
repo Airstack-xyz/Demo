@@ -25,7 +25,7 @@ export function PoapInfo({
           </>
         }
       />
-      <KeyValue name="Event url" value={metadata.home_url} />
+      <KeyValue name="Event url" value={poapEvent.eventURL} />
       <KeyValue
         name="Last transfer block"
         value={transferDetails.blockNumber}

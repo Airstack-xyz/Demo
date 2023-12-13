@@ -10,7 +10,7 @@ import { capitalizeFirstLetter } from '../../utils';
 export const chainOptions = [
   {
     label: 'All chains',
-    value: null
+    value: 'all'
   },
   ...mentionBlockchains.map(item => ({
     label: capitalizeFirstLetter(item),
@@ -22,7 +22,7 @@ export const defaultChainOption = chainOptions[0];
 
 export type BlockchainSelectOption = {
   label: string;
-  value: string | null;
+  value: string;
 };
 
 type BlockchainFilterProps = {
@@ -41,8 +41,8 @@ export default function BlockchainFilter({
     setDropdownVisible(false)
   );
 
-  const showDropdown = useCallback(() => {
-    setDropdownVisible(true);
+  const toggleDropdown = useCallback(() => {
+    setDropdownVisible(prev => !prev);
   }, []);
 
   return (
@@ -50,11 +50,11 @@ export default function BlockchainFilter({
       <FilterPlaceholder
         tabIndex={-1}
         icon="blockchain-filter"
-        className="text-white"
+        className="text-white disabled:cursor-not-allowed"
         isOpen={isDropdownVisible}
         isDisabled={isDisabled}
         label={selectedOption.label}
-        onClick={showDropdown}
+        onClick={toggleDropdown}
       />
       {isDropdownVisible && (
         <div className="py-2 pl-3 pr-5 mt-1 flex flex-col gap-y-1 rounded-md shadow bg-glass absolute top-full z-10 min-w-[108px]">

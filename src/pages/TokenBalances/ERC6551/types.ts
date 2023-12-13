@@ -67,6 +67,7 @@ export interface PoapEvent {
   contentValue: ContentValue;
   logo: Logo;
   eventName: string;
+  eventURL: string;
   startDate: string;
   endDate: string;
   metadata: Metadata;

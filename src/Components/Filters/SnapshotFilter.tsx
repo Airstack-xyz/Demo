@@ -7,7 +7,7 @@ import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
 import { formatDate } from '../../utils';
 import {
   SnapshotInfo,
-  checkSupportForSnapshot,
+  checkBlockchainSupportForSnapshot,
   getActiveSnapshotInfo,
   getActiveSnapshotInfoString
 } from '../../utils/activeSnapshotInfoString';
@@ -260,7 +260,7 @@ export function SnapshotFilter({
         // @ts-ignore
         snapshotBlockchains.length === 1 ||
         (blockchainType.length === 1 &&
-          !checkSupportForSnapshot(blockchainType[0]))
+          !checkBlockchainSupportForSnapshot(blockchainType[0]))
       ) {
         filterValues.blockchainType = [snapshotBlockchains[0]];
       }
