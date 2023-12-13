@@ -174,7 +174,7 @@ export default function AdvancedSearch({
       }
     }
 
-    function handleKeyUp(event: KeyboardEvent) {
+    function handleKeyDown(event: KeyboardEvent) {
       // disable mention-input's certain keys, so that they can be used in advanced search
       if (DISABLED_KEYS.includes(event.key)) {
         event.stopImmediatePropagation();
@@ -203,11 +203,11 @@ export default function AdvancedSearch({
       }
     }
 
-    document.addEventListener('keyup', handleKeyUp, true);
+    document.addEventListener('keydown', handleKeyDown, true);
     mentionInputEl?.addEventListener('click', handleInputClick);
 
     return () => {
-      document.removeEventListener('keyup', handleKeyUp, true);
+      document.removeEventListener('keydown', handleKeyDown, true);
       mentionInputEl?.removeEventListener('click', handleInputClick);
     };
   }, [
