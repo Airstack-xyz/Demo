@@ -141,6 +141,11 @@ export function MentionInput({
     setAdvancedSearchData(prev => ({ ...prev, visible: false }));
   }, []);
 
+  const handleAdvanceSearchOnChange = (value: string) => {
+    setValue(value);
+    setTimeout(() => handleSubmit(value), 200);
+  };
+
   const enableAdvancedSearch = !isMobile;
 
   return (
@@ -191,7 +196,7 @@ export function MentionInput({
               mentionValue={value}
               displayValueStartIndex={advancedSearchData.startIndex}
               displayValueEndIndex={advancedSearchData.endIndex}
-              onChange={setValue}
+              onChange={handleAdvanceSearchOnChange}
               onClose={hideAdvancedSearch}
             />
           </div>

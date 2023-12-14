@@ -347,11 +347,6 @@ export default function AdvancedSearch({
       // append space to the value
       const finalValue = value.trim() + ' ';
       onChange(finalValue);
-      const mentionInputEl =
-        document.querySelector<HTMLTextAreaElement>(mentionInputSelector);
-      // focus and put caret to last position
-      mentionInputEl?.focus();
-      mentionInputEl?.setSelectionRange(finalValue.length, finalValue.length);
     }
     onClose();
   };
