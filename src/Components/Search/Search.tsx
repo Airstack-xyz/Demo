@@ -18,7 +18,7 @@ import AdvancedSearch from '../AdvancedSearch';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 
 export const tokenHoldersPlaceholder =
-  'Use @ mention or enter any token contract address';
+  'Type "@" to search by name, or enter any contract address, or any POAP event ID';
 export const tokenBalancesPlaceholder =
   'Enter 0x, name.eth, fc_fname:name, or name.lens';
 
@@ -354,6 +354,14 @@ export const Search = memo(function Search() {
     setAdvancedSearchData(prev => ({ ...prev, visible: false }));
   }, []);
 
+  const handleAdvanceSearchOnChange = useCallback(
+    (value: string) => {
+      setValue(value);
+      setTimeout(() => handleSubmit(value), 200);
+    },
+    [handleSubmit]
+  );
+
   const inputPlaceholder = isTokenBalances
     ? tokenBalancesPlaceholder
     : tokenHoldersPlaceholder;
@@ -455,7 +463,7 @@ export const Search = memo(function Search() {
                 mentionValue={value}
                 displayValueStartIndex={advancedSearchData.startIndex}
                 displayValueEndIndex={advancedSearchData.endIndex}
-                onChange={setValue}
+                onChange={handleAdvanceSearchOnChange}
                 onClose={hideAdvancedSearch}
               />
             </>
