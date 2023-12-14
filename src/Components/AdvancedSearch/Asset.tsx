@@ -59,7 +59,7 @@ export default function Asset({
           src={image?.medium}
           className={classNames(
             'aspect-square',
-            tokenType === 'ERC20' && !image?.medium ? 'h-[50%]' : 'h-full'
+            tokenType === 'ERC20' && image?.medium ? 'h-[50%]' : 'h-full'
           )}
           errorPlaceholderClassName="!h-full"
         />
