@@ -63,7 +63,7 @@ const defaultAdvancedSearchData: AdvancedSearchData = {
 };
 
 const ALLOWED_ADDRESS_REGEX =
-  /0x[a-fA-F0-9]+|.*\.(eth|lens|cb\.id)|(fc_name:|lens\/@).*/;
+  /0x[a-fA-F0-9]+|.*\.(eth|lens|cb\.id)|(fc_fname:|lens\/@).*/;
 
 const padding = '  ';
 
