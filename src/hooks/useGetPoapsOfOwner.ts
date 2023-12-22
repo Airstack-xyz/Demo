@@ -32,7 +32,7 @@ export function useGetPoapsOfOwner(
   const canFetchPoap = useMemo(() => {
     if (noFetch) return false;
     const hasPolygonOrBaseChainFilter =
-      blockchainType.length === 1 &&
+      blockchainType?.length === 1 &&
       (blockchainType[0] === 'polygon' || blockchainType[0] === 'base');
     return !hasPolygonOrBaseChainFilter && (!tokenType || isPoap);
   }, [blockchainType, isPoap, noFetch, tokenType]);

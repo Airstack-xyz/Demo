@@ -1,17 +1,18 @@
 /* eslint-disable react-refresh/only-export-components */
+import classNames from 'classnames';
 import { useCallback, useMemo } from 'react';
 import { snapshotBlockchains, tokenBlockchains } from '../../constants';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { SnapshotBlockchain, TokenBlockchain } from '../../types';
 import { capitalizeFirstLetter } from '../../utils';
-import { Dropdown, Option } from '../Dropdown';
-import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
-import { FilterOption } from './FilterOption';
-import { FilterPlaceholder } from './FilterPlaceholder';
 import {
   checkBlockchainSupportForSnapshot,
   getActiveSnapshotInfo
 } from '../../utils/activeSnapshotInfoString';
+import { Dropdown, Option } from '../Dropdown';
+import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
+import { FilterOption } from './FilterOption';
+import { FilterPlaceholder } from './FilterPlaceholder';
 
 export type BlockchainFilterType = 'all' | TokenBlockchain | SnapshotBlockchain;
 
@@ -138,6 +139,9 @@ export function BlockchainFilter({
             isOpen={isOpen}
             isDisabled={isFilterDisabled}
             label={selected[0].label}
+            className={classNames({
+              'disabled:cursor-auto': enableTooltipHover // for not showing disabled cursor for tooltip
+            })}
           />
           <DisabledTooltip
             isEnabled={enableTooltipHover}

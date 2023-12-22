@@ -1,4 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
+import classNames from 'classnames';
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMatch } from 'react-router-dom';
 import { snapshotBlockchains } from '../../constants';
@@ -99,11 +100,11 @@ const filterInputClass =
 export function SnapshotFilter({
   disabled,
   disabledTooltipText,
-  hideDisabledTooltipIcon
+  disabledTooltipIconHidden
 }: {
   disabled?: boolean;
   disabledTooltipText?: string;
-  hideDisabledTooltipIcon?: boolean;
+  disabledTooltipIconHidden?: boolean;
 }) {
   const [{ blockchainType, activeSnapshotInfo }, setData] = useSearchInput();
   const {
@@ -256,11 +257,8 @@ export function SnapshotFilter({
     if (currentFilter !== 'today') {
       filterValues.sortOrder = defaultSortOrder; // for snapshot query reset sort order
       if (
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        snapshotBlockchains.length === 1 ||
-        (blockchainType.length === 1 &&
-          !checkBlockchainSupportForSnapshot(blockchainType[0]))
+        blockchainType?.length === 1 &&
+        !checkBlockchainSupportForSnapshot(blockchainType[0])
       ) {
         filterValues.blockchainType = [snapshotBlockchains[0]];
       }
@@ -304,13 +302,16 @@ export function SnapshotFilter({
             isOpen={isDropdownVisible}
             label={label}
             icon={icon}
+            className={classNames({
+              'disabled:cursor-auto': enableTooltipHover // for not showing disabled cursor for tooltip
+            })}
             onClick={handleDropdownToggle}
           />
           <DisabledTooltip
             isEnabled={enableTooltipHover}
             tooltipRef={tooltipRef}
             tooltipText={disabledTooltipText}
-            tooltipIconHidden={hideDisabledTooltipIcon}
+            tooltipIconHidden={disabledTooltipIconHidden}
           />
         </div>
         {isDropdownVisible && (
