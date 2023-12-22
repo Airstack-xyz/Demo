@@ -528,11 +528,11 @@ function TokenBalancePage() {
     let blockchainFilterDisabled = false;
     let sortByFilterDisabled = false;
 
-    if (blockchainType?.length === 1) {
-      const blockchain = blockchainType[0];
-      if (blockchain && !checkBlockchainSupportForSnapshot(blockchain)) {
-        snapshotFilterDisabled = true;
-      }
+    if (
+      blockchainType?.length === 1 &&
+      !checkBlockchainSupportForSnapshot(blockchainType[0])
+    ) {
+      snapshotFilterDisabled = true;
     }
     if (isPoap) {
       snapshotFilterDisabled = true;

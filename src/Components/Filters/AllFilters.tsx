@@ -292,7 +292,7 @@ export function AllFilters({
     if (currentSnapshotFilter !== 'today') {
       filterValues.sortOrder = defaultSortOrder; // for snapshot query reset sort order
       if (
-        blockchainType.length === 1 &&
+        blockchainType?.length === 1 &&
         !checkBlockchainSupportForSnapshot(blockchainType[0])
       ) {
         filterValues.blockchainType = [snapshotBlockchains[0]];

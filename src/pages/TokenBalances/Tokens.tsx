@@ -82,7 +82,7 @@ function TokensComponent(props: TokenProps) {
 
   const canFetchPoap = useMemo(() => {
     const hasPolygonOrBaseChainFilter =
-      blockchainType.length === 1 &&
+      blockchainType?.length === 1 &&
       (blockchainType[0] === 'polygon' || blockchainType[0] === 'base');
     return (
       !hasPolygonOrBaseChainFilter && !poapDisabled && (!tokenType || isPoap)
