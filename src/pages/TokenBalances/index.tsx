@@ -10,7 +10,6 @@ import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Layout } from '../../Components/Layout';
 import { Search } from '../../Components/Search';
 import { Tab, TabContainer } from '../../Components/Tab';
-import { snapshotBlockchains } from '../../constants';
 import {
   AccountOwner,
   useGetAccountOwner
@@ -520,39 +519,35 @@ function TokenBalancePage() {
     ]
   );
 
-  const { snapshotTooltip, blockchainTooltip, sortByTooltip } = useMemo(() => {
-    let snapshotTooltip = '';
-    let blockchainTooltip = '';
-    let sortByTooltip = '';
-    if (blockchainType?.length === 1) {
-      const blockchain = blockchainType[0];
-      if (blockchain && !checkBlockchainSupportForSnapshot(blockchain)) {
-        snapshotTooltip = `Snapshots is disabled for ${capitalizeFirstLetter(
-          blockchain
-        )} chain`;
-      }
+  const {
+    snapshotFilterDisabled,
+    blockchainFilterDisabled,
+    sortByFilterDisabled
+  } = useMemo(() => {
+    let snapshotFilterDisabled = false;
+    let blockchainFilterDisabled = false;
+    let sortByFilterDisabled = false;
+
+    if (
+      blockchainType?.length === 1 &&
+      !checkBlockchainSupportForSnapshot(blockchainType[0])
+    ) {
+      snapshotFilterDisabled = true;
     }
     if (isPoap) {
-      snapshotTooltip = 'Snapshots is disabled for POAP';
-      blockchainTooltip = 'Blockchain is disabled for POAP';
+      snapshotFilterDisabled = true;
+      blockchainFilterDisabled = true;
     }
     if (isCombination) {
-      snapshotTooltip = 'Snapshots is disabled for combinations';
+      snapshotFilterDisabled = true;
     }
     if (snapshotInfo.isApplicable) {
-      sortByTooltip = 'Sorting is disabled for Snapshots';
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      if (snapshotBlockchains.length === 1) {
-        blockchainTooltip = `Snapshots is only enabled for ${capitalizeFirstLetter(
-          snapshotBlockchains[0]
-        )} chain`;
-      }
+      sortByFilterDisabled = true;
     }
     return {
-      snapshotTooltip,
-      blockchainTooltip,
-      sortByTooltip
+      snapshotFilterDisabled,
+      blockchainFilterDisabled,
+      sortByFilterDisabled
     };
   }, [blockchainType, isCombination, isPoap, snapshotInfo.isApplicable]);
 
@@ -567,35 +562,20 @@ function TokenBalancePage() {
       );
     }
 
-    const isSnapshotFilterDisabled = Boolean(snapshotTooltip);
-
-    const isBlockchainFilterDisabled = Boolean(blockchainTooltip);
-
-    const isSortByDisabled = Boolean(sortByTooltip);
-
     return (
       <div className="flex justify-between w-full z-[21]">
         <div className="flex-row-center gap-3.5">
           {isMobile ? (
             <AllFilters
-              snapshotDisabled={isSnapshotFilterDisabled}
-              blockchainDisabled={isBlockchainFilterDisabled}
-              sortByDisabled={isSortByDisabled}
+              snapshotDisabled={snapshotFilterDisabled}
+              blockchainDisabled={blockchainFilterDisabled}
+              sortByDisabled={sortByFilterDisabled}
             />
           ) : (
             <>
-              <SnapshotFilter
-                disabled={isSnapshotFilterDisabled}
-                disabledTooltipText={snapshotTooltip}
-              />
-              <BlockchainFilter
-                disabled={isBlockchainFilterDisabled}
-                disabledTooltipText={blockchainTooltip}
-              />
-              <SortBy
-                disabled={isSortByDisabled}
-                disabledTooltipText={sortByTooltip}
-              />
+              <SnapshotFilter disabled={snapshotFilterDisabled} />
+              <BlockchainFilter disabled={blockchainFilterDisabled} />
+              <SortBy disabled={sortByFilterDisabled} />
               <SpamFilter />
             </>
           )}

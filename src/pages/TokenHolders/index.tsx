@@ -65,7 +65,6 @@ import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
 import { defaultSortOrder } from '../../Components/Filters/SortBy';
 import { getAllWordsAndMentions } from '../../Components/Input/utils';
 import { showToast } from '../../utils/showToast';
-import { capitalizeFirstLetter } from '../../utils';
 
 export function TokenHolders() {
   const [
@@ -475,39 +474,44 @@ export function TokenHolders() {
     [address, activeSnapshotInfo]
   );
 
-  const { snapshotTooltip, hideTooltipIcon } = useMemo(() => {
+  const {
+    snapshotFilterTooltip,
+    snapshotFilterTooltipIconHidden,
+    snapshotFilterDisabled
+  } = useMemo(() => {
     const isOverviewTokensLoading = overviewTokens?.length === 0;
     const blockchain = address?.[0]?.blockchain || mentions?.[0]?.blockchain;
-    let snapshotTooltip = '';
-    let hideTooltipIcon = false;
+
+    let snapshotFilterTooltip = '';
+    let snapshotFilterTooltipIconHidden = false;
+    let snapshotFilterDisabled = false;
+
     if (isOverviewTokensLoading) {
       if (!blockchain) {
-        snapshotTooltip = 'Please wait until the loading takes place';
-        hideTooltipIcon = true;
+        snapshotFilterTooltip = 'Please wait until the loading takes place';
+        snapshotFilterTooltipIconHidden = true;
+        snapshotFilterDisabled = true;
       } else if (
         !isCombination &&
         !checkBlockchainSupportForSnapshot(blockchain)
       ) {
-        snapshotTooltip = `Snapshots is not available for ${capitalizeFirstLetter(
-          blockchain
-        )} tokens`;
+        snapshotFilterDisabled = true;
       }
     } else if (
       blockchain &&
       !isCombination &&
       !checkBlockchainSupportForSnapshot(blockchain)
     ) {
-      snapshotTooltip = `Snapshots is not available for ${capitalizeFirstLetter(
-        blockchain
-      )} tokens`;
+      snapshotFilterDisabled = true;
     }
-    if (hasPoap) {
-      snapshotTooltip = 'Snapshots is disabled for POAP';
+    if (hasPoap || isCombination) {
+      snapshotFilterDisabled = true;
     }
-    if (isCombination) {
-      snapshotTooltip = 'Snapshots is disabled for combinations';
-    }
-    return { snapshotTooltip, hideTooltipIcon };
+    return {
+      snapshotFilterTooltip,
+      snapshotFilterTooltipIconHidden,
+      snapshotFilterDisabled
+    };
   }, [address, hasPoap, isCombination, mentions, overviewTokens?.length]);
 
   const renderFilterContent = () => {
@@ -519,15 +523,13 @@ export function TokenHolders() {
       );
     }
 
-    const isSnapshotFilterDisabled = Boolean(snapshotTooltip);
-
     return (
       <div className="flex justify-between w-full">
         <div className="flex-row-center gap-3.5">
           <SnapshotFilter
-            disabled={isSnapshotFilterDisabled}
-            disabledTooltipText={snapshotTooltip}
-            hideDisabledTooltipIcon={hideTooltipIcon}
+            disabled={snapshotFilterDisabled}
+            disabledTooltipText={snapshotFilterTooltip}
+            disabledTooltipIconHidden={snapshotFilterTooltipIconHidden}
           />
         </div>
         <GetAPIDropdown options={options} />
