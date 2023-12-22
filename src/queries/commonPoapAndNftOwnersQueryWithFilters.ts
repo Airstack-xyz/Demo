@@ -10,9 +10,16 @@ export function getCommonPoapAndNftOwnersQueryWithFilters(
   hasSocialFilters = false,
   hasPrimaryDomainFilter = false
 ) {
-  return `query CommonPoapAndNftOwners($limit: Int${
-    hasSocialFilters ? ', $socialFilters: [SocialDappName!]' : ''
-  }${hasPrimaryDomainFilter ? ', $hasPrimaryDomain: Boolean' : ''}) {
+  const variables = ['$limit: Int'];
+  if (hasSocialFilters) {
+    variables.push('$socialFilters: [SocialDappName!]');
+  }
+  if (hasPrimaryDomainFilter) {
+    variables.push('$hasPrimaryDomain: Boolean');
+  }
+  const variablesString = variables.join(',');
+
+  return `query CommonPoapAndNftOwners(${variablesString}) {
     Poaps(
       input: {filter: {eventId: {_eq: "${
         eventId.address
@@ -22,7 +29,7 @@ export function getCommonPoapAndNftOwnersQueryWithFilters(
         owner {
           tokenBalances(input: {filter: {tokenAddress: {_eq: "${
             tokenId.address
-          }"}}, blockchain: ${tokenId.blockchain}}) {
+          }"}}, blockchain: ${tokenId.blockchain || 'ethereum'}}) {
             tokenId
             tokenAddress
             tokenType
@@ -40,15 +47,14 @@ export function getCommonPoapAndNftOwnersQueryWithFilters(
               addresses
               socials${hasSocialFilters ? socialInput : ''} {
                 blockchain
-                dappSlug
+                dappName
                 profileName
+                profileHandle
               }
               primaryDomain {
                 name
               }
               domains${hasPrimaryDomainFilter ? primaryDomainInput : ''} {
-                chainId
-                dappName
                 name
               }
               xmtp {

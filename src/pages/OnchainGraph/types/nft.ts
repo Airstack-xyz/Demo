@@ -1,8 +1,20 @@
+import { TokenBlockchain } from '../../../types';
+import { CommonTokenType } from '../../TokenBalances/types';
 import { Domain, Social, Xmtp } from './index';
+
+export type CommonNFTQueryResponse = {
+  [Key in TokenBlockchain]: {
+    TokenBalance: CommonTokenType[];
+  };
+};
 
 export interface NFTQueryResponse {
   TokenBalances: TokenBalances;
 }
+
+export type NFTCountData = {
+  [Key in `${TokenBlockchain}Count`]: number;
+};
 
 export interface TokenBalances {
   TokenBalance: TokenBalance[];

@@ -25,7 +25,7 @@ import {
 } from '../../queries/commonNftOwnersQuery';
 import { sortAddressByPoapFirst } from '../../utils/sortAddressByPoapFirst';
 import { getCommonPoapAndNftOwnersQuery } from '../../queries/commonPoapAndNftOwnersQuery';
-import { createCommonOwnersPOAPsQuery } from '../../queries/commonOwnersPOAPsQuery';
+import { getCommonOwnersPOAPsQuery } from '../../queries/commonOwnersPOAPsQuery';
 import {
   getCommonNftOwnersQueryWithFilters,
   getNftOwnersQueryWithFilters
@@ -44,7 +44,21 @@ import {
   erc20TokenDetailsQuery
 } from '../../queries/tokenDetails';
 import { useTokenDetails } from '../../store/tokenDetails';
-import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import {
+  getCommonNftOwnersSnapshotQuery,
+  getNftOwnersSnapshotQuery
+} from '../../queries/Snapshots/commonNftOwnersSnapshotQuery';
+import {
+  getCommonNftOwnersSnapshotQueryWithFilters,
+  getNftOwnersSnapshotQueryWithFilters
+} from '../../queries/Snapshots/commonNftOwnersSnapshotQueryWithFilters';
+import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
+import {
+  getActiveSnapshotInfo,
+  getSnapshotQueryFilters,
+  checkBlockchainSupportForSnapshot
+} from '../../utils/activeSnapshotInfoString';
+import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { tokenTypes } from '../TokenBalances/constants';
 import { accountOwnerQuery } from '../../queries/accountsQuery';
 import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
@@ -59,6 +73,7 @@ export function TokenHolders() {
       address: tokenAddress,
       activeView,
       tokenFilters,
+      activeSnapshotInfo,
       activeTokenInfo
     },
     setData
@@ -82,7 +97,10 @@ export function TokenHolders() {
     setShowTokensOrOverview(true);
   }, [tokenAddress]);
 
-  const tokensKey = useMemo(() => tokenAddress.join(','), [tokenAddress]);
+  const snapshotInfo = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
 
   useEffect(() => {
     // go to token-holders page if user input address has changed
@@ -103,6 +121,8 @@ export function TokenHolders() {
   const hasSomePoap = tokenAddress.some(token => !token.startsWith('0x'));
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
+  const isCombination = tokenAddress.length > 1;
+
   const mentions = useMemo(() => {
     return getAllWordsAndMentions(rawInput).map(item => item.mention);
   }, [rawInput]);
@@ -114,14 +134,32 @@ export function TokenHolders() {
   const tokenOwnersQuery = useMemo(() => {
     if (address.length === 0) return '';
     if (address.length === 1) {
-      return getNftOwnersQuery(address[0].address);
+      if (snapshotInfo.isApplicable) {
+        return getNftOwnersSnapshotQuery({
+          address: address[0],
+          snapshotFilter: snapshotInfo.appliedFilter
+        });
+      }
+      return getNftOwnersQuery(address[0]);
     }
     if (hasSomePoap) {
       const tokens = sortAddressByPoapFirst(address);
       return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
     }
+    if (snapshotInfo.isApplicable) {
+      return getCommonNftOwnersSnapshotQuery({
+        address1: address[0],
+        address2: address[1],
+        snapshotFilter: snapshotInfo.appliedFilter
+      });
+    }
     return getCommonNftOwnersQuery(address[0], address[1]);
-  }, [address, hasSomePoap]);
+  }, [
+    address,
+    hasSomePoap,
+    snapshotInfo.isApplicable,
+    snapshotInfo.appliedFilter
+  ]);
 
   const tokensQueryWithFilter = useMemo(() => {
     const requestFilters = getRequestFilters(tokenFilters);
@@ -129,8 +167,16 @@ export function TokenHolders() {
     const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
     if (address.length === 0) return '';
     if (address.length === 1) {
+      if (snapshotInfo.isApplicable) {
+        return getNftOwnersSnapshotQueryWithFilters({
+          address: address[0],
+          snapshotFilter: snapshotInfo.appliedFilter,
+          hasSocialFilters,
+          hasPrimaryDomain
+        });
+      }
       return getNftOwnersQueryWithFilters(
-        address[0].address,
+        address[0],
         hasSocialFilters,
         hasPrimaryDomain
       );
@@ -144,13 +190,28 @@ export function TokenHolders() {
         hasPrimaryDomain
       );
     }
+    if (snapshotInfo.isApplicable) {
+      return getCommonNftOwnersSnapshotQueryWithFilters({
+        address1: address[0],
+        address2: address[1],
+        snapshotFilter: snapshotInfo.appliedFilter,
+        hasSocialFilters,
+        hasPrimaryDomain
+      });
+    }
     return getCommonNftOwnersQueryWithFilters(
       address[0],
       address[1],
       hasSocialFilters,
       hasPrimaryDomain
     );
-  }, [tokenFilters, address, hasSomePoap]);
+  }, [
+    tokenFilters,
+    address,
+    hasSomePoap,
+    snapshotInfo.isApplicable,
+    snapshotInfo.appliedFilter
+  ]);
 
   const token = useMemo(() => {
     const { tokenAddress, tokenId, blockchain, eventId } =
@@ -182,10 +243,19 @@ export function TokenHolders() {
           ...requestFilters
         });
       } else {
-        combinationsQueryLink = createAppUrlWithQuery(tokensQueryWithFilter, {
-          limit: 200,
-          ...requestFilters
-        });
+        if (snapshotInfo.isApplicable) {
+          const queryFilters = getSnapshotQueryFilters(snapshotInfo);
+          combinationsQueryLink = createAppUrlWithQuery(tokensQueryWithFilter, {
+            limit: 200,
+            ...queryFilters,
+            ...requestFilters
+          });
+        } else {
+          combinationsQueryLink = createAppUrlWithQuery(tokensQueryWithFilter, {
+            limit: 200,
+            ...requestFilters
+          });
+        }
       }
       return [
         {
@@ -199,7 +269,7 @@ export function TokenHolders() {
 
     if (!activeTokenInfo && !hasERC6551) {
       if (hasPoap) {
-        const poapsQuery = createCommonOwnersPOAPsQuery(address);
+        const poapsQuery = getCommonOwnersPOAPsQuery(address);
 
         const poapLink = createAppUrlWithQuery(poapsQuery, {
           limit: 20
@@ -219,23 +289,36 @@ export function TokenHolders() {
           link: poapSupplyLink
         });
       } else {
-        const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
-          limit: 20
-        });
+        if (snapshotInfo.isApplicable) {
+          const queryFilters = getSnapshotQueryFilters(snapshotInfo);
+          const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
+            limit: 20,
+            ...queryFilters
+          });
 
-        options.push({
-          label: 'Token holders',
-          link: tokenLink
-        });
+          options.push({
+            label: 'Token holders',
+            link: tokenLink
+          });
+        } else {
+          const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
+            limit: 20
+          });
 
-        const tokenSupplyLink = createAppUrlWithQuery(TokenTotalSupplyQuery, {
-          tokenAddress: query
-        });
+          options.push({
+            label: 'Token holders',
+            link: tokenLink
+          });
 
-        options.push({
-          label: 'Token supply',
-          link: tokenSupplyLink
-        });
+          const tokenSupplyLink = createAppUrlWithQuery(TokenTotalSupplyQuery, {
+            tokenAddress: query
+          });
+
+          options.push({
+            label: 'Token supply',
+            link: tokenSupplyLink
+          });
+        }
       }
     }
 
@@ -306,10 +389,7 @@ export function TokenHolders() {
           link: erc6551AccountsQueryLink
         });
 
-        const tokensQuery = createNftWithCommonOwnersQuery(
-          [accountAddress],
-          null
-        );
+        const tokensQuery = getNftWithCommonOwnersQuery([accountAddress], null);
 
         const nftLink = createAppUrlWithQuery(tokensQuery, {
           limit: 10,
@@ -326,22 +406,23 @@ export function TokenHolders() {
 
     return options;
   }, [
-    accountAddress,
-    activeTokenInfo,
-    activeView,
     address,
+    activeView,
+    activeTokenInfo,
     hasERC6551,
-    owner,
-    query,
-    token.blockchain,
-    token.eventId,
-    token.tokenAddress,
-    token.tokenId,
-    tokenAddress,
     tokenFilters,
     hasPoap,
+    snapshotInfo,
+    tokensQueryWithFilter,
+    query,
     tokenOwnersQuery,
-    tokensQueryWithFilter
+    owner,
+    tokenAddress,
+    token.tokenAddress,
+    token.blockchain,
+    token.tokenId,
+    token.eventId,
+    accountAddress
   ]);
 
   const { hasMultipleERC20, hasEveryERC20 } = useMemo(() => {
@@ -376,23 +457,82 @@ export function TokenHolders() {
     setShowTokensOrOverview(false);
   }, []);
 
-  const showInCenter = isHome;
-
-  // Don't show summary for ERC20 token only
-  const showSummary = !hasEveryERC20 && !hasMultipleERC20 && !activeView;
+  const showOverview =
+    !snapshotInfo.isApplicable && // Don't show overview for snapshots
+    !hasEveryERC20 && // Don't show overview for only ERC20 tokens
+    !hasMultipleERC20 && // Don't show overview for ERC20 combinations
+    !activeView; // Don't show summary for overview details
 
   const showTokens =
     showTokensOrOverview && !hasMultipleERC20 && !activeTokenInfo;
 
   const isQueryExists = query && query.length > 0;
 
+  // force the component to re-render when any of the search input change, so that the tokens are reset and refetch
+  const tokensKey = useMemo(
+    () => `${address}-${activeSnapshotInfo}`,
+    [address, activeSnapshotInfo]
+  );
+
+  const {
+    snapshotFilterTooltip,
+    snapshotFilterTooltipIconHidden,
+    snapshotFilterDisabled
+  } = useMemo(() => {
+    const isOverviewTokensLoading = overviewTokens?.length === 0;
+    const blockchain = address?.[0]?.blockchain || mentions?.[0]?.blockchain;
+
+    let snapshotFilterTooltip = '';
+    let snapshotFilterTooltipIconHidden = false;
+    let snapshotFilterDisabled = false;
+
+    if (isOverviewTokensLoading) {
+      if (!blockchain) {
+        snapshotFilterTooltip = 'Please wait until the loading takes place';
+        snapshotFilterTooltipIconHidden = true;
+        snapshotFilterDisabled = true;
+      } else if (
+        !isCombination &&
+        !checkBlockchainSupportForSnapshot(blockchain)
+      ) {
+        snapshotFilterDisabled = true;
+      }
+    } else if (
+      blockchain &&
+      !isCombination &&
+      !checkBlockchainSupportForSnapshot(blockchain)
+    ) {
+      snapshotFilterDisabled = true;
+    }
+    if (hasPoap || isCombination) {
+      snapshotFilterDisabled = true;
+    }
+    return {
+      snapshotFilterTooltip,
+      snapshotFilterTooltipIconHidden,
+      snapshotFilterDisabled
+    };
+  }, [address, hasPoap, isCombination, mentions, overviewTokens?.length]);
+
   const renderFilterContent = () => {
+    if (activeTokenInfo) {
+      return (
+        <div className="flex justify-center w-full">
+          <GetAPIDropdown options={options} />
+        </div>
+      );
+    }
+
     return (
-      <div className="flex justify-center w-full">
-        <GetAPIDropdown
-          options={options}
-          disabled={overviewTokens.length === 0}
-        />
+      <div className="flex justify-between w-full">
+        <div className="flex-row-center gap-3.5">
+          <SnapshotFilter
+            disabled={snapshotFilterDisabled}
+            disabledTooltipText={snapshotFilterTooltip}
+            disabledTooltipIconHidden={snapshotFilterTooltipIconHidden}
+          />
+        </div>
+        <GetAPIDropdown options={options} />
       </div>
     );
   };
@@ -406,9 +546,7 @@ export function TokenHolders() {
         })}
       >
         <div className="max-w-[645px] mx-auto w-full">
-          {showInCenter && (
-            <h1 className="text-[2rem]">Explore web3 identities</h1>
-          )}
+          {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
           <Search />
           {!hasMultipleERC20 && isQueryExists && (
             <div className="m-3 flex-row-center">{renderFilterContent()}</div>
@@ -420,9 +558,15 @@ export function TokenHolders() {
               className="flex flex-col justify-center mt-7 max-w-[950px] mx-auto"
               key={query}
             >
-              {showSummary && (
-                <HoldersOverview onAddress404={handleInvalidAddress} />
-              )}
+              {/* 
+                Overview token fetching happen inside HoldersOverview, that's 
+                why it is need to be mounted every time, even if we don't show ui 
+                TODO: Move overview fetching logic outside 
+               */}
+              <HoldersOverview
+                hideOverview={!showOverview}
+                onAddress404={handleInvalidAddress}
+              />
               {showTokens && (
                 <>
                   {activeView && <OverviewDetails />}

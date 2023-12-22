@@ -1,16 +1,26 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { snapshotBlockchains, tokenBlockchains } from '../constants';
 import {
   Poap,
   TokenAddress,
   Token as TokenType
 } from '../pages/TokenHolders/types';
-import { getCommonPoapAndNftOwnersQuery } from '../queries/commonPoapAndNftOwnersQuery';
+import {
+  getCommonNftOwnersSnapshotQuery,
+  getNftOwnersSnapshotQuery
+} from '../queries/Snapshots/commonNftOwnersSnapshotQuery';
 import {
   getCommonNftOwnersQuery,
   getNftOwnersQuery
 } from '../queries/commonNftOwnersQuery';
+import { getCommonPoapAndNftOwnersQuery } from '../queries/commonPoapAndNftOwnersQuery';
+import {
+  getActiveSnapshotInfo,
+  getSnapshotQueryFilters
+} from '../utils/activeSnapshotInfoString';
 import { sortAddressByPoapFirst } from '../utils/sortAddressByPoapFirst';
+import { useSearchInput } from './useSearchInput';
 
 type Token = TokenType & {
   _poapEvent?: Poap['poapEvent'];
@@ -30,15 +40,6 @@ type NestedTokenBalance = (Pick<
     blockchain?: string;
   })[];
 
-type CommonOwner = {
-  ethereum: {
-    TokenBalance: NestedTokenBalance | Token[];
-  };
-  polygon: {
-    TokenBalance: NestedTokenBalance | Token[];
-  };
-};
-
 const LIMIT = 200;
 const MIN_LIMIT = 50;
 
@@ -49,19 +50,43 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
   const [tokens, setTokens] = useState<Token[]>([]);
   const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
 
+  const [{ activeSnapshotInfo }] = useSearchInput();
+
   const hasPoap = tokenAddress.some(token => !token.address.startsWith('0x'));
 
-  const query = useMemo(() => {
-    if (tokenAddress.length === 0) return '';
+  const snapshotInfo = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
 
-    if (tokenAddress.length === 1)
-      return getNftOwnersQuery(tokenAddress[0].address);
+  const query = useMemo(() => {
+    if (tokenAddress.length === 1) {
+      if (snapshotInfo.isApplicable) {
+        return getNftOwnersSnapshotQuery({
+          address: tokenAddress[0],
+          snapshotFilter: snapshotInfo.appliedFilter
+        });
+      }
+      return getNftOwnersQuery(tokenAddress[0]);
+    }
     if (hasPoap) {
       const tokens = sortAddressByPoapFirst(tokenAddress);
       return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
     }
+    if (snapshotInfo.isApplicable) {
+      return getCommonNftOwnersSnapshotQuery({
+        address1: tokenAddress[0],
+        address2: tokenAddress[1],
+        snapshotFilter: snapshotInfo.appliedFilter
+      });
+    }
     return getCommonNftOwnersQuery(tokenAddress[0], tokenAddress[1]);
-  }, [hasPoap, tokenAddress]);
+  }, [
+    tokenAddress,
+    hasPoap,
+    snapshotInfo.isApplicable,
+    snapshotInfo.appliedFilter
+  ]);
 
   const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
 
@@ -78,28 +103,32 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
 
   useEffect(() => {
     if (!data) return;
+
+    const appropriateBlockchains = snapshotInfo.isApplicable
+      ? snapshotBlockchains
+      : tokenBlockchains;
+
     if (
       hasPoap
         ? !data.Poaps?.Poap
-        : !data.ethereum?.TokenBalance && !data?.polygon?.TokenBalance
+        : !appropriateBlockchains.some(
+            blockchain => data?.[blockchain]?.TokenBalance
+          )
     ) {
       // if there is no data, hide the loader
       setLoading(false);
       return;
     }
 
-    let tokenBalances = [];
-
-    const ownersInEth = data?.ethereum as CommonOwner['ethereum'];
-    const ownersInPolygon = data?.polygon as CommonOwner['polygon'];
+    let tokenBalances: NestedTokenBalance | Token[] = [];
 
     if (hasPoap) {
       tokenBalances = data.Poaps?.Poap;
     } else {
-      tokenBalances = [
-        ...(ownersInEth?.TokenBalance || []),
-        ...(ownersInPolygon?.TokenBalance || [])
-      ];
+      appropriateBlockchains.forEach(blockchain => {
+        const balances = data?.[blockchain]?.TokenBalance || [];
+        tokenBalances.push(...balances);
+      });
     }
 
     let tokens: Token[] = [];
@@ -145,10 +174,18 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     }
 
     if (tokens.length > 0) {
-      setTokens(exiting => [...exiting, ...tokens]);
+      setTokens(prevTokens => [...prevTokens, ...tokens]);
     }
     setProcessedTokensCount(count => count + tokenBalances.length);
-  }, [data, fetchSingleToken, getNextPage, hasNextPage, hasPoap, totalOwners]);
+  }, [
+    data,
+    fetchSingleToken,
+    getNextPage,
+    hasNextPage,
+    hasPoap,
+    snapshotInfo.isApplicable,
+    totalOwners
+  ]);
 
   const getNext = useCallback(() => {
     if (!hasMorePages) return;
@@ -163,11 +200,23 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     setLoading(true);
     setTokens([]);
     ownersSetRef.current = new Set();
-    fetch({
-      limit: fetchSingleToken ? MIN_LIMIT : LIMIT
-    });
+
+    const limit = fetchSingleToken ? MIN_LIMIT : LIMIT;
+
+    if (snapshotInfo.isApplicable) {
+      const queryFilters = getSnapshotQueryFilters(snapshotInfo);
+      fetch({
+        limit: limit,
+        ...queryFilters
+      });
+    } else {
+      fetch({
+        limit: limit
+      });
+    }
+
     setProcessedTokensCount(LIMIT);
-  }, [fetch, fetchSingleToken, tokenAddress.length]);
+  }, [tokenAddress.length, fetchSingleToken, snapshotInfo, fetch]);
 
   return {
     fetch: getTokens,

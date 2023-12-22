@@ -151,8 +151,15 @@ function UserInfo({
     ? domain?.tokenNft?.blockchain
     : social?.blockchain;
 
-  blockchain =
-    blockchain !== 'ethereum' && blockchain !== 'polygon' ? '' : blockchain;
+  if (blockchain !== 'ethereum' && blockchain !== 'polygon') {
+    blockchain = '';
+  }
+
+  // for lens pick profile image url from profileImageContentValue
+  const profileImageUrl =
+    social?.dappName === 'lens'
+      ? social?.profileImageContentValue?.image?.small
+      : social?.profileImage;
 
   const tokenId = hasDomainToken
     ? domain?.tokenNft?.tokenId
@@ -179,9 +186,9 @@ function UserInfo({
               tokenId={blockchain ? tokenId || '' : ''}
               address={
                 // if there is profile image then set address to empty string so that it doesn't show the token image
-                social?.profileImage ? '' : tokenAddress || ''
+                profileImageUrl ? '' : tokenAddress || ''
               }
-              image={social?.profileImage}
+              image={profileImageUrl}
               useImageOnError
               className="[&>img]:!w-full"
             />

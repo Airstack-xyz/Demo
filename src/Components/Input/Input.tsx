@@ -6,53 +6,40 @@ import {
   useRef,
   useState
 } from 'react';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { MentionsInput, Mention } from './react-mentions';
-import './input-styles.css';
-import {
-  generateId,
-  highlightMention,
-  ID_REGEX,
-  REGEX_LAST_WORD_STARTS_WITH_AT,
-  debouncePromise,
-  fetchAIMentions,
-  getNameFromMarkup
-} from './utils';
+import { capitalizeFirstLetter, pluralize } from '../../utils';
+import { Icon } from '../Icon';
 import { AddressInput } from './AddressInput';
 import {
   ADDRESS_OPTION_ID,
-  ADVANCED_SEARCH_OPTION_ID,
   MENTION_COUNT,
   MENTION_MARKUP,
   MENTION_REGEX,
   POAP_OPTION_ID
 } from './constants';
-import { Icon } from '../Icon';
-import { capitalizeFirstLetter, pluralize } from '../../utils';
+import ImageWithFallback from '../ImageWithFallback';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import { Mention, MentionsInput } from './react-mentions';
 import {
   MentionType,
   SearchAIMentionsResponse,
   SearchAIMentionsResults
 } from './types';
-import ImageWithFallback from '../ImageWithFallback';
+import {
+  ID_REGEX,
+  REGEX_LAST_WORD_STARTS_WITH_AT,
+  debouncePromise,
+  fetchAIMentions,
+  generateId,
+  getNameFromMarkup,
+  highlightMention
+} from './utils';
+
+import './styles.css';
 
 type Option = SearchAIMentionsResults & {
   id: string;
   display: string;
-};
-
-type AIInputProps = {
-  value: string;
-  disabled?: boolean;
-  placeholder: string;
-  disableSuggestions?: boolean;
-  onChange: (value: string) => void;
-  onSubmit: (value: string) => void;
-  showAdvancedSearch?: (
-    mentionStartIndex: number,
-    mentionEndIndex: number
-  ) => void;
 };
 
 const mentionTypeMap: Record<MentionType, string> = {
@@ -72,8 +59,16 @@ export function InputWithMention({
   disableSuggestions,
   onChange,
   onSubmit,
-  showAdvancedSearch
-}: AIInputProps) {
+  onAdvancedSearch
+}: {
+  value: string;
+  disabled?: boolean;
+  placeholder?: string;
+  disableSuggestions?: boolean;
+  onChange: (value: string) => void;
+  onSubmit: (value: string) => void;
+  onAdvancedSearch?: (startIndex: number, endIndex: number) => void;
+}) {
   const [showInputFor, setShowInputFor] = useState<
     'ID_ADDRESS' | 'ID_POAP' | null
   >(null);
@@ -164,71 +159,68 @@ export function InputWithMention({
     []
   );
 
-  const onAddSuggestion = useCallback(
-    (id: string) => {
-      // allow submission only if suggestion is clicked
-      if (isSuggestionClickedRef.current) {
-        allowSubmitRef.current = true;
-      } else {
-        allowSubmitRef.current = false;
+  const triggerAdvancedSearch = useCallback(() => {
+    if (!onAdvancedSearch) {
+      return;
+    }
+
+    const inputValue = inputRef.current?.value || '';
+    const endIndex = inputRef.current?.selectionStart ?? -1;
+    let startIndex = endIndex;
+
+    // find start index of query
+    while (inputValue[startIndex] !== '@' && startIndex > 0) {
+      startIndex--;
+    }
+
+    onAdvancedSearch(startIndex, endIndex);
+  }, [onAdvancedSearch]);
+
+  const onAddSuggestion = useCallback((id: string) => {
+    // allow submission only if suggestion is clicked
+    if (isSuggestionClickedRef.current) {
+      allowSubmitRef.current = true;
+    } else {
+      allowSubmitRef.current = false;
+    }
+
+    // reset value for next iteration
+    isSuggestionClickedRef.current = false;
+
+    if (id === ADDRESS_OPTION_ID || id === POAP_OPTION_ID) {
+      const overlay = document.getElementById(
+        'suggestions-overlay'
+      ) as HTMLElement;
+
+      const top = overlay.style.top
+        ? `${parseInt(overlay.style.top, 10)}px`
+        : 'auto';
+      let left = overlay.style.left
+        ? `${parseInt(overlay.style.left, 10)}px`
+        : 'auto';
+      const right = overlay.style.right
+        ? `${parseInt(overlay.style.right, 10)}px`
+        : 'auto';
+
+      if (left !== 'auto' && inputRef.current) {
+        const maxLeft = 290 + parseInt(left, 10);
+        const isGoingPastInputBorder = inputRef.current.offsetWidth < maxLeft;
+        left = isGoingPastInputBorder
+          ? `${inputRef.current.offsetWidth - 290}px`
+          : left;
       }
+      setInputPosition({
+        top: top,
+        left: left,
+        right: right
+      });
+      setShowInputFor(id);
+      lastPositionOfCaretRef.current = inputRef.current?.selectionStart || 0;
 
-      // reset value for next iteration
-      isSuggestionClickedRef.current = false;
-
-      if (showAdvancedSearch && id === ADVANCED_SEARCH_OPTION_ID) {
-        // allow submit on enter for advanced search
-        allowSubmitRef.current = true;
-
-        const inputValue = inputRef.current?.value || '';
-        const endIndex = inputRef.current?.selectionStart ?? -1;
-        let startIndex = endIndex;
-
-        // find start index of query
-        while (inputValue[startIndex] !== '@' && startIndex > 0) {
-          startIndex--;
-        }
-
-        showAdvancedSearch(startIndex, endIndex);
-        return false;
-      }
-
-      if (id === ADDRESS_OPTION_ID || id === POAP_OPTION_ID) {
-        const overlay = document.getElementById(
-          'suggestions-overlay'
-        ) as HTMLElement;
-
-        const top = overlay.style.top
-          ? `${parseInt(overlay.style.top, 10)}px`
-          : 'auto';
-        let left = overlay.style.left
-          ? `${parseInt(overlay.style.left, 10)}px`
-          : 'auto';
-        const right = overlay.style.right
-          ? `${parseInt(overlay.style.right, 10)}px`
-          : 'auto';
-
-        if (left !== 'auto' && inputRef.current) {
-          const maxLeft = 290 + parseInt(left, 10);
-          const isGoingPastInputBorder = inputRef.current.offsetWidth < maxLeft;
-          left = isGoingPastInputBorder
-            ? `${inputRef.current.offsetWidth - 290}px`
-            : left;
-        }
-        setInputPosition({
-          top: top,
-          left: left,
-          right: right
-        });
-        setShowInputFor(id);
-        lastPositionOfCaretRef.current = inputRef.current?.selectionStart || 0;
-
-        return false; // don't add the mention to input
-      }
-      return true; // add the mention
-    },
-    [showAdvancedSearch]
-  );
+      return false; // don't add the mention to input
+    }
+    return true; // add the mention
+  }, []);
 
   const handleCloseAddressInput = useCallback(
     (address: string) => {
@@ -310,27 +302,16 @@ export function InputWithMention({
       const data = await debouncedFetch(query);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dataWithExtraOptions: any[] = data || [];
-      if (showAdvancedSearch) {
-        dataWithExtraOptions.push({ id: ADVANCED_SEARCH_OPTION_ID });
-      }
       dataWithExtraOptions.push(
         { id: ADDRESS_OPTION_ID },
         { id: POAP_OPTION_ID }
       );
       callback(dataWithExtraOptions);
     },
-    [debouncedFetch, showAdvancedSearch]
+    [debouncedFetch]
   );
 
   const renderSuggestion = (suggestion: Option) => {
-    if (suggestion.id === ADVANCED_SEARCH_OPTION_ID) {
-      return (
-        <div className="addressOption">
-          <Icon name="filter" /> Advanced search
-        </div>
-      );
-    }
-
     if (suggestion.id === ADDRESS_OPTION_ID) {
       return (
         <div className="addressOption">
@@ -424,7 +405,13 @@ export function InputWithMention({
           className="mention"
           isLoading={loading}
           renderSuggestion={disableSuggestions ? null : renderSuggestion}
-          data={disableSuggestions ? noop : getData}
+          data={
+            disableSuggestions
+              ? noop
+              : onAdvancedSearch
+              ? triggerAdvancedSearch
+              : getData
+          }
         />
       </MentionsInput>
     </div>

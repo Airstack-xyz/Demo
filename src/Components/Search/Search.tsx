@@ -18,7 +18,7 @@ import AdvancedSearch from '../AdvancedSearch';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 
 export const tokenHoldersPlaceholder =
-  'Use @ mention or enter any token contract address';
+  'Type "@" to search by name, or enter any contract address, or any POAP event ID';
 export const tokenBalancesPlaceholder =
   'Enter 0x, name.eth, fc_fname:name, or name.lens';
 
@@ -52,15 +52,18 @@ export function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
 
 type AdvancedSearchData = {
   visible: boolean;
-  mentionStartIndex: number;
-  mentionEndIndex: number;
+  startIndex: number;
+  endIndex: number;
 };
 
 const defaultAdvancedSearchData: AdvancedSearchData = {
   visible: false,
-  mentionStartIndex: -1,
-  mentionEndIndex: -1
+  startIndex: -1,
+  endIndex: -1
 };
+
+const ALLOWED_ADDRESS_REGEX =
+  /0x[a-fA-F0-9]+|.*\.(eth|lens|cb\.id)|(fc_fname:|lens\/@).*/;
 
 const padding = '  ';
 
@@ -88,16 +91,16 @@ export const Search = memo(function Search() {
   const buttonSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setValue(rawInput ? rawInput.trim() + padding : '');
-  }, [rawInput]);
-
-  useEffect(() => {
     if (isTokenBalances) {
       // force reset tokenHolder's activeView when user navigates to tokenBalances page
       // else when user clicks on a token in balances page and goes to holder they will see the detailed activeView instead of the holders
       userInputCache.tokenHolder.activeView = '';
     }
   }, [isTokenBalances]);
+
+  useEffect(() => {
+    setValue(rawInput ? rawInput.trim() + padding : '');
+  }, [rawInput]);
 
   useEffect(() => {
     if (isTokenBalances) {
@@ -114,8 +117,8 @@ export const Search = memo(function Search() {
         inputSectionRef.current &&
         !inputSectionRef.current?.contains(event.target as Node)
       ) {
-        setAdvancedSearchData(prev => ({ ...prev, visible: false }));
         setIsInputSectionFocused(false);
+        setAdvancedSearchData(prev => ({ ...prev, visible: false }));
       }
       // if click event is from input section not from button section
       else if (
@@ -164,11 +167,8 @@ export const Search = memo(function Search() {
           return;
         }
 
-        let isValid =
-          word.startsWith('fc_fname:') ||
-          Boolean(word.match(/(.*\.(eth|lens)|lens\/@.*)$/));
         // check if it is a valid address
-        isValid = isValid || word.startsWith('0x');
+        const isValid = ALLOWED_ADDRESS_REGEX.test(word);
         if (!isValid) return;
 
         address.push(word);
@@ -190,14 +190,19 @@ export const Search = memo(function Search() {
       }
 
       const rawTextWithMentions = rawInput.join(padding);
-      const searchData = {
+      const filterValues: Partial<CachedQuery> = {
         address,
-        blockchain: 'ethereum',
-        rawInput: rawTextWithMentions,
+        rawInput: rawInput.join(padding),
         inputType: 'ADDRESS' as UserInputs['inputType']
       };
+
+      // For combination reset snapshot filter
+      if (address.length > 1) {
+        filterValues.activeSnapshotInfo = undefined;
+      }
+
       setValue(rawTextWithMentions.trim() + padding);
-      handleDataChange(searchData);
+      handleDataChange(filterValues);
     },
     [handleDataChange]
   );
@@ -208,7 +213,6 @@ export const Search = memo(function Search() {
       const rawInput: string[] = [];
       let inputType: string | null = null;
       let hasInputTypeMismatch = false;
-      let blockchain = 'ethereum';
       let token = '';
       const wordsAndMentions = getAllWordsAndMentions(value);
 
@@ -216,7 +220,6 @@ export const Search = memo(function Search() {
         if (mention) {
           rawInput.push(rawValue);
           address.push(mention.eventId || mention.address);
-          blockchain = mention.blockchain || '';
           token = mention.token || '';
           const _inputType = mention.customInputType || '';
           hasInputTypeMismatch = hasInputTypeMismatch
@@ -256,14 +259,17 @@ export const Search = memo(function Search() {
       }
 
       const rawTextWithMentions = rawInput.join(padding);
-      const searchData = {
+      const filterValues: Partial<CachedQuery> = {
         address,
-        blockchain,
         rawInput: rawTextWithMentions,
         inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType']
       };
+
+      // For every new search reset snapshot filter
+      filterValues.activeSnapshotInfo = undefined;
+
       setValue(rawTextWithMentions + padding);
-      handleDataChange(searchData);
+      handleDataChange(filterValues);
     },
     [handleDataChange]
   );
@@ -283,8 +289,8 @@ export const Search = memo(function Search() {
 
   const handleSubmit = useCallback(
     (mentionValue: string) => {
-      setAdvancedSearchData(prev => ({ ...prev, visible: false }));
       setIsInputSectionFocused(false);
+      setAdvancedSearchData(prev => ({ ...prev, visible: false }));
 
       const trimmedValue = mentionValue.trim();
 
@@ -320,25 +326,25 @@ export const Search = memo(function Search() {
   }, [advancedSearchData.visible]);
 
   const getTabChangeHandler = useCallback(
-    (tokenBalance: boolean) => {
+    (isTokenBalance: boolean) => {
       if (!isHome) {
         setValue('');
         navigate({
-          pathname: tokenBalance ? '/token-balances' : '/token-holders'
+          pathname: isTokenBalance ? '/token-balances' : '/token-holders'
         });
       } else {
-        setIsTokenBalanceActive(active => !active);
+        setIsTokenBalanceActive(prev => !prev);
       }
     },
     [isHome, navigate]
   );
 
   const showAdvancedSearch = useCallback(
-    (mentionStartIndex: number, mentionEndIndex: number) => {
+    (startIndex: number, endIndex: number) => {
       setAdvancedSearchData({
         visible: true,
-        mentionStartIndex,
-        mentionEndIndex
+        startIndex,
+        endIndex
       });
     },
     []
@@ -348,11 +354,23 @@ export const Search = memo(function Search() {
     setAdvancedSearchData(prev => ({ ...prev, visible: false }));
   }, []);
 
+  const handleAdvanceSearchOnChange = useCallback(
+    (value: string) => {
+      setValue(value);
+      setTimeout(() => handleSubmit(value), 200);
+    },
+    [handleSubmit]
+  );
+
   const inputPlaceholder = isTokenBalances
     ? tokenBalancesPlaceholder
     : tokenHoldersPlaceholder;
 
   const showPrefixIcon = isHome && (!isInputSectionFocused || !value);
+
+  const enableAdvancedSearch = !isMobile && !isTokenBalances;
+
+  const disableSuggestions = isTokenBalances;
 
   return (
     <div className="relative z-10">
@@ -383,7 +401,7 @@ export const Search = memo(function Search() {
         </div>
       </div>
       <div
-        id="mainMentionInput"
+        id="main-input-section"
         className="flex-row-center relative h-[50px] z-40"
       >
         <div
@@ -407,10 +425,12 @@ export const Search = memo(function Search() {
             <InputWithMention
               value={value}
               placeholder={inputPlaceholder}
-              disableSuggestions={isTokenBalances || advancedSearchData.visible}
+              disableSuggestions={disableSuggestions}
               onChange={setValue}
               onSubmit={handleSubmit}
-              showAdvancedSearch={isMobile ? undefined : showAdvancedSearch}
+              onAdvancedSearch={
+                enableAdvancedSearch ? showAdvancedSearch : undefined
+              }
             />
             <div ref={buttonSectionRef} className="flex justify-end pl-3">
               {!!value && (
@@ -439,11 +459,11 @@ export const Search = memo(function Search() {
                 onClick={hideAdvancedSearch}
               />
               <AdvancedSearch
-                mentionInputSelector="#mainMentionInput #mention-input"
-                mentionStartIndex={advancedSearchData.mentionStartIndex}
-                mentionEndIndex={advancedSearchData.mentionEndIndex}
+                mentionInputSelector="#main-input-section #mention-input"
                 mentionValue={value}
-                onChange={setValue}
+                displayValueStartIndex={advancedSearchData.startIndex}
+                displayValueEndIndex={advancedSearchData.endIndex}
+                onChange={handleAdvanceSearchOnChange}
                 onClose={hideAdvancedSearch}
               />
             </>

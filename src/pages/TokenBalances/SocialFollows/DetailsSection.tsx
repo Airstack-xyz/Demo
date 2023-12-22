@@ -4,6 +4,18 @@ import { socialDetailsQuery } from '../../../queries/socialDetails';
 import { Social } from './types';
 import { Card, CardLoader } from './Card';
 
+type SocialDetailsResponse = {
+  Socials: {
+    Social: Social[];
+  };
+};
+
+type SocialDetailsVariables = {
+  identities: string[];
+  profileNames: string[];
+  dappName: string;
+};
+
 type DetailsSectionProps = {
   identities: string[];
   profileNames: string[];
@@ -15,7 +27,10 @@ function DetailsSectionComponent({
   profileNames,
   dappName
 }: DetailsSectionProps) {
-  const [fetchData, { data, loading }] = useLazyQuery(socialDetailsQuery);
+  const [fetchData, { data, loading }] = useLazyQuery<
+    SocialDetailsResponse,
+    SocialDetailsVariables
+  >(socialDetailsQuery);
 
   useEffect(() => {
     fetchData({
@@ -25,7 +40,7 @@ function DetailsSectionComponent({
     });
   }, [fetchData, profileNames, dappName, identities]);
 
-  const socialItems: Social[] = data?.Socials?.Social;
+  const socialItems = data?.Socials?.Social;
 
   const isLensDapp = dappName === 'lens';
 

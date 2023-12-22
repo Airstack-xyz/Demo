@@ -12,16 +12,14 @@ export function filterByPrimaryEns(tokens: TokenOrPoap[]) {
 
 export function filterByLens(tokens: TokenOrPoap[]) {
   return tokens?.filter(token => {
-    return token?.owner?.socials?.find(({ dappSlug }) =>
-      dappSlug.includes('lens')
-    );
+    return token?.owner?.socials?.find(({ dappName }) => dappName === 'lens');
   });
 }
 
 export function filterByFarcaster(tokens: TokenOrPoap[]) {
   return tokens?.filter(token => {
-    return token?.owner?.socials?.find(({ dappSlug }) =>
-      dappSlug.includes('farcaster')
+    return token?.owner?.socials?.find(
+      ({ dappName }) => dappName === 'farcaster'
     );
   });
 }

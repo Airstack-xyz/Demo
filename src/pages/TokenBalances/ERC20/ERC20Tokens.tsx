@@ -1,23 +1,30 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import classNames from 'classnames';
 import {
-  useState,
+  ComponentProps,
+  useCallback,
   useEffect,
   useMemo,
-  useCallback,
-  ComponentProps,
-  useRef
+  useRef,
+  useState
 } from 'react';
-import { SectionHeader } from './SectionHeader';
-import { CommonTokenType, TokenType } from './types';
-import classNames from 'classnames';
-import { useSearchInput } from '../../hooks/useSearchInput';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { formatNumber } from '../../utils/formatNumber';
-import './erc20.styles.css';
-import { createNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
-import { emit } from '../../utils/eventEmitter/eventEmitter';
-import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
-import { defaultSortOrder } from '../../Components/Filters/SortBy';
+import { defaultSortOrder } from '../../../Components/Filters/SortBy';
+import { snapshotBlockchains, tokenBlockchains } from '../../../constants';
+import { useSearchInput } from '../../../hooks/useSearchInput';
+import { getNftWithCommonOwnersSnapshotQuery } from '../../../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
+import { getNftWithCommonOwnersQuery } from '../../../queries/nftWithCommonOwnersQuery';
+import {
+  getActiveSnapshotInfo,
+  getSnapshotQueryFilters
+} from '../../../utils/activeSnapshotInfoString';
+import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
+import { emit } from '../../../utils/eventEmitter/eventEmitter';
+import { formatNumber } from '../../../utils/formatNumber';
+import { SectionHeader } from '../SectionHeader';
+import { CommonTokenType, TokenType } from '../types';
+
+import './styles.css';
 
 type LogoProps = Omit<ComponentProps<'img'>, 'src'> & {
   logo: string;
@@ -117,37 +124,64 @@ export function ERC20Tokens() {
       blockchainType,
       sortOrder,
       spamFilter,
-      activeTokenInfo
+      activeTokenInfo,
+      activeSnapshotInfo
     },
     setSearchData
   ] = useSearchInput();
   const tokensRef = useRef<TokenType[]>([]);
   const [loading, setLoading] = useState(false);
 
+  const isCombination = owners.length > 1;
+
   const isSpamFilteringEnabled = spamFilter !== '0';
 
+  const snapshotInfo = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
+
   const query = useMemo(() => {
-    const fetchAllBlockchains =
-      blockchainType.length === 2 || blockchainType.length === 0;
+    const fetchAllBlockchains = blockchainType?.length === 0;
 
-    const _blockchain = fetchAllBlockchains ? null : blockchainType[0];
+    const blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
-    return createNftWithCommonOwnersQuery(owners, _blockchain);
-  }, [blockchainType, owners]);
+    if (snapshotInfo.isApplicable) {
+      return getNftWithCommonOwnersSnapshotQuery({
+        owners,
+        blockchain: blockchain,
+        snapshotFilter: snapshotInfo.appliedFilter
+      });
+    }
+    return getNftWithCommonOwnersQuery(owners, blockchain);
+  }, [
+    blockchainType,
+    snapshotInfo.isApplicable,
+    snapshotInfo.appliedFilter,
+    owners
+  ]);
 
   const handleData = useCallback(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (data: any) => {
-      const { ethereum, polygon } = data;
-      let ethTokens = ethereum?.TokenBalance || [];
-      let maticTokens = polygon?.TokenBalance || [];
-      const totalTokens = ethTokens.length + maticTokens.length;
-      setTotalProcessedTokens(count => count + totalTokens);
+      const appropriateBlockchains = snapshotInfo.isApplicable
+        ? snapshotBlockchains
+        : tokenBlockchains;
 
-      ethTokens = processTokens(ethTokens);
-      maticTokens = processTokens(maticTokens);
+      let processedTokenCount = 0;
 
-      let filteredTokens = [...ethTokens, ...maticTokens];
+      appropriateBlockchains.forEach(blockchain => {
+        const tokenBalances = data?.[blockchain]?.TokenBalance || [];
+        processedTokenCount += tokenBalances.length;
+      });
+      setTotalProcessedTokens(count => count + processedTokenCount);
+
+      let filteredTokens: TokenType[] = [];
+
+      appropriateBlockchains.forEach(blockchain => {
+        const tokenBalances = data?.[blockchain]?.TokenBalance || [];
+        filteredTokens.push(...processTokens(tokenBalances));
+      });
 
       if (isSpamFilteringEnabled) {
         filteredTokens = filterByIsSpam(filteredTokens);
@@ -156,7 +190,7 @@ export function ERC20Tokens() {
       tokensRef.current = [...tokensRef.current, ...filteredTokens];
       setTokens(prevTokens => [...prevTokens, ...filteredTokens]);
     },
-    [isSpamFilteringEnabled]
+    [isSpamFilteringEnabled, snapshotInfo.isApplicable]
   );
 
   const [fetch, { data: erc20Data, pagination }] = useLazyQueryWithPagination(
@@ -167,7 +201,6 @@ export function ERC20Tokens() {
 
   let data = erc20Data;
   const { hasNextPage, getNextPage } = pagination;
-  const isCombination = owners.length > 1;
 
   useEffect(() => {
     if (owners.length > 0) {
@@ -175,24 +208,41 @@ export function ERC20Tokens() {
       tokensRef.current = [];
       setTokens([]);
       setTotalProcessedTokens(0);
-      // remove data to make sure on next render, the data is not used in the useEffect below
+      // Remove data to make sure on next render, the data is not used in the useEffect below
       // eslint-disable-next-line react-hooks/exhaustive-deps
       data = null;
 
-      const _limit = owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT;
+      const limit = owners.length === 1 && tokenType ? MIN_LIMIT : LIMIT;
 
-      fetch({
-        limit: _limit,
-        tokenType: ['ERC20'],
-        sortBy: sortOrder ? sortOrder : defaultSortOrder
-      });
+      if (snapshotInfo.isApplicable) {
+        const queryFilters = getSnapshotQueryFilters(snapshotInfo);
+        fetch({
+          limit: limit,
+          tokenType: ['ERC20'],
+          ...queryFilters
+        });
+      } else {
+        fetch({
+          limit: limit,
+          tokenType: ['ERC20'],
+          sortBy: sortOrder ? sortOrder : defaultSortOrder
+        });
+      }
     }
     /*
-      Even though ERC20 tokens are not dependant on tokenType, we added tokenType to the dependency array to force a refetch when tokenType changes.
+      Even though ERC20 tokens are not dependant on tokenType we added tokenType to the dependency array to force a refetch when tokenType changes.
       Without this, the tokens list would be unable to fetch additional pages since the window scroll height would be too great (too many ERC20 items).
       InfiniteScroll depends on the window scroll height, if the height is too high, user will have to scroll to the bottom to initiate a pagination call.
     */
-  }, [fetch, owners.length, tokenType, blockchainType, sortOrder, spamFilter]);
+  }, [
+    fetch,
+    owners.length,
+    tokenType,
+    blockchainType,
+    sortOrder,
+    spamFilter,
+    snapshotInfo
+  ]);
 
   useEffect(() => {
     if (!data) return;

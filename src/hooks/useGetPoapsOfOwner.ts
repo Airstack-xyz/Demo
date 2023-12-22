@@ -1,9 +1,9 @@
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { UserInputs } from './useSearchInput';
 import { defaultSortOrder } from '../Components/Filters/SortBy';
 import { CommonPoapType, PoapType } from '../pages/TokenBalances/types';
 import { poapsOfCommonOwnersQuery } from '../queries/poapsOfCommonOwnersQuery';
-import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { UserInputs } from './useSearchInput';
 
 const LIMIT = 20;
 const LIMIT_COMBINATIONS = 100;
@@ -31,9 +31,10 @@ export function useGetPoapsOfOwner(
 
   const canFetchPoap = useMemo(() => {
     if (noFetch) return false;
-    const hasPolygonChainFilter =
-      blockchainType.length === 1 && blockchainType[0] === 'polygon';
-    return !hasPolygonChainFilter && (!tokenType || isPoap);
+    const hasPolygonOrBaseChainFilter =
+      blockchainType?.length === 1 &&
+      (blockchainType[0] === 'polygon' || blockchainType[0] === 'base');
+    return !hasPolygonOrBaseChainFilter && (!tokenType || isPoap);
   }, [blockchainType, isPoap, noFetch, tokenType]);
 
   const [
