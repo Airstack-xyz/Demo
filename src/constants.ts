@@ -5,7 +5,7 @@ export const apiKey = process.env.API_KEY || '';
 export const tokenBlockchains = ['ethereum', 'base', 'polygon'] as const;
 
 // Used in queries for generating sub-queries for snapshots
-export const snapshotBlockchains = ['base'] as const;
+export const snapshotBlockchains = ['ethereum', 'base'] as const;
 
 // Used for options in Blockchain filter in @mentions for Advanced Search
 export const mentionBlockchains = [
