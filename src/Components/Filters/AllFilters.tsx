@@ -292,11 +292,8 @@ export function AllFilters({
     if (currentSnapshotFilter !== 'today') {
       filterValues.sortOrder = defaultSortOrder; // for snapshot query reset sort order
       if (
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        snapshotBlockchains.length === 1 ||
-        (blockchainType.length === 1 &&
-          !checkBlockchainSupportForSnapshot(blockchainType[0]))
+        blockchainType.length === 1 &&
+        !checkBlockchainSupportForSnapshot(blockchainType[0])
       ) {
         filterValues.blockchainType = [snapshotBlockchains[0]];
       }

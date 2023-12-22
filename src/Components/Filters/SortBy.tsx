@@ -1,10 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
+import classNames from 'classnames';
 import { useCallback, useMemo } from 'react';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { Dropdown, Option } from '../Dropdown';
+import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
-import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
 
 export type SortOrderType = 'DESC' | 'ASC';
 
@@ -84,6 +85,9 @@ export function SortBy({
             isOpen={isOpen}
             isDisabled={isFilterDisabled}
             label={selected[0].label}
+            className={classNames({
+              'disabled:cursor-auto': enableTooltipHover // for not showing disabled cursor for tooltip
+            })}
           />
           <DisabledTooltip
             isEnabled={enableTooltipHover}
