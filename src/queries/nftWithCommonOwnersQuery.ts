@@ -48,15 +48,26 @@ token {
 }
 `;
 
-function getQueryWithFilter(
-  owners: string[],
-  index = 0,
-  blockchain: string
-): string {
+function getQueryWithFilter({
+  owners,
+  blockchain,
+  index = 0
+}: {
+  owners: string[];
+  blockchain: string;
+  index?: number;
+}): string {
   const children =
     owners.length - 1 === index
       ? fields
-      : getQueryWithFilter(owners, index + 1, blockchain);
+      : getQueryWithFilter({ owners, blockchain, index: index + 1 });
+
+  const filters = [
+    `owner: {_eq: "${owners[index]}"}`,
+    `tokenType: {_in: $tokenType}`
+  ];
+  const filtersString = filters.join(',');
+
   return `token {
         isSpam
         name
@@ -68,7 +79,7 @@ function getQueryWithFilter(
           imageUrl
         }
         tokenBalances(
-          input: {filter: {owner: {_eq: "${owners[index]}"}, tokenType: {_in: $tokenType}}, blockchain: ${blockchain}, order: {lastUpdatedTimestamp: $sortBy}}
+          input: {filter: {${filtersString}}, blockchain: ${blockchain}, order: {lastUpdatedTimestamp: $sortBy}}
         ) {
             ${children}
           }
@@ -115,14 +126,27 @@ token {
   }
 }`;
 
-function getQueryForBlockchain(owners: string[], blockchain: string) {
+function getQueryForBlockchain({
+  owners,
+  blockchain
+}: {
+  owners: string[];
+  blockchain: string;
+}) {
   const children =
-    owners.length === 1 ? fields : getQueryWithFilter(owners, 1, blockchain);
+    owners.length === 1
+      ? fields
+      : getQueryWithFilter({ owners, index: 1, blockchain });
+
+  const filters = [
+    `owner: {_eq: "${owners[0]}"}`,
+    `tokenType: {_in: $tokenType}`
+  ];
+  const filtersString = filters.join(',');
+
   return `
     ${blockchain}: TokenBalances(
-      input: {filter: {owner: {_eq: "${
-        owners[0]
-      }"}, tokenType: {_in: $tokenType}}, blockchain: ${blockchain}, limit: $limit, order: {lastUpdatedTimestamp: $sortBy}}
+      input: {filter: {${filtersString}}, blockchain: ${blockchain}, limit: $limit, order: {lastUpdatedTimestamp: $sortBy}}
     ) {
       TokenBalance {
         ${owners.length > 1 ? parentFields : ''}
@@ -131,16 +155,24 @@ function getQueryForBlockchain(owners: string[], blockchain: string) {
     }`;
 }
 
-export function getNftWithCommonOwnersQuery(
-  owners: string[],
-  blockchain: string | null
-) {
+export function getNftWithCommonOwnersQuery({
+  owners,
+  blockchain
+}: {
+  owners: string[];
+  blockchain: string | null;
+}) {
   if (!owners.length) return '';
 
   const subQueries: string[] = [];
   tokenBlockchains.forEach(_blockchain => {
     if (!blockchain || blockchain === _blockchain) {
-      subQueries.push(getQueryForBlockchain(owners, _blockchain));
+      subQueries.push(
+        getQueryForBlockchain({
+          owners,
+          blockchain: _blockchain
+        })
+      );
     }
   });
   const subQueriesString = subQueries.join('\n');

@@ -3,6 +3,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMatch } from 'react-router-dom';
 import { AllFilters } from '../../Components/Filters/AllFilters';
 import { BlockchainFilter } from '../../Components/Filters/BlockchainFilter';
+import { MintFilter } from '../../Components/Filters/MintFilter';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import { SortBy, defaultSortOrder } from '../../Components/Filters/SortBy';
 import { SpamFilter } from '../../Components/Filters/SpamFilter';
@@ -18,6 +19,7 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 import { SocialOverlapQuery, SocialQuery } from '../../queries';
 import { getNftWithCommonOwnersSnapshotQuery } from '../../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
 import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { getNftWithCommonTransfersQuery } from '../../queries/nftWithCommonTransfersQuery';
 import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
 import { socialDetailsQuery } from '../../queries/socialDetails';
 import { getSocialFollowersQuery } from '../../queries/socialFollowersQuery';
@@ -66,6 +68,7 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
       blockchainType,
       sortOrder,
       spamFilter,
+      mintFilter,
       activeSnapshotInfo
     }
   ] = useSearchInput();
@@ -73,13 +76,14 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
   // force the component to re-render when any of the search input change, so that the ERC20 can reset, refetch
   const erc20Key = useMemo(
     () =>
-      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${spamFilter}-${activeSnapshotInfo}`,
+      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${spamFilter}-${mintFilter}-${activeSnapshotInfo}`,
     [
       address,
       blockchainType,
       tokenType,
       sortOrder,
       spamFilter,
+      mintFilter,
       activeSnapshotInfo
     ]
   );
@@ -117,6 +121,7 @@ function TokenContainer({
       blockchainType,
       sortOrder,
       spamFilter,
+      mintFilter,
       activeSnapshotInfo
     }
   ] = useSearchInput();
@@ -136,6 +141,7 @@ function TokenContainer({
       blockchainType={blockchainType}
       sortOrder={sortOrder}
       spamFilter={spamFilter}
+      mintFilter={mintFilter}
       activeSnapshotInfo={activeSnapshotInfo}
       poapDisabled={poapDisabled}
     />
@@ -150,6 +156,7 @@ function TokenBalancePage() {
       blockchainType,
       sortOrder,
       spamFilter,
+      mintFilter,
       activeTokenInfo,
       activeSnapshotInfo,
       activeSocialInfo
@@ -247,6 +254,8 @@ function TokenBalancePage() {
 
     const fetchAllBlockchains = blockchainType?.length === 0;
 
+    const isMintFilteringEnabled = mintFilter === '1';
+
     const owners = detailTokensVisible ? [accountAddress] : address;
     const blockchain = fetchAllBlockchains ? null : blockchainType[0];
     const sortBy = sortOrder ? sortOrder : defaultSortOrder;
@@ -285,7 +294,25 @@ function TokenBalancePage() {
     let nftLink = '';
     let erc20Link = '';
 
-    if (snapshotInfo.isApplicable) {
+    if (isMintFilteringEnabled) {
+      const tokensQuery = getNftWithCommonTransfersQuery({
+        from: owners,
+        blockchain,
+        mintsOnly: isMintFilteringEnabled
+      });
+
+      nftLink = createAppUrlWithQuery(tokensQuery, {
+        limit: 10,
+        sortBy: sortBy,
+        tokenType: tokenFilters
+      });
+
+      erc20Link = createAppUrlWithQuery(tokensQuery, {
+        limit: 50,
+        sortBy: sortBy,
+        tokenType: ['ERC20']
+      });
+    } else if (snapshotInfo.isApplicable) {
       const queryFilters = getSnapshotQueryFilters(snapshotInfo);
       const tokensQuery = getNftWithCommonOwnersSnapshotQuery({
         owners,
@@ -305,7 +332,10 @@ function TokenBalancePage() {
         ...queryFilters
       });
     } else {
-      const tokensQuery = getNftWithCommonOwnersQuery(owners, blockchain);
+      const tokensQuery = getNftWithCommonOwnersQuery({
+        owners,
+        blockchain
+      });
 
       nftLink = createAppUrlWithQuery(tokensQuery, {
         limit: 10,
@@ -484,6 +514,7 @@ function TokenBalancePage() {
     hasERC6551,
     accountAddress,
     blockchainType,
+    mintFilter,
     sortOrder,
     tokenType,
     showTokenDetails,
@@ -508,13 +539,14 @@ function TokenBalancePage() {
   // force the component to re-render when any of the search input change, so that the tokens are reset and refetch
   const tokensKey = useMemo(
     () =>
-      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${spamFilter}-${activeSnapshotInfo}`,
+      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${spamFilter}-${mintFilter}-${activeSnapshotInfo}`,
     [
       address,
       blockchainType,
       tokenType,
       sortOrder,
       spamFilter,
+      mintFilter,
       activeSnapshotInfo
     ]
   );
@@ -522,11 +554,15 @@ function TokenBalancePage() {
   const {
     snapshotFilterDisabled,
     blockchainFilterDisabled,
-    sortByFilterDisabled
+    sortByFilterDisabled,
+    mintFilterTooltip,
+    mintFilterDisabled
   } = useMemo(() => {
     let snapshotFilterDisabled = false;
     let blockchainFilterDisabled = false;
     let sortByFilterDisabled = false;
+    let mintFilterTooltip = '';
+    let mintFilterDisabled = false;
 
     if (
       blockchainType?.length === 1 &&
@@ -543,11 +579,15 @@ function TokenBalancePage() {
     }
     if (snapshotInfo.isApplicable) {
       sortByFilterDisabled = true;
+      mintFilterTooltip = 'Token mints are unavailable for snapshots';
+      mintFilterDisabled = true;
     }
     return {
       snapshotFilterDisabled,
       blockchainFilterDisabled,
-      sortByFilterDisabled
+      sortByFilterDisabled,
+      mintFilterTooltip,
+      mintFilterDisabled
     };
   }, [blockchainType, isCombination, isPoap, snapshotInfo.isApplicable]);
 
@@ -570,12 +610,17 @@ function TokenBalancePage() {
               snapshotDisabled={snapshotFilterDisabled}
               blockchainDisabled={blockchainFilterDisabled}
               sortByDisabled={sortByFilterDisabled}
+              mintFilterDisabled={mintFilterDisabled}
             />
           ) : (
             <>
               <SnapshotFilter disabled={snapshotFilterDisabled} />
               <BlockchainFilter disabled={blockchainFilterDisabled} />
               <SortBy disabled={sortByFilterDisabled} />
+              <MintFilter
+                disabled={mintFilterDisabled}
+                disabledTooltipText={mintFilterTooltip}
+              />
               <SpamFilter />
             </>
           )}
@@ -677,7 +722,7 @@ function TokenBalancePage() {
               isHome
           })}
         >
-          <div className="max-w-[645px] mx-auto w-full">
+          <div className="max-w-[880px] mx-auto w-full">
             {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
             <Search />
             {isQueryExists && (

@@ -14,6 +14,7 @@ import { snapshotBlockchains, tokenBlockchains } from '../../../constants';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { getNftWithCommonOwnersSnapshotQuery } from '../../../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
 import { getNftWithCommonOwnersQuery } from '../../../queries/nftWithCommonOwnersQuery';
+import { getNftWithCommonTransfersQuery } from '../../../queries/nftWithCommonTransfersQuery';
 import {
   getActiveSnapshotInfo,
   getSnapshotQueryFilters
@@ -124,6 +125,7 @@ export function ERC20Tokens() {
       blockchainType,
       sortOrder,
       spamFilter,
+      mintFilter,
       activeTokenInfo,
       activeSnapshotInfo
     },
@@ -135,6 +137,7 @@ export function ERC20Tokens() {
   const isCombination = owners.length > 1;
 
   const isSpamFilteringEnabled = spamFilter !== '0';
+  const isMintFilteringEnabled = mintFilter === '1';
 
   const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
@@ -146,6 +149,13 @@ export function ERC20Tokens() {
 
     const blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
+    if (isMintFilteringEnabled) {
+      return getNftWithCommonTransfersQuery({
+        from: owners,
+        blockchain,
+        mintsOnly: isMintFilteringEnabled
+      });
+    }
     if (snapshotInfo.isApplicable) {
       return getNftWithCommonOwnersSnapshotQuery({
         owners,
@@ -153,12 +163,16 @@ export function ERC20Tokens() {
         snapshotFilter: snapshotInfo.appliedFilter
       });
     }
-    return getNftWithCommonOwnersQuery(owners, blockchain);
+    return getNftWithCommonOwnersQuery({
+      owners,
+      blockchain
+    });
   }, [
     blockchainType,
     snapshotInfo.isApplicable,
     snapshotInfo.appliedFilter,
-    owners
+    owners,
+    isMintFilteringEnabled
   ]);
 
   const handleData = useCallback(
