@@ -37,25 +37,14 @@ export const Search = memo(function Search() {
   const isMobile = isMobileDevice();
 
   const [value, setValue] = useState(() => {
-    return identity?.trim()
-      ? createFormattedRawInput({
-          label: identity,
-          address: identity,
-          type: 'ADDRESS',
-          blockchain: 'ethereum'
-        })
-      : '';
-  });
-
-  useEffect(() => {
     const rawInput = createFormattedRawInput({
       label: identity,
       address: identity,
       type: 'ADDRESS',
       blockchain: 'ethereum'
     });
-    setValue(rawInput ? rawInput.trim() + PADDING : '');
-  }, [identity]);
+    return rawInput ? rawInput.trim() + PADDING : '';
+  });
 
   useEffect(() => {
     if (isTokenBalances) {
@@ -106,7 +95,7 @@ export const Search = memo(function Search() {
         return;
       }
 
-      const rawTextWithMentions = rawInput.join(PADDING).trim() + PADDING;
+      const rawTextWithMentions = rawInput.join(PADDING).trim();
       const searchData = {
         address: address.join(','),
         blockchain: 'ethereum',

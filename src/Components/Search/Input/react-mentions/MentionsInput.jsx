@@ -943,7 +943,7 @@ class MentionsInput extends React.Component {
     const mentionChild = Children.toArray(children)[childIndex];
     const provideData = getDataProvider(mentionChild.props.data, ignoreAccents);
     const syncResult = provideData(
-      query,
+      { query, querySequenceStart, querySequenceEnd },
       this.updateSuggestions.bind(
         null,
         this._queryId,

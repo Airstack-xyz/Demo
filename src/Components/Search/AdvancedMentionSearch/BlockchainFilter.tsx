@@ -10,7 +10,7 @@ import { capitalizeFirstLetter } from '../../../utils';
 export const chainOptions = [
   {
     label: 'All chains',
-    value: 'all'
+    value: null
   },
   ...mentionBlockchains.map(item => ({
     label: capitalizeFirstLetter(item),
@@ -22,7 +22,7 @@ export const defaultChainOption = chainOptions[0];
 
 export type BlockchainSelectOption = {
   label: string;
-  value: string;
+  value: string | null;
 };
 
 type BlockchainFilterProps = {

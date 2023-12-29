@@ -3,6 +3,8 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import AdvancedMentionSearch from './AdvancedMentionSearch';
 import { Icon } from '../Icon';
 import { AdvancedMentionSearchParams, InputWithMention } from './Input/Input';
+import { getSocialSearchQueryData } from './SocialSearch/utils';
+import SocialSearch from './SocialSearch';
 
 type EnabledSearchType =
   | 'SOCIALS_SEARCH' // social type-ahead infinite dropdown list search
@@ -10,13 +12,15 @@ type EnabledSearchType =
   | 'MENTION_SEARCH' // default @mention dropdown list search
   | null;
 
-type AdvancedMentionSearchData = {
+type SearchData = {
   visible: boolean;
+  query: string;
   startIndex: number;
   endIndex: number;
 };
 
-const defaultAdvancedMentionSearchData: AdvancedMentionSearchData = {
+const defaultSearchData: SearchData = {
+  query: '',
   visible: false,
   startIndex: -1,
   endIndex: -1
@@ -42,8 +46,10 @@ export function SearchInputSection({
 
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
 
+  const [socialSearchData, setSocialSearchData] =
+    useState<SearchData>(defaultSearchData);
   const [advancedMentionSearchData, setAdvancedMentionSearchData] =
-    useState<AdvancedMentionSearchData>(defaultAdvancedMentionSearchData);
+    useState<SearchData>(defaultSearchData);
 
   const isSocialSearchEnabled = enabledSearchType === 'SOCIALS_SEARCH';
   const isAdvancedMentionSearchEnabled =
@@ -62,6 +68,7 @@ export function SearchInputSection({
       ) {
         setIsInputSectionFocused(false);
         setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
+        setSocialSearchData(prev => ({ ...prev, visible: false }));
       }
     }
     mentionInputEl?.addEventListener('focus', handleMentionInputFocus);
@@ -73,9 +80,10 @@ export function SearchInputSection({
   }, []);
 
   const showAdvancedMentionSearch = useCallback(
-    ({ startIndex, endIndex }: AdvancedMentionSearchParams) => {
+    ({ query, startIndex, endIndex }: AdvancedMentionSearchParams) => {
       setAdvancedMentionSearchData({
         visible: true,
+        query,
         startIndex,
         endIndex
       });
@@ -83,20 +91,49 @@ export function SearchInputSection({
     []
   );
 
+  const checkSocialSearchVisibility = useCallback((val: string) => {
+    const queryData = getSocialSearchQueryData(val);
+    if (queryData) {
+      setSocialSearchData({
+        visible: true,
+        query: queryData.query,
+        startIndex: queryData.startIndex,
+        endIndex: queryData.endIndex
+      });
+    } else {
+      setSocialSearchData(prev => ({ ...prev, visible: false }));
+    }
+  }, []);
+
   const hideAdvancedMentionSearch = useCallback(() => {
     setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
   }, []);
+
+  const hideSocialSearch = useCallback(() => {
+    setSocialSearchData(prev => ({ ...prev, visible: false }));
+  }, []);
+
+  const handleOnChange = useCallback(
+    (val: string) => {
+      if (isSocialSearchEnabled) {
+        checkSocialSearchVisibility(val);
+      }
+      onValueChange(val);
+    },
+    [checkSocialSearchVisibility, isSocialSearchEnabled, onValueChange]
+  );
 
   const handleOnSubmit = useCallback(
     (val: string) => {
       setIsInputSectionFocused(false);
       setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
+      setSocialSearchData(prev => ({ ...prev, visible: false }));
       onValueSubmit(val);
     },
     [onValueSubmit]
   );
 
-  const handleAdvanceSearchOnChange = useCallback(
+  const handleSubmitAfterDelay = useCallback(
     (val: string) => {
       onValueChange(val);
       setTimeout(() => handleOnSubmit(val), 200);
@@ -157,7 +194,7 @@ export function SearchInputSection({
         <div
           className={classNames(
             'flex items-center h-[50px] w-full rounded-18 px-4 py-3 transition-all z-20 relative',
-            advancedMentionSearchData.visible
+            advancedMentionSearchData.visible || socialSearchData.visible
               ? 'bg-[linear-gradient(137deg,#ffffff0f_-8.95%,#ffffff00_114%)]'
               : ''
           )}
@@ -166,11 +203,12 @@ export function SearchInputSection({
             <Icon name="search" width={15} height={15} className="mr-1.5" />
           )}
           <InputWithMention
+            mentionInputRef={mentionInputRef}
             value={value}
             placeholder={placeholder}
             disableHighlighting={disabledHighlighting}
             disableSuggestions={disableSuggestions}
-            onChange={onValueChange}
+            onChange={handleOnChange}
             onSubmit={handleOnSubmit}
             onAdvancedMentionSearch={
               isAdvancedMentionSearchEnabled
@@ -189,10 +227,24 @@ export function SearchInputSection({
             <AdvancedMentionSearch
               mentionInputRef={mentionInputRef}
               mentionValue={value}
+              query={advancedMentionSearchData.query}
               displayValueStartIndex={advancedMentionSearchData.startIndex}
               displayValueEndIndex={advancedMentionSearchData.endIndex}
-              onChange={handleAdvanceSearchOnChange}
+              onChange={handleSubmitAfterDelay}
               onClose={hideAdvancedMentionSearch}
+            />
+          </>
+        )}
+        {socialSearchData.visible && (
+          <>
+            <SocialSearch
+              mentionInputRef={mentionInputRef}
+              mentionValue={value}
+              query={socialSearchData.query}
+              displayValueStartIndex={socialSearchData.startIndex}
+              displayValueEndIndex={socialSearchData.endIndex}
+              onChange={handleSubmitAfterDelay}
+              onClose={hideSocialSearch}
             />
           </>
         )}

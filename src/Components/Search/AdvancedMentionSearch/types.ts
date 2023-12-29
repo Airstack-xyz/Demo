@@ -23,7 +23,7 @@ export type AdvancedMentionSearchResponse = {
   };
 };
 
-export type AdvancedMentionSearchVariables = {
+export type AdvancedMentionSearchInput = {
   searchTerm?: string | null;
   blockchain?: string | null;
   tokenType?: string | null;

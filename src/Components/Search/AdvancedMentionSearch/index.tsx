@@ -9,22 +9,19 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { AdvancedMentionSearchQuery } from '../../../queries';
 import { Icon } from '../../Icon';
 import { fetchAIMentions } from '../Input/utils';
-import GridItem, { GridItemLoader } from './GridItem';
+import { PADDING } from '../Search';
 import BlockchainFilter, {
   BlockchainSelectOption,
   defaultChainOption
 } from './BlockchainFilter';
 import Filters, { TokenSelectOption, defaultTokenOption } from './Filters';
+import GridItem, { GridItemLoader } from './GridItem';
 import {
-  AdvancedMentionSearchResponse,
-  AdvancedMentionSearchItem
+  AdvancedMentionSearchInput,
+  AdvancedMentionSearchItem,
+  AdvancedMentionSearchResponse
 } from './types';
-import {
-  getDisplayValue,
-  getSearchItemMention,
-  getSearchQuery,
-  getUpdatedMentionValue
-} from './utils';
+import { getSearchItemMention, getUpdatedMentionValue } from './utils';
 
 const LOADING_ITEM_COUNT = 9;
 
@@ -52,6 +49,8 @@ type SearchDataType = {
   selectedChain: BlockchainSelectOption;
 };
 
+const CONTAINER_ID = 'advanced-mention-search';
+
 const LIMIT = 30;
 
 const DISABLED_KEYS = [
@@ -76,13 +75,15 @@ const defaultSearchData: SearchDataType = {
 export default function AdvancedMentionSearch({
   mentionInputRef, // reference to mention-input element
   mentionValue, // mention-input's value containing markup for mentions
-  displayValueStartIndex, // @mention starting index in mention-input's display value i.e. value visible to user
-  displayValueEndIndex, // @mention ending index in mention-input's display value i.e. value visible to user
+  query, // @mention query to be searched
+  displayValueStartIndex, // @mention query starting index in mention-input's display value i.e. value visible to user
+  displayValueEndIndex, // @mention query ending index in mention-input's display value i.e. value visible to user
   onChange,
   onClose
 }: {
   mentionInputRef: MutableRefObject<HTMLTextAreaElement | null>;
   mentionValue: string;
+  query: string;
   displayValueStartIndex: number;
   displayValueEndIndex: number;
   onChange: (value: string) => void;
@@ -111,7 +112,7 @@ export default function AdvancedMentionSearch({
 
   const focusGridItem = useCallback((delta: number) => {
     const gridItems = document.querySelectorAll<HTMLButtonElement>(
-      '#advancedSearch .infinite-scroll-component button'
+      `#${CONTAINER_ID} .infinite-scroll-component button`
     );
     const itemIndex = Math.min(
       Math.max(focusIndexRef.current + delta, 0),
@@ -126,22 +127,67 @@ export default function AdvancedMentionSearch({
 
   const selectGridItem = useCallback(() => {
     const gridItems = document.querySelectorAll<HTMLButtonElement>(
-      '#advancedSearch .infinite-scroll-component button'
+      `#${CONTAINER_ID} .infinite-scroll-component button`
     );
     const itemIndex = focusIndexRef.current;
     const activeItem = gridItems[itemIndex];
     activeItem?.click();
   }, []);
 
+  const fetchData = useCallback(
+    async ({
+      input,
+      signal
+    }: {
+      input: AdvancedMentionSearchInput;
+      signal: AbortSignal;
+    }) => {
+      setSearchData(prev => ({
+        ...prev,
+        isLoading: true,
+        isError: false
+      }));
+
+      const [data, error] =
+        await fetchAIMentions<AdvancedMentionSearchResponse>({
+          query: AdvancedMentionSearchQuery,
+          signal: signal,
+          input: input
+        });
+
+      firstFetchRef.current = false;
+
+      if (signal.aborted) {
+        return;
+      }
+      if (error) {
+        setSearchData(prev => ({
+          ...prev,
+          isLoading: false,
+          isError: true,
+          items: []
+        }));
+        return;
+      }
+
+      const nextItems = data?.SearchAIMentions?.results || [];
+      const nextCursor = data?.SearchAIMentions?.pageInfo?.nextCursor;
+      const nextHasMore = !!nextCursor;
+
+      setSearchData(prev => ({
+        ...prev,
+        isLoading: false,
+        isError: false,
+        hasMore: nextHasMore,
+        nextCursor: nextCursor,
+        items: [...prev.items, ...nextItems]
+      }));
+      setFocusIndex(0);
+    },
+    []
+  );
+
   useEffect(() => {
-    // convert mention-input's value containing markup for mentions to display value i.e. value visible to user
-    const displayValue = getDisplayValue(mentionValue);
-    // extract the query from display value bounded within start/end index
-    const query = getSearchQuery(displayValue, displayValueStartIndex);
-    // if there is no matching query found
-    if (query === null) {
-      onClose();
-    }
     setSearchData(prev => ({
       ...prev,
       searchTerm: query,
@@ -149,7 +195,7 @@ export default function AdvancedMentionSearch({
       hasMore: true,
       items: []
     }));
-  }, [onClose, mentionValue, displayValueStartIndex]);
+  }, [query]);
 
   useEffect(() => {
     const mentionInputEl = mentionInputRef.current;
@@ -226,80 +272,33 @@ export default function AdvancedMentionSearch({
 
   useEffect(() => {
     const controller = new AbortController();
-    async function fetchData() {
-      setSearchData(prev => ({
-        ...prev,
-        isLoading: true,
-        isError: false
-      }));
 
-      // for first time if no filters are applied then -> fetch POAPs while keeping default filters selected
-      const shouldUseInitialFilters =
-        firstFetchRef.current &&
-        !(
-          searchTerm ||
-          selectedToken.value !== 'all' ||
-          selectedChain.value !== 'all'
-        );
+    // for first time if no filters are applied then -> fetch POAPs while keeping default filters selected
+    const shouldUseInitialFilters =
+      firstFetchRef.current &&
+      !searchTerm &&
+      selectedToken.value === null &&
+      selectedChain.value === null;
 
-      const [data, error] =
-        await fetchAIMentions<AdvancedMentionSearchResponse>({
-          query: AdvancedMentionSearchQuery,
-          signal: controller.signal,
-          input: shouldUseInitialFilters
-            ? {
-                limit: LIMIT,
-                tokenType: 'POAP'
-              }
-            : {
-                limit: LIMIT,
-                searchTerm: searchTerm,
-                cursor: cursor,
-                tokenType:
-                  selectedToken.value === 'all' ? null : selectedToken?.value,
-                blockchain:
-                  selectedChain.value === 'all' ? null : selectedChain?.value
-              }
-        });
+    const input = shouldUseInitialFilters
+      ? {
+          limit: LIMIT,
+          tokenType: 'POAP'
+        }
+      : {
+          limit: LIMIT,
+          searchTerm: searchTerm,
+          cursor: cursor,
+          tokenType: selectedToken.value,
+          blockchain: selectedChain.value
+        };
 
-      firstFetchRef.current = false;
-
-      if (controller.signal.aborted) {
-        return;
-      }
-
-      if (error) {
-        setSearchData(prev => ({
-          ...prev,
-          isLoading: false,
-          isError: true,
-          items: []
-        }));
-        return;
-      }
-
-      const nextItems = data?.SearchAIMentions?.results || [];
-      const nextCursor = data?.SearchAIMentions?.pageInfo?.nextCursor;
-      const nextHasMore = !!nextCursor;
-
-      setSearchData(prev => ({
-        ...prev,
-        isLoading: false,
-        isError: false,
-        hasMore: nextHasMore,
-        nextCursor: nextCursor,
-        items: [...prev.items, ...nextItems]
-      }));
-
-      setFocusIndex(0);
-    }
-
-    fetchData();
+    fetchData({ input, signal: controller.signal });
 
     return () => {
       controller.abort();
     };
-  }, [searchTerm, cursor, selectedToken.value, selectedChain.value]);
+  }, [searchTerm, cursor, selectedToken.value, selectedChain.value, fetchData]);
 
   const handleReloadData = useCallback(() => {
     setSearchData(prev => ({
@@ -350,7 +349,7 @@ export default function AdvancedMentionSearch({
     );
     if (value !== null) {
       // append space to the value
-      const finalValue = value.trim() + ' ';
+      const finalValue = value.trim() + PADDING;
       onChange(finalValue);
     }
     onClose();
@@ -368,7 +367,7 @@ export default function AdvancedMentionSearch({
   const errorOccurred = isError && !isLoading && items.length === 0;
 
   return (
-    <div id="advancedSearch" className="pt-5 px-5 relative z-20">
+    <div id={CONTAINER_ID} className="pt-5 px-5 relative z-20">
       <div className="flex justify-between items-center">
         <Filters selectedOption={selectedToken} onSelect={handleTokenSelect} />
         <BlockchainFilter

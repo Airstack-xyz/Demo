@@ -167,7 +167,9 @@ export const SocialSearchQuery = `query GetSocials($searchRegex: [String!], $lim
     input: {filter: {profileName: {_regex_in: $searchRegex}}, blockchain: ethereum, limit: $limit}
   ) {
     Social {
+      id
       profileName
+      dappName
     }
   }
 }`;

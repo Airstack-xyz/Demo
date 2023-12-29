@@ -1,6 +1,7 @@
 export type SocialSearchItem = {
   id: string;
   profileName: string;
+  dappName: string;
 };
 
 export type SocialSearchResponse = {

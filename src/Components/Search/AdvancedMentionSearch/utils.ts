@@ -1,7 +1,7 @@
-import { MENTION_MARKUP, MENTION_REGEX } from '../Input/constants';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { mapPlainTextIndex, getPlainText } from '../Input/react-mentions/utils';
+import { mapPlainTextIndex } from '../Input/react-mentions/utils';
+import { MENTION_CONFIG } from '../Input/utils';
 import { AdvancedMentionSearchItem } from './types';
 
 export const getSearchItemMention = (item: AdvancedMentionSearchItem) => {
@@ -16,9 +16,9 @@ export const getCustomInputMention = (address: string, mode: string) => {
 
 const SEARCH_TERM_REGEX = /@(\w*)?/;
 
-export const getSearchQuery = (text?: string, start = 0) => {
+export const getAdvancedMentionSearchQuery = (text?: string) => {
   if (!text) return null;
-  const matched = text.substring(start).match(SEARCH_TERM_REGEX);
+  const matched = text.match(SEARCH_TERM_REGEX);
   return matched ? matched[1] : null;
 };
 
@@ -35,18 +35,6 @@ export const getFormattedAddress = (
   return `${address.slice(0, 6)}...${address.slice(-6)}`;
 };
 
-const mentionConfig = [
-  {
-    displayTransform: (id: string, display: string) => display || id,
-    markup: MENTION_MARKUP,
-    regex: MENTION_REGEX
-  }
-];
-
-export const getDisplayValue = (mentionValue: string) => {
-  return getPlainText(mentionValue, mentionConfig);
-};
-
 export const getUpdatedMentionValue = (
   mentionValue: string,
   mention: string,
@@ -55,7 +43,7 @@ export const getUpdatedMentionValue = (
   // for the passed index in the displayValue, returns the corresponding index in mentionValue
   const positionInValue = mapPlainTextIndex(
     mentionValue,
-    mentionConfig,
+    MENTION_CONFIG,
     indexInDisplayValue,
     'NULL'
   );

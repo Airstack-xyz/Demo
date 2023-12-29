@@ -39,7 +39,7 @@ export const Search = memo(function Search() {
 
   const isMobile = isMobileDevice();
 
-  const [value, setValue] = useState(rawInput || '');
+  const [value, setValue] = useState(rawInput ? rawInput.trim() + PADDING : '');
 
   useEffect(() => {
     if (isTokenBalances) {
@@ -112,7 +112,7 @@ export const Search = memo(function Search() {
         return;
       }
 
-      const rawTextWithMentions = rawInput.join(PADDING).trim() + PADDING;
+      const rawTextWithMentions = rawInput.join(PADDING).trim();
       const filterValues: Partial<CachedQuery> = {
         address,
         rawInput: rawTextWithMentions,
@@ -124,7 +124,7 @@ export const Search = memo(function Search() {
         filterValues.activeSnapshotInfo = undefined;
       }
 
-      setValue(rawTextWithMentions);
+      setValue(rawTextWithMentions + PADDING);
       handleDataChange(filterValues);
     },
     [handleDataChange]
@@ -181,17 +181,17 @@ export const Search = memo(function Search() {
         return;
       }
 
-      const rawTextWithMentions = rawInput.join(PADDING);
+      const rawTextWithMentions = rawInput.join(PADDING).trim();
       const filterValues: Partial<CachedQuery> = {
         address,
-        rawInput: rawTextWithMentions.trim() + PADDING,
+        rawInput: rawTextWithMentions,
         inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType']
       };
 
       // For every new search reset snapshot filter
       filterValues.activeSnapshotInfo = undefined;
 
-      setValue(rawTextWithMentions.trim() + PADDING);
+      setValue(rawTextWithMentions + PADDING);
       handleDataChange(filterValues);
     },
     [handleDataChange]
@@ -258,7 +258,7 @@ export const Search = memo(function Search() {
     : 'ADVANCED_MENTION_SEARCH';
 
   return (
-    <div className="relative z-10">
+    <div className="relative z-50">
       <div className="my-6 flex-col-center">
         <SearchTabSection
           isHome={isHome}

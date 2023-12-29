@@ -44,7 +44,7 @@ type Option = SearchAIMentionsResults & {
 };
 
 export type AdvancedMentionSearchParams = {
-  query?: string;
+  query: string;
   startIndex: number;
   endIndex: number;
 };
@@ -180,22 +180,27 @@ export function InputWithMention({
     []
   );
 
-  const triggerAdvancedMentionSearch = useCallback(() => {
-    if (!onAdvancedMentionSearch) {
-      return;
-    }
-
-    const inputValue = inputRef.current?.value || '';
-    const endIndex = inputRef.current?.selectionStart ?? -1;
-    let startIndex = endIndex;
-
-    // find start index of query
-    while (inputValue[startIndex] !== '@' && startIndex > 0) {
-      startIndex--;
-    }
-
-    onAdvancedMentionSearch({ startIndex, endIndex });
-  }, [onAdvancedMentionSearch]);
+  const triggerAdvancedMentionSearch = useCallback(
+    ({
+      query,
+      querySequenceStart,
+      querySequenceEnd
+    }: {
+      query: string;
+      querySequenceStart: number;
+      querySequenceEnd: number;
+    }) => {
+      if (!onAdvancedMentionSearch) {
+        return;
+      }
+      onAdvancedMentionSearch({
+        query,
+        startIndex: querySequenceStart,
+        endIndex: querySequenceEnd
+      });
+    },
+    [onAdvancedMentionSearch]
+  );
 
   const onAddSuggestion = useCallback((id: string) => {
     // allow submission only if suggestion is clicked
@@ -313,7 +318,7 @@ export function InputWithMention({
   );
 
   const getData = useCallback(
-    async (query: string, callback: (data: unknown) => void) => {
+    async ({ query }: { query: string }, callback: (data: unknown) => void) => {
       // Prevent debouncedFetch from invoking after selecting suggestion
       // It solves the issue of the dropdown skeleton appearing for 2 seconds again
       if (isSuggestionClickedRef.current) {
