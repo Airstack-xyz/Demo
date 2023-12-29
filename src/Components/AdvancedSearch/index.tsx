@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  MutableRefObject,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { AdvancedSearchAIMentionsQuery } from '../../queries';
 import { Icon } from '../Icon';
@@ -68,14 +74,14 @@ const defaultSearchData: SearchDataType = {
 };
 
 export default function AdvancedSearch({
-  mentionInputSelector, // query selector for mention-input element
+  mentionInputRef, // reference to mention-input element
   mentionValue, // mention-input's value containing markup for mentions
   displayValueStartIndex, // @mention starting index in mention-input's display value i.e. value visible to user
   displayValueEndIndex, // @mention ending index in mention-input's display value i.e. value visible to user
   onChange,
   onClose
 }: {
-  mentionInputSelector: string;
+  mentionInputRef: MutableRefObject<HTMLTextAreaElement | null>;
   mentionValue: string;
   displayValueStartIndex: number;
   displayValueEndIndex: number;
@@ -146,8 +152,7 @@ export default function AdvancedSearch({
   }, [onClose, mentionValue, displayValueStartIndex]);
 
   useEffect(() => {
-    const mentionInputEl =
-      document.querySelector<HTMLTextAreaElement>(mentionInputSelector);
+    const mentionInputEl = mentionInputRef.current;
 
     // set mention-input's caret to correct position
     mentionInputEl?.setSelectionRange(
@@ -214,7 +219,7 @@ export default function AdvancedSearch({
     displayValueEndIndex,
     displayValueStartIndex,
     focusGridItem,
-    mentionInputSelector,
+    mentionInputRef,
     onClose,
     selectGridItem
   ]);

@@ -1,75 +1,33 @@
 /* eslint-disable react-refresh/only-export-components */
-import classNames from 'classnames';
-import { Icon } from '../Icon';
-import { InputWithMention } from '../Input/Input';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useMatch, useNavigate, useSearchParams } from 'react-router-dom';
-import { getAllMentionDetails, getAllWordsAndMentions } from '../Input/utils';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { useMatch, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   CachedQuery,
   UserInputs,
   useSearchInput,
   userInputCache
 } from '../../hooks/useSearchInput';
-import { showToast } from '../../utils/showToast';
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
-import { addAndRemoveCombinationPlaceholder } from './utils';
-import AdvancedSearch from '../AdvancedSearch';
 import { isMobileDevice } from '../../utils/isMobileDevice';
+import { showToast } from '../../utils/showToast';
+import { getAllMentionDetails, getAllWordsAndMentions } from '../Input/utils';
+import { SearchInputSection } from './SearchInputSection';
+import { SearchTabSection } from './SearchTabSection';
+import { addAndRemoveCombinationPlaceholder } from './utils';
 
 export const tokenHoldersPlaceholder =
   'Type "@" to search by name, or enter any contract address, or any POAP event ID';
 export const tokenBalancesPlaceholder =
   'Enter 0x, name.eth, fc_fname:name, or name.lens';
 
-export const activeClass =
-  'bg-glass !border-stroke-color font-bold !text-text-primary';
-export const tabClassName =
-  'px-2.5 h-[30px] rounded-full mr-5 flex-row-center text-xs text-text-secondary border border-solid border-transparent';
-
-export function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
-  return (
-    <>
-      <Link
-        to="/token-balances"
-        className={classNames(tabClassName, {
-          [activeClass]: isTokenBalances
-        })}
-      >
-        <Icon name="token-balances" className="w-4 mr-1" /> Token balances
-      </Link>
-      <Link
-        to="/token-holders"
-        className={classNames(tabClassName, {
-          [activeClass]: !isTokenBalances
-        })}
-      >
-        <Icon name="token-holders" className="w-4 mr-1" /> Token holders
-      </Link>
-    </>
-  );
-}
-
-type AdvancedSearchData = {
-  visible: boolean;
-  startIndex: number;
-  endIndex: number;
-};
-
-const defaultAdvancedSearchData: AdvancedSearchData = {
-  visible: false,
-  startIndex: -1,
-  endIndex: -1
-};
-
-const ALLOWED_ADDRESS_REGEX =
+export const ALLOWED_ADDRESS_REGEX =
   /0x[a-fA-F0-9]+|.*\.(eth|lens|cb\.id)|(fc_fname:|lens\/@).*/;
 
-const padding = '  ';
+export const PADDING = '  ';
 
 export const Search = memo(function Search() {
   const [isTokenBalanceActive, setIsTokenBalanceActive] = useState(true);
-  const isHome = useMatch('/');
+  const isHome = !!useMatch('/');
   const isTokenBalancesPage = !!useMatch('/token-balances');
   const [searchParams] = useSearchParams();
   const [, setOverviewTokens] = useOverviewTokens(['tokens']);
@@ -83,13 +41,6 @@ export const Search = memo(function Search() {
 
   const [value, setValue] = useState(rawInput || '');
 
-  const [advancedSearchData, setAdvancedSearchData] =
-    useState<AdvancedSearchData>(defaultAdvancedSearchData);
-
-  const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
-  const inputSectionRef = useRef<HTMLDivElement>(null);
-  const buttonSectionRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (isTokenBalances) {
       // force reset tokenHolder's activeView when user navigates to tokenBalances page
@@ -99,40 +50,12 @@ export const Search = memo(function Search() {
   }, [isTokenBalances]);
 
   useEffect(() => {
-    setValue(rawInput ? rawInput.trim() + padding : '');
-  }, [rawInput]);
-
-  useEffect(() => {
     if (isTokenBalances) {
       setOverviewTokens({
         tokens: []
       });
     }
   }, [isTokenBalances, setOverviewTokens]);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      // if click event is outside input section
-      if (
-        inputSectionRef.current &&
-        !inputSectionRef.current?.contains(event.target as Node)
-      ) {
-        setIsInputSectionFocused(false);
-        setAdvancedSearchData(prev => ({ ...prev, visible: false }));
-      }
-      // if click event is from input section not from button section
-      else if (
-        buttonSectionRef.current &&
-        !buttonSectionRef.current?.contains(event.target as Node)
-      ) {
-        setIsInputSectionFocused(true);
-      }
-    }
-    document.addEventListener('click', handleClickOutside, true);
-    return () => {
-      document.removeEventListener('click', handleClickOutside, true);
-    };
-  }, []);
 
   const handleDataChange = useCallback(
     (data: Partial<CachedQuery>) => {
@@ -156,11 +79,11 @@ export const Search = memo(function Search() {
   );
 
   const handleTokenBalancesSearch = useCallback(
-    (value: string) => {
+    (val: string) => {
       const address: string[] = [];
       const rawInput: string[] = [];
 
-      getAllWordsAndMentions(value).forEach(({ word, mention, rawValue }) => {
+      getAllWordsAndMentions(val).forEach(({ word, mention, rawValue }) => {
         if (mention) {
           rawInput.push(rawValue);
           address.push(mention.address);
@@ -189,10 +112,10 @@ export const Search = memo(function Search() {
         return;
       }
 
-      const rawTextWithMentions = rawInput.join(padding);
+      const rawTextWithMentions = rawInput.join(PADDING).trim() + PADDING;
       const filterValues: Partial<CachedQuery> = {
         address,
-        rawInput: rawInput.join(padding),
+        rawInput: rawTextWithMentions,
         inputType: 'ADDRESS' as UserInputs['inputType']
       };
 
@@ -201,20 +124,20 @@ export const Search = memo(function Search() {
         filterValues.activeSnapshotInfo = undefined;
       }
 
-      setValue(rawTextWithMentions.trim() + padding);
+      setValue(rawTextWithMentions);
       handleDataChange(filterValues);
     },
     [handleDataChange]
   );
 
   const handleTokenHoldersSearch = useCallback(
-    (value: string) => {
+    (val: string) => {
       const address: string[] = [];
       const rawInput: string[] = [];
       let inputType: string | null = null;
       let hasInputTypeMismatch = false;
       let token = '';
-      const wordsAndMentions = getAllWordsAndMentions(value);
+      const wordsAndMentions = getAllWordsAndMentions(val);
 
       wordsAndMentions.forEach(({ word, mention, rawValue }) => {
         if (mention) {
@@ -258,17 +181,17 @@ export const Search = memo(function Search() {
         return;
       }
 
-      const rawTextWithMentions = rawInput.join(padding);
+      const rawTextWithMentions = rawInput.join(PADDING);
       const filterValues: Partial<CachedQuery> = {
         address,
-        rawInput: rawTextWithMentions,
+        rawInput: rawTextWithMentions.trim() + PADDING,
         inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType']
       };
 
       // For every new search reset snapshot filter
       filterValues.activeSnapshotInfo = undefined;
 
-      setValue(rawTextWithMentions + padding);
+      setValue(rawTextWithMentions.trim() + PADDING);
       handleDataChange(filterValues);
     },
     [handleDataChange]
@@ -289,9 +212,6 @@ export const Search = memo(function Search() {
 
   const handleSubmit = useCallback(
     (mentionValue: string) => {
-      setIsInputSectionFocused(false);
-      setAdvancedSearchData(prev => ({ ...prev, visible: false }));
-
       const trimmedValue = mentionValue.trim();
 
       if (searchParams.get('rawInput') === trimmedValue) {
@@ -313,19 +233,7 @@ export const Search = memo(function Search() {
     ]
   );
 
-  const handleInputSubmit = () => {
-    handleSubmit(value);
-  };
-
-  const handleInputClear = useCallback(() => {
-    if (advancedSearchData.visible) {
-      setAdvancedSearchData(prev => ({ ...prev, visible: false }));
-    } else {
-      setValue('');
-    }
-  }, [advancedSearchData.visible]);
-
-  const getTabChangeHandler = useCallback(
+  const handleTabChange = useCallback(
     (isTokenBalance: boolean) => {
       if (!isHome) {
         setValue('');
@@ -339,137 +247,28 @@ export const Search = memo(function Search() {
     [isHome, navigate]
   );
 
-  const showAdvancedSearch = useCallback(
-    (startIndex: number, endIndex: number) => {
-      setAdvancedSearchData({
-        visible: true,
-        startIndex,
-        endIndex
-      });
-    },
-    []
-  );
-
-  const hideAdvancedSearch = useCallback(() => {
-    setAdvancedSearchData(prev => ({ ...prev, visible: false }));
-  }, []);
-
-  const handleAdvanceSearchOnChange = useCallback(
-    (value: string) => {
-      setValue(value);
-      setTimeout(() => handleSubmit(value), 200);
-    },
-    [handleSubmit]
-  );
-
   const inputPlaceholder = isTokenBalances
     ? tokenBalancesPlaceholder
     : tokenHoldersPlaceholder;
 
-  const showPrefixIcon = isHome && (!isInputSectionFocused || !value);
-
-  const enableAdvancedSearch = !isMobile && !isTokenBalances;
-
-  const disableSuggestions = isTokenBalances;
-
   return (
     <div className="relative z-10">
       <div className="my-6 flex-col-center">
-        <div className="bg-glass bg-secondary border flex p-1 rounded-full">
-          {isHome && (
-            <>
-              <button
-                onClick={() => getTabChangeHandler(true)}
-                className={classNames(tabClassName, {
-                  [activeClass]: isTokenBalances
-                })}
-              >
-                <Icon name="token-balances" className="w-4 mr-1" /> Token
-                balances
-              </button>
-              <button
-                onClick={() => getTabChangeHandler(false)}
-                className={classNames(tabClassName, {
-                  [activeClass]: !isTokenBalances
-                })}
-              >
-                <Icon name="token-holders" className="w-4 mr-1" /> Token holders
-              </button>
-            </>
-          )}
-          {!isHome && <TabLinks isTokenBalances={isTokenBalances} />}
-        </div>
+        <SearchTabSection
+          isHome={isHome}
+          isTokenBalances={isTokenBalances}
+          onTabChange={handleTabChange}
+        />
       </div>
-      <div
-        id="main-input-section"
-        className="flex-row-center relative h-[50px] z-40"
-      >
-        <div
-          ref={inputSectionRef}
-          className={classNames(
-            'before-bg-glass before:rounded-18 before:border-solid-stroke transition-all absolute top-0',
-            advancedSearchData.visible ? 'w-[min(60vw,900px)]' : 'w-full'
-          )}
-        >
-          <div
-            className={classNames(
-              'flex items-center h-[50px] w-full rounded-18 px-4 py-3 transition-all z-20 relative',
-              advancedSearchData.visible
-                ? 'bg-[linear-gradient(137deg,#ffffff0f_-8.95%,#ffffff00_114%)]'
-                : ''
-            )}
-          >
-            {showPrefixIcon && (
-              <Icon name="search" width={15} height={15} className="mr-1.5" />
-            )}
-            <InputWithMention
-              value={value}
-              placeholder={inputPlaceholder}
-              disableSuggestions={disableSuggestions}
-              onChange={setValue}
-              onSubmit={handleSubmit}
-              onAdvancedSearch={
-                enableAdvancedSearch ? showAdvancedSearch : undefined
-              }
-            />
-            <div ref={buttonSectionRef} className="flex justify-end pl-3">
-              {!!value && (
-                <>
-                  {!isInputSectionFocused || advancedSearchData.visible ? (
-                    <button
-                      type="button"
-                      className="text-right w-5"
-                      onClick={handleInputClear}
-                    >
-                      <Icon name="close" width={14} height={14} />
-                    </button>
-                  ) : (
-                    <button type="button" onClick={handleInputSubmit}>
-                      <Icon name="search" width={20} height={20} />
-                    </button>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-          {advancedSearchData.visible && (
-            <>
-              <div
-                className="bg-primary/70 z-[-1] inset-0 fixed"
-                onClick={hideAdvancedSearch}
-              />
-              <AdvancedSearch
-                mentionInputSelector="#main-input-section #mention-input"
-                mentionValue={value}
-                displayValueStartIndex={advancedSearchData.startIndex}
-                displayValueEndIndex={advancedSearchData.endIndex}
-                onChange={handleAdvanceSearchOnChange}
-                onClose={hideAdvancedSearch}
-              />
-            </>
-          )}
-        </div>
-      </div>
+      <SearchInputSection
+        value={value}
+        placeholder={inputPlaceholder}
+        disableSuggestions={isTokenBalances}
+        disableAdvanceSearch={isMobile || isTokenBalances}
+        showPrefixSearchIcon={isHome}
+        onValueChange={setValue}
+        onValueSubmit={handleSubmit}
+      />
     </div>
   );
 });

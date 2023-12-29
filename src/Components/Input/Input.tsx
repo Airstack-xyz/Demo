@@ -1,5 +1,6 @@
 import {
   KeyboardEventHandler,
+  MutableRefObject,
   useCallback,
   useEffect,
   useMemo,
@@ -42,6 +43,12 @@ type Option = SearchAIMentionsResults & {
   display: string;
 };
 
+export type AdvancedSearchParams = {
+  query?: string;
+  startIndex: number;
+  endIndex: number;
+};
+
 const mentionTypeMap: Record<MentionType, string> = {
   [MentionType.NFT_COLLECTION]: 'NFT',
   [MentionType.DAO_TOKEN]: 'DAO',
@@ -53,6 +60,7 @@ const mentionTypeMap: Record<MentionType, string> = {
 const noop = () => {};
 
 export function InputWithMention({
+  mentionInputRef,
   value,
   disabled,
   placeholder,
@@ -61,13 +69,14 @@ export function InputWithMention({
   onSubmit,
   onAdvancedSearch
 }: {
+  mentionInputRef?: MutableRefObject<HTMLTextAreaElement | null>;
   value: string;
   disabled?: boolean;
   placeholder?: string;
   disableSuggestions?: boolean;
   onChange: (value: string) => void;
   onSubmit: (value: string) => void;
-  onAdvancedSearch?: (startIndex: number, endIndex: number) => void;
+  onAdvancedSearch?: (params: AdvancedSearchParams) => void;
 }) {
   const [showInputFor, setShowInputFor] = useState<
     'ID_ADDRESS' | 'ID_POAP' | null
@@ -77,7 +86,7 @@ export function InputWithMention({
     left: 'auto',
     right: 'auto'
   });
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const allowSubmitRef = useRef(true);
   const valueRef = useRef(value);
   const lastPositionOfCaretRef = useRef(0);
@@ -92,6 +101,16 @@ export function InputWithMention({
     setLoading(false);
     return res;
   }, []);
+
+  const handleInputRef = useCallback(
+    (el: HTMLTextAreaElement) => {
+      inputRef.current = el;
+      if (mentionInputRef) {
+        mentionInputRef.current = el; // expose mention input to outside
+      }
+    },
+    [mentionInputRef]
+  );
 
   const handlePaste = useCallback((event: ClipboardEvent) => {
     if (event.target !== inputRef.current) {
@@ -173,7 +192,7 @@ export function InputWithMention({
       startIndex--;
     }
 
-    onAdvancedSearch(startIndex, endIndex);
+    onAdvancedSearch({ startIndex, endIndex });
   }, [onAdvancedSearch]);
 
   const onAddSuggestion = useCallback((id: string) => {
@@ -281,7 +300,6 @@ export function InputWithMention({
           blockchain: capitalizeFirstLetter(mention.blockchain || '')
         }));
       }
-
       return [];
     },
     [getMentions]
@@ -380,7 +398,7 @@ export function InputWithMention({
         value={value}
         onChange={handleUserInput}
         spellCheck={false}
-        inputRef={inputRef}
+        inputRef={handleInputRef}
         disabled={showInputFor || disabled}
         customChildren={
           showInputFor ? (
