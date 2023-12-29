@@ -9,7 +9,7 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { AdvancedMentionSearchQuery } from '../../../queries';
 import { Icon } from '../../Icon';
 import { fetchAIMentions } from '../Input/utils';
-import GridItem, { GridItemLoader } from './Asset';
+import GridItem, { GridItemLoader } from './GridItem';
 import BlockchainFilter, {
   BlockchainSelectOption,
   defaultChainOption

@@ -251,6 +251,12 @@ export const Search = memo(function Search() {
     ? tokenBalancesPlaceholder
     : tokenHoldersPlaceholder;
 
+  const enabledSearchType = isTokenBalances
+    ? 'SOCIALS_SEARCH'
+    : isMobile
+    ? 'MENTION_SEARCH'
+    : 'ADVANCED_MENTION_SEARCH';
+
   return (
     <div className="relative z-10">
       <div className="my-6 flex-col-center">
@@ -263,9 +269,7 @@ export const Search = memo(function Search() {
       <SearchInputSection
         value={value}
         placeholder={placeholder}
-        enabledSearchType={
-          isTokenBalances ? 'SOCIALS_SEARCH' : 'ADVANCED_SEARCH'
-        }
+        enabledSearchType={enabledSearchType}
         showPrefixSearchIcon={isHome}
         onValueChange={setValue}
         onValueSubmit={handleSubmit}

@@ -7,7 +7,7 @@ import { AdvancedMentionSearchParams, InputWithMention } from './Input/Input';
 type EnabledSearchType =
   | 'SOCIALS_SEARCH' // social type-ahead infinite dropdown list search
   | 'ADVANCED_MENTION_SEARCH' // advanced @mention infinite grid search with filters
-  | 'MENTION_SEARCH' // default @mention dropdown search
+  | 'MENTION_SEARCH' // default @mention dropdown list search
   | null;
 
 type AdvancedMentionSearchData = {
@@ -42,7 +42,7 @@ export function SearchInputSection({
 
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
 
-  const [advancedSearchData, setAdvancedMentionSearchData] =
+  const [advancedMentionSearchData, setAdvancedMentionSearchData] =
     useState<AdvancedMentionSearchData>(defaultAdvancedMentionSearchData);
 
   const isSocialSearchEnabled = enabledSearchType === 'SOCIALS_SEARCH';
@@ -105,12 +105,12 @@ export function SearchInputSection({
   );
 
   const handleInputClear = useCallback(() => {
-    if (advancedSearchData.visible) {
+    if (advancedMentionSearchData.visible) {
       setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
     } else {
       onValueChange('');
     }
-  }, [advancedSearchData.visible, onValueChange]);
+  }, [advancedMentionSearchData.visible, onValueChange]);
 
   const handleInputSubmit = () => {
     handleOnSubmit(value);
@@ -120,7 +120,7 @@ export function SearchInputSection({
     if (!value) {
       return null;
     }
-    if (!isInputSectionFocused || advancedSearchData.visible) {
+    if (!isInputSectionFocused || advancedMentionSearchData.visible) {
       return (
         <button
           type="button"
@@ -141,19 +141,23 @@ export function SearchInputSection({
   const isPrefixSearchIconVisible =
     showPrefixSearchIcon && (!isInputSectionFocused || !value);
 
+  const disabledHighlighting = !enabledSearchType;
+
+  const disableSuggestions = isSocialSearchEnabled || !enabledSearchType;
+
   return (
     <div className="flex-row-center relative h-[50px] z-40">
       <div
         ref={inputSectionRef}
         className={classNames(
           'before-bg-glass before:rounded-18 before:border-solid-stroke transition-all absolute top-0',
-          advancedSearchData.visible ? 'w-[min(70vw,900px)]' : 'w-full'
+          advancedMentionSearchData.visible ? 'w-[min(70vw,900px)]' : 'w-full'
         )}
       >
         <div
           className={classNames(
             'flex items-center h-[50px] w-full rounded-18 px-4 py-3 transition-all z-20 relative',
-            advancedSearchData.visible
+            advancedMentionSearchData.visible
               ? 'bg-[linear-gradient(137deg,#ffffff0f_-8.95%,#ffffff00_114%)]'
               : ''
           )}
@@ -164,16 +168,19 @@ export function SearchInputSection({
           <InputWithMention
             value={value}
             placeholder={placeholder}
-            disableSuggestions={isSocialSearchEnabled}
+            disableHighlighting={disabledHighlighting}
+            disableSuggestions={disableSuggestions}
             onChange={onValueChange}
             onSubmit={handleOnSubmit}
             onAdvancedMentionSearch={
-              isAdvancedMentionSearchEnabled ? showAdvancedMentionSearch : undefined
+              isAdvancedMentionSearchEnabled
+                ? showAdvancedMentionSearch
+                : undefined
             }
           />
           <div className="flex justify-end pl-3">{renderButtonContent()}</div>
         </div>
-        {advancedSearchData.visible && (
+        {advancedMentionSearchData.visible && (
           <>
             <div
               className="bg-primary/70 z-[-1] inset-0 fixed"
@@ -182,8 +189,8 @@ export function SearchInputSection({
             <AdvancedMentionSearch
               mentionInputRef={mentionInputRef}
               mentionValue={value}
-              displayValueStartIndex={advancedSearchData.startIndex}
-              displayValueEndIndex={advancedSearchData.endIndex}
+              displayValueStartIndex={advancedMentionSearchData.startIndex}
+              displayValueEndIndex={advancedMentionSearchData.endIndex}
               onChange={handleAdvanceSearchOnChange}
               onClose={hideAdvancedMentionSearch}
             />
