@@ -1,13 +1,13 @@
 import classNames from 'classnames';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import AdvancedSearch from '../../../Components/AdvancedSearch';
 import { Icon } from '../../../Components/Icon';
+import AdvancedMentionSearch from '../../../Components/Search/AdvancedMentionSearch';
 import {
-  AdvancedSearchParams,
+  AdvancedMentionSearchParams,
   InputWithMention
-} from '../../../Components/Input/Input';
-import { MentionData } from '../../../Components/Input/types';
-import { getAllWordsAndMentions } from '../../../Components/Input/utils';
+} from '../../../Components/Search/Input/Input';
+import { MentionData } from '../../../Components/Search/Input/types';
+import { getAllWordsAndMentions } from '../../../Components/Search/Input/utils';
 import { PADDING } from '../../../Components/Search/Search';
 import { isMobileDevice } from '../../../utils/isMobileDevice';
 
@@ -28,13 +28,13 @@ type MentionInputProps = {
   onClear?: () => void;
 };
 
-type AdvancedSearchData = {
+type AdvancedMentionSearchData = {
   visible: boolean;
   startIndex: number;
   endIndex: number;
 };
 
-const defaultAdvancedSearchData: AdvancedSearchData = {
+const defaultAdvancedMentionSearchData: AdvancedMentionSearchData = {
   visible: false,
   startIndex: -1,
   endIndex: -1
@@ -55,8 +55,8 @@ export function MentionInput({
 
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
 
-  const [advancedSearchData, setAdvancedSearchData] =
-    useState<AdvancedSearchData>(defaultAdvancedSearchData);
+  const [advancedMentionSearchData, setAdvancedMentionSearchData] =
+    useState<AdvancedMentionSearchData>(defaultAdvancedMentionSearchData);
 
   const [value, setValue] = useState(defaultValue);
 
@@ -74,7 +74,7 @@ export function MentionInput({
         !inputSectionRef.current?.contains(event.target as Node)
       ) {
         setIsInputSectionFocused(false);
-        setAdvancedSearchData(prev => ({ ...prev, visible: false }));
+        setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
       }
     }
     mentionInputEl?.addEventListener('focus', handleMentionInputFocus);
@@ -88,7 +88,7 @@ export function MentionInput({
   const handleSubmit = useCallback(
     (val: string) => {
       setIsInputSectionFocused(false);
-      setAdvancedSearchData(prev => ({ ...prev, visible: false }));
+      setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
 
       const rawInput: string[] = [];
       const words: string[] = [];
@@ -121,9 +121,9 @@ export function MentionInput({
     [onSubmit, validationFn]
   );
 
-  const showAdvancedSearch = useCallback(
-    ({ startIndex, endIndex }: AdvancedSearchParams) => {
-      setAdvancedSearchData({
+  const showAdvancedMentionSearch = useCallback(
+    ({ startIndex, endIndex }: AdvancedMentionSearchParams) => {
+      setAdvancedMentionSearchData({
         visible: true,
         startIndex,
         endIndex
@@ -132,8 +132,8 @@ export function MentionInput({
     []
   );
 
-  const hideAdvancedSearch = useCallback(() => {
-    setAdvancedSearchData(prev => ({ ...prev, visible: false }));
+  const hideAdvancedMentionSearch = useCallback(() => {
+    setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
   }, []);
 
   const handleAdvanceSearchOnChange = (value: string) => {
@@ -142,13 +142,13 @@ export function MentionInput({
   };
 
   const handleInputClear = useCallback(() => {
-    if (advancedSearchData.visible) {
-      setAdvancedSearchData(prev => ({ ...prev, visible: false }));
+    if (advancedMentionSearchData.visible) {
+      setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
     } else {
       setValue('');
       onClear?.();
     }
-  }, [advancedSearchData.visible, onClear]);
+  }, [advancedMentionSearchData.visible, onClear]);
 
   const handleInputSubmit = () => {
     handleSubmit(value);
@@ -158,7 +158,7 @@ export function MentionInput({
     if (!value) {
       return null;
     }
-    if (!isInputSectionFocused || advancedSearchData.visible) {
+    if (!isInputSectionFocused || advancedMentionSearchData.visible) {
       return (
         <button type="button" onClick={handleInputClear}>
           <Icon name="close" width={14} height={14} />
@@ -192,25 +192,25 @@ export function MentionInput({
             disableSuggestions={disableSuggestions}
             onChange={setValue}
             onSubmit={handleSubmit}
-            onAdvancedSearch={
-              disableAdvanceSearch ? undefined : showAdvancedSearch
+            onAdvancedMentionSearch={
+              disableAdvanceSearch ? undefined : showAdvancedMentionSearch
             }
           />
           <div className="flex justify-end pl-2">{renderButtonContent()}</div>
         </div>
-        {advancedSearchData.visible && (
+        {advancedMentionSearchData.visible && (
           <div className="before-bg-glass before:rounded-18 rounded-18 border-solid-stroke w-[min(60vw,786px)] absolute top-8">
             <div
               className="bg-primary/70 z-[-1] inset-0 fixed"
-              onClick={hideAdvancedSearch}
+              onClick={hideAdvancedMentionSearch}
             />
-            <AdvancedSearch
+            <AdvancedMentionSearch
               mentionInputRef={mentionInputRef}
               mentionValue={value}
-              displayValueStartIndex={advancedSearchData.startIndex}
-              displayValueEndIndex={advancedSearchData.endIndex}
+              displayValueStartIndex={advancedMentionSearchData.startIndex}
+              displayValueEndIndex={advancedMentionSearchData.endIndex}
               onChange={handleAdvanceSearchOnChange}
-              onClose={hideAdvancedSearch}
+              onClose={hideAdvancedMentionSearch}
             />
           </div>
         )}

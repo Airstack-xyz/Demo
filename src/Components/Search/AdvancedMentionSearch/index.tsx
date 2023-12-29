@@ -6,18 +6,18 @@ import {
   useState
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { AdvancedSearchAIMentionsQuery } from '../../queries';
-import { Icon } from '../Icon';
+import { AdvancedMentionSearchQuery } from '../../../queries';
+import { Icon } from '../../Icon';
 import { fetchAIMentions } from '../Input/utils';
-import Asset, { AssetLoader } from './Asset';
+import GridItem, { GridItemLoader } from './Asset';
 import BlockchainFilter, {
   BlockchainSelectOption,
   defaultChainOption
 } from './BlockchainFilter';
 import Filters, { TokenSelectOption, defaultTokenOption } from './Filters';
 import {
-  AdvancedSearchAIMentionsResponse,
-  AdvancedSearchAIMentionsResults
+  AdvancedMentionSearchResponse,
+  AdvancedMentionSearchItem
 } from './types';
 import {
   getDisplayValue,
@@ -34,7 +34,7 @@ function GridLoader() {
   return (
     <>
       {loadingItems.map((_, idx) => (
-        <AssetLoader key={idx} />
+        <GridItemLoader key={idx} />
       ))}
     </>
   );
@@ -47,7 +47,7 @@ type SearchDataType = {
   cursor?: string | null;
   nextCursor?: string | null;
   hasMore: boolean;
-  items: AdvancedSearchAIMentionsResults[];
+  items: AdvancedMentionSearchItem[];
   selectedToken: TokenSelectOption;
   selectedChain: BlockchainSelectOption;
 };
@@ -73,7 +73,7 @@ const defaultSearchData: SearchDataType = {
   selectedChain: defaultChainOption
 };
 
-export default function AdvancedSearch({
+export default function AdvancedMentionSearch({
   mentionInputRef, // reference to mention-input element
   mentionValue, // mention-input's value containing markup for mentions
   displayValueStartIndex, // @mention starting index in mention-input's display value i.e. value visible to user
@@ -243,8 +243,8 @@ export default function AdvancedSearch({
         );
 
       const [data, error] =
-        await fetchAIMentions<AdvancedSearchAIMentionsResponse>({
-          query: AdvancedSearchAIMentionsQuery,
+        await fetchAIMentions<AdvancedMentionSearchResponse>({
+          query: AdvancedMentionSearchQuery,
           signal: controller.signal,
           input: shouldUseInitialFilters
             ? {
@@ -356,7 +356,7 @@ export default function AdvancedSearch({
     onClose();
   };
 
-  const handleItemSelect = (item: AdvancedSearchAIMentionsResults) => {
+  const handleItemSelect = (item: AdvancedMentionSearchItem) => {
     const mention = getSearchItemMention(item);
     handleMentionChange(mention);
   };
@@ -404,7 +404,7 @@ export default function AdvancedSearch({
         )}
         {isLoading && <GridLoader />}
         {items.map((item, index) => (
-          <Asset
+          <GridItem
             key={`${item.address}_${index}`}
             item={item}
             isFocused={focusIndex === index}

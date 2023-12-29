@@ -1,4 +1,4 @@
-import { getAllWordsAndMentions } from '../Components/Input/utils';
+import { getAllWordsAndMentions } from '../Components/Search/Input/utils';
 
 export const getActiveSocialInfoString = ({
   dappName,

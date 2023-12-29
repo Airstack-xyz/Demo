@@ -10,7 +10,7 @@ import {
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { showToast } from '../../utils/showToast';
-import { getAllMentionDetails, getAllWordsAndMentions } from '../Input/utils';
+import { getAllMentionDetails, getAllWordsAndMentions } from './Input/utils';
 import { SearchInputSection } from './SearchInputSection';
 import { SearchTabSection } from './SearchTabSection';
 import { addAndRemoveCombinationPlaceholder } from './utils';
@@ -247,7 +247,7 @@ export const Search = memo(function Search() {
     [isHome, navigate]
   );
 
-  const inputPlaceholder = isTokenBalances
+  const placeholder = isTokenBalances
     ? tokenBalancesPlaceholder
     : tokenHoldersPlaceholder;
 
@@ -262,9 +262,10 @@ export const Search = memo(function Search() {
       </div>
       <SearchInputSection
         value={value}
-        placeholder={inputPlaceholder}
-        disableSuggestions={isTokenBalances}
-        disableAdvanceSearch={isMobile || isTokenBalances}
+        placeholder={placeholder}
+        enabledSearchType={
+          isTokenBalances ? 'SOCIALS_SEARCH' : 'ADVANCED_SEARCH'
+        }
         showPrefixSearchIcon={isHome}
         onValueChange={setValue}
         onValueSubmit={handleSubmit}

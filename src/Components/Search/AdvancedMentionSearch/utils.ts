@@ -2,9 +2,9 @@ import { MENTION_MARKUP, MENTION_REGEX } from '../Input/constants';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { mapPlainTextIndex, getPlainText } from '../Input/react-mentions/utils';
-import { AdvancedSearchAIMentionsResults } from './types';
+import { AdvancedMentionSearchItem } from './types';
 
-export const getSearchItemMention = (item: AdvancedSearchAIMentionsResults) => {
+export const getSearchItemMention = (item: AdvancedMentionSearchItem) => {
   return `#⎱${item.name}⎱(${item.address} ${item.type} ${item.blockchain} ${
     item.eventId || 'null'
   })`;
@@ -22,7 +22,7 @@ export const getSearchQuery = (text?: string, start = 0) => {
   return matched ? matched[1] : null;
 };
 
-export const getAssetAddress = (
+export const getFormattedAddress = (
   type: string,
   eventId: string | null,
   address: string

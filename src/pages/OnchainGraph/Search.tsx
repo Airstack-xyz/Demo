@@ -5,7 +5,7 @@ import {
   useNavigate,
   useSearchParams
 } from 'react-router-dom';
-import { getAllWordsAndMentions } from '../../Components/Input/utils';
+import { getAllWordsAndMentions } from '../../Components/Search/Input/utils';
 import {
   ALLOWED_ADDRESS_REGEX,
   PADDING,

@@ -7,8 +7,8 @@ import {
   useRef,
   useState
 } from 'react';
-import { capitalizeFirstLetter, pluralize } from '../../utils';
-import { Icon } from '../Icon';
+import { capitalizeFirstLetter, pluralize } from '../../../utils';
+import { Icon } from '../../Icon';
 import { AddressInput } from './AddressInput';
 import {
   ADDRESS_OPTION_ID,
@@ -17,7 +17,7 @@ import {
   MENTION_REGEX,
   POAP_OPTION_ID
 } from './constants';
-import ImageWithFallback from '../ImageWithFallback';
+import ImageWithFallback from '../../ImageWithFallback';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { Mention, MentionsInput } from './react-mentions';
@@ -43,7 +43,7 @@ type Option = SearchAIMentionsResults & {
   display: string;
 };
 
-export type AdvancedSearchParams = {
+export type AdvancedMentionSearchParams = {
   query?: string;
   startIndex: number;
   endIndex: number;
@@ -64,19 +64,21 @@ export function InputWithMention({
   value,
   disabled,
   placeholder,
+  disableHighlighting,
   disableSuggestions,
   onChange,
   onSubmit,
-  onAdvancedSearch
+  onAdvancedMentionSearch
 }: {
   mentionInputRef?: MutableRefObject<HTMLTextAreaElement | null>;
   value: string;
   disabled?: boolean;
   placeholder?: string;
+  disableHighlighting?: boolean;
   disableSuggestions?: boolean;
   onChange: (value: string) => void;
   onSubmit: (value: string) => void;
-  onAdvancedSearch?: (params: AdvancedSearchParams) => void;
+  onAdvancedMentionSearch?: (params: AdvancedMentionSearchParams) => void;
 }) {
   const [showInputFor, setShowInputFor] = useState<
     'ID_ADDRESS' | 'ID_POAP' | null
@@ -141,8 +143,8 @@ export function InputWithMention({
 
   useEffect(() => {
     inputRef.current?.setAttribute('autocomplete', 'off');
-    return highlightMention(inputRef.current, disableSuggestions);
-  }, [disableSuggestions]);
+    return highlightMention(inputRef.current, disableHighlighting);
+  }, [disableHighlighting]);
 
   const handleUserInput = useCallback(
     ({ target: { value } }: { target: { value: string } }) => {
@@ -178,8 +180,8 @@ export function InputWithMention({
     []
   );
 
-  const triggerAdvancedSearch = useCallback(() => {
-    if (!onAdvancedSearch) {
+  const triggerAdvancedMentionSearch = useCallback(() => {
+    if (!onAdvancedMentionSearch) {
       return;
     }
 
@@ -192,8 +194,8 @@ export function InputWithMention({
       startIndex--;
     }
 
-    onAdvancedSearch({ startIndex, endIndex });
-  }, [onAdvancedSearch]);
+    onAdvancedMentionSearch({ startIndex, endIndex });
+  }, [onAdvancedMentionSearch]);
 
   const onAddSuggestion = useCallback((id: string) => {
     // allow submission only if suggestion is clicked
@@ -426,8 +428,8 @@ export function InputWithMention({
           data={
             disableSuggestions
               ? noop
-              : onAdvancedSearch
-              ? triggerAdvancedSearch
+              : onAdvancedMentionSearch
+              ? triggerAdvancedMentionSearch
               : getData
           }
         />

@@ -1,12 +1,4 @@
-export type AdvancedSearchAIMentionsInput = {
-  searchTerm?: string | null;
-  blockchain?: string | null;
-  tokenType?: string | null;
-  limit?: number | null;
-  cursor?: string | null;
-};
-
-export type AdvancedSearchAIMentionsResults = {
+export type AdvancedMentionSearchItem = {
   type: string;
   name: string;
   address: string;
@@ -22,11 +14,19 @@ export type AdvancedSearchAIMentionsResults = {
   } | null;
 };
 
-export type AdvancedSearchAIMentionsResponse = {
+export type AdvancedMentionSearchResponse = {
   SearchAIMentions: {
-    results: AdvancedSearchAIMentionsResults[];
+    results: AdvancedMentionSearchItem[];
     pageInfo: {
       nextCursor: string | null;
     };
   };
+};
+
+export type AdvancedMentionSearchVariables = {
+  searchTerm?: string | null;
+  blockchain?: string | null;
+  tokenType?: string | null;
+  limit?: number | null;
+  cursor?: string | null;
 };

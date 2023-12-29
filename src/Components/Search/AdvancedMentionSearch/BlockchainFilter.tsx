@@ -1,11 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
 import classNames from 'classnames';
 import { useCallback, useState } from 'react';
-import { useOutsideClick } from '../../hooks/useOutsideClick';
-import { Icon } from '../Icon';
-import { FilterPlaceholder } from '../Filters/FilterPlaceholder';
-import { mentionBlockchains } from '../../constants';
-import { capitalizeFirstLetter } from '../../utils';
+import { useOutsideClick } from '../../../hooks/useOutsideClick';
+import { Icon } from '../../Icon';
+import { FilterPlaceholder } from '../../Filters/FilterPlaceholder';
+import { mentionBlockchains } from '../../../constants';
+import { capitalizeFirstLetter } from '../../../utils';
 
 export const chainOptions = [
   {

@@ -63,7 +63,7 @@ import { tokenTypes } from '../TokenBalances/constants';
 import { accountOwnerQuery } from '../../queries/accountsQuery';
 import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
 import { defaultSortOrder } from '../../Components/Filters/SortBy';
-import { getAllWordsAndMentions } from '../../Components/Input/utils';
+import { getAllWordsAndMentions } from '../../Components/Search/Input/utils';
 import { showToast } from '../../utils/showToast';
 
 export function TokenHolders() {

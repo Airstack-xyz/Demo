@@ -1,5 +1,5 @@
 import { Chain } from '@airstack/airstack-react/constants';
-import { MentionData } from '../../../Components/Input/types';
+import { MentionData } from '../../../Components/Search/Input/types';
 import { TokenBlockchain } from '../../../types';
 
 export type Social = {
