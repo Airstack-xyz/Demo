@@ -1,49 +1,16 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState
-} from 'react';
-import { Search } from '../../Components/Search';
-import { Layout } from '../../Components/Layout';
-import { Tokens } from './Tokens/Tokens';
-import { HoldersOverview } from './Overview/Overview';
-import { useSearchInput } from '../../hooks/useSearchInput';
-import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
-import { SocialQuery, TokenTotalSupplyQuery } from '../../queries';
 import classNames from 'classnames';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useMatch } from 'react-router-dom';
+import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
+import { defaultSortOrder } from '../../Components/Filters/SortBy';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Icon } from '../../Components/Icon';
-import { OverviewDetails } from './OverviewDetails/OverviewDetails';
-import { getRequestFilters } from './OverviewDetails/Tokens/filters';
-import { POAPSupplyQuery } from '../../queries/overviewDetailsTokens';
-import { getFilterablePoapsQuery } from '../../queries/overviewDetailsPoap';
-import {
-  getCommonNftOwnersQuery,
-  getNftOwnersQuery
-} from '../../queries/commonNftOwnersQuery';
-import { sortAddressByPoapFirst } from '../../utils/sortAddressByPoapFirst';
-import { getCommonPoapAndNftOwnersQuery } from '../../queries/commonPoapAndNftOwnersQuery';
-import { getCommonOwnersPOAPsQuery } from '../../queries/commonOwnersPOAPsQuery';
-import {
-  getCommonNftOwnersQueryWithFilters,
-  getNftOwnersQueryWithFilters
-} from '../../queries/commonNftOwnersQueryWithFilters';
-import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../queries/commonPoapAndNftOwnersQueryWithFilters';
-import { useMatch } from 'react-router-dom';
-import {
-  useOverviewTokens,
-  TokenHolder
-} from '../../store/tokenHoldersOverview';
-import { sortByAddressByNonERC20First } from '../../utils/getNFTQueryForTokensHolder';
-import {
-  erc6551TokensQuery,
-  poapDetailsQuery,
-  tokenDetailsQuery,
-  erc20TokenDetailsQuery
-} from '../../queries/tokenDetails';
-import { useTokenDetails } from '../../store/tokenDetails';
+import { getAllWordsAndMentions } from '../../Components/Input/utils';
+import { Layout } from '../../Components/Layout';
+import { Search } from '../../Components/Search';
+import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
+import { useSearchInput } from '../../hooks/useSearchInput';
+import { SocialQuery, TokenTotalSupplyQuery } from '../../queries';
 import {
   getCommonNftOwnersSnapshotQuery,
   getNftOwnersSnapshotQuery
@@ -52,19 +19,47 @@ import {
   getCommonNftOwnersSnapshotQueryWithFilters,
   getNftOwnersSnapshotQueryWithFilters
 } from '../../queries/Snapshots/commonNftOwnersSnapshotQueryWithFilters';
-import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
-import {
-  getActiveSnapshotInfo,
-  getSnapshotQueryFilters,
-  checkBlockchainSupportForSnapshot
-} from '../../utils/activeSnapshotInfoString';
-import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
-import { tokenTypes } from '../TokenBalances/constants';
 import { accountOwnerQuery } from '../../queries/accountsQuery';
+import {
+  getCommonNftOwnersQuery,
+  getNftOwnersQuery
+} from '../../queries/commonNftOwnersQuery';
+import {
+  getCommonNftOwnersQueryWithFilters,
+  getNftOwnersQueryWithFilters
+} from '../../queries/commonNftOwnersQueryWithFilters';
+import { getCommonOwnersPOAPsQuery } from '../../queries/commonOwnersPOAPsQuery';
+import { getCommonPoapAndNftOwnersQuery } from '../../queries/commonPoapAndNftOwnersQuery';
+import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../queries/commonPoapAndNftOwnersQueryWithFilters';
+import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
+import { getFilterablePoapsQuery } from '../../queries/overviewDetailsPoap';
+import { POAPSupplyQuery } from '../../queries/overviewDetailsTokens';
+import {
+  erc20TokenDetailsQuery,
+  erc6551TokensQuery,
+  poapDetailsQuery,
+  tokenDetailsQuery
+} from '../../queries/tokenDetails';
+import { useTokenDetails } from '../../store/tokenDetails';
+import {
+  TokenHolder,
+  useOverviewTokens
+} from '../../store/tokenHoldersOverview';
+import {
+  checkBlockchainSupportForSnapshot,
+  getActiveSnapshotInfo,
+  getSnapshotQueryFilters
+} from '../../utils/activeSnapshotInfoString';
 import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
-import { defaultSortOrder } from '../../Components/Filters/SortBy';
-import { getAllWordsAndMentions } from '../../Components/Input/utils';
+import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
+import { sortByAddressByNonERC20First } from '../../utils/getNFTQueryForTokensHolder';
 import { showToast } from '../../utils/showToast';
+import { sortAddressByPoapFirst } from '../../utils/sortAddressByPoapFirst';
+import { tokenTypes } from '../TokenBalances/constants';
+import { HoldersOverview } from './Overview/Overview';
+import { OverviewDetails } from './OverviewDetails/OverviewDetails';
+import { getRequestFilters } from './OverviewDetails/Tokens/filters';
+import { Tokens } from './Tokens/Tokens';
 
 export function TokenHolders() {
   const [
@@ -548,7 +543,7 @@ export function TokenHolders() {
             isHome
         })}
       >
-        <div className="max-w-[880px] mx-auto w-full">
+        <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
           {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
           <Search />
           {!hasMultipleERC20 && isQueryExists && (

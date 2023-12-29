@@ -10,6 +10,7 @@ import { SpamFilter } from '../../Components/Filters/SpamFilter';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Layout } from '../../Components/Layout';
 import { Search } from '../../Components/Search';
+import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { Tab, TabContainer } from '../../Components/Tab';
 import {
   AccountOwner,
@@ -722,11 +723,14 @@ function TokenBalancePage() {
               isHome
           })}
         >
-          <div className="max-w-[880px] mx-auto w-full">
+          <div
+            style={{ maxWidth: MAX_SEARCH_WIDTH }}
+            className="mx-auto w-full"
+          >
             {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
             <Search />
             {isQueryExists && (
-              <div className="my-3 flex-row-center">
+              <div className="mt-3 mb-8 flex-row-center">
                 {renderFilterContent()}
               </div>
             )}
