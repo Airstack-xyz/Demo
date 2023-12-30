@@ -6,7 +6,6 @@ import { tokenTypes } from '../pages/TokenBalances/constants';
 import { CommonTokenType, TokenType } from '../pages/TokenBalances/types';
 import { getNftWithCommonOwnersSnapshotQuery } from '../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
 import { getNftWithCommonOwnersQuery } from '../queries/nftWithCommonOwnersQuery';
-import { getNftWithCommonTransfersQuery } from '../queries/nftWithCommonTransfersQuery';
 import {
   getActiveSnapshotInfo,
   getSnapshotQueryFilters
@@ -15,6 +14,10 @@ import { UserInputs } from './useSearchInput';
 
 const LIMIT = 20;
 const LIMIT_COMBINATIONS = 25;
+
+function filterByMintsOnly(tokens: TokenType[]) {
+  return tokens?.filter(item => item?.tokenTransfers?.[0]?.type === 'MINT');
+}
 
 function filterByIsSpam(tokens: TokenType[]) {
   return tokens?.filter(item => item?.token?.isSpam !== true);
@@ -80,13 +83,6 @@ export function useGetTokensOfOwner(
 
     const blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
-    if (isMintFilteringEnabled) {
-      return getNftWithCommonTransfersQuery({
-        from: owners,
-        blockchain,
-        mintsOnly: isMintFilteringEnabled
-      });
-    }
     if (snapshotInfo.isApplicable) {
       return getNftWithCommonOwnersSnapshotQuery({
         owners,
@@ -96,7 +92,8 @@ export function useGetTokensOfOwner(
     }
     return getNftWithCommonOwnersQuery({
       owners,
-      blockchain: blockchain
+      blockchain: blockchain,
+      mintsOnly: isMintFilteringEnabled
     });
   }, [
     blockchainType,
@@ -196,6 +193,20 @@ export function useGetTokensOfOwner(
       });
     }
 
+    if (isMintFilteringEnabled) {
+      tokens = filterByMintsOnly(tokens);
+      if (tokens.length > 0 && tokens[0]?._common_tokens) {
+        tokens = (tokens as CommonTokenType[])
+          .map(token => {
+            token._common_tokens = filterByMintsOnly(
+              token._common_tokens || []
+            );
+            return token;
+          })
+          .filter(token => Boolean(token?._common_tokens?.length));
+      }
+    }
+
     if (isSpamFilteringEnabled) {
       tokens = filterByIsSpam(tokens);
       if (tokens.length > 0 && tokens[0]?._common_tokens) {
@@ -222,6 +233,7 @@ export function useGetTokensOfOwner(
     getNextPage,
     hasNextPage,
     is6551,
+    isMintFilteringEnabled,
     isSpamFilteringEnabled,
     onDataReceived,
     snapshotInfo.isApplicable,

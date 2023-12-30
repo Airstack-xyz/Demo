@@ -1,17 +1,142 @@
 import { tokenBlockchains } from '../constants';
 
-const fields = `
-amount
-tokenType
-blockchain
-tokenAddress
-formattedAmount
-tokenId
-tokenAddress
-owner {
-    addresses
+function getFields({
+  owner,
+  mintsOnly
+}: {
+  owner: string;
+  mintsOnly?: boolean;
+}) {
+  const subQueries = [];
+  if (mintsOnly) {
+    const filters = [
+      `from: {_eq: "0x0000000000000000000000000000000000000000"}`,
+      `operator: {_eq: "${owner}"}`,
+      `to: {_eq: "${owner}"}`
+    ];
+    const filtersString = filters.join(',');
+
+    subQueries.push(`tokenTransfers(input: {filter: {${filtersString}}, order: {blockTimestamp: ASC}, limit: 1}) {
+      type
+    }`);
+  }
+  const subQueriesString = subQueries.join('\n');
+
+  return `amount
+  tokenType
+  blockchain
+  tokenAddress
+  formattedAmount
+  tokenId
+  tokenAddress
+  owner {
+      addresses
+  }
+  tokenNfts {
+      tokenId
+      contentValue {
+          image {
+            medium
+          }
+      }
+      erc6551Accounts {
+        address {
+          addresses
+          tokenBalances {
+            tokenAddress
+            tokenId
+            tokenNfts {
+              contentValue {
+                image {
+                  medium
+                }
+              }
+            }
+          }
+        }
+      }
+  }
+  token {
+    isSpam
+    name
+    symbol
+    logo {
+      small
+    }
+    projectDetails {
+      imageUrl
+    }
+  }
+  ${subQueriesString}
+  `;
 }
-tokenNfts {
+
+function getQueryWithFilter({
+  owners,
+  blockchain,
+  index = 0,
+  mintsOnly
+}: {
+  owners: string[];
+  blockchain: string;
+  index?: number;
+  mintsOnly?: boolean;
+}): string {
+  const children =
+    owners.length - 1 === index
+      ? getFields({ owner: owners[index], mintsOnly })
+      : getQueryWithFilter({ owners, blockchain, index: index + 1, mintsOnly });
+
+  const filters = [
+    `owner: {_eq: "${owners[index]}"}`,
+    `tokenType: {_in: $tokenType}`
+  ];
+  const filtersString = filters.join(',');
+
+  return `token {
+        isSpam
+        name
+        symbol
+        logo {
+          small
+        }
+        projectDetails {
+          imageUrl
+        }
+        tokenBalances(
+          input: {filter: {${filtersString}}, blockchain: ${blockchain}, order: {lastUpdatedTimestamp: $sortBy}}
+        ) {
+          ${children}
+        }
+      }`;
+}
+
+function getParentFields({
+  owner,
+  mintsOnly
+}: {
+  owner: string;
+  mintsOnly?: boolean;
+}) {
+  const subQueries = [];
+  if (mintsOnly) {
+    const filters = [
+      `from: {_eq: "0x0000000000000000000000000000000000000000"}`,
+      `operator: {_eq: "${owner}"}`,
+      `to: {_eq: "${owner}"}`
+    ];
+    const filtersString = filters.join(',');
+
+    subQueries.push(`tokenTransfers(input: {filter: {${filtersString}}, order: {blockTimestamp: ASC}, limit: 1}) {
+      type
+    }`);
+  }
+  const subQueriesString = subQueries.join('\n');
+
+  return `blockchain
+  tokenAddress
+  tokenType
+  tokenNfts {
     tokenId
     contentValue {
         image {
@@ -34,8 +159,8 @@ tokenNfts {
         }
       }
     }
-}
-token {
+  }
+  token {
     isSpam
     name
     symbol
@@ -45,98 +170,24 @@ token {
     projectDetails {
       imageUrl
     }
+  }
+  ${subQueriesString}
+  `;
 }
-`;
-
-function getQueryWithFilter({
-  owners,
-  blockchain,
-  index = 0
-}: {
-  owners: string[];
-  blockchain: string;
-  index?: number;
-}): string {
-  const children =
-    owners.length - 1 === index
-      ? fields
-      : getQueryWithFilter({ owners, blockchain, index: index + 1 });
-
-  const filters = [
-    `owner: {_eq: "${owners[index]}"}`,
-    `tokenType: {_in: $tokenType}`
-  ];
-  const filtersString = filters.join(',');
-
-  return `token {
-        isSpam
-        name
-        symbol
-        logo {
-          small
-        }
-        projectDetails {
-          imageUrl
-        }
-        tokenBalances(
-          input: {filter: {${filtersString}}, blockchain: ${blockchain}, order: {lastUpdatedTimestamp: $sortBy}}
-        ) {
-            ${children}
-          }
-        }`;
-}
-
-const parentFields = `
-blockchain
-tokenAddress
-tokenType
-tokenNfts {
-  tokenId
-  contentValue {
-      image {
-        medium
-      }
-  }
-  erc6551Accounts {
-    address {
-      addresses
-      tokenBalances {
-        tokenAddress
-        tokenId
-        tokenNfts {
-          contentValue {
-            image {
-              medium
-            }
-          }
-        }
-      }
-    }
-  }
-}
-token {
-  isSpam
-  name
-  symbol
-  logo {
-    small
-  }
-  projectDetails {
-    imageUrl
-  }
-}`;
 
 function getQueryForBlockchain({
   owners,
-  blockchain
+  blockchain,
+  mintsOnly
 }: {
   owners: string[];
   blockchain: string;
+  mintsOnly?: boolean;
 }) {
   const children =
     owners.length === 1
-      ? fields
-      : getQueryWithFilter({ owners, index: 1, blockchain });
+      ? getFields({ owner: owners[0], mintsOnly })
+      : getQueryWithFilter({ owners, index: 1, blockchain, mintsOnly });
 
   const filters = [
     `owner: {_eq: "${owners[0]}"}`,
@@ -149,7 +200,11 @@ function getQueryForBlockchain({
       input: {filter: {${filtersString}}, blockchain: ${blockchain}, limit: $limit, order: {lastUpdatedTimestamp: $sortBy}}
     ) {
       TokenBalance {
-        ${owners.length > 1 ? parentFields : ''}
+        ${
+          owners.length > 1
+            ? getParentFields({ owner: owners[0], mintsOnly })
+            : ''
+        }
         ${children}
       }
     }`;
@@ -157,10 +212,12 @@ function getQueryForBlockchain({
 
 export function getNftWithCommonOwnersQuery({
   owners,
-  blockchain
+  blockchain,
+  mintsOnly
 }: {
   owners: string[];
   blockchain: string | null;
+  mintsOnly?: boolean;
 }) {
   if (!owners.length) return '';
 
@@ -170,7 +227,8 @@ export function getNftWithCommonOwnersQuery({
       subQueries.push(
         getQueryForBlockchain({
           owners,
-          blockchain: _blockchain
+          blockchain: _blockchain,
+          mintsOnly
         })
       );
     }

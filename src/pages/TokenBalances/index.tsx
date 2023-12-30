@@ -20,7 +20,6 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 import { SocialOverlapQuery, SocialQuery } from '../../queries';
 import { getNftWithCommonOwnersSnapshotQuery } from '../../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
 import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
-import { getNftWithCommonTransfersQuery } from '../../queries/nftWithCommonTransfersQuery';
 import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
 import { socialDetailsQuery } from '../../queries/socialDetails';
 import { getSocialFollowersQuery } from '../../queries/socialFollowersQuery';
@@ -295,25 +294,7 @@ function TokenBalancePage() {
     let nftLink = '';
     let erc20Link = '';
 
-    if (isMintFilteringEnabled) {
-      const tokensQuery = getNftWithCommonTransfersQuery({
-        from: owners,
-        blockchain,
-        mintsOnly: isMintFilteringEnabled
-      });
-
-      nftLink = createAppUrlWithQuery(tokensQuery, {
-        limit: 10,
-        sortBy: sortBy,
-        tokenType: tokenFilters
-      });
-
-      erc20Link = createAppUrlWithQuery(tokensQuery, {
-        limit: 50,
-        sortBy: sortBy,
-        tokenType: ['ERC20']
-      });
-    } else if (snapshotInfo.isApplicable) {
+    if (snapshotInfo.isApplicable) {
       const queryFilters = getSnapshotQueryFilters(snapshotInfo);
       const tokensQuery = getNftWithCommonOwnersSnapshotQuery({
         owners,
@@ -335,7 +316,8 @@ function TokenBalancePage() {
     } else {
       const tokensQuery = getNftWithCommonOwnersQuery({
         owners,
-        blockchain
+        blockchain,
+        mintsOnly: isMintFilteringEnabled
       });
 
       nftLink = createAppUrlWithQuery(tokensQuery, {

@@ -14,7 +14,6 @@ import { snapshotBlockchains, tokenBlockchains } from '../../../constants';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { getNftWithCommonOwnersSnapshotQuery } from '../../../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
 import { getNftWithCommonOwnersQuery } from '../../../queries/nftWithCommonOwnersQuery';
-import { getNftWithCommonTransfersQuery } from '../../../queries/nftWithCommonTransfersQuery';
 import {
   getActiveSnapshotInfo,
   getSnapshotQueryFilters
@@ -95,6 +94,10 @@ function Loader() {
   );
 }
 
+function filterByMintsOnly(tokens: TokenType[]) {
+  return tokens?.filter(item => item?.tokenTransfers?.[0]?.type === 'MINT');
+}
+
 function filterByIsSpam(tokens: TokenType[]) {
   return tokens?.filter(item => item?.token?.isSpam !== true);
 }
@@ -149,13 +152,6 @@ export function ERC20Tokens() {
 
     const blockchain = fetchAllBlockchains ? null : blockchainType[0];
 
-    if (isMintFilteringEnabled) {
-      return getNftWithCommonTransfersQuery({
-        from: owners,
-        blockchain,
-        mintsOnly: isMintFilteringEnabled
-      });
-    }
     if (snapshotInfo.isApplicable) {
       return getNftWithCommonOwnersSnapshotQuery({
         owners,
@@ -165,7 +161,8 @@ export function ERC20Tokens() {
     }
     return getNftWithCommonOwnersQuery({
       owners,
-      blockchain
+      blockchain,
+      mintsOnly: isMintFilteringEnabled
     });
   }, [
     blockchainType,
@@ -197,6 +194,10 @@ export function ERC20Tokens() {
         filteredTokens.push(...processTokens(tokenBalances));
       });
 
+      if (isMintFilteringEnabled) {
+        filteredTokens = filterByMintsOnly(filteredTokens);
+      }
+
       if (isSpamFilteringEnabled) {
         filteredTokens = filterByIsSpam(filteredTokens);
       }
@@ -204,7 +205,7 @@ export function ERC20Tokens() {
       tokensRef.current = [...tokensRef.current, ...filteredTokens];
       setTokens(prevTokens => [...prevTokens, ...filteredTokens]);
     },
-    [isSpamFilteringEnabled, snapshotInfo.isApplicable]
+    [isMintFilteringEnabled, isSpamFilteringEnabled, snapshotInfo.isApplicable]
   );
 
   const [fetch, { data: erc20Data, pagination }] = useLazyQueryWithPagination(
