@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Icon, IconType } from '../../../Components/Icon';
-import classNames from 'classnames';
+import { IconType } from '../../../Components/Icon';
 
 export type FollowCombinationParams = {
   dappName: string;
@@ -17,6 +16,7 @@ export type FollowCombinationSectionType = {
   name: string;
   values: {
     profileName1: string;
+    profileHandle1: string;
     profileTokenId1: string;
     profileName2: string;
     profileTokenId2: string;
@@ -73,7 +73,7 @@ function FollowCombinationSection({
               className="px-3 py-1 rounded-18 ellipsis hover:bg-glass cursor-pointer"
               onClick={() => onFollowClick?.({ dappName, ...item })}
             >
-              {item.profileName1}
+              {item.profileHandle1}
             </div>
           </li>
         ))}
@@ -91,7 +91,7 @@ function FollowCombinationSection({
           <li
             onClick={() => {
               if (showMax && values.length > maxItemCount) {
-                onShowMoreClick?.([values[0].profileName1], dappName);
+                onShowMoreClick?.([name], dappName);
                 return;
               }
             }}
@@ -101,26 +101,6 @@ function FollowCombinationSection({
           </li>
         )}
       </ul>
-    </div>
-  );
-}
-
-type FollowInfoProps = {
-  icon: IconType;
-  text: string;
-  className?: string;
-};
-
-function FollowInfo({ icon, text, className }: FollowInfoProps) {
-  return (
-    <div
-      className={classNames(
-        'flex items-center font-medium text-text-secondary',
-        className
-      )}
-    >
-      <Icon name={icon} height={16} width={16} />
-      <span className="ml-1 ellipsis">{text}</span>
     </div>
   );
 }
@@ -135,7 +115,6 @@ export function FollowCombination({
   image,
   dappName,
   sections,
-  followInfo,
   onFollowClick,
   onShowMoreClick
 }: FollowCombinationProps) {
@@ -147,13 +126,6 @@ export function FollowCombination({
         </div>
         <span className="first-letter:uppercase">{name}</span>
       </div>
-      {followInfo && (
-        <FollowInfo
-          icon={followInfo.icon}
-          text={followInfo.text}
-          className="mt-2 mb-1.5 ml-[34px]"
-        />
-      )}
       {sections?.map(item => (
         <FollowCombinationSection
           key={item.name}

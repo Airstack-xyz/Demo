@@ -1,19 +1,20 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { getDefaultScoreMap } from '../utils';
-import { useSearchInput } from '../../../hooks/useSearchInput';
-import { Icon, IconType } from '../../../Components/Icon';
-import { pluralize } from '../../../utils';
 import classnames from 'classnames';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Icon, IconType } from '../../../Components/Icon';
+import { useSearchInput } from '../../../hooks/useSearchInput';
+import { pluralize } from '../../../utils';
+import { Domain, Social, Wallet } from '../../TokenBalances/types';
+import { NFTCountData } from '../types/nft';
+import { getDefaultScoreMap } from '../utils';
+import { Score } from './Score';
+import { getProfileDataFromSocial } from './Score/utils';
 import {
-  fetchPoaps,
   fetchMutualFollowings,
   fetchNfts,
+  fetchPoaps,
   fetchTokensTransfer,
   getDomainName
 } from './dataFetchers';
-import { Score } from './Score';
-import { Domain, Social, Wallet } from '../../TokenBalances/types';
-import { getProfileDataFromSocial } from './Score/utils';
 
 function Loader() {
   return (
@@ -63,10 +64,12 @@ export function ScoreOverview() {
   ]);
   const [loading, setLoading] = useState(false);
   const [{ address }] = useSearchInput();
-  const [nftCount, setNftCount] = useState({
-    ethereum: 0,
-    polygon: 0
-  });
+  const [{ ethereumCount, polygonCount, baseCount }, setNftCount] =
+    useState<NFTCountData>({
+      ethereumCount: 0,
+      polygonCount: 0,
+      baseCount: 0
+    });
   const [poapsCount, setPoapsCount] = useState(0);
   const [follow, setFollow] = useState({
     lens: {
@@ -100,12 +103,7 @@ export function ScoreOverview() {
       await fetchPoaps(address, (count: number) => setPoapsCount(count));
       const { lens, farcaster } = await fetchMutualFollowings(address);
       setFollow({ lens, farcaster });
-      await fetchNfts(address, ({ ethCount, polygonCount }) =>
-        setNftCount({
-          ethereum: ethCount,
-          polygon: polygonCount
-        })
-      );
+      await fetchNfts(address, countData => setNftCount(countData));
       const { tokenSent, tokenReceived } = await fetchTokensTransfer(address);
       setTokenTransfer({ sent: tokenSent, received: tokenReceived });
       setLoading(false);
@@ -145,38 +143,41 @@ export function ScoreOverview() {
     const { lens, farcaster } = follow;
 
     if (lens.following) {
-      _score += scoreMap.followingOnLens;
+      _score += scoreMap.followingOnLens || 0;
     }
     if (lens.followedBy) {
-      _score += scoreMap.followedByOnLens;
+      _score += scoreMap.followedByOnLens || 0;
     }
     if (farcaster.following) {
-      _score += scoreMap.followingOnFarcaster;
+      _score += scoreMap.followingOnFarcaster || 0;
     }
     if (farcaster.followedBy) {
-      _score += scoreMap.followedByOnFarcaster;
+      _score += scoreMap.followedByOnFarcaster || 0;
     }
     if (tokenTransfer.sent) {
-      _score += scoreMap.tokenSent;
+      _score += scoreMap.tokenSent || 0;
     }
     if (tokenTransfer.received) {
-      _score += scoreMap.tokenReceived;
+      _score += scoreMap.tokenReceived || 0;
     }
-    _score += poapsCount * scoreMap.commonPoaps;
-    _score += nftCount.ethereum * scoreMap.commonEthNfts;
-    _score += nftCount.polygon * scoreMap.commonPolygonNfts;
+    _score += (poapsCount || 0) * scoreMap.commonPoaps;
+    _score += (ethereumCount || 0) * scoreMap.commonEthNfts;
+    _score += (polygonCount || 0) * scoreMap.commonPolygonNfts;
+    _score += (baseCount || 0) * scoreMap.commonBaseNfts;
     return _score;
   }, [
+    baseCount,
+    ethereumCount,
     follow,
-    nftCount.ethereum,
-    nftCount.polygon,
     poapsCount,
+    polygonCount,
     tokenTransfer.received,
     tokenTransfer.sent
   ]);
 
+  const totalNFTCount = ethereumCount + polygonCount + baseCount || 0;
+
   const { lens, farcaster } = follow;
-  const totalNFTCount = nftCount.ethereum + nftCount.polygon;
   const hasFarcasterFollow = farcaster.following || farcaster.followedBy;
   const hasLensFollow = lens.following || lens.followedBy;
   const hasTokenTransfer = tokenTransfer.sent || tokenTransfer.received;
@@ -184,7 +185,12 @@ export function ScoreOverview() {
 
   return (
     <div className="h-auto sm:h-[236px] bg-glass flex flex-col sm:flex-row items-center border-solid-stroke rounded-18">
-      <Score score={score} domains={domains} socials={profiles} />
+      <Score
+        score={score}
+        domains={domains}
+        socials={profiles}
+        isLoading={loading}
+      />
       <div
         className={classnames(
           'p-3 sm:p-7 overflow-hidden text-sm flex-1 w-full sm:w-auto mt-2 sm:mt-0',

@@ -4,6 +4,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { SocialOverlapQuery } from '../../../queries';
+import { formatAddress } from '../../../utils';
 import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
 import { SectionHeader } from '../SectionHeader';
@@ -24,31 +25,22 @@ const iconMap: Record<string, string> = {
 };
 
 const getSocialFollowInfo = (
-  wallet1: WalletType,
-  wallet2: WalletType,
-  address: string[]
+  wallet1?: WalletType,
+  wallet2?: WalletType,
+  address?: string[]
 ) => {
   const followData: Record<string, FollowCombinationType> = {};
 
   const [address1, address2] = address || [];
 
-  const farcasterSocials1 = wallet1?.farcasterSocials || [];
+  // For Farcaster profile - we need to ignore if results for an address does not have 'profileName'
+  const farcasterSocials1 =
+    wallet1?.farcasterSocials?.filter(item => item.profileName) || [];
   const lensSocials1 = wallet1?.lensSocials || [];
-  // const user1FollowsUser2OnFarcaster = Boolean(
-  //   wallet1?.farcasterFollowers?.Follower?.length
-  // );
-  // const user1FollowsUser2OnLens = Boolean(
-  //   wallet1?.lensFollowers?.Follower?.length
-  // );
-
-  const farcasterSocials2 = wallet2?.farcasterSocials || [];
+  // For Farcaster profile - we need to ignore if results for an address does not have 'profileName'
+  const farcasterSocials2 =
+    wallet2?.farcasterSocials?.filter(item => item.profileName) || [];
   const lensSocials2 = wallet2?.lensSocials || [];
-  // const user2FollowsUser1OnFarcaster = Boolean(
-  //   wallet2?.farcasterFollowers?.Follower?.length
-  // );
-  // const user2FollowsUser1OnLens = Boolean(
-  //   wallet2?.lensFollowers?.Follower?.length
-  // );
 
   // For farcaster:
   if (farcasterSocials1.length > 0 && farcasterSocials2.length > 0) {
@@ -58,37 +50,12 @@ const getSocialFollowInfo = (
       dappName: 'farcaster',
       sections: []
     };
-    // for farcaster follower info
-    // if (user1FollowsUser2OnFarcaster || user2FollowsUser1OnFarcaster) {
-    //   const identity1 = address1?.startsWith('0x')
-    //     ? farcasterSocials1[0].profileName
-    //     : address1;
-    //   const identity2 = address2?.startsWith('0x')
-    //     ? farcasterSocials2[0].profileName
-    //     : address2;
-
-    //   if (user1FollowsUser2OnFarcaster && user2FollowsUser1OnFarcaster) {
-    //     followData.farcaster.followInfo = {
-    //       icon: 'mutual-follow',
-    //       text: 'Mutual follow'
-    //     };
-    //   } else if (user1FollowsUser2OnFarcaster) {
-    //     followData.farcaster.followInfo = {
-    //       icon: 'follow-purple',
-    //       text: `${identity1} follows ${identity2}`
-    //     };
-    //   } else if (user2FollowsUser1OnFarcaster) {
-    //     followData.farcaster.followInfo = {
-    //       icon: 'follow-purple',
-    //       text: `${identity2} follows ${identity1}`
-    //     };
-    //   }
-    // }
     // for farcaster socials for identity1
     followData.farcaster.sections.push({
       name: address1,
       values: farcasterSocials1.map(item => ({
         profileName1: item.profileName,
+        profileHandle1: item.profileHandle,
         profileTokenId1: item.profileTokenId,
         // TODO: Remove count for social-follow-v3
         followerCount: item.followerCount,
@@ -102,6 +69,7 @@ const getSocialFollowInfo = (
       name: address2,
       values: farcasterSocials2.map(item => ({
         profileName1: item.profileName,
+        profileHandle1: item.profileHandle,
         profileTokenId1: item.profileTokenId,
         // TODO: Remove count for social-follow-v3
         followerCount: item.followerCount,
@@ -120,50 +88,16 @@ const getSocialFollowInfo = (
       dappName: 'lens',
       sections: []
     };
-    // find default lens profiles based on:
-    const defaultProfile1 =
-      lensSocials1.find(item => item.isDefault) ||
-      lensSocials1.find(item => item.followingCount > 0) ||
-      lensSocials1[0];
-    const defaultProfile2 =
-      lensSocials2.find(item => item.isDefault) ||
-      lensSocials2.find(item => item.followingCount > 0) ||
-      lensSocials2[0];
-    // for lens follower info
-    // if (user1FollowsUser2OnLens || user2FollowsUser1OnLens) {
-    //   const identity1 = address1?.startsWith('0x')
-    //     ? lensSocials1[0].profileName
-    //     : address1;
-    //   const identity2 = address2?.startsWith('0x')
-    //     ? lensSocials2[0].profileName
-    //     : address2;
-
-    //   if (user1FollowsUser2OnLens && user2FollowsUser1OnLens) {
-    //     followData.lens.followInfo = {
-    //       icon: 'mutual-follow',
-    //       text: 'Mutual follow'
-    //     };
-    //   } else if (user1FollowsUser2OnLens) {
-    //     followData.lens.followInfo = {
-    //       icon: 'follow-purple',
-    //       text: `${identity1} follows ${identity2}`
-    //     };
-    //   } else if (user2FollowsUser1OnLens) {
-    //     followData.lens.followInfo = {
-    //       icon: 'follow-purple',
-    //       text: `${identity2} follows ${identity1}`
-    //     };
-    //   }
-    // }
     // for farcaster socials for identity1
     followData.lens.sections.push({
       name: address1,
       values: lensSocials1.map(item => ({
         profileName1: item.profileName,
+        profileHandle1: item.profileHandle,
         profileTokenId1: item.profileTokenId,
         // TODO: Remove count for social-follow-v3
         followerCount: item.followerCount,
-        followingCount: defaultProfile1.followingCount,
+        followingCount: item.followingCount,
         profileName2: lensSocials2[0].profileName,
         profileTokenId2: lensSocials2[0].profileTokenId
       }))
@@ -173,10 +107,11 @@ const getSocialFollowInfo = (
       name: address2,
       values: lensSocials2.map(item => ({
         profileName1: item.profileName,
+        profileHandle1: item.profileHandle,
         profileTokenId1: item.profileTokenId,
         // TODO: Remove count for social-follow-v3
         followerCount: item.followerCount,
-        followingCount: defaultProfile2.followingCount,
+        followingCount: item.followingCount,
         profileName2: lensSocials1[0].profileName,
         profileTokenId2: lensSocials1[0].profileTokenId
       }))
@@ -184,6 +119,16 @@ const getSocialFollowInfo = (
   }
 
   return Object.values(followData);
+};
+
+type SocialOverlapResponse = {
+  wallet1: WalletType;
+  wallet2: WalletType;
+};
+
+type SocialOverlapVariables = {
+  identity1: string;
+  identity2: string;
 };
 
 function SocialsOverlapComponent() {
@@ -198,11 +143,13 @@ function SocialsOverlapComponent() {
   });
 
   const [{ address }, setData] = useSearchInput();
-  const [fetchData, { data, loading, error }] =
-    useLazyQuery(SocialOverlapQuery);
+  const [fetchData, { data, loading, error }] = useLazyQuery<
+    SocialOverlapResponse,
+    SocialOverlapVariables
+  >(SocialOverlapQuery);
 
-  const wallet1 = data?.wallet1 as WalletType;
-  const wallet2 = data?.wallet2 as WalletType;
+  const wallet1 = data?.wallet1;
+  const wallet2 = data?.wallet2;
 
   useEffect(() => {
     if (address.length > 0) {
@@ -233,20 +180,19 @@ function SocialsOverlapComponent() {
     (value: unknown, type?: string) => {
       if (typeof value !== 'string' || value == '--') return;
 
-      const isFarcaster = type?.includes('farcaster');
-      const farcasterId = `fc_fname:${value}`;
+      const addressValue = formatAddress(value, type);
 
       const rawInput = createFormattedRawInput({
         type: 'ADDRESS',
-        address: isFarcaster ? farcasterId : value,
-        label: isFarcaster ? farcasterId : value,
+        address: addressValue,
+        label: addressValue,
         blockchain: 'ethereum'
       });
 
       setData(
         {
           rawInput: rawInput,
-          address: isFarcaster ? [farcasterId] : [value],
+          address: [addressValue],
           inputType: 'ADDRESS'
         },
         { updateQueryParams: true }
@@ -300,7 +246,12 @@ function SocialsOverlapComponent() {
         { name: address[1], values: [wallet2.primaryDomain.name] }
       );
     }
-    if (wallet1?.domains?.length > 0 && wallet2?.domains?.length > 0) {
+    if (
+      wallet1 &&
+      wallet1?.domains?.length > 0 &&
+      wallet2 &&
+      wallet2?.domains?.length > 0
+    ) {
       ensSections.push(
         { name: address[0], values: wallet1.domains.map(({ name }) => name) },
         { name: address[1], values: wallet2.domains.map(({ name }) => name) }
@@ -400,10 +351,10 @@ function SocialsOverlapComponent() {
       </div>
       {modalData.isOpen && (
         <LazyAddressesModal
-          heading={`All ENS names of ${address[0]}`}
+          heading={`All ENS names of ${modalData.addresses[0]}`}
           isOpen={modalData.isOpen}
           dataType={modalData.dataType}
-          addresses={address}
+          addresses={modalData.addresses}
           onRequestClose={handleModalClose}
           onAddressClick={handleAddressClick}
         />

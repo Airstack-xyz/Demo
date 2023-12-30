@@ -1,4 +1,11 @@
+import { CommonPoapType } from '../../TokenBalances/types';
 import { Domain, Social } from './index';
+
+export type CommonPoapsQueryResponse = {
+  Poaps: {
+    Poap: CommonPoapType[];
+  };
+};
 
 export interface PoapsByEventIdsQueryResponse {
   Poaps: Poaps;

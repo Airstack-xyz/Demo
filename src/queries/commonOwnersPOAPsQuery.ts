@@ -14,8 +14,12 @@ poapEvent {
       extraSmall
       small
     }
-    video
-    audio
+    video {
+      original
+    }
+    audio {
+      original
+    }
   }
   logo: contentValue {
     image {
@@ -31,15 +35,14 @@ owner {
   addresses
   socials {
     blockchain
-    dappSlug
+    dappName
     profileName
+    profileHandle
   }
   primaryDomain {
     name
   }
   domains {
-    chainId
-    dappName
     name
   }
   xmtp {
@@ -61,7 +64,7 @@ function getQueryWithFilter(tokenIds: TokenAddress[], index = 0): string {
         }`;
 }
 
-export function createCommonOwnersPOAPsQuery(tokenIds: TokenAddress[]) {
+export function getCommonOwnersPOAPsQuery(tokenIds: TokenAddress[]) {
   if (tokenIds.length === 0) return '';
   const children =
     tokenIds.length === 1 ? fields : getQueryWithFilter(tokenIds, 1);
@@ -79,8 +82,12 @@ export function createCommonOwnersPOAPsQuery(tokenIds: TokenAddress[]) {
             image {
               small
             }
-            video
-            audio
+            video {
+              original
+            }
+            audio {
+              original
+            }
           }
           logo: contentValue {
             image {

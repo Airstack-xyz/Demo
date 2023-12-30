@@ -1,7 +1,7 @@
-import { Icon } from '../Icon';
+import { Icon, IconType } from '../Icon';
 import LazyImage from '../LazyImage';
 import { AdvancedSearchAIMentionsResults } from './types';
-import { getAssetAddress, getAssetImage } from './utils';
+import { getAssetAddress } from './utils';
 import classNames from 'classnames';
 
 export const AssetLoader = () => {
@@ -38,13 +38,12 @@ export default function Asset({
     metadata
   } = item;
 
-  const assetImage = getAssetImage(type, image?.medium);
-
   const assetType = type === 'POAP' ? 'POAP' : tokenType;
 
   const assetAddress = getAssetAddress(type, eventId, address);
 
   const tokenMints = metadata?.tokenMints;
+  const showPOAPHolderCount = type === 'POAP' && Number.isInteger(tokenMints);
 
   return (
     <button
@@ -57,17 +56,18 @@ export default function Asset({
       <div className="absolute inset-0 flex-col-center">
         <LazyImage
           alt="asset-image"
-          src={assetImage}
+          src={image?.medium}
           className={classNames(
             'aspect-square',
-            tokenType === 'ERC20' ? 'h-[50%]' : 'h-full'
+            tokenType === 'ERC20' && image?.medium ? 'h-[50%]' : 'h-full'
           )}
+          errorPlaceholderClassName="!h-full"
         />
       </div>
       <div className="w-full flex justify-end text-sm">
         <div className="rounded-full h-[32px] w-[32px] bg-glass border-solid-light">
           <Icon
-            name={blockchain}
+            name={blockchain as IconType}
             height={30}
             width={30}
             style={{ filter: 'drop-shadow(rgba(0, 0, 0, 0.4) 0px 0px 2px)' }}
@@ -76,7 +76,7 @@ export default function Asset({
         <div className="h-[32px] rounded-3xl ml-2.5 border-solid-light flex-row-center px-2 bg-glass">
           {assetType}
         </div>
-        {!!tokenMints && (
+        {showPOAPHolderCount && (
           <div className="h-[32px] rounded-3xl ml-2.5 border-solid-light flex-row-center px-2.5 bg-glass">
             <Icon
               name="token-holders-white"

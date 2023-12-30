@@ -1,15 +1,14 @@
-import { useCallback, memo, useMemo, useState, useEffect } from 'react';
-import { PoapType, TokenType as TokenType } from './types';
-import { UserInputs } from '../../hooks/useSearchInput';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { Token } from './Token';
-import { useGetTokensOfOwner } from '../../hooks/useGetTokensOfOwner';
-import { useGetPoapsOfOwner } from '../../hooks/useGetPoapsOfOwner';
-import { emit } from '../../utils/eventEmitter/eventEmitter';
-import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
-import { TokenCombination } from './TokenCombination';
 import classNames from 'classnames';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { useGetPoapsOfOwner } from '../../hooks/useGetPoapsOfOwner';
+import { useGetTokensOfOwner } from '../../hooks/useGetTokensOfOwner';
+import { UserInputs } from '../../hooks/useSearchInput';
+import { emit } from '../../utils/eventEmitter/eventEmitter';
+import { Token } from './Token';
+import { TokenCombination } from './TokenCombination';
 import { TokenWithERC6551 } from './TokenWithERC6551';
+import { PoapType, TokenType } from './types';
 
 const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 
@@ -18,7 +17,7 @@ export function TokensLoader() {
     <>
       {loaderData.map((_, index) => (
         <div className="skeleton-loader" key={index}>
-          <Token key={index} token={null} />
+          <Token key={index} token={null} hideHoldersButton />
         </div>
       ))}
     </>
@@ -27,24 +26,32 @@ export function TokensLoader() {
 
 type TokenProps = Pick<
   UserInputs,
-  'address' | 'tokenType' | 'blockchainType' | 'sortOrder'
+  | 'address'
+  | 'tokenType'
+  | 'blockchainType'
+  | 'sortOrder'
+  | 'spamFilter'
+  | 'activeSnapshotInfo'
 > & {
   poapDisabled?: boolean;
   includeERC20?: boolean;
 };
+
 function TokensComponent(props: TokenProps) {
   const {
     address: owners,
     tokenType: tokenType = '',
     blockchainType,
     sortOrder,
+    spamFilter,
+    activeSnapshotInfo,
     includeERC20,
     poapDisabled
   } = props;
-  const [tokens, setTokens] = useState<(TokenType | PoapType)[]>([]);
+  const [tokens, setTokens] = useState<(TokenType | PoapType)[] | null>(null);
 
   const handleTokens = useCallback((tokens: (TokenType | PoapType)[]) => {
-    setTokens(existingTokens => [...existingTokens, ...tokens]);
+    setTokens(prevTokens => [...(prevTokens || []), ...tokens]);
   }, []);
 
   const inputs = {
@@ -52,36 +59,35 @@ function TokensComponent(props: TokenProps) {
     tokenType,
     blockchainType,
     sortOrder,
+    spamFilter,
+    activeSnapshotInfo,
     includeERC20
   };
 
   const {
-    loading: loadingTokens,
-    hasNextPage: hasNextPageTokens,
-    processedTokensCount,
-    getNext: getNextTokens
-  } = useGetTokensOfOwner(inputs, handleTokens);
-
-  const {
     loading: loadingPoaps,
     getNext: getNextPoaps,
-    processedTokensCount: processedPoapsCount,
+    processedPoapsCount,
     hasNextPage: hasNextPagePoaps
   } = useGetPoapsOfOwner(inputs, handleTokens, poapDisabled);
 
-  useEffect(() => {
-    if (owners.length === 0) return;
-    // reset tokens when search input changes
-    setTokens([]);
-  }, [blockchainType, owners, sortOrder, tokenType]);
+  const {
+    loading: loadingTokens,
+    getNext: getNextTokens,
+    processedTokensCount,
+    hasNextPage: hasNextPageTokens
+  } = useGetTokensOfOwner(inputs, handleTokens);
 
   const isPoap = tokenType === 'POAP';
 
   const canFetchPoap = useMemo(() => {
-    const hasPolygonChainFilter =
-      blockchainType.length === 1 && blockchainType[0] === 'polygon';
-    return !hasPolygonChainFilter && (!tokenType || isPoap);
-  }, [blockchainType, isPoap, tokenType]);
+    const hasPolygonOrBaseChainFilter =
+      blockchainType?.length === 1 &&
+      (blockchainType[0] === 'polygon' || blockchainType[0] === 'base');
+    return (
+      !hasPolygonOrBaseChainFilter && !poapDisabled && (!tokenType || isPoap)
+    );
+  }, [blockchainType, isPoap, poapDisabled, tokenType]);
 
   const handleNext = useCallback(() => {
     if (!loadingTokens && !isPoap && hasNextPageTokens) {
@@ -104,17 +110,20 @@ function TokensComponent(props: TokenProps) {
 
   const loading = loadingTokens || loadingPoaps;
 
+  const tokensLength = tokens?.length ?? 0;
+
   useEffect(() => {
-    const totalProcessedTokens =
-      processedTokensCount + processedPoapsCount || 40;
+    const totalProcessedTokens = processedTokensCount + processedPoapsCount;
     emit('token-balances:tokens', {
-      matched: tokens.length,
+      matched: tokensLength,
       total: totalProcessedTokens,
       loading
     });
-  }, [processedPoapsCount, processedTokensCount, tokens.length, loading]);
+  }, [processedPoapsCount, processedTokensCount, tokensLength, loading]);
 
-  if (tokens.length === 0 && !loading) {
+  // Using tokens?.length here because first time tokens will null initially
+  // Don't want to show 'No data found!' when data is restored from cache
+  if (tokens?.length === 0 && !loading) {
     return (
       <div className="flex flex-1 justify-center mt-10">No data found!</div>
     );
@@ -122,14 +131,12 @@ function TokensComponent(props: TokenProps) {
 
   const hasCombination = owners.length > 1;
   const hasNextPage = hasNextPageTokens || hasNextPagePoaps;
-  const showStatusLoader = loading && hasCombination;
 
-  if (tokens.length === 0 && loading) {
+  if (tokensLength === 0 && loading) {
     return (
       <div>
         <div className="flex flex-wrap gap-x-[55px] gap-y-[55px] justify-center md:justify-start">
           <TokensLoader />
-          {showStatusLoader && <TokenBalancesLoaderWithInfo />}
         </div>
       </div>
     );
@@ -139,7 +146,7 @@ function TokensComponent(props: TokenProps) {
     <>
       <InfiniteScroll
         next={handleNext}
-        dataLength={tokens.length}
+        dataLength={tokensLength}
         hasMore={hasNextPage}
         loader={null}
         className={classNames(
@@ -150,7 +157,7 @@ function TokensComponent(props: TokenProps) {
           }
         )}
       >
-        {tokens.map((token, index) => {
+        {tokens?.map((token, index) => {
           const id =
             (token as PoapType)?.tokenId ||
             (token as TokenType)?.tokenNfts?.tokenId;
@@ -166,11 +173,16 @@ function TokensComponent(props: TokenProps) {
             return <TokenWithERC6551 key={`${index}-${id}`} token={token} />;
           }
 
-          return <Token key={`${index}-${id}`} token={token} />;
+          return (
+            <Token
+              key={`${index}-${id}`}
+              token={token}
+              hideHoldersButton={loading}
+            />
+          );
         })}
         {loading && <TokensLoader />}
       </InfiniteScroll>
-      {showStatusLoader && <TokenBalancesLoaderWithInfo />}
     </>
   );
 }

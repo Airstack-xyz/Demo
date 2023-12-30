@@ -1,67 +1,35 @@
-import { Poap, Token as TokenType } from '../../types';
 import { Icon } from '../../../../Components/Icon';
-import { useMemo, useCallback } from 'react';
-import { getDAppType } from '../../utils';
 import { ListWithMoreOptions } from '../../../../Components/ListWithMoreOptions';
-import { useNavigate } from 'react-router-dom';
-import { createTokenBalancesUrl } from '../../../../utils/createTokenUrl';
 import { WalletAddress } from '../../../../Components/WalletAddress';
-import { resetCachedUserInputs } from '../../../../hooks/useSearchInput';
+import { Poap, Token as TokenType } from '../../types';
 
 export function Token({
   token,
-  onShowMore
+  onShowMoreClick,
+  onAddressClick
 }: {
   token: TokenType | Poap | null;
-  onShowMore?: (value: string[], dataType: string) => void;
+  onShowMoreClick?: (addresses: string[], dataType?: string) => void;
+  onAddressClick?: (addresses: string, type?: string) => void;
 }) {
   const owner = token?.owner;
-  const walletAddresses = owner?.addresses || '';
-  const walletAddress = owner?.identity
-    ? owner.identity
-    : Array.isArray(walletAddresses)
-    ? walletAddresses[0]
-    : '';
+  const walletAddresses = owner?.addresses || [];
+  const walletAddress = owner?.identity || walletAddresses[0] || '';
   const primaryEns = owner?.primaryDomain?.name || '';
   const ens = owner?.domains?.map(domain => domain.name) || [];
   const xmtpEnabled = owner?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled);
-  const navigate = useNavigate();
 
-  const { lens, farcaster } = useMemo(() => {
-    const social = owner?.socials || [];
-    const result = { lens: [], farcaster: [] };
-    social.forEach(({ dappSlug, profileName }) => {
-      const type = getDAppType(dappSlug);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      const list = result[type];
-      if (list) {
-        list.push(profileName);
-      }
-    });
-    return result;
-  }, [owner?.socials]);
+  const lensSocials =
+    owner?.socials?.filter(item => item.dappName === 'lens') || [];
+  const lensAddresses = lensSocials.map(item => item.profileName);
+  const lensHandles = lensSocials.map(item => item.profileHandle);
+  const farcasterAddresses =
+    owner?.socials
+      ?.filter(item => item.profileName && item.dappName === 'farcaster')
+      .map(item => item.profileName) || [];
 
-  const getShowMoreHandler = useCallback(
-    (items: string[], type: string) => () => {
-      onShowMore?.(items, type);
-    },
-    [onShowMore]
-  );
-
-  const handleAddressClick = useCallback(
-    (address: string, type = '') => {
-      const isFarcaster = type?.includes('farcaster');
-      const url = createTokenBalancesUrl({
-        address: isFarcaster ? `fc_fname:${address}` : address,
-        blockchain: 'ethereum',
-        inputType: 'ADDRESS'
-      });
-      resetCachedUserInputs('tokenBalance');
-      navigate(url);
-    },
-    [navigate]
-  );
+  const getShowMoreHandler = (addresses: string[], type: string) => () =>
+    onShowMoreClick?.([...addresses, ...walletAddresses], type);
 
   return (
     <>
@@ -69,37 +37,37 @@ export function Token({
         <div className="max-w-[30vw] sm:max-w-none">
           <ListWithMoreOptions
             list={ens}
-            onShowMore={getShowMoreHandler(ens, 'ens')}
             listFor="ens"
-            onItemClick={handleAddressClick}
+            onShowMore={getShowMoreHandler(ens, 'ens')}
+            onItemClick={onAddressClick}
           />
         </div>
       </td>
       <td className="ellipsis">
         <ListWithMoreOptions
           list={[primaryEns || '']}
-          onShowMore={getShowMoreHandler(ens, 'ens')}
           listFor="ens"
-          onItemClick={handleAddressClick}
+          onShowMore={getShowMoreHandler(ens, 'ens')}
+          onItemClick={onAddressClick}
         />
       </td>
       <td className="ellipsis">
-        <WalletAddress address={walletAddress} onClick={handleAddressClick} />
+        <WalletAddress address={walletAddress} onClick={onAddressClick} />
       </td>
       <td>
         <ListWithMoreOptions
-          list={lens}
-          onShowMore={getShowMoreHandler(lens, 'lens')}
+          list={lensHandles}
           listFor="lens"
-          onItemClick={handleAddressClick}
+          onShowMore={getShowMoreHandler(lensAddresses, 'lens')}
+          onItemClick={onAddressClick}
         />
       </td>
       <td>
         <ListWithMoreOptions
-          list={farcaster}
-          onShowMore={getShowMoreHandler(farcaster, 'farcaster')}
+          list={farcasterAddresses}
           listFor="farcaster"
-          onItemClick={handleAddressClick}
+          onShowMore={getShowMoreHandler(farcasterAddresses, 'farcaster')}
+          onItemClick={onAddressClick}
         />
       </td>
       <td>

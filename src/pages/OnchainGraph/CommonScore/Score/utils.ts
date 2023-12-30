@@ -22,8 +22,9 @@ export function getProfileDataFromSocial(
     domain.name = address;
   }
 
-  const lens = social?.lensSocials[0] || null;
-  const farcaster = social?.farcasterSocials[0] || null;
+  const lens = social?.lensSocials?.[0] || null;
+  const farcaster =
+    social?.farcasterSocials?.find(item => item.profileImage) || null;
 
   return {
     domain: domain || null,

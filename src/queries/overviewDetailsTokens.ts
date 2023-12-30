@@ -1,3 +1,5 @@
+import { tokenBlockchains } from '../constants';
+
 export const POAPSupplyQuery = `query PoapTotalSupply($eventId: String!) {
     PoapEvents(input: {filter: {eventId: {_eq: $eventId}}, blockchain: ALL}) {
       PoapEvent {
@@ -10,7 +12,7 @@ const socialInput = '(input: {filter: {dappName: {_in: $socialFilters}}})';
 const primaryDomainInput =
   '(input: {filter: {isPrimary: {_eq: $hasPrimaryDomain}}})';
 
-const createBaseQuery = (
+const getFields = (
   hasSocialFilters = false,
   hasPrimaryDomainFilter = false
 ) => {
@@ -21,7 +23,9 @@ const createBaseQuery = (
     tokenType
     tokenNfts {
       contentValue {
-        video
+        video {
+          original
+        }
         image {
           small
         }
@@ -42,15 +46,14 @@ const createBaseQuery = (
       addresses
       socials${hasSocialFilters ? socialInput : ''} {
         blockchain
-        dappSlug
+        dappName
         profileName
+        profileHandle
       }
       primaryDomain {
         name
       }
       domains${hasPrimaryDomainFilter ? primaryDomainInput : ''} {
-        chainId
-        dappName
         name
       }
       xmtp {
@@ -67,7 +70,7 @@ function getQueryWithFilter(
 ): string {
   const children =
     tokens.length - 1 === index
-      ? createBaseQuery(hasSocialFilters, hasPrimaryDomainFilter)
+      ? getFields(hasSocialFilters, hasPrimaryDomainFilter)
       : getQueryWithFilter(
           tokens,
           index + 1,
@@ -91,7 +94,9 @@ function getQueryWithFilter(
         }
         tokenNfts {
           contentValue {
-            video
+            video {
+              original
+            }
             image {
               small
             }
@@ -106,33 +111,36 @@ export const getFilterableTokensQuery = (
 ) => {
   const children =
     tokenAddress.length === 1
-      ? createBaseQuery(hasSocialFilters, hasPrimaryDomainFilter)
+      ? getFields(hasSocialFilters, hasPrimaryDomainFilter)
       : getQueryWithFilter(
           tokenAddress,
           1,
           hasSocialFilters,
           hasPrimaryDomainFilter
         );
-  return `query GetTokenHolders($limit: Int${
-    hasSocialFilters ? ', $socialFilters: [SocialDappName!]' : ''
-  }${hasPrimaryDomainFilter ? ', $hasPrimaryDomain: Boolean' : ''}) {
-    ethereum: TokenBalances(
-      input: {filter: {tokenAddress: {_eq: "${
-        tokenAddress[0]
-      }"}}, blockchain: ethereum, limit: $limit}
-    ) {
-      TokenBalance {
-        ${children}
-      }
-    }
-    polygon: TokenBalances(
-      input: {filter: {tokenAddress: {_eq: "${
-        tokenAddress[0]
-      }"}}, blockchain: polygon, limit: $limit}
-    ) {
-      TokenBalance {
-        ${children}
-      }
-    }
+
+  const variables = ['$limit: Int'];
+  if (hasSocialFilters) {
+    variables.push('$socialFilters: [SocialDappName!]');
+  }
+  if (hasPrimaryDomainFilter) {
+    variables.push('$hasPrimaryDomain: Boolean');
+  }
+  const variablesString = variables.join(',');
+
+  const subQueries: string[] = [];
+  tokenBlockchains.forEach(blockchain => {
+    subQueries.push(`${blockchain}: TokenBalances(
+        input: {filter: {tokenAddress: {_eq: "${tokenAddress[0]}"}}, blockchain: ${blockchain}, limit: $limit}
+      ) {
+        TokenBalance {
+          ${children}
+        }
+      }`);
+  });
+  const subQueriesString = subQueries.join('\n');
+
+  return `query GetTokenHolders(${variablesString}) {
+    ${subQueriesString}
   }`;
 };

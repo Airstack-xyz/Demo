@@ -13,13 +13,18 @@ import {
   TokenHolder,
   useOverviewTokens
 } from '../../../store/tokenHoldersOverview';
-import { showToast } from '../../../utils/showToast';
 import { useGetAccountOwner } from '../../../hooks/useGetAccountOwner';
 import { ERC6551TokenHolder } from '../ERC6551TokenHolder';
 import { Details } from './Details';
 import { TokenDetailsReset } from '../../../store/tokenDetails';
 
-function Overview({ onAddress404 }: { onAddress404?: () => void }) {
+function Overview({
+  onAddress404,
+  hideOverview
+}: {
+  onAddress404?: () => void;
+  hideOverview?: boolean;
+}) {
   const [{ address, activeView, activeTokenInfo }] = useSearchInput();
 
   const isPoap = address.every(token => !token.startsWith('0x'));
@@ -77,6 +82,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
     if (shouldFetchHoldersCount && tokenDetails.length > 0) {
       const polygonTokens: string[] = [];
       const ethereumTokens: string[] = [];
+      const baseTokens: string[] = [];
       const eventIds: string[] = [];
 
       tokenDetails.forEach(token => {
@@ -84,16 +90,23 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
           eventIds.push(token.eventId);
           return;
         }
-        if (token.blockchain === 'polygon') {
-          polygonTokens.push(token.tokenAddress);
-        } else {
-          ethereumTokens.push(token.tokenAddress);
+        switch (token.blockchain) {
+          case 'ethereum':
+            ethereumTokens.push(token.tokenAddress);
+            break;
+          case 'polygon':
+            polygonTokens.push(token.tokenAddress);
+            break;
+          case 'base':
+            baseTokens.push(token.tokenAddress);
+            break;
         }
       });
 
       fetchTokenOverview({
         ethereumTokens,
         polygonTokens,
+        baseTokens,
         eventIds
       });
     }
@@ -105,19 +118,6 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
     tokenDetails.length,
     tokenDetails
   ]);
-
-  const hasMultipleERC20 = useMemo(() => {
-    const erc20Tokens = tokenDetails.filter(
-      token => token.tokenType === 'ERC20'
-    );
-    return erc20Tokens.length > 1;
-  }, [tokenDetails]);
-
-  useEffect(() => {
-    if (hasMultipleERC20) {
-      showToast('Try to combine ERC20 tokens with NFTs or POAPs', 'negative');
-    }
-  }, [hasMultipleERC20]);
 
   const isERC20 = useMemo(() => {
     return (
@@ -175,7 +175,8 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
       if (image)
         return (
           <div
-            className={classNames({
+            key={tokenId}
+            className={classNames('flex-row-center', {
               flex: address.length === 1
             })}
           >
@@ -189,7 +190,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
               videoProps={{
                 controls: false
               }}
-              containerClassName="w-full [&>img]:w-full"
+              containerClassName="w-full [&>img]:w-full [&>video]:aspect-square [&>video]:object-cover"
             />
           </div>
         );
@@ -200,7 +201,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
           preset="medium"
           image={image}
           chain={blockchain as Chain}
-          containerClassName="[&>img]:w-full"
+          containerClassName="[&>img]:w-full [&>video]:aspect-square [&>video]:object-cover"
         />
       );
     });
@@ -282,6 +283,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
           const supply = totalSupply?.[key.toLocaleLowerCase()];
           return (
             <span
+              key={`${key}-${index}`}
               className={classNames('flex', {
                 'max-w-[50%]': tokenDetails.length > 1
               })}
@@ -314,7 +316,7 @@ function Overview({ onAddress404 }: { onAddress404?: () => void }) {
     );
   }
 
-  if (isERC20 || activeView) return null;
+  if (isERC20 || activeView || hideOverview) return null;
 
   // eslint-disable-next-line
   // @ts-ignore

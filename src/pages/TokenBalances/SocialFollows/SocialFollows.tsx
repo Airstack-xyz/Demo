@@ -77,13 +77,13 @@ export function SocialFollows({
       />
       <TabContainer className="my-0">
         <Tab
-          icon="nft-flat"
+          icon="follower-gray"
           header={`${socialInfo.followerCount} followers`}
           active={socialInfo.followerTab}
           onClick={() => handleTabChange(true)}
         />
         <Tab
-          icon="erc20"
+          icon="following-gray"
           header={`${socialInfo.followingCount} following`}
           active={!socialInfo.followerTab}
           onClick={() => handleTabChange(false)}

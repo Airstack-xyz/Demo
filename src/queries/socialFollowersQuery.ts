@@ -1,30 +1,8 @@
+import { tokenBlockchains } from '../constants';
 import {
   SocialFollowLogicalFilters,
   SocialFollowQueryFilters
 } from '../pages/TokenBalances/SocialFollows/types';
-
-const tokenBalanceFields = `
-tokenId
-tokenAddress
-tokenType
-blockchain
-formattedAmount
-token {
-  logo {
-    small
-  }
-  projectDetails {
-    imageUrl
-  }
-}
-tokenNfts {
-  contentValue {
-    image {
-      medium
-      extraSmall
-    }
-  }
-}`;
 
 export const getSocialFollowersQuery = ({
   queryFilters,
@@ -45,8 +23,6 @@ export const getSocialFollowersQuery = ({
   if (queryFilters.profileTokenId) {
     variables.push('$profileTokenId: String!');
     filters.push('followingProfileId: {_eq: $profileTokenId}');
-  } else {
-    filters.push('identity: {_eq: $identity}');
   }
 
   if (queryFilters.followCount) {
@@ -115,20 +91,35 @@ export const getSocialFollowersQuery = ({
         }
       }`);
     } else {
-      if (!blockchain || blockchain === 'ethereum' || token === 'ADDRESS') {
-        logicalQueries.push(`ethereumHoldings: tokenBalances(
-            input: {filter: {tokenAddress: {_eq: "${address}"}}, blockchain: ethereum, limit: 1}
-          ) {
-            ${tokenBalanceFields}
-          }`);
-      }
-      if (!blockchain || blockchain === 'polygon' || token === 'ADDRESS') {
-        logicalQueries.push(`polygonHoldings: tokenBalances(
-            input: {filter: {tokenAddress: {_eq: "${address}"}}, blockchain: polygon, limit: 1}
-          ) {
-            ${tokenBalanceFields}
-          }`);
-      }
+      tokenBlockchains.forEach(_blockchain => {
+        if (!blockchain || blockchain === _blockchain || token === 'ADDRESS') {
+          logicalQueries.push(`${_blockchain}Holdings: tokenBalances(
+              input: {filter: {tokenAddress: {_eq: "${address}"}}, blockchain: ${_blockchain}, limit: 1}
+            ) {
+              tokenId
+              tokenAddress
+              tokenType
+              blockchain
+              formattedAmount
+              token {
+                logo {
+                  small
+                }
+                projectDetails {
+                  imageUrl
+                }
+              }
+              tokenNfts {
+                contentValue {
+                  image {
+                    medium
+                    extraSmall
+                  }
+                }
+              }
+            }`);
+        }
+      });
     }
   }
 
@@ -145,7 +136,6 @@ export const getSocialFollowersQuery = ({
         id
         blockchain
         dappName
-        dappSlug
         followerProfileId
         followingProfileId
         followerAddress {
@@ -155,11 +145,16 @@ export const getSocialFollowersQuery = ({
             userId
             blockchain
             dappName
-            dappSlug
             profileName
+            profileHandle
             profileImage
             profileTokenId
             profileTokenAddress
+            profileImageContentValue {
+              image {
+                extraSmall
+              }
+            }
           }
           primaryDomain {
             name

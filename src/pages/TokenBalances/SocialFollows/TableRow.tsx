@@ -4,8 +4,10 @@ import { Icon } from '../../../Components/Icon';
 import LazyImage from '../../../Components/LazyImage';
 import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
 import { WalletAddress } from '../../../Components/WalletAddress';
-import { Follow } from './types';
+import { tokenBlockchains } from '../../../constants';
 import { formatNumber } from '../../../utils/formatNumber';
+import { Follow } from './types';
+import { checkBlockchainSupportForToken } from '../../../utils/activeTokenInfoString';
 
 export function TableRowLoader() {
   return (
@@ -26,11 +28,7 @@ export function TableRow({
   item: Follow;
   isFollowerQuery: boolean;
   isLensDapp: boolean;
-  onShowMoreClick: (
-    addresses: string[],
-    dataType?: string,
-    identity?: string
-  ) => void;
+  onShowMoreClick: (addresses: string[], dataType?: string) => void;
   onAddressClick: (address: string, dataType?: string) => void;
   onAssetClick: (
     tokenAddress: string,
@@ -39,7 +37,8 @@ export function TableRow({
     eventId?: string
   ) => void;
 }) {
-  const wallet = isFollowerQuery ? item.followerAddress : item.followingAddress;
+  const wallet =
+    (isFollowerQuery ? item.followerAddress : item.followingAddress) || {};
 
   const profileTokenId = isFollowerQuery
     ? item.followerProfileId
@@ -51,30 +50,32 @@ export function TableRow({
     v => v.profileTokenId === profileTokenId
   );
 
-  const lensAddresses =
-    wallet?.socials
-      ?.filter(v => v.dappName === 'lens')
-      .map(v => v.profileName) || [];
+  const lensSocials = wallet?.socials?.filter(v => v.dappName === 'lens') || [];
+  const lensAddresses = lensSocials.map(v => v.profileName);
+  const lensHandles = lensSocials.map(v => v.profileHandle);
   const farcasterAddresses =
     wallet?.socials
-      ?.filter(v => v.dappName === 'farcaster')
+      ?.filter(v => v.profileName && v.dappName === 'farcaster')
       .map(v => v.profileName) || [];
 
   const ens = wallet?.domains?.map(v => v.name) || [];
 
-  const walletAddress = Array.isArray(wallet?.addresses)
-    ? wallet?.addresses[0]
-    : '';
+  const walletAddresses = wallet?.addresses || [];
+
+  const walletAddress = walletAddresses[0] || '';
 
   const xmtpEnabled = wallet?.xmtp?.find(v => v.isXMTPEnabled);
 
   const userId = social?.userId;
 
+  const getShowMoreHandler = (addresses: string[], type: string) => () =>
+    onShowMoreClick?.([...addresses, ...walletAddresses], type);
+
   const lensCell = (
     <ListWithMoreOptions
-      list={lensAddresses}
+      list={lensHandles}
       listFor="lens"
-      onShowMore={() => onShowMoreClick([primaryEns], 'lens')}
+      onShowMore={getShowMoreHandler(lensAddresses, 'lens')}
       onItemClick={onAddressClick}
     />
   );
@@ -83,14 +84,25 @@ export function TableRow({
     <ListWithMoreOptions
       list={farcasterAddresses}
       listFor="farcaster"
-      onShowMore={() => onShowMoreClick([primaryEns], 'farcaster')}
+      onShowMore={getShowMoreHandler(farcasterAddresses, 'farcaster')}
       onItemClick={onAddressClick}
     />
   );
 
   const renderAssets = () => {
     const assets: ReactNode[] = [];
-    if (isLensDapp && social) {
+
+    // for lens pick profile image url from profileImageContentValue
+    const profileImageUrl = isLensDapp
+      ? social?.profileImageContentValue?.image?.extraSmall
+      : social?.profileImage;
+
+    const useAssetComponent =
+      !profileImageUrl &&
+      social &&
+      checkBlockchainSupportForToken(social.blockchain);
+
+    if (useAssetComponent) {
       assets.push(
         <div
           key="profile-token"
@@ -107,7 +119,7 @@ export function TableRow({
             preset="extraSmall"
             containerClassName="h-[50px] w-[50px]"
             imgProps={{
-              className: 'max-w-[50px] max-h-[50px]'
+              className: 'max-h-[50px] max-w-[50px]'
             }}
             chain={social.blockchain}
             tokenId={social.profileTokenId}
@@ -123,16 +135,23 @@ export function TableRow({
         <div key="profile-image">
           <LazyImage
             className="h-[50px] w-[50px] object-cover rounded"
-            src={social?.profileImage}
+            src={profileImageUrl}
           />
         </div>
       );
     }
 
-    const holding =
-      wallet?.poapHoldings?.[0] ||
-      wallet?.ethereumHoldings?.[0] ||
-      wallet?.polygonHoldings?.[0];
+    let holding = wallet?.poapHoldings?.[0];
+
+    if (!holding) {
+      for (let i = 0; i < tokenBlockchains.length; i++) {
+        const blockchain = tokenBlockchains[i];
+        if (wallet?.[`${blockchain}Holdings`]?.length > 0) {
+          holding = wallet[`${blockchain}Holdings`][0];
+          break;
+        }
+      }
+    }
 
     if (holding) {
       const holdingEventId = holding?.poapEvent?.eventId;
@@ -183,7 +202,9 @@ export function TableRow({
             address={holdingTokenAddress}
             useImageOnError={isPoap}
           />
-          <div className="mt-2">{holdingText || '--'}</div>
+          <div className="mt-2 ellipsis max-w-[50px]">
+            {holdingText || '--'}
+          </div>
         </div>
       );
     }
@@ -193,8 +214,10 @@ export function TableRow({
 
   return (
     <tr>
-      <td className="flex gap-2 [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:shrink-0">
-        {renderAssets()}
+      <td>
+        <div className="flex gap-2 [&>div]:flex [&>div]:flex-col [&>div]:items-center [&>div]:shrink-0">
+          {renderAssets()}
+        </div>
       </td>
       <td>{isLensDapp ? lensCell : farcasterCell}</td>
       {!isLensDapp && <td>{userId ? `#${userId}` : '--'}</td>}
@@ -209,9 +232,7 @@ export function TableRow({
         <ListWithMoreOptions
           list={ens}
           listFor="ens"
-          onShowMore={() =>
-            onShowMoreClick(wallet?.addresses, 'ens', primaryEns)
-          }
+          onShowMore={getShowMoreHandler(ens, 'ens')}
           onItemClick={onAddressClick}
         />
       </td>

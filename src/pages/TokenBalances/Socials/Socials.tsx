@@ -1,6 +1,6 @@
 import { useLazyQuery } from '@airstack/airstack-react';
 import classNames from 'classnames';
-import React, {
+import {
   ReactNode,
   memo,
   useCallback,
@@ -8,20 +8,21 @@ import React, {
   useMemo,
   useState
 } from 'react';
+import { Link } from 'react-router-dom';
+import { Icon } from '../../../Components/Icon';
 import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { SocialQuery } from '../../../queries';
+import { formatAddress } from '../../../utils';
 import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
 import { SectionHeader } from '../SectionHeader';
-import { WalletType } from './types';
 import { Follow, FollowParams, FollowType } from './Follow';
 import { Social } from './Social';
 import { XMTP } from './XMTP';
-import { Icon } from '../../../Components/Icon';
-import { Link } from 'react-router-dom';
+import { WalletType } from './types';
 
-const getSocialFollowInfo = (wallet: WalletType) => {
+const getSocialFollowInfo = (wallet?: WalletType) => {
   const followData: Record<'farcaster' | 'lens', FollowType> = {
     farcaster: {
       dappName: 'farcaster',
@@ -33,13 +34,16 @@ const getSocialFollowInfo = (wallet: WalletType) => {
     }
   };
 
-  const farcasterSocials = wallet?.farcasterSocials || [];
+  // For Farcaster profile - we need to ignore if results for an address does not have 'profileName'
+  const farcasterSocials =
+    wallet?.farcasterSocials?.filter(item => item.profileName) || [];
   const lensSocials = wallet?.lensSocials || [];
 
   // For farcaster:
   if (farcasterSocials.length > 0) {
     followData.farcaster.sections = farcasterSocials.map(item => ({
       profileName: item.profileName,
+      profileHandle: item.profileHandle,
       profileTokenId: item.profileTokenId,
       followerCount: item.followerCount,
       followingCount: item.followingCount
@@ -47,40 +51,24 @@ const getSocialFollowInfo = (wallet: WalletType) => {
   } else {
     followData.farcaster.sections = [
       {
-        profileName: '--'
+        profileHandle: '--'
       }
     ];
   }
 
   // For lens:
   if (lensSocials.length > 0) {
-    // find default lens profile based on:
-    const defaultProfile =
-      lensSocials.find(item => item.isDefault) ||
-      lensSocials.find(item => item.followingCount > 0) ||
-      lensSocials[0];
-
-    followData.lens.sections.push({
-      profileName: defaultProfile.profileName,
-      profileTokenId: defaultProfile.profileTokenId,
-      followerCount: defaultProfile.followerCount,
-      followingCount: defaultProfile.followingCount
-    });
-    lensSocials.forEach(item => {
-      if (item.profileName !== defaultProfile.profileName) {
-        followData.lens.sections.push({
-          profileName: item.profileName,
-          profileTokenId: item.profileTokenId,
-          followerCount: item.followerCount,
-          followingCount: defaultProfile.followingCount,
-          hideFollowingCount: true
-        });
-      }
-    });
+    followData.lens.sections = lensSocials.map(item => ({
+      profileName: item.profileName,
+      profileHandle: item.profileHandle,
+      profileTokenId: item.profileTokenId,
+      followerCount: item.followerCount,
+      followingCount: item.followingCount
+    }));
   } else {
     followData.lens.sections = [
       {
-        profileName: '--'
+        profileHandle: '--'
       }
     ];
   }
@@ -95,6 +83,14 @@ const iconMap: Record<string, string> = {
   ens: '/images/ens.svg'
 };
 
+type SocialResponse = {
+  Wallet: WalletType;
+};
+
+type SocialVariables = {
+  identity: string;
+};
+
 function SocialsComponent() {
   const [modalData, setModalData] = useState<{
     isOpen: boolean;
@@ -107,9 +103,12 @@ function SocialsComponent() {
   });
 
   const [{ address }, setData] = useSearchInput();
-  const [fetchData, { data, loading }] = useLazyQuery(SocialQuery);
+  const [fetchData, { data, loading }] = useLazyQuery<
+    SocialResponse,
+    SocialVariables
+  >(SocialQuery);
 
-  const wallet = data?.Wallet as WalletType;
+  const wallet = data?.Wallet;
 
   useEffect(() => {
     if (address.length > 0) {
@@ -168,20 +167,19 @@ function SocialsComponent() {
     (value: unknown, type?: string) => {
       if (typeof value !== 'string' || value == '--') return;
 
-      const isFarcaster = type?.includes('farcaster');
-      const farcasterId = `fc_fname:${value}`;
+      const addressValue = formatAddress(value, type);
 
       const rawInput = createFormattedRawInput({
         type: 'ADDRESS',
-        address: isFarcaster ? farcasterId : value,
-        label: isFarcaster ? farcasterId : value,
+        address: addressValue,
+        label: addressValue,
         blockchain: 'ethereum'
       });
 
       setData(
         {
           rawInput: rawInput,
-          address: isFarcaster ? [farcasterId] : [value],
+          address: [addressValue],
           inputType: 'ADDRESS'
         },
         { updateQueryParams: true }
@@ -208,7 +206,7 @@ function SocialsComponent() {
     } else {
       primaryEnsValues.push('--');
     }
-    if (wallet?.domains?.length > 0) {
+    if (wallet && wallet?.domains?.length > 0) {
       ensValues.push(...wallet.domains.map(({ name }) => name));
     } else {
       ensValues.push('--');
@@ -255,7 +253,7 @@ function SocialsComponent() {
         <div
           data-loader-type="block"
           data-loader-height="auto"
-          className="h-full p-5 flex-1"
+          className="h-full py-5 pl-5 pr-2.5 flex-1"
         >
           <Social
             name="Primary ENS"
@@ -288,7 +286,7 @@ function SocialsComponent() {
           heading={`All ENS names of ${address[0]}`}
           isOpen={modalData.isOpen}
           dataType={modalData.dataType}
-          addresses={address}
+          addresses={wallet?.addresses || []}
           onRequestClose={handleModalClose}
           onAddressClick={handleAddressClick}
         />

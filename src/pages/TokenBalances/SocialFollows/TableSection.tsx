@@ -10,20 +10,21 @@ import {
 } from '../../../hooks/useSearchInput';
 import { getSocialFollowersQuery } from '../../../queries/socialFollowersQuery';
 import { getSocialFollowingsQuery } from '../../../queries/socialFollowingQuery';
+import { formatAddress } from '../../../utils';
 import {
   SocialInfo,
   getActiveSocialInfoString
 } from '../../../utils/activeSocialInfoString';
+import { getActiveTokenInfoString } from '../../../utils/activeTokenInfoString';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 import { isMobileDevice } from '../../../utils/isMobileDevice';
 import { showToast } from '../../../utils/showToast';
 import { Filters } from './Filters';
 import { MentionInput, MentionOutput } from './MentionInput';
 import { TableRow, TableRowLoader } from './TableRow';
-import { Follow, SocialFollowResponse } from './types';
-import { filterTableItems, getSocialFollowFilterData } from './utils';
-import { getActiveTokenInfoString } from '../../../utils/activeTokenInfoString';
 import './styles.css';
+import { Follow, SocialFollowQueryFilters } from './types';
+import { filterTableItems, getSocialFollowFilterData } from './utils';
 
 const LOADING_ROW_COUNT = 6;
 
@@ -39,17 +40,23 @@ function TableLoader() {
   );
 }
 
+type SocialFollowResponse = {
+  SocialFollowers: {
+    Follower: Follow[];
+  };
+  SocialFollowings: {
+    Following: Follow[];
+  };
+};
+
+type SocialFollowVariables = SocialFollowQueryFilters & {
+  limit: number;
+};
+
 type ModalData = {
   isOpen: boolean;
   dataType?: string;
-  identity?: string;
   addresses: string[];
-};
-
-type TableSectionProps = {
-  identities: string[];
-  socialInfo: SocialInfo;
-  setQueryData: UpdateUserInputs;
 };
 
 const mentionValidationFn = ({ mentions }: MentionOutput) => {
@@ -67,7 +74,11 @@ export function TableSection({
   identities,
   socialInfo,
   setQueryData
-}: TableSectionProps) {
+}: {
+  identities: string[];
+  socialInfo: SocialInfo;
+  setQueryData: UpdateUserInputs;
+}) {
   const navigate = useNavigate();
 
   const [tableItems, setTableItems] = useState<Follow[]>([]);
@@ -79,7 +90,6 @@ export function TableSection({
   const [modalData, setModalData] = useState<ModalData>({
     isOpen: false,
     dataType: '',
-    identity: '',
     addresses: []
   });
   const [loaderData, setLoaderData] = useState({
@@ -149,11 +159,10 @@ export function TableSection({
     [followData, isFollowerQuery, socialInfo.dappName]
   );
 
-  const [fetchData, { loading, pagination }] = useLazyQueryWithPagination(
-    query,
-    {},
-    { onCompleted: handleData, cache: false }
-  );
+  const [fetchData, { loading, pagination }] = useLazyQueryWithPagination<
+    SocialFollowResponse,
+    SocialFollowVariables
+  >(query, undefined, { onCompleted: handleData, cache: false });
 
   const { hasNextPage, getNextPage } = pagination;
 
@@ -162,7 +171,6 @@ export function TableSection({
     if (tableItemsRef.current.length < MIN_LIMIT && hasNextPage) {
       getNextPage();
     } else {
-      tableItemsRef.current = [];
       setLoaderData(prev => ({
         ...prev,
         isVisible: false
@@ -174,6 +182,10 @@ export function TableSection({
     tableItemsRef.current = [];
     tableIdsSetRef.current = new Set();
     setTableItems([]);
+    setLoaderData(prev => ({
+      ...prev,
+      isVisible: true
+    }));
     fetchData({
       limit: MAX_LIMIT,
       ...filterData.queryFilters
@@ -218,9 +230,8 @@ export function TableSection({
 
   const handleAddressClick = useCallback(
     (address: string, type?: string) => {
-      const isFarcaster = type === 'farcaster';
       const url = createTokenBalancesUrl({
-        address: isFarcaster ? `fc_fname:${address}` : address,
+        address: formatAddress(address, type),
         blockchain: 'ethereum',
         inputType: 'ADDRESS'
       });
@@ -246,7 +257,8 @@ export function TableSection({
             tokenId,
             blockchain,
             eventId
-          )
+          ),
+          activeSnapshotInfo: ''
         },
         { updateQueryParams: true }
       );
@@ -254,16 +266,11 @@ export function TableSection({
     [setQueryData]
   );
 
-  const handleShowMoreClick = (
-    addresses: string[],
-    dataType?: string,
-    identity?: string
-  ) => {
+  const handleShowMoreClick = (addresses: string[], dataType?: string) => {
     setModalData({
       isOpen: true,
       dataType,
-      addresses,
-      identity
+      addresses
     });
   };
 
@@ -286,6 +293,7 @@ export function TableSection({
 
   const mentionInputComponent = (
     <MentionInput
+      key={followData.mentionRawText}
       defaultValue={followData.mentionRawText}
       disabled={isInputDisabled}
       placeholder="Input a token to view overlap"
@@ -322,9 +330,7 @@ export function TableSection({
                     followData.mentionRawText ? 'w-[200px]' : undefined
                   }
                 >
-                  {isLensDapp || followData.mentionRawText
-                    ? 'Token image'
-                    : 'Profile image'}
+                  {followData.mentionRawText ? 'Token image' : 'Profile image'}
                 </th>
                 <th>{isLensDapp ? 'Lens' : 'Farcaster'}</th>
                 {!isLensDapp && <th>FID</th>}
@@ -359,9 +365,7 @@ export function TableSection({
       </div>
       {modalData.isOpen && (
         <LazyAddressesModal
-          heading={`All ${modalData.dataType} names of ${
-            modalData?.identity || modalData.addresses[0]
-          }`}
+          heading={`All ${modalData.dataType} names of ${modalData.addresses[0]}`}
           isOpen={modalData.isOpen}
           addresses={modalData.addresses}
           dataType={modalData.dataType}

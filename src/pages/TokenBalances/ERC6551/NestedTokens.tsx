@@ -42,11 +42,13 @@ type Accounts = ReturnType<typeof formatData>['accounts'];
 export function NestedTokens({
   tokenId,
   blockchain,
-  tokenAddress
+  tokenAddress,
+  activeSnapshotInfo
 }: {
   tokenAddress: string;
   tokenId: string;
   blockchain: string;
+  activeSnapshotInfo?: string;
 }) {
   const [activeTab, setActiveTab] = useState(0);
   const [showDetails, setShowDetails] = useState(false);
@@ -86,9 +88,10 @@ export function NestedTokens({
       address: [account.identity],
       tokenType: '',
       blockchainType: [],
-      sortOrder: 'DESC'
+      sortOrder: 'DESC',
+      activeSnapshotInfo: activeSnapshotInfo || ''
     };
-  }, [account.identity]);
+  }, [account.identity, activeSnapshotInfo]);
 
   return (
     <div className=" text-sm mt-5 px-2 sm:px-0">
@@ -157,6 +160,7 @@ export function NestedTokens({
             <Tokens
               {...tokensProps}
               blockchainType={[blockchain]}
+              spamFilter="0"
               poapDisabled
               includeERC20
             />

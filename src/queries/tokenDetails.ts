@@ -122,8 +122,12 @@ export const poapDetailsQuery = `query PoapDetails($eventId: [String!], $tokenAd
           image {
             medium
           }
-          video
-          audio
+          video {
+            original
+          }
+          audio {
+            original
+          }
         }
         logo: contentValue {
           image {
@@ -132,6 +136,7 @@ export const poapDetailsQuery = `query PoapDetails($eventId: [String!], $tokenAd
           }
         }
         eventName
+        eventURL
         startDate
         endDate
         endDate

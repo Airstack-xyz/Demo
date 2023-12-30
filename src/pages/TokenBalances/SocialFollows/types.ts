@@ -1,19 +1,14 @@
 import { Chain } from '@airstack/airstack-react/constants';
 import { MentionData } from '../../../Components/Input/types';
-
-export type SocialsResponse = {
-  Socials: {
-    Social: Social[];
-  };
-};
+import { TokenBlockchain } from '../../../types';
 
 export type Social = {
   id: string;
   isDefault: boolean;
   blockchain: Chain;
   dappName: string;
-  dappSlug: string;
   profileName: string;
+  profileHandle: string;
   profileDisplayName: string;
   profileBio: string;
   profileImage: string;
@@ -21,17 +16,12 @@ export type Social = {
   profileTokenAddress: string;
   followerCount: number;
   followingCount: number;
-  userAddress: string;
   profileCreatedAtBlockTimestamp: string;
   profileCreatedAtBlockNumber: number;
-};
-
-export type SocialFollowResponse = {
-  SocialFollowers: {
-    Follower: Follow[];
-  };
-  SocialFollowings: {
-    Following: Follow[];
+  profileImageContentValue: {
+    image: {
+      small: string;
+    };
   };
 };
 
@@ -39,7 +29,6 @@ export type Follow = {
   id: string;
   blockchain: Chain;
   dappName: string;
-  dappSlug: string;
   followerProfileId: string;
   followingProfileId: string;
   followerAddress: Wallet;
@@ -92,6 +81,23 @@ export type Wallet = {
     Follower: Follow[];
     Following: Follow[];
   };
+  identity: string;
+  addresses: string[];
+  socials: {
+    userId: string;
+    blockchain: Chain;
+    dappName: string;
+    profileName: string;
+    profileHandle: string;
+    profileImage: string;
+    profileTokenId: string;
+    profileTokenAddress: string;
+    profileImageContentValue: {
+      image: {
+        extraSmall: string;
+      };
+    };
+  }[];
   lensSocials: {
     id: string;
     profileTokenId: string;
@@ -99,21 +105,6 @@ export type Wallet = {
   farcasterSocials: {
     id: string;
     profileTokenId: string;
-  }[];
-  poapHoldings: Holding[];
-  ethereumHoldings: Holding[];
-  polygonHoldings: Holding[];
-  identity: string;
-  addresses: string[];
-  socials: {
-    userId: string;
-    blockchain: Chain;
-    dappName: string;
-    dappSlug: string;
-    profileName: string;
-    profileImage: string;
-    profileTokenId: string;
-    profileTokenAddress: string;
   }[];
   primaryDomain: {
     name: string;
@@ -124,6 +115,9 @@ export type Wallet = {
   xmtp: {
     isXMTPEnabled: boolean;
   }[];
+  poapHoldings: Holding[];
+} & {
+  [Key in `${TokenBlockchain}Holdings`]: Holding[];
 };
 
 export type SocialFollowQueryFilters = {

@@ -11,17 +11,21 @@ function getFields(hasSocialFilters = false, hasPrimaryDomainFilter = false) {
    tokenAddress
    eventId
    poapEvent {
-     contentValue {
-       image {
-         small
-       }
-       video
-       audio
-     }
-     logo: contentValue {
-       image {
-         small
-       }
+      contentValue {
+        image {
+          small
+        }
+        video {
+          original
+        }
+        audio {
+          original
+        }
+      }
+      logo: contentValue {
+        image {
+          small
+        }
      }
      blockchain
      eventName
@@ -31,15 +35,14 @@ function getFields(hasSocialFilters = false, hasPrimaryDomainFilter = false) {
      addresses
      socials${hasSocialFilters ? socialInput : ''} {
        blockchain
-       dappSlug
+       dappName
        profileName
+       profileHandle
      }
      primaryDomain {
        name
      }
      domains${hasPrimaryDomainFilter ? primaryDomainInput : ''} {
-       chainId
-       dappName
        name
      }
      xmtp {
@@ -47,65 +50,6 @@ function getFields(hasSocialFilters = false, hasPrimaryDomainFilter = false) {
      }
    }`;
 }
-
-// export const getFilterablePoapsQuery = (
-//   hasSocialFilters = false,
-//   hasPrimaryDomainFilter = false
-// ) => {
-//   return `query GetPoapHolders($eventId: [String!], $limit: Int${
-//     hasSocialFilters ? ', $socialFilters: [SocialDappName!]' : ''
-//   }${hasPrimaryDomainFilter ? ', $hasPrimaryDomain: Boolean' : ''}) {
-//       Poaps(input: {filter: {eventId: {_in: $eventId}}, blockchain: ALL, limit: $limit}) {
-//         Poap {
-//           id
-//           blockchain
-//           tokenId
-//           tokenAddress
-//           eventId
-//           poapEvent {
-//             contentValue {
-//               image {
-//                 small
-//               }
-//               video
-//               audio
-//             }
-//             logo: contentValue {
-//               image {
-//                 small
-//               }
-//             }
-//             blockchain
-//             eventName
-//           }
-//           owner {
-//             identity
-//             addresses
-//             socials${hasSocialFilters ? socialInput : ''} {
-//               blockchain
-//               dappSlug
-//               profileName
-//             }
-//             primaryDomain {
-//               name
-//             }
-//             domains${hasPrimaryDomainFilter ? primaryDomainInput : ''} {
-//               chainId
-//               dappName
-//               name
-//             }
-//             xmtp {
-//               isXMTPEnabled
-//             }
-//           }
-//         }
-//         pageInfo {
-//           nextCursor
-//           prevCursor
-//         }
-//       }
-//     }`;
-// };
 
 function getQueryWithFilter(
   tokenIds: TokenAddress[],
@@ -137,6 +81,16 @@ export function getFilterablePoapsQuery(
   hasPrimaryDomainFilter = false
 ) {
   if (tokenIds.length === 0) return '';
+
+  const variables = ['$limit: Int'];
+  if (hasSocialFilters) {
+    variables.push('$socialFilters: [SocialDappName!]');
+  }
+  if (hasPrimaryDomainFilter) {
+    variables.push('$hasPrimaryDomain: Boolean');
+  }
+  const variablesString = variables.join(',');
+
   const children =
     tokenIds.length === 1
       ? getFields(hasSocialFilters, hasPrimaryDomainFilter)
@@ -146,13 +100,10 @@ export function getFilterablePoapsQuery(
           hasSocialFilters,
           hasPrimaryDomainFilter
         );
-  return `query GetPoapHolders($limit: Int${
-    hasSocialFilters ? ', $socialFilters: [SocialDappName!]' : ''
-  }${hasPrimaryDomainFilter ? ', $hasPrimaryDomain: Boolean' : ''}) {
+
+  return `query GetPoapHolders(${variablesString}) {
       Poaps(
-        input: {filter: {eventId: {_eq: "${
-          tokenIds[0].address
-        }"}}, blockchain: ALL, limit: $limit}
+        input: {filter: {eventId: {_eq: "${tokenIds[0].address}"}}, blockchain: ALL, limit: $limit}
       ) {
         Poap {
           ${children}

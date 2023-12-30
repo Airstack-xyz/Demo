@@ -32,7 +32,9 @@ export type SearchAIMentionsResults = {
   address: string;
   eventId: string | null;
   blockchain: string;
-  thumbnailURL: string | null;
+  image: {
+    extraSmall: string | null;
+  } | null;
   metadata: {
     tokenMints: number | null;
   } | null;

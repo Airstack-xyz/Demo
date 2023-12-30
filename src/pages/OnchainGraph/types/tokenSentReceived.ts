@@ -1,9 +1,9 @@
+import { TokenBlockchain } from '../../../types';
 import { Domain, Social } from './index';
 
-export interface TokenQueryResponse {
-  Ethereum: TokenSent;
-  Polygon: TokenSent;
-}
+export type TokenQueryResponse = {
+  [Key in TokenBlockchain]: TokenSent;
+};
 
 export interface TokenSent {
   TokenTransfer: TokenTransfer[];

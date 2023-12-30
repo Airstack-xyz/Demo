@@ -1,53 +1,94 @@
 /* eslint-disable react-refresh/only-export-components */
-import { useCallback, useEffect, useMemo } from 'react';
+import classNames from 'classnames';
+import { useCallback, useMemo } from 'react';
+import { snapshotBlockchains, tokenBlockchains } from '../../constants';
 import { useSearchInput } from '../../hooks/useSearchInput';
+import { SnapshotBlockchain, TokenBlockchain } from '../../types';
+import { capitalizeFirstLetter } from '../../utils';
+import {
+  checkBlockchainSupportForSnapshot,
+  getActiveSnapshotInfo
+} from '../../utils/activeSnapshotInfoString';
 import { Dropdown, Option } from '../Dropdown';
+import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 
-export type BlockchainFilterType = 'all' | 'ethereum' | 'polygon';
+export type BlockchainFilterType = 'all' | TokenBlockchain | SnapshotBlockchain;
 
-export const defaultBlockchainFilter = 'all';
+export const defaultBlockchainFilter: BlockchainFilterType = 'all';
 
 type BlockchainOption = {
   label: string;
   value: BlockchainFilterType;
+  disabled?: boolean;
 };
 
-export const blockchainOptions: BlockchainOption[] = [
-  {
-    label: 'All chains',
-    value: 'all'
-  },
-  {
-    label: 'Ethereum',
-    value: 'ethereum'
-  },
-  {
-    label: 'Polygon',
-    value: 'polygon'
-  }
-];
-
-export function BlockchainFilter({ disabled }: { disabled?: boolean }) {
-  const [{ blockchainType, tokenType }, setData] = useSearchInput();
-
-  const isPoap = tokenType === 'POAP';
-
-  const isFilterDisabled = disabled || isPoap;
-  const hasBlockchainFilterApplied = blockchainType.length > 0;
-
-  // Reset blockchain filter if POAP filter is applied
-  useEffect(() => {
-    if (isFilterDisabled && hasBlockchainFilterApplied) {
-      setData(
-        {
-          blockchainType: []
-        },
-        { updateQueryParams: true }
-      );
+export const getBlockchainOptions = (isSnapshotApplicable?: boolean) => {
+  const options: BlockchainOption[] = [
+    {
+      label: 'All chains',
+      value: 'all'
     }
-  }, [hasBlockchainFilterApplied, isFilterDisabled, setData]);
+  ];
+
+  tokenBlockchains.forEach(blockchain => {
+    options.push({
+      label: capitalizeFirstLetter(blockchain),
+      value: blockchain,
+      disabled: isSnapshotApplicable
+        ? !checkBlockchainSupportForSnapshot(blockchain)
+        : false
+    });
+  });
+
+  if (isSnapshotApplicable) {
+    // Find blockchains which are in snapshotBlockchains but not in tokenBlockchains
+    const filteredBlockchains = snapshotBlockchains.filter(
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      blockchain => tokenBlockchains.indexOf(blockchain) === -1
+    );
+
+    filteredBlockchains.forEach(blockchain => {
+      options.push({
+        label: capitalizeFirstLetter(blockchain),
+        value: blockchain,
+        disabled: false
+      });
+    });
+  }
+
+  return options;
+};
+
+export function BlockchainFilter({
+  disabled,
+  disabledTooltipText
+}: {
+  disabled?: boolean;
+  disabledTooltipText?: string;
+}) {
+  const [searchInputs, setData] = useSearchInput();
+  const {
+    tooltipRef,
+    containerRef,
+    handleTooltipShow,
+    handleTooltipHide,
+    handleTooltipMove
+  } = useDisabledTooltip();
+
+  const activeSnapshotInfo = searchInputs.activeSnapshotInfo;
+  const blockchainType = searchInputs.blockchainType as BlockchainFilterType[];
+
+  const snapshotInfo = useMemo(
+    () => getActiveSnapshotInfo(activeSnapshotInfo),
+    [activeSnapshotInfo]
+  );
+
+  const enableTooltipHover = disabled && Boolean(disabledTooltipText);
+
+  const isFilterDisabled = disabled;
 
   const handleChange = useCallback(
     (selected: Option[]) => {
@@ -64,35 +105,55 @@ export function BlockchainFilter({ disabled }: { disabled?: boolean }) {
     [setData]
   );
 
+  const options = useMemo(
+    () => getBlockchainOptions(snapshotInfo.isApplicable),
+    [snapshotInfo.isApplicable]
+  );
+
   const selected = useMemo(() => {
     const filterValue = blockchainType[0];
-    if (filterValue === 'ethereum') {
-      return [blockchainOptions[1]];
+    const option = options.find(item => item.value === filterValue);
+    if (option) {
+      return [option];
     }
-    if (filterValue === 'polygon') {
-      return [blockchainOptions[2]];
-    }
-    return [blockchainOptions[0]];
-  }, [blockchainType]);
+    return [options[0]];
+  }, [blockchainType, options]);
 
   return (
     <Dropdown
       heading="Blockchain"
       selected={selected}
       onChange={handleChange}
-      options={blockchainOptions}
+      options={options}
       disabled={isFilterDisabled}
       renderPlaceholder={(selected, isOpen) => (
-        <FilterPlaceholder
-          icon="blockchain-filter"
-          isOpen={isOpen}
-          isDisabled={isFilterDisabled}
-          label={selected[0].label}
-        />
+        <div
+          className="relative"
+          ref={containerRef}
+          onMouseEnter={enableTooltipHover ? handleTooltipShow : undefined}
+          onMouseLeave={enableTooltipHover ? handleTooltipHide : undefined}
+          onMouseMove={enableTooltipHover ? handleTooltipMove : undefined}
+        >
+          <FilterPlaceholder
+            icon="blockchain-filter"
+            isOpen={isOpen}
+            isDisabled={isFilterDisabled}
+            label={selected[0].label}
+            className={classNames({
+              'disabled:cursor-auto': enableTooltipHover // for not showing disabled cursor for tooltip
+            })}
+          />
+          <DisabledTooltip
+            isEnabled={enableTooltipHover}
+            tooltipRef={tooltipRef}
+            tooltipText={disabledTooltipText}
+          />
+        </div>
       )}
       renderOption={({ option, isSelected, setSelected }) => (
         <FilterOption
           isSelected={isSelected}
+          isDisabled={option.disabled}
           label={option.label}
           onClick={() => {
             setSelected([option]);

@@ -12,7 +12,9 @@ import { apiKey } from './constants';
   Init the Airstack SDK with the API key. The API key can be found here https://app.airstack.xyz/
   Please note read the API key from environment variable. This is just for demo purpose.
 */
-init(apiKey); // for demo "ef3d1cdeafb642d3a8d6a44664ce566c"
+init(apiKey, {
+  cancelHookRequestsOnUnmount: true
+}); // for demo "ef3d1cdeafb642d3a8d6a44664ce566c"
 
 function App() {
   return (

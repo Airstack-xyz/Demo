@@ -19,9 +19,9 @@ function ItemsLoader() {
   return (
     <>
       {loaderItems.map((_, index) => (
-        <div className="skeleton-loader" data-loader-type="block">
+        <div key={index} className="skeleton-loader" data-loader-type="block">
           {/* eslint-disable-next-line */}
-          <UserInfo key={index} identities={{} as any} />
+          <UserInfo identities={{} as any} />
         </div>
       ))}
     </>
@@ -109,7 +109,7 @@ export function OnChainGraphComponent() {
   );
 
   return (
-    <div className="max-w-[958px] px-2 mx-auto w-full text-sm pt-5 sm:pt-10">
+    <div className="max-w-[958px] px-2 mx-auto w-full text-sm">
       <Header
         loading={scanning}
         identities={[identity]}
