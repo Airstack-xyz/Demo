@@ -7,7 +7,7 @@ import { getSocialSearchQueryData } from './SocialSearch/utils';
 import SocialSearch from './SocialSearch';
 
 type EnabledSearchType =
-  | 'SOCIALS_SEARCH' // social type-ahead infinite dropdown list search
+  | 'SOCIAL_SEARCH' // social type-ahead infinite dropdown list search
   | 'ADVANCED_MENTION_SEARCH' // advanced @mention infinite grid search with filters
   | 'MENTION_SEARCH' // default @mention dropdown list search
   | null;
@@ -15,15 +15,15 @@ type EnabledSearchType =
 type SearchData = {
   visible: boolean;
   query: string;
-  startIndex: number;
-  endIndex: number;
+  queryStartIndex: number;
+  queryEndIndex: number;
 };
 
 const defaultSearchData: SearchData = {
-  query: '',
   visible: false,
-  startIndex: -1,
-  endIndex: -1
+  query: '',
+  queryStartIndex: -1,
+  queryEndIndex: -1
 };
 
 export function SearchInputSection({
@@ -36,7 +36,7 @@ export function SearchInputSection({
 }: {
   value: string;
   placeholder?: string;
-  enabledSearchType?: EnabledSearchType;
+  enabledSearchType: EnabledSearchType;
   showPrefixSearchIcon?: boolean;
   onValueChange: (value: string) => void;
   onValueSubmit: (value: string) => void;
@@ -51,7 +51,7 @@ export function SearchInputSection({
   const [advancedMentionSearchData, setAdvancedMentionSearchData] =
     useState<SearchData>(defaultSearchData);
 
-  const isSocialSearchEnabled = enabledSearchType === 'SOCIALS_SEARCH';
+  const isSocialSearchEnabled = enabledSearchType === 'SOCIAL_SEARCH';
   const isAdvancedMentionSearchEnabled =
     enabledSearchType === 'ADVANCED_MENTION_SEARCH';
 
@@ -80,26 +80,24 @@ export function SearchInputSection({
   }, []);
 
   const showAdvancedMentionSearch = useCallback(
-    ({ query, startIndex, endIndex }: AdvancedMentionSearchParams) => {
-      setAdvancedMentionSearchData({
-        visible: true,
-        query,
-        startIndex,
-        endIndex
-      });
+    (data: AdvancedMentionSearchParams) => {
+      setAdvancedMentionSearchData(prev => ({
+        ...prev,
+        ...data,
+        visible: true
+      }));
     },
     []
   );
 
   const checkSocialSearchVisibility = useCallback((val: string) => {
-    const queryData = getSocialSearchQueryData(val);
-    if (queryData) {
-      setSocialSearchData({
-        visible: true,
-        query: queryData.query,
-        startIndex: queryData.startIndex,
-        endIndex: queryData.endIndex
-      });
+    const data = getSocialSearchQueryData(val);
+    if (data) {
+      setSocialSearchData(prev => ({
+        ...prev,
+        ...data,
+        visible: true
+      }));
     } else {
       setSocialSearchData(prev => ({ ...prev, visible: false }));
     }
@@ -126,8 +124,8 @@ export function SearchInputSection({
   const handleOnSubmit = useCallback(
     (val: string) => {
       setIsInputSectionFocused(false);
-      setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
       setSocialSearchData(prev => ({ ...prev, visible: false }));
+      setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
       onValueSubmit(val);
     },
     [onValueSubmit]
@@ -225,11 +223,9 @@ export function SearchInputSection({
               onClick={hideAdvancedMentionSearch}
             />
             <AdvancedMentionSearch
+              {...advancedMentionSearchData}
               mentionInputRef={mentionInputRef}
               mentionValue={value}
-              query={advancedMentionSearchData.query}
-              displayValueStartIndex={advancedMentionSearchData.startIndex}
-              displayValueEndIndex={advancedMentionSearchData.endIndex}
               onChange={handleSubmitAfterDelay}
               onClose={hideAdvancedMentionSearch}
             />
@@ -238,11 +234,9 @@ export function SearchInputSection({
         {socialSearchData.visible && (
           <>
             <SocialSearch
+              {...socialSearchData}
               mentionInputRef={mentionInputRef}
               mentionValue={value}
-              query={socialSearchData.query}
-              displayValueStartIndex={socialSearchData.startIndex}
-              displayValueEndIndex={socialSearchData.endIndex}
               onChange={handleSubmitAfterDelay}
               onClose={hideSocialSearch}
             />

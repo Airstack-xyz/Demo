@@ -34,7 +34,6 @@ function ListLoader() {
 type SearchDataType = {
   isLoading: boolean;
   isError?: boolean;
-  searchTerm?: string | null;
   items: SocialSearchItem[];
 };
 
@@ -45,8 +44,7 @@ const LIMIT = 30;
 const DISABLED_KEYS = ['ArrowUp', 'ArrowDown', 'Enter'];
 
 const defaultSearchData: SearchDataType = {
-  isLoading: true,
-  searchTerm: null,
+  isLoading: false,
   items: []
 };
 
@@ -54,16 +52,16 @@ export default function SocialSearch({
   mentionInputRef, // reference to mention-input element
   mentionValue, // mention-input's value containing markup for mentions
   query, // query to be searched
-  displayValueStartIndex, // query starting index in mention-input's display value i.e. value visible to user
-  displayValueEndIndex, // query ending index in mention-input's display value i.e. value visible to user
+  queryStartIndex, // query starting index in mention-input's display value i.e. value visible to user
+  queryEndIndex, // query ending index in mention-input's display value i.e. value visible to user
   onChange,
   onClose
 }: {
   mentionInputRef: MutableRefObject<HTMLTextAreaElement | null>;
   mentionValue: string;
   query: string;
-  displayValueStartIndex: number;
-  displayValueEndIndex: number;
+  queryStartIndex: number;
+  queryEndIndex: number;
   onChange: (value: string) => void;
   onClose: () => void;
 }) {
@@ -76,7 +74,7 @@ export default function SocialSearch({
   // store refs so that it can be used in events without triggering useEffect
   focusIndexRef.current = focusIndex;
 
-  const { isLoading, isError, searchTerm, items } = searchData;
+  const { isLoading, isError, items } = searchData;
 
   const handleData = useCallback((data: SocialSearchResponse) => {
     const nextItems = data?.Socials?.Social || [];
@@ -84,7 +82,7 @@ export default function SocialSearch({
       ...prev,
       isLoading: false,
       isError: false,
-      items: [...(prev.items || []), ...nextItems]
+      items: [...prev.items, ...nextItems]
     }));
     setFocusIndex(0);
   }, []);
@@ -132,26 +130,15 @@ export default function SocialSearch({
   }, []);
 
   useEffect(() => {
-    setSearchData(prev => ({
-      ...prev,
-      searchTerm: query,
-      items: []
-    }));
-  }, [query]);
-
-  useEffect(() => {
     const mentionInputEl = mentionInputRef.current;
 
     // set mention-input's caret to correct position
-    mentionInputEl?.setSelectionRange(
-      displayValueEndIndex,
-      displayValueEndIndex
-    );
+    mentionInputEl?.setSelectionRange(queryEndIndex, queryEndIndex);
 
     function handleInputClick() {
       const selectionStart = mentionInputEl?.selectionStart ?? -1;
-      // if mention-input's caret moves before @ position
-      if (selectionStart <= displayValueStartIndex) {
+      // if mention-input's caret moves before query start index
+      if (selectionStart <= queryStartIndex) {
         onClose();
       }
     }
@@ -187,8 +174,8 @@ export default function SocialSearch({
       mentionInputEl?.removeEventListener('click', handleInputClick);
     };
   }, [
-    displayValueEndIndex,
-    displayValueStartIndex,
+    queryEndIndex,
+    queryStartIndex,
     focusListItem,
     mentionInputRef,
     onClose,
@@ -199,19 +186,24 @@ export default function SocialSearch({
     setSearchData(prev => ({
       ...prev,
       isLoading: true,
-      isError: false
+      isError: false,
+      items: []
     }));
     fetchData({
       limit: LIMIT,
-      searchRegex: [`^${searchTerm}`, `^lens/@${searchTerm}`]
+      searchRegex: [`^${query}`, `^lens/@${query}`]
     });
     return () => {
       cancelRequest();
     };
-  }, [cancelRequest, fetchData, searchTerm]);
+  }, [cancelRequest, fetchData, query]);
 
   const handleNext = useCallback(() => {
     if (!isLoading && hasNextPage && getNextPage) {
+      setSearchData(prev => ({
+        ...prev,
+        isLoading: true
+      }));
       getNextPage();
     }
   }, [getNextPage, hasNextPage, isLoading]);
@@ -220,7 +212,7 @@ export default function SocialSearch({
     const value = getUpdatedMentionValue(
       mentionValue,
       mention,
-      displayValueStartIndex
+      queryStartIndex
     );
     if (value !== null) {
       // append space to the value
@@ -246,7 +238,7 @@ export default function SocialSearch({
         next={handleNext}
         dataLength={items.length}
         hasMore={hasNextPage}
-        loader={<ListLoader />}
+        loader={null}
         height={306}
         className="flex flex-col gap-2 no-scrollbar"
       >
@@ -260,7 +252,6 @@ export default function SocialSearch({
             Error while fetching data!
           </div>
         )}
-        {isLoading && <ListLoader />}
         {items.map((item, index) => (
           <ListItem
             key={`${item.id}_${index}`}
@@ -270,6 +261,7 @@ export default function SocialSearch({
             onMouseEnter={() => setFocusIndex(index)}
           />
         ))}
+        {isLoading && <ListLoader />}
       </InfiniteScroll>
     </div>
   );

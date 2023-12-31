@@ -28,18 +28,18 @@ type MentionInputProps = {
   onClear?: () => void;
 };
 
-type AdvancedMentionSearchData = {
+type SearchData = {
   visible: boolean;
   query: string;
-  startIndex: number;
-  endIndex: number;
+  queryStartIndex: number;
+  queryEndIndex: number;
 };
 
-const defaultAdvancedMentionSearchData: AdvancedMentionSearchData = {
+const defaultSearchData: SearchData = {
   visible: false,
   query: '',
-  startIndex: -1,
-  endIndex: -1
+  queryStartIndex: -1,
+  queryEndIndex: -1
 };
 
 export function MentionInput({
@@ -58,7 +58,7 @@ export function MentionInput({
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
 
   const [advancedMentionSearchData, setAdvancedMentionSearchData] =
-    useState<AdvancedMentionSearchData>(defaultAdvancedMentionSearchData);
+    useState<SearchData>(defaultSearchData);
 
   const [value, setValue] = useState(defaultValue);
 
@@ -124,13 +124,12 @@ export function MentionInput({
   );
 
   const showAdvancedMentionSearch = useCallback(
-    ({ query, startIndex, endIndex }: AdvancedMentionSearchParams) => {
-      setAdvancedMentionSearchData({
-        visible: true,
-        query,
-        startIndex,
-        endIndex
-      });
+    (data: AdvancedMentionSearchParams) => {
+      setAdvancedMentionSearchData(prev => ({
+        ...prev,
+        ...data,
+        visible: true
+      }));
     },
     []
   );
@@ -208,11 +207,9 @@ export function MentionInput({
               onClick={hideAdvancedMentionSearch}
             />
             <AdvancedMentionSearch
+              {...advancedMentionSearchData}
               mentionInputRef={mentionInputRef}
               mentionValue={value}
-              query={advancedMentionSearchData.query}
-              displayValueStartIndex={advancedMentionSearchData.startIndex}
-              displayValueEndIndex={advancedMentionSearchData.endIndex}
               onChange={handleAdvanceSearchOnChange}
               onClose={hideAdvancedMentionSearch}
             />

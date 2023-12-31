@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import { mapPlainTextIndex } from '../Input/react-mentions/utils';
+import { mapPlainTextIndex, getPlainText } from '../Input/react-mentions/utils';
 import { MENTION_CONFIG } from '../Input/utils';
 import { AdvancedMentionSearchItem } from './types';
 
@@ -16,9 +16,14 @@ export const getCustomInputMention = (address: string, mode: string) => {
 
 const SEARCH_TERM_REGEX = /@(\w*)?/;
 
-export const getAdvancedMentionSearchQuery = (text?: string) => {
-  if (!text) return null;
-  const matched = text.match(SEARCH_TERM_REGEX);
+export const getSearchQuery = (
+  mentionValue: string,
+  displayValueStartIndex = 0
+) => {
+  const displayValue = getPlainText(mentionValue, MENTION_CONFIG);
+  const matched = displayValue
+    .substring(displayValueStartIndex)
+    .match(SEARCH_TERM_REGEX);
   return matched ? matched[1] : null;
 };
 

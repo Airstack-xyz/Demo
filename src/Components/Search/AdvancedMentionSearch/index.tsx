@@ -21,7 +21,11 @@ import {
   AdvancedMentionSearchItem,
   AdvancedMentionSearchResponse
 } from './types';
-import { getSearchItemMention, getUpdatedMentionValue } from './utils';
+import {
+  getSearchQuery,
+  getSearchItemMention,
+  getUpdatedMentionValue
+} from './utils';
 
 const LOADING_ITEM_COUNT = 9;
 
@@ -40,7 +44,6 @@ function GridLoader() {
 type SearchDataType = {
   isLoading: boolean;
   isError?: boolean;
-  searchTerm?: string | null;
   cursor?: string | null;
   nextCursor?: string | null;
   hasMore: boolean;
@@ -62,8 +65,7 @@ const DISABLED_KEYS = [
 ];
 
 const defaultSearchData: SearchDataType = {
-  isLoading: true,
-  searchTerm: null,
+  isLoading: false,
   cursor: null,
   nextCursor: null,
   hasMore: true,
@@ -75,17 +77,16 @@ const defaultSearchData: SearchDataType = {
 export default function AdvancedMentionSearch({
   mentionInputRef, // reference to mention-input element
   mentionValue, // mention-input's value containing markup for mentions
-  query, // @mention query to be searched
-  displayValueStartIndex, // @mention query starting index in mention-input's display value i.e. value visible to user
-  displayValueEndIndex, // @mention query ending index in mention-input's display value i.e. value visible to user
+  queryStartIndex, // @mention query starting index in mention-input's display value i.e. value visible to user
+  queryEndIndex, // @mention query ending index in mention-input's display value i.e. value visible to user
   onChange,
   onClose
 }: {
   mentionInputRef: MutableRefObject<HTMLTextAreaElement | null>;
   mentionValue: string;
   query: string;
-  displayValueStartIndex: number;
-  displayValueEndIndex: number;
+  queryStartIndex: number;
+  queryEndIndex: number;
   onChange: (value: string) => void;
   onClose: () => void;
 }) {
@@ -102,7 +103,6 @@ export default function AdvancedMentionSearch({
   const {
     isLoading,
     isError,
-    searchTerm,
     cursor,
     hasMore,
     items,
@@ -188,37 +188,21 @@ export default function AdvancedMentionSearch({
   );
 
   useEffect(() => {
-    setSearchData(prev => ({
-      ...prev,
-      searchTerm: query,
-      cursor: null,
-      hasMore: true,
-      items: []
-    }));
-  }, [query]);
-
-  useEffect(() => {
     const mentionInputEl = mentionInputRef.current;
 
     // set mention-input's caret to correct position
-    mentionInputEl?.setSelectionRange(
-      displayValueEndIndex,
-      displayValueEndIndex
-    );
+    mentionInputEl?.setSelectionRange(queryEndIndex, queryEndIndex);
 
     function handleInputClick() {
       const selectionStart = mentionInputEl?.selectionStart ?? -1;
       // if mention-input's caret moves before @ position
-      if (selectionStart <= displayValueStartIndex) {
+      if (selectionStart <= queryStartIndex) {
         onClose();
         return;
       }
       const substring =
-        mentionInputEl?.value.substring(
-          displayValueStartIndex,
-          selectionStart
-        ) || '';
-      // if mention-input's query contains whitespace
+        mentionInputEl?.value.substring(queryStartIndex, selectionStart) || '';
+      // if mention-input's caret moves after @mention
       if (/\s/.test(substring)) {
         onClose();
         return;
@@ -262,8 +246,8 @@ export default function AdvancedMentionSearch({
       mentionInputEl?.removeEventListener('click', handleInputClick);
     };
   }, [
-    displayValueEndIndex,
-    displayValueStartIndex,
+    queryEndIndex,
+    queryStartIndex,
     focusGridItem,
     mentionInputRef,
     onClose,
@@ -271,12 +255,19 @@ export default function AdvancedMentionSearch({
   ]);
 
   useEffect(() => {
+    // returns null when there is no matching @mention query found from given index
+    const query = getSearchQuery(mentionValue, queryStartIndex);
+    if (query === null) {
+      onClose();
+      return;
+    }
+
     const controller = new AbortController();
 
     // for first time if no filters are applied then -> fetch POAPs while keeping default filters selected
     const shouldUseInitialFilters =
       firstFetchRef.current &&
-      !searchTerm &&
+      !query &&
       selectedToken.value === null &&
       selectedChain.value === null;
 
@@ -287,7 +278,7 @@ export default function AdvancedMentionSearch({
         }
       : {
           limit: LIMIT,
-          searchTerm: searchTerm,
+          searchTerm: query,
           cursor: cursor,
           tokenType: selectedToken.value,
           blockchain: selectedChain.value
@@ -296,9 +287,17 @@ export default function AdvancedMentionSearch({
     fetchData({ input, signal: controller.signal });
 
     return () => {
-      controller.abort();
+      controller?.abort();
     };
-  }, [searchTerm, cursor, selectedToken.value, selectedChain.value, fetchData]);
+  }, [
+    cursor,
+    selectedToken.value,
+    selectedChain.value,
+    fetchData,
+    mentionValue,
+    queryStartIndex,
+    onClose
+  ]);
 
   const handleReloadData = useCallback(() => {
     setSearchData(prev => ({
@@ -345,7 +344,7 @@ export default function AdvancedMentionSearch({
     const value = getUpdatedMentionValue(
       mentionValue,
       mention,
-      displayValueStartIndex
+      queryStartIndex
     );
     if (value !== null) {
       // append space to the value

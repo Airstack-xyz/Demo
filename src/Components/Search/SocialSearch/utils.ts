@@ -14,7 +14,7 @@ export const getSearchItemMention = (item: SocialSearchItem) => {
   return `#⎱${address}⎱(${address}  ethereum null)`;
 };
 
-const SEARCH_TERM_REGEX = /\b(\w{3,})$/;
+const SEARCH_TERM_REGEX = /\b([a-zA-Z0-9.]{3,})$/;
 
 export const getSocialSearchQueryData = (mentionValue: string) => {
   if (mentionValue.length < 3) {
@@ -32,12 +32,12 @@ export const getSocialSearchQueryData = (mentionValue: string) => {
   if (query.startsWith('fc_') || query.startsWith('lens/')) {
     return null;
   }
-  const startIndex = indexInDisplayValue + matched.index;
-  const endIndex = startIndex + query.length;
+  const queryStartIndex = indexInDisplayValue + matched.index;
+  const queryEndIndex = queryStartIndex + query.length;
   return {
     query,
-    startIndex,
-    endIndex
+    queryStartIndex,
+    queryEndIndex
   };
 };
 

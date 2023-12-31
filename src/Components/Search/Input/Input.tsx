@@ -45,8 +45,8 @@ type Option = SearchAIMentionsResults & {
 
 export type AdvancedMentionSearchParams = {
   query: string;
-  startIndex: number;
-  endIndex: number;
+  queryStartIndex: number;
+  queryEndIndex: number;
 };
 
 const mentionTypeMap: Record<MentionType, string> = {
@@ -78,7 +78,7 @@ export function InputWithMention({
   disableSuggestions?: boolean;
   onChange: (value: string) => void;
   onSubmit: (value: string) => void;
-  onAdvancedMentionSearch?: (params: AdvancedMentionSearchParams) => void;
+  onAdvancedMentionSearch?: (data: AdvancedMentionSearchParams) => void;
 }) {
   const [showInputFor, setShowInputFor] = useState<
     'ID_ADDRESS' | 'ID_POAP' | null
@@ -195,8 +195,8 @@ export function InputWithMention({
       }
       onAdvancedMentionSearch({
         query,
-        startIndex: querySequenceStart,
-        endIndex: querySequenceEnd
+        queryStartIndex: querySequenceStart,
+        queryEndIndex: querySequenceEnd
       });
     },
     [onAdvancedMentionSearch]

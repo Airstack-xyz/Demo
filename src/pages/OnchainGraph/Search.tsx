@@ -143,7 +143,7 @@ export const Search = memo(function Search() {
     : tokenHoldersPlaceholder;
 
   const enabledSearchType = isTokenBalances
-    ? 'SOCIALS_SEARCH'
+    ? 'SOCIAL_SEARCH'
     : isMobile
     ? 'MENTION_SEARCH'
     : 'ADVANCED_MENTION_SEARCH';
