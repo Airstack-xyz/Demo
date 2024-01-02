@@ -34,7 +34,7 @@ function ListLoader() {
 type SearchDataType = {
   isLoading: boolean;
   isError?: boolean;
-  items: SocialSearchItem[];
+  items: SocialSearchItem[] | null;
 };
 
 const CONTAINER_ID = 'social-search';
@@ -45,7 +45,7 @@ const DISABLED_KEYS = ['ArrowUp', 'ArrowDown', 'Enter'];
 
 const defaultSearchData: SearchDataType = {
   isLoading: false,
-  items: []
+  items: null
 };
 
 export default function SocialSearch({
@@ -82,7 +82,7 @@ export default function SocialSearch({
       ...prev,
       isLoading: false,
       isError: false,
-      items: [...prev.items, ...nextItems]
+      items: [...(prev.items || []), ...nextItems]
     }));
     setFocusIndex(0);
   }, []);
@@ -227,20 +227,22 @@ export default function SocialSearch({
     handleMentionChange(mention);
   };
 
-  const dataNotFound =
-    !isError && !isLoading && !hasNextPage && items.length === 0;
+  const listLength = items?.length ?? 0;
 
-  const errorOccurred = isError && !isLoading && items.length === 0;
+  const dataNotFound =
+    !isError && !isLoading && !hasNextPage && items?.length === 0;
+
+  const errorOccurred = isError && !isLoading && items?.length === 0;
 
   return (
     <div id={CONTAINER_ID} className="pt-2 px-2.5 relative z-20">
       <InfiniteScroll
         next={handleNext}
-        dataLength={items.length}
+        dataLength={listLength}
         hasMore={hasNextPage}
         loader={null}
         height={306}
-        className="flex flex-col gap-2 no-scrollbar"
+        className="flex flex-col gap-2 pr-1"
       >
         {dataNotFound && (
           <div className="p-2 text-center text-sm text-white w-full">
@@ -252,7 +254,7 @@ export default function SocialSearch({
             Error while fetching data!
           </div>
         )}
-        {items.map((item, index) => (
+        {items?.map((item, index) => (
           <ListItem
             key={`${item.id}_${index}`}
             item={item}

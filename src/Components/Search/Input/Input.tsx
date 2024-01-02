@@ -64,7 +64,6 @@ export function InputWithMention({
   value,
   disabled,
   placeholder,
-  disableHighlighting,
   disableSuggestions,
   onChange,
   onSubmit,
@@ -74,7 +73,6 @@ export function InputWithMention({
   value: string;
   disabled?: boolean;
   placeholder?: string;
-  disableHighlighting?: boolean;
   disableSuggestions?: boolean;
   onChange: (value: string) => void;
   onSubmit: (value: string) => void;
@@ -143,8 +141,8 @@ export function InputWithMention({
 
   useEffect(() => {
     inputRef.current?.setAttribute('autocomplete', 'off');
-    return highlightMention(inputRef.current, disableHighlighting);
-  }, [disableHighlighting]);
+    return highlightMention(inputRef.current, disableSuggestions);
+  }, [disableSuggestions]);
 
   const handleUserInput = useCallback(
     ({ target: { value } }: { target: { value: string } }) => {

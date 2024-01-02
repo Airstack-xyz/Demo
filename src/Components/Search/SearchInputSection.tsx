@@ -176,9 +176,7 @@ export function SearchInputSection({
   const isPrefixSearchIconVisible =
     showPrefixSearchIcon && (!isInputSectionFocused || !value);
 
-  const disabledHighlighting = !enabledSearchType;
-
-  const disableSuggestions = isSocialSearchEnabled || !enabledSearchType;
+  const disableSuggestions = !enabledSearchType || isSocialSearchEnabled;
 
   return (
     <div className="flex-row-center relative h-[50px] z-40">
@@ -204,7 +202,6 @@ export function SearchInputSection({
             mentionInputRef={mentionInputRef}
             value={value}
             placeholder={placeholder}
-            disableHighlighting={disabledHighlighting}
             disableSuggestions={disableSuggestions}
             onChange={handleOnChange}
             onSubmit={handleOnSubmit}
