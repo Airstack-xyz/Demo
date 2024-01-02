@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { SearchAIMentionsQuery } from '../../queries';
-import { createFormattedRawInput } from '../../utils/createQueryParamsWithMention';
-import { ADDRESS_OPTION_ID, POAP_OPTION_ID } from './constants';
+import { SearchAIMentionsQuery } from '../../../queries';
+import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
+import {
+  ADDRESS_OPTION_ID,
+  MENTION_MARKUP,
+  MENTION_REGEX,
+  POAP_OPTION_ID
+} from './constants';
 import {
   MentionData,
   MentionType,
@@ -9,6 +14,15 @@ import {
   SearchAIMentionsResponse,
   SearchAIMentionsResults
 } from './types';
+
+// Used for passing config in utility functions of react-mentions
+export const MENTION_CONFIG = [
+  {
+    displayTransform: (id: string, display: string) => display || id,
+    markup: MENTION_MARKUP,
+    regex: MENTION_REGEX
+  }
+];
 
 export const ID_REGEX = /#⎱.+?⎱\((.+?)\)\s*/g;
 export const NAME_REGEX = /#⎱(.+?)⎱\(.+?\)/g;

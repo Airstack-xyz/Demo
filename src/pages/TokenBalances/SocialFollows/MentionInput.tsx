@@ -1,11 +1,15 @@
 import classNames from 'classnames';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Icon } from '../../../Components/Icon';
-import { InputWithMention } from '../../../Components/Input/Input';
-import { getAllWordsAndMentions } from '../../../Components/Input/utils';
-import { MentionData } from '../../../Components/Input/types';
+import AdvancedMentionSearch from '../../../Components/Search/AdvancedMentionSearch';
+import {
+  AdvancedMentionSearchParams,
+  InputWithMention
+} from '../../../Components/Search/Input/Input';
+import { MentionData } from '../../../Components/Search/Input/types';
+import { getAllWordsAndMentions } from '../../../Components/Search/Input/utils';
+import { PADDING } from '../../../Components/Search/Search';
 import { isMobileDevice } from '../../../utils/isMobileDevice';
-import AdvancedSearch from '../../../Components/AdvancedSearch';
 
 export type MentionOutput = {
   text: string;
@@ -24,19 +28,19 @@ type MentionInputProps = {
   onClear?: () => void;
 };
 
-type AdvancedSearchData = {
+type SearchData = {
   visible: boolean;
-  startIndex: number;
-  endIndex: number;
+  query: string;
+  queryStartIndex: number;
+  queryEndIndex: number;
 };
 
-const defaultAdvancedSearchData: AdvancedSearchData = {
+const defaultSearchData: SearchData = {
   visible: false,
-  startIndex: -1,
-  endIndex: -1
+  query: '',
+  queryStartIndex: -1,
+  queryEndIndex: -1
 };
-
-const padding = '  ';
 
 export function MentionInput({
   defaultValue,
@@ -48,97 +52,90 @@ export function MentionInput({
   onSubmit,
   onClear
 }: MentionInputProps) {
-  const [value, setValue] = useState(defaultValue);
+  const mentionInputRef = useRef<HTMLTextAreaElement>(null);
+  const inputSectionRef = useRef<HTMLDivElement>(null);
 
-  const [advancedSearchData, setAdvancedSearchData] =
-    useState<AdvancedSearchData>(defaultAdvancedSearchData);
+  const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
+
+  const [advancedMentionSearchData, setAdvancedMentionSearchData] =
+    useState<SearchData>(defaultSearchData);
+
+  const [value, setValue] = useState(defaultValue);
 
   const isMobile = isMobileDevice();
 
-  const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
-  const inputSectionRef = useRef<HTMLDivElement>(null);
-  const buttonSectionRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
+    const mentionInputEl = mentionInputRef?.current;
+    function handleMentionInputFocus() {
+      setIsInputSectionFocused(true);
+    }
     function handleClickOutside(event: MouseEvent) {
-      // if click event is outside input section
+      // if click event is outside mention input section
       if (
         inputSectionRef.current &&
         !inputSectionRef.current?.contains(event.target as Node)
       ) {
         setIsInputSectionFocused(false);
-        setAdvancedSearchData(prev => ({ ...prev, visible: false }));
-      }
-      // if click event is from input section not from button section
-      else if (
-        buttonSectionRef.current &&
-        !buttonSectionRef.current?.contains(event.target as Node)
-      ) {
-        setIsInputSectionFocused(true);
+        setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
       }
     }
+    mentionInputEl?.addEventListener('focus', handleMentionInputFocus);
     document.addEventListener('click', handleClickOutside, true);
     return () => {
+      mentionInputEl?.removeEventListener('focus', handleMentionInputFocus);
       document.removeEventListener('click', handleClickOutside, true);
     };
   }, []);
 
-  const handleInputClear = useCallback(() => {
-    if (advancedSearchData.visible) {
-      setAdvancedSearchData(prev => ({ ...prev, visible: false }));
-    } else {
-      setValue('');
-      onClear?.();
-    }
-  }, [advancedSearchData.visible, onClear]);
+  const handleSubmit = useCallback(
+    (val: string) => {
+      setIsInputSectionFocused(false);
+      setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
 
-  const handleInputSubmit = () => {
-    handleSubmit(value);
-  };
+      const rawInput: string[] = [];
+      const words: string[] = [];
+      const mentions: MentionData[] = [];
 
-  const handleSubmit = (mentionValue: string) => {
-    setIsInputSectionFocused(false);
-
-    const rawInput: string[] = [];
-    const words: string[] = [];
-    const mentions: MentionData[] = [];
-
-    getAllWordsAndMentions(mentionValue).forEach(
-      ({ word, mention, rawValue }) => {
+      getAllWordsAndMentions(val).forEach(({ word, mention, rawValue }) => {
         rawInput.push(rawValue);
         words.push(word);
         if (mention) {
           mentions.push(mention);
           return;
         }
-      }
-    );
-
-    const rawText = rawInput.join(padding);
-    const text = words.join(' ');
-
-    if (rawText && validationFn && !validationFn({ text, mentions, rawText })) {
-      return;
-    }
-
-    onSubmit({ text, mentions, rawText });
-
-    setValue(rawText.trim() + padding);
-  };
-
-  const showAdvancedSearch = useCallback(
-    (startIndex: number, endIndex: number) => {
-      setAdvancedSearchData({
-        visible: true,
-        startIndex,
-        endIndex
       });
+
+      const rawText = rawInput.join(PADDING);
+      const text = words.join(' ');
+
+      if (
+        rawText &&
+        validationFn &&
+        !validationFn({ text, mentions, rawText })
+      ) {
+        return;
+      }
+
+      onSubmit({ text, mentions, rawText });
+
+      setValue(rawText.trim() + PADDING);
+    },
+    [onSubmit, validationFn]
+  );
+
+  const showAdvancedMentionSearch = useCallback(
+    (data: AdvancedMentionSearchParams) => {
+      setAdvancedMentionSearchData(prev => ({
+        ...prev,
+        ...data,
+        visible: true
+      }));
     },
     []
   );
 
-  const hideAdvancedSearch = useCallback(() => {
-    setAdvancedSearchData(prev => ({ ...prev, visible: false }));
+  const hideAdvancedMentionSearch = useCallback(() => {
+    setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
   }, []);
 
   const handleAdvanceSearchOnChange = (value: string) => {
@@ -146,10 +143,41 @@ export function MentionInput({
     setTimeout(() => handleSubmit(value), 200);
   };
 
-  const enableAdvancedSearch = !isMobile;
+  const handleInputClear = useCallback(() => {
+    if (advancedMentionSearchData.visible) {
+      setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
+    } else {
+      setValue('');
+      onClear?.();
+    }
+  }, [advancedMentionSearchData.visible, onClear]);
+
+  const handleInputSubmit = () => {
+    handleSubmit(value);
+  };
+
+  const renderButtonContent = () => {
+    if (!value) {
+      return null;
+    }
+    if (!isInputSectionFocused || advancedMentionSearchData.visible) {
+      return (
+        <button type="button" onClick={handleInputClear}>
+          <Icon name="close" width={14} height={14} />
+        </button>
+      );
+    }
+    return (
+      <button type="button" onClick={handleInputSubmit}>
+        <Icon name="search" width={14} height={14} />
+      </button>
+    );
+  };
+
+  const disableAdvanceSearch = isMobile;
 
   return (
-    <div id="sf-input-section" className="relative z-10">
+    <div className="relative z-10">
       <div ref={inputSectionRef}>
         <div
           className={classNames(
@@ -159,45 +187,31 @@ export function MentionInput({
           )}
         >
           <InputWithMention
+            mentionInputRef={mentionInputRef}
             value={value}
             disabled={disabled}
             placeholder={placeholder}
             disableSuggestions={disableSuggestions}
             onChange={setValue}
             onSubmit={handleSubmit}
-            onAdvancedSearch={
-              enableAdvancedSearch ? showAdvancedSearch : undefined
+            onAdvancedMentionSearch={
+              disableAdvanceSearch ? undefined : showAdvancedMentionSearch
             }
           />
-          <div ref={buttonSectionRef} className="flex justify-end pl-2">
-            {!!value && (
-              <>
-                {!isInputSectionFocused || advancedSearchData.visible ? (
-                  <button type="button" onClick={handleInputClear}>
-                    <Icon name="close" width={14} height={14} />
-                  </button>
-                ) : (
-                  <button type="button" onClick={handleInputSubmit}>
-                    <Icon name="search" width={14} height={14} />
-                  </button>
-                )}
-              </>
-            )}
-          </div>
+          <div className="flex justify-end pl-2">{renderButtonContent()}</div>
         </div>
-        {advancedSearchData.visible && (
+        {advancedMentionSearchData.visible && (
           <div className="before-bg-glass before:rounded-18 rounded-18 border-solid-stroke w-[min(60vw,786px)] absolute top-8">
             <div
               className="bg-primary/70 z-[-1] inset-0 fixed"
-              onClick={hideAdvancedSearch}
+              onClick={hideAdvancedMentionSearch}
             />
-            <AdvancedSearch
-              mentionInputSelector="#sf-input-section #mention-input"
+            <AdvancedMentionSearch
+              {...advancedMentionSearchData}
+              mentionInputRef={mentionInputRef}
               mentionValue={value}
-              displayValueStartIndex={advancedSearchData.startIndex}
-              displayValueEndIndex={advancedSearchData.endIndex}
               onChange={handleAdvanceSearchOnChange}
-              onClose={hideAdvancedSearch}
+              onClose={hideAdvancedMentionSearch}
             />
           </div>
         )}
