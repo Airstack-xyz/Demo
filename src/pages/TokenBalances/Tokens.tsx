@@ -31,6 +31,7 @@ type TokenProps = Pick<
   | 'blockchainType'
   | 'sortOrder'
   | 'spamFilter'
+  | 'mintFilter'
   | 'activeSnapshotInfo'
 > & {
   poapDisabled?: boolean;
@@ -44,6 +45,7 @@ function TokensComponent(props: TokenProps) {
     blockchainType,
     sortOrder,
     spamFilter,
+    mintFilter,
     activeSnapshotInfo,
     includeERC20,
     poapDisabled
@@ -60,6 +62,7 @@ function TokensComponent(props: TokenProps) {
     blockchainType,
     sortOrder,
     spamFilter,
+    mintFilter,
     activeSnapshotInfo,
     includeERC20
   };

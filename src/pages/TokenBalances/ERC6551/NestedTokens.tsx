@@ -89,6 +89,8 @@ export function NestedTokens({
       tokenType: '',
       blockchainType: [],
       sortOrder: 'DESC',
+      spamFilter: '0',
+      mintFilter: '0',
       activeSnapshotInfo: activeSnapshotInfo || ''
     };
   }, [account.identity, activeSnapshotInfo]);
@@ -160,7 +162,6 @@ export function NestedTokens({
             <Tokens
               {...tokensProps}
               blockchainType={[blockchain]}
-              spamFilter="0"
               poapDisabled
               includeERC20
             />
