@@ -1,3 +1,7 @@
+export interface TransferType {
+  type: string;
+}
+
 export interface TokenType {
   amount: string;
   tokenType: string;
@@ -5,6 +9,7 @@ export interface TokenType {
   tokenAddress: string;
   formattedAmount: number;
   tokenNfts: TokenNfts;
+  tokenTransfers?: TransferType[];
   token: Token;
   tokenId?: string;
   _tokenId?: string;

@@ -19,6 +19,7 @@ export type CachedQuery = {
   blockchainType: string[];
   sortOrder: string;
   spamFilter: string;
+  mintFilter: string;
   activeTokenInfo: string;
   activeSnapshotInfo: string;
   activeSocialInfo: string;
@@ -168,6 +169,7 @@ export function useSearchInput(
       blockchainType: getData('blockchainType', true),
       sortOrder: getData('sortOrder'),
       spamFilter: getData('spamFilter'),
+      mintFilter: getData('mintFilter'),
       activeSocialInfo: searchParams.get('activeSocialInfo') || ''
     };
 

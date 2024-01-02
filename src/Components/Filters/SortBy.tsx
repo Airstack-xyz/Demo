@@ -3,9 +3,9 @@ import classNames from 'classnames';
 import { useCallback, useMemo } from 'react';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { Dropdown, Option } from '../Dropdown';
-import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
+import { TooltipWrapper } from './TooltipWrapper';
 
 export type SortOrderType = 'DESC' | 'ASC';
 
@@ -35,17 +35,10 @@ export function SortBy({
   disabledTooltipText?: string;
 }) {
   const [searchInputs, setData] = useSearchInput();
-  const {
-    tooltipRef,
-    containerRef,
-    handleTooltipShow,
-    handleTooltipHide,
-    handleTooltipMove
-  } = useDisabledTooltip();
 
   const sortOrder = searchInputs.sortOrder as SortOrderType;
 
-  const enableTooltipHover = disabled && Boolean(disabledTooltipText);
+  const enableTooltip = disabled && Boolean(disabledTooltipText);
 
   const isFilterDisabled = disabled;
 
@@ -73,12 +66,9 @@ export function SortBy({
       onChange={handleChange}
       options={sortOptions}
       renderPlaceholder={(selected, isOpen) => (
-        <div
-          className="relative"
-          ref={containerRef}
-          onMouseEnter={enableTooltipHover ? handleTooltipShow : undefined}
-          onMouseLeave={enableTooltipHover ? handleTooltipHide : undefined}
-          onMouseMove={enableTooltipHover ? handleTooltipMove : undefined}
+        <TooltipWrapper
+          tooltipEnabled={enableTooltip}
+          tooltipText={disabledTooltipText}
         >
           <FilterPlaceholder
             icon="sort"
@@ -86,15 +76,10 @@ export function SortBy({
             isDisabled={isFilterDisabled}
             label={selected[0].label}
             className={classNames({
-              'disabled:cursor-auto': enableTooltipHover // for not showing disabled cursor for tooltip
+              'disabled:cursor-auto': enableTooltip // for not showing disabled cursor for tooltip
             })}
           />
-          <DisabledTooltip
-            isEnabled={enableTooltipHover}
-            tooltipRef={tooltipRef}
-            tooltipText={disabledTooltipText}
-          />
-        </div>
+        </TooltipWrapper>
       )}
       renderOption={({ option, isSelected, setSelected }) => (
         <FilterOption
@@ -106,7 +91,7 @@ export function SortBy({
         />
       )}
       footerComponent={
-        <div className="text-text-secondary text-[10px] pt-1 pb-2 pl-[30px] pr-2">
+        <div className="text-white text-[10px] pt-1 pb-2 pl-[30px] pr-2">
           *NFTs & POAPs will get sorted separately
         </div>
       }

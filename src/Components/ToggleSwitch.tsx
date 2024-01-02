@@ -17,7 +17,7 @@ export function ToggleSwitch({
 }) {
   return (
     <button
-      className={classNames('flex items-center', className)}
+      className={classNames('flex items-center disabled:opacity-50', className)}
       disabled={disabled}
       onClick={onClick}
     >
