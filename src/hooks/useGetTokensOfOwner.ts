@@ -15,6 +15,10 @@ import { UserInputs } from './useSearchInput';
 const LIMIT = 20;
 const LIMIT_COMBINATIONS = 25;
 
+function filterByMintsOnly(tokens: TokenType[]) {
+  return tokens?.filter(item => item?.tokenTransfers?.[0]?.type === 'MINT');
+}
+
 function filterByIsSpam(tokens: TokenType[]) {
   return tokens?.filter(item => item?.token?.isSpam !== true);
 }
@@ -38,10 +42,12 @@ type Inputs = Pick<
   | 'blockchainType'
   | 'sortOrder'
   | 'spamFilter'
+  | 'mintFilter'
   | 'activeSnapshotInfo'
 > & {
   includeERC20?: boolean;
 };
+
 export function useGetTokensOfOwner(
   inputs: Inputs,
   onDataReceived: (tokens: TokenType[]) => void
@@ -52,6 +58,7 @@ export function useGetTokensOfOwner(
     blockchainType,
     sortOrder,
     spamFilter,
+    mintFilter,
     activeSnapshotInfo,
     includeERC20
   } = inputs;
@@ -59,6 +66,12 @@ export function useGetTokensOfOwner(
   const [loading, setLoading] = useState(false);
   const [processedTokensCount, setProcessedTokensCount] = useState(0);
   const tokensRef = useRef<TokenType[]>([]);
+
+  const isPoap = tokenType === 'POAP';
+  const is6551 = tokenType === 'ERC6551';
+
+  const isSpamFilteringEnabled = spamFilter !== '0';
+  const isMintFilteringEnabled = mintFilter === '1';
 
   const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
@@ -77,18 +90,18 @@ export function useGetTokensOfOwner(
         snapshotFilter: snapshotInfo.appliedFilter
       });
     }
-    return getNftWithCommonOwnersQuery(owners, blockchain);
+    return getNftWithCommonOwnersQuery({
+      owners,
+      blockchain: blockchain,
+      mintsOnly: isMintFilteringEnabled
+    });
   }, [
     blockchainType,
     snapshotInfo.isApplicable,
     snapshotInfo.appliedFilter,
-    owners
+    owners,
+    isMintFilteringEnabled
   ]);
-
-  const isPoap = tokenType === 'POAP';
-  const is6551 = tokenType === 'ERC6551';
-
-  const isSpamFilteringEnabled = spamFilter !== '0';
 
   const [
     fetchTokens,
@@ -180,6 +193,20 @@ export function useGetTokensOfOwner(
       });
     }
 
+    if (isMintFilteringEnabled) {
+      tokens = filterByMintsOnly(tokens);
+      if (tokens.length > 0 && tokens[0]?._common_tokens) {
+        tokens = (tokens as CommonTokenType[])
+          .map(token => {
+            token._common_tokens = filterByMintsOnly(
+              token._common_tokens || []
+            );
+            return token;
+          })
+          .filter(token => Boolean(token?._common_tokens?.length));
+      }
+    }
+
     if (isSpamFilteringEnabled) {
       tokens = filterByIsSpam(tokens);
       if (tokens.length > 0 && tokens[0]?._common_tokens) {
@@ -206,6 +233,7 @@ export function useGetTokensOfOwner(
     getNextPage,
     hasNextPage,
     is6551,
+    isMintFilteringEnabled,
     isSpamFilteringEnabled,
     onDataReceived,
     snapshotInfo.isApplicable,

@@ -161,11 +161,13 @@ export async function fetchMutualFollowings(address: string[]) {
       if (!following.followingAddress) {
         continue;
       }
-      let match = following.followingAddress.addresses.some(x => x === address);
+      let match = following.followingAddress?.addresses?.some(
+        x => x === address
+      );
       match =
         match ||
         Boolean(
-          following.followingAddress.domains?.some(x => x.name === address)
+          following.followingAddress?.domains?.some(x => x.name === address)
         );
 
       if (match) {

@@ -94,6 +94,10 @@ function Loader() {
   );
 }
 
+function filterByMintsOnly(tokens: TokenType[]) {
+  return tokens?.filter(item => item?.tokenTransfers?.[0]?.type === 'MINT');
+}
+
 function filterByIsSpam(tokens: TokenType[]) {
   return tokens?.filter(item => item?.token?.isSpam !== true);
 }
@@ -124,6 +128,7 @@ export function ERC20Tokens() {
       blockchainType,
       sortOrder,
       spamFilter,
+      mintFilter,
       activeTokenInfo,
       activeSnapshotInfo
     },
@@ -135,6 +140,7 @@ export function ERC20Tokens() {
   const isCombination = owners.length > 1;
 
   const isSpamFilteringEnabled = spamFilter !== '0';
+  const isMintFilteringEnabled = mintFilter === '1';
 
   const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
@@ -153,12 +159,17 @@ export function ERC20Tokens() {
         snapshotFilter: snapshotInfo.appliedFilter
       });
     }
-    return getNftWithCommonOwnersQuery(owners, blockchain);
+    return getNftWithCommonOwnersQuery({
+      owners,
+      blockchain,
+      mintsOnly: isMintFilteringEnabled
+    });
   }, [
     blockchainType,
     snapshotInfo.isApplicable,
     snapshotInfo.appliedFilter,
-    owners
+    owners,
+    isMintFilteringEnabled
   ]);
 
   const handleData = useCallback(
@@ -183,6 +194,10 @@ export function ERC20Tokens() {
         filteredTokens.push(...processTokens(tokenBalances));
       });
 
+      if (isMintFilteringEnabled) {
+        filteredTokens = filterByMintsOnly(filteredTokens);
+      }
+
       if (isSpamFilteringEnabled) {
         filteredTokens = filterByIsSpam(filteredTokens);
       }
@@ -190,7 +205,7 @@ export function ERC20Tokens() {
       tokensRef.current = [...tokensRef.current, ...filteredTokens];
       setTokens(prevTokens => [...prevTokens, ...filteredTokens]);
     },
-    [isSpamFilteringEnabled, snapshotInfo.isApplicable]
+    [isMintFilteringEnabled, isSpamFilteringEnabled, snapshotInfo.isApplicable]
   );
 
   const [fetch, { data: erc20Data, pagination }] = useLazyQueryWithPagination(

@@ -10,9 +10,9 @@ import {
   getActiveSnapshotInfo
 } from '../../utils/activeSnapshotInfoString';
 import { Dropdown, Option } from '../Dropdown';
-import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
+import { TooltipWrapper } from './TooltipWrapper';
 
 export type BlockchainFilterType = 'all' | TokenBlockchain | SnapshotBlockchain;
 
@@ -70,13 +70,6 @@ export function BlockchainFilter({
   disabledTooltipText?: string;
 }) {
   const [searchInputs, setData] = useSearchInput();
-  const {
-    tooltipRef,
-    containerRef,
-    handleTooltipShow,
-    handleTooltipHide,
-    handleTooltipMove
-  } = useDisabledTooltip();
 
   const activeSnapshotInfo = searchInputs.activeSnapshotInfo;
   const blockchainType = searchInputs.blockchainType as BlockchainFilterType[];
@@ -86,7 +79,7 @@ export function BlockchainFilter({
     [activeSnapshotInfo]
   );
 
-  const enableTooltipHover = disabled && Boolean(disabledTooltipText);
+  const enableTooltip = disabled && Boolean(disabledTooltipText);
 
   const isFilterDisabled = disabled;
 
@@ -127,12 +120,9 @@ export function BlockchainFilter({
       options={options}
       disabled={isFilterDisabled}
       renderPlaceholder={(selected, isOpen) => (
-        <div
-          className="relative"
-          ref={containerRef}
-          onMouseEnter={enableTooltipHover ? handleTooltipShow : undefined}
-          onMouseLeave={enableTooltipHover ? handleTooltipHide : undefined}
-          onMouseMove={enableTooltipHover ? handleTooltipMove : undefined}
+        <TooltipWrapper
+          tooltipEnabled={enableTooltip}
+          tooltipText={disabledTooltipText}
         >
           <FilterPlaceholder
             icon="blockchain-filter"
@@ -140,15 +130,10 @@ export function BlockchainFilter({
             isDisabled={isFilterDisabled}
             label={selected[0].label}
             className={classNames({
-              'disabled:cursor-auto': enableTooltipHover // for not showing disabled cursor for tooltip
+              'disabled:cursor-auto': enableTooltip // for not showing disabled cursor for tooltip
             })}
           />
-          <DisabledTooltip
-            isEnabled={enableTooltipHover}
-            tooltipRef={tooltipRef}
-            tooltipText={disabledTooltipText}
-          />
-        </div>
+        </TooltipWrapper>
       )}
       renderOption={({ option, isSelected, setSelected }) => (
         <FilterOption
