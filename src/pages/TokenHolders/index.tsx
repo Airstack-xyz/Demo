@@ -5,7 +5,6 @@ import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import { defaultSortOrder } from '../../Components/Filters/SortBy';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Icon } from '../../Components/Icon';
-import { getAllWordsAndMentions } from '../../Components/Input/utils';
 import { Layout } from '../../Components/Layout';
 import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
@@ -60,6 +59,7 @@ import { HoldersOverview } from './Overview/Overview';
 import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { getRequestFilters } from './OverviewDetails/Tokens/filters';
 import { Tokens } from './Tokens/Tokens';
+import { getAllWordsAndMentions } from '../../Components/Input/utils';
 
 export function TokenHolders() {
   const [
