@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 export const ListItemLoader = () => {
   return (
-    <div className="h-[38px] my-0.5 shrink-0 rounded-18 bg-[linear-gradient(111deg,#ffffff0f_-8.95%,#ffffff00_114%)] animate-pulse" />
+    <div className="h-[36px] my-0.5 shrink-0 rounded-18 bg-[linear-gradient(111deg,#ffffff0f_-8.95%,#ffffff00_114%)] animate-pulse" />
   );
 };
 

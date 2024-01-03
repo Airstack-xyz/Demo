@@ -17,7 +17,7 @@ import {
 } from './types';
 import { getSearchItemMention, getUpdatedMentionValue } from './utils';
 
-const LOADING_ITEM_COUNT = 10;
+const LOADING_ITEM_COUNT = 8;
 
 const loadingItems = new Array(LOADING_ITEM_COUNT).fill(0);
 
@@ -238,18 +238,18 @@ export default function SocialSearch({
   const errorOccurred = isError && !isLoading && items?.length === 0;
 
   return (
-    <div id={CONTAINER_ID} className="pt-2 pb-4 px-2.5 relative z-20">
+    <div id={CONTAINER_ID} className="py-2 px-2.5 relative z-20">
       <InfiniteScroll
         next={handleNext}
         dataLength={listLength}
         hasMore={hasNextPage}
         loader={null}
-        height={306}
+        height={302}
         className="flex flex-col gap-2 pr-1"
       >
         {dataNotFound && (
           <div className="p-2 text-center text-sm text-white w-full">
-            No results to display!
+            Couldn't find any Lens or Farcaster profile
           </div>
         )}
         {errorOccurred && (
