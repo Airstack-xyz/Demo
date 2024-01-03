@@ -239,35 +239,37 @@ export default function SocialSearch({
 
   return (
     <div id={CONTAINER_ID} className="py-2 px-2.5 relative z-20">
-      <InfiniteScroll
-        next={handleNext}
-        dataLength={listLength}
-        hasMore={hasNextPage}
-        loader={null}
-        height={302}
-        className="flex flex-col gap-2 pr-1"
-      >
-        {dataNotFound && (
-          <div className="p-2 text-center text-sm text-white w-full">
-            Couldn't find any Lens or Farcaster profile
-          </div>
-        )}
-        {errorOccurred && (
-          <div className="p-2 text-center text-sm text-white w-full">
-            Error while fetching data!
-          </div>
-        )}
-        {items?.map((item, index) => (
-          <ListItem
-            key={`${item.id}_${index}`}
-            item={item}
-            isFocused={focusIndex === index}
-            onClick={() => handleItemSelect(item)}
-            onMouseEnter={() => setFocusIndex(index)}
-          />
-        ))}
-        {isLoading && <ListLoader />}
-      </InfiniteScroll>
+      <div id="social-search-scroll" className="max-h-[302px] overflow-auto">
+        <InfiniteScroll
+          next={handleNext}
+          dataLength={listLength}
+          hasMore={hasNextPage}
+          loader={null}
+          scrollableTarget="social-search-scroll"
+          className="flex flex-col gap-2 pr-1"
+        >
+          {dataNotFound && (
+            <div className="p-2 text-center text-sm text-white w-full">
+              Couldn't find any Lens or Farcaster profile
+            </div>
+          )}
+          {errorOccurred && (
+            <div className="p-2 text-center text-sm text-white w-full">
+              Error while fetching data!
+            </div>
+          )}
+          {items?.map((item, index) => (
+            <ListItem
+              key={`${item.id}_${index}`}
+              item={item}
+              isFocused={focusIndex === index}
+              onClick={() => handleItemSelect(item)}
+              onMouseEnter={() => setFocusIndex(index)}
+            />
+          ))}
+          {isLoading && <ListLoader />}
+        </InfiniteScroll>
+      </div>
     </div>
   );
 }

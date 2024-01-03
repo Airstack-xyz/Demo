@@ -1,6 +1,6 @@
-import React from 'react';
-import { SocialSearchItem } from './types';
 import classNames from 'classnames';
+import { pluralize } from '../../../utils';
+import { SocialSearchItem } from './types';
 
 export const ListItemLoader = () => {
   return (
@@ -47,6 +47,9 @@ export default function ListItem({
     >
       <img src={image} className="h-4 w-4 rounded-full mr-1" />
       <span className="text-sm text-white">{formattedProfileName}</span>
+      <span className="text-[10px] text-text-secondary ml-2">
+        {pluralize(item.followerCount, 'follower')}
+      </span>
     </button>
   );
 }
