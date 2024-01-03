@@ -190,7 +190,7 @@ export function SearchInputSection({
         <div
           className={classNames(
             'flex items-center h-[50px] w-full rounded-18 px-4 py-3 transition-all z-20 relative',
-            advancedMentionSearchData.visible || socialSearchData.visible
+            isInputSectionFocused
               ? 'bg-[linear-gradient(137deg,#ffffff0f_-8.95%,#ffffff00_114%)]'
               : ''
           )}

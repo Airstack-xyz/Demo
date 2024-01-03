@@ -14,7 +14,10 @@ export const getSearchItemMention = (item: SocialSearchItem) => {
   return `#⎱${address}⎱(${address}  ethereum null)`;
 };
 
-const SEARCH_TERM_REGEX = /\b([a-zA-Z0-9.]{3,})$/;
+const SEARCH_TERM_REGEX = /\b([a-zA-Z0-9_.:/@]{3,})$/;
+
+// regex to stop searching if query matches it
+const SEARCH_STOP_REGEX = /^((fc_fname:|lens\/@).*|.*(.lens))$/;
 
 export const getSocialSearchQueryData = (mentionValue: string) => {
   if (mentionValue.length < 3) {
@@ -28,8 +31,8 @@ export const getSocialSearchQueryData = (mentionValue: string) => {
   if (!matched || matched.index === undefined) {
     return null;
   }
-  const query = matched[1];
-  if (query.startsWith('fc_') || query.startsWith('lens/')) {
+  const query = matched[1].toLowerCase();
+  if (SEARCH_STOP_REGEX.test(query)) {
     return null;
   }
   const queryStartIndex = indexInDisplayValue + matched.index;

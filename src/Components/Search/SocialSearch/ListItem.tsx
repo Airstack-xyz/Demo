@@ -4,7 +4,7 @@ import classNames from 'classnames';
 
 export const ListItemLoader = () => {
   return (
-    <div className="h-[34px] shrink-0 rounded-18 bg-secondary animate-pulse" />
+    <div className="h-[38px] my-0.5 shrink-0 rounded-18 bg-[linear-gradient(111deg,#ffffff0f_-8.95%,#ffffff00_114%)] animate-pulse" />
   );
 };
 
@@ -29,6 +29,11 @@ export default function ListItem({
   onMouseEnter
 }: ListItemProps) {
   const image = iconMap[item.dappName];
+
+  // for lens social - show profile name without 'lens/@'
+  const formattedProfileName =
+    item.dappName === 'lens' ? item.profileName.substring(6) : item.profileName;
+
   return (
     <button
       tabIndex={-1}
@@ -41,7 +46,7 @@ export default function ListItem({
       onMouseEnter={onMouseEnter}
     >
       <img src={image} className="h-4 w-4 rounded-full mr-1" />
-      <span className="text-sm text-white">{item.profileName}</span>
+      <span className="text-sm text-white">{formattedProfileName}</span>
     </button>
   );
 }

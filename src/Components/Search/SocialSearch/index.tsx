@@ -67,9 +67,9 @@ export default function SocialSearch({
 }) {
   const [searchData, setSearchData] =
     useState<SearchDataType>(defaultSearchData);
-  const [focusIndex, setFocusIndex] = useState(0);
+  const [focusIndex, setFocusIndex] = useState<number | null>(null);
 
-  const focusIndexRef = useRef(0);
+  const focusIndexRef = useRef<number | null>(null);
 
   // store refs so that it can be used in events without triggering useEffect
   focusIndexRef.current = focusIndex;
@@ -84,7 +84,6 @@ export default function SocialSearch({
       isError: false,
       items: [...(prev.items || []), ...nextItems]
     }));
-    setFocusIndex(0);
   }, []);
 
   const handleError = useCallback(() => {
@@ -109,10 +108,13 @@ export default function SocialSearch({
     const gridItems = document.querySelectorAll<HTMLButtonElement>(
       `#${CONTAINER_ID} .infinite-scroll-component button`
     );
-    const itemIndex = Math.min(
-      Math.max(focusIndexRef.current + delta, 0),
-      gridItems.length
-    );
+    const itemIndex =
+      focusIndexRef.current === null
+        ? 0
+        : Math.min(
+            Math.max(focusIndexRef.current + delta, 0),
+            gridItems.length
+          );
     const activeItem = gridItems[itemIndex];
     if (activeItem) {
       activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -124,16 +126,13 @@ export default function SocialSearch({
     const gridItems = document.querySelectorAll<HTMLButtonElement>(
       `#${CONTAINER_ID} .infinite-scroll-component button`
     );
-    const itemIndex = focusIndexRef.current;
+    const itemIndex = focusIndexRef.current || 0;
     const activeItem = gridItems[itemIndex];
     activeItem?.click();
   }, []);
 
   useEffect(() => {
     const mentionInputEl = mentionInputRef.current;
-
-    // set mention-input's caret to correct position
-    mentionInputEl?.setSelectionRange(queryEndIndex, queryEndIndex);
 
     function handleInputClick() {
       const selectionStart = mentionInputEl?.selectionStart ?? -1;
@@ -144,6 +143,10 @@ export default function SocialSearch({
     }
 
     function handleKeyDown(event: KeyboardEvent) {
+      // allow enter press if no item is focussed
+      if (event.key === 'Enter' && focusIndexRef.current === null) {
+        return;
+      }
       // disable mention-input's certain keys, so that they can be used in advanced search
       if (DISABLED_KEYS.includes(event.key)) {
         event.stopImmediatePropagation();
@@ -235,7 +238,7 @@ export default function SocialSearch({
   const errorOccurred = isError && !isLoading && items?.length === 0;
 
   return (
-    <div id={CONTAINER_ID} className="pt-2 px-2.5 relative z-20">
+    <div id={CONTAINER_ID} className="pt-2 pb-4 px-2.5 relative z-20">
       <InfiniteScroll
         next={handleNext}
         dataLength={listLength}

@@ -18,7 +18,7 @@ import { addAndRemoveCombinationPlaceholder } from './utils';
 export const tokenHoldersPlaceholder =
   'Type "@" to search by name, or enter any contract address, or any POAP event ID';
 export const tokenBalancesPlaceholder =
-  'Enter 0x, name.eth, fc_fname:name, or name.lens';
+  'Search profiles by name OR Enter 0x, name.eth, fc_fname:name, lens/@name';
 
 export const ALLOWED_ADDRESS_REGEX =
   /0x[a-fA-F0-9]+|.*\.(eth|lens|cb\.id)|(fc_fname:|lens\/@).*/;
