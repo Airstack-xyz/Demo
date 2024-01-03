@@ -301,16 +301,7 @@ export default function AdvancedMentionSearch({
     return () => {
       controller?.abort();
     };
-  }, [
-    cursor,
-    selectedToken.value,
-    selectedChain.value,
-    fetchData,
-    mentionValue,
-    queryStartIndex,
-    onClose,
-    searchTerm
-  ]);
+  }, [cursor, fetchData, searchTerm, selectedChain.value, selectedToken.value]);
 
   const handleReloadData = useCallback(() => {
     setSearchData(prev => ({
