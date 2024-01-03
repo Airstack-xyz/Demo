@@ -136,8 +136,8 @@ export const SearchAIMentionsQuery = `
   }
 `;
 
-export const AdvancedSearchAIMentionsQuery = `
-  query AdvancedSearchAIMentions($input: SearchAIMentionsInput!) {
+export const AdvancedMentionSearchQuery = `
+  query GetAIMentions($input: SearchAIMentionsInput!) {
     SearchAIMentions(input: $input) {
       results {
         type
@@ -161,6 +161,18 @@ export const AdvancedSearchAIMentionsQuery = `
     }
   }
 `;
+
+export const SocialSearchQuery = `query GetSocials($searchRegex: [String!], $limit: Int) {
+  Socials(
+    input: {filter: {profileName: {_regex_in: $searchRegex}}, blockchain: ethereum, limit: $limit}
+  ) {
+    Social {
+      id
+      profileName
+      dappName
+    }
+  }
+}`;
 
 const getTokenOwnerSubQuery = (blockchain: string) => {
   return `${blockchain}: TokenBalances(

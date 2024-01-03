@@ -1,5 +1,6 @@
 import {
   KeyboardEventHandler,
+  MutableRefObject,
   useCallback,
   useEffect,
   useMemo,
@@ -42,6 +43,12 @@ type Option = SearchAIMentionsResults & {
   display: string;
 };
 
+export type AdvancedMentionSearchParams = {
+  query: string;
+  queryStartIndex: number;
+  queryEndIndex: number;
+};
+
 const mentionTypeMap: Record<MentionType, string> = {
   [MentionType.NFT_COLLECTION]: 'NFT',
   [MentionType.DAO_TOKEN]: 'DAO',
@@ -53,21 +60,23 @@ const mentionTypeMap: Record<MentionType, string> = {
 const noop = () => {};
 
 export function InputWithMention({
+  mentionInputRef,
   value,
   disabled,
   placeholder,
   disableSuggestions,
   onChange,
   onSubmit,
-  onAdvancedSearch
+  onAdvancedMentionSearch
 }: {
+  mentionInputRef?: MutableRefObject<HTMLTextAreaElement | null>;
   value: string;
   disabled?: boolean;
   placeholder?: string;
   disableSuggestions?: boolean;
   onChange: (value: string) => void;
   onSubmit: (value: string) => void;
-  onAdvancedSearch?: (startIndex: number, endIndex: number) => void;
+  onAdvancedMentionSearch?: (data: AdvancedMentionSearchParams) => void;
 }) {
   const [showInputFor, setShowInputFor] = useState<
     'ID_ADDRESS' | 'ID_POAP' | null
@@ -77,7 +86,7 @@ export function InputWithMention({
     left: 'auto',
     right: 'auto'
   });
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const allowSubmitRef = useRef(true);
   const valueRef = useRef(value);
   const lastPositionOfCaretRef = useRef(0);
@@ -92,6 +101,16 @@ export function InputWithMention({
     setLoading(false);
     return res;
   }, []);
+
+  const handleInputRef = useCallback(
+    (el: HTMLTextAreaElement) => {
+      inputRef.current = el;
+      if (mentionInputRef) {
+        mentionInputRef.current = el; // expose mention input to outside
+      }
+    },
+    [mentionInputRef]
+  );
 
   const handlePaste = useCallback((event: ClipboardEvent) => {
     if (event.target !== inputRef.current) {
@@ -159,22 +178,27 @@ export function InputWithMention({
     []
   );
 
-  const triggerAdvancedSearch = useCallback(() => {
-    if (!onAdvancedSearch) {
-      return;
-    }
-
-    const inputValue = inputRef.current?.value || '';
-    const endIndex = inputRef.current?.selectionStart ?? -1;
-    let startIndex = endIndex;
-
-    // find start index of query
-    while (inputValue[startIndex] !== '@' && startIndex > 0) {
-      startIndex--;
-    }
-
-    onAdvancedSearch(startIndex, endIndex);
-  }, [onAdvancedSearch]);
+  const triggerAdvancedMentionSearch = useCallback(
+    ({
+      query,
+      querySequenceStart,
+      querySequenceEnd
+    }: {
+      query: string;
+      querySequenceStart: number;
+      querySequenceEnd: number;
+    }) => {
+      if (!onAdvancedMentionSearch) {
+        return;
+      }
+      onAdvancedMentionSearch({
+        query,
+        queryStartIndex: querySequenceStart,
+        queryEndIndex: querySequenceEnd
+      });
+    },
+    [onAdvancedMentionSearch]
+  );
 
   const onAddSuggestion = useCallback((id: string) => {
     // allow submission only if suggestion is clicked
@@ -281,7 +305,6 @@ export function InputWithMention({
           blockchain: capitalizeFirstLetter(mention.blockchain || '')
         }));
       }
-
       return [];
     },
     [getMentions]
@@ -293,7 +316,7 @@ export function InputWithMention({
   );
 
   const getData = useCallback(
-    async (query: string, callback: (data: unknown) => void) => {
+    async ({ query }: { query: string }, callback: (data: unknown) => void) => {
       // Prevent debouncedFetch from invoking after selecting suggestion
       // It solves the issue of the dropdown skeleton appearing for 2 seconds again
       if (isSuggestionClickedRef.current) {
@@ -380,7 +403,7 @@ export function InputWithMention({
         value={value}
         onChange={handleUserInput}
         spellCheck={false}
-        inputRef={inputRef}
+        inputRef={handleInputRef}
         disabled={showInputFor || disabled}
         customChildren={
           showInputFor ? (
@@ -408,8 +431,8 @@ export function InputWithMention({
           data={
             disableSuggestions
               ? noop
-              : onAdvancedSearch
-              ? triggerAdvancedSearch
+              : onAdvancedMentionSearch
+              ? triggerAdvancedMentionSearch
               : getData
           }
         />
