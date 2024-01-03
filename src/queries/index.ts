@@ -164,12 +164,13 @@ export const AdvancedMentionSearchQuery = `
 
 export const SocialSearchQuery = `query GetSocials($searchRegex: [String!], $limit: Int) {
   Socials(
-    input: {filter: {profileName: {_regex_in: $searchRegex}}, blockchain: ethereum, limit: $limit}
+    input: {filter: {profileName: {_regex_in: $searchRegex}}, blockchain: ethereum, order: {followerCount: DESC}, limit: $limit}
   ) {
     Social {
       id
       profileName
       dappName
+      followerCount
     }
   }
 }`;

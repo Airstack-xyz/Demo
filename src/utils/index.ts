@@ -29,10 +29,11 @@ export const pluralize = (
   noun: string | null | undefined,
   suffix = 's'
 ) => {
-  if (!count || !noun) {
+  if (count == null || !noun) {
     return '';
   }
-  return `${count} ${noun}${count > 1 ? suffix : ''}`;
+  // eslint-disable-next-line no-irregular-whitespace
+  return `${count} ${noun}${count > 1 ? suffix : ''}`;
 };
 
 export function capitalizeFirstLetter(str: string) {
