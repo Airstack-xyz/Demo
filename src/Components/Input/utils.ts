@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { SearchAIMentionsQuery } from '../../../queries';
-import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
+import { SearchAIMentionsQuery } from '../../queries';
+import { createFormattedRawInput } from '../../utils/createQueryParamsWithMention';
 import {
   ADDRESS_OPTION_ID,
   MENTION_MARKUP,

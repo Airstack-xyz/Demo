@@ -8,7 +8,7 @@ import {
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { AdvancedMentionSearchQuery } from '../../../queries';
 import { Icon } from '../../Icon';
-import { fetchAIMentions } from '../Input/utils';
+import { fetchAIMentions } from '../../Input/utils';
 import { PADDING } from '../Search';
 import BlockchainFilter, {
   BlockchainSelectOption,

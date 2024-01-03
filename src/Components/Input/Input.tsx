@@ -7,8 +7,8 @@ import {
   useRef,
   useState
 } from 'react';
-import { capitalizeFirstLetter, pluralize } from '../../../utils';
-import { Icon } from '../../Icon';
+import { capitalizeFirstLetter, pluralize } from '../../utils';
+import { Icon } from '../Icon';
 import { AddressInput } from './AddressInput';
 import {
   ADDRESS_OPTION_ID,
@@ -17,7 +17,7 @@ import {
   MENTION_REGEX,
   POAP_OPTION_ID
 } from './constants';
-import ImageWithFallback from '../../ImageWithFallback';
+import ImageWithFallback from '../ImageWithFallback';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { Mention, MentionsInput } from './react-mentions';

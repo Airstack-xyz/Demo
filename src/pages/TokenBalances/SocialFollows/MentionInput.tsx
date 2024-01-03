@@ -5,9 +5,9 @@ import AdvancedMentionSearch from '../../../Components/Search/AdvancedMentionSea
 import {
   AdvancedMentionSearchParams,
   InputWithMention
-} from '../../../Components/Search/Input/Input';
-import { MentionData } from '../../../Components/Search/Input/types';
-import { getAllWordsAndMentions } from '../../../Components/Search/Input/utils';
+} from '../../../Components/Input/Input';
+import { MentionData } from '../../../Components/Input/types';
+import { getAllWordsAndMentions } from '../../../Components/Input/utils';
 import { PADDING } from '../../../Components/Search/Search';
 import { isMobileDevice } from '../../../utils/isMobileDevice';
 

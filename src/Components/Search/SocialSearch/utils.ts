@@ -5,8 +5,8 @@ import {
   mapPlainTextIndex
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
-} from '../Input/react-mentions/utils';
-import { MENTION_CONFIG } from '../Input/utils';
+} from '../../Input/react-mentions/utils';
+import { MENTION_CONFIG } from '../../Input/utils';
 import { SocialSearchItem } from './types';
 
 export const getSearchItemMention = (item: SocialSearchItem) => {

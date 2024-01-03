@@ -1,7 +1,10 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { mapPlainTextIndex, getPlainText } from '../Input/react-mentions/utils';
-import { MENTION_CONFIG } from '../Input/utils';
+import {
+  mapPlainTextIndex,
+  getPlainText
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+} from '../../Input/react-mentions/utils';
+import { MENTION_CONFIG } from '../../Input/utils';
 import { AdvancedMentionSearchItem } from './types';
 
 export const getSearchItemMention = (item: AdvancedMentionSearchItem) => {

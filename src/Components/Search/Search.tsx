@@ -10,7 +10,7 @@ import {
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { showToast } from '../../utils/showToast';
-import { getAllMentionDetails, getAllWordsAndMentions } from './Input/utils';
+import { getAllMentionDetails, getAllWordsAndMentions } from '../Input/utils';
 import { SearchInputSection } from './SearchInputSection';
 import { SearchTabSection } from './SearchTabSection';
 import { addAndRemoveCombinationPlaceholder } from './utils';

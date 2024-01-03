@@ -1,4 +1,4 @@
-import { MentionData } from '../../../Components/Search/Input/types';
+import { MentionData } from '../../../Components/Input/types';
 import { tokenBlockchains } from '../../../constants';
 import {
   Follow,

@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import AdvancedMentionSearch from './AdvancedMentionSearch';
 import { Icon } from '../Icon';
-import { AdvancedMentionSearchParams, InputWithMention } from './Input/Input';
+import { AdvancedMentionSearchParams, InputWithMention } from '../Input/Input';
 import { getSocialSearchQueryData } from './SocialSearch/utils';
 import SocialSearch from './SocialSearch';
 

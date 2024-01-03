@@ -59,7 +59,7 @@ import { HoldersOverview } from './Overview/Overview';
 import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { getRequestFilters } from './OverviewDetails/Tokens/filters';
 import { Tokens } from './Tokens/Tokens';
-import { getAllWordsAndMentions } from '../../Components/Search/Input/utils';
+import { getAllWordsAndMentions } from '../../Components/Input/utils';
 
 export function TokenHolders() {
   const [
