@@ -1,3 +1,9 @@
+export type SearchDataType = {
+  isLoading: boolean;
+  isError?: boolean;
+  items: SocialSearchItem[] | null;
+};
+
 export type SocialSearchItem = {
   id: string;
   profileName: string;

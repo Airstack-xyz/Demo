@@ -11,6 +11,7 @@ import { SocialSearchQuery } from '../../../queries';
 import { PADDING } from '../Search';
 import ListItem, { ListItemLoader } from './ListItem';
 import {
+  SearchDataType,
   SocialSearchItem,
   SocialSearchResponse,
   SocialSearchVariables
@@ -30,12 +31,6 @@ function ListLoader() {
     </>
   );
 }
-
-type SearchDataType = {
-  isLoading: boolean;
-  isError?: boolean;
-  items: SocialSearchItem[] | null;
-};
 
 const CONTAINER_ID = 'social-search';
 
