@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useGetPoapsOfOwner } from '../../hooks/useGetPoapsOfOwner';
 import { useGetTokensOfOwner } from '../../hooks/useGetTokensOfOwner';
@@ -83,30 +83,32 @@ function TokensComponent(props: TokenProps) {
 
   const isPoap = tokenType === 'POAP';
 
-  const canFetchPoap = useMemo(() => {
-    const hasPolygonOrBaseChainFilter =
-      blockchainType?.length === 1 &&
-      (blockchainType[0] === 'polygon' || blockchainType[0] === 'base');
-    return (
-      !hasPolygonOrBaseChainFilter && !poapDisabled && (!tokenType || isPoap)
-    );
-  }, [blockchainType, isPoap, poapDisabled, tokenType]);
+  const hasAllChainFilter = blockchainType?.length === 0;
+
+  // !Gnosis: Fetch poaps when gnosis blockchain filter is selected
+  const hasGnosisChainFilter =
+    blockchainType?.length === 1 && blockchainType[0] === 'gnosis';
+
+  const canFetchTokens = !isPoap;
+
+  const canFetchPoaps =
+    !poapDisabled &&
+    (!tokenType || isPoap || hasAllChainFilter || hasGnosisChainFilter);
 
   const handleNext = useCallback(() => {
-    if (!loadingTokens && !isPoap && hasNextPageTokens) {
+    if (canFetchTokens && !loadingTokens && hasNextPageTokens) {
       getNextTokens();
     }
-
-    if (canFetchPoap && !loadingPoaps && hasNextPagePoaps) {
+    if (canFetchPoaps && !loadingPoaps && hasNextPagePoaps) {
       getNextPoaps();
     }
   }, [
-    canFetchPoap,
+    canFetchPoaps,
+    canFetchTokens,
     getNextPoaps,
     getNextTokens,
     hasNextPagePoaps,
     hasNextPageTokens,
-    isPoap,
     loadingPoaps,
     loadingTokens
   ]);

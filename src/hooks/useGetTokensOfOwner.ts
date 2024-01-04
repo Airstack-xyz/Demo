@@ -73,15 +73,21 @@ export function useGetTokensOfOwner(
   const isSpamFilteringEnabled = spamFilter !== '0';
   const isMintFilteringEnabled = mintFilter === '1';
 
+  const hasAllChainFilter = blockchainType?.length === 0;
+
+  // !Gnosis: Don't fetch tokens when gnosis blockchain filter is selected
+  const hasGnosisChainFilter =
+    blockchainType?.length === 1 && blockchainType[0] === 'gnosis';
+
+  const canFetchTokens = !tokenType || !isPoap || !hasGnosisChainFilter;
+
   const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
     [activeSnapshotInfo]
   );
 
   const query = useMemo(() => {
-    const fetchAllBlockchains = blockchainType?.length === 0;
-
-    const blockchain = fetchAllBlockchains ? null : blockchainType[0];
+    const blockchain = hasAllChainFilter ? null : blockchainType[0];
 
     if (snapshotInfo.isApplicable) {
       return getNftWithCommonOwnersSnapshotQuery({
@@ -96,6 +102,7 @@ export function useGetTokensOfOwner(
       mintsOnly: isMintFilteringEnabled
     });
   }, [
+    hasAllChainFilter,
     blockchainType,
     snapshotInfo.isApplicable,
     snapshotInfo.appliedFilter,
@@ -114,9 +121,7 @@ export function useGetTokensOfOwner(
   useEffect(() => {
     if (owners.length === 0) return;
 
-    const isPoap = tokenType === 'POAP';
-
-    if (!tokenType || !isPoap) {
+    if (canFetchTokens) {
       setLoading(true);
       visitedTokensSetRef.current = new Set();
       tokensRef.current = [];
@@ -149,11 +154,11 @@ export function useGetTokensOfOwner(
 
     setProcessedTokensCount(0);
   }, [
+    canFetchTokens,
     fetchTokens,
     includeERC20,
     is6551,
-    isPoap,
-    owners,
+    owners.length,
     snapshotInfo,
     sortOrder,
     tokenType
