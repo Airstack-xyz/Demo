@@ -552,7 +552,7 @@ function TokenBalancePage() {
     mintFilterDisabled
   } = useMemo(() => {
     let snapshotFilterDisabled = false;
-    let blockchainFilterDisabled = false;
+    const blockchainFilterDisabled = false;
     let sortByFilterDisabled = false;
     let mintFilterTooltip = '';
     let mintFilterDisabled = false;
@@ -565,7 +565,6 @@ function TokenBalancePage() {
     }
     if (isPoap) {
       snapshotFilterDisabled = true;
-      blockchainFilterDisabled = true;
     }
     if (isCombination) {
       snapshotFilterDisabled = true;

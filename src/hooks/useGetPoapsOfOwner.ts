@@ -23,18 +23,9 @@ export function useGetPoapsOfOwner(
   const tokensRef = useRef<PoapType[]>([]);
   const [processedPoapsCount, setProcessedPoapsCount] = useState(0);
 
-  const isPoap = tokenType === 'POAP';
   const isSearchingCommonPoaps = owners.length > 1;
 
-  const hasAllChainFilter = blockchainType?.length === 0;
-
-  // !Gnosis: Don't fetch tokens when gnosis blockchain filter is selected
-  const hasGnosisChainFilter =
-    blockchainType?.length === 1 && blockchainType[0] === 'gnosis';
-
-  const canFetchPoaps =
-    !poapDisabled &&
-    (!tokenType || isPoap || hasAllChainFilter || hasGnosisChainFilter);
+  const canFetchPoaps = !poapDisabled;
 
   const query = useMemo(() => {
     return poapsOfCommonOwnersQuery(owners);
@@ -52,13 +43,16 @@ export function useGetPoapsOfOwner(
 
   useEffect(() => {
     if (owners.length === 0 || !canFetchPoaps) return;
+
     setLoading(true);
     visitedTokensSetRef.current = new Set();
     tokensRef.current = [];
+
     fetchTokens({
       limit: owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT,
       sortBy: sortOrder ? sortOrder : defaultSortOrder
     });
+
     setProcessedPoapsCount(0);
   }, [
     canFetchPoaps,
@@ -71,8 +65,10 @@ export function useGetPoapsOfOwner(
 
   useEffect(() => {
     if (!tokensData) return;
+
     let poaps = tokensData?.Poaps?.Poap || [];
     const processedPoapsCount = poaps.length;
+
     if (poaps.length > 0 && isSearchingCommonPoaps) {
       poaps = poaps.reduce((items: CommonPoapType[], poap: CommonPoapType) => {
         if (poap?.poapEvent?.poaps?.length > 0) {
@@ -82,16 +78,18 @@ export function useGetPoapsOfOwner(
         return items;
       }, []);
     }
+
     tokensRef.current = [...tokensRef.current, ...poaps];
     setProcessedPoapsCount(count => count + processedPoapsCount);
     onDataReceived(poaps);
+
     if (hasNextPage && tokensRef.current.length < LIMIT) {
       setLoading(true);
       getNextPage();
-      return;
+    } else {
+      setLoading(false);
+      tokensRef.current = [];
     }
-    setLoading(false);
-    tokensRef.current = [];
   }, [
     canFetchPoaps,
     isSearchingCommonPoaps,
