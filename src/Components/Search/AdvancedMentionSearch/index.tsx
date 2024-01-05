@@ -25,8 +25,6 @@ import {
   getUpdatedMentionValue
 } from './utils';
 
-const CONTAINER_ID = 'advanced-mention-search';
-
 const LIMIT = 30;
 
 const DISABLED_KEYS = [
@@ -48,29 +46,40 @@ const defaultSearchData: SearchDataType = {
   selectedChain: defaultChainOption
 };
 
+type AdvancedMentionSearchProps = {
+  // reference to mention-input element
+  mentionInputRef: MutableRefObject<HTMLTextAreaElement | null>;
+  // mention-input's value containing markup for mentions
+  mentionValue: string;
+  // @mention query starting index in mention-input's display value i.e. value visible to user
+  queryStartIndex: number;
+  // @mention query ending index in mention-input's display value i.e. value visible to user,
+  queryEndIndex: number;
+  // determines whether to render results in form of list (LIST_VIEW) (mobile friendly) or 3x3 grid (GRID_VIEW)
+  viewType: 'GRID_VIEW' | 'LIST_VIEW';
+  // used for rendering filters button (for LIST_VIEW) outside (as portal) inside specified html element
+  filtersButtonData?: FilterButtonDataType;
+  // callback func, invoked when mention value is changed
+  onChange: (value: string) => void;
+  // callback func, invoked when search to be closed
+  onClose: () => void;
+};
+
 export default function AdvancedMentionSearch({
-  mentionInputRef, // reference to mention-input element
-  mentionValue, // mention-input's value containing markup for mentions
-  queryStartIndex, // @mention query starting index in mention-input's display value i.e. value visible to user
-  queryEndIndex, // @mention query ending index in mention-input's display value i.e. value visible to user,
-  viewType, // determines where render results in form of list (LIST_VIEW) (mobile friendly) or 3x3 grid (GRID_VIEW)
-  filtersButtonData, // used for rendering filters button (for LIST_VIEW) as portal inside specified html element
+  mentionInputRef,
+  mentionValue,
+  queryStartIndex,
+  queryEndIndex,
+  viewType,
+  filtersButtonData,
   onChange,
   onClose
-}: {
-  mentionInputRef: MutableRefObject<HTMLTextAreaElement | null>;
-  mentionValue: string;
-  query: string;
-  queryStartIndex: number;
-  queryEndIndex: number;
-  viewType: 'GRID_VIEW' | 'LIST_VIEW';
-  filtersButtonData?: FilterButtonDataType;
-  onChange: (value: string) => void;
-  onClose: () => void;
-}) {
+}: AdvancedMentionSearchProps) {
   const [searchData, setSearchData] =
     useState<SearchDataType>(defaultSearchData);
   const [focusIndex, setFocusIndex] = useState(0);
+
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const focusIndexRef = useRef(0);
   const firstFetchRef = useRef(true);
@@ -92,8 +101,10 @@ export default function AdvancedMentionSearch({
   } = searchData;
 
   const focusGridItem = useCallback((delta: number) => {
-    const gridItems = document.querySelectorAll<HTMLButtonElement>(
-      `#${CONTAINER_ID} .infinite-scroll-component button`
+    const containerEl = containerRef.current;
+    if (!containerEl) return;
+    const gridItems = containerEl.querySelectorAll<HTMLButtonElement>(
+      `.infinite-scroll-component button`
     );
     const itemIndex = Math.min(
       Math.max(focusIndexRef.current + delta, 0),
@@ -107,8 +118,10 @@ export default function AdvancedMentionSearch({
   }, []);
 
   const selectGridItem = useCallback(() => {
-    const gridItems = document.querySelectorAll<HTMLButtonElement>(
-      `#${CONTAINER_ID} .infinite-scroll-component button`
+    const containerEl = containerRef.current;
+    if (!containerEl) return;
+    const gridItems = containerEl.querySelectorAll<HTMLButtonElement>(
+      `.infinite-scroll-component button`
     );
     const itemIndex = focusIndexRef.current;
     const activeItem = gridItems[itemIndex];
@@ -368,7 +381,7 @@ export default function AdvancedMentionSearch({
   const isErrorOccurred = isError && !isLoading && items.length === 0;
 
   return (
-    <div id={CONTAINER_ID} className="relative z-20">
+    <div ref={containerRef} className="relative z-20">
       {isListView ? (
         <ListView
           filtersButtonData={filtersButtonData}

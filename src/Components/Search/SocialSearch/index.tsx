@@ -32,8 +32,6 @@ function ListLoader() {
   );
 }
 
-const CONTAINER_ID = 'social-search';
-
 const LIMIT = 30;
 
 const DISABLED_KEYS = ['ArrowUp', 'ArrowDown', 'Enter'];
@@ -43,26 +41,37 @@ const defaultSearchData: SearchDataType = {
   items: null
 };
 
+type SocialSearchProps = {
+  // reference to mention-input element
+  mentionInputRef: MutableRefObject<HTMLTextAreaElement | null>;
+  // mention-input's value containing markup for mentions
+  mentionValue: string;
+  // query to be searched
+  query: string;
+  // query starting index in mention-input's display value i.e. value visible to user
+  queryStartIndex: number;
+  // query ending index in mention-input's display value i.e. value visible to user
+  queryEndIndex: number;
+  // callback func, invoked when mention value is changed
+  onChange: (value: string) => void;
+  // callback func, invoked when search to be closed
+  onClose: () => void;
+};
+
 export default function SocialSearch({
-  mentionInputRef, // reference to mention-input element
-  mentionValue, // mention-input's value containing markup for mentions
-  query, // query to be searched
-  queryStartIndex, // query starting index in mention-input's display value i.e. value visible to user
-  queryEndIndex, // query ending index in mention-input's display value i.e. value visible to user
+  mentionInputRef,
+  mentionValue,
+  query,
+  queryStartIndex,
+  queryEndIndex,
   onChange,
   onClose
-}: {
-  mentionInputRef: MutableRefObject<HTMLTextAreaElement | null>;
-  mentionValue: string;
-  query: string;
-  queryStartIndex: number;
-  queryEndIndex: number;
-  onChange: (value: string) => void;
-  onClose: () => void;
-}) {
+}: SocialSearchProps) {
   const [searchData, setSearchData] =
     useState<SearchDataType>(defaultSearchData);
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
+
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const focusIndexRef = useRef<number | null>(null);
 
@@ -100,8 +109,10 @@ export default function SocialSearch({
   const { hasNextPage, getNextPage } = pagination;
 
   const focusListItem = useCallback((delta: number) => {
-    const gridItems = document.querySelectorAll<HTMLButtonElement>(
-      `#${CONTAINER_ID} .infinite-scroll-component button`
+    const containerEl = containerRef.current;
+    if (!containerEl) return;
+    const gridItems = containerEl.querySelectorAll<HTMLButtonElement>(
+      `.infinite-scroll-component button`
     );
     const itemIndex =
       focusIndexRef.current === null
@@ -118,8 +129,10 @@ export default function SocialSearch({
   }, []);
 
   const selectListItem = useCallback(() => {
-    const gridItems = document.querySelectorAll<HTMLButtonElement>(
-      `#${CONTAINER_ID} .infinite-scroll-component button`
+    const containerEl = containerRef.current;
+    if (!containerEl) return;
+    const gridItems = containerEl.querySelectorAll<HTMLButtonElement>(
+      `.infinite-scroll-component button`
     );
     const itemIndex = focusIndexRef.current || 0;
     const activeItem = gridItems[itemIndex];
@@ -233,7 +246,7 @@ export default function SocialSearch({
   const errorOccurred = isError && !isLoading && items?.length === 0;
 
   return (
-    <div id={CONTAINER_ID} className="py-2 px-2.5 relative z-20">
+    <div ref={containerRef} className="py-2 px-2.5 relative z-20">
       <div
         id="social-search-scroll"
         className="max-h-[302px] overflow-y-scroll"

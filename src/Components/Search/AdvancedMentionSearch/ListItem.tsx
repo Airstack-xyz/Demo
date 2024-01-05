@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import { capitalizeFirstLetter, pluralize } from '../../../utils';
-import { MENTION_TYPE_MAP } from '../../Input/utils';
 import LazyImage from '../../LazyImage';
 import { AdvancedMentionSearchItem } from './types';
 
@@ -25,11 +24,9 @@ export default function ListItem({
   onClick,
   onMouseEnter
 }: ListItemProps) {
-  const { type, name, blockchain, image, metadata } = item;
+  const { type, tokenType, name, blockchain, image, metadata } = item;
 
   const formattedBlockchain = capitalizeFirstLetter(blockchain);
-
-  const formattedType = MENTION_TYPE_MAP[type] || '';
 
   const tokenMints = metadata?.tokenMints;
   const showPOAPHolderCount = type === 'POAP' && Number.isInteger(tokenMints);
@@ -56,7 +53,7 @@ export default function ListItem({
         <span className="text-[10px] text-text-secondary pb-[1px] whitespace-nowrap">
           <span>{formattedBlockchain}</span>
           <span> • </span>
-          <span>{formattedType}</span>
+          <span>{tokenType}</span>
           {showPOAPHolderCount && (
             <>
               <span> • </span>
