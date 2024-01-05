@@ -1,9 +1,9 @@
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Icon } from '../../Icon';
-import BlockchainFilter from './BlockchainFilter';
-import Filters from './Filters';
+import ChainFilter, { ChainSelectOption } from './ChainFilter';
 import GridItem, { GridItemLoader } from './GridItem';
-import { ViewComponentProps } from './types';
+import TokenFilter, { TokenSelectOption } from './TokenFilter';
+import { AdvancedMentionSearchItem, SearchDataType } from './types';
 
 const LOADING_ITEM_COUNT = 9;
 
@@ -19,34 +19,48 @@ function GridLoader() {
   );
 }
 
+type GridViewProps = {
+  searchData: SearchDataType;
+  focusIndex: null | number;
+  isChainFilterDisabled?: boolean;
+  isDataNotFound?: boolean;
+  isErrorOccurred?: boolean;
+  onTokenSelect: (option: TokenSelectOption) => void;
+  onChainSelect: (option: ChainSelectOption) => void;
+  onItemSelect: (item: AdvancedMentionSearchItem) => void;
+  onItemHover: (itemIndex: number) => void;
+  onFetchMore: () => void;
+  onDataReload: () => void;
+};
+
 export default function GridView({
   searchData,
   focusIndex,
   isChainFilterDisabled,
   isDataNotFound,
   isErrorOccurred,
-  setFocusIndex,
   onTokenSelect,
   onChainSelect,
   onItemSelect,
-  onMoreFetch,
-  onReloadData
-}: ViewComponentProps) {
+  onItemHover,
+  onFetchMore,
+  onDataReload
+}: GridViewProps) {
   const { isLoading, hasMore, items, selectedChain, selectedToken } =
     searchData;
 
   return (
     <div className="pt-5 px-5">
       <div className="flex justify-between items-center">
-        <Filters selectedOption={selectedToken} onSelect={onTokenSelect} />
-        <BlockchainFilter
+        <TokenFilter selectedOption={selectedToken} onSelect={onTokenSelect} />
+        <ChainFilter
           isDisabled={isChainFilterDisabled}
           selectedOption={selectedChain}
           onSelect={onChainSelect}
         />
       </div>
       <InfiniteScroll
-        next={onMoreFetch}
+        next={onFetchMore}
         dataLength={items.length}
         hasMore={hasMore}
         loader={<GridLoader />}
@@ -64,7 +78,7 @@ export default function GridView({
             <button
               type="button"
               className="flex-row-center text-base text-text-button font-bold mt-4"
-              onClick={onReloadData}
+              onClick={onDataReload}
             >
               <Icon name="refresh-blue" width={18} height={18} /> Try Again
             </button>
@@ -77,7 +91,7 @@ export default function GridView({
             item={item}
             isFocused={focusIndex === index}
             onClick={() => onItemSelect(item)}
-            onMouseEnter={() => setFocusIndex(index)}
+            onMouseEnter={() => onItemHover(index)}
           />
         ))}
       </InfiniteScroll>

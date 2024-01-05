@@ -196,7 +196,7 @@ export default function SocialSearch({
     };
   }, [cancelRequest, fetchData, query]);
 
-  const handleNext = useCallback(() => {
+  const handleFetchMore = useCallback(() => {
     if (!isLoading && hasNextPage && getNextPage) {
       setSearchData(prev => ({
         ...prev,
@@ -234,9 +234,12 @@ export default function SocialSearch({
 
   return (
     <div id={CONTAINER_ID} className="py-2 px-2.5 relative z-20">
-      <div id="social-search-scroll" className="max-h-[302px] overflow-auto">
+      <div
+        id="social-search-scroll"
+        className="max-h-[302px] overflow-y-scroll"
+      >
         <InfiniteScroll
-          next={handleNext}
+          next={handleFetchMore}
           dataLength={listLength}
           hasMore={hasNextPage}
           loader={null}

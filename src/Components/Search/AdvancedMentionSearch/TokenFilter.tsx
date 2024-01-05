@@ -31,12 +31,15 @@ export type TokenSelectOption = {
   value: string | null;
 };
 
-type FiltersProps = {
+type TokenFilterProps = {
   selectedOption: TokenSelectOption;
   onSelect: (option: TokenSelectOption) => void;
 };
 
-export default function Filters({ selectedOption, onSelect }: FiltersProps) {
+export default function TokenFilter({
+  selectedOption,
+  onSelect
+}: TokenFilterProps) {
   return (
     <div className="flex gap-3">
       {tokenOptions.map(option => {

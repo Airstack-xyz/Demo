@@ -8,14 +8,15 @@ import {
 import { AdvancedMentionSearchQuery } from '../../../queries';
 import { fetchAIMentions } from '../../Input/utils';
 import { PADDING } from '../Search';
-import { BlockchainSelectOption, defaultChainOption } from './BlockchainFilter';
-import { TokenSelectOption, defaultTokenOption } from './Filters';
+import { ChainSelectOption, defaultChainOption } from './ChainFilter';
 import GridView from './GridView';
 import ListView from './ListView';
+import { TokenSelectOption, defaultTokenOption } from './TokenFilter';
 import {
   AdvancedMentionSearchInput,
   AdvancedMentionSearchItem,
   AdvancedMentionSearchResponse,
+  FilterButtonDataType,
   SearchDataType
 } from './types';
 import {
@@ -52,7 +53,8 @@ export default function AdvancedMentionSearch({
   mentionValue, // mention-input's value containing markup for mentions
   queryStartIndex, // @mention query starting index in mention-input's display value i.e. value visible to user
   queryEndIndex, // @mention query ending index in mention-input's display value i.e. value visible to user,
-  viewType,
+  viewType, // determines where render results in form of list (LIST_VIEW) (mobile friendly) or 3x3 grid (GRID_VIEW)
+  filtersButtonData, // used for rendering filters button (for LIST_VIEW) as portal inside specified html element
   onChange,
   onClose
 }: {
@@ -61,7 +63,8 @@ export default function AdvancedMentionSearch({
   query: string;
   queryStartIndex: number;
   queryEndIndex: number;
-  viewType?: 'GRID_VIEW' | 'LIST_VIEW';
+  viewType: 'GRID_VIEW' | 'LIST_VIEW';
+  filtersButtonData?: FilterButtonDataType;
   onChange: (value: string) => void;
   onClose: () => void;
 }) {
@@ -297,7 +300,7 @@ export default function AdvancedMentionSearch({
     };
   }, [cursor, fetchData, searchTerm, selectedChain.value, selectedToken.value]);
 
-  const handleReloadData = useCallback(() => {
+  const handleDataReload = useCallback(() => {
     setSearchData(prev => ({
       ...prev,
       cursor: prev.cursor === null ? undefined : null, // causes fetchData useEffect to invoke again
@@ -320,7 +323,7 @@ export default function AdvancedMentionSearch({
     }));
   }, []);
 
-  const handleChainSelect = useCallback((option: BlockchainSelectOption) => {
+  const handleChainSelect = useCallback((option: ChainSelectOption) => {
     setSearchData(prev => ({
       ...prev,
       cursor: null,
@@ -331,7 +334,7 @@ export default function AdvancedMentionSearch({
     }));
   }, []);
 
-  const handleMoreFetch = useCallback(() => {
+  const handleFetchMore = useCallback(() => {
     setSearchData(prev => ({
       ...prev,
       cursor: prev.nextCursor
@@ -364,23 +367,37 @@ export default function AdvancedMentionSearch({
 
   const isErrorOccurred = isError && !isLoading && items.length === 0;
 
-  const ViewComponent = isListView ? ListView : GridView;
-
   return (
     <div id={CONTAINER_ID} className="relative z-20">
-      <ViewComponent
-        searchData={searchData}
-        focusIndex={focusIndex}
-        isChainFilterDisabled={isChainFilterDisabled}
-        isDataNotFound={isDataNotFound}
-        isErrorOccurred={isErrorOccurred}
-        setFocusIndex={setFocusIndex}
-        onTokenSelect={handleTokenSelect}
-        onChainSelect={handleChainSelect}
-        onItemSelect={handleItemSelect}
-        onMoreFetch={handleMoreFetch}
-        onReloadData={handleReloadData}
-      />
+      {isListView ? (
+        <ListView
+          filtersButtonData={filtersButtonData}
+          searchData={searchData}
+          focusIndex={focusIndex}
+          isDataNotFound={isDataNotFound}
+          isErrorOccurred={isErrorOccurred}
+          onTokenSelect={handleTokenSelect}
+          onChainSelect={handleChainSelect}
+          onItemSelect={handleItemSelect}
+          onItemHover={setFocusIndex}
+          onFetchMore={handleFetchMore}
+          onDataReload={handleDataReload}
+        />
+      ) : (
+        <GridView
+          searchData={searchData}
+          focusIndex={focusIndex}
+          isChainFilterDisabled={isChainFilterDisabled}
+          isDataNotFound={isDataNotFound}
+          isErrorOccurred={isErrorOccurred}
+          onTokenSelect={handleTokenSelect}
+          onChainSelect={handleChainSelect}
+          onItemSelect={handleItemSelect}
+          onItemHover={setFocusIndex}
+          onFetchMore={handleFetchMore}
+          onDataReload={handleDataReload}
+        />
+      )}
     </div>
   );
 }

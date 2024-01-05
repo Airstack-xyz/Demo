@@ -28,6 +28,7 @@ import {
 } from './types';
 import {
   ID_REGEX,
+  MENTION_TYPE_MAP,
   REGEX_LAST_WORD_STARTS_WITH_AT,
   debouncePromise,
   fetchAIMentions,
@@ -47,13 +48,6 @@ export type AdvancedMentionSearchParams = {
   query: string;
   queryStartIndex: number;
   queryEndIndex: number;
-};
-
-const mentionTypeMap: Record<MentionType, string> = {
-  [MentionType.NFT_COLLECTION]: 'NFT',
-  [MentionType.DAO_TOKEN]: 'DAO',
-  [MentionType.TOKEN]: 'Token',
-  [MentionType.POAP]: 'POAP'
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -374,7 +368,7 @@ export function InputWithMention({
             <span className="type">
               {suggestion.blockchain}
               <span>•</span>
-              {mentionTypeMap[suggestion.type as MentionType] || ''}
+              {MENTION_TYPE_MAP[suggestion.type] || ''}
               {showPOAPHolderCount && (
                 <>
                   <span>•</span>

@@ -1,86 +1,146 @@
+import { useCallback, useMemo, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Icon } from '../../Icon';
-import BlockchainFilter from './BlockchainFilter';
-import Filters from './Filters';
-import GridItem, { GridItemLoader } from './GridItem';
-import { ViewComponentProps } from './types';
+import { ChainSelectOption } from './ChainFilter';
+import FiltersView, { FiltersButtonPortal } from './FiltersView';
+import ListItem, { ListItemLoader } from './ListItem';
+import { TokenSelectOption } from './TokenFilter';
+import {
+  AdvancedMentionSearchItem,
+  FilterButtonDataType,
+  SearchDataType
+} from './types';
+import { getAppliedFilterCount } from './utils';
 
-const LOADING_ITEM_COUNT = 9;
+const LOADING_ITEM_COUNT = 8;
 
 const loadingItems = new Array(LOADING_ITEM_COUNT).fill(0);
 
-function GridLoader() {
+function ListLoader() {
   return (
     <>
       {loadingItems.map((_, idx) => (
-        <GridItemLoader key={idx} />
+        <ListItemLoader key={idx} />
       ))}
     </>
   );
 }
 
+type ListViewProps = {
+  filtersButtonData?: FilterButtonDataType;
+  searchData: SearchDataType;
+  focusIndex: null | number;
+  isDataNotFound?: boolean;
+  isErrorOccurred?: boolean;
+  onTokenSelect: (option: TokenSelectOption) => void;
+  onChainSelect: (option: ChainSelectOption) => void;
+  onItemSelect: (item: AdvancedMentionSearchItem) => void;
+  onItemHover: (itemIndex: number) => void;
+  onFetchMore: () => void;
+  onDataReload: () => void;
+};
+
 export default function ListView({
+  filtersButtonData,
   searchData,
   focusIndex,
-  isChainFilterDisabled,
   isDataNotFound,
   isErrorOccurred,
-  setFocusIndex,
   onTokenSelect,
   onChainSelect,
   onItemSelect,
-  onMoreFetch,
-  onReloadData
-}: ViewComponentProps) {
+  onItemHover,
+  onFetchMore,
+  onDataReload
+}: ListViewProps) {
   const { isLoading, hasMore, items, selectedChain, selectedToken } =
     searchData;
 
+  const [isFiltersViewVisible, setIsFiltersViewVisible] = useState(false);
+
+  const toggleFiltersView = useCallback(() => {
+    setIsFiltersViewVisible(prev => !prev);
+  }, []);
+
+  const hideFiltersView = useCallback(() => {
+    setIsFiltersViewVisible(false);
+  }, []);
+
+  const appliedFilterCount = useMemo(
+    () =>
+      getAppliedFilterCount({
+        appliedChainFilter: selectedChain,
+        appliedTokenFilter: selectedToken
+      }),
+    [selectedChain, selectedToken]
+  );
+
   return (
-    <div className="pt-5 px-5">
-      <div className="flex justify-between items-center">
-        <Filters selectedOption={selectedToken} onSelect={onTokenSelect} />
-        <BlockchainFilter
-          isDisabled={isChainFilterDisabled}
-          selectedOption={selectedChain}
-          onSelect={onChainSelect}
+    <div className="py-2 px-2.5">
+      {filtersButtonData && (
+        <FiltersButtonPortal
+          containerRef={filtersButtonData.containerRef}
+          RenderButton={filtersButtonData.RenderButton}
+          appliedFilterCount={appliedFilterCount}
+          isOpen={isFiltersViewVisible}
+          onClick={toggleFiltersView}
         />
-      </div>
-      <InfiniteScroll
-        next={onMoreFetch}
-        dataLength={items.length}
-        hasMore={hasMore}
-        loader={<GridLoader />}
-        height={508}
-        className="mt-5 pr-1 grid grid-cols-3 auto-rows-max gap-[25px] no-scrollbar"
-      >
-        {isDataNotFound && (
-          <div className="p-2 text-center col-span-3">
-            No results to display!
-          </div>
-        )}
-        {isErrorOccurred && (
-          <div className="p-2 flex-col-center col-span-3">
-            Error while fetching data!
-            <button
-              type="button"
-              className="flex-row-center text-base text-text-button font-bold mt-4"
-              onClick={onReloadData}
-            >
-              <Icon name="refresh-blue" width={18} height={18} /> Try Again
-            </button>
-          </div>
-        )}
-        {isLoading && <GridLoader />}
-        {items.map((item, index) => (
-          <GridItem
-            key={`${item.address}_${index}`}
-            item={item}
-            isFocused={focusIndex === index}
-            onClick={() => onItemSelect(item)}
-            onMouseEnter={() => setFocusIndex(index)}
-          />
-        ))}
-      </InfiniteScroll>
+      )}
+      {isFiltersViewVisible ? (
+        <FiltersView
+          selectedChain={selectedChain}
+          selectedToken={selectedToken}
+          onChainSelect={onChainSelect}
+          onTokenSelect={onTokenSelect}
+          onClose={hideFiltersView}
+        />
+      ) : (
+        <div
+          id="advanced-mention-search-scroll"
+          className="max-h-[392px] overflow-y-scroll"
+        >
+          <InfiniteScroll
+            next={onFetchMore}
+            dataLength={items.length}
+            hasMore={hasMore}
+            loader={null}
+            scrollableTarget="advanced-mention-search-scroll"
+            className="flex flex-col gap-2 pr-1"
+          >
+            {isDataNotFound && (
+              <div className="p-2 text-center text-sm text-white w-full">
+                No results to display!
+              </div>
+            )}
+            {isErrorOccurred && (
+              <div className="p-2 text-center text-sm text-white w-full flex-col-center">
+                Error while fetching data!
+                <button
+                  type="button"
+                  className="flex-row-center text-sm text-text-button font-bold mt-1"
+                  onClick={onDataReload}
+                >
+                  <Icon
+                    name="refresh-blue"
+                    className="h-[14px] w-[14px] mr-0.5"
+                  />
+                  Try Again
+                </button>
+              </div>
+            )}
+            {items?.map((item, index) => (
+              <ListItem
+                key={`${item.address}_${index}`}
+                item={item}
+                isFocused={focusIndex === index}
+                onClick={() => onItemSelect(item)}
+                onMouseEnter={() => onItemHover(index)}
+              />
+            ))}
+            {isLoading && <ListLoader />}
+          </InfiniteScroll>
+        </div>
+      )}
     </div>
   );
 }

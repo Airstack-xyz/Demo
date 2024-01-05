@@ -149,6 +149,7 @@ export const AdvancedMentionSearchQuery = `
         blockchain
         symbol
         image {
+          extraSmall
           medium
         }
         metadata {

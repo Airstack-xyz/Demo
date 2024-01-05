@@ -24,6 +24,14 @@ export const MENTION_CONFIG = [
   }
 ];
 
+// Used for displaying correct type mention in @mention list-item
+export const MENTION_TYPE_MAP: Record<string, string> = {
+  [MentionType.NFT_COLLECTION]: 'NFT',
+  [MentionType.DAO_TOKEN]: 'DAO',
+  [MentionType.TOKEN]: 'Token',
+  [MentionType.POAP]: 'POAP'
+};
+
 export const ID_REGEX = /#⎱.+?⎱\((.+?)\)\s*/g;
 export const NAME_REGEX = /#⎱(.+?)⎱\(.+?\)/g;
 export const REGEX_LAST_WORD_STARTS_WITH_AT = /\s*@[^\s]*$/g;

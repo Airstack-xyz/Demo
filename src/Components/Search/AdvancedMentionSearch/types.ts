@@ -1,5 +1,6 @@
-import { BlockchainSelectOption } from './BlockchainFilter';
-import { TokenSelectOption } from './Filters';
+import { ReactNode, RefObject } from 'react';
+import { ChainSelectOption } from './ChainFilter';
+import { TokenSelectOption } from './TokenFilter';
 
 export type SearchDataType = {
   isLoading: boolean;
@@ -10,21 +11,16 @@ export type SearchDataType = {
   hasMore: boolean;
   items: AdvancedMentionSearchItem[];
   selectedToken: TokenSelectOption;
-  selectedChain: BlockchainSelectOption;
+  selectedChain: ChainSelectOption;
 };
 
-export type ViewComponentProps = {
-  searchData: SearchDataType;
-  focusIndex: null | number;
-  isChainFilterDisabled?: boolean;
-  isDataNotFound?: boolean;
-  isErrorOccurred?: boolean;
-  setFocusIndex: (index: number) => void;
-  onTokenSelect: (option: TokenSelectOption) => void;
-  onChainSelect: (option: BlockchainSelectOption) => void;
-  onItemSelect: (item: AdvancedMentionSearchItem) => void;
-  onMoreFetch: () => void;
-  onReloadData: () => void;
+export type FilterButtonDataType = {
+  containerRef: RefObject<HTMLElement | null>;
+  RenderButton?: (props: {
+    appliedFilterCount: number;
+    isOpen: boolean;
+    onClick: () => void;
+  }) => ReactNode;
 };
 
 export type AdvancedMentionSearchItem = {
@@ -36,6 +32,7 @@ export type AdvancedMentionSearchItem = {
   tokenType: string;
   symbol: string | null;
   image: {
+    extraSmall: string | null;
     medium: string | null;
   } | null;
   metadata: {

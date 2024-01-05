@@ -8,7 +8,6 @@ import {
   userInputCache
 } from '../../hooks/useSearchInput';
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
-import { isMobileDevice } from '../../utils/isMobileDevice';
 import { showToast } from '../../utils/showToast';
 import { getAllMentionDetails, getAllWordsAndMentions } from '../Input/utils';
 import { SearchInputSection } from './SearchInputSection';
@@ -36,8 +35,6 @@ export const Search = memo(function Search() {
 
   const [{ rawInput }, setData] = useSearchInput(isTokenBalances);
   const navigate = useNavigate();
-
-  const isMobile = isMobileDevice();
 
   const [value, setValue] = useState(rawInput ? rawInput.trim() + PADDING : '');
 
@@ -253,8 +250,6 @@ export const Search = memo(function Search() {
 
   const enabledSearchType = isTokenBalances
     ? 'SOCIAL_SEARCH'
-    : isMobile
-    ? 'MENTION_SEARCH'
     : 'ADVANCED_MENTION_SEARCH';
 
   return (

@@ -5,6 +5,7 @@ import { Icon } from '../Icon';
 import { AdvancedMentionSearchParams, InputWithMention } from '../Input/Input';
 import { getSocialSearchQueryData } from './SocialSearch/utils';
 import SocialSearch from './SocialSearch';
+import { isMobileDevice } from '../../utils/isMobileDevice';
 
 type EnabledSearchType =
   | 'SOCIAL_SEARCH' // social type-ahead infinite dropdown list search
@@ -43,6 +44,7 @@ export function SearchInputSection({
 }) {
   const mentionInputRef = useRef<HTMLTextAreaElement>(null);
   const inputSectionRef = useRef<HTMLDivElement>(null);
+  const buttonSectionRef = useRef<HTMLDivElement>(null);
 
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
 
@@ -50,6 +52,8 @@ export function SearchInputSection({
     useState<SearchData>(defaultSearchData);
   const [advancedMentionSearchData, setAdvancedMentionSearchData] =
     useState<SearchData>(defaultSearchData);
+
+  const isMobile = isMobileDevice();
 
   const isSocialSearchEnabled = enabledSearchType === 'SOCIAL_SEARCH';
   const isAdvancedMentionSearchEnabled =
@@ -152,7 +156,7 @@ export function SearchInputSection({
   };
 
   const renderButtonContent = () => {
-    if (!value) {
+    if (!value || (advancedMentionSearchData.visible && isMobile)) {
       return null;
     }
     if (!isInputSectionFocused || advancedMentionSearchData.visible) {
@@ -184,7 +188,9 @@ export function SearchInputSection({
         ref={inputSectionRef}
         className={classNames(
           'before-bg-glass before:rounded-18 before:border-solid-stroke transition-all absolute top-0',
-          advancedMentionSearchData.visible ? 'w-[min(70vw,900px)]' : 'w-full'
+          advancedMentionSearchData.visible && !isMobile
+            ? 'w-[min(70vw,900px)]'
+            : 'w-full'
         )}
       >
         <div
@@ -211,7 +217,9 @@ export function SearchInputSection({
                 : undefined
             }
           />
-          <div className="flex justify-end pl-3">{renderButtonContent()}</div>
+          <div ref={buttonSectionRef} className="flex justify-end pl-3">
+            {renderButtonContent()}
+          </div>
         </div>
         {advancedMentionSearchData.visible && (
           <>
@@ -221,8 +229,10 @@ export function SearchInputSection({
             />
             <AdvancedMentionSearch
               {...advancedMentionSearchData}
+              filtersButtonData={{ containerRef: buttonSectionRef }}
               mentionInputRef={mentionInputRef}
               mentionValue={value}
+              viewType={isMobile ? 'LIST_VIEW' : 'GRID_VIEW'}
               onChange={handleSubmitAfterDelay}
               onClose={hideAdvancedMentionSearch}
             />
