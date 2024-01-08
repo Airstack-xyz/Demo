@@ -66,7 +66,8 @@ export const getBlockchainOptions = (isSnapshotApplicable?: boolean) => {
   // !Gnosis: Explicitly add gnosis in blockchain options
   options.push({
     label: 'Gnosis',
-    value: 'gnosis'
+    value: 'gnosis',
+    disabled: isSnapshotApplicable
   });
 
   return options;
