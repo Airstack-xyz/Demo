@@ -548,13 +548,11 @@ function TokenBalancePage() {
     snapshotFilterDisabled,
     blockchainFilterDisabled,
     sortByFilterDisabled,
-    mintFilterTooltip,
     mintFilterDisabled
   } = useMemo(() => {
     let snapshotFilterDisabled = false;
     const blockchainFilterDisabled = false;
     let sortByFilterDisabled = false;
-    let mintFilterTooltip = '';
     let mintFilterDisabled = false;
 
     if (
@@ -571,14 +569,12 @@ function TokenBalancePage() {
     }
     if (snapshotInfo.isApplicable) {
       sortByFilterDisabled = true;
-      mintFilterTooltip = 'Token mints are unavailable for snapshots';
       mintFilterDisabled = true;
     }
     return {
       snapshotFilterDisabled,
       blockchainFilterDisabled,
       sortByFilterDisabled,
-      mintFilterTooltip,
       mintFilterDisabled
     };
   }, [blockchainType, isCombination, isPoap, snapshotInfo.isApplicable]);
@@ -609,10 +605,7 @@ function TokenBalancePage() {
               <SnapshotFilter disabled={snapshotFilterDisabled} />
               <BlockchainFilter disabled={blockchainFilterDisabled} />
               <SortBy disabled={sortByFilterDisabled} />
-              <MintFilter
-                disabled={mintFilterDisabled}
-                disabledTooltipText={mintFilterTooltip}
-              />
+              <MintFilter disabled={mintFilterDisabled} />
               <SpamFilter />
             </>
           )}

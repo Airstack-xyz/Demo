@@ -1,6 +1,7 @@
 import { Asset as AirstackAsset } from '@airstack/airstack-react';
 import { ComponentProps, useState } from 'react';
 import { checkBlockchainSupportForToken } from '../utils/activeTokenInfoString';
+import { isMobileDevice } from '../utils/isMobileDevice';
 
 export function Image(props: ComponentProps<'img'>) {
   const [error, setError] = useState(false);
@@ -24,6 +25,8 @@ type AssetProps = ComponentProps<typeof AirstackAsset> & {
 };
 
 export function Asset({ image, useImageOnError, ...props }: AssetProps) {
+  const isMobile = isMobileDevice();
+
   if (
     !checkBlockchainSupportForToken(props.chain) || // check if blockchain is supported for token apis
     !props.address ||
@@ -55,6 +58,10 @@ export function Asset({ image, useImageOnError, ...props }: AssetProps) {
           alt="loading"
         />
       }
+      videoProps={{
+        // !Important: Don't autoplay video on mobile device
+        maxDurationForAutoPlay: isMobile ? 0 : 10
+      }}
       {...props}
     />
   );
