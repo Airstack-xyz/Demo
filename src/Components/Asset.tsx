@@ -24,7 +24,12 @@ type AssetProps = ComponentProps<typeof AirstackAsset> & {
   useImageOnError?: boolean;
 };
 
-export function Asset({ image, useImageOnError, ...props }: AssetProps) {
+export function Asset({
+  image,
+  useImageOnError,
+  videoProps,
+  ...props
+}: AssetProps) {
   const isMobile = isMobileDevice();
 
   if (
@@ -59,8 +64,8 @@ export function Asset({ image, useImageOnError, ...props }: AssetProps) {
         />
       }
       videoProps={{
-        // !Important: Don't autoplay video on mobile device
-        maxDurationForAutoPlay: isMobile ? 0 : 10
+        maxDurationForAutoPlay: isMobile ? 0 : 10, // !Important: Don't autoplay video on mobile device
+        ...videoProps
       }}
       {...props}
     />
