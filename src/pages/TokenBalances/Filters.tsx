@@ -23,10 +23,8 @@ function FiltersComponent() {
       if (filter === 'All') {
         filterValues.tokenType = '';
       }
-      // Reset blockchain/snapshot filter if POAP filter is applied
       if (filter === 'POAP') {
-        filterValues.blockchainType = [];
-        filterValues.activeSnapshotInfo = undefined;
+        filterValues.activeSnapshotInfo = undefined; // reset snapshot filter if POAP filter is applied
       }
       setData(filterValues, { updateQueryParams: true });
     },

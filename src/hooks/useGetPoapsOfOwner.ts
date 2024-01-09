@@ -15,27 +15,21 @@ type Inputs = Pick<
 export function useGetPoapsOfOwner(
   inputs: Inputs,
   onDataReceived: (tokens: PoapType[]) => void,
-  noFetch = false
+  poapDisabled = false
 ) {
   const { address: owners, tokenType = '', blockchainType, sortOrder } = inputs;
   const visitedTokensSetRef = useRef<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const tokensRef = useRef<PoapType[]>([]);
   const [processedPoapsCount, setProcessedPoapsCount] = useState(0);
-  const isPoap = tokenType === 'POAP';
-  const searchingCommonPoaps = owners.length > 1;
+
+  const isSearchingCommonPoaps = owners.length > 1;
+
+  const canFetchPoaps = !poapDisabled;
 
   const query = useMemo(() => {
     return poapsOfCommonOwnersQuery(owners);
   }, [owners]);
-
-  const canFetchPoap = useMemo(() => {
-    if (noFetch) return false;
-    const hasPolygonOrBaseChainFilter =
-      blockchainType?.length === 1 &&
-      (blockchainType[0] === 'polygon' || blockchainType[0] === 'base');
-    return !hasPolygonOrBaseChainFilter && (!tokenType || isPoap);
-  }, [blockchainType, isPoap, noFetch, tokenType]);
 
   const [
     fetchTokens,
@@ -45,33 +39,37 @@ export function useGetPoapsOfOwner(
     }
   ] = useLazyQueryWithPagination(query, {});
 
-  const tokensData = !canFetchPoap ? null : data;
+  const tokensData = !canFetchPoaps ? null : data;
 
   useEffect(() => {
-    if (owners.length === 0 || !canFetchPoap) return;
+    if (owners.length === 0 || !canFetchPoaps) return;
+
     setLoading(true);
     visitedTokensSetRef.current = new Set();
     tokensRef.current = [];
+
     fetchTokens({
       limit: owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT,
       sortBy: sortOrder ? sortOrder : defaultSortOrder
     });
+
     setProcessedPoapsCount(0);
   }, [
-    canFetchPoap,
+    canFetchPoaps,
     fetchTokens,
     owners,
     sortOrder,
     blockchainType,
-    tokenType,
-    noFetch
+    tokenType
   ]);
 
   useEffect(() => {
     if (!tokensData) return;
+
     let poaps = tokensData?.Poaps?.Poap || [];
     const processedPoapsCount = poaps.length;
-    if (poaps.length > 0 && searchingCommonPoaps) {
+
+    if (poaps.length > 0 && isSearchingCommonPoaps) {
       poaps = poaps.reduce((items: CommonPoapType[], poap: CommonPoapType) => {
         if (poap?.poapEvent?.poaps?.length > 0) {
           poap._common_tokens = poap.poapEvent.poaps;
@@ -80,19 +78,21 @@ export function useGetPoapsOfOwner(
         return items;
       }, []);
     }
+
     tokensRef.current = [...tokensRef.current, ...poaps];
     setProcessedPoapsCount(count => count + processedPoapsCount);
     onDataReceived(poaps);
+
     if (hasNextPage && tokensRef.current.length < LIMIT) {
       setLoading(true);
       getNextPage();
-      return;
+    } else {
+      setLoading(false);
+      tokensRef.current = [];
     }
-    setLoading(false);
-    tokensRef.current = [];
   }, [
-    canFetchPoap,
-    searchingCommonPoaps,
+    canFetchPoaps,
+    isSearchingCommonPoaps,
     getNextPage,
     hasNextPage,
     onDataReceived,
@@ -100,11 +100,11 @@ export function useGetPoapsOfOwner(
   ]);
 
   const getNext = useCallback(() => {
-    if (!hasNextPage || !canFetchPoap) return;
+    if (!hasNextPage || !canFetchPoaps) return;
     setLoading(true);
     tokensRef.current = [];
     getNextPage();
-  }, [canFetchPoap, getNextPage, hasNextPage]);
+  }, [canFetchPoaps, getNextPage, hasNextPage]);
 
   return useMemo(() => {
     return {
