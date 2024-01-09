@@ -83,6 +83,19 @@ export function SearchInputSection({
     };
   }, []);
 
+  useEffect(() => {
+    // For mobile - move input section to top, when advance search is visible
+    if (isMobile && inputSectionRef.current) {
+      if (advancedMentionSearchData.visible) {
+        const { top } = inputSectionRef.current.getBoundingClientRect();
+        const inputTopPosition = -top + 10;
+        inputSectionRef.current.style.top = `${inputTopPosition}px`;
+      } else {
+        inputSectionRef.current.style.top = `0px`;
+      }
+    }
+  }, [advancedMentionSearchData.visible, isMobile]);
+
   const showAdvancedMentionSearch = useCallback(
     (data: AdvancedMentionSearchParams) => {
       setAdvancedMentionSearchData(prev => ({
