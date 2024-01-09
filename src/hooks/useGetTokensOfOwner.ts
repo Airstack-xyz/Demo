@@ -50,7 +50,8 @@ type Inputs = Pick<
 
 export function useGetTokensOfOwner(
   inputs: Inputs,
-  onDataReceived: (tokens: TokenType[]) => void
+  onDataReceived: (tokens: TokenType[]) => void,
+  tokenDisabled = false
 ) {
   const {
     address: owners,
@@ -67,11 +68,14 @@ export function useGetTokensOfOwner(
   const [processedTokensCount, setProcessedTokensCount] = useState(0);
   const tokensRef = useRef<TokenType[]>([]);
 
-  const isPoap = tokenType === 'POAP';
   const is6551 = tokenType === 'ERC6551';
 
   const isSpamFilteringEnabled = spamFilter !== '0';
   const isMintFilteringEnabled = mintFilter === '1';
+
+  const hasAllChainFilter = blockchainType?.length === 0;
+
+  const canFetchTokens = !tokenDisabled;
 
   const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
@@ -79,9 +83,7 @@ export function useGetTokensOfOwner(
   );
 
   const query = useMemo(() => {
-    const fetchAllBlockchains = blockchainType?.length === 0;
-
-    const blockchain = fetchAllBlockchains ? null : blockchainType[0];
+    const blockchain = hasAllChainFilter ? null : blockchainType[0];
 
     if (snapshotInfo.isApplicable) {
       return getNftWithCommonOwnersSnapshotQuery({
@@ -96,6 +98,7 @@ export function useGetTokensOfOwner(
       mintsOnly: isMintFilteringEnabled
     });
   }, [
+    hasAllChainFilter,
     blockchainType,
     snapshotInfo.isApplicable,
     snapshotInfo.appliedFilter,
@@ -112,48 +115,42 @@ export function useGetTokensOfOwner(
   ] = useLazyQueryWithPagination(query, {});
 
   useEffect(() => {
-    if (owners.length === 0) return;
+    if (owners.length === 0 || !canFetchTokens) return;
 
-    const isPoap = tokenType === 'POAP';
+    setLoading(true);
+    visitedTokensSetRef.current = new Set();
+    tokensRef.current = [];
 
-    if (!tokenType || !isPoap) {
-      setLoading(true);
-      visitedTokensSetRef.current = new Set();
-      tokensRef.current = [];
+    const limit = owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT;
+    const tokenFilters =
+      tokenType && tokenType.length > 0 && !is6551
+        ? [tokenType]
+        : tokenTypes.filter(tokenType => includeERC20 || tokenType !== 'ERC20');
+    const sortBy = sortOrder ? sortOrder : defaultSortOrder;
 
-      const limit = owners.length > 1 ? LIMIT_COMBINATIONS : LIMIT;
-      const tokenFilters =
-        tokenType && tokenType.length > 0 && !is6551
-          ? [tokenType]
-          : tokenTypes.filter(
-              tokenType => includeERC20 || tokenType !== 'ERC20'
-            );
-      const sortBy = sortOrder ? sortOrder : defaultSortOrder;
-
-      // For snapshots different variables are being passed
-      if (snapshotInfo.isApplicable) {
-        const queryFilters = getSnapshotQueryFilters(snapshotInfo);
-        fetchTokens({
-          limit,
-          tokenType: tokenFilters,
-          ...queryFilters
-        });
-      } else {
-        fetchTokens({
-          limit,
-          tokenType: tokenFilters,
-          sortBy
-        });
-      }
+    // For snapshots different variables are being passed
+    if (snapshotInfo.isApplicable) {
+      const queryFilters = getSnapshotQueryFilters(snapshotInfo);
+      fetchTokens({
+        limit,
+        tokenType: tokenFilters,
+        ...queryFilters
+      });
+    } else {
+      fetchTokens({
+        limit,
+        tokenType: tokenFilters,
+        sortBy
+      });
     }
 
     setProcessedTokensCount(0);
   }, [
+    canFetchTokens,
     fetchTokens,
     includeERC20,
     is6551,
-    isPoap,
-    owners,
+    owners.length,
     snapshotInfo,
     sortOrder,
     tokenType
@@ -225,10 +222,10 @@ export function useGetTokensOfOwner(
     if (hasNextPage && tokensRef.current.length < LIMIT) {
       setLoading(true);
       getNextPage();
-      return;
+    } else {
+      setLoading(false);
+      tokensRef.current = [];
     }
-    setLoading(false);
-    tokensRef.current = [];
   }, [
     getNextPage,
     hasNextPage,

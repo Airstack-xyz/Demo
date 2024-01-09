@@ -14,7 +14,11 @@ import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
 import { TooltipWrapper } from './TooltipWrapper';
 
-export type BlockchainFilterType = 'all' | TokenBlockchain | SnapshotBlockchain;
+export type BlockchainFilterType =
+  | 'all'
+  | 'gnosis' // !Gnosis: Explicitly add gnosis blockchain type
+  | TokenBlockchain
+  | SnapshotBlockchain;
 
 export const defaultBlockchainFilter: BlockchainFilterType = 'all';
 
@@ -58,6 +62,13 @@ export const getBlockchainOptions = (isSnapshotApplicable?: boolean) => {
       });
     });
   }
+
+  // !Gnosis: Explicitly add gnosis in blockchain options
+  options.push({
+    label: 'Gnosis',
+    value: 'gnosis',
+    disabled: isSnapshotApplicable
+  });
 
   return options;
 };

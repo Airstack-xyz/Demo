@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useGetPoapsOfOwner } from '../../hooks/useGetPoapsOfOwner';
 import { useGetTokensOfOwner } from '../../hooks/useGetTokensOfOwner';
@@ -35,6 +35,7 @@ type TokenProps = Pick<
   | 'activeSnapshotInfo'
 > & {
   poapDisabled?: boolean;
+  tokenDisabled?: boolean;
   includeERC20?: boolean;
 };
 
@@ -48,7 +49,8 @@ function TokensComponent(props: TokenProps) {
     mintFilter,
     activeSnapshotInfo,
     includeERC20,
-    poapDisabled
+    poapDisabled,
+    tokenDisabled
   } = props;
   const [tokens, setTokens] = useState<(TokenType | PoapType)[] | null>(null);
 
@@ -67,46 +69,53 @@ function TokensComponent(props: TokenProps) {
     includeERC20
   };
 
+  const hasAllChainFilter = blockchainType?.length === 0;
+
+  // !Gnosis: Fetch poaps when gnosis blockchain filter is selected
+  const hasGnosisChainFilter =
+    blockchainType?.length === 1 && blockchainType[0] === 'gnosis';
+
+  const hasAllTokenFilter = !tokenType;
+  const hasPoapTokenFilter = tokenType === 'POAP';
+
+  // canFetchTokens and canFetchPoaps dictates whether tokens or poaps should be fetched or not
+  // Same values are passed into hooks to enable/disable them separately
+  const canFetchTokens =
+    !tokenDisabled && !hasGnosisChainFilter && !hasPoapTokenFilter;
+
+  const canFetchPoaps =
+    !poapDisabled &&
+    (hasAllChainFilter || hasGnosisChainFilter) &&
+    (hasAllTokenFilter || hasPoapTokenFilter);
+
   const {
     loading: loadingPoaps,
     getNext: getNextPoaps,
     processedPoapsCount,
     hasNextPage: hasNextPagePoaps
-  } = useGetPoapsOfOwner(inputs, handleTokens, poapDisabled);
+  } = useGetPoapsOfOwner(inputs, handleTokens, !canFetchPoaps);
 
   const {
     loading: loadingTokens,
     getNext: getNextTokens,
     processedTokensCount,
     hasNextPage: hasNextPageTokens
-  } = useGetTokensOfOwner(inputs, handleTokens);
-
-  const isPoap = tokenType === 'POAP';
-
-  const canFetchPoap = useMemo(() => {
-    const hasPolygonOrBaseChainFilter =
-      blockchainType?.length === 1 &&
-      (blockchainType[0] === 'polygon' || blockchainType[0] === 'base');
-    return (
-      !hasPolygonOrBaseChainFilter && !poapDisabled && (!tokenType || isPoap)
-    );
-  }, [blockchainType, isPoap, poapDisabled, tokenType]);
+  } = useGetTokensOfOwner(inputs, handleTokens, !canFetchTokens);
 
   const handleNext = useCallback(() => {
-    if (!loadingTokens && !isPoap && hasNextPageTokens) {
+    if (canFetchTokens && !loadingTokens && hasNextPageTokens) {
       getNextTokens();
     }
-
-    if (canFetchPoap && !loadingPoaps && hasNextPagePoaps) {
+    if (canFetchPoaps && !loadingPoaps && hasNextPagePoaps) {
       getNextPoaps();
     }
   }, [
-    canFetchPoap,
+    canFetchPoaps,
+    canFetchTokens,
     getNextPoaps,
     getNextTokens,
     hasNextPagePoaps,
     hasNextPageTokens,
-    isPoap,
     loadingPoaps,
     loadingTokens
   ]);
@@ -114,6 +123,9 @@ function TokensComponent(props: TokenProps) {
   const loading = loadingTokens || loadingPoaps;
 
   const tokensLength = tokens?.length ?? 0;
+
+  // If can't fetch both tokens or poaps due to filter conditions -> show no data found
+  const forceNoDataFound = !canFetchPoaps && !canFetchTokens;
 
   useEffect(() => {
     const totalProcessedTokens = processedTokensCount + processedPoapsCount;
@@ -126,7 +138,7 @@ function TokensComponent(props: TokenProps) {
 
   // Using tokens?.length here because first time tokens will null initially
   // Don't want to show 'No data found!' when data is restored from cache
-  if (tokens?.length === 0 && !loading) {
+  if ((tokens?.length === 0 && !loading) || forceNoDataFound) {
     return (
       <div className="flex flex-1 justify-center mt-10">No data found!</div>
     );
