@@ -11,6 +11,7 @@ type LoaderData = {
 
 // Show some default total count instead of zero, so that in loader 'Scanning 0 records' is not shown
 const DEFAULT_TOTAL_COUNT = 10;
+const COMBINATION_DEFAULT_TOTAL_COUNT = 1;
 
 const LOADER_HIDE_DELAY = 1000;
 
@@ -30,6 +31,8 @@ export function TokenBalancesLoaderWithInfo() {
   const [isLoaderVisible, setIsLoaderVisible] = useState(false);
 
   const noLoader = address.length < 2;
+
+  const isCombination = address.length > 1;
 
   const showLoader = tokensData.loading || ERC20Data.loading;
 
@@ -70,7 +73,9 @@ export function TokenBalancesLoaderWithInfo() {
   if (noLoader || !isLoaderVisible) return null;
 
   const totalMatching = tokensData.matched + ERC20Data.matched;
-  const totalCount = tokensData.total + ERC20Data.total || DEFAULT_TOTAL_COUNT;
+  const totalCount =
+    tokensData.total + ERC20Data.total ||
+    (isCombination ? COMBINATION_DEFAULT_TOTAL_COUNT : DEFAULT_TOTAL_COUNT);
 
   return <StatusLoader total={totalCount} matching={totalMatching} />;
 }
