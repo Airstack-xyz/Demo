@@ -20,6 +20,7 @@ import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 import { sortByAddressByNonERC20First } from '../../../utils/getNFTQueryForTokensHolder';
 import { Header } from './Header';
 import { AssetType, Token } from './Token';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
 
 const loaderData = Array(6).fill({});
 
@@ -33,7 +34,7 @@ function Loader() {
             className="[&>div>td]:px-2 [&>div>td]:py-3 [&>div>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer skeleton-loader [&>div>td:last-child]:hidden"
           >
             <div data-loader-type="block" data-loader-margin="10">
-              <Token token={null} isCombination={false} />
+              <Token token={null} isCombination={false} isMobile={false} />
             </div>
           </tr>
         ))}
@@ -48,6 +49,8 @@ export function TokensComponent() {
     { address, inputType, activeTokenInfo, activeSnapshotInfo },
     setSearchData
   ] = useSearchInput();
+
+  const isMobile = isMobileDevice();
 
   const overviewTokens: TokenHolder[] = _overviewTokens;
 
@@ -227,6 +230,7 @@ export function TokensComponent() {
                   <Token
                     token={token}
                     isCombination={isCombination}
+                    isMobile={isMobile}
                     onShowMoreClick={handleShowMoreClick}
                     onAddressClick={handleAddressClick}
                     onAssetClick={handleAssetClick}

@@ -191,7 +191,7 @@ function Overview({
               chain={blockchain as Chain}
               useImageOnError // use image if there is an error loading the token image
               videoProps={{
-                controls: false
+                controls: isMobile
               }}
               containerClassName="w-full [&>img]:w-full [&>video]:aspect-square [&>video]:object-cover"
             />
@@ -208,7 +208,7 @@ function Overview({
         />
       );
     });
-  }, [address.length, tokenDetails]);
+  }, [address.length, isMobile, tokenDetails]);
 
   const totalHolders = (overViewData?.owners as number) || 0;
   const tokenName =

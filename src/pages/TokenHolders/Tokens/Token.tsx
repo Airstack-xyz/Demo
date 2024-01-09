@@ -21,12 +21,14 @@ export type AssetType = {
 export function Token({
   token: tokenInProps,
   isCombination,
+  isMobile,
   onShowMoreClick,
   onAddressClick,
   onAssetClick
 }: {
   token: TokenType | Poap | null;
   isCombination: boolean;
+  isMobile: boolean;
   onShowMoreClick?: (addresses: string[], dataType?: string) => void;
   onAddressClick?: (address: string, type?: string) => void;
   onAssetClick?: (asset: AssetType) => void;
@@ -160,7 +162,7 @@ export function Token({
                     chain={blockchain}
                     image={image}
                     videoProps={{
-                      controls: false
+                      controls: isMobile
                     }}
                   />
                   {has6551 && (
@@ -183,7 +185,7 @@ export function Token({
                         chain={blockchain}
                         image={image}
                         videoProps={{
-                          controls: false
+                          controls: isMobile
                         }}
                       />
                     </div>
