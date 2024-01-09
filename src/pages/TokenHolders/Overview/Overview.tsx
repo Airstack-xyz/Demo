@@ -17,6 +17,7 @@ import { useGetAccountOwner } from '../../../hooks/useGetAccountOwner';
 import { ERC6551TokenHolder } from '../ERC6551TokenHolder';
 import { Details } from './Details';
 import { TokenDetailsReset } from '../../../store/tokenDetails';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
 
 function Overview({
   onAddress404,
@@ -28,6 +29,8 @@ function Overview({
   const [{ address, activeView, activeTokenInfo }] = useSearchInput();
 
   const isPoap = address.every(token => !token.startsWith('0x'));
+
+  const isMobile = isMobileDevice();
 
   const [fetchTokens, tokens, loadingTokens] = useFetchTokens();
   const [fetchAccountsOwner, account, loadingAccount] = useGetAccountOwner(
@@ -346,32 +349,34 @@ function Overview({
         </div>
         <div className="grid grid-cols-2 gap-2.5 mt-5">{holderCounts}</div>
       </div>
-      <div
-        className={classNames(
-          'h-full flex-1 hidden [&>div]:h-full [&>div]:w-full sm:flex-col-center min-w-[421px] max-w-[421px] relative overflow-hidden',
-          {
-            'skeleton-loader': loadingTokens || loadingAccount
-          }
-        )}
-        data-loader-type="block"
-      >
+      {!isMobile && (
         <div
           className={classNames(
-            'flex [&>*]:w-1/2 justify-center items-center flex-wrap z-10 bg-glass',
+            'h-full flex-1 hidden [&>div]:h-full [&>div]:w-full sm:flex-col-center min-w-[421px] max-w-[421px] relative overflow-hidden',
             {
-              '[&>div]:!h-full [&>div]:!w-full':
-                tokenImages && tokenImages.length === 1
+              'skeleton-loader': loadingTokens || loadingAccount
             }
           )}
+          data-loader-type="block"
         >
-          {tokenImages}
-        </div>
-        {address.length > 1 && (
-          <div className="flex [&>*]:w-1/2 justify-center items-center flex-wrap h-[150%] w-[150%] absolute">
+          <div
+            className={classNames(
+              'flex [&>*]:w-1/2 justify-center items-center flex-wrap z-10 bg-glass',
+              {
+                '[&>div]:!h-full [&>div]:!w-full':
+                  tokenImages && tokenImages.length === 1
+              }
+            )}
+          >
             {tokenImages}
           </div>
-        )}
-      </div>
+          {address.length > 1 && (
+            <div className="flex [&>*]:w-1/2 justify-center items-center flex-wrap h-[150%] w-[150%] absolute">
+              {tokenImages}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

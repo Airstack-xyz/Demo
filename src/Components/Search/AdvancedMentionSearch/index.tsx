@@ -44,6 +44,7 @@ function GridLoader() {
 type SearchDataType = {
   isLoading: boolean;
   isError?: boolean;
+  searchTerm?: string | null;
   cursor?: string | null;
   nextCursor?: string | null;
   hasMore: boolean;
@@ -66,6 +67,7 @@ const DISABLED_KEYS = [
 
 const defaultSearchData: SearchDataType = {
   isLoading: false,
+  searchTerm: null,
   cursor: null,
   nextCursor: null,
   hasMore: true,
@@ -103,6 +105,7 @@ export default function AdvancedMentionSearch({
   const {
     isLoading,
     isError,
+    searchTerm,
     cursor,
     hasMore,
     items,
@@ -188,6 +191,22 @@ export default function AdvancedMentionSearch({
   );
 
   useEffect(() => {
+    // returns null when there is no matching @mention query found from given index
+    const query = getSearchQuery(mentionValue, queryStartIndex);
+    if (query === null) {
+      onClose();
+      return;
+    }
+    setSearchData(prev => ({
+      ...prev,
+      searchTerm: query,
+      cursor: null,
+      hasMore: true,
+      items: []
+    }));
+  }, [onClose, mentionValue, queryStartIndex]);
+
+  useEffect(() => {
     const mentionInputEl = mentionInputRef.current;
 
     // set mention-input's caret to correct position
@@ -255,19 +274,12 @@ export default function AdvancedMentionSearch({
   ]);
 
   useEffect(() => {
-    // returns null when there is no matching @mention query found from given index
-    const query = getSearchQuery(mentionValue, queryStartIndex);
-    if (query === null) {
-      onClose();
-      return;
-    }
-
     const controller = new AbortController();
 
     // for first time if no filters are applied then -> fetch POAPs while keeping default filters selected
     const shouldUseInitialFilters =
       firstFetchRef.current &&
-      !query &&
+      !searchTerm &&
       selectedToken.value === null &&
       selectedChain.value === null;
 
@@ -278,7 +290,7 @@ export default function AdvancedMentionSearch({
         }
       : {
           limit: LIMIT,
-          searchTerm: query,
+          searchTerm: searchTerm,
           cursor: cursor,
           tokenType: selectedToken.value,
           blockchain: selectedChain.value
@@ -289,15 +301,7 @@ export default function AdvancedMentionSearch({
     return () => {
       controller?.abort();
     };
-  }, [
-    cursor,
-    selectedToken.value,
-    selectedChain.value,
-    fetchData,
-    mentionValue,
-    queryStartIndex,
-    onClose
-  ]);
+  }, [cursor, fetchData, searchTerm, selectedChain.value, selectedToken.value]);
 
   const handleReloadData = useCallback(() => {
     setSearchData(prev => ({

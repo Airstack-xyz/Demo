@@ -88,6 +88,10 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
     ]
   );
 
+  // !Gnosis: Don't show ERC20 tokens when gnosis blockchain is selected
+  const hasGnosisChainFilter =
+    blockchainType?.length === 1 && blockchainType[0] === 'gnosis';
+
   return (
     <aside className="w-full min-w-full sm:w-[305px] sm:min-w-[305px] sm:ml-16">
       {address.length == 1 && !hideSocials && (
@@ -102,7 +106,7 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
           <div className="mt-11"></div>
         </>
       )}
-      <ERC20Tokens key={erc20Key} />
+      {!hasGnosisChainFilter && <ERC20Tokens key={erc20Key} />}
     </aside>
   );
 });
@@ -512,12 +516,18 @@ function TokenBalancePage() {
   ]);
 
   const { tab1Header, tab2Header } = useMemo(() => {
-    const tab1Header = `NFTs & POAPs${isCombination ? ' in common' : ''}`;
-    const tab2Header = `${isCombination ? 'ERC20' : 'Socials & ERC20'}${
-      isCombination ? ' in common' : ''
-    }`;
+    let tab1Header = 'NFTs & POAPs';
+    let tab2Header = 'Socials & ERC20';
+    // !Gnosis: Don't show ERC20 header in tab2 when gnosis blockchain is selected
+    if (blockchainType?.length === 1 && blockchainType[0] === 'gnosis') {
+      tab2Header = 'Socials';
+    }
+    if (isCombination) {
+      tab1Header += ' in common';
+      tab2Header += ' in common';
+    }
     return { tab1Header, tab2Header };
-  }, [isCombination]);
+  }, [blockchainType, isCombination]);
 
   // force the component to re-render when any of the search input change, so that the tokens are reset and refetch
   const tokensKey = useMemo(
@@ -542,7 +552,7 @@ function TokenBalancePage() {
     mintFilterDisabled
   } = useMemo(() => {
     let snapshotFilterDisabled = false;
-    let blockchainFilterDisabled = false;
+    const blockchainFilterDisabled = false;
     let sortByFilterDisabled = false;
     let mintFilterTooltip = '';
     let mintFilterDisabled = false;
@@ -555,7 +565,6 @@ function TokenBalancePage() {
     }
     if (isPoap) {
       snapshotFilterDisabled = true;
-      blockchainFilterDisabled = true;
     }
     if (isCombination) {
       snapshotFilterDisabled = true;
