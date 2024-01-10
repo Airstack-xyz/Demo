@@ -68,7 +68,7 @@ function Provider({ children }: AuthProviderProps) {
   const authenticated = auth?.authenticated;
   const user = authenticated ? me : null;
 
-  const { login } = useLogin({
+  useLogin({
     onComplete: async () => {
       if (loginCompleted.current) {
         return;
@@ -86,6 +86,7 @@ function Provider({ children }: AuthProviderProps) {
       console.log('error when login with privy, ', error);
     }
   });
+
   const getUser = useCallback(async () => {
     const { data } = await _getUser();
     if (data?.Me) {
@@ -105,11 +106,14 @@ function Provider({ children }: AuthProviderProps) {
       user: user,
       loading: userLoading || loginInProgress,
       getUser,
-      login,
+      login: () => {
+        location.href =
+          'https://app.dev.airstack.xyz/login?origin=' + location.href;
+      },
       logout,
       loggedIn: (user && user?.isProfileCompleted) || false
     }),
-    [auth, user, userLoading, loginInProgress, getUser, login, logout]
+    [auth, user, userLoading, loginInProgress, getUser, logout]
   );
 
   return (
@@ -121,7 +125,7 @@ function Provider({ children }: AuthProviderProps) {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   return (
-    <PrivyProvider appId={'clfa8br05001mmj08t4q9lno4'} config={config}>
+    <PrivyProvider appId={process.env.PRIVY_APP_ID as string} config={config}>
       <Provider>{children}</Provider>
     </PrivyProvider>
   );

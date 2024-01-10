@@ -3,7 +3,7 @@ import type { CodegenConfig } from '@graphql-codegen/cli';
 // codegen-config: https://the-guild.dev/graphql/codegen/docs/config-reference/codegen-config
 const config: CodegenConfig = {
   overwrite: true,
-  schema: ['https://backend.dev.airstack.xyz/graphql'],
+  schema: ['https://backend.uat.airstack.xyz/graphql'],
   documents: ['src/**/*.tsx', 'src/**/*.ts'],
   generates: {
     '__generated__/types.ts': {

@@ -9,7 +9,8 @@ export default defineConfig(({ mode }) => {
   const publicVariables = {
     GOOGLE_TAG_MANAGER_ID: env.GOOGLE_TAG_MANAGER_ID,
     API_KEY: env.API_KEY,
-    MENTION_ENDPOINT: env.MENTION_ENDPOINT
+    MENTION_ENDPOINT: env.MENTION_ENDPOINT,
+    PRIVY_APP_ID: env.PRIVY_APP_ID
   };
 
   return {
