@@ -59,6 +59,9 @@ export function SearchInputSection({
   const isAdvancedMentionSearchEnabled =
     enabledSearchType === 'ADVANCED_MENTION_SEARCH';
 
+  const isSocialSearchVisible = socialSearchData.visible;
+  const isAdvancedMentionSearchVisible = advancedMentionSearchData.visible;
+
   useEffect(() => {
     const mentionInputEl = mentionInputRef?.current;
     function handleMentionInputFocus() {
@@ -86,7 +89,7 @@ export function SearchInputSection({
   useEffect(() => {
     // For mobile - move input section to top, when advance search is visible
     if (isMobile && inputSectionRef.current) {
-      if (advancedMentionSearchData.visible) {
+      if (isAdvancedMentionSearchVisible) {
         const { top } = inputSectionRef.current.getBoundingClientRect();
         const inputTopPosition = -top + 10;
         inputSectionRef.current.style.top = `${inputTopPosition}px`;
@@ -94,7 +97,7 @@ export function SearchInputSection({
         inputSectionRef.current.style.top = `0px`;
       }
     }
-  }, [advancedMentionSearchData.visible, isMobile]);
+  }, [isAdvancedMentionSearchVisible, isMobile]);
 
   const showAdvancedMentionSearch = useCallback(
     (data: AdvancedMentionSearchParams) => {
@@ -157,22 +160,22 @@ export function SearchInputSection({
   );
 
   const handleInputClear = useCallback(() => {
-    if (advancedMentionSearchData.visible) {
+    if (isAdvancedMentionSearchVisible) {
       setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
     } else {
       onValueChange('');
     }
-  }, [advancedMentionSearchData.visible, onValueChange]);
+  }, [isAdvancedMentionSearchVisible, onValueChange]);
 
   const handleInputSubmit = () => {
     handleOnSubmit(value);
   };
 
   const renderButtonContent = () => {
-    if (!value || (advancedMentionSearchData.visible && isMobile)) {
+    if (!value || (isAdvancedMentionSearchVisible && isMobile)) {
       return null;
     }
-    if (!isInputSectionFocused || advancedMentionSearchData.visible) {
+    if (!isInputSectionFocused || isAdvancedMentionSearchVisible) {
       return (
         <button
           type="button"
@@ -196,12 +199,17 @@ export function SearchInputSection({
   const disableSuggestions = !enabledSearchType || isSocialSearchEnabled;
 
   return (
-    <div className="flex-row-center relative h-[50px] z-40">
+    <div
+      className={classNames(
+        'flex-row-center relative h-[50px]',
+        isAdvancedMentionSearchVisible ? 'z-[200]' : 'z-40'
+      )}
+    >
       <div
         ref={inputSectionRef}
         className={classNames(
           'before-bg-glass before:rounded-18 before:border-solid-stroke transition-all absolute top-0',
-          advancedMentionSearchData.visible && !isMobile
+          isAdvancedMentionSearchVisible && !isMobile
             ? 'w-[min(70vw,900px)]'
             : 'w-full'
         )}
@@ -234,7 +242,7 @@ export function SearchInputSection({
             {renderButtonContent()}
           </div>
         </div>
-        {advancedMentionSearchData.visible && (
+        {isAdvancedMentionSearchVisible && (
           <>
             <div
               className="bg-primary/70 z-[-1] inset-0 fixed"
@@ -251,7 +259,7 @@ export function SearchInputSection({
             />
           </>
         )}
-        {socialSearchData.visible && (
+        {isSocialSearchVisible && (
           <>
             <SocialSearch
               {...socialSearchData}

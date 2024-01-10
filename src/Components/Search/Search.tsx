@@ -253,7 +253,7 @@ export const Search = memo(function Search() {
     : 'ADVANCED_MENTION_SEARCH';
 
   return (
-    <div className="relative z-50">
+    <div className="relative">
       <div className="my-6 flex-col-center">
         <SearchTabSection
           isHome={isHome}
