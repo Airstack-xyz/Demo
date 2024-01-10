@@ -62,6 +62,7 @@ export function Asset({
       }
       videoProps={{
         playsInline: true, // forces video to play in same place
+        autoPlay: true, // autoplay video
         ...videoProps
       }}
       {...props}
