@@ -67,9 +67,13 @@ function Provider({ children }: AuthProviderProps) {
 
   const authenticated = auth?.authenticated;
   const user = authenticated ? me : null;
+  // eslint-disable-next-line no-console
+  console.log({ auth });
 
   useLogin({
-    onComplete: async () => {
+    onComplete: async (user, a, b) => {
+      // eslint-disable-next-line no-console
+      console.log(' login completed', user, a, b);
       if (loginCompleted.current) {
         return;
       }
