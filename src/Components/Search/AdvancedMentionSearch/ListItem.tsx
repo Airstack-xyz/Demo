@@ -26,6 +26,8 @@ export default function ListItem({
 }: ListItemProps) {
   const { type, tokenType, name, blockchain, image, metadata } = item;
 
+  const assetType = type === 'POAP' ? 'POAP' : tokenType;
+
   const formattedBlockchain = capitalizeFirstLetter(blockchain);
 
   const tokenMints = metadata?.tokenMints;
@@ -53,7 +55,7 @@ export default function ListItem({
         <span className="text-[10px] text-text-secondary pb-[1px] whitespace-nowrap">
           <span>{formattedBlockchain}</span>
           <span> • </span>
-          <span>{tokenType}</span>
+          <span>{assetType}</span>
           {showPOAPHolderCount && (
             <>
               <span> • </span>

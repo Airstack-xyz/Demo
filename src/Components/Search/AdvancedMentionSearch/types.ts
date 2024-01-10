@@ -14,6 +14,11 @@ export type SearchDataType = {
   selectedChain: ChainSelectOption;
 };
 
+export type FiltersType = {
+  token: TokenSelectOption;
+  chain: ChainSelectOption;
+};
+
 export type FilterButtonDataType = {
   containerRef: RefObject<HTMLElement | null>;
   RenderButton?: (props: {

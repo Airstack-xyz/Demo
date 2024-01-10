@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { RefObject, useCallback, useMemo, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Icon } from '../../Icon';
 import { ChainSelectOption } from './ChainFilter';
@@ -8,6 +8,7 @@ import { TokenSelectOption } from './TokenFilter';
 import {
   AdvancedMentionSearchItem,
   FilterButtonDataType,
+  FiltersType,
   SearchDataType
 } from './types';
 import { getAppliedFilterCount } from './utils';
@@ -27,6 +28,7 @@ function ListLoader() {
 }
 
 type ListViewProps = {
+  mentionInputRef: RefObject<HTMLTextAreaElement | null>;
   filtersButtonData?: FilterButtonDataType;
   searchData: SearchDataType;
   focusIndex: null | number;
@@ -41,6 +43,7 @@ type ListViewProps = {
 };
 
 export default function ListView({
+  mentionInputRef,
   filtersButtonData,
   searchData,
   focusIndex,
@@ -66,6 +69,16 @@ export default function ListView({
     setIsFiltersViewVisible(false);
   }, []);
 
+  const applyFilter = useCallback(
+    ({ token, chain }: FiltersType) => {
+      onTokenSelect(token);
+      onChainSelect(chain);
+      setIsFiltersViewVisible(false);
+      mentionInputRef.current?.focus();
+    },
+    [mentionInputRef, onChainSelect, onTokenSelect]
+  );
+
   const appliedFilterCount = useMemo(
     () =>
       getAppliedFilterCount({
@@ -90,9 +103,8 @@ export default function ListView({
         <FiltersView
           selectedChain={selectedChain}
           selectedToken={selectedToken}
-          onChainSelect={onChainSelect}
-          onTokenSelect={onTokenSelect}
           onClose={hideFiltersView}
+          onApply={applyFilter}
         />
       ) : (
         <div

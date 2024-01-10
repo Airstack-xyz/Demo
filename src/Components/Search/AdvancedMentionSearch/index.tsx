@@ -384,6 +384,7 @@ export default function AdvancedMentionSearch({
     <div ref={containerRef} className="relative z-20">
       {isListView ? (
         <ListView
+          mentionInputRef={mentionInputRef}
           filtersButtonData={filtersButtonData}
           searchData={searchData}
           focusIndex={focusIndex}

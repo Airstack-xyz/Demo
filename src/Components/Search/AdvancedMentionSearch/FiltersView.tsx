@@ -5,7 +5,7 @@ import { FilterOption } from '../../Filters/FilterOption';
 import { Icon } from '../../Icon';
 import { ChainSelectOption, chainOptions } from './ChainFilter';
 import { TokenSelectOption, tokenOptions } from './TokenFilter';
-import { FilterButtonDataType } from './types';
+import { FilterButtonDataType, FiltersType } from './types';
 
 export function FiltersButtonPortal({
   containerRef,
@@ -51,28 +51,24 @@ export function FiltersButtonPortal({
 type FiltersViewProps = {
   selectedToken: TokenSelectOption;
   selectedChain: ChainSelectOption;
-  onTokenSelect: (option: TokenSelectOption) => void;
-  onChainSelect: (option: ChainSelectOption) => void;
   onClose: () => void;
+  onApply: (params: FiltersType) => void;
 };
 
 const sectionHeaderClass =
   'font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap';
 
 export default function FiltersView({
-  onClose,
   selectedToken,
   selectedChain,
-  onTokenSelect,
-  onChainSelect
+  onClose,
+  onApply
 }: FiltersViewProps) {
   const [currentTokenOption, setCurrentTokenOption] = useState(selectedToken);
   const [currentChainOption, setCurrentChainOption] = useState(selectedChain);
 
   const handleApplyClick = () => {
-    onTokenSelect(currentTokenOption);
-    onChainSelect(currentChainOption);
-    onClose();
+    onApply({ token: currentTokenOption, chain: currentChainOption });
   };
 
   const renderTokenSection = () => {
