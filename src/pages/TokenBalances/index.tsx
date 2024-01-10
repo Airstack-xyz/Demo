@@ -703,7 +703,7 @@ function TokenBalancePage() {
       <TokenDetailsReset>
         <div
           className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
-            'flex-1 h-full w-full flex flex-col translate-y-[10vw] items-center text-center':
+            'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
               isHome
           })}
         >
