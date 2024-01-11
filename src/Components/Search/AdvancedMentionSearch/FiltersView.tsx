@@ -40,7 +40,12 @@ export function FiltersButtonPortal({
       ) : (
         <>
           <span>Filters</span>
-          <Icon name="arrow-down" height={18} width={18} className="ml-0.5" />
+          <Icon
+            name="arrow-down"
+            height={18}
+            width={18}
+            className={classNames('ml-0.5', isOpen ? 'rotate-180' : 'rotate-0')}
+          />
         </>
       )}
     </button>
