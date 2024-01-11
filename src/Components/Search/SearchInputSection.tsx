@@ -87,17 +87,21 @@ export function SearchInputSection({
   }, []);
 
   useEffect(() => {
-    // For mobile - move input section to top, when advance search is visible
-    if (isMobile && inputSectionRef.current) {
-      if (isAdvancedMentionSearchVisible) {
-        const { top } = inputSectionRef.current.getBoundingClientRect();
-        const inputTopPosition = -top + 10;
-        inputSectionRef.current.style.top = `${inputTopPosition}px`;
-      } else {
-        inputSectionRef.current.style.top = `0px`;
+    // For mobile - scroll to top such that input section is at top of viewport
+    if (
+      inputSectionRef.current &&
+      isMobile &&
+      (isAdvancedMentionSearchVisible || isSocialSearchVisible)
+    ) {
+      const { top } = inputSectionRef.current.getBoundingClientRect();
+      const viewportScrollY = window.scrollY;
+      const targetScrollTop = viewportScrollY + top - 8;
+      // Check if there is need to scroll
+      if (viewportScrollY < targetScrollTop) {
+        window.scroll({ top: targetScrollTop, behavior: 'smooth' });
       }
     }
-  }, [isAdvancedMentionSearchVisible, isMobile]);
+  }, [isAdvancedMentionSearchVisible, isMobile, isSocialSearchVisible]);
 
   const showAdvancedMentionSearch = useCallback(
     (data: AdvancedMentionSearchParams) => {
@@ -199,12 +203,7 @@ export function SearchInputSection({
   const disableSuggestions = !enabledSearchType || isSocialSearchEnabled;
 
   return (
-    <div
-      className={classNames(
-        'flex-row-center relative h-[50px]',
-        isAdvancedMentionSearchVisible ? 'z-[200]' : 'z-40'
-      )}
-    >
+    <div className="flex-row-center relative h-[50px] z-40">
       <div
         ref={inputSectionRef}
         className={classNames(

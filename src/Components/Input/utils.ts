@@ -120,20 +120,22 @@ export function highlightMention(
   };
   const observer = new MutationObserver(callback);
   observer.observe(targetNode, config);
-  callback(); // handle the initial value
+  callback(); // Handle the initial value
 
+  // !Important: handleScroll is responsible for moving overflow text content to left, without this typing will not shift text content to left
   function handleScroll({ target }: any) {
     root.scrollTop = target.scrollTop;
     root.scrollLeft = target.scrollLeft;
   }
 
-  el.addEventListener('scroll', handleScroll);
+  el?.addEventListener('scroll', handleScroll);
+  // Adding keyup event as well because scroll event on mention-input doesn't get called on Safari
+  el?.addEventListener('keyup', handleScroll);
 
   return () => {
     observer.disconnect();
-    if (el) {
-      el.removeEventListener('scroll', handleScroll);
-    }
+    el?.removeEventListener('scroll', handleScroll);
+    el?.removeEventListener('keyup', handleScroll);
   };
 }
 

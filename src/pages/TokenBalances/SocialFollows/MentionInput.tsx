@@ -93,6 +93,8 @@ export function MentionInput({
 
   const isMobile = isMobileDevice();
 
+  const isAdvancedMentionSearchVisible = advancedMentionSearchData.visible;
+
   useEffect(() => {
     const mentionInputEl = mentionInputRef?.current;
     function handleMentionInputFocus() {
@@ -115,6 +117,19 @@ export function MentionInput({
       document.removeEventListener('click', handleClickOutside, true);
     };
   }, []);
+
+  useEffect(() => {
+    // For mobile - scroll to top such that input section is at top of viewport
+    if (inputSectionRef.current && isMobile && isAdvancedMentionSearchVisible) {
+      const { top } = inputSectionRef.current.getBoundingClientRect();
+      const viewportScrollY = window.scrollY;
+      const targetScrollTop = viewportScrollY + top - 8;
+      // Check if there is need to scroll
+      if (viewportScrollY < targetScrollTop) {
+        window.scroll({ top: targetScrollTop, behavior: 'smooth' });
+      }
+    }
+  }, [isAdvancedMentionSearchVisible, isMobile]);
 
   const handleSubmit = useCallback(
     (val: string) => {
@@ -176,23 +191,23 @@ export function MentionInput({
   );
 
   const handleInputClear = useCallback(() => {
-    if (advancedMentionSearchData.visible) {
+    if (isAdvancedMentionSearchVisible) {
       setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
     } else {
       setValue('');
       onClear?.();
     }
-  }, [advancedMentionSearchData.visible, onClear]);
+  }, [isAdvancedMentionSearchVisible, onClear]);
 
   const handleInputSubmit = () => {
     handleSubmit(value);
   };
 
   const renderButtonContent = () => {
-    if (!value || (advancedMentionSearchData.visible && isMobile)) {
+    if (!value || (isAdvancedMentionSearchVisible && isMobile)) {
       return null;
     }
-    if (!isInputSectionFocused || advancedMentionSearchData.visible) {
+    if (!isInputSectionFocused || isAdvancedMentionSearchVisible) {
       return (
         <button type="button" onClick={handleInputClear}>
           <Icon name="close" width={14} height={14} />
@@ -207,54 +222,52 @@ export function MentionInput({
   };
 
   return (
-    <div className="relative z-10">
-      <div ref={inputSectionRef}>
+    <div className="relative z-10" ref={inputSectionRef}>
+      <div
+        className={classNames(
+          'sf-mention-input',
+          { 'cursor-not-allowed': disabled },
+          className
+        )}
+      >
+        <InputWithMention
+          mentionInputRef={mentionInputRef}
+          value={value}
+          disabled={disabled}
+          placeholder={placeholder}
+          onChange={setValue}
+          onSubmit={handleSubmit}
+          onAdvancedMentionSearch={showAdvancedMentionSearch}
+        />
+        <div ref={buttonSectionRef} className="flex justify-end pl-2">
+          {renderButtonContent()}
+        </div>
+      </div>
+      {isAdvancedMentionSearchVisible && (
         <div
           className={classNames(
-            'sf-mention-input',
-            { 'cursor-not-allowed': disabled },
-            className
+            'before-bg-glass before:rounded-18 rounded-18 border-solid-stroke absolute top-8',
+            isMobile ? 'w-full' : 'w-[min(60vw,786px)]'
           )}
         >
-          <InputWithMention
-            mentionInputRef={mentionInputRef}
-            value={value}
-            disabled={disabled}
-            placeholder={placeholder}
-            onChange={setValue}
-            onSubmit={handleSubmit}
-            onAdvancedMentionSearch={showAdvancedMentionSearch}
-          />
-          <div ref={buttonSectionRef} className="flex justify-end pl-2">
-            {renderButtonContent()}
-          </div>
-        </div>
-        {advancedMentionSearchData.visible && (
           <div
-            className={classNames(
-              'before-bg-glass before:rounded-18 rounded-18 border-solid-stroke absolute top-8',
-              isMobile ? 'w-full' : 'w-[min(60vw,786px)]'
-            )}
-          >
-            <div
-              className="bg-primary/70 z-[-1] inset-0 fixed"
-              onClick={hideAdvancedMentionSearch}
-            />
-            <AdvancedMentionSearch
-              {...advancedMentionSearchData}
-              filtersButtonData={{
-                containerRef: buttonSectionRef,
-                RenderButton: MentionFiltersButton
-              }}
-              mentionInputRef={mentionInputRef}
-              mentionValue={value}
-              viewType={isMobile ? 'LIST_VIEW' : 'GRID_VIEW'}
-              onChange={handleSubmitAfterDelay}
-              onClose={hideAdvancedMentionSearch}
-            />
-          </div>
-        )}
-      </div>
+            className="bg-primary/70 z-[-1] inset-0 fixed"
+            onClick={hideAdvancedMentionSearch}
+          />
+          <AdvancedMentionSearch
+            {...advancedMentionSearchData}
+            filtersButtonData={{
+              containerRef: buttonSectionRef,
+              RenderButton: MentionFiltersButton
+            }}
+            mentionInputRef={mentionInputRef}
+            mentionValue={value}
+            viewType={isMobile ? 'LIST_VIEW' : 'GRID_VIEW'}
+            onChange={handleSubmitAfterDelay}
+            onClose={hideAdvancedMentionSearch}
+          />
+        </div>
+      )}
     </div>
   );
 }
