@@ -1,20 +1,5 @@
 import { useLazyQuery } from '@airstack/airstack-react';
-import { Icon } from '../../../Components/Icon';
-import { Token } from '../Token';
-import {
-  accountHolderQuery,
-  erc20TokenDetailsQuery,
-  poapDetailsQuery,
-  tokenDetailsQuery
-} from '../../../queries/tokenDetails';
-import {
-  Account,
-  AccountHolderResponse,
-  ERC20Response,
-  Nft,
-  TokenTransfer
-} from '../ERC20/types';
-import { NestedTokens } from './NestedTokens';
+import classNames from 'classnames';
 import { useCallback, useEffect, useRef } from 'react';
 import {
   Link,
@@ -22,16 +7,32 @@ import {
   useMatch,
   useNavigate
 } from 'react-router-dom';
+import { Icon } from '../../../Components/Icon';
 import { useSearchInput } from '../../../hooks/useSearchInput';
-import { PoapData } from './types';
-import { PoapInfo } from './PoapInfo';
-import { NFTInfo, TokenERC20Info } from './NFTInfo';
-import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
-import classNames from 'classnames';
+import {
+  accountHolderQuery,
+  erc20TokenDetailsQuery,
+  poapDetailsQuery,
+  tokenDetailsQuery
+} from '../../../queries/tokenDetails';
 import { useTokenDetails } from '../../../store/tokenDetails';
-import { getActiveTokensInfoFromArray } from '../../../utils/activeTokenInfoString';
-import { SocialInfo } from '../../../utils/activeSocialInfoString';
 import { capitalizeFirstLetter } from '../../../utils';
+import { SocialInfo } from '../../../utils/activeSocialInfoString';
+import { getActiveTokensInfoFromArray } from '../../../utils/activeTokenInfoString';
+import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
+import {
+  Account,
+  AccountHolderResponse,
+  ERC20Response,
+  Nft,
+  TokenTransfer
+} from '../ERC20/types';
+import { Token } from '../Token';
+import { NFTInfo, TokenERC20Info } from './NFTInfo';
+import { NestedTokens } from './NestedTokens';
+import { PoapInfo } from './PoapInfo';
+import { PoapData } from './types';
 
 function LoaderItem() {
   return (
@@ -137,7 +138,11 @@ export function TokenDetails(props: {
 
   const [{ address, rawInput, inputType, activeSnapshotInfo }, setSearchData] =
     useSearchInput();
+
   const navigate = useNavigate();
+
+  const isMobile = isMobileDevice();
+
   const isTokenBalances = !!useMatch('/token-balances');
   const [, setDetails] = useTokenDetails(['hasERC6551']);
 
@@ -412,7 +417,8 @@ export function TokenDetails(props: {
                 label:
                   (isPoap
                     ? poap?.poapEvent?.eventName
-                    : erc20Token?.name || nft?.token?.name) || '--'
+                    : erc20Token?.name || nft?.token?.name) || '--',
+                truncateLabel: isMobile
               })}
             >
               <Icon name="token-holders-white" />

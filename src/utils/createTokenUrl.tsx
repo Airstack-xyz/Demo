@@ -13,7 +13,8 @@ export function createTokenHolderUrl({
   inputType = 'ADDRESS',
   blockchain,
   type,
-  label
+  label,
+  truncateLabel
 }: CreateTokenHolderUrlArgument) {
   return {
     pathname: '/token-holders',
@@ -26,7 +27,8 @@ export function createTokenHolderUrl({
         type,
         address,
         label,
-        blockchain
+        blockchain,
+        truncateLabel
       })
     }).toString()
   };
@@ -34,7 +36,8 @@ export function createTokenHolderUrl({
 export function createTokenBalancesUrl({
   address,
   inputType = 'ADDRESS',
-  blockchain
+  blockchain,
+  truncateLabel
 }: Omit<CreateTokenHolderUrlArgument, 'label' | 'type'>) {
   return {
     pathname: '/token-balances',
@@ -46,7 +49,8 @@ export function createTokenBalancesUrl({
         type: 'ADDRESS',
         address,
         label: address,
-        blockchain
+        blockchain,
+        truncateLabel
       })
     }).toString()
   };

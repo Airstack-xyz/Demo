@@ -7,7 +7,7 @@ import {
 } from 'react';
 import { AdvancedMentionSearchQuery } from '../../../queries';
 import { isMobileDevice } from '../../../utils/isMobileDevice';
-import { fetchAIMentions } from '../../Input/utils';
+import { fetchAIMentions, getMentionCount } from '../../Input/utils';
 import { PADDING } from '../Search';
 import { ChainSelectOption, defaultChainOption } from './ChainFilter';
 import GridView from './GridView';
@@ -369,9 +369,9 @@ export default function AdvancedMentionSearch({
   };
 
   const handleItemSelect = (item: AdvancedMentionSearchItem) => {
-    // @mention name should be truncated in mobile for first mention
-    const shouldTruncate = isMobile && queryStartIndex < 3;
-    const mention = getSearchItemMention(item, shouldTruncate);
+    // @mention label should be truncated in mobile for first mention
+    const truncateLabel = isMobile && getMentionCount(mentionValue) === 0;
+    const mention = getSearchItemMention(item, truncateLabel);
     handleMentionChange(mention);
   };
 

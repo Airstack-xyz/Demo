@@ -12,14 +12,17 @@ import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
 
 type TokenProps = {
   token: null | TokenType | PoapType;
+  isMobile?: boolean;
 };
 
 function Token({
   token: tokenProp,
-  ownerName
+  ownerName,
+  isMobile
 }: {
   token: TokenType | PoapType;
   ownerName: string;
+  isMobile?: boolean;
 }) {
   const [{ activeTokenInfo }, setSearchData] = useSearchInput();
   const token = (tokenProp || {}) as TokenType;
@@ -143,7 +146,8 @@ function Token({
             inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
             type,
             blockchain,
-            label: tokenName || '--'
+            label: tokenName || '--',
+            truncateLabel: isMobile
           })}
           onClick={e => e.stopPropagation()}
         >
@@ -186,7 +190,8 @@ function Token({
 const MAX_TOKENS = 2;
 
 export const TokenCombination = memo(function TokenCombination({
-  token: tokenProp
+  token: tokenProp,
+  isMobile
 }: TokenProps) {
   const [showAllTokens, setShowAllTokens] = useState(false);
   const [{ address: owners }] = useSearchInput();
@@ -256,6 +261,7 @@ export const TokenCombination = memo(function TokenCombination({
               token={_token}
               key={index}
               ownerName={index === 0 ? owners[0] : owners[1]}
+              isMobile={isMobile}
             />
           );
         })}

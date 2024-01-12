@@ -8,6 +8,8 @@ import {
 } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { SocialSearchQuery } from '../../../queries';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
+import { getMentionCount } from '../../Input/utils';
 import { PADDING } from '../Search';
 import ListItem, { ListItemLoader } from './ListItem';
 import {
@@ -70,6 +72,8 @@ export default function SocialSearch({
   const [searchData, setSearchData] =
     useState<SearchDataType>(defaultSearchData);
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
+
+  const isMobile = isMobileDevice();
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -234,7 +238,9 @@ export default function SocialSearch({
   };
 
   const handleItemSelect = (item: SocialSearchItem) => {
-    const mention = getSearchItemMention(item);
+    // @mention label should be truncated in mobile for first mention
+    const truncateLabel = isMobile && getMentionCount(mentionValue) === 0;
+    const mention = getSearchItemMention(item, truncateLabel);
     handleMentionChange(mention);
   };
 

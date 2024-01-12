@@ -4,22 +4,19 @@ import {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
 } from '../../Input/react-mentions/utils';
-import { MENTION_CONFIG } from '../../Input/utils';
+import { MENTION_CONFIG, truncateMentionLabel } from '../../Input/utils';
 import { ChainSelectOption, defaultChainOption } from './ChainFilter';
 import { TokenSelectOption, defaultTokenOption } from './TokenFilter';
 import { AdvancedMentionSearchItem } from './types';
 
-const MINIMUM_NAME_LENGTH = 25;
-
 export const getSearchItemMention = (
   item: AdvancedMentionSearchItem,
-  shouldTruncate?: boolean
+  truncateLabel?: boolean
 ) => {
-  let displayName = item.name;
-  if (shouldTruncate && displayName.length > MINIMUM_NAME_LENGTH) {
-    displayName = `${displayName.substring(0, MINIMUM_NAME_LENGTH).trim()}...`;
-  }
-  return `#⎱${displayName}⎱(${item.address} ${item.type} ${item.blockchain} ${
+  const displayLabel = truncateLabel
+    ? truncateMentionLabel(item.name)
+    : item.name;
+  return `#⎱${displayLabel}⎱(${item.address} ${item.type} ${item.blockchain} ${
     item.eventId || 'null'
   })`;
 };

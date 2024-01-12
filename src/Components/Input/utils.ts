@@ -1,4 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+  getMentions
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+} from './react-mentions/utils';
 import { SearchAIMentionsQuery } from '../../queries';
 import { createFormattedRawInput } from '../../utils/createQueryParamsWithMention';
 import {
@@ -337,4 +342,18 @@ export async function fetchAIMentions<T = SearchAIMentionsResponse>({
   } catch (error: any) {
     return [null, error?.message || 'Something went wrong'];
   }
+}
+
+const MINIMUM_LABEL_LENGTH = 25;
+
+export function truncateMentionLabel(label?: string | null) {
+  if (!label) return '';
+  if (label.length <= MINIMUM_LABEL_LENGTH) return label;
+  return `${label.substring(0, MINIMUM_LABEL_LENGTH).trim()}...`;
+}
+
+export function getMentionCount(mentionValue?: string | null) {
+  if (!mentionValue) return 0;
+  const mentions = getMentions(mentionValue, MENTION_CONFIG);
+  return mentions.length;
 }

@@ -41,7 +41,8 @@ export const Search = memo(function Search() {
       label: identity,
       address: identity,
       type: 'ADDRESS',
-      blockchain: 'ethereum'
+      blockchain: 'ethereum',
+      truncateLabel: isMobile
     });
     return rawInput ? rawInput.trim() + PADDING : '';
   });

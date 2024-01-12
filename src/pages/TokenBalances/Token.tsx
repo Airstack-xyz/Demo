@@ -34,12 +34,14 @@ type TokenProps = {
   token: null | TokenType | Poap | Nft | ERC20;
   hideHoldersButton?: boolean;
   disabled?: boolean;
+  isMobile?: boolean;
 };
 
 export const Token = memo(function Token({
   token: tokenProp,
   hideHoldersButton,
-  disabled
+  disabled,
+  isMobile
 }: TokenProps) {
   const [{ activeTokenInfo }, setSearchData] = useSearchInput();
 
@@ -135,7 +137,8 @@ export const Token = memo(function Token({
               inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
               type,
               blockchain,
-              label: tokenName || '--'
+              label: tokenName || '--',
+              truncateLabel: isMobile
             })}
             onClick={e => e.stopPropagation()}
           >
