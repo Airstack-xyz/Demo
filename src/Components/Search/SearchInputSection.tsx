@@ -103,6 +103,21 @@ export function SearchInputSection({
     }
   }, [isAdvancedMentionSearchVisible, isMobile, isSocialSearchVisible]);
 
+  useEffect(() => {
+    if (mentionInputRef.current && isMobile && isInputSectionFocused) {
+      const mentionHighlightEl = document.querySelector('#mention-highlight');
+      const mentionInputEl = mentionInputRef.current;
+      if (mentionHighlightEl) {
+        mentionHighlightEl.scrollLeft = mentionHighlightEl.scrollWidth;
+      }
+      setTimeout(() => {
+        if (!mentionInputEl) return;
+        const length = mentionInputEl.value.length;
+        mentionInputEl.setSelectionRange(length, length);
+      }, 0);
+    }
+  }, [isInputSectionFocused, isMobile]);
+
   const showAdvancedMentionSearch = useCallback(
     (data: AdvancedMentionSearchParams) => {
       setAdvancedMentionSearchData(prev => ({
