@@ -300,7 +300,7 @@ export function TableSection({
   );
 
   return (
-    <div className="relative mb-5 ">
+    <div className="relative mb-5">
       <Filters
         dappName={socialInfo.dappName}
         selectedFilters={followData.filters}
@@ -310,7 +310,7 @@ export function TableSection({
         onApply={handleFiltersApply}
       />
       {isMobile && <div className="mb-4 mx-1">{mentionInputComponent}</div>}
-      {showDownCSVOverlay && <DownloadCSVOverlay />}
+      {showDownCSVOverlay && <DownloadCSVOverlay className="h-[307px]" />}
       <div className="border-solid-light rounded-2xl sm:overflow-hidden overflow-y-auto">
         <table className="sf-table select-none">
           <thead>
