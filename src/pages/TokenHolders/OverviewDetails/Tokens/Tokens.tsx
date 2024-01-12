@@ -43,8 +43,8 @@ import { filterTokens, getRequestFilters } from './filters';
 import { getPoapList, getTokenList } from './utils';
 import { DownloadCSVOverlay } from '../../../../Components/DownloadCSVOverlay';
 
-const LIMIT = 100;
-const MIN_LIMIT = 20;
+const LIMIT = 34;
+const MIN_LIMIT = 34;
 
 const loaderData = Array(6).fill({});
 

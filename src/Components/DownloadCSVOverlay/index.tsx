@@ -54,7 +54,7 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
   return (
     <div
       className={classnames(
-        'flex-col-center h-80 absolute w-full bottom-0 z-20 text-sm',
+        'flex-col-center h-80 absolute w-full bottom-0 z-20 text-sm px-5',
         className
       )}
       style={{
@@ -65,13 +65,13 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
     >
       {showComingSoon && (
         <div>
-          <div className="bg-[#C28120] rounded-lg px-2.5 py-1">
+          <div className="bg-[#C28120] rounded-lg px-2.5 py-1 mb-5">
             coming soon!
           </div>
         </div>
       )}
       <div
-        className={classNames('font-semibold mb-8 mt-5', {
+        className={classNames('font-semibold mb-8 text-center', {
           'text-xl': showComingSoon,
           'text-lg': !showComingSoon
         })}
