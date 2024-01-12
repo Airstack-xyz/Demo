@@ -9,7 +9,6 @@ import {
   useRef,
   useState
 } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
 import { LazyAddressesModal } from '../../../../Components/LazyAddressesModal';
 import { StatusLoader } from '../../../../Components/StatusLoader';
@@ -42,9 +41,10 @@ import { Header } from './Header';
 import { Token } from './Token';
 import { filterTokens, getRequestFilters } from './filters';
 import { getPoapList, getTokenList } from './utils';
+import { DownloadCSVOverlay } from '../../../../Components/DownloadCSVOverlay';
 
-const LIMIT = 100;
-const MIN_LIMIT = 20;
+const LIMIT = 34;
+const MIN_LIMIT = 34;
 
 const loaderData = Array(6).fill({});
 
@@ -224,7 +224,7 @@ export function TokensComponent() {
         total: prev.total + (size || 0),
         matching: prev.matching + filteredTokens.length
       }));
-      setTokens(prev => [...prev, ...filteredTokens]);
+      setTokens(prev => [...prev, ...filteredTokens].splice(0, LIMIT));
     },
     [
       filters,
@@ -360,11 +360,7 @@ export function TokensComponent() {
     [navigate]
   );
 
-  const handleNext = useCallback(() => {
-    if (!loading && hasNextPage && getNextPage) {
-      getNextPage();
-    }
-  }, [getNextPage, hasNextPage, loading]);
+  const showDownCSVOverlay = hasNextPage && !loading;
 
   if (loading && (!tokens || tokens.length === 0)) {
     return (
@@ -382,35 +378,29 @@ export function TokensComponent() {
   }
 
   return (
-    <>
-      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto mb-5">
-        <InfiniteScroll
-          next={handleNext}
-          dataLength={tokens.length}
-          hasMore={hasNextPage}
-          loader={null}
-        >
-          <table className="w-auto text-xs table-fixed sm:w-full">
-            <Header />
-            <tbody>
-              {tokens.map((token, index) => (
-                <TableRow key={index}>
-                  <Token
-                    token={token}
-                    onShowMoreClick={handleShowMoreClick}
-                    onAddressClick={handleAddressClick}
-                  />
-                </TableRow>
-              ))}
-            </tbody>
-          </table>
-          {!loading && tokens.length === 0 && (
-            <div className="flex flex-1 justify-center text-xs font-semibold mt-5">
-              No data found!
-            </div>
-          )}
-          {loading && <Loader />}
-        </InfiniteScroll>
+    <div className="relative  mb-5">
+      {showDownCSVOverlay && <DownloadCSVOverlay />}
+      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
+        <table className="w-auto text-xs table-fixed sm:w-full select-none">
+          <Header />
+          <tbody>
+            {tokens.map((token, index) => (
+              <TableRow key={index}>
+                <Token
+                  token={token}
+                  onShowMoreClick={handleShowMoreClick}
+                  onAddressClick={handleAddressClick}
+                />
+              </TableRow>
+            ))}
+          </tbody>
+        </table>
+        {!loading && tokens.length === 0 && (
+          <div className="flex flex-1 justify-center text-xs font-semibold mt-5">
+            No data found!
+          </div>
+        )}
+        {loading && <Loader />}
       </div>
       {modalData.isOpen && (
         <LazyAddressesModal
@@ -429,7 +419,7 @@ export function TokensComponent() {
           totalSuffix={activeViewToken || ''}
         />
       )}
-    </>
+    </div>
   );
 }
 

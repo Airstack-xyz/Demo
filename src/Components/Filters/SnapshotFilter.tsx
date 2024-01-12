@@ -245,7 +245,11 @@ export function SnapshotFilter({
     }
 
     const filterValues: Partial<CachedQuery> = {
-      activeSnapshotInfo: getActiveSnapshotInfoString(snapshotData)
+      activeSnapshotInfo: getActiveSnapshotInfoString(snapshotData),
+      // clear active view and go back to list page
+      activeView: '',
+      activeViewToken: '',
+      activeTokenInfo: ''
     };
 
     if (currentFilter !== 'today') {
