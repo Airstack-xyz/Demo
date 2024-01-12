@@ -98,6 +98,8 @@ export function MentionInput({
 
   const isMobile = isMobileDevice();
 
+  const isAdvancedMentionSearchVisible = advancedMentionSearchData.visible;
+
   useEffect(() => {
     const mentionInputEl = mentionInputRef?.current;
     function handleMentionInputFocus() {
@@ -181,23 +183,23 @@ export function MentionInput({
   );
 
   const handleInputClear = useCallback(() => {
-    if (advancedMentionSearchData.visible) {
+    if (isAdvancedMentionSearchVisible) {
       setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
     } else {
       setValue('');
       onClear?.();
     }
-  }, [advancedMentionSearchData.visible, onClear]);
+  }, [isAdvancedMentionSearchVisible, onClear]);
 
   const handleInputSubmit = () => {
     handleSubmit(value);
   };
 
   const renderButtonContent = () => {
-    if (!value || (advancedMentionSearchData.visible && isMobile)) {
+    if (!value || (isAdvancedMentionSearchVisible && isMobile)) {
       return null;
     }
-    if (!isInputSectionFocused || advancedMentionSearchData.visible) {
+    if (!isInputSectionFocused || isAdvancedMentionSearchVisible) {
       return (
         <button type="button" onClick={handleInputClear}>
           <Icon name="close" width={14} height={14} />
@@ -234,7 +236,7 @@ export function MentionInput({
             {renderButtonContent()}
           </div>
         </div>
-        {advancedMentionSearchData.visible && (
+        {isAdvancedMentionSearchVisible && (
           <div
             className={classNames(
               'before-bg-glass before:rounded-18 rounded-18 border-solid-stroke absolute',
