@@ -105,13 +105,17 @@ export function SearchInputSection({
 
   useEffect(() => {
     if (mentionInputRef.current && isMobile && isInputSectionFocused) {
-      const mentionHighlightEl = document.querySelector('#mention-highlight');
       const mentionInputEl = mentionInputRef.current;
+      const mentionHighlightEl =
+        mentionInputEl.parentElement?.querySelector('#mention-highlight');
+
+      // move mention-input's content to left
       if (mentionHighlightEl) {
         mentionHighlightEl.scrollLeft = mentionHighlightEl.scrollWidth;
       }
+
+      // set mention-input's caret to last position
       setTimeout(() => {
-        if (!mentionInputEl) return;
         const length = mentionInputEl.value.length;
         mentionInputEl.setSelectionRange(length, length);
       }, 0);

@@ -200,8 +200,14 @@ export default function AdvancedMentionSearch({
   useEffect(() => {
     const mentionInputEl = mentionInputRef.current;
 
-    // set mention-input's caret to correct position
-    mentionInputEl?.setSelectionRange(queryEndIndex, queryEndIndex);
+    // for mobile move mention-input's content to left
+    if (isListView) {
+      const mentionHighlightEl =
+        mentionInputEl?.parentElement?.querySelector('#mention-highlight');
+      if (mentionHighlightEl) {
+        mentionHighlightEl.scrollLeft = mentionHighlightEl.scrollWidth;
+      }
+    }
 
     function handleInputClick() {
       const selectionStart = mentionInputEl?.selectionStart ?? -1;
