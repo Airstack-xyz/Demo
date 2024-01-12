@@ -9,8 +9,17 @@ import { ChainSelectOption, defaultChainOption } from './ChainFilter';
 import { TokenSelectOption, defaultTokenOption } from './TokenFilter';
 import { AdvancedMentionSearchItem } from './types';
 
-export const getSearchItemMention = (item: AdvancedMentionSearchItem) => {
-  return `#⎱${item.name}⎱(${item.address} ${item.type} ${item.blockchain} ${
+const MINIMUM_NAME_LENGTH = 25;
+
+export const getSearchItemMention = (
+  item: AdvancedMentionSearchItem,
+  shouldTruncate?: boolean
+) => {
+  let displayName = item.name;
+  if (shouldTruncate && displayName.length > MINIMUM_NAME_LENGTH) {
+    displayName = `${displayName.substring(0, MINIMUM_NAME_LENGTH).trim()}...`;
+  }
+  return `#⎱${displayName}⎱(${item.address} ${item.type} ${item.blockchain} ${
     item.eventId || 'null'
   })`;
 };

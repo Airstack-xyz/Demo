@@ -6,6 +6,7 @@ import {
   useState
 } from 'react';
 import { AdvancedMentionSearchQuery } from '../../../queries';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
 import { fetchAIMentions } from '../../Input/utils';
 import { PADDING } from '../Search';
 import { ChainSelectOption, defaultChainOption } from './ChainFilter';
@@ -78,6 +79,8 @@ export default function AdvancedMentionSearch({
   const [searchData, setSearchData] =
     useState<SearchDataType>(defaultSearchData);
   const [focusIndex, setFocusIndex] = useState(0);
+
+  const isMobile = isMobileDevice();
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -199,15 +202,6 @@ export default function AdvancedMentionSearch({
 
   useEffect(() => {
     const mentionInputEl = mentionInputRef.current;
-
-    // for mobile move mention-input's content to left
-    if (isListView) {
-      const mentionHighlightEl =
-        mentionInputEl?.parentElement?.querySelector('#mention-highlight');
-      if (mentionHighlightEl) {
-        mentionHighlightEl.scrollLeft = mentionHighlightEl.scrollWidth;
-      }
-    }
 
     function handleInputClick() {
       const selectionStart = mentionInputEl?.selectionStart ?? -1;
@@ -375,7 +369,9 @@ export default function AdvancedMentionSearch({
   };
 
   const handleItemSelect = (item: AdvancedMentionSearchItem) => {
-    const mention = getSearchItemMention(item);
+    // @mention name should be truncated in mobile for first mention
+    const shouldTruncate = isMobile && queryStartIndex < 3;
+    const mention = getSearchItemMention(item, shouldTruncate);
     handleMentionChange(mention);
   };
 

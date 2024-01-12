@@ -103,25 +103,6 @@ export function SearchInputSection({
     }
   }, [isAdvancedMentionSearchVisible, isMobile, isSocialSearchVisible]);
 
-  useEffect(() => {
-    if (mentionInputRef.current && isMobile && isInputSectionFocused) {
-      const mentionInputEl = mentionInputRef.current;
-      const mentionHighlightEl =
-        mentionInputEl.parentElement?.querySelector('#mention-highlight');
-
-      // move mention-input's content to left
-      if (mentionHighlightEl) {
-        mentionHighlightEl.scrollLeft = mentionHighlightEl.scrollWidth;
-      }
-
-      // set mention-input's caret to last position
-      setTimeout(() => {
-        const length = mentionInputEl.value.length;
-        mentionInputEl.setSelectionRange(length, length);
-      }, 0);
-    }
-  }, [isInputSectionFocused, isMobile]);
-
   const showAdvancedMentionSearch = useCallback(
     (data: AdvancedMentionSearchParams) => {
       setAdvancedMentionSearchData(prev => ({
