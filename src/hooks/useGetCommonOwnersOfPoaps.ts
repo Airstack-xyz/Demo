@@ -21,8 +21,8 @@ type CommonOwner = {
   };
 };
 
-const LIMIT = 20;
-const MIN_LIMIT = 20;
+const LIMIT = 34;
+const MIN_LIMIT = 34;
 
 export function useGetCommonOwnersOfPoaps(eventIds: TokenAddress[]) {
   const ownersSetRef = useRef<Set<string>>(new Set());
