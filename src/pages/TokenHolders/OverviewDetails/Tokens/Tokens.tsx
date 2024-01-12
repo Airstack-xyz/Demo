@@ -378,10 +378,10 @@ export function TokensComponent() {
   }
 
   return (
-    <>
-      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto mb-5 relative">
+    <div className="relative  mb-5">
+      {showDownCSVOverlay && <DownloadCSVOverlay />}
+      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
         <table className="w-auto text-xs table-fixed sm:w-full select-none">
-          {showDownCSVOverlay && <DownloadCSVOverlay />}
           <Header />
           <tbody>
             {tokens.map((token, index) => (
@@ -419,7 +419,7 @@ export function TokensComponent() {
           totalSuffix={activeViewToken || ''}
         />
       )}
-    </>
+    </div>
   );
 }
 

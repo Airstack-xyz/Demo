@@ -54,14 +54,9 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
   return (
     <div
       className={classnames(
-        'flex-col-center h-80 absolute w-full bottom-0 z-20 text-sm px-5',
+        'flex-col-center h-80 absolute w-full bottom-0 z-20 text-sm px-5 rounded-b-2xl bg-glass-2',
         className
       )}
-      style={{
-        background:
-          'linear-gradient(111deg, rgba(255, 255, 255, 0.04) -8.95%, rgba(255, 255, 255, 0.00) 114%)',
-        backdropFilter: 'blur(7.5px)'
-      }}
     >
       {showComingSoon && (
         <div>

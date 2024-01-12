@@ -300,7 +300,7 @@ export function TableSection({
   );
 
   return (
-    <>
+    <div className="relative mb-5 ">
       <Filters
         dappName={socialInfo.dappName}
         selectedFilters={followData.filters}
@@ -310,8 +310,8 @@ export function TableSection({
         onApply={handleFiltersApply}
       />
       {isMobile && <div className="mb-4 mx-1">{mentionInputComponent}</div>}
-      <div className="border-solid-light rounded-2xl sm:overflow-hidden overflow-y-auto mb-5 mx-1 relative">
-        {showDownCSVOverlay && <DownloadCSVOverlay className="h-[305px]" />}
+      {showDownCSVOverlay && <DownloadCSVOverlay />}
+      <div className="border-solid-light rounded-2xl sm:overflow-hidden overflow-y-auto">
         <table className="sf-table select-none">
           <thead>
             <tr>
@@ -363,6 +363,6 @@ export function TableSection({
       {(loading || loaderData.isVisible) && (
         <StatusLoader total={loaderData.total} matching={loaderData.matching} />
       )}
-    </>
+    </div>
   );
 }
