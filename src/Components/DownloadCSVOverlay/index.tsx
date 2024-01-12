@@ -83,6 +83,7 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
       <div className="flex-row-center">
         {!showComingSoon && (
           <button
+            id="download-csv"
             className="bg-text-button hover:opacity-90 text-white rounded-18 font-medium px-5 py-1.5 mr-5 flex-row-center"
             onClick={() => {
               setShowComingSoon(true);
@@ -98,6 +99,11 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
           className="bg-text-button hover:opacity-90 text-white rounded-18 font-medium px-5 py-1.5 flex-row-center"
           href={apiLink}
           target="_blank"
+          id={
+            showComingSoon
+              ? 'get-api-csv-download-coming-soon'
+              : 'get-api-csv-download'
+          }
         >
           <span className="mr-1.5">
             <CodeIcon />
