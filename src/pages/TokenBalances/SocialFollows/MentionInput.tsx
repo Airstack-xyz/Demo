@@ -237,8 +237,8 @@ export function MentionInput({
         {advancedMentionSearchData.visible && (
           <div
             className={classNames(
-              'before-bg-glass before:rounded-18 rounded-18 border-solid-stroke absolute top-8',
-              isMobile ? 'w-full' : 'w-[min(60vw,786px)]'
+              'before-bg-glass before:rounded-18 rounded-18 border-solid-stroke absolute',
+              isMobile ? 'w-full top-[38px]' : 'w-[min(60vw,786px)] top-[32px]'
             )}
           >
             <div
