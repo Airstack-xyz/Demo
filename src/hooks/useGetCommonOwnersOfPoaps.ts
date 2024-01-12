@@ -84,7 +84,7 @@ export function useGetCommonOwnersOfPoaps(eventIds: TokenAddress[]) {
     }
 
     if (tokens.length > 0) {
-      setPoaps(prev => [...prev, ...tokens]);
+      setPoaps(prev => [...prev, ...tokens].splice(0, LIMIT));
     }
     setProcessedPoapsCount(count => count + poaps.length);
   }, [data, fetchSingleToken, getNextPage, hasNextPage, totalOwners]);

@@ -224,7 +224,7 @@ export function TokensComponent() {
         total: prev.total + (size || 0),
         matching: prev.matching + filteredTokens.length
       }));
-      setTokens(prev => [...prev, ...filteredTokens]);
+      setTokens(prev => [...prev, ...filteredTokens].splice(0, LIMIT));
     },
     [
       filters,

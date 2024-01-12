@@ -174,7 +174,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     }
 
     if (tokens.length > 0) {
-      setTokens(prevTokens => [...prevTokens, ...tokens]);
+      setTokens(prevTokens => [...prevTokens, ...tokens].splice(0, LIMIT));
     }
     setProcessedTokensCount(count => count + tokenBalances.length);
   }, [
