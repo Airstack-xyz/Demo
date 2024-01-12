@@ -16,7 +16,7 @@ type ListItemProps = {
   onMouseEnter: () => void;
 };
 
-const listItemClass = 'flex items-center py-2 px-2.5 rounded-18';
+const listItemClass = 'flex py-2 px-3 rounded-full';
 
 export default function ListItem({
   item,
@@ -45,14 +45,14 @@ export default function ListItem({
       onMouseEnter={onMouseEnter}
     >
       <LazyImage
-        className="h-[18px] w-[18px] rounded-full mr-2"
+        className="h-[18px] w-[18px] rounded-full mt-[1px] mr-2"
         src={image?.extraSmall}
         alt={blockchain}
         fallbackSrc={`/images/blockchains/${formattedBlockchain}.png`}
       />
-      <span className="flex items-end overflow-hidden">
-        <span className="text-sm text-white ellipsis pr-2">{name}</span>
-        <span className="text-[10px] text-text-secondary pb-[1px] whitespace-nowrap">
+      <span className="text-left leading-4">
+        <span className="text-sm text-white">{name}</span>{' '}
+        <span className="text-[10px] text-text-secondary whitespace-nowrap">
           <span>{formattedBlockchain}</span>
           <span> • </span>
           <span>{assetType}</span>
