@@ -269,10 +269,10 @@ export default function SocialSearch({
 
   const listLength = items?.length ?? 0;
 
-  const dataNotFound =
+  const isDataNotFound =
     !isError && !isLoading && !hasNextPage && items?.length === 0;
 
-  const errorOccurred = isError && !isLoading && items?.length === 0;
+  const isErrorOccurred = isError && !isLoading && items?.length === 0;
 
   return (
     <div ref={containerRef} className="py-2 px-2.5 relative z-20">
@@ -288,12 +288,12 @@ export default function SocialSearch({
           scrollableTarget="social-search-scroll"
           className="flex flex-col gap-2 pr-1"
         >
-          {dataNotFound && (
+          {isDataNotFound && (
             <div className="p-2 text-center text-sm text-white w-full">
               Couldn't find any Lens or Farcaster profile
             </div>
           )}
-          {errorOccurred && (
+          {isErrorOccurred && (
             <div className="p-2 text-center text-sm text-white w-full">
               Error while fetching data!
             </div>

@@ -40,8 +40,8 @@ type NestedTokenBalance = (Pick<
     blockchain?: string;
   })[];
 
-const LIMIT = 200;
-const MIN_LIMIT = 50;
+const LIMIT = 34;
+const MIN_LIMIT = 34;
 
 export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
   const ownersSetRef = useRef<Set<string>>(new Set());
@@ -174,7 +174,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     }
 
     if (tokens.length > 0) {
-      setTokens(prevTokens => [...prevTokens, ...tokens]);
+      setTokens(prevTokens => [...prevTokens, ...tokens].splice(0, LIMIT));
     }
     setProcessedTokensCount(count => count + tokenBalances.length);
   }, [

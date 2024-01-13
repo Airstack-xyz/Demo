@@ -21,8 +21,8 @@ type CommonOwner = {
   };
 };
 
-const LIMIT = 20;
-const MIN_LIMIT = 20;
+const LIMIT = 34;
+const MIN_LIMIT = 34;
 
 export function useGetCommonOwnersOfPoaps(eventIds: TokenAddress[]) {
   const ownersSetRef = useRef<Set<string>>(new Set());
@@ -84,7 +84,7 @@ export function useGetCommonOwnersOfPoaps(eventIds: TokenAddress[]) {
     }
 
     if (tokens.length > 0) {
-      setPoaps(prev => [...prev, ...tokens]);
+      setPoaps(prev => [...prev, ...tokens].splice(0, LIMIT));
     }
     setProcessedPoapsCount(count => count + poaps.length);
   }, [data, fetchSingleToken, getNextPage, hasNextPage, totalOwners]);
