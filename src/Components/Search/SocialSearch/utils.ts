@@ -9,6 +9,8 @@ import {
 import { MENTION_CONFIG, truncateMentionLabel } from '../../Input/utils';
 import { SocialSearchItem } from './types';
 
+export const INFINITE_SCROLL_CONTAINER_ID = 'social-search-scroller';
+
 export const getSearchItemMention = (
   item: SocialSearchItem,
   truncateLabel?: boolean

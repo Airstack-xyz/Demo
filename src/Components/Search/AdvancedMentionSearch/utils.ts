@@ -9,6 +9,8 @@ import { ChainSelectOption, defaultChainOption } from './ChainFilter';
 import { TokenSelectOption, defaultTokenOption } from './TokenFilter';
 import { AdvancedMentionSearchItem } from './types';
 
+export const INFINITE_SCROLL_CONTAINER_ID = 'advance-search-scroller';
+
 export const getSearchItemMention = (
   item: AdvancedMentionSearchItem,
   truncateLabel?: boolean

@@ -27,6 +27,7 @@ export function FiltersButtonPortal({
     RenderButton({ appliedFilterCount, isOpen, onClick })
   ) : (
     <button
+      tabIndex={-1}
       className={classNames(
         'py-1.5 px-3 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light flex-row-center',
         { 'border-white': isOpen }

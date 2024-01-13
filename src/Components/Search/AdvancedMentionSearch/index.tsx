@@ -21,6 +21,7 @@ import {
   SearchDataType
 } from './types';
 import {
+  INFINITE_SCROLL_CONTAINER_ID,
   getSearchItemMention,
   getSearchQuery,
   getUpdatedMentionValue
@@ -44,7 +45,8 @@ const defaultSearchData: SearchDataType = {
   hasMore: true,
   items: [],
   selectedToken: defaultTokenOption,
-  selectedChain: defaultChainOption
+  selectedChain: defaultChainOption,
+  focusIndex: null
 };
 
 type AdvancedMentionSearchProps = {
@@ -78,19 +80,8 @@ export default function AdvancedMentionSearch({
 }: AdvancedMentionSearchProps) {
   const [searchData, setSearchData] =
     useState<SearchDataType>(defaultSearchData);
-  const [focusIndex, setFocusIndex] = useState(0);
 
   const isMobile = isMobileDevice();
-
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const focusIndexRef = useRef(0);
-  const firstFetchRef = useRef(true);
-
-  // store refs so that it can be used in events without triggering useEffect
-  focusIndexRef.current = focusIndex;
-
-  const isListView = viewType === 'LIST_VIEW';
 
   const {
     isLoading,
@@ -100,35 +91,60 @@ export default function AdvancedMentionSearch({
     hasMore,
     items,
     selectedChain,
-    selectedToken
+    selectedToken,
+    focusIndex
   } = searchData;
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const firstFetchRef = useRef(true);
+  const itemsRef = useRef(items);
+  const focusIndexRef = useRef(focusIndex);
+
+  // store refs so that it can be used in events without triggering useEffect
+  itemsRef.current = items;
+  focusIndexRef.current = focusIndex;
+
+  const isListView = viewType === 'LIST_VIEW';
 
   const focusGridItem = useCallback((delta: number) => {
     const containerEl = containerRef.current;
     if (!containerEl) return;
-    const gridItems = containerEl.querySelectorAll<HTMLButtonElement>(
-      `.infinite-scroll-component button`
+
+    const nextIndex =
+      focusIndexRef.current == null ? 0 : focusIndexRef.current + delta;
+    const lastIndex =
+      itemsRef.current == null ? 0 : itemsRef.current.length - 1;
+
+    const itemIndex = Math.max(0, Math.min(nextIndex, lastIndex));
+
+    const activeEl = containerEl.querySelector<HTMLButtonElement>(
+      `.infinite-scroll-component button:nth-of-type(${itemIndex + 1})`
     );
-    const itemIndex = Math.min(
-      Math.max(focusIndexRef.current + delta, 0),
-      gridItems.length
+    const parentEl = containerEl.querySelector<HTMLDivElement>(
+      `#${INFINITE_SCROLL_CONTAINER_ID}`
     );
-    const activeItem = gridItems[itemIndex];
-    if (activeItem) {
-      activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setFocusIndex(itemIndex);
+
+    if (activeEl && parentEl) {
+      const targetScrollTop =
+        activeEl.offsetTop -
+        parentEl.clientHeight * 0.5 +
+        activeEl.offsetHeight * 0.5;
+      parentEl.scroll({ behavior: 'smooth', top: targetScrollTop });
+      setSearchData(prev => ({
+        ...prev,
+        focusIndex: itemIndex
+      }));
     }
   }, []);
 
   const selectGridItem = useCallback(() => {
     const containerEl = containerRef.current;
     if (!containerEl) return;
-    const gridItems = containerEl.querySelectorAll<HTMLButtonElement>(
-      `.infinite-scroll-component button`
+    const itemIndex = focusIndexRef.current || 0;
+    const activeEl = containerEl.querySelector<HTMLButtonElement>(
+      `.infinite-scroll-component button:nth-of-type(${itemIndex + 1})`
     );
-    const itemIndex = focusIndexRef.current;
-    const activeItem = gridItems[itemIndex];
-    activeItem?.click();
+    activeEl?.click();
   }, []);
 
   const fetchData = useCallback(
@@ -179,7 +195,6 @@ export default function AdvancedMentionSearch({
         nextCursor: nextCursor,
         items: [...prev.items, ...nextItems]
       }));
-      setFocusIndex(0);
     },
     []
   );
@@ -196,7 +211,8 @@ export default function AdvancedMentionSearch({
       searchTerm: query,
       cursor: null,
       hasMore: true,
-      items: []
+      items: [],
+      focusIndex: null
     }));
   }, [onClose, mentionValue, queryStartIndex]);
 
@@ -319,7 +335,8 @@ export default function AdvancedMentionSearch({
       cursor: prev.cursor === null ? undefined : null, // causes fetchData useEffect to invoke again
       nextCursor: null,
       hasMore: true,
-      items: []
+      items: [],
+      focusIndex: null
     }));
   }, []);
 
@@ -332,7 +349,8 @@ export default function AdvancedMentionSearch({
       items: [],
       selectedToken: option,
       selectedChain:
-        option.value === 'POAP' ? defaultChainOption : prev.selectedChain
+        option.value === 'POAP' ? defaultChainOption : prev.selectedChain,
+      focusIndex: null
     }));
   }, []);
 
@@ -343,7 +361,8 @@ export default function AdvancedMentionSearch({
       nextCursor: null,
       hasMore: true,
       items: [],
-      selectedChain: option
+      selectedChain: option,
+      focusIndex: null
     }));
   }, []);
 
@@ -351,6 +370,13 @@ export default function AdvancedMentionSearch({
     setSearchData(prev => ({
       ...prev,
       cursor: prev.nextCursor
+    }));
+  }, []);
+
+  const handleItemHover = useCallback((index: number) => {
+    setSearchData(prev => ({
+      ...prev,
+      focusIndex: index
     }));
   }, []);
 
@@ -395,7 +421,7 @@ export default function AdvancedMentionSearch({
           onTokenSelect={handleTokenSelect}
           onChainSelect={handleChainSelect}
           onItemSelect={handleItemSelect}
-          onItemHover={setFocusIndex}
+          onItemHover={handleItemHover}
           onFetchMore={handleFetchMore}
           onDataReload={handleDataReload}
         />
@@ -409,7 +435,7 @@ export default function AdvancedMentionSearch({
           onTokenSelect={handleTokenSelect}
           onChainSelect={handleChainSelect}
           onItemSelect={handleItemSelect}
-          onItemHover={setFocusIndex}
+          onItemHover={handleItemHover}
           onFetchMore={handleFetchMore}
           onDataReload={handleDataReload}
         />

@@ -28,6 +28,7 @@ function MentionFiltersButton({
 }) {
   return (
     <button
+      tabIndex={-1}
       className={classNames(
         'px-2 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-[10px] hover:bg-glass-1-light flex-row-center',
         { 'border-white': isOpen }

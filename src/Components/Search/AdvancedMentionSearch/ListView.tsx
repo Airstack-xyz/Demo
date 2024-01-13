@@ -11,7 +11,7 @@ import {
   FiltersType,
   SearchDataType
 } from './types';
-import { getAppliedFilterCount } from './utils';
+import { INFINITE_SCROLL_CONTAINER_ID, getAppliedFilterCount } from './utils';
 
 const LOADING_ITEM_COUNT = 8;
 
@@ -108,7 +108,7 @@ export default function ListView({
         />
       ) : (
         <div
-          id="advanced-mention-search-scroll"
+          id={INFINITE_SCROLL_CONTAINER_ID}
           className="max-h-[392px] overflow-y-scroll"
         >
           <InfiniteScroll
@@ -116,7 +116,7 @@ export default function ListView({
             dataLength={items.length}
             hasMore={hasMore}
             loader={null}
-            scrollableTarget="advanced-mention-search-scroll"
+            scrollableTarget={INFINITE_SCROLL_CONTAINER_ID}
             className="flex flex-col gap-2 pr-1"
           >
             {isDataNotFound && (

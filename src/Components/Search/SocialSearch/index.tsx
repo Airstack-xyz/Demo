@@ -18,7 +18,11 @@ import {
   SocialSearchResponse,
   SocialSearchVariables
 } from './types';
-import { getSearchItemMention, getUpdatedMentionValue } from './utils';
+import {
+  INFINITE_SCROLL_CONTAINER_ID,
+  getSearchItemMention,
+  getUpdatedMentionValue
+} from './utils';
 
 const LOADING_ITEM_COUNT = 8;
 
@@ -40,7 +44,8 @@ const DISABLED_KEYS = ['ArrowUp', 'ArrowDown', 'Enter'];
 
 const defaultSearchData: SearchDataType = {
   isLoading: false,
-  items: null
+  items: null,
+  focusIndex: null
 };
 
 type SocialSearchProps = {
@@ -71,18 +76,18 @@ export default function SocialSearch({
 }: SocialSearchProps) {
   const [searchData, setSearchData] =
     useState<SearchDataType>(defaultSearchData);
-  const [focusIndex, setFocusIndex] = useState<number | null>(null);
 
   const isMobile = isMobileDevice();
 
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { isLoading, isError, items, focusIndex } = searchData;
 
-  const focusIndexRef = useRef<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const itemsRef = useRef(items);
+  const focusIndexRef = useRef(focusIndex);
 
   // store refs so that it can be used in events without triggering useEffect
+  itemsRef.current = items;
   focusIndexRef.current = focusIndex;
-
-  const { isLoading, isError, items } = searchData;
 
   const handleData = useCallback((data: SocialSearchResponse) => {
     const nextItems = data?.Socials?.Social || [];
@@ -115,32 +120,42 @@ export default function SocialSearch({
   const focusListItem = useCallback((delta: number) => {
     const containerEl = containerRef.current;
     if (!containerEl) return;
-    const gridItems = containerEl.querySelectorAll<HTMLButtonElement>(
-      `.infinite-scroll-component button`
+
+    const nextIndex =
+      focusIndexRef.current == null ? 0 : focusIndexRef.current + delta;
+    const lastIndex =
+      itemsRef.current == null ? 0 : itemsRef.current.length - 1;
+
+    const itemIndex = Math.max(0, Math.min(nextIndex, lastIndex));
+
+    const activeEl = containerEl.querySelector<HTMLButtonElement>(
+      `.infinite-scroll-component button:nth-of-type(${itemIndex + 1})`
     );
-    const itemIndex =
-      focusIndexRef.current === null
-        ? 0
-        : Math.min(
-            Math.max(focusIndexRef.current + delta, 0),
-            gridItems.length
-          );
-    const activeItem = gridItems[itemIndex];
-    if (activeItem) {
-      activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setFocusIndex(itemIndex);
+    const parentEl = containerEl.querySelector<HTMLDivElement>(
+      `#${INFINITE_SCROLL_CONTAINER_ID}`
+    );
+
+    if (activeEl && parentEl) {
+      const targetScrollTop =
+        activeEl.offsetTop -
+        parentEl.clientHeight * 0.5 +
+        activeEl.offsetHeight * 0.5;
+      parentEl.scroll({ behavior: 'smooth', top: targetScrollTop });
+      setSearchData(prev => ({
+        ...prev,
+        focusIndex: itemIndex
+      }));
     }
   }, []);
 
   const selectListItem = useCallback(() => {
     const containerEl = containerRef.current;
     if (!containerEl) return;
-    const gridItems = containerEl.querySelectorAll<HTMLButtonElement>(
-      `.infinite-scroll-component button`
-    );
     const itemIndex = focusIndexRef.current || 0;
-    const activeItem = gridItems[itemIndex];
-    activeItem?.click();
+    const activeEl = containerEl.querySelector<HTMLButtonElement>(
+      `.infinite-scroll-component button:nth-of-type(${itemIndex + 1})`
+    );
+    activeEl?.click();
   }, []);
 
   useEffect(() => {
@@ -202,7 +217,8 @@ export default function SocialSearch({
       ...prev,
       isLoading: true,
       isError: false,
-      items: []
+      items: [],
+      focusIndex: null
     }));
     fetchData({
       limit: LIMIT,
@@ -222,6 +238,13 @@ export default function SocialSearch({
       getNextPage();
     }
   }, [getNextPage, hasNextPage, isLoading]);
+
+  const handleItemHover = useCallback((index: number) => {
+    setSearchData(prev => ({
+      ...prev,
+      focusIndex: index
+    }));
+  }, []);
 
   const handleMentionChange = (mention: string) => {
     const value = getUpdatedMentionValue(
@@ -254,7 +277,7 @@ export default function SocialSearch({
   return (
     <div ref={containerRef} className="py-2 px-2.5 relative z-20">
       <div
-        id="social-search-scroll"
+        id={INFINITE_SCROLL_CONTAINER_ID}
         className="max-h-[302px] overflow-y-scroll"
       >
         <InfiniteScroll
@@ -281,7 +304,7 @@ export default function SocialSearch({
               item={item}
               isFocused={focusIndex === index}
               onClick={() => handleItemSelect(item)}
-              onMouseEnter={() => setFocusIndex(index)}
+              onMouseEnter={() => handleItemHover(index)}
             />
           ))}
           {isLoading && <ListLoader />}

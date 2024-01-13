@@ -12,6 +12,7 @@ export type SearchDataType = {
   items: AdvancedMentionSearchItem[];
   selectedToken: TokenSelectOption;
   selectedChain: ChainSelectOption;
+  focusIndex: number | null;
 };
 
 export type FiltersType = {

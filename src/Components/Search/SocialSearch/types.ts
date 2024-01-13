@@ -2,6 +2,7 @@ export type SearchDataType = {
   isLoading: boolean;
   isError?: boolean;
   items: SocialSearchItem[] | null;
+  focusIndex: number | null;
 };
 
 export type SocialSearchItem = {
