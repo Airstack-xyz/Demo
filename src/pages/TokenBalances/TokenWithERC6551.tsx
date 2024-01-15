@@ -14,10 +14,12 @@ type Poap = PoapsType['Poaps']['Poap'][0];
 
 type TokenProps = {
   token: null | TokenType | Poap | Nft;
+  isMobile?: boolean;
 };
 
 export const TokenWithERC6551 = memo(function Token({
-  token: tokenProp
+  token: tokenProp,
+  isMobile
 }: TokenProps) {
   const [{ activeTokenInfo }, setSearchData] = useSearchInput();
   const token = (tokenProp || {}) as TokenType;
@@ -139,7 +141,8 @@ export const TokenWithERC6551 = memo(function Token({
             inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
             type,
             blockchain,
-            label: tokenName || '--'
+            label: tokenName || '--',
+            truncateLabel: isMobile
           })}
           onClick={e => e.stopPropagation()}
         >

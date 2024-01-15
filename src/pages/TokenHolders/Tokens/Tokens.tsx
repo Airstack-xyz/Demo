@@ -17,6 +17,7 @@ import { getActiveSnapshotInfo } from '../../../utils/activeSnapshotInfoString';
 import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 import { sortByAddressByNonERC20First } from '../../../utils/getNFTQueryForTokensHolder';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
 import { Header } from './Header';
 import { AssetType, Token } from './Token';
 import { DownloadCSVOverlay } from '../../../Components/DownloadCSVOverlay';
@@ -48,6 +49,8 @@ export function TokensComponent() {
     { address, inputType, activeTokenInfo, activeSnapshotInfo },
     setSearchData
   ] = useSearchInput();
+
+  const isMobile = isMobileDevice();
 
   const overviewTokens: TokenHolder[] = _overviewTokens;
 
@@ -151,12 +154,13 @@ export function TokensComponent() {
       const url = createTokenBalancesUrl({
         address: formatAddress(address, type),
         blockchain: 'ethereum',
-        inputType: 'ADDRESS'
+        inputType: 'ADDRESS',
+        truncateLabel: isMobile
       });
       resetCachedUserInputs('tokenBalance');
       navigate(url);
     },
-    [navigate]
+    [isMobile, navigate]
   );
 
   const handleAssetClick = useCallback(

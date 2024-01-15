@@ -50,7 +50,7 @@ export default function ListItem({
         <span className="text-sm text-white ellipsis pr-2">
           {formattedProfileName}
         </span>
-        <span className="text-[10px] text-text-secondary pb-[1px] w-max">
+        <span className="text-[10px] text-text-secondary pb-[1px] whitespace-nowrap">
           {pluralize(item.followerCount, 'follower')}
         </span>
       </span>

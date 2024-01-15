@@ -20,18 +20,18 @@ export const chainOptions = [
 
 export const defaultChainOption = chainOptions[0];
 
-export type BlockchainSelectOption = {
+export type ChainSelectOption = {
   label: string;
   value: string | null;
 };
 
 type BlockchainFilterProps = {
   isDisabled?: boolean;
-  selectedOption: BlockchainSelectOption;
-  onSelect: (option: BlockchainSelectOption) => void;
+  selectedOption: ChainSelectOption;
+  onSelect: (option: ChainSelectOption) => void;
 };
 
-export default function BlockchainFilter({
+export default function ChainFilter({
   isDisabled,
   selectedOption,
   onSelect

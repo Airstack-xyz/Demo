@@ -233,13 +233,14 @@ export function TableSection({
       const url = createTokenBalancesUrl({
         address: formatAddress(address, type),
         blockchain: 'ethereum',
-        inputType: 'ADDRESS'
+        inputType: 'ADDRESS',
+        truncateLabel: isMobile
       });
       document.documentElement.scrollTo(0, 0);
       resetCachedUserInputs('tokenBalance');
       navigate(url);
     },
-    [navigate]
+    [isMobile, navigate]
   );
 
   const handleAssetClick = useCallback(

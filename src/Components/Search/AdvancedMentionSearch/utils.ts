@@ -4,11 +4,21 @@ import {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
 } from '../../Input/react-mentions/utils';
-import { MENTION_CONFIG } from '../../Input/utils';
+import { MENTION_CONFIG, truncateMentionLabel } from '../../Input/utils';
+import { ChainSelectOption, defaultChainOption } from './ChainFilter';
+import { TokenSelectOption, defaultTokenOption } from './TokenFilter';
 import { AdvancedMentionSearchItem } from './types';
 
-export const getSearchItemMention = (item: AdvancedMentionSearchItem) => {
-  return `#⎱${item.name}⎱(${item.address} ${item.type} ${item.blockchain} ${
+export const INFINITE_SCROLL_CONTAINER_ID = 'advance-search-scroller';
+
+export const getSearchItemMention = (
+  item: AdvancedMentionSearchItem,
+  truncateLabel?: boolean
+) => {
+  const displayLabel = truncateLabel
+    ? truncateMentionLabel(item.name)
+    : item.name;
+  return `#⎱${displayLabel}⎱(${item.address} ${item.type} ${item.blockchain} ${
     item.eventId || 'null'
   })`;
 };
@@ -62,4 +72,21 @@ export const getUpdatedMentionValue = (
     mentionValue.substring(0, positionInValue) +
     mentionValue.substring(positionInValue).replace(SEARCH_TERM_REGEX, mention)
   );
+};
+
+export const getAppliedFilterCount = ({
+  appliedTokenFilter,
+  appliedChainFilter
+}: {
+  appliedTokenFilter: TokenSelectOption;
+  appliedChainFilter: ChainSelectOption;
+}) => {
+  let count = 0;
+  if (appliedTokenFilter.value !== defaultChainOption.value) {
+    count += 1;
+  }
+  if (appliedChainFilter.value !== defaultTokenOption.value) {
+    count += 1;
+  }
+  return count;
 };

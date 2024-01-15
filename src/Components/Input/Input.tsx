@@ -8,7 +8,9 @@ import {
   useState
 } from 'react';
 import { capitalizeFirstLetter, pluralize } from '../../utils';
+import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Icon } from '../Icon';
+import ImageWithFallback from '../ImageWithFallback';
 import { AddressInput } from './AddressInput';
 import {
   ADDRESS_OPTION_ID,
@@ -17,7 +19,6 @@ import {
   MENTION_REGEX,
   POAP_OPTION_ID
 } from './constants';
-import ImageWithFallback from '../ImageWithFallback';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { Mention, MentionsInput } from './react-mentions';
@@ -28,12 +29,14 @@ import {
 } from './types';
 import {
   ID_REGEX,
+  MENTION_TYPE_MAP,
   REGEX_LAST_WORD_STARTS_WITH_AT,
   debouncePromise,
   fetchAIMentions,
   generateId,
   getNameFromMarkup,
-  highlightMention
+  highlightMention,
+  truncateMentionLabel
 } from './utils';
 
 import './styles.css';
@@ -47,13 +50,6 @@ export type AdvancedMentionSearchParams = {
   query: string;
   queryStartIndex: number;
   queryEndIndex: number;
-};
-
-const mentionTypeMap: Record<MentionType, string> = {
-  [MentionType.NFT_COLLECTION]: 'NFT',
-  [MentionType.DAO_TOKEN]: 'DAO',
-  [MentionType.TOKEN]: 'Token',
-  [MentionType.POAP]: 'POAP'
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -92,6 +88,8 @@ export function InputWithMention({
   const lastPositionOfCaretRef = useRef(0);
   const isSuggestionClickedRef = useRef(false);
   const [loading, setLoading] = useState(false);
+
+  const isMobile = isMobileDevice();
 
   const getMentions = useCallback(async (query: string) => {
     setLoading(true);
@@ -276,11 +274,13 @@ export function InputWithMention({
       // add space in front of the mention if it doesn't start with @, otherwise the regex won't match
       textBeforeCaret = startsWithAt ? ' ' + textBeforeCaret : textBeforeCaret;
 
+      const displayLabel = isMobile ? truncateMentionLabel(address) : address;
+
       textBeforeCaret = textBeforeCaret
         .trimEnd()
         .replace(
           REGEX_LAST_WORD_STARTS_WITH_AT,
-          ` #⎱${address}⎱(${address}    ${showInputFor})`
+          ` #⎱${displayLabel}⎱(${address}    ${showInputFor})`
         );
 
       if (startsWithAt) {
@@ -291,7 +291,14 @@ export function InputWithMention({
       const newValue = textBeforeCaret + remainingText.trimStart();
       handleUserInput({ target: { value: newValue } });
     },
-    [handleUserInput, showInputFor, value]
+    [handleUserInput, isMobile, showInputFor, value]
+  );
+
+  const displayTransform = useCallback(
+    (_: string, display: string) => {
+      return isMobile ? truncateMentionLabel(display) : display;
+    },
+    [isMobile]
   );
 
   const fetchMentions = useCallback(
@@ -374,7 +381,7 @@ export function InputWithMention({
             <span className="type">
               {suggestion.blockchain}
               <span>•</span>
-              {mentionTypeMap[suggestion.type as MentionType] || ''}
+              {MENTION_TYPE_MAP[suggestion.type] || ''}
               {showPOAPHolderCount && (
                 <>
                   <span>•</span>
@@ -422,6 +429,7 @@ export function InputWithMention({
         <Mention
           markup={MENTION_MARKUP}
           regex={MENTION_REGEX}
+          displayTransform={displayTransform}
           trigger="@"
           appendSpaceOnAdd
           onAdd={onAddSuggestion}

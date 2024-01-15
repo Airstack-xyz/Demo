@@ -32,11 +32,10 @@ export const pluralize = (
   if (count == null || !noun) {
     return '';
   }
-  // eslint-disable-next-line no-irregular-whitespace
-  return `${count} ${noun}${count > 1 ? suffix : ''}`;
+  return `${count} ${noun}${count > 1 ? suffix : ''}`;
 };
 
 export function capitalizeFirstLetter(str: string) {
-  const capitalized = str.charAt(0).toUpperCase() + str.slice(1);
-  return capitalized;
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }

@@ -9,6 +9,7 @@ import { Token } from './Token';
 import { TokenCombination } from './TokenCombination';
 import { TokenWithERC6551 } from './TokenWithERC6551';
 import { PoapType, TokenType } from './types';
+import { isMobileDevice } from '../../utils/isMobileDevice';
 
 const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 
@@ -57,6 +58,8 @@ function TokensComponent(props: TokenProps) {
   const handleTokens = useCallback((tokens: (TokenType | PoapType)[]) => {
     setTokens(prevTokens => [...(prevTokens || []), ...tokens]);
   }, []);
+
+  const isMobile = isMobileDevice();
 
   const inputs = {
     address: owners,
@@ -178,14 +181,26 @@ function TokensComponent(props: TokenProps) {
             (token as TokenType)?.tokenNfts?.tokenId;
 
           if (hasCombination) {
-            return <TokenCombination key={`${index}-${id}`} token={token} />;
+            return (
+              <TokenCombination
+                key={`${index}-${id}`}
+                token={token}
+                isMobile={isMobile}
+              />
+            );
           }
 
           const hasERC6551 =
             (token as TokenType)?.tokenNfts?.erc6551Accounts?.length > 0;
 
           if (hasERC6551) {
-            return <TokenWithERC6551 key={`${index}-${id}`} token={token} />;
+            return (
+              <TokenWithERC6551
+                key={`${index}-${id}`}
+                token={token}
+                isMobile={isMobile}
+              />
+            );
           }
 
           return (
@@ -193,6 +208,7 @@ function TokensComponent(props: TokenProps) {
               key={`${index}-${id}`}
               token={token}
               hideHoldersButton={loading}
+              isMobile={isMobile}
             />
           );
         })}

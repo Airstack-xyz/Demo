@@ -5,6 +5,7 @@ import { Icon } from '../Icon';
 import { AdvancedMentionSearchParams, InputWithMention } from '../Input/Input';
 import { getSocialSearchQueryData } from './SocialSearch/utils';
 import SocialSearch from './SocialSearch';
+import { isMobileDevice } from '../../utils/isMobileDevice';
 
 type EnabledSearchType =
   | 'SOCIAL_SEARCH' // social type-ahead infinite dropdown list search
@@ -43,6 +44,7 @@ export function SearchInputSection({
 }) {
   const mentionInputRef = useRef<HTMLTextAreaElement>(null);
   const inputSectionRef = useRef<HTMLDivElement>(null);
+  const buttonSectionRef = useRef<HTMLDivElement>(null);
 
   const [isInputSectionFocused, setIsInputSectionFocused] = useState(false);
 
@@ -51,9 +53,14 @@ export function SearchInputSection({
   const [advancedMentionSearchData, setAdvancedMentionSearchData] =
     useState<SearchData>(defaultSearchData);
 
+  const isMobile = isMobileDevice();
+
   const isSocialSearchEnabled = enabledSearchType === 'SOCIAL_SEARCH';
   const isAdvancedMentionSearchEnabled =
     enabledSearchType === 'ADVANCED_MENTION_SEARCH';
+
+  const isSocialSearchVisible = socialSearchData.visible;
+  const isAdvancedMentionSearchVisible = advancedMentionSearchData.visible;
 
   useEffect(() => {
     const mentionInputEl = mentionInputRef?.current;
@@ -78,6 +85,23 @@ export function SearchInputSection({
       document.removeEventListener('click', handleClickOutside, true);
     };
   }, []);
+
+  useEffect(() => {
+    // For mobile - scroll to top such that input section is at top of viewport
+    if (
+      inputSectionRef.current &&
+      isMobile &&
+      (isAdvancedMentionSearchVisible || isSocialSearchVisible)
+    ) {
+      const { top } = inputSectionRef.current.getBoundingClientRect();
+      const viewportScrollY = window.scrollY;
+      const targetScrollTop = viewportScrollY + top - 8;
+      // Check if there is need to scroll
+      if (viewportScrollY < targetScrollTop) {
+        window.scroll({ top: targetScrollTop, behavior: 'smooth' });
+      }
+    }
+  }, [isAdvancedMentionSearchVisible, isMobile, isSocialSearchVisible]);
 
   const showAdvancedMentionSearch = useCallback(
     (data: AdvancedMentionSearchParams) => {
@@ -140,22 +164,22 @@ export function SearchInputSection({
   );
 
   const handleInputClear = useCallback(() => {
-    if (advancedMentionSearchData.visible) {
+    if (isAdvancedMentionSearchVisible) {
       setAdvancedMentionSearchData(prev => ({ ...prev, visible: false }));
     } else {
       onValueChange('');
     }
-  }, [advancedMentionSearchData.visible, onValueChange]);
+  }, [isAdvancedMentionSearchVisible, onValueChange]);
 
   const handleInputSubmit = () => {
     handleOnSubmit(value);
   };
 
   const renderButtonContent = () => {
-    if (!value) {
+    if (!value || (isAdvancedMentionSearchVisible && isMobile)) {
       return null;
     }
-    if (!isInputSectionFocused || advancedMentionSearchData.visible) {
+    if (!isInputSectionFocused || isAdvancedMentionSearchVisible) {
       return (
         <button
           type="button"
@@ -184,7 +208,9 @@ export function SearchInputSection({
         ref={inputSectionRef}
         className={classNames(
           'before-bg-glass before:rounded-18 before:border-solid-stroke transition-all absolute top-0',
-          advancedMentionSearchData.visible ? 'w-[min(70vw,900px)]' : 'w-full'
+          isAdvancedMentionSearchVisible && !isMobile
+            ? 'w-[min(70vw,900px)]'
+            : 'w-full'
         )}
       >
         <div
@@ -211,9 +237,11 @@ export function SearchInputSection({
                 : undefined
             }
           />
-          <div className="flex justify-end pl-3">{renderButtonContent()}</div>
+          <div ref={buttonSectionRef} className="flex justify-end pl-3">
+            {renderButtonContent()}
+          </div>
         </div>
-        {advancedMentionSearchData.visible && (
+        {isAdvancedMentionSearchVisible && (
           <>
             <div
               className="bg-primary/70 z-[-1] inset-0 fixed"
@@ -221,14 +249,16 @@ export function SearchInputSection({
             />
             <AdvancedMentionSearch
               {...advancedMentionSearchData}
+              filtersButtonData={{ containerRef: buttonSectionRef }}
               mentionInputRef={mentionInputRef}
               mentionValue={value}
+              viewType={isMobile ? 'LIST_VIEW' : 'GRID_VIEW'}
               onChange={handleSubmitAfterDelay}
               onClose={hideAdvancedMentionSearch}
             />
           </>
         )}
-        {socialSearchData.visible && (
+        {isSocialSearchVisible && (
           <>
             <SocialSearch
               {...socialSearchData}

@@ -18,13 +18,13 @@ import {
   useSearchInput
 } from '../../../../hooks/useSearchInput';
 import {
-  getCommonNftOwnersQueryWithFilters,
-  getNftOwnersQueryWithFilters
-} from '../../../../queries/commonNftOwnersQueryWithFilters';
-import {
   getCommonNftOwnersSnapshotQueryWithFilters,
   getNftOwnersSnapshotQueryWithFilters
 } from '../../../../queries/Snapshots/commonNftOwnersSnapshotQueryWithFilters';
+import {
+  getCommonNftOwnersQueryWithFilters,
+  getNftOwnersQueryWithFilters
+} from '../../../../queries/commonNftOwnersQueryWithFilters';
 import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../../../queries/commonPoapAndNftOwnersQueryWithFilters';
 import { getFilterablePoapsQuery } from '../../../../queries/overviewDetailsPoap';
 import { useOverviewTokens } from '../../../../store/tokenHoldersOverview';
@@ -35,6 +35,7 @@ import {
 } from '../../../../utils/activeSnapshotInfoString';
 import { createTokenBalancesUrl } from '../../../../utils/createTokenUrl';
 import { sortByAddressByNonERC20First } from '../../../../utils/getNFTQueryForTokensHolder';
+import { isMobileDevice } from '../../../../utils/isMobileDevice';
 import { sortAddressByPoapFirst } from '../../../../utils/sortAddressByPoapFirst';
 import { Poap, Token as TokenType, TokensData } from '../../types';
 import { Header } from './Header';
@@ -116,6 +117,8 @@ export function TokensComponent() {
   });
 
   const navigate = useNavigate();
+
+  const isMobile = isMobileDevice();
 
   const requestFilters = useMemo(() => {
     return getRequestFilters(filters);
@@ -352,12 +355,13 @@ export function TokensComponent() {
       const url = createTokenBalancesUrl({
         address: formatAddress(address, type),
         blockchain: 'ethereum',
-        inputType: 'ADDRESS'
+        inputType: 'ADDRESS',
+        truncateLabel: isMobile
       });
       resetCachedUserInputs('tokenBalance');
       navigate(url);
     },
-    [navigate]
+    [isMobile, navigate]
   );
 
   const showDownCSVOverlay = hasNextPage && !loading;

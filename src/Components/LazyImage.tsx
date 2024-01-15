@@ -4,13 +4,17 @@ import { ComponentProps, useState } from 'react';
 type LazyImageStatusType = 'loading' | 'loaded' | 'error';
 
 type LazyImageProps = Omit<ComponentProps<'img'>, 'src'> & {
-  src?: string | undefined | null;
-  errorPlaceholderClassName?: string;
+  src?: string | null;
+  fallbackSrc?: string;
+  fallbackClassName?: string;
+  loadingClassName?: string;
 };
 
 const LazyImage = ({
   src,
-  errorPlaceholderClassName,
+  fallbackSrc = 'images/placeholder.svg',
+  fallbackClassName,
+  loadingClassName,
   ...rest
 }: LazyImageProps) => {
   const [status, setStatus] = useState<LazyImageStatusType>('error');
@@ -19,23 +23,23 @@ const LazyImage = ({
       {status === 'error' && (
         <img
           {...rest}
-          className={classNames(rest.className, errorPlaceholderClassName)}
-          src="images/placeholder.svg"
-          alt="placeholder-img"
+          className={classNames(rest.className, fallbackClassName)}
+          src={fallbackSrc}
         />
       )}
       {status === 'loading' && (
-        <div className="skeleton-loader">
-          <div
-            data-loader-type="block"
-            style={{ height: rest.height, width: rest.width }}
-            className={rest.className}
-          />
-        </div>
+        <div
+          className={classNames(
+            'animate-pulse bg-secondary',
+            rest.className,
+            loadingClassName
+          )}
+          style={{ height: rest.height, width: rest.width }}
+        />
       )}
       <img
         {...rest}
-        src={src || ''}
+        src={src || fallbackSrc}
         style={status !== 'loaded' ? { display: 'none' } : undefined}
         onLoadStart={() => setStatus('loading')}
         onLoad={() => setStatus('loaded')}
