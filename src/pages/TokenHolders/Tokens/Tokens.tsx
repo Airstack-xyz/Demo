@@ -1,5 +1,4 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
 import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { StatusLoader } from '../../../Components/StatusLoader';
@@ -18,8 +17,10 @@ import { getActiveSnapshotInfo } from '../../../utils/activeSnapshotInfoString';
 import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
 import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
 import { sortByAddressByNonERC20First } from '../../../utils/getNFTQueryForTokensHolder';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
 import { Header } from './Header';
 import { AssetType, Token } from './Token';
+import { DownloadCSVOverlay } from '../../../Components/DownloadCSVOverlay';
 
 const loaderData = Array(6).fill({});
 
@@ -48,6 +49,8 @@ export function TokensComponent() {
     { address, inputType, activeTokenInfo, activeSnapshotInfo },
     setSearchData
   ] = useSearchInput();
+
+  const isMobile = isMobileDevice();
 
   const overviewTokens: TokenHolder[] = _overviewTokens;
 
@@ -151,12 +154,13 @@ export function TokensComponent() {
       const url = createTokenBalancesUrl({
         address: formatAddress(address, type),
         blockchain: 'ethereum',
-        inputType: 'ADDRESS'
+        inputType: 'ADDRESS',
+        truncateLabel: isMobile
       });
       resetCachedUserInputs('tokenBalance');
       navigate(url);
     },
-    [navigate]
+    [isMobile, navigate]
   );
 
   const handleAssetClick = useCallback(
@@ -172,17 +176,10 @@ export function TokensComponent() {
     [activeTokenInfo, setSearchData]
   );
 
-  const { hasNextPage, getNextPage } = shouldFetchPoaps
-    ? paginationPoaps
-    : paginationTokens;
+  const { hasNextPage } = shouldFetchPoaps ? paginationPoaps : paginationTokens;
 
   const loading = overviewTokens.length === 0 || loadingPoaps || loadingTokens;
-
-  const handleNext = useCallback(() => {
-    if (!loading && hasNextPage && getNextPage) {
-      getNextPage();
-    }
-  }, [getNextPage, hasNextPage, loading]);
+  const showDownCSVOverlay = hasNextPage && !loading;
 
   const tokens = shouldFetchPoaps ? poapsData : tokensData;
   const totalProcessed = processedTokensCount + processedPoapsCount;
@@ -206,41 +203,35 @@ export function TokensComponent() {
   const isERC20 = tokens && tokens[0]?.tokenType === 'ERC20';
 
   return (
-    <>
-      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto mb-5">
-        <InfiniteScroll
-          next={handleNext}
-          dataLength={tokens.length}
-          hasMore={hasNextPage}
-          loader={null}
-        >
-          <table className="w-auto text-xs table-fixed sm:w-full">
-            <Header isERC20={isERC20} isCombination={isCombination} />
-            <tbody>
-              {tokens.map((token, index) => (
-                <tr
-                  key={index}
-                  className="[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px]"
-                  data-loader-type="block"
-                  data-loader-margin="10"
-                >
-                  <Token
-                    token={token}
-                    isCombination={isCombination}
-                    onShowMoreClick={handleShowMoreClick}
-                    onAddressClick={handleAddressClick}
-                    onAssetClick={handleAssetClick}
-                  />
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {!loading && tokens.length === 0 && (
-            <div className="flex flex-1 justify-center text-xs font-semibold mt-5">
-              No data found!
-            </div>
-          )}
-        </InfiniteScroll>
+    <div className="relative mb-5">
+      {showDownCSVOverlay && <DownloadCSVOverlay />}
+      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
+        <table className="w-auto text-xs table-fixed sm:w-full select-none">
+          <Header isERC20={isERC20} isCombination={isCombination} />
+          <tbody>
+            {tokens.map((token, index) => (
+              <tr
+                key={index}
+                className="[&>td]:px-2 [&>td]:py-3 [&>td]:align-middle min-h-[54px]"
+                data-loader-type="block"
+                data-loader-margin="10"
+              >
+                <Token
+                  token={token}
+                  isCombination={isCombination}
+                  onShowMoreClick={handleShowMoreClick}
+                  onAddressClick={handleAddressClick}
+                  onAssetClick={handleAssetClick}
+                />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {!loading && tokens.length === 0 && (
+          <div className="flex flex-1 justify-center text-xs font-semibold mt-5">
+            No data found!
+          </div>
+        )}
         {loading && <Loader />}
       </div>
       {modalData.isOpen && (
@@ -256,7 +247,7 @@ export function TokensComponent() {
       {showStatusLoader && (
         <StatusLoader total={totalProcessed} matching={tokens.length} />
       )}
-    </>
+    </div>
   );
 }
 

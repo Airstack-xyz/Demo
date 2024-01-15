@@ -1,11 +1,12 @@
-import { memo } from 'react';
 import classNames from 'classnames';
-import { Icon } from '../../../Components/Icon';
-import { ScoreMap } from '../constants';
-import { Tooltip } from '../../../Components/Tooltip';
+import { memo } from 'react';
 import { createSearchParams, useNavigate } from 'react-router-dom';
-import { useIdentity } from '../hooks/useIdentity';
+import { Icon } from '../../../Components/Icon';
+import { Tooltip } from '../../../Components/Tooltip';
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
+import { ScoreMap } from '../constants';
+import { useIdentity } from '../hooks/useIdentity';
 import { ScoreOptions } from './ScoreOptions';
 
 function Header({
@@ -24,6 +25,8 @@ function Header({
   const navigate = useNavigate();
   const identity = useIdentity();
 
+  const isMobile = isMobileDevice();
+
   return (
     <div className="flex items-center justify-between flex-col sm:flex-row">
       <div className="flex items-center">
@@ -39,7 +42,8 @@ function Header({
                     label: identity,
                     address: identity,
                     type: 'ADDRESS',
-                    blockchain: 'ethereum'
+                    blockchain: 'ethereum',
+                    truncateLabel: isMobile
                   })
                 }).toString()
               });

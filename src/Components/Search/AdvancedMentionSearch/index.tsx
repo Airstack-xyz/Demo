@@ -5,55 +5,27 @@ import {
   useRef,
   useState
 } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { AdvancedMentionSearchQuery } from '../../../queries';
-import { Icon } from '../../Icon';
-import { fetchAIMentions } from '../../Input/utils';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
+import { fetchAIMentions, getMentionCount } from '../../Input/utils';
 import { PADDING } from '../Search';
-import BlockchainFilter, {
-  BlockchainSelectOption,
-  defaultChainOption
-} from './BlockchainFilter';
-import Filters, { TokenSelectOption, defaultTokenOption } from './Filters';
-import GridItem, { GridItemLoader } from './GridItem';
+import { ChainSelectOption, defaultChainOption } from './ChainFilter';
+import GridView from './GridView';
+import ListView from './ListView';
+import { TokenSelectOption, defaultTokenOption } from './TokenFilter';
 import {
   AdvancedMentionSearchInput,
   AdvancedMentionSearchItem,
-  AdvancedMentionSearchResponse
+  AdvancedMentionSearchResponse,
+  FilterButtonDataType,
+  SearchDataType
 } from './types';
 import {
-  getSearchQuery,
+  INFINITE_SCROLL_CONTAINER_ID,
   getSearchItemMention,
+  getSearchQuery,
   getUpdatedMentionValue
 } from './utils';
-
-const LOADING_ITEM_COUNT = 9;
-
-const loadingItems = new Array(LOADING_ITEM_COUNT).fill(0);
-
-function GridLoader() {
-  return (
-    <>
-      {loadingItems.map((_, idx) => (
-        <GridItemLoader key={idx} />
-      ))}
-    </>
-  );
-}
-
-type SearchDataType = {
-  isLoading: boolean;
-  isError?: boolean;
-  searchTerm?: string | null;
-  cursor?: string | null;
-  nextCursor?: string | null;
-  hasMore: boolean;
-  items: AdvancedMentionSearchItem[];
-  selectedToken: TokenSelectOption;
-  selectedChain: BlockchainSelectOption;
-};
-
-const CONTAINER_ID = 'advanced-mention-search';
 
 const LIMIT = 30;
 
@@ -73,34 +45,43 @@ const defaultSearchData: SearchDataType = {
   hasMore: true,
   items: [],
   selectedToken: defaultTokenOption,
-  selectedChain: defaultChainOption
+  selectedChain: defaultChainOption,
+  focusIndex: null
+};
+
+type AdvancedMentionSearchProps = {
+  // reference to mention-input element
+  mentionInputRef: MutableRefObject<HTMLTextAreaElement | null>;
+  // mention-input's value containing markup for mentions
+  mentionValue: string;
+  // @mention query starting index in mention-input's display value i.e. value visible to user
+  queryStartIndex: number;
+  // @mention query ending index in mention-input's display value i.e. value visible to user,
+  queryEndIndex: number;
+  // determines whether to render results in form of list (LIST_VIEW) (mobile friendly) or 3x3 grid (GRID_VIEW)
+  viewType: 'GRID_VIEW' | 'LIST_VIEW';
+  // used for rendering filters button (for LIST_VIEW) outside (as portal) inside specified html element
+  filtersButtonData?: FilterButtonDataType;
+  // callback func, invoked when mention value is changed
+  onChange: (value: string) => void;
+  // callback func, invoked when search to be closed
+  onClose: () => void;
 };
 
 export default function AdvancedMentionSearch({
-  mentionInputRef, // reference to mention-input element
-  mentionValue, // mention-input's value containing markup for mentions
-  queryStartIndex, // @mention query starting index in mention-input's display value i.e. value visible to user
-  queryEndIndex, // @mention query ending index in mention-input's display value i.e. value visible to user
+  mentionInputRef,
+  mentionValue,
+  queryStartIndex,
+  queryEndIndex,
+  viewType,
+  filtersButtonData,
   onChange,
   onClose
-}: {
-  mentionInputRef: MutableRefObject<HTMLTextAreaElement | null>;
-  mentionValue: string;
-  query: string;
-  queryStartIndex: number;
-  queryEndIndex: number;
-  onChange: (value: string) => void;
-  onClose: () => void;
-}) {
+}: AdvancedMentionSearchProps) {
   const [searchData, setSearchData] =
     useState<SearchDataType>(defaultSearchData);
-  const [focusIndex, setFocusIndex] = useState(0);
 
-  const focusIndexRef = useRef(0);
-  const firstFetchRef = useRef(true);
-
-  // store refs so that it can be used in events without triggering useEffect
-  focusIndexRef.current = focusIndex;
+  const isMobile = isMobileDevice();
 
   const {
     isLoading,
@@ -110,31 +91,60 @@ export default function AdvancedMentionSearch({
     hasMore,
     items,
     selectedChain,
-    selectedToken
+    selectedToken,
+    focusIndex
   } = searchData;
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  const firstFetchRef = useRef(true);
+  const itemsRef = useRef(items);
+  const focusIndexRef = useRef(focusIndex);
+
+  // store refs so that it can be used in events without triggering useEffect
+  itemsRef.current = items;
+  focusIndexRef.current = focusIndex;
+
+  const isListView = viewType === 'LIST_VIEW';
+
   const focusGridItem = useCallback((delta: number) => {
-    const gridItems = document.querySelectorAll<HTMLButtonElement>(
-      `#${CONTAINER_ID} .infinite-scroll-component button`
+    const containerEl = containerRef.current;
+    if (!containerEl) return;
+
+    const nextIndex =
+      focusIndexRef.current == null ? 0 : focusIndexRef.current + delta;
+    const lastIndex =
+      itemsRef.current == null ? 0 : itemsRef.current.length - 1;
+
+    const itemIndex = Math.max(0, Math.min(nextIndex, lastIndex));
+
+    const activeEl = containerEl.querySelector<HTMLButtonElement>(
+      `.infinite-scroll-component button:nth-of-type(${itemIndex + 1})`
     );
-    const itemIndex = Math.min(
-      Math.max(focusIndexRef.current + delta, 0),
-      gridItems.length
+    const parentEl = containerEl.querySelector<HTMLDivElement>(
+      `#${INFINITE_SCROLL_CONTAINER_ID}`
     );
-    const activeItem = gridItems[itemIndex];
-    if (activeItem) {
-      activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      setFocusIndex(itemIndex);
+
+    if (activeEl && parentEl) {
+      const targetScrollTop =
+        activeEl.offsetTop -
+        parentEl.clientHeight * 0.5 +
+        activeEl.offsetHeight * 0.5;
+      parentEl.scroll({ behavior: 'smooth', top: targetScrollTop });
+      setSearchData(prev => ({
+        ...prev,
+        focusIndex: itemIndex
+      }));
     }
   }, []);
 
   const selectGridItem = useCallback(() => {
-    const gridItems = document.querySelectorAll<HTMLButtonElement>(
-      `#${CONTAINER_ID} .infinite-scroll-component button`
+    const containerEl = containerRef.current;
+    if (!containerEl) return;
+    const itemIndex = focusIndexRef.current || 0;
+    const activeEl = containerEl.querySelector<HTMLButtonElement>(
+      `.infinite-scroll-component button:nth-of-type(${itemIndex + 1})`
     );
-    const itemIndex = focusIndexRef.current;
-    const activeItem = gridItems[itemIndex];
-    activeItem?.click();
+    activeEl?.click();
   }, []);
 
   const fetchData = useCallback(
@@ -185,7 +195,6 @@ export default function AdvancedMentionSearch({
         nextCursor: nextCursor,
         items: [...prev.items, ...nextItems]
       }));
-      setFocusIndex(0);
     },
     []
   );
@@ -202,15 +211,13 @@ export default function AdvancedMentionSearch({
       searchTerm: query,
       cursor: null,
       hasMore: true,
-      items: []
+      items: [],
+      focusIndex: null
     }));
   }, [onClose, mentionValue, queryStartIndex]);
 
   useEffect(() => {
     const mentionInputEl = mentionInputRef.current;
-
-    // set mention-input's caret to correct position
-    mentionInputEl?.setSelectionRange(queryEndIndex, queryEndIndex);
 
     function handleInputClick() {
       const selectionStart = mentionInputEl?.selectionStart ?? -1;
@@ -234,26 +241,44 @@ export default function AdvancedMentionSearch({
         event.stopImmediatePropagation();
         event.preventDefault();
       }
-      switch (event.key) {
-        case 'ArrowLeft':
-          focusGridItem(-1);
-          break;
-        case 'ArrowRight':
-          focusGridItem(+1);
-          break;
-        case 'ArrowUp':
-          focusGridItem(-3);
-          break;
-        case 'ArrowDown':
-          focusGridItem(+3);
-          break;
-        case 'Enter':
-          selectGridItem();
-          break;
-        case ' ':
-        case 'Escape':
-          onClose();
-          break;
+      if (isListView) {
+        switch (event.key) {
+          case 'ArrowUp':
+            focusGridItem(-1);
+            break;
+          case 'ArrowDown':
+            focusGridItem(+1);
+            break;
+          case 'Enter':
+            selectGridItem();
+            break;
+          case ' ':
+          case 'Escape':
+            onClose();
+            break;
+        }
+      } else {
+        switch (event.key) {
+          case 'ArrowLeft':
+            focusGridItem(-1);
+            break;
+          case 'ArrowRight':
+            focusGridItem(+1);
+            break;
+          case 'ArrowUp':
+            focusGridItem(-3);
+            break;
+          case 'ArrowDown':
+            focusGridItem(+3);
+            break;
+          case 'Enter':
+            selectGridItem();
+            break;
+          case ' ':
+          case 'Escape':
+            onClose();
+            break;
+        }
       }
     }
 
@@ -270,7 +295,8 @@ export default function AdvancedMentionSearch({
     focusGridItem,
     mentionInputRef,
     onClose,
-    selectGridItem
+    selectGridItem,
+    isListView
   ]);
 
   useEffect(() => {
@@ -303,13 +329,14 @@ export default function AdvancedMentionSearch({
     };
   }, [cursor, fetchData, searchTerm, selectedChain.value, selectedToken.value]);
 
-  const handleReloadData = useCallback(() => {
+  const handleDataReload = useCallback(() => {
     setSearchData(prev => ({
       ...prev,
       cursor: prev.cursor === null ? undefined : null, // causes fetchData useEffect to invoke again
       nextCursor: null,
       hasMore: true,
-      items: []
+      items: [],
+      focusIndex: null
     }));
   }, []);
 
@@ -322,25 +349,34 @@ export default function AdvancedMentionSearch({
       items: [],
       selectedToken: option,
       selectedChain:
-        option.value === 'POAP' ? defaultChainOption : prev.selectedChain
+        option.value === 'POAP' ? defaultChainOption : prev.selectedChain,
+      focusIndex: null
     }));
   }, []);
 
-  const handleChainSelect = useCallback((option: BlockchainSelectOption) => {
+  const handleChainSelect = useCallback((option: ChainSelectOption) => {
     setSearchData(prev => ({
       ...prev,
       cursor: null,
       nextCursor: null,
       hasMore: true,
       items: [],
-      selectedChain: option
+      selectedChain: option,
+      focusIndex: null
     }));
   }, []);
 
-  const handleMoreFetch = useCallback(() => {
+  const handleFetchMore = useCallback(() => {
     setSearchData(prev => ({
       ...prev,
       cursor: prev.nextCursor
+    }));
+  }, []);
+
+  const handleItemHover = useCallback((index: number) => {
+    setSearchData(prev => ({
+      ...prev,
+      focusIndex: index
     }));
   }, []);
 
@@ -359,62 +395,51 @@ export default function AdvancedMentionSearch({
   };
 
   const handleItemSelect = (item: AdvancedMentionSearchItem) => {
-    const mention = getSearchItemMention(item);
+    // @mention label should be truncated in mobile for first mention
+    const truncateLabel = isMobile && getMentionCount(mentionValue) === 0;
+    const mention = getSearchItemMention(item, truncateLabel);
     handleMentionChange(mention);
   };
 
-  const isBlockchainFilterDisabled = selectedToken.value === 'POAP';
+  const isChainFilterDisabled = selectedToken.value === 'POAP';
 
-  const dataNotFound = !isError && !isLoading && !hasMore && items.length === 0;
+  const isDataNotFound =
+    !isError && !isLoading && !hasMore && items.length === 0;
 
-  const errorOccurred = isError && !isLoading && items.length === 0;
+  const isErrorOccurred = isError && !isLoading && items.length === 0;
 
   return (
-    <div id={CONTAINER_ID} className="pt-5 px-5 relative z-20">
-      <div className="flex justify-between items-center">
-        <Filters selectedOption={selectedToken} onSelect={handleTokenSelect} />
-        <BlockchainFilter
-          isDisabled={isBlockchainFilterDisabled}
-          selectedOption={selectedChain}
-          onSelect={handleChainSelect}
+    <div ref={containerRef} className="relative z-20">
+      {isListView ? (
+        <ListView
+          mentionInputRef={mentionInputRef}
+          filtersButtonData={filtersButtonData}
+          searchData={searchData}
+          focusIndex={focusIndex}
+          isDataNotFound={isDataNotFound}
+          isErrorOccurred={isErrorOccurred}
+          onTokenSelect={handleTokenSelect}
+          onChainSelect={handleChainSelect}
+          onItemSelect={handleItemSelect}
+          onItemHover={handleItemHover}
+          onFetchMore={handleFetchMore}
+          onDataReload={handleDataReload}
         />
-      </div>
-      <InfiniteScroll
-        next={handleMoreFetch}
-        dataLength={items.length}
-        hasMore={hasMore}
-        loader={<GridLoader />}
-        height={508}
-        className="mt-5 pr-1 grid grid-cols-3 auto-rows-max gap-[25px] no-scrollbar"
-      >
-        {dataNotFound && (
-          <div className="p-2 text-center col-span-3">
-            No results to display!
-          </div>
-        )}
-        {errorOccurred && (
-          <div className="p-2 flex-col-center col-span-3">
-            Error while fetching data!
-            <button
-              type="button"
-              className="flex-row-center text-base text-text-button font-bold mt-4"
-              onClick={handleReloadData}
-            >
-              <Icon name="refresh-blue" width={18} height={18} /> Try Again
-            </button>
-          </div>
-        )}
-        {isLoading && <GridLoader />}
-        {items.map((item, index) => (
-          <GridItem
-            key={`${item.address}_${index}`}
-            item={item}
-            isFocused={focusIndex === index}
-            onClick={() => handleItemSelect(item)}
-            onMouseEnter={() => setFocusIndex(index)}
-          />
-        ))}
-      </InfiniteScroll>
+      ) : (
+        <GridView
+          searchData={searchData}
+          focusIndex={focusIndex}
+          isChainFilterDisabled={isChainFilterDisabled}
+          isDataNotFound={isDataNotFound}
+          isErrorOccurred={isErrorOccurred}
+          onTokenSelect={handleTokenSelect}
+          onChainSelect={handleChainSelect}
+          onItemSelect={handleItemSelect}
+          onItemHover={handleItemHover}
+          onFetchMore={handleFetchMore}
+          onDataReload={handleDataReload}
+        />
+      )}
     </div>
   );
 }

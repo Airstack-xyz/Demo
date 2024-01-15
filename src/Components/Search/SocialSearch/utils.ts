@@ -6,12 +6,18 @@ import {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
 } from '../../Input/react-mentions/utils';
-import { MENTION_CONFIG } from '../../Input/utils';
+import { MENTION_CONFIG, truncateMentionLabel } from '../../Input/utils';
 import { SocialSearchItem } from './types';
 
-export const getSearchItemMention = (item: SocialSearchItem) => {
+export const INFINITE_SCROLL_CONTAINER_ID = 'social-search-scroller';
+
+export const getSearchItemMention = (
+  item: SocialSearchItem,
+  truncateLabel?: boolean
+) => {
   const address = formatAddress(item.profileName, item.dappName);
-  return `#⎱${address}⎱(${address}  ethereum null)`;
+  const displayLabel = truncateLabel ? truncateMentionLabel(address) : address;
+  return `#⎱${displayLabel}⎱(${address}  ethereum null)`;
 };
 
 const SEARCH_TERM_REGEX = /\b([a-zA-Z0-9_.:/@]{3,})$/;

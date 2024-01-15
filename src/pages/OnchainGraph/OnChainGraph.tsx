@@ -41,9 +41,14 @@ export function OnChainGraphComponent() {
     setData,
     sortDataUsingScore
   } = useOnchainGraphContext();
-  const [showGridView, setShowGridView] = useState(() => !isMobileDevice());
+
+  const isMobile = isMobileDevice();
+
+  const [showGridView, setShowGridView] = useState(() => !isMobile);
   const [showLoader, setShowLoader] = useState(false);
+
   const [startScan, scanning, cancelScan] = useGetOnChainData(identity);
+
   const dataToCachedRef = useRef<OnchainGraphCache>({
     cacheFor: identity,
     data,
@@ -88,7 +93,8 @@ export function OnChainGraphComponent() {
         label: identity,
         address: identity,
         type: 'ADDRESS',
-        blockchain: 'ethereum'
+        blockchain: 'ethereum',
+        truncateLabel: isMobile
       });
 
       const rawInputForNewIdentity = createFormattedRawInput({
@@ -105,7 +111,7 @@ export function OnChainGraphComponent() {
         }).toString()
       });
     },
-    [identity, navigate]
+    [identity, isMobile, navigate]
   );
 
   return (

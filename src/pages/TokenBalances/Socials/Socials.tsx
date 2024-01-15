@@ -16,6 +16,7 @@ import { SocialQuery } from '../../../queries';
 import { formatAddress } from '../../../utils';
 import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
 import { SectionHeader } from '../SectionHeader';
 import { Follow, FollowParams, FollowType } from './Follow';
 import { Social } from './Social';
@@ -108,6 +109,8 @@ function SocialsComponent() {
     SocialVariables
   >(SocialQuery);
 
+  const isMobile = isMobileDevice();
+
   const wallet = data?.Wallet;
 
   useEffect(() => {
@@ -173,7 +176,8 @@ function SocialsComponent() {
         type: 'ADDRESS',
         address: addressValue,
         label: addressValue,
-        blockchain: 'ethereum'
+        blockchain: 'ethereum',
+        truncateLabel: isMobile
       });
 
       setData(
@@ -185,7 +189,7 @@ function SocialsComponent() {
         { updateQueryParams: true }
       );
     },
-    [setData]
+    [isMobile, setData]
   );
 
   const handleAddressClick = useCallback(

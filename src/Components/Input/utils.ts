@@ -1,4 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+  getMentions
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+} from './react-mentions/utils';
 import { SearchAIMentionsQuery } from '../../queries';
 import { createFormattedRawInput } from '../../utils/createQueryParamsWithMention';
 import {
@@ -23,6 +28,14 @@ export const MENTION_CONFIG = [
     regex: MENTION_REGEX
   }
 ];
+
+// Used for displaying correct type mention in @mention list-item
+export const MENTION_TYPE_MAP: Record<string, string> = {
+  [MentionType.NFT_COLLECTION]: 'NFT',
+  [MentionType.DAO_TOKEN]: 'DAO',
+  [MentionType.TOKEN]: 'Token',
+  [MentionType.POAP]: 'POAP'
+};
 
 export const ID_REGEX = /#⎱.+?⎱\((.+?)\)\s*/g;
 export const NAME_REGEX = /#⎱(.+?)⎱\(.+?\)/g;
@@ -112,20 +125,22 @@ export function highlightMention(
   };
   const observer = new MutationObserver(callback);
   observer.observe(targetNode, config);
-  callback(); // handle the initial value
+  callback(); // Handle the initial value
 
+  // !Important: handleScroll is responsible for moving overflow text content to left, without this typing will not shift text content to left
   function handleScroll({ target }: any) {
     root.scrollTop = target.scrollTop;
     root.scrollLeft = target.scrollLeft;
   }
 
-  el.addEventListener('scroll', handleScroll);
+  el?.addEventListener('scroll', handleScroll);
+  // Adding keyup event as well because scroll event on mention-input doesn't get called on Safari
+  el?.addEventListener('keyup', handleScroll);
 
   return () => {
     observer.disconnect();
-    if (el) {
-      el.removeEventListener('scroll', handleScroll);
-    }
+    el?.removeEventListener('scroll', handleScroll);
+    el?.removeEventListener('keyup', handleScroll);
   };
 }
 
@@ -327,4 +342,18 @@ export async function fetchAIMentions<T = SearchAIMentionsResponse>({
   } catch (error: any) {
     return [null, error?.message || 'Something went wrong'];
   }
+}
+
+const MINIMUM_LABEL_LENGTH = 25;
+
+export function truncateMentionLabel(label?: string | null) {
+  if (!label) return '';
+  if (label.length <= MINIMUM_LABEL_LENGTH) return label;
+  return `${label.substring(0, MINIMUM_LABEL_LENGTH).trim()}...`;
+}
+
+export function getMentionCount(mentionValue?: string | null) {
+  if (!mentionValue) return 0;
+  const mentions = getMentions(mentionValue, MENTION_CONFIG);
+  return mentions.length;
 }

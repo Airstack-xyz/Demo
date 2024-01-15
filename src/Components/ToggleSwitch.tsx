@@ -17,7 +17,10 @@ export function ToggleSwitch({
 }) {
   return (
     <button
-      className={classNames('flex items-center disabled:opacity-50', className)}
+      className={classNames(
+        'flex items-center disabled:hover:cursor-not-allowed disabled:opacity-50',
+        className
+      )}
       disabled={disabled}
       onClick={onClick}
     >
