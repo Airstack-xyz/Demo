@@ -199,7 +199,7 @@ export function Token({
           )}
         </div>
       </td>
-      <td className="ellipsis">
+      <td className="ellipsis max-w-[120px]">
         <WalletAddress address={walletAddress} onClick={onAddressClick} />
       </td>
       {!isCombination && (

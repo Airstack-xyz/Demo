@@ -94,11 +94,8 @@ function formatAccountHolderData(data: AccountHolderResponse) {
     for (let i = 0; i < accounts.length; i++) {
       const account = accounts[i];
       if (account?.nft?.tokenBalances?.length > 0) {
-        account?.nft?.tokenBalances.forEach(token => {
-          token.owner.accounts.length > 0;
-        });
-        for (let i = 0; i < account?.nft?.tokenBalances?.length; i++) {
-          const token = account?.nft?.tokenBalances[i];
+        for (let j = 0; j < account?.nft?.tokenBalances?.length; j++) {
+          const token = account?.nft?.tokenBalances[j];
           if (token?.owner?.accounts.length === 0) {
             return token?.owner?.identity;
           } else {

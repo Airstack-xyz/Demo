@@ -1,13 +1,13 @@
 import classNames from 'classnames';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Icon } from '../../../Components/Icon';
-import AdvancedMentionSearch from '../../../Components/Search/AdvancedMentionSearch';
+import { InputWithMention } from '../../../Components/Input/Input';
 import {
   AdvancedMentionSearchParams,
-  InputWithMention
-} from '../../../Components/Input/Input';
-import { MentionData } from '../../../Components/Input/types';
+  MentionData
+} from '../../../Components/Input/types';
 import { getAllWordsAndMentions } from '../../../Components/Input/utils';
+import AdvancedMentionSearch from '../../../Components/Search/AdvancedMentionSearch';
 import { PADDING } from '../../../Components/Search/Search';
 import { isMobileDevice } from '../../../utils/isMobileDevice';
 

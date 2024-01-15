@@ -1,10 +1,12 @@
 import classNames from 'classnames';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMatch } from 'react-router-dom';
+import { ResolveTBAFilter } from '../../Components/Filters/ResolveTBAFilter';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import { defaultSortOrder } from '../../Components/Filters/SortBy';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Icon } from '../../Components/Icon';
+import { getAllWordsAndMentions } from '../../Components/Input/utils';
 import { Layout } from '../../Components/Layout';
 import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
@@ -59,7 +61,6 @@ import { HoldersOverview } from './Overview/Overview';
 import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { getRequestFilters } from './OverviewDetails/Tokens/filters';
 import { Tokens } from './Tokens/Tokens';
-import { getAllWordsAndMentions } from '../../Components/Input/utils';
 
 export function TokenHolders() {
   const [
@@ -529,6 +530,7 @@ export function TokenHolders() {
             disabledTooltipText={snapshotFilterTooltip}
             disabledTooltipIconHidden={snapshotFilterTooltipIconHidden}
           />
+          <ResolveTBAFilter />
         </div>
         <GetAPIDropdown options={options} />
       </div>
@@ -539,7 +541,7 @@ export function TokenHolders() {
     <Layout>
       <div
         className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
-          'flex-1 h-full w-full flex flex-col translate-y-[10vw] items-center text-center':
+          'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
             isHome
         })}
       >
