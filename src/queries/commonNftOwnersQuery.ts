@@ -1,11 +1,15 @@
 import { tokenBlockchains } from '../constants';
 import { TokenAddress } from '../pages/TokenHolders/types';
 
-const getCommonNftOwnersSubQuery = (
-  blockchain: string,
-  token1: TokenAddress,
-  token2: TokenAddress
-) => {
+const getCommonNftOwnersSubQuery = ({
+  blockchain,
+  token1,
+  token2
+}: {
+  blockchain: string;
+  token1: TokenAddress;
+  token2: TokenAddress;
+}) => {
   return `${blockchain}: TokenBalances(
   input: {filter: {tokenAddress: {_eq: "${
     token1.address
@@ -77,6 +81,10 @@ const getCommonNftOwnersSubQuery = (
         owner {
           identity
           addresses
+          accounts {
+            tokenId
+            tokenAddress
+          }
           socials {
             blockchain
             dappName
@@ -99,14 +107,19 @@ const getCommonNftOwnersSubQuery = (
 }`;
 };
 
-export function getCommonNftOwnersQuery(
-  token1: TokenAddress,
-  token2: TokenAddress
-) {
+export function getCommonNftOwnersQuery({
+  token1,
+  token2
+}: {
+  token1: TokenAddress;
+  token2: TokenAddress;
+}) {
   const subQueries: string[] = [];
   tokenBlockchains.forEach(_blockchain => {
     if (!token1.blockchain || token1.blockchain === _blockchain) {
-      subQueries.push(getCommonNftOwnersSubQuery(_blockchain, token1, token2));
+      subQueries.push(
+        getCommonNftOwnersSubQuery({ blockchain: _blockchain, token1, token2 })
+      );
     }
   });
   const subQueriesString = subQueries.join('\n');
@@ -116,7 +129,13 @@ export function getCommonNftOwnersQuery(
   }`;
 }
 
-const getNftOwnersSubQuery = (blockchain: string, token: TokenAddress) => {
+const getNftOwnersSubQuery = ({
+  blockchain,
+  token
+}: {
+  blockchain: string;
+  token: TokenAddress;
+}) => {
   return `${blockchain}: TokenBalances(
   input: {filter: {tokenAddress: {_eq: "${token.address}"}}, blockchain: ${blockchain}, limit: $limit}
 ) {
@@ -153,6 +172,10 @@ const getNftOwnersSubQuery = (blockchain: string, token: TokenAddress) => {
     owner {
       identity
       addresses
+      accounts {
+        tokenId
+        tokenAddress
+      }
       socials {
         blockchain
         dappName
@@ -173,11 +196,11 @@ const getNftOwnersSubQuery = (blockchain: string, token: TokenAddress) => {
 }`;
 };
 
-export function getNftOwnersQuery(token: TokenAddress) {
+export function getNftOwnersQuery({ token }: { token: TokenAddress }) {
   const subQueries: string[] = [];
   tokenBlockchains.forEach(_blockchain => {
     if (!token.blockchain || token.blockchain === _blockchain) {
-      subQueries.push(getNftOwnersSubQuery(_blockchain, token));
+      subQueries.push(getNftOwnersSubQuery({ blockchain: _blockchain, token }));
     }
   });
   const subQueriesString = subQueries.join('\n');

@@ -40,8 +40,12 @@ import { sortAddressByPoapFirst } from '../../../../utils/sortAddressByPoapFirst
 import { Poap, Token as TokenType, TokensData } from '../../types';
 import { Header } from './Header';
 import { Token } from './Token';
-import { filterTokens, getRequestFilters } from './filters';
-import { getPoapList, getTokenList } from './utils';
+import {
+  filterTokens,
+  getPoapList,
+  getRequestFilters,
+  getTokenList
+} from './utils';
 import { DownloadCSVOverlay } from '../../../../Components/DownloadCSVOverlay';
 
 const LIMIT = 34;
@@ -132,73 +136,62 @@ export function TokensComponent() {
   const hasSomePoap = tokenAddress.some(token => !token.startsWith('0x'));
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
-  const address = useMemo(() => {
+  const addresses = useMemo(() => {
     return sortByAddressByNonERC20First(tokenAddress, overviewTokens, hasPoap);
   }, [hasPoap, tokenAddress, overviewTokens]);
 
   const tokensQuery = useMemo(() => {
-    const hasSocialFilters = Boolean(requestFilters?.socialFilters);
-    const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
-    if (address.length === 1) {
+    if (addresses.length === 1) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQueryWithFilters({
-          address: address[0],
+          token: addresses[0],
           snapshotFilter: snapshotInfo.appliedFilter,
-          hasSocialFilters: hasSocialFilters,
-          hasPrimaryDomain: hasPrimaryDomain
+          ...requestFilters
         });
       }
-      return getNftOwnersQueryWithFilters(
-        address[0],
-        hasSocialFilters,
-        hasPrimaryDomain
-      );
+      return getNftOwnersQueryWithFilters({
+        token: addresses[0],
+        ...requestFilters
+      });
     }
     if (hasSomePoap) {
-      const tokens = sortAddressByPoapFirst(address);
-      return getCommonPoapAndNftOwnersQueryWithFilters(
-        tokens[0],
-        tokens[1],
-        hasSocialFilters,
-        hasPrimaryDomain
-      );
+      const tokens = sortAddressByPoapFirst(addresses);
+      return getCommonPoapAndNftOwnersQueryWithFilters({
+        poap: tokens[0],
+        token: tokens[1],
+        ...requestFilters
+      });
     }
     if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQueryWithFilters({
-        address1: address[0],
-        address2: address[1],
+        token1: addresses[0],
+        token2: addresses[1],
         snapshotFilter: snapshotInfo.appliedFilter,
-        hasSocialFilters: hasSocialFilters,
-        hasPrimaryDomain: hasPrimaryDomain
+        ...requestFilters
       });
     }
-    return getCommonNftOwnersQueryWithFilters(
-      address[0],
-      address[1],
-      hasSocialFilters,
-      hasPrimaryDomain
-    );
+    return getCommonNftOwnersQueryWithFilters({
+      token1: addresses[0],
+      token2: addresses[1],
+      ...requestFilters
+    });
   }, [
-    requestFilters?.socialFilters,
-    requestFilters?.hasPrimaryDomain,
-    address,
+    requestFilters,
+    addresses,
     hasSomePoap,
     snapshotInfo.isApplicable,
     snapshotInfo.appliedFilter
   ]);
 
   const poapsQuery = useMemo(() => {
-    const hasSocialFilters = Boolean(requestFilters?.socialFilters);
-    const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
-    return getFilterablePoapsQuery(address, hasSocialFilters, hasPrimaryDomain);
-  }, [
-    address,
-    requestFilters?.hasPrimaryDomain,
-    requestFilters?.socialFilters
-  ]);
+    return getFilterablePoapsQuery({
+      tokens: addresses,
+      ...requestFilters
+    });
+  }, [addresses, requestFilters]);
 
-  const shouldFetchTokens = address.length > 0;
-  const hasMultipleTokens = address.length > 1;
+  const shouldFetchTokens = addresses.length > 0;
+  const hasMultipleTokens = addresses.length > 1;
 
   const handleData = useCallback(
     (tokensData: TokensData) => {

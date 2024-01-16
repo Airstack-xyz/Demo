@@ -282,7 +282,7 @@ function TokenBalancePage() {
       !socialInfo.isApplicable &&
       (!tokenType || tokenType === 'POAP')
     ) {
-      const poapsQuery = poapsOfCommonOwnersQuery(owners);
+      const poapsQuery = poapsOfCommonOwnersQuery({ owners });
 
       const poapLink = createAppUrlWithQuery(poapsQuery, {
         limit: 10,

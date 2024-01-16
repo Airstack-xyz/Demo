@@ -73,19 +73,19 @@ function getFields({
 
 function getQueryWithFilter({
   owners,
-  blockchain,
   index = 0,
+  blockchain,
   mintsOnly
 }: {
   owners: string[];
-  blockchain: string;
   index?: number;
+  blockchain: string;
   mintsOnly?: boolean;
 }): string {
   const children =
     owners.length - 1 === index
       ? getFields({ owner: owners[index], mintsOnly })
-      : getQueryWithFilter({ owners, blockchain, index: index + 1, mintsOnly });
+      : getQueryWithFilter({ owners, index: index + 1, blockchain, mintsOnly });
 
   const filters = [
     `owner: {_eq: "${owners[index]}"}`,

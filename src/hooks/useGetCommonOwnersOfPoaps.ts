@@ -24,13 +24,16 @@ type CommonOwner = {
 const LIMIT = 34;
 const MIN_LIMIT = 34;
 
-export function useGetCommonOwnersOfPoaps(eventIds: TokenAddress[]) {
+export function useGetCommonOwnersOfPoaps(poapAddresses: TokenAddress[]) {
   const ownersSetRef = useRef<Set<string>>(new Set());
   const itemsRef = useRef<Token[]>([]);
   const [loading, setLoading] = useState(false);
   const [poaps, setPoaps] = useState<Token[]>([]);
   const [processedPoapsCount, setProcessedPoapsCount] = useState(LIMIT);
-  const query = useMemo(() => getCommonOwnersPOAPsQuery(eventIds), [eventIds]);
+  const query = useMemo(
+    () => getCommonOwnersPOAPsQuery({ poaps: poapAddresses }),
+    [poapAddresses]
+  );
   const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
 
   const { hasNextPage, getNextPage } = pagination;
@@ -38,7 +41,7 @@ export function useGetCommonOwnersOfPoaps(eventIds: TokenAddress[]) {
   // @ts-ignore
   const totalOwners = window.totalOwners;
   const hasMorePages = !totalOwners ? hasNextPage : poaps.length < totalOwners;
-  const fetchSingleToken = eventIds.length === 1;
+  const fetchSingleToken = poapAddresses.length === 1;
 
   useEffect(() => {
     if (!data) return;

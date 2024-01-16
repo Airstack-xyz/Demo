@@ -1,4 +1,4 @@
-export const AccountTraverseQuery = `query AccountTraverseDetails($address: Identity, $blockchain: TokenBlockchain!) {
+export const Resolve6551OwnerQuery = `query Resolve6551OwnerDetails($address: Identity, $blockchain: TokenBlockchain!) {
     Accounts(input: {filter: {address: {_eq: $address}}, blockchain: $blockchain}) {
       Account {
         nft {
@@ -38,28 +38,6 @@ export const AccountTraverseQuery = `query AccountTraverseDetails($address: Iden
             }
           }
         }
-      }
-    }
-  }`;
-
-export const WalletQuery = `query WalletDetails($address: Identity!) {
-    Wallet(input: {identity: $address, blockchain: ethereum}) {
-      identity
-      addresses
-      socials {
-        blockchain
-        dappName
-        profileName
-        profileHandle
-      }
-      primaryDomain {
-        name
-      }
-      domains {
-        name
-      }
-      xmtp {
-        isXMTPEnabled
       }
     }
   }`;

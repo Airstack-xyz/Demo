@@ -19,7 +19,6 @@ import {
 import { getCommonPoapAndNftOwnersQuery } from '../../queries/commonPoapAndNftOwnersQuery';
 import { sortAddressByPoapFirst } from '../../utils/sortAddressByPoapFirst';
 import { useTokenDetails } from '../../store/tokenDetails';
-import { getRequestFilters } from '../../pages/TokenHolders/OverviewDetails/Tokens/filters';
 import { getFilterablePoapsQuery } from '../../queries/overviewDetailsPoap';
 import {
   getCommonNftOwnersSnapshotQueryWithFilters,
@@ -30,6 +29,7 @@ import {
   getNftOwnersQueryWithFilters
 } from '../../queries/commonNftOwnersQueryWithFilters';
 import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../queries/commonPoapAndNftOwnersQueryWithFilters';
+import { getRequestFilters } from '../../pages/TokenHolders/OverviewDetails/Tokens/utils';
 
 export function useTokenHoldersLinks() {
   const [
@@ -56,106 +56,103 @@ export function useTokenHoldersLinks() {
   const hasSomePoap = tokenAddress.some(token => !token.startsWith('0x'));
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
-  const address = useMemo(() => {
+  const addresses = useMemo(() => {
     return sortByAddressByNonERC20First(tokenAddress, overviewTokens, hasPoap);
   }, [hasPoap, tokenAddress, overviewTokens]);
 
+  const requestFilters = useMemo(() => {
+    return getRequestFilters(tokenFilters);
+  }, [tokenFilters]);
+
   const tokenOwnersQuery = useMemo(() => {
-    if (address.length === 0) return '';
-    if (address.length === 1) {
+    if (addresses.length === 0) return '';
+    if (addresses.length === 1) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQuery({
-          address: address[0],
+          token: addresses[0],
           snapshotFilter: snapshotInfo.appliedFilter
         });
       }
-      return getNftOwnersQuery(address[0]);
+      return getNftOwnersQuery({ token: addresses[0] });
     }
     if (hasSomePoap) {
-      const tokens = sortAddressByPoapFirst(address);
-      return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
+      const tokens = sortAddressByPoapFirst(addresses);
+      return getCommonPoapAndNftOwnersQuery({
+        poap: tokens[0],
+        token: tokens[1]
+      });
     }
     if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQuery({
-        address1: address[0],
-        address2: address[1],
+        token1: addresses[0],
+        token2: addresses[1],
         snapshotFilter: snapshotInfo.appliedFilter
       });
     }
-    return getCommonNftOwnersQuery(address[0], address[1]);
+    return getCommonNftOwnersQuery({
+      token1: addresses[0],
+      token2: addresses[1]
+    });
   }, [
-    address,
+    addresses,
     hasSomePoap,
     snapshotInfo.isApplicable,
     snapshotInfo.appliedFilter
   ]);
 
   const tokensQueryWithFilter = useMemo(() => {
-    const requestFilters = getRequestFilters(tokenFilters);
-    const hasSocialFilters = Boolean(requestFilters?.socialFilters);
-    const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
-    if (address.length === 0) return '';
-    if (address.length === 1) {
+    if (addresses.length === 0) return '';
+    if (addresses.length === 1) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQueryWithFilters({
-          address: address[0],
+          token: addresses[0],
           snapshotFilter: snapshotInfo.appliedFilter,
-          hasSocialFilters,
-          hasPrimaryDomain
+          ...requestFilters
         });
       }
-      return getNftOwnersQueryWithFilters(
-        address[0],
-        hasSocialFilters,
-        hasPrimaryDomain
-      );
+      return getNftOwnersQueryWithFilters({
+        token: addresses[0],
+        ...requestFilters
+      });
     }
     if (hasSomePoap) {
-      const tokens = sortAddressByPoapFirst(address);
-      return getCommonPoapAndNftOwnersQueryWithFilters(
-        tokens[0],
-        tokens[1],
-        hasSocialFilters,
-        hasPrimaryDomain
-      );
+      const tokens = sortAddressByPoapFirst(addresses);
+      return getCommonPoapAndNftOwnersQueryWithFilters({
+        poap: tokens[0],
+        token: tokens[1],
+        ...requestFilters
+      });
     }
     if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQueryWithFilters({
-        address1: address[0],
-        address2: address[1],
+        token1: addresses[0],
+        token2: addresses[1],
         snapshotFilter: snapshotInfo.appliedFilter,
-        hasSocialFilters,
-        hasPrimaryDomain
+        ...requestFilters
       });
     }
-    return getCommonNftOwnersQueryWithFilters(
-      address[0],
-      address[1],
-      hasSocialFilters,
-      hasPrimaryDomain
-    );
+    return getCommonNftOwnersQueryWithFilters({
+      token1: addresses[0],
+      token2: addresses[1],
+      ...requestFilters
+    });
   }, [
-    tokenFilters,
-    address,
+    addresses,
     hasSomePoap,
     snapshotInfo.isApplicable,
-    snapshotInfo.appliedFilter
+    snapshotInfo.appliedFilter,
+    requestFilters
   ]);
 
   const getLink = useCallback(() => {
-    if (address.length === 0) return '';
-
+    if (addresses.length === 0) return '';
     if (activeView) {
-      const requestFilters = getRequestFilters(tokenFilters);
-      const hasSocialFilters = Boolean(requestFilters?.socialFilters);
-      const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
       let combinationsQueryLink = '';
       if (hasPoap) {
-        const combinationsQuery = getFilterablePoapsQuery(
-          address,
-          hasSocialFilters,
-          hasPrimaryDomain
-        );
+        const combinationsQuery = getFilterablePoapsQuery({
+          tokens: addresses,
+          ...requestFilters
+        });
         combinationsQueryLink = createAppUrlWithQuery(combinationsQuery, {
           limit: 200,
           ...requestFilters
@@ -180,7 +177,7 @@ export function useTokenHoldersLinks() {
 
     if (!activeTokenInfo && !hasERC6551) {
       if (hasPoap) {
-        const poapsQuery = getCommonOwnersPOAPsQuery(address);
+        const poapsQuery = getCommonOwnersPOAPsQuery({ poaps: addresses });
 
         const poapLink = createAppUrlWithQuery(poapsQuery, {
           limit: 20
@@ -206,15 +203,16 @@ export function useTokenHoldersLinks() {
 
     return '';
   }, [
-    address,
+    addresses,
     activeView,
     activeTokenInfo,
     hasERC6551,
-    tokenFilters,
     hasPoap,
+    requestFilters,
     snapshotInfo,
     tokensQueryWithFilter,
     tokenOwnersQuery
   ]);
+
   return getLink;
 }

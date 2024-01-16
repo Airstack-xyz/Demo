@@ -5,13 +5,19 @@ const socialInput = '(input: {filter: {dappName: {_in: $socialFilters}}})';
 const primaryDomainInput =
   '(input: {filter: {isPrimary: {_eq: $hasPrimaryDomain}}})';
 
-const getCommonNftOwnersSubQueryWithFilters = (
-  blockchain: string,
-  token1: TokenAddress,
-  token2: TokenAddress,
-  hasSocialFilters = false,
-  hasPrimaryDomainFilter = false
-) => {
+const getCommonNftOwnersSubQueryWithFilters = ({
+  blockchain,
+  token1,
+  token2,
+  hasSocialFilters,
+  hasPrimaryDomain
+}: {
+  blockchain: string;
+  token1: TokenAddress;
+  token2: TokenAddress;
+  hasSocialFilters?: boolean;
+  hasPrimaryDomain?: boolean;
+}) => {
   return `${blockchain}: TokenBalances(
     input: {filter: {tokenAddress: {_eq: "${
       token1.address
@@ -37,6 +43,10 @@ const getCommonNftOwnersSubQueryWithFilters = (
           owner {
             identity
             addresses
+            accounts {
+              tokenId
+              tokenAddress
+            }
             socials${hasSocialFilters ? socialInput : ''} {
               blockchain
               dappName
@@ -46,7 +56,7 @@ const getCommonNftOwnersSubQueryWithFilters = (
             primaryDomain {
               name
             }
-            domains${hasPrimaryDomainFilter ? primaryDomainInput : ''} {
+            domains${hasPrimaryDomain ? primaryDomainInput : ''} {
               name
             }
             xmtp {
@@ -59,17 +69,22 @@ const getCommonNftOwnersSubQueryWithFilters = (
   }`;
 };
 
-export function getCommonNftOwnersQueryWithFilters(
-  token1: TokenAddress,
-  token2: TokenAddress,
-  hasSocialFilters = false,
-  hasPrimaryDomainFilter = false
-) {
+export function getCommonNftOwnersQueryWithFilters({
+  token1,
+  token2,
+  hasSocialFilters,
+  hasPrimaryDomain
+}: {
+  token1: TokenAddress;
+  token2: TokenAddress;
+  hasSocialFilters?: boolean;
+  hasPrimaryDomain?: boolean;
+}) {
   const variables = ['$limit: Int'];
   if (hasSocialFilters) {
     variables.push('$socialFilters: [SocialDappName!]');
   }
-  if (hasPrimaryDomainFilter) {
+  if (hasPrimaryDomain) {
     variables.push('$hasPrimaryDomain: Boolean');
   }
   const variablesString = variables.join(',');
@@ -78,13 +93,13 @@ export function getCommonNftOwnersQueryWithFilters(
   tokenBlockchains.forEach(_blockchain => {
     if (!token1.blockchain || token1.blockchain === _blockchain) {
       subQueries.push(
-        getCommonNftOwnersSubQueryWithFilters(
-          _blockchain,
+        getCommonNftOwnersSubQueryWithFilters({
+          blockchain: _blockchain,
           token1,
           token2,
           hasSocialFilters,
-          hasPrimaryDomainFilter
-        )
+          hasPrimaryDomain
+        })
       );
     }
   });
@@ -95,12 +110,17 @@ export function getCommonNftOwnersQueryWithFilters(
   }`;
 }
 
-const getNftOwnersSubQueryWithFilters = (
-  blockchain: string,
-  token: TokenAddress,
-  hasSocialFilters = false,
-  hasPrimaryDomainFilter = false
-) => {
+const getNftOwnersSubQueryWithFilters = ({
+  blockchain,
+  token,
+  hasSocialFilters,
+  hasPrimaryDomain
+}: {
+  blockchain: string;
+  token: TokenAddress;
+  hasSocialFilters?: boolean;
+  hasPrimaryDomain?: boolean;
+}) => {
   return `${blockchain}: TokenBalances(
       input: {filter: {tokenAddress: {_eq: "${
         token.address
@@ -114,6 +134,10 @@ const getNftOwnersSubQueryWithFilters = (
         owner {
           identity
           addresses
+          accounts {
+            tokenId
+            tokenAddress
+          }
           socials${hasSocialFilters ? socialInput : ''} {
             blockchain
             dappName
@@ -123,7 +147,7 @@ const getNftOwnersSubQueryWithFilters = (
           primaryDomain {
             name
           }
-          domains${hasPrimaryDomainFilter ? primaryDomainInput : ''} {
+          domains${hasPrimaryDomain ? primaryDomainInput : ''} {
             name
           }
           xmtp {
@@ -134,16 +158,20 @@ const getNftOwnersSubQueryWithFilters = (
     }`;
 };
 
-export function getNftOwnersQueryWithFilters(
-  token: TokenAddress,
-  hasSocialFilters = false,
-  hasPrimaryDomainFilter = false
-) {
+export function getNftOwnersQueryWithFilters({
+  token,
+  hasSocialFilters,
+  hasPrimaryDomain
+}: {
+  token: TokenAddress;
+  hasSocialFilters?: boolean;
+  hasPrimaryDomain?: boolean;
+}) {
   const variables = ['$limit: Int'];
   if (hasSocialFilters) {
     variables.push('$socialFilters: [SocialDappName!]');
   }
-  if (hasPrimaryDomainFilter) {
+  if (hasPrimaryDomain) {
     variables.push('$hasPrimaryDomain: Boolean');
   }
   const variablesString = variables.join(',');
@@ -152,12 +180,12 @@ export function getNftOwnersQueryWithFilters(
   tokenBlockchains.forEach(_blockchain => {
     if (!token.blockchain || token.blockchain === _blockchain) {
       subQueries.push(
-        getNftOwnersSubQueryWithFilters(
-          _blockchain,
+        getNftOwnersSubQueryWithFilters({
+          blockchain: _blockchain,
           token,
           hasSocialFilters,
-          hasPrimaryDomainFilter
-        )
+          hasPrimaryDomain
+        })
       );
     }
   });

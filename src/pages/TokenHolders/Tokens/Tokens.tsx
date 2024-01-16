@@ -68,7 +68,7 @@ export function TokensComponent() {
     return erc20Tokens.length > 1;
   }, [overviewTokens]);
 
-  const tokenAddress = useMemo(() => {
+  const tokenAddresses = useMemo(() => {
     return sortByAddressByNonERC20First(
       address,
       overviewTokens,
@@ -82,7 +82,7 @@ export function TokensComponent() {
     tokens: tokensData,
     processedTokensCount,
     ...paginationTokens
-  } = useGetCommonOwnersOfTokens(tokenAddress);
+  } = useGetCommonOwnersOfTokens(tokenAddresses);
 
   const {
     fetch: fetchPoaps,
@@ -90,7 +90,7 @@ export function TokensComponent() {
     poaps: poapsData,
     processedPoapsCount,
     ...paginationPoaps
-  } = useGetCommonOwnersOfPoaps(tokenAddress);
+  } = useGetCommonOwnersOfPoaps(tokenAddresses);
 
   const navigate = useNavigate();
 
@@ -108,7 +108,7 @@ export function TokensComponent() {
 
   useEffect(() => {
     if (
-      tokenAddress.length === 0 ||
+      tokenAddresses.length === 0 ||
       overviewTokens.length === 0 || // Important: Need to wait for overview tokens to resolved before fetching actual tokens
       hasMultipleERC20
     )
@@ -125,7 +125,7 @@ export function TokensComponent() {
     fetchTokens,
     isPoap,
     shouldFetchPoaps,
-    tokenAddress.length,
+    tokenAddresses.length,
     hasMultipleERC20,
     overviewTokens.length
   ]);

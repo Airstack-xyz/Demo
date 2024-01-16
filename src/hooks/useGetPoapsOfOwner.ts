@@ -28,7 +28,7 @@ export function useGetPoapsOfOwner(
   const canFetchPoaps = !poapDisabled;
 
   const query = useMemo(() => {
-    return poapsOfCommonOwnersQuery(owners);
+    return poapsOfCommonOwnersQuery({ owners });
   }, [owners]);
 
   const [

@@ -1,9 +1,6 @@
 import { fetchQuery } from '@airstack/airstack-react';
 import { useCallback, useState } from 'react';
-import {
-  AccountTraverseQuery,
-  WalletQuery
-} from '../queries/traverse6551TreeQuery';
+import { Resolve6551OwnerQuery } from '../queries/resolve6551OwnerQuery';
 
 type Account = {
   nft: {
@@ -73,11 +70,10 @@ function getOwnerData({
   };
 }
 
-type TraverseERC6551TreeParamsType = {
+type Resolve6551OwnerParamsType = {
   address: string;
   blockchain: string;
   maxDepth?: number;
-  fetchWallet?: boolean;
 };
 
 type WalletDataType = {
@@ -106,16 +102,15 @@ type TraverseDataType = {
   wallet?: WalletDataType | null;
 };
 
-export const traverseERC6551Tree = async ({
+export const resolve6551Owner = async ({
   address,
   blockchain,
-  maxDepth = 3,
-  fetchWallet
-}: TraverseERC6551TreeParamsType): Promise<{
+  maxDepth = 3
+}: Resolve6551OwnerParamsType): Promise<{
   data: TraverseDataType | null;
   error: unknown;
 }> => {
-  const { data, error } = await fetchQuery(AccountTraverseQuery, {
+  const { data, error } = await fetchQuery(Resolve6551OwnerQuery, {
     address,
     blockchain
   });
@@ -131,21 +126,14 @@ export const traverseERC6551Tree = async ({
       ownerAddress: ownerData.address,
       hasParent: ownerData.depth > 0
     };
-    if (fetchWallet) {
-      const response = await fetchQuery(WalletQuery, {
-        address: ownerData.address
-      });
-      dataToReturn.wallet = response?.data?.Wallet as WalletDataType;
-    }
     return { data: dataToReturn, error: null };
   }
 
   if (maxDepth >= ownerData.depth && ownerData.lastAddress) {
-    const nestedTraverseData = await traverseERC6551Tree({
+    const nestedTraverseData = await resolve6551Owner({
       address: ownerData.lastAddress,
       blockchain,
-      maxDepth: maxDepth - ownerData.depth,
-      fetchWallet
+      maxDepth: maxDepth - ownerData.depth
     });
     if (nestedTraverseData.data || nestedTraverseData.error) {
       return nestedTraverseData;
@@ -155,26 +143,23 @@ export const traverseERC6551Tree = async ({
   return { data: null, error: null };
 };
 
-export function useTraverseERC6551Tree() {
+export function useResolve6551Owner() {
   const [data, setData] = useState<TraverseDataType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<unknown>(null);
 
-  const fetchData = useCallback(
-    async (params: TraverseERC6551TreeParamsType) => {
-      setLoading(false);
-      const { data, error } = await traverseERC6551Tree(params);
-      if (error) {
-        setError(error);
-      }
-      if (data) {
-        setData(data);
-      }
-      setLoading(false);
-      return { data, error };
-    },
-    []
-  );
+  const fetchData = useCallback(async (params: Resolve6551OwnerParamsType) => {
+    setLoading(false);
+    const { data, error } = await resolve6551Owner(params);
+    if (error) {
+      setError(error);
+    }
+    if (data) {
+      setData(data);
+    }
+    setLoading(false);
+    return { data, error };
+  }, []);
 
   return [fetchData, { data, loading, error }];
 }
