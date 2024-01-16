@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMatch } from 'react-router-dom';
-import { AllFilters } from '../../Components/Filters/AllFilters';
+import { TokenBalanceAllFilters } from '../../Components/Filters/TokenBalanceAllFilters';
 import { BlockchainFilter } from '../../Components/Filters/BlockchainFilter';
 import { MintFilter } from '../../Components/Filters/MintFilter';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
@@ -594,7 +594,7 @@ function TokenBalancePage() {
       <div className="flex justify-between w-full z-[21]">
         <div className="flex-row-center gap-3.5">
           {isMobile ? (
-            <AllFilters
+            <TokenBalanceAllFilters
               snapshotDisabled={snapshotFilterDisabled}
               blockchainDisabled={blockchainFilterDisabled}
               sortByDisabled={sortByFilterDisabled}

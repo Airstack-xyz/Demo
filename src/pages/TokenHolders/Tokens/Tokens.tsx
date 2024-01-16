@@ -195,7 +195,12 @@ export function TokensComponent() {
       <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
         <Loader />
         {showStatusLoader && (
-          <StatusLoader total={totalProcessed} matching={tokens.length} />
+          <StatusLoader
+            lines={[
+              [`Scanning %n records`, totalProcessed],
+              [`Found %n matching results`, tokens.length]
+            ]}
+          />
         )}
       </div>
     );
@@ -246,7 +251,12 @@ export function TokensComponent() {
         />
       )}
       {showStatusLoader && (
-        <StatusLoader total={totalProcessed} matching={tokens.length} />
+        <StatusLoader
+          lines={[
+            [`Scanning %n records`, totalProcessed],
+            [`Found %n matching results`, tokens.length]
+          ]}
+        />
       )}
     </div>
   );

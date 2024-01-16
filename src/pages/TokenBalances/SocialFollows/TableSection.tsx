@@ -362,7 +362,12 @@ export function TableSection({
         />
       )}
       {(loading || loaderData.isVisible) && (
-        <StatusLoader total={loaderData.total} matching={loaderData.matching} />
+        <StatusLoader
+          lines={[
+            [`Scanning %n records`, loaderData.total],
+            [`Found %n matching results`, loaderData.matching]
+          ]}
+        />
       )}
     </div>
   );

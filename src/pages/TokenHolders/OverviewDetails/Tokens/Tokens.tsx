@@ -367,9 +367,10 @@ export function TokensComponent() {
           <Loader />
         </div>
         <StatusLoader
-          total={loaderData.total}
-          matching={loaderData.matching}
-          totalSuffix={activeViewToken || ''}
+          lines={[
+            [`Scanning %n ${activeViewToken}`, loaderData.total],
+            [`Found %n matching results`, loaderData.matching]
+          ]}
         />
       </>
     );
@@ -412,9 +413,10 @@ export function TokensComponent() {
       )}
       {(loading || loaderData.isVisible) && (
         <StatusLoader
-          total={loaderData.total}
-          matching={loaderData.matching}
-          totalSuffix={activeViewToken || ''}
+          lines={[
+            [`Scanning %n ${activeViewToken}`, loaderData.total],
+            [`Found %n matching results`, loaderData.matching]
+          ]}
         />
       )}
     </div>

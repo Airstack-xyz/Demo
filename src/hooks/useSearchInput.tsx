@@ -20,7 +20,7 @@ export type CachedQuery = {
   sortOrder: string;
   spamFilter: string;
   mintFilter: string;
-  resolveTBAFilter: string;
+  resolve6551: string;
   activeTokenInfo: string;
   activeSnapshotInfo: string;
   activeSocialInfo: string;
@@ -171,7 +171,7 @@ export function useSearchInput(
       sortOrder: getData('sortOrder'),
       spamFilter: getData('spamFilter'),
       mintFilter: getData('mintFilter'),
-      resolveTBAFilter: getData('resolveTBAFilter'),
+      resolve6551: getData('resolve6551'),
       activeSocialInfo: searchParams.get('activeSocialInfo') || ''
     };
 

@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useMatch } from 'react-router-dom';
-import { ResolveTBAFilter } from '../../Components/Filters/ResolveTBAFilter';
+import { AdvancedSettings } from '../../Components/Filters/AdvancedSettings';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import { defaultSortOrder } from '../../Components/Filters/SortBy';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
@@ -59,8 +59,8 @@ import { sortAddressByPoapFirst } from '../../utils/sortAddressByPoapFirst';
 import { tokenTypes } from '../TokenBalances/constants';
 import { HoldersOverview } from './Overview/Overview';
 import { OverviewDetails } from './OverviewDetails/OverviewDetails';
-import { Tokens } from './Tokens/Tokens';
 import { getRequestFilters } from './OverviewDetails/Tokens/utils';
+import { Tokens } from './Tokens/Tokens';
 
 export function TokenHolders() {
   const [
@@ -527,7 +527,7 @@ export function TokenHolders() {
             disabledTooltipText={snapshotFilterTooltip}
             disabledTooltipIconHidden={snapshotFilterTooltipIconHidden}
           />
-          <ResolveTBAFilter />
+          <AdvancedSettings />
         </div>
         <GetAPIDropdown options={options} />
       </div>
