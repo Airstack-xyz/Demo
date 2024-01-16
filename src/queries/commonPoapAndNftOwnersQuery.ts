@@ -77,6 +77,7 @@ export function getCommonPoapAndNftOwnersQuery({
             owner {
               identity
               addresses
+              blockchain
               accounts {
                 token
                 tokenAddress

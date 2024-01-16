@@ -67,6 +67,7 @@ export function TokenHolders() {
     {
       rawInput,
       address: tokenAddress,
+      resolve6551,
       activeView,
       tokenFilters,
       activeSnapshotInfo,
@@ -466,8 +467,8 @@ export function TokenHolders() {
 
   // force the component to re-render when any of the search input change, so that the tokens are reset and refetch
   const tokensKey = useMemo(
-    () => `${addresses}-${activeSnapshotInfo}`,
-    [addresses, activeSnapshotInfo]
+    () => `${addresses}-${resolve6551}-${activeSnapshotInfo}`,
+    [addresses, resolve6551, activeSnapshotInfo]
   );
 
   const {

@@ -43,6 +43,7 @@ const getCommonNftOwnersSubQueryWithFilters = ({
           owner {
             identity
             addresses
+            blockchain
             accounts {
               tokenId
               tokenAddress
@@ -134,6 +135,7 @@ const getNftOwnersSubQueryWithFilters = ({
         owner {
           identity
           addresses
+          blockchain
           accounts {
             tokenId
             tokenAddress

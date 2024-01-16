@@ -43,10 +43,14 @@ function Loader() {
   );
 }
 
+// Show some default total count instead of zero, so that in loader 'Scanning 0 records' is not shown
+const DEFAULT_TOTAL_COUNT = 30;
+const COMBINATION_DEFAULT_TOTAL_COUNT = 1;
+
 export function TokensComponent() {
   const [{ tokens: _overviewTokens }] = useOverviewTokens(['tokens']);
   const [
-    { address, inputType, activeTokenInfo, activeSnapshotInfo },
+    { address, inputType, resolve6551, activeTokenInfo, activeSnapshotInfo },
     setSearchData
   ] = useSearchInput();
 
@@ -56,14 +60,14 @@ export function TokensComponent() {
 
   const shouldFetchPoaps = useMemo(() => {
     const snapshot = getActiveSnapshotInfo(activeSnapshotInfo);
-    const hasSomeToken = address.some(a => a.startsWith('0x'));
+    const hasSomeToken = address.some(item => item.startsWith('0x'));
     // Don't fetch Poaps for snapshot query
     return !hasSomeToken && !snapshot.isApplicable;
   }, [address, activeSnapshotInfo]);
 
   const hasMultipleERC20 = useMemo(() => {
     const erc20Tokens = overviewTokens.filter(
-      (token: TokenHolder) => token.tokenType === 'ERC20'
+      item => item.tokenType === 'ERC20'
     );
     return erc20Tokens.length > 1;
   }, [overviewTokens]);
@@ -81,6 +85,7 @@ export function TokensComponent() {
     loading: loadingTokens,
     tokens: tokensData,
     processedTokensCount,
+    resolvedTokensCount,
     ...paginationTokens
   } = useGetCommonOwnersOfTokens(tokenAddresses);
 
@@ -106,13 +111,18 @@ export function TokensComponent() {
 
   const isPoap = inputType === 'POAP';
 
+  const isCombination = address.length > 1;
+
+  const isResolve6551Enabled = resolve6551 === '1';
+
   useEffect(() => {
     if (
       tokenAddresses.length === 0 ||
-      overviewTokens.length === 0 || // Important: Need to wait for overview tokens to resolved before fetching actual tokens
+      overviewTokens.length === 0 || // !Important: Need to wait for overview tokens to resolved before fetching actual tokens
       hasMultipleERC20
-    )
+    ) {
       return;
+    }
 
     if (isPoap && shouldFetchPoaps) {
       fetchPoaps();
@@ -183,9 +193,22 @@ export function TokensComponent() {
   const showDownCSVOverlay = hasNextPage && !loading;
 
   const tokens = shouldFetchPoaps ? poapsData : tokensData;
-  const totalProcessed = processedTokensCount + processedPoapsCount;
-  const isCombination = address.length > 1;
-  const showStatusLoader = loading && isCombination;
+
+  const scannedTokensCount =
+    processedTokensCount + processedPoapsCount ||
+    (isCombination ? COMBINATION_DEFAULT_TOTAL_COUNT : DEFAULT_TOTAL_COUNT);
+
+  const showStatusLoader = loading && (isCombination || isResolve6551Enabled);
+
+  const statusLoaderLines: [string, number][] = [
+    [`Scanning %n records`, scannedTokensCount]
+  ];
+  if (isCombination) {
+    statusLoaderLines.push([`Found %n matching results`, tokens.length]);
+  }
+  if (isResolve6551Enabled) {
+    statusLoaderLines.push([`Resolved %n TBA owners`, resolvedTokensCount]);
+  }
 
   // ERC20 tokens have a large number of holders so we don't allow multiple ERC20 tokens to be searched at once
   if (hasMultipleERC20) return null;
@@ -194,14 +217,7 @@ export function TokensComponent() {
     return (
       <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
         <Loader />
-        {showStatusLoader && (
-          <StatusLoader
-            lines={[
-              [`Scanning %n records`, totalProcessed],
-              [`Found %n matching results`, tokens.length]
-            ]}
-          />
-        )}
+        {showStatusLoader && <StatusLoader lines={statusLoaderLines} />}
       </div>
     );
   }
@@ -250,14 +266,7 @@ export function TokensComponent() {
           onAddressClick={handleAddressClick}
         />
       )}
-      {showStatusLoader && (
-        <StatusLoader
-          lines={[
-            [`Scanning %n records`, totalProcessed],
-            [`Found %n matching results`, tokens.length]
-          ]}
-        />
-      )}
+      {showStatusLoader && <StatusLoader lines={statusLoaderLines} />}
     </div>
   );
 }

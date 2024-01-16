@@ -29,6 +29,7 @@ export function AdvancedSettings() {
       },
       { updateQueryParams: true }
     );
+    setIsDropdownVisible(false);
   };
 
   return (

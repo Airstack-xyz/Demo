@@ -29,7 +29,9 @@ export function useGetCommonOwnersOfPoaps(poapAddresses: TokenAddress[]) {
   const itemsRef = useRef<Token[]>([]);
   const [loading, setLoading] = useState(false);
   const [poaps, setPoaps] = useState<Token[]>([]);
-  const [processedPoapsCount, setProcessedPoapsCount] = useState(LIMIT);
+
+  const [processedPoapsCount, setProcessedPoapsCount] = useState(0);
+
   const query = useMemo(
     () => getCommonOwnersPOAPsQuery({ poaps: poapAddresses }),
     [poapAddresses]
@@ -46,6 +48,8 @@ export function useGetCommonOwnersOfPoaps(poapAddresses: TokenAddress[]) {
   useEffect(() => {
     if (!data) return;
     const poaps = data.Poaps?.Poap || ([] as CommonOwner['Poaps']['Poap']);
+
+    setProcessedPoapsCount(count => count + poaps.length);
 
     let tokens: Token[] = [];
 
@@ -78,18 +82,16 @@ export function useGetCommonOwnersOfPoaps(poapAddresses: TokenAddress[]) {
     });
 
     itemsRef.current = [...itemsRef.current, ...tokens];
+    setPoaps(prev => [...prev, ...tokens].slice(0, LIMIT));
+
     const minItemsToFetch =
       totalOwners > 0 ? Math.min(totalOwners, MIN_LIMIT) : MIN_LIMIT;
+
     if (hasNextPage && itemsRef.current.length < minItemsToFetch) {
       getNextPage();
     } else {
       setLoading(false);
     }
-
-    if (tokens.length > 0) {
-      setPoaps(prev => [...prev, ...tokens].splice(0, LIMIT));
-    }
-    setProcessedPoapsCount(count => count + poaps.length);
   }, [data, fetchSingleToken, getNextPage, hasNextPage, totalOwners]);
 
   const getNext = useCallback(() => {
@@ -106,7 +108,7 @@ export function useGetCommonOwnersOfPoaps(poapAddresses: TokenAddress[]) {
     fetch({
       limit: fetchSingleToken ? MIN_LIMIT : LIMIT
     });
-    setProcessedPoapsCount(LIMIT);
+    setProcessedPoapsCount(0);
   }, [fetch, fetchSingleToken]);
 
   return {

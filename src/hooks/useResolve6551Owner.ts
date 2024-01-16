@@ -76,30 +76,9 @@ type Resolve6551OwnerParamsType = {
   maxDepth?: number;
 };
 
-type WalletDataType = {
-  identity: string;
-  addresses: string[];
-  socials: {
-    blockchain: string;
-    dappName: string;
-    profileName: string;
-    profileHandle: string;
-  };
-  primaryDomain: {
-    name: string;
-  };
-  domains: {
-    name: string;
-  }[];
-  xmtp: {
-    isXMTPEnabled: boolean;
-  }[];
-};
-
 type TraverseDataType = {
   ownerAddress: string | null;
   hasParent: boolean | null;
-  wallet?: WalletDataType | null;
 };
 
 export const resolve6551Owner = async ({
