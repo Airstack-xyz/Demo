@@ -37,7 +37,12 @@ import { createTokenBalancesUrl } from '../../../../utils/createTokenUrl';
 import { sortByAddressByNonERC20First } from '../../../../utils/getNFTQueryForTokensHolder';
 import { isMobileDevice } from '../../../../utils/isMobileDevice';
 import { sortAddressByPoapFirst } from '../../../../utils/sortAddressByPoapFirst';
-import { Poap, Token as TokenType, TokensData } from '../../types';
+import {
+  Poap as PoapType,
+  PoapsData,
+  Token as TokenType,
+  TokensData
+} from '../../types';
 import { Header } from './Header';
 import { Token } from './Token';
 import {
@@ -49,7 +54,6 @@ import {
 import { DownloadCSVOverlay } from '../../../../Components/DownloadCSVOverlay';
 
 const LIMIT = 34;
-const MIN_LIMIT = 34;
 
 const loaderData = Array(6).fill({});
 
@@ -98,8 +102,8 @@ function Loader() {
 
 export function TokensComponent() {
   const ownersSetRef = useRef<Set<string>>(new Set());
-  const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
-  const tokensRef = useRef<(TokenType | Poap)[]>([]);
+  const [tokens, setTokens] = useState<(TokenType | PoapType)[]>([]);
+  const tokensRef = useRef<(TokenType | PoapType)[]>([]);
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
   const [
     {
@@ -144,35 +148,35 @@ export function TokensComponent() {
     if (addresses.length === 1) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQueryWithFilters({
-          token: addresses[0],
+          tokenAddress: addresses[0],
           snapshotFilter: snapshotInfo.appliedFilter,
           ...requestFilters
         });
       }
       return getNftOwnersQueryWithFilters({
-        token: addresses[0],
+        tokenAddress: addresses[0],
         ...requestFilters
       });
     }
     if (hasSomePoap) {
-      const tokens = sortAddressByPoapFirst(addresses);
+      const tokenAddresses = sortAddressByPoapFirst(addresses);
       return getCommonPoapAndNftOwnersQueryWithFilters({
-        poap: tokens[0],
-        token: tokens[1],
+        poapAddress: tokenAddresses[0],
+        tokenAddress: tokenAddresses[1],
         ...requestFilters
       });
     }
     if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQueryWithFilters({
-        token1: addresses[0],
-        token2: addresses[1],
+        tokenAddress1: addresses[0],
+        tokenAddress2: addresses[1],
         snapshotFilter: snapshotInfo.appliedFilter,
         ...requestFilters
       });
     }
     return getCommonNftOwnersQueryWithFilters({
-      token1: addresses[0],
-      token2: addresses[1],
+      tokenAddress1: addresses[0],
+      tokenAddress2: addresses[1],
       ...requestFilters
     });
   }, [
@@ -194,7 +198,7 @@ export function TokensComponent() {
   const hasMultipleTokens = addresses.length > 1;
 
   const handleData = useCallback(
-    (tokensData: TokensData) => {
+    (tokensData: TokensData & PoapsData) => {
       if (!tokensData) return;
       const [tokens, size] = hasPoap
         ? getPoapList({ tokensData, hasMultipleTokens })
@@ -316,7 +320,7 @@ export function TokensComponent() {
   useEffect(() => {
     if (!tokensData || loading) return;
 
-    if (tokensRef.current.length < MIN_LIMIT && hasNextPage) {
+    if (tokensRef.current.length < LIMIT && hasNextPage) {
       getNextPage();
     } else {
       tokensRef.current = [];
@@ -360,18 +364,18 @@ export function TokensComponent() {
 
   const showDownCSVOverlay = hasNextPage && !loading;
 
+  const statusLoaderLines: [string, number][] = [
+    [`Scanning %n ${activeViewToken}`, loaderData.total],
+    [`Found %n matching results`, loaderData.matching]
+  ];
+
   if (loading && (!tokens || tokens.length === 0)) {
     return (
       <>
         <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
           <Loader />
         </div>
-        <StatusLoader
-          lines={[
-            [`Scanning %n ${activeViewToken}`, loaderData.total],
-            [`Found %n matching results`, loaderData.matching]
-          ]}
-        />
+        <StatusLoader lines={statusLoaderLines} />
       </>
     );
   }
@@ -412,12 +416,7 @@ export function TokensComponent() {
         />
       )}
       {(loading || loaderData.isVisible) && (
-        <StatusLoader
-          lines={[
-            [`Scanning %n ${activeViewToken}`, loaderData.total],
-            [`Found %n matching results`, loaderData.matching]
-          ]}
-        />
+        <StatusLoader lines={statusLoaderLines} />
       )}
     </div>
   );

@@ -67,8 +67,8 @@ const mentionValidationFn = ({ mentions }: MentionOutput) => {
   return true;
 };
 
-const MAX_LIMIT = 34;
-const MIN_LIMIT = 34;
+const FETCH_LIMIT = 34;
+const ITEM_LIMIT = 34;
 
 export function TableSection({
   identities,
@@ -94,7 +94,7 @@ export function TableSection({
   });
   const [loaderData, setLoaderData] = useState({
     isVisible: false,
-    total: MAX_LIMIT,
+    total: FETCH_LIMIT,
     matching: 0
   });
 
@@ -168,7 +168,7 @@ export function TableSection({
 
   useEffect(() => {
     if (loading) return;
-    if (tableItemsRef.current.length < MIN_LIMIT && hasNextPage) {
+    if (tableItemsRef.current.length < ITEM_LIMIT && hasNextPage) {
       getNextPage();
     } else {
       setLoaderData(prev => ({
@@ -187,7 +187,7 @@ export function TableSection({
       isVisible: true
     }));
     fetchData({
-      limit: MAX_LIMIT,
+      limit: FETCH_LIMIT,
       ...filterData.queryFilters
     });
   }, [fetchData, identities, filterData.queryFilters, socialInfo.dappName]);

@@ -14,7 +14,7 @@ export type Token = TokenBalance &
 
 export type TokensData = {
   [Key in TokenBlockchain | SnapshotBlockchain]: { TokenBalance: Token[] };
-} & PoapsData;
+};
 
 export type PoapsData = {
   Poaps: {
@@ -84,7 +84,7 @@ export interface Xmtp {
   isXMTPEnabled: boolean;
 }
 
-export type TotalSupply = {
+export type TotalTokensSupply = {
   [Key in TokenBlockchain]: Supply;
 };
 

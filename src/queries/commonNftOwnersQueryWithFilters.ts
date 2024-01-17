@@ -7,27 +7,27 @@ const primaryDomainInput =
 
 const getCommonNftOwnersSubQueryWithFilters = ({
   blockchain,
-  token1,
-  token2,
+  tokenAddress1,
+  tokenAddress2,
   hasSocialFilters,
   hasPrimaryDomain
 }: {
   blockchain: string;
-  token1: TokenAddress;
-  token2: TokenAddress;
+  tokenAddress1: TokenAddress;
+  tokenAddress2: TokenAddress;
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }) => {
   return `${blockchain}: TokenBalances(
     input: {filter: {tokenAddress: {_eq: "${
-      token1.address
+      tokenAddress1.address
     }"}}, blockchain: ${blockchain}, limit: $limit
   }) {
     TokenBalance {
       owner {
         tokenBalances(input: {filter: {tokenAddress: {_eq: "${
-          token2.address
-        }"}}, blockchain: ${token2.blockchain || 'ethereum'}}) {
+          tokenAddress2.address
+        }"}}, blockchain: ${tokenAddress2.blockchain || 'ethereum'}}) {
           tokenId
           tokenAddress
           tokenType
@@ -71,13 +71,13 @@ const getCommonNftOwnersSubQueryWithFilters = ({
 };
 
 export function getCommonNftOwnersQueryWithFilters({
-  token1,
-  token2,
+  tokenAddress1,
+  tokenAddress2,
   hasSocialFilters,
   hasPrimaryDomain
 }: {
-  token1: TokenAddress;
-  token2: TokenAddress;
+  tokenAddress1: TokenAddress;
+  tokenAddress2: TokenAddress;
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }) {
@@ -92,12 +92,12 @@ export function getCommonNftOwnersQueryWithFilters({
 
   const subQueries: string[] = [];
   tokenBlockchains.forEach(_blockchain => {
-    if (!token1.blockchain || token1.blockchain === _blockchain) {
+    if (!tokenAddress1.blockchain || tokenAddress1.blockchain === _blockchain) {
       subQueries.push(
         getCommonNftOwnersSubQueryWithFilters({
           blockchain: _blockchain,
-          token1,
-          token2,
+          tokenAddress1,
+          tokenAddress2,
           hasSocialFilters,
           hasPrimaryDomain
         })
@@ -113,18 +113,18 @@ export function getCommonNftOwnersQueryWithFilters({
 
 const getNftOwnersSubQueryWithFilters = ({
   blockchain,
-  token,
+  tokenAddress,
   hasSocialFilters,
   hasPrimaryDomain
 }: {
   blockchain: string;
-  token: TokenAddress;
+  tokenAddress: TokenAddress;
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }) => {
   return `${blockchain}: TokenBalances(
       input: {filter: {tokenAddress: {_eq: "${
-        token.address
+        tokenAddress.address
       }"}}, blockchain: ${blockchain}, limit: $limit}
     ) {
       TokenBalance {
@@ -161,11 +161,11 @@ const getNftOwnersSubQueryWithFilters = ({
 };
 
 export function getNftOwnersQueryWithFilters({
-  token,
+  tokenAddress,
   hasSocialFilters,
   hasPrimaryDomain
 }: {
-  token: TokenAddress;
+  tokenAddress: TokenAddress;
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }) {
@@ -180,11 +180,11 @@ export function getNftOwnersQueryWithFilters({
 
   const subQueries: string[] = [];
   tokenBlockchains.forEach(_blockchain => {
-    if (!token.blockchain || token.blockchain === _blockchain) {
+    if (!tokenAddress.blockchain || tokenAddress.blockchain === _blockchain) {
       subQueries.push(
         getNftOwnersSubQueryWithFilters({
           blockchain: _blockchain,
-          token,
+          tokenAddress,
           hasSocialFilters,
           hasPrimaryDomain
         })

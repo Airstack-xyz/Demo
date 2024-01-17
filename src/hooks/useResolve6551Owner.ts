@@ -2,18 +2,22 @@ import { fetchQuery } from '@airstack/airstack-react';
 import { useCallback, useState } from 'react';
 import { Resolve6551OwnerQuery } from '../queries/resolve6551OwnerQuery';
 
+type Resolve6551OwnerResponse = {
+  Accounts: {
+    Account: Account[];
+  };
+};
+
 type Account = {
   nft: {
     address: string;
     tokenId: string;
-    tokenBalances: AccountTokenBalance[];
-  };
-};
-
-type AccountTokenBalance = {
-  owner: {
-    identity: string;
-    accounts: Account[];
+    tokenBalances: {
+      owner: {
+        identity: string;
+        accounts: Account[];
+      };
+    }[];
   };
 };
 
@@ -89,10 +93,13 @@ export const resolve6551Owner = async ({
   data: TraverseDataType | null;
   error: unknown;
 }> => {
-  const { data, error } = await fetchQuery(Resolve6551OwnerQuery, {
-    address,
-    blockchain
-  });
+  const { data, error } = await fetchQuery<Resolve6551OwnerResponse>(
+    Resolve6551OwnerQuery,
+    {
+      address,
+      blockchain
+    }
+  );
 
   const accounts = data?.Accounts?.Account;
   if (error || !accounts) {
@@ -140,5 +147,5 @@ export function useResolve6551Owner() {
     return { data, error };
   }, []);
 
-  return [fetchData, { data, loading, error }];
+  return { fetch: fetchData, data, loading, error };
 }

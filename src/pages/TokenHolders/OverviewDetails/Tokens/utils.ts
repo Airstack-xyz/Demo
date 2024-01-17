@@ -59,7 +59,7 @@ export function getTokenList({
   hasSomePoap = false,
   isSnapshotApplicable
 }: {
-  tokensData: TokensData;
+  tokensData: TokensData & PoapsData;
   hasMultipleTokens?: boolean;
   hasSomePoap?: boolean;
   isSnapshotApplicable?: boolean;

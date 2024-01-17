@@ -44,7 +44,7 @@ function Loader() {
 }
 
 // Show some default total count instead of zero, so that in loader 'Scanning 0 records' is not shown
-const DEFAULT_TOTAL_COUNT = 30;
+const DEFAULT_TOTAL_COUNT = 34;
 const COMBINATION_DEFAULT_TOTAL_COUNT = 1;
 
 export function TokensComponent() {

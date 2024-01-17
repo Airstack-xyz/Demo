@@ -4,25 +4,25 @@ import { Poap, TokenAddress } from '../pages/TokenHolders/types';
 import { getCommonOwnersPOAPsQuery } from '../queries/commonOwnersPOAPsQuery';
 
 type Token = Poap;
-type NestedTokenBalance = {
+
+type NestedToken = {
   owner: {
     poaps: Token[];
   };
-  poapEvent: Token['_poapEvent'];
+  poapEvent: Token['poapEvent'];
   eventId: string;
   tokenId: string;
   tokenAddress: string;
   blockchain: string;
-}[];
+};
 
 type CommonOwner = {
   Poaps: {
-    Poap: NestedTokenBalance | Token[];
+    Poap: NestedToken[] | Token[];
   };
 };
 
 const LIMIT = 34;
-const MIN_LIMIT = 34;
 
 export function useGetCommonOwnersOfPoaps(poapAddresses: TokenAddress[]) {
   const ownersSetRef = useRef<Set<string>>(new Set());
@@ -56,7 +56,7 @@ export function useGetCommonOwnersOfPoaps(poapAddresses: TokenAddress[]) {
     if (fetchSingleToken) {
       tokens = poaps as Token[];
     } else {
-      tokens = (poaps as NestedTokenBalance)
+      tokens = (poaps as NestedToken[])
         .filter(token => Boolean(token?.owner?.poaps?.length))
         .reduce(
           (tokens, token) => [
@@ -73,6 +73,7 @@ export function useGetCommonOwnersOfPoaps(poapAddresses: TokenAddress[]) {
           [] as Token[]
         );
     }
+
     tokens = tokens.filter(token => {
       const address = token?.owner?.identity;
       if (!address) return false;
@@ -85,7 +86,7 @@ export function useGetCommonOwnersOfPoaps(poapAddresses: TokenAddress[]) {
     setPoaps(prev => [...prev, ...tokens].slice(0, LIMIT));
 
     const minItemsToFetch =
-      totalOwners > 0 ? Math.min(totalOwners, MIN_LIMIT) : MIN_LIMIT;
+      totalOwners > 0 ? Math.min(totalOwners, LIMIT) : LIMIT;
 
     if (hasNextPage && itemsRef.current.length < minItemsToFetch) {
       getNextPage();
@@ -106,10 +107,10 @@ export function useGetCommonOwnersOfPoaps(poapAddresses: TokenAddress[]) {
     setLoading(true);
     setPoaps([]);
     fetch({
-      limit: fetchSingleToken ? MIN_LIMIT : LIMIT
+      limit: LIMIT
     });
     setProcessedPoapsCount(0);
-  }, [fetch, fetchSingleToken]);
+  }, [fetch]);
 
   return {
     fetch: getTokens,

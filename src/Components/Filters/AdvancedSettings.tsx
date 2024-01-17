@@ -25,7 +25,11 @@ export function AdvancedSettings() {
   const handleResolve6551Toggle = () => {
     setData(
       {
-        resolve6551: isResolve6551SwitchChecked ? '0' : '1'
+        resolve6551: isResolve6551SwitchChecked ? '0' : '1',
+        activeView: '',
+        activeViewToken: '',
+        activeViewCount: '',
+        tokenFilters: []
       },
       { updateQueryParams: true }
     );

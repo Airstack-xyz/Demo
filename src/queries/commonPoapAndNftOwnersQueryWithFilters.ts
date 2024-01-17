@@ -5,13 +5,13 @@ const primaryDomainInput =
   '(input: {filter: {isPrimary: {_eq: $hasPrimaryDomain}}})';
 
 export function getCommonPoapAndNftOwnersQueryWithFilters({
-  poap,
-  token,
+  poapAddress,
+  tokenAddress,
   hasSocialFilters,
   hasPrimaryDomain
 }: {
-  poap: TokenAddress;
-  token: TokenAddress;
+  poapAddress: TokenAddress;
+  tokenAddress: TokenAddress;
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }) {
@@ -26,16 +26,16 @@ export function getCommonPoapAndNftOwnersQueryWithFilters({
 
   return `query CommonPoapAndNftOwners(${variablesString}) {
     Poaps(
-      input: {filter: {poap: {_eq: "${
-        poap.address
+      input: {filter: {eventId: {_eq: "${
+        poapAddress.address
       }"}}, blockchain: ALL, limit: $limit}
     ) {
       Poap { 
         owner {
           tokenBalances(input: {filter: {tokenAddress: {_eq: "${
-            token.address
-          }"}}, blockchain: ${token.blockchain || 'ethereum'}}) {
-            token
+            tokenAddress.address
+          }"}}, blockchain: ${tokenAddress.blockchain || 'ethereum'}}) {
+            tokenId
             tokenAddress
             tokenType
             formattedAmount
@@ -52,7 +52,7 @@ export function getCommonPoapAndNftOwnersQueryWithFilters({
               addresses
               blockchain
               accounts {
-                token
+                tokenId
                 tokenAddress
               }
               socials${hasSocialFilters ? socialInput : ''} {

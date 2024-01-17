@@ -86,9 +86,9 @@ export function TokenHolders() {
   const overviewTokens = _overviewTokens as TokenHolder[];
 
   const addressRef = useRef<null | string[]>(null);
-  const isHome = useMatch('/');
+  const isHome = !!useMatch('/');
 
-  const query = tokenAddress.length > 0 ? tokenAddress[0] : '';
+  const query = tokenAddress?.length > 0 ? tokenAddress[0] : '';
 
   useEffect(() => {
     setShowTokensOrOverview(true);
@@ -120,6 +120,8 @@ export function TokenHolders() {
 
   const isCombination = tokenAddress.length > 1;
 
+  const isResolve6551Enabled = resolve6551 === '1';
+
   const mentions = useMemo(() => {
     return getAllWordsAndMentions(rawInput).map(item => item.mention);
   }, [rawInput]);
@@ -137,29 +139,29 @@ export function TokenHolders() {
     if (addresses.length === 1) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQuery({
-          token: addresses[0],
+          tokenAddress: addresses[0],
           snapshotFilter: snapshotInfo.appliedFilter
         });
       }
-      return getNftOwnersQuery({ token: addresses[0] });
+      return getNftOwnersQuery({ tokenAddress: addresses[0] });
     }
     if (hasSomePoap) {
-      const tokens = sortAddressByPoapFirst(addresses);
+      const tokenAddresses = sortAddressByPoapFirst(addresses);
       return getCommonPoapAndNftOwnersQuery({
-        poap: tokens[0],
-        token: tokens[1]
+        poapAddress: tokenAddresses[0],
+        tokenAddress: tokenAddresses[1]
       });
     }
     if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQuery({
-        token1: addresses[0],
-        token2: addresses[1],
+        tokenAddress1: addresses[0],
+        tokenAddress2: addresses[1],
         snapshotFilter: snapshotInfo.appliedFilter
       });
     }
     return getCommonNftOwnersQuery({
-      token1: addresses[0],
-      token2: addresses[1]
+      tokenAddress1: addresses[0],
+      tokenAddress2: addresses[1]
     });
   }, [
     addresses,
@@ -173,35 +175,35 @@ export function TokenHolders() {
     if (addresses.length === 1) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQueryWithFilters({
-          token: addresses[0],
+          tokenAddress: addresses[0],
           snapshotFilter: snapshotInfo.appliedFilter,
           ...requestFilters
         });
       }
       return getNftOwnersQueryWithFilters({
-        token: addresses[0],
+        tokenAddress: addresses[0],
         ...requestFilters
       });
     }
     if (hasSomePoap) {
-      const tokens = sortAddressByPoapFirst(addresses);
+      const tokenAddresses = sortAddressByPoapFirst(addresses);
       return getCommonPoapAndNftOwnersQueryWithFilters({
-        poap: tokens[0],
-        token: tokens[1],
+        poapAddress: tokenAddresses[0],
+        tokenAddress: tokenAddresses[1],
         ...requestFilters
       });
     }
     if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQueryWithFilters({
-        token1: addresses[0],
-        token2: addresses[1],
+        tokenAddress1: addresses[0],
+        tokenAddress2: addresses[1],
         snapshotFilter: snapshotInfo.appliedFilter,
         ...requestFilters
       });
     }
     return getCommonNftOwnersQueryWithFilters({
-      token1: addresses[0],
-      token2: addresses[1],
+      tokenAddress1: addresses[0],
+      tokenAddress2: addresses[1],
       ...requestFilters
     });
   }, [
@@ -423,20 +425,16 @@ export function TokenHolders() {
   ]);
 
   const { hasMultipleERC20, hasEveryERC20 } = useMemo(() => {
-    const erc20Tokens = overviewTokens?.filter(
-      item => item.tokenType === 'ERC20'
-    );
+    const erc20Tokens = overviewTokens?.filter(v => v.tokenType === 'ERC20');
     const erc20Mentions = mentions?.filter(
-      item => item?.token === 'ERC20' || item?.token === 'TOKEN'
+      v => v?.token === 'ERC20' || v?.token === 'TOKEN'
     );
     const hasEveryERC20Token =
       overviewTokens?.length > 0 &&
-      overviewTokens.every(item => item.tokenType === 'ERC20');
+      overviewTokens.every(v => v.tokenType === 'ERC20');
     const hasEveryERC20Mention =
       mentions?.length > 0 &&
-      mentions.every(
-        item => item?.token === 'ERC20' || item?.token === 'TOKEN'
-      );
+      mentions.every(v => v?.token === 'ERC20' || v?.token === 'TOKEN');
     return {
       hasMultipleERC20: erc20Mentions?.length > 1 || erc20Tokens?.length > 1,
       hasEveryERC20: hasEveryERC20Mention || hasEveryERC20Token
@@ -454,11 +452,13 @@ export function TokenHolders() {
     setShowTokensOrOverview(false);
   }, []);
 
-  const showOverview =
-    !snapshotInfo.isApplicable && // Don't show overview for snapshots
-    !hasEveryERC20 && // Don't show overview for only ERC20 tokens
-    !hasMultipleERC20 && // Don't show overview for ERC20 combinations
-    !activeView; // Don't show summary for overview details
+  // Hide Overview if:
+  const hideOverview =
+    isResolve6551Enabled || // Resolve 6551 switch is on
+    snapshotInfo.isApplicable || // Snapshots are enabled
+    hasEveryERC20 || // Has every ERC20 tokens
+    hasMultipleERC20 || // Has ERC20 combinations
+    !!activeView; // Summary for overview details is visible
 
   const showTokens =
     showTokensOrOverview && !hasMultipleERC20 && !activeTokenInfo;
@@ -562,7 +562,7 @@ export function TokenHolders() {
                 TODO: Move overview fetching logic outside 
                */}
               <HoldersOverview
-                hideOverview={!showOverview}
+                hideOverview={hideOverview}
                 onAddress404={handleInvalidAddress}
               />
               {showTokens && (

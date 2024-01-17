@@ -1,23 +1,23 @@
-import { useEffect, useCallback, useMemo, memo } from 'react';
-import { useSearchInput } from '../../../hooks/useSearchInput';
-import { HolderCount } from './HolderCount';
+import { Chain } from '@airstack/airstack-react/constants';
+import classNames from 'classnames';
+import { memo, useCallback, useEffect, useMemo } from 'react';
 import { Asset } from '../../../Components/Asset';
 import { Icon } from '../../../Components/Icon';
-import { useGetTokenOverview } from '../../../hooks/useGetTokenOverview';
-import { Chain } from '@airstack/airstack-react/constants';
-import { imageAndSubTextMap } from './imageAndSubTextMap';
-import { useFetchTokens } from '../../../hooks/useGetTokens';
-import { useTokensSupply } from '../../../hooks/useTokensSupply';
-import classNames from 'classnames';
+import { useGetAccountOwner } from '../../../hooks/useGetAccountOwner';
+import { useGetHoldersCount } from '../../../hooks/useGetHoldersCount';
+import { useGetTokens } from '../../../hooks/useGetTokens';
+import { useGetTokensSupply } from '../../../hooks/useGetTokensSupply';
+import { useSearchInput } from '../../../hooks/useSearchInput';
+import { TokenDetailsReset } from '../../../store/tokenDetails';
 import {
   TokenHolder,
   useOverviewTokens
 } from '../../../store/tokenHoldersOverview';
-import { useGetAccountOwner } from '../../../hooks/useGetAccountOwner';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
 import { ERC6551TokenHolder } from '../ERC6551TokenHolder';
 import { Details } from './Details';
-import { TokenDetailsReset } from '../../../store/tokenDetails';
-import { isMobileDevice } from '../../../utils/isMobileDevice';
+import { HolderCount } from './HolderCount';
+import { imageAndSubTextMap } from './imageAndSubTextMap';
 
 function Overview({
   onAddress404,
@@ -32,19 +32,22 @@ function Overview({
 
   const isMobile = isMobileDevice();
 
-  const [fetchTokens, tokens, loadingTokens] = useFetchTokens();
+  const [fetchTokens, tokens, loadingTokens] = useGetTokens();
   const [fetchAccountsOwner, account, loadingAccount] = useGetAccountOwner(
     address[0]
   );
 
-  const setTokens = useOverviewTokens(['tokens'])[1];
+  const [, setTokens] = useOverviewTokens(['tokens']);
 
-  const tokenDetails = useMemo(() => tokens || [], [tokens]);
   const hasNoTokens = !loadingTokens && tokens && tokens.length === 0;
+
   const addressIsAccount =
     hasNoTokens && !loadingAccount && Boolean(account?.tokenAddress);
+
   const tokenWith6551 = useMemo(() => {
-    if (!account) return null;
+    if (!account) {
+      return null;
+    }
     const { tokenAddress, tokenId, blockchain } = account;
     return {
       tokenAddress,
@@ -67,114 +70,117 @@ function Overview({
   }, [fetchAccountsOwner, hasNoTokens]);
 
   const shouldFetchHoldersCount = useMemo(() => {
-    return tokenDetails.every(token => {
-      return token.tokenType !== 'ERC20';
-    });
-  }, [tokenDetails]);
+    // Don't fetch holders count if there are some ERC20 or if overview is hidden
+    return (
+      tokens?.length > 0 &&
+      tokens.every(v => v.tokenType !== 'ERC20') &&
+      !hideOverview
+    );
+  }, [hideOverview, tokens]);
+
+  const hasEveryERC20 = useMemo(() => {
+    return tokens?.length > 0 && tokens.every(v => v.tokenType === 'ERC20');
+  }, [tokens]);
 
   const {
-    fetch: fetchTokenOverview,
-    data: tokenOverviewData,
-    loading: loadingTokenOverview,
-    error: tokenOverviewError
-  } = useGetTokenOverview();
+    fetch: fetchHoldersCount,
+    data: holdersCountData,
+    loading: loadingHoldersCount,
+    error: errorHoldersCount
+  } = useGetHoldersCount();
 
-  const [fetchTotalSupply, totalSupply, loadingSupply] = useTokensSupply();
+  const [fetchTokensSupply, tokensSupply, loadingTokensSupply] =
+    useGetTokensSupply();
 
   useEffect(() => {
-    if (shouldFetchHoldersCount && tokenDetails.length > 0) {
+    if (shouldFetchHoldersCount && tokens.length > 0) {
       const polygonTokens: string[] = [];
       const ethereumTokens: string[] = [];
       const baseTokens: string[] = [];
       const eventIds: string[] = [];
 
-      tokenDetails.forEach(token => {
-        if (token.eventId) {
-          eventIds.push(token.eventId);
+      tokens.forEach(({ tokenAddress, eventId, blockchain }) => {
+        if (eventId) {
+          eventIds.push(eventId);
           return;
         }
-        switch (token.blockchain) {
+        switch (blockchain) {
           case 'ethereum':
-            ethereumTokens.push(token.tokenAddress);
+            ethereumTokens.push(tokenAddress);
             break;
           case 'polygon':
-            polygonTokens.push(token.tokenAddress);
+            polygonTokens.push(tokenAddress);
             break;
           case 'base':
-            baseTokens.push(token.tokenAddress);
+            baseTokens.push(tokenAddress);
             break;
         }
       });
 
-      fetchTokenOverview({
+      fetchHoldersCount({
         ethereumTokens,
         polygonTokens,
         baseTokens,
         eventIds
       });
     }
-  }, [
-    fetchTokenOverview,
-    address,
-    shouldFetchHoldersCount,
-    isPoap,
-    tokenDetails.length,
-    tokenDetails
-  ]);
-
-  const isERC20 = useMemo(() => {
-    return (
-      tokenDetails.length > 0 &&
-      tokenDetails.every(token => token.tokenType === 'ERC20')
-    );
-  }, [tokenDetails]);
+  }, [fetchHoldersCount, shouldFetchHoldersCount, tokens]);
 
   useEffect(() => {
-    if (tokenDetails.length > 0) {
+    if (tokens.length > 0) {
       setTokens({
-        tokens: tokenDetails.map(
+        tokens: tokens.map(
           ({ name, tokenAddress, eventId, tokenType, blockchain }) => {
-            const key = eventId ? eventId : tokenAddress;
-            const tokenAndHolders: TokenHolder = {
+            const address = eventId ? eventId : tokenAddress;
+            const tokenHolderItem: TokenHolder = {
               name,
-              tokenAddress: key,
-              holdersCount: totalSupply?.[key.toLocaleLowerCase()] || 0,
+              tokenAddress: address,
+              holdersCount: tokensSupply?.[address.toLocaleLowerCase()] || 0,
               tokenType,
               blockchain
             };
-            return tokenAndHolders;
+            return tokenHolderItem;
           }
         )
       });
     }
-  }, [tokenDetails, setTokens, totalSupply]);
+  }, [tokens, setTokens, tokensSupply]);
 
   useEffect(() => {
     if (!address.length) return;
     fetchTokens(address);
-    if (!activeView) {
-      fetchTotalSupply(address);
+    // Don't fetch token supply if for inner overview details or if overview is hidden
+    if (!activeView && !hideOverview) {
+      fetchTokensSupply(address);
     }
-  }, [activeView, address, fetchTokens, fetchTotalSupply, isPoap]);
+  }, [
+    activeView,
+    address,
+    fetchTokens,
+    fetchTokensSupply,
+    hideOverview,
+    isPoap
+  ]);
 
-  const overViewData = useMemo(() => {
+  const overviewData = useMemo(() => {
     return {
-      owners: tokenOverviewData?.totalHolders || 0,
-      ens: tokenOverviewData?.ensUsersCount || 0,
-      primaryEns: tokenOverviewData?.primaryEnsUsersCount || 0,
-      lens: tokenOverviewData?.lensProfileCount || 0,
-      farcaster: tokenOverviewData?.farcasterProfileCount || 0,
+      owners: holdersCountData?.totalHolders || 0,
+      ens: holdersCountData?.ensUsersCount || 0,
+      primaryEns: holdersCountData?.primaryEnsUsersCount || 0,
+      lens: holdersCountData?.lensProfileCount || 0,
+      farcaster: holdersCountData?.farcasterProfileCount || 0,
       xmtp:
-        tokenOverviewData?.xmtpUsersCount === null
+        holdersCountData?.xmtpUsersCount === null
           ? '--'
-          : tokenOverviewData?.xmtpUsersCount || 0
+          : holdersCountData?.xmtpUsersCount || 0
     };
-  }, [tokenOverviewData]);
+  }, [holdersCountData]);
 
   const tokenImages = useMemo(() => {
-    if (!tokenDetails) return null;
-    return tokenDetails.map(token => {
-      const { tokenId, tokenAddress, image, blockchain } = token;
+    if (!tokens?.length) {
+      return null;
+    }
+    return tokens.map(({ tokenId, tokenAddress, image, blockchain }) => {
       if (image)
         return (
           <div
@@ -189,7 +195,7 @@ function Overview({
               preset="medium"
               image={image}
               chain={blockchain as Chain}
-              useImageOnError // use image if there is an error loading the token image
+              useImageOnError // Use image if there is an error loading the token image
               videoProps={{
                 controls: false
               }}
@@ -208,41 +214,41 @@ function Overview({
         />
       );
     });
-  }, [address.length, tokenDetails]);
+  }, [address.length, tokens]);
 
-  const totalHolders = (overViewData?.owners as number) || 0;
+  const totalHolders = (overviewData?.owners as number) || 0;
+
   const tokenName =
-    tokenDetails.length > 0
-      ? `${tokenDetails[0].name}${
-          tokenDetails[1] ? ` & ${tokenDetails[1]?.name}` : ''
-        }`
+    tokens.length > 0
+      ? `${tokens[0].name}${tokens[1] ? ` & ${tokens[1]?.name}` : ''}`
       : '';
+
   const noHoldersCount = !loadingTokens && !shouldFetchHoldersCount;
   const loadingCount = noHoldersCount
     ? false
     : loadingAccount ||
-      loadingTokenOverview ||
+      loadingHoldersCount ||
       (loadingTokens && shouldFetchHoldersCount);
 
   const holderCounts = useMemo(() => {
-    return Object.keys(overViewData).map(key => {
+    return Object.keys(overviewData).map(key => {
       if (key === 'totalSupply' || (noHoldersCount && key === 'owners')) {
         return null;
       }
 
       const { image, subText: text, name } = imageAndSubTextMap[key];
       let subText = text;
-      if (key === 'owners' && tokenDetails) {
+      if (key === 'owners' && tokens) {
         subText += `${totalHolders === 1 ? 's' : ''} ${
-          tokenDetails.length > 1 ? 'both tokens' : tokenName || 'these tokens'
+          tokens.length > 1 ? 'both tokens' : tokenName || 'these tokens'
         }`;
       }
 
-      let count = tokenOverviewError
+      let count = errorHoldersCount
         ? '--'
-        : overViewData[key as keyof typeof overViewData];
+        : overviewData[key as keyof typeof overviewData];
 
-      // hide count and subtext if there is no holders count
+      // Hide count and subtext if there is no holders count
       if (noHoldersCount) {
         subText = '';
         count = '';
@@ -268,33 +274,33 @@ function Overview({
       );
     });
   }, [
-    loadingCount,
+    overviewData,
     noHoldersCount,
-    overViewData,
-    tokenDetails,
-    tokenImages,
+    tokens,
+    errorHoldersCount,
     tokenName,
-    tokenOverviewError,
+    loadingCount,
+    tokenImages,
     totalHolders
   ]);
 
-  const getTokenNameAndSupply = useCallback(() => {
+  const renderTokenNameAndSupply = useCallback(() => {
     return (
       <>
-        {tokenDetails.map(({ name, tokenAddress, eventId }, index) => {
-          const key = eventId ? eventId : tokenAddress;
-          const supply = totalSupply?.[key.toLocaleLowerCase()];
+        {tokens.map(({ name, tokenAddress, eventId }, index) => {
+          const address = eventId ? eventId : tokenAddress;
+          const supply = tokensSupply?.[address.toLocaleLowerCase()];
           return (
             <span
-              key={`${key}-${index}`}
+              key={`${address}-${index}`}
               className={classNames('flex', {
-                'max-w-[50%]': tokenDetails.length > 1
+                'max-w-[50%]': tokens.length > 1
               })}
             >
               <span className="ellipsis mr-1"> {name} </span>
               <span className="mx-1">: </span>
               <span className="w-[80px] ellipsis">{supply || '--'}</span>
-              {index < tokenDetails.length - 1 ? (
+              {index < tokens.length - 1 ? (
                 <span className="mx-1">|</span>
               ) : null}
             </span>
@@ -302,7 +308,7 @@ function Overview({
         })}
       </>
     );
-  }, [tokenDetails, totalSupply]);
+  }, [tokens, tokensSupply]);
 
   if (activeTokenInfo) {
     return <Details />;
@@ -319,11 +325,11 @@ function Overview({
     );
   }
 
-  if (isERC20 || activeView || hideOverview) return null;
+  if (hasEveryERC20 || activeView || hideOverview) return null;
 
   // eslint-disable-next-line
   // @ts-ignore
-  window.totalOwners = overViewData?.owners || 0;
+  window.totalOwners = overviewData?.owners || 0;
 
   return (
     <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px] mb-7">
@@ -331,12 +337,12 @@ function Overview({
         <div className="mb-2 flex flex-col">
           <div className="text-sm text-text-secondary">Total supply </div>
           <div className="ellipsis text-lg">
-            {loadingSupply ? (
+            {loadingTokensSupply ? (
               <div className="h-7 flex items-center ml-2">
                 <Icon name="count-loader" className="h-2.5 w-auto" />
               </div>
             ) : (
-              <div className="flex">{getTokenNameAndSupply()}</div>
+              <div className="flex">{renderTokenNameAndSupply()}</div>
             )}
           </div>
         </div>

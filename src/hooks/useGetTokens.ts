@@ -1,13 +1,15 @@
-import { useCallback, useState } from 'react';
-import { Poap } from '../pages/TokenHolders/types';
 import { fetchQuery } from '@airstack/airstack-react';
-import { PoapOwnerQuery, TokenOwnerQuery } from '../queries';
 import { FetchQueryReturnType } from '@airstack/airstack-react/types';
-import { TokenBalance } from '../pages/TokenBalances/types';
-import { useOverviewTokens } from '../store/tokenHoldersOverview';
+import { useCallback, useState } from 'react';
 import { tokenBlockchains } from '../constants';
+import { TokenBalance } from '../pages/TokenBalances/types';
+import { PoapsData, TokensData } from '../pages/TokenHolders/types';
+import { PoapOwnerQuery, TokenOwnerQuery } from '../queries';
+import { useOverviewTokens } from '../store/tokenHoldersOverview';
 
-export type OverviewTokenDetailsType = {
+type OverviewTokenOwnerResponse = PoapsData & TokensData;
+
+type OverviewToken = {
   name: string;
   tokenId: string;
   tokenAddress: string;
@@ -17,18 +19,19 @@ export type OverviewTokenDetailsType = {
   eventId?: string;
 };
 
-export function useFetchTokens() {
-  const setTokens = useOverviewTokens(['tokens'])[1];
+export function useGetTokens() {
+  const [, setTokens] = useOverviewTokens(['tokens']);
 
-  const [data, setData] = useState<null | OverviewTokenDetailsType[]>(null);
+  const [data, setData] = useState<OverviewToken[]>([]);
   const [loading, setLoading] = useState(false);
 
   const getTokenFromResponse = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (tokensData: any) => {
+    (tokensData: OverviewTokenOwnerResponse) => {
       if (tokensData?.Poaps) {
-        const poaps: Poap[] = tokensData?.Poaps?.Poap || [];
-        const poap = poaps[0] as Poap;
+        const poaps = tokensData?.Poaps?.Poap || [];
+
+        const poap = poaps[0];
+
         if (!poap) return null;
 
         return {
@@ -70,38 +73,49 @@ export function useFetchTokens() {
     []
   );
 
-  const fetch = useCallback(
-    async (tokenAddress: string[]) => {
+  const fetchTokens = useCallback(
+    async (tokenAddresses: string[]) => {
       setLoading(true);
       setData([]);
       setTokens({ tokens: [] });
 
-      const promises: FetchQueryReturnType<unknown>[] = [];
-      tokenAddress.forEach(tokenAddress => {
-        const isPoap = !tokenAddress.startsWith('0x');
-        const variables = isPoap ? { eventId: tokenAddress } : { tokenAddress };
-        const request = fetchQuery(isPoap ? PoapOwnerQuery : TokenOwnerQuery, {
-          ...variables,
-          limit: 1
-        });
-        promises.push(request);
+      const promises: FetchQueryReturnType<OverviewTokenOwnerResponse>[] = [];
+
+      tokenAddresses.forEach(address => {
+        const isPoap = !address.startsWith('0x');
+        if (isPoap) {
+          const request = fetchQuery(PoapOwnerQuery, {
+            eventId: address,
+            limit: 1
+          });
+          promises.push(request);
+        } else {
+          const request = fetchQuery(TokenOwnerQuery, {
+            tokenAddress: address,
+            limit: 1
+          });
+          promises.push(request);
+        }
       });
+
       const results = await Promise.allSettled(promises);
-      const tokens: OverviewTokenDetailsType[] = [];
+      const tokens: OverviewToken[] = [];
+
       results.forEach(result => {
         if (result.status === 'fulfilled' && result?.value?.data) {
-          const { data } = result.value;
+          const data = result.value.data as OverviewTokenOwnerResponse;
           const token = getTokenFromResponse(data);
           if (token) {
             tokens.push(token);
           }
         }
       });
+
       setData(tokens);
       setLoading(false);
     },
     [getTokenFromResponse, setTokens]
   );
 
-  return [fetch, data, loading] as const;
+  return [fetchTokens, data, loading] as const;
 }

@@ -69,29 +69,29 @@ export function useTokenHoldersLinks() {
     if (addresses.length === 1) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQuery({
-          token: addresses[0],
+          tokenAddress: addresses[0],
           snapshotFilter: snapshotInfo.appliedFilter
         });
       }
-      return getNftOwnersQuery({ token: addresses[0] });
+      return getNftOwnersQuery({ tokenAddress: addresses[0] });
     }
     if (hasSomePoap) {
-      const tokens = sortAddressByPoapFirst(addresses);
+      const tokenAddresses = sortAddressByPoapFirst(addresses);
       return getCommonPoapAndNftOwnersQuery({
-        poap: tokens[0],
-        token: tokens[1]
+        poapAddress: tokenAddresses[0],
+        tokenAddress: tokenAddresses[1]
       });
     }
     if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQuery({
-        token1: addresses[0],
-        token2: addresses[1],
+        tokenAddress1: addresses[0],
+        tokenAddress2: addresses[1],
         snapshotFilter: snapshotInfo.appliedFilter
       });
     }
     return getCommonNftOwnersQuery({
-      token1: addresses[0],
-      token2: addresses[1]
+      tokenAddress1: addresses[0],
+      tokenAddress2: addresses[1]
     });
   }, [
     addresses,
@@ -105,35 +105,35 @@ export function useTokenHoldersLinks() {
     if (addresses.length === 1) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQueryWithFilters({
-          token: addresses[0],
+          tokenAddress: addresses[0],
           snapshotFilter: snapshotInfo.appliedFilter,
           ...requestFilters
         });
       }
       return getNftOwnersQueryWithFilters({
-        token: addresses[0],
+        tokenAddress: addresses[0],
         ...requestFilters
       });
     }
     if (hasSomePoap) {
-      const tokens = sortAddressByPoapFirst(addresses);
+      const tokenAddresses = sortAddressByPoapFirst(addresses);
       return getCommonPoapAndNftOwnersQueryWithFilters({
-        poap: tokens[0],
-        token: tokens[1],
+        poapAddress: tokenAddresses[0],
+        tokenAddress: tokenAddresses[1],
         ...requestFilters
       });
     }
     if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQueryWithFilters({
-        token1: addresses[0],
-        token2: addresses[1],
+        tokenAddress1: addresses[0],
+        tokenAddress2: addresses[1],
         snapshotFilter: snapshotInfo.appliedFilter,
         ...requestFilters
       });
     }
     return getCommonNftOwnersQueryWithFilters({
-      token1: addresses[0],
-      token2: addresses[1],
+      tokenAddress1: addresses[0],
+      tokenAddress2: addresses[1],
       ...requestFilters
     });
   }, [

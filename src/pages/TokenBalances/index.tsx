@@ -13,7 +13,7 @@ import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { Tab, TabContainer } from '../../Components/Tab';
 import {
-  AccountOwner,
+  AccountOwnerData,
   useGetAccountOwner
 } from '../../hooks/useGetAccountOwner';
 import { useSearchInput } from '../../hooks/useSearchInput';
@@ -169,7 +169,7 @@ function TokenBalancePage() {
   ] = useSearchInput();
 
   const handleAccountData = useCallback(
-    (account: AccountOwner) => {
+    (account: AccountOwnerData) => {
       if (!account) return;
       const { tokenAddress, tokenId, blockchain } = account;
       setData(
