@@ -25,7 +25,7 @@ import {
 import { sortAddressByPoapFirst } from '../utils/sortAddressByPoapFirst';
 import { useSearchInput } from './useSearchInput';
 import { resolve6551Owner } from './useResolve6551Owner';
-import { getWalletDetailsQuery } from '../queries/walletDetails';
+import { walletDetailsQuery } from '../queries/walletDetails';
 
 type Token = TokenType & {
   _poapEvent?: Poap['poapEvent'];
@@ -103,8 +103,6 @@ export function useGetCommonOwnersOfTokens(tokenAddresses: TokenAddress[]) {
     snapshotInfo.isApplicable,
     snapshotInfo.appliedFilter
   ]);
-
-  const walletQuery = useMemo(() => getWalletDetailsQuery(), []);
 
   const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
 
@@ -205,7 +203,7 @@ export function useGetCommonOwnersOfTokens(tokenAddresses: TokenAddress[]) {
             continue;
           }
           // fetch wallet data for the resolved address
-          const walletData = await fetchQuery(walletQuery, {
+          const walletData = await fetchQuery(walletDetailsQuery, {
             address: ownerAddress,
             blockchain: owner.blockchain
           });
@@ -248,8 +246,7 @@ export function useGetCommonOwnersOfTokens(tokenAddresses: TokenAddress[]) {
     hasSomePoap,
     isResolve6551Enabled,
     snapshotInfo.isApplicable,
-    totalOwners,
-    walletQuery
+    totalOwners
   ]);
 
   const getNext = useCallback(() => {

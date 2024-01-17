@@ -6,8 +6,7 @@ import {
   TotalPoapsSupply,
   TotalTokensSupply
 } from '../pages/TokenHolders/types';
-import { TokenTotalSupplyQuery } from '../queries';
-import { POAPSupplyQuery } from '../queries/overviewDetailsTokens';
+import { POAPSupplyQuery, TokenSupplyQuery } from '../queries/supplyQuery';
 
 type TokensSupplyResponse = TotalTokensSupply & TotalPoapsSupply;
 
@@ -60,12 +59,9 @@ export function useGetTokensSupply() {
           });
           promises.push(request);
         } else {
-          const request = fetchQuery<TokensSupplyResponse>(
-            TokenTotalSupplyQuery,
-            {
-              tokenAddress: address
-            }
-          );
+          const request = fetchQuery<TokensSupplyResponse>(TokenSupplyQuery, {
+            tokenAddress: address
+          });
           promises.push(request);
         }
       });

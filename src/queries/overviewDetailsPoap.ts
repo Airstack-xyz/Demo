@@ -58,28 +58,28 @@ function getFields({
 }
 
 function getQueryWithFilter({
-  tokens,
+  tokenAddresses,
   index = 0,
   hasSocialFilters,
   hasPrimaryDomain
 }: {
-  tokens: TokenAddress[];
+  tokenAddresses: TokenAddress[];
   index?: number;
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }): string {
   const children =
-    tokens.length - 1 === index
+    tokenAddresses.length - 1 === index
       ? getFields({ hasSocialFilters, hasPrimaryDomain })
       : getQueryWithFilter({
-          tokens,
+          tokenAddresses,
           index: index + 1,
           hasSocialFilters,
           hasPrimaryDomain
         });
   return `owner {
           poaps(
-            input: {filter: {eventId: {_eq: "${tokens[index].address}"}}, blockchain: ALL }
+            input: {filter: {eventId: {_eq: "${tokenAddresses[index].address}"}}, blockchain: ALL }
           ) {
               ${children}
             }
@@ -87,15 +87,15 @@ function getQueryWithFilter({
 }
 
 export function getFilterablePoapsQuery({
-  tokens,
+  tokenAddresses,
   hasSocialFilters,
   hasPrimaryDomain
 }: {
-  tokens: TokenAddress[];
+  tokenAddresses: TokenAddress[];
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }) {
-  if (tokens.length === 0) return '';
+  if (tokenAddresses.length === 0) return '';
 
   const variables = ['$limit: Int'];
   if (hasSocialFilters) {
@@ -107,10 +107,10 @@ export function getFilterablePoapsQuery({
   const variablesString = variables.join(',');
 
   const children =
-    tokens.length === 1
+    tokenAddresses.length === 1
       ? getFields({ hasSocialFilters, hasPrimaryDomain })
       : getQueryWithFilter({
-          tokens,
+          tokenAddresses,
           index: 1,
           hasSocialFilters,
           hasPrimaryDomain
@@ -118,7 +118,7 @@ export function getFilterablePoapsQuery({
 
   return `query GetPoapHolders(${variablesString}) {
       Poaps(
-        input: {filter: {eventId: {_eq: "${tokens[0].address}"}}, blockchain: ALL, limit: $limit}
+        input: {filter: {eventId: {_eq: "${tokenAddresses[0].address}"}}, blockchain: ALL, limit: $limit}
       ) {
         Poap {
           ${children}

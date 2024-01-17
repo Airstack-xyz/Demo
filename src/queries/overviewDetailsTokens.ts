@@ -1,12 +1,5 @@
 import { tokenBlockchains } from '../constants';
-
-export const POAPSupplyQuery = `query PoapTotalSupply($eventId: String!) {
-    PoapEvents(input: {filter: {eventId: {_eq: $eventId}}, blockchain: ALL}) {
-      PoapEvent {
-        tokenMints
-      }
-    }
-  }`;
+import { TokenAddress } from '../pages/TokenHolders/types';
 
 const socialInput = '(input: {filter: {dappName: {_in: $socialFilters}}})';
 const primaryDomainInput =
@@ -66,28 +59,28 @@ const getFields = ({
 };
 
 function getQueryWithFilter({
-  tokenIds,
+  tokenAddresses,
   index = 0,
   hasSocialFilters,
   hasPrimaryDomain
 }: {
-  tokenIds: string[];
+  tokenAddresses: TokenAddress[];
   index?: number;
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }): string {
   const children =
-    tokenIds.length - 1 === index
+    tokenAddresses.length - 1 === index
       ? getFields({ hasSocialFilters, hasPrimaryDomain })
       : getQueryWithFilter({
-          tokenIds,
+          tokenAddresses,
           index: index + 1,
           hasSocialFilters,
           hasPrimaryDomain
         });
   return `owner {
         tokenBalances(
-          input: {filter: {tokenAddress: {_eq: "${tokenIds[index]}"}}}
+          input: {filter: {tokenAddress: {_eq: "${tokenAddresses[index]}"}}}
         ) {
           ${children}
           }
@@ -113,19 +106,19 @@ function getQueryWithFilter({
 }
 
 export const getFilterableTokensQuery = ({
-  tokenIds,
+  tokenAddresses,
   hasSocialFilters,
   hasPrimaryDomain
 }: {
-  tokenIds: string[];
+  tokenAddresses: TokenAddress[];
   hasSocialFilters?: boolean;
   hasPrimaryDomain?: boolean;
 }) => {
   const children =
-    tokenIds.length === 1
+    tokenAddresses.length === 1
       ? getFields({ hasSocialFilters, hasPrimaryDomain })
       : getQueryWithFilter({
-          tokenIds,
+          tokenAddresses,
           index: 1,
           hasSocialFilters,
           hasPrimaryDomain
@@ -143,7 +136,7 @@ export const getFilterableTokensQuery = ({
   const subQueries: string[] = [];
   tokenBlockchains.forEach(blockchain => {
     subQueries.push(`${blockchain}: TokenBalances(
-        input: {filter: {tokenAddress: {_eq: "${tokenIds[0]}"}}, blockchain: ${blockchain}, limit: $limit}
+        input: {filter: {tokenAddress: {_eq: "${tokenAddresses[0]}"}}, blockchain: ${blockchain}, limit: $limit}
       ) {
         TokenBalance {
           ${children}

@@ -150,7 +150,7 @@ export function useTokenHoldersLinks() {
       let combinationsQueryLink = '';
       if (hasPoap) {
         const combinationsQuery = getFilterablePoapsQuery({
-          tokens: addresses,
+          tokenAddresses: addresses,
           ...requestFilters
         });
         combinationsQueryLink = createAppUrlWithQuery(combinationsQuery, {

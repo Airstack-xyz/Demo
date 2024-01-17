@@ -22,7 +22,7 @@ type OverviewToken = {
 export function useGetTokens() {
   const [, setTokens] = useOverviewTokens(['tokens']);
 
-  const [data, setData] = useState<OverviewToken[]>([]);
+  const [data, setData] = useState<OverviewToken[] | null>(null);
   const [loading, setLoading] = useState(false);
 
   const getTokenFromResponse = useCallback(

@@ -11,7 +11,7 @@ import { Layout } from '../../Components/Layout';
 import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { useSearchInput } from '../../hooks/useSearchInput';
-import { SocialQuery, TokenTotalSupplyQuery } from '../../queries';
+import { SocialQuery } from '../../queries';
 import {
   getCommonNftOwnersSnapshotQuery,
   getNftOwnersSnapshotQuery
@@ -34,7 +34,6 @@ import { getCommonPoapAndNftOwnersQuery } from '../../queries/commonPoapAndNftOw
 import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../queries/commonPoapAndNftOwnersQueryWithFilters';
 import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { getFilterablePoapsQuery } from '../../queries/overviewDetailsPoap';
-import { POAPSupplyQuery } from '../../queries/overviewDetailsTokens';
 import {
   erc20TokenDetailsQuery,
   erc6551TokensQuery,
@@ -61,6 +60,7 @@ import { HoldersOverview } from './Overview/Overview';
 import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { getRequestFilters } from './OverviewDetails/Tokens/utils';
 import { Tokens } from './Tokens/Tokens';
+import { POAPSupplyQuery, TokenSupplyQuery } from '../../queries/supplyQuery';
 
 export function TokenHolders() {
   const [
@@ -231,7 +231,7 @@ export function TokenHolders() {
       let combinationsQueryLink = '';
       if (hasPoap) {
         const combinationsQuery = getFilterablePoapsQuery({
-          tokens: addresses,
+          tokenAddresses: addresses,
           ...requestFilters
         });
         combinationsQueryLink = createAppUrlWithQuery(combinationsQuery, {
@@ -306,7 +306,7 @@ export function TokenHolders() {
             link: tokenLink
           });
 
-          const tokenSupplyLink = createAppUrlWithQuery(TokenTotalSupplyQuery, {
+          const tokenSupplyLink = createAppUrlWithQuery(TokenSupplyQuery, {
             tokenAddress: query
           });
 

@@ -189,7 +189,7 @@ export function TokensComponent() {
 
   const poapsQuery = useMemo(() => {
     return getFilterablePoapsQuery({
-      tokens: addresses,
+      tokenAddresses: addresses,
       ...requestFilters
     });
   }, [addresses, requestFilters]);
