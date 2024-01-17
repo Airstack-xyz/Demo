@@ -177,7 +177,9 @@ export function useTokenHoldersLinks() {
 
     if (!activeTokenInfo && !hasERC6551) {
       if (hasPoap) {
-        const poapsQuery = getCommonOwnersPOAPsQuery({ poaps: addresses });
+        const poapsQuery = getCommonOwnersPOAPsQuery({
+          poapAddresses: addresses
+        });
 
         const poapLink = createAppUrlWithQuery(poapsQuery, {
           limit: 20

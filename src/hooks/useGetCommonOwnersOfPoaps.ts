@@ -33,7 +33,7 @@ export function useGetCommonOwnersOfPoaps(poapAddresses: TokenAddress[]) {
   const [processedPoapsCount, setProcessedPoapsCount] = useState(0);
 
   const query = useMemo(
-    () => getCommonOwnersPOAPsQuery({ poaps: poapAddresses }),
+    () => getCommonOwnersPOAPsQuery({ poapAddresses }),
     [poapAddresses]
   );
   const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
