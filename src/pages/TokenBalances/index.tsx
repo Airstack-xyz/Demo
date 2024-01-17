@@ -55,6 +55,8 @@ import { Socials } from './Socials';
 import { SocialsOverlap } from './Socials/SocialsOverlap';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { Tokens, TokensLoader } from './Tokens';
+import { CSVDownloadDropdown } from '../../Components/CSVDownloadDropdown';
+import { downCSVKeys } from '../../constants';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -581,11 +583,66 @@ function TokenBalancePage() {
 
   const isQueryExists = query && query.length > 0;
 
+  const csvOptions: {
+    label: string;
+    key: (typeof downCSVKeys)[number];
+    fileName: string;
+    variables: object;
+    filters?: Record<string, boolean>;
+  }[] = [
+    {
+      label: 'NFTs',
+      key: 'nft-balances',
+      fileName: `NFT balances of [${address[0]}].csv`,
+      variables: {
+        identity: address[0],
+        tokenType: tokenType ? [tokenType] : ['ERC721', 'ERC1155'],
+        blockchain: 'ethereum',
+        blockTimestamp: 'DESC',
+        orderBy: 'DESC'
+      },
+      filters: {
+        filterSpam: false
+      }
+    },
+    {
+      label: 'ERC20s',
+      key: 'erc20-balances',
+      fileName: `ERC20 balances of [${address[0]}].csv`,
+      variables: {
+        identity: address[0],
+        blockchain: blockchainType,
+        orderBy: 'DESC'
+      }
+    },
+    {
+      label: 'Socials',
+      key: 'socials',
+      fileName: `Socials of [${address[0]}].csv`,
+      variables: {
+        identity: address[0],
+        tokenType: tokenType ? [tokenType] : ['ERC721', 'ERC1155'],
+        blockchain: 'ethereum',
+        orderBy: 'DESC'
+      }
+    },
+    {
+      label: 'POAPs',
+      key: 'poap-balances',
+      fileName: `Poaps of [${address[0]}].csv`,
+      variables: {
+        identity: address[0],
+        orderBy: 'DESC'
+      }
+    }
+  ];
+
   const renderFilterContent = () => {
     if (showTokenDetails || socialInfo.isApplicable) {
       return (
         <div className="flex justify-center w-full z-[21]">
           <GetAPIDropdown options={options} dropdownAlignment="center" />
+          <CSVDownloadDropdown options={csvOptions} />
         </div>
       );
     }
@@ -611,6 +668,7 @@ function TokenBalancePage() {
           )}
         </div>
         <GetAPIDropdown options={options} dropdownAlignment="right" />
+        <CSVDownloadDropdown options={csvOptions} />
       </div>
     );
   };

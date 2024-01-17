@@ -67,8 +67,6 @@ function Provider({ children }: AuthProviderProps) {
 
   const authenticated = auth?.authenticated;
   const user = authenticated ? me : null;
-  // eslint-disable-next-line no-console
-  console.log({ auth });
 
   useLogin({
     onComplete: async (user, a, b) => {
@@ -111,6 +109,10 @@ function Provider({ children }: AuthProviderProps) {
       loading: userLoading || loginInProgress,
       getUser,
       login: () => {
+        if (process.env.NODE_ENV === 'development') {
+          auth.login();
+          return;
+        }
         location.href =
           'https://app.dev.airstack.xyz/login?origin=' + location.href;
       },

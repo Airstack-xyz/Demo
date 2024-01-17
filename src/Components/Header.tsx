@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { CSVDownloads } from './CSVDownloads';
 
 export function Header() {
   const { user, loading, login, logout } = useAuth();
@@ -29,6 +30,10 @@ export function Header() {
               Login
             </button>
           )}
+
+          <span className="ml-5">
+            <CSVDownloads />
+          </span>
           <a
             className="text-text-button font-bold hover:bg-glass px-7 py-2 rounded-18  mr-2"
             href="https://github.com/Airstack-xyz/Demo"
