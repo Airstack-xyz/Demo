@@ -3,16 +3,8 @@ import { useCallback, useState } from 'react';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 import { isMobileDevice } from '../utils/isMobileDevice';
 import { Modal } from './Modal';
-import { downCSVKeys } from '../constants';
 import { useInProgressDownloads } from '../store/csvDownload';
-
-type Options = {
-  label: string;
-  key: (typeof downCSVKeys)[number];
-  fileName: string;
-  variables: object;
-  filters?: Record<string, boolean>;
-};
+import { CSVDownloadOption } from '../types';
 
 function CodeIconBlue() {
   return (
@@ -41,7 +33,7 @@ export function CSVDownloadDropdown({
   hideFooter,
   hideDesktopNudge
 }: {
-  options: Options[];
+  options: CSVDownloadOption[];
   disabled?: boolean;
   dropdownAlignment?: 'left' | 'center' | 'right';
   hideFooter?: boolean;
@@ -74,16 +66,14 @@ export function CSVDownloadDropdown({
 
   const downloadCSV = useCallback(
     async (
-      key: string,
-      fileName: string,
-      variables: object,
-      filters?: Record<string, boolean>
+      key: CSVDownloadOption['key'],
+      fileName: CSVDownloadOption['fileName'],
+      variables: CSVDownloadOption['variables'],
+      filters?: CSVDownloadOption['filters']
     ) => {
-      const payload: {
+      const payload: Pick<CSVDownloadOption, 'variables' | 'filters'> & {
         query: string;
         name: string;
-        variables: object;
-        filters?: Record<string, boolean>;
       } = {
         query: key,
         name: fileName,

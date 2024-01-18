@@ -53,6 +53,7 @@ export type AirQueryInput = {
 };
 
 export enum Blockchain {
+  Base = 'base',
   Ethereum = 'ethereum',
   Gnosis = 'gnosis',
   Polygon = 'polygon'

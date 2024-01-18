@@ -48,9 +48,11 @@ export function CSVDownloads() {
       ).then(data => data.json());
 
       if (data.status !== 'in-progress' && data.status !== 'pending') {
-        window.alert('status:  ' + data.status);
         if (data.status === 'completed') {
           setFileDownloaded(true);
+          setTimeout(() => {
+            setFileDownloaded(false);
+          }, 5000);
         }
 
         activeRef.current = activeRef.current.filter(item => item !== id);
@@ -88,6 +90,12 @@ export function CSVDownloads() {
     });
     if (ids.length > 0) {
       setNewTaskAdded(true);
+      const timer = setTimeout(() => {
+        setNewTaskAdded(false);
+      }, 5000);
+      return () => {
+        clearTimeout(timer);
+      };
     }
   }, [inProgressDownloads, pollStatus]);
 

@@ -56,7 +56,7 @@ import { SocialsOverlap } from './Socials/SocialsOverlap';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { Tokens, TokensLoader } from './Tokens';
 import { CSVDownloadDropdown } from '../../Components/CSVDownloadDropdown';
-import { downCSVKeys } from '../../constants';
+import { CSVDownloadOption } from '../../types';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -253,8 +253,8 @@ function TokenBalancePage() {
   const showTokenDetails = Boolean(activeTokenInfo || account);
   const hideBackBreadcrumb = Boolean(account);
 
-  const options = useMemo(() => {
-    if (address.length === 0) return [];
+  const [options, csvDownloadOptions] = useMemo(() => {
+    if (address.length === 0) return [[], []];
 
     const detailTokensVisible = hasERC6551 && accountAddress;
 
@@ -276,7 +276,8 @@ function TokenBalancePage() {
       }
     }
 
-    const options = [];
+    const getAPIOptions = [];
+    const csvDownloadOptions: CSVDownloadOption[] = [];
 
     if (
       !showTokenDetails &&
@@ -291,14 +292,27 @@ function TokenBalancePage() {
         sortBy
       });
 
-      options.push({
+      getAPIOptions.push({
         label: 'POAPs',
         link: poapLink
+      });
+
+      csvDownloadOptions.push({
+        label: 'POAPs',
+        key: 'poap-balances',
+        fileName: `Poaps of [${address[0]}].csv`,
+        variables: {
+          identity: address[0],
+          orderBy: 'DESC'
+        }
       });
     }
 
     let nftLink = '';
     let erc20Link = '';
+
+    let nftOption: null | CSVDownloadOption = null;
+    let erc20Option: null | CSVDownloadOption = null;
 
     if (snapshotInfo.isApplicable) {
       const queryFilters = getSnapshotQueryFilters(snapshotInfo);
@@ -314,11 +328,49 @@ function TokenBalancePage() {
         ...queryFilters
       });
 
+      let snapshotVariableName: string = snapshotInfo.appliedFilter;
+      const snapshotVariableValue =
+        snapshotInfo[snapshotVariableName as keyof typeof snapshotInfo];
+      if (snapshotVariableName === 'customDate') {
+        snapshotVariableName = 'date'; // this is the name of the variable in the query
+      }
+
+      nftOption = {
+        label: 'NFTs',
+        key: 'nft-balances-snapshot',
+        fileName: `NFT balances of [${address[0]}].csv`,
+        variables: {
+          identity: address[0],
+          tokenType: tokenType ? [tokenType] : ['ERC721', 'ERC1155'],
+          blockchain: 'ethereum',
+          [snapshotVariableName]: snapshotVariableValue
+        },
+        filters: {
+          filterSpam: false,
+          snapshotFilter: snapshotVariableName
+        }
+      };
+
       erc20Link = createAppUrlWithQuery(tokensQuery, {
         limit: 50,
         tokenType: ['ERC20'],
         ...queryFilters
       });
+
+      erc20Option = {
+        label: 'ERC20s',
+        key: 'erc20-balances-snapshot',
+        fileName: `NFT balances of [${address[0]}].csv`,
+        variables: {
+          identity: address[0],
+          blockchain: 'ethereum',
+          [snapshotVariableName]: snapshotVariableValue
+        },
+        filters: {
+          filterSpam: false,
+          snapshotFilter: snapshotVariableName
+        }
+      };
     } else {
       const tokensQuery = getNftWithCommonOwnersQuery({
         owners,
@@ -332,11 +384,38 @@ function TokenBalancePage() {
         tokenType: tokenFilters
       });
 
+      nftOption = {
+        label: 'NFTs',
+        key: 'nft-balances',
+        fileName: `NFT balances of [${address[0]}].csv`,
+        variables: {
+          identity: address[0],
+          tokenType: tokenType ? [tokenType] : ['ERC721', 'ERC1155'],
+          blockchain: 'ethereum'
+        },
+        filters: {
+          filterSpam: false
+        }
+      };
+
       erc20Link = createAppUrlWithQuery(tokensQuery, {
         limit: 50,
         sortBy: sortBy,
         tokenType: ['ERC20']
       });
+
+      erc20Option = {
+        label: 'ERC20s',
+        key: 'erc20-balances',
+        fileName: `NFT balances of [${address[0]}].csv`,
+        variables: {
+          identity: address[0],
+          blockchain: 'polygon'
+        },
+        filters: {
+          filterSpam: false
+        }
+      };
     }
 
     if (
@@ -344,26 +423,39 @@ function TokenBalancePage() {
       !socialInfo.isApplicable &&
       tokenType !== 'POAP'
     ) {
-      options.push({
+      getAPIOptions.push({
         label: 'Token Balances (NFT)',
         link: nftLink
       });
+      csvDownloadOptions.push(nftOption);
     }
 
     if (!showTokenDetails && !socialInfo.isApplicable) {
-      options.push({
+      getAPIOptions.push({
         label: 'Token Balances (ERC20)',
         link: erc20Link
       });
+      csvDownloadOptions.push(erc20Option);
 
       if (address.length === 1) {
         const socialLink = createAppUrlWithQuery(SocialQuery, {
           identity: address[0]
         });
 
-        options.push({
+        getAPIOptions.push({
           label: 'Socials, Domains & XMTP',
           link: socialLink
+        });
+        csvDownloadOptions.push({
+          label: 'Socials, Domains & XMTP',
+          key: 'socials',
+          fileName: `Socials of [${address[0]}].csv`,
+          variables: {
+            identity: address[0],
+            tokenType: tokenType ? [tokenType] : ['ERC721', 'ERC1155'],
+            blockchain: 'ethereum',
+            orderBy: 'DESC'
+          }
         });
       }
 
@@ -373,13 +465,13 @@ function TokenBalancePage() {
           identity2: address[1]
         });
 
-        options.push({
+        getAPIOptions.push({
           label: 'Socials, Domains & XMTP',
           link: socialLink
         });
       }
 
-      options.push({
+      getAPIOptions.push({
         label: 'Spam Filters Guide',
         link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/xmtp/spam-filters'
       });
@@ -416,19 +508,19 @@ function TokenBalancePage() {
       );
 
       if (token?.eventId) {
-        options.push({
+        getAPIOptions.push({
           label: 'POAP Details',
           link: poapDetailsQueryLink
         });
       } else {
-        options.push({
+        getAPIOptions.push({
           label: 'Token Details',
           link: token?.tokenId ? tokenDetailsQueryLink : erc20DetailsQueryLink
         });
       }
 
       if (hasERC6551) {
-        options.push({
+        getAPIOptions.push({
           label: 'ERC6551 Accounts',
           link: erc6551AccountsQueryLink
         });
@@ -481,23 +573,42 @@ function TokenBalancePage() {
         dappName: socialInfo.dappName
       });
 
-      options.push({
+      getAPIOptions.push({
         label: `${formattedDappName} followers`,
         link: socialFollowersDetailsLink
       });
 
-      options.push({
+      const dappName = socialInfo.dappName as 'farcaster' | 'lens';
+      csvDownloadOptions.push({
+        label: `${formattedDappName} followers`,
+        key: `${dappName}-followers`,
+        fileName: `Social followers of [${address[0]}].csv`,
+        variables: {
+          identity: address[0]
+        }
+      });
+
+      getAPIOptions.push({
         label: `${formattedDappName} following`,
         link: socialFollowingDetailsLink
       });
 
-      options.push({
+      csvDownloadOptions.push({
+        label: `${formattedDappName} following`,
+        key: `${dappName}-followings`,
+        fileName: `Social following of [${address[0]}].csv`,
+        variables: {
+          identity: address[0]
+        }
+      });
+
+      getAPIOptions.push({
         label: `${formattedDappName} profile details`,
         link: socialDetailsLink
       });
     }
 
-    return options;
+    return [getAPIOptions, csvDownloadOptions];
   }, [
     address,
     hasERC6551,
@@ -583,66 +694,12 @@ function TokenBalancePage() {
 
   const isQueryExists = query && query.length > 0;
 
-  const csvOptions: {
-    label: string;
-    key: (typeof downCSVKeys)[number];
-    fileName: string;
-    variables: object;
-    filters?: Record<string, boolean>;
-  }[] = [
-    {
-      label: 'NFTs',
-      key: 'nft-balances',
-      fileName: `NFT balances of [${address[0]}].csv`,
-      variables: {
-        identity: address[0],
-        tokenType: tokenType ? [tokenType] : ['ERC721', 'ERC1155'],
-        blockchain: 'ethereum',
-        blockTimestamp: 'DESC',
-        orderBy: 'DESC'
-      },
-      filters: {
-        filterSpam: false
-      }
-    },
-    {
-      label: 'ERC20s',
-      key: 'erc20-balances',
-      fileName: `ERC20 balances of [${address[0]}].csv`,
-      variables: {
-        identity: address[0],
-        blockchain: blockchainType,
-        orderBy: 'DESC'
-      }
-    },
-    {
-      label: 'Socials',
-      key: 'socials',
-      fileName: `Socials of [${address[0]}].csv`,
-      variables: {
-        identity: address[0],
-        tokenType: tokenType ? [tokenType] : ['ERC721', 'ERC1155'],
-        blockchain: 'ethereum',
-        orderBy: 'DESC'
-      }
-    },
-    {
-      label: 'POAPs',
-      key: 'poap-balances',
-      fileName: `Poaps of [${address[0]}].csv`,
-      variables: {
-        identity: address[0],
-        orderBy: 'DESC'
-      }
-    }
-  ];
-
   const renderFilterContent = () => {
     if (showTokenDetails || socialInfo.isApplicable) {
       return (
         <div className="flex justify-center w-full z-[21]">
           <GetAPIDropdown options={options} dropdownAlignment="center" />
-          <CSVDownloadDropdown options={csvOptions} />
+          <CSVDownloadDropdown options={csvDownloadOptions} />
         </div>
       );
     }
@@ -668,7 +725,7 @@ function TokenBalancePage() {
           )}
         </div>
         <GetAPIDropdown options={options} dropdownAlignment="right" />
-        <CSVDownloadDropdown options={csvOptions} />
+        <CSVDownloadDropdown options={csvDownloadOptions} />
       </div>
     );
   };
