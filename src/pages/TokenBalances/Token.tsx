@@ -1,14 +1,17 @@
+import classNames from 'classnames';
 import { Fragment, memo, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Icon } from '../../Components/Icon';
-import { formatDate } from '../../utils';
-import { createTokenHolderUrl } from '../../utils/createTokenUrl';
-import { PoapsType, TokenType as TokenType } from './types';
 import { Asset } from '../../Components/Asset';
-import classNames from 'classnames';
-import { Nft } from './ERC20/types';
-import { useSearchInput } from '../../hooks/useSearchInput';
+import { Icon } from '../../Components/Icon';
+import {
+  resetCachedUserInputs,
+  useSearchInput
+} from '../../hooks/useSearchInput';
+import { formatDate } from '../../utils';
 import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
+import { createTokenHolderUrl } from '../../utils/createTokenUrl';
+import { Nft } from './ERC20/types';
+import { PoapsType, TokenType } from './types';
 
 type Poap = PoapsType['Poaps']['Poap'][0];
 
@@ -140,7 +143,10 @@ export const Token = memo(function Token({
               label: tokenName || '--',
               truncateLabel: isMobile
             })}
-            onClick={e => e.stopPropagation()}
+            onClick={event => {
+              event.stopPropagation();
+              resetCachedUserInputs('tokenHolder');
+            }}
           >
             <Icon width={16} name="token-holders" />
             <span className="ml-1.5">Holders</span>
