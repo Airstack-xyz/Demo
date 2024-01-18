@@ -1,7 +1,7 @@
 import classnames from 'classnames';
 import { useState } from 'react';
 import { Icon } from '../../../Components/Icon';
-import { SCORE_KEY, ScoreMap, maxScore, scoreOptions } from '../constants';
+import { SCORE_KEY, ScoreMap, MAX_SCORE, scoreOptions } from '../constants';
 import { getDefaultScoreMap } from '../utils';
 import { useOutsideClick } from '../../../hooks/useOutsideClick';
 
@@ -22,7 +22,7 @@ export function ScoreOptions({
       const score = prevScore[key] + updateBy;
       const scoreMap = {
         ...prevScore,
-        [key]: Math.max(0, Math.min(score, maxScore))
+        [key]: Math.max(0, Math.min(score, MAX_SCORE))
       };
       localStorage.setItem(SCORE_KEY, JSON.stringify(scoreMap));
       return scoreMap;
