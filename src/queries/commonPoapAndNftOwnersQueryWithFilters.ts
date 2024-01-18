@@ -4,17 +4,22 @@ const socialInput = '(input: {filter: {dappName: {_in: $socialFilters}}})';
 const primaryDomainInput =
   '(input: {filter: {isPrimary: {_eq: $hasPrimaryDomain}}})';
 
-export function getCommonPoapAndNftOwnersQueryWithFilters(
-  eventId: TokenAddress,
-  tokenId: TokenAddress,
-  hasSocialFilters = false,
-  hasPrimaryDomainFilter = false
-) {
+export function getCommonPoapAndNftOwnersQueryWithFilters({
+  poapAddress,
+  tokenAddress,
+  hasSocialFilters,
+  hasPrimaryDomain
+}: {
+  poapAddress: TokenAddress;
+  tokenAddress: TokenAddress;
+  hasSocialFilters?: boolean;
+  hasPrimaryDomain?: boolean;
+}) {
   const variables = ['$limit: Int'];
   if (hasSocialFilters) {
     variables.push('$socialFilters: [SocialDappName!]');
   }
-  if (hasPrimaryDomainFilter) {
+  if (hasPrimaryDomain) {
     variables.push('$hasPrimaryDomain: Boolean');
   }
   const variablesString = variables.join(',');
@@ -22,14 +27,14 @@ export function getCommonPoapAndNftOwnersQueryWithFilters(
   return `query CommonPoapAndNftOwners(${variablesString}) {
     Poaps(
       input: {filter: {eventId: {_eq: "${
-        eventId.address
+        poapAddress.address
       }"}}, blockchain: ALL, limit: $limit}
     ) {
       Poap { 
         owner {
           tokenBalances(input: {filter: {tokenAddress: {_eq: "${
-            tokenId.address
-          }"}}, blockchain: ${tokenId.blockchain || 'ethereum'}}) {
+            tokenAddress.address
+          }"}}, blockchain: ${tokenAddress.blockchain || 'ethereum'}}) {
             tokenId
             tokenAddress
             tokenType
@@ -45,6 +50,11 @@ export function getCommonPoapAndNftOwnersQueryWithFilters(
             owner {
               identity
               addresses
+              blockchain
+              accounts {
+                tokenId
+                tokenAddress
+              }
               socials${hasSocialFilters ? socialInput : ''} {
                 blockchain
                 dappName
@@ -54,7 +64,7 @@ export function getCommonPoapAndNftOwnersQueryWithFilters(
               primaryDomain {
                 name
               }
-              domains${hasPrimaryDomainFilter ? primaryDomainInput : ''} {
+              domains${hasPrimaryDomain ? primaryDomainInput : ''} {
                 name
               }
               xmtp {

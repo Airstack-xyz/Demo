@@ -171,11 +171,18 @@ export interface TokenBalance {
 export interface Owner {
   identity: string;
   addresses: string[];
+  blockchain: string;
+  accounts: Account[];
   poaps: Poap[];
   socials: Social[];
   primaryDomain: PrimaryDomain;
   domains: Domain[];
   xmtp: Xmtp[];
+}
+
+export interface Account {
+  tokenId: string;
+  tokenAddress: string;
 }
 
 export interface Poap {

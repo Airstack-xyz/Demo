@@ -1,14 +1,17 @@
+import classNames from 'classnames';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Icon } from '../../Components/Icon';
-import { formatDate } from '../../utils';
-import { createTokenHolderUrl } from '../../utils/createTokenUrl';
-import { PoapType, TokenType as TokenType } from './types';
 import { Asset } from '../../Components/Asset';
-import { useSearchInput } from '../../hooks/useSearchInput';
-import classNames from 'classnames';
-import { isMobileDevice } from '../../utils/isMobileDevice';
+import { Icon } from '../../Components/Icon';
+import {
+  resetCachedUserInputs,
+  useSearchInput
+} from '../../hooks/useSearchInput';
+import { formatDate } from '../../utils';
 import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
+import { createTokenHolderUrl } from '../../utils/createTokenUrl';
+import { isMobileDevice } from '../../utils/isMobileDevice';
+import { PoapType, TokenType } from './types';
 
 type TokenProps = {
   token: null | TokenType | PoapType;
@@ -149,7 +152,10 @@ function Token({
             label: tokenName || '--',
             truncateLabel: isMobile
           })}
-          onClick={e => e.stopPropagation()}
+          onClick={event => {
+            event.stopPropagation();
+            resetCachedUserInputs('tokenHolder');
+          }}
         >
           <Icon width={16} name="token-holders" />
         </Link>

@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMatch } from 'react-router-dom';
-import { AllFilters } from '../../Components/Filters/AllFilters';
+import { TokenBalanceAllFilters } from '../../Components/Filters/TokenBalanceAllFilters';
 import { BlockchainFilter } from '../../Components/Filters/BlockchainFilter';
 import { MintFilter } from '../../Components/Filters/MintFilter';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
@@ -13,7 +13,7 @@ import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { Tab, TabContainer } from '../../Components/Tab';
 import {
-  AccountOwner,
+  AccountOwnerData,
   useGetAccountOwner
 } from '../../hooks/useGetAccountOwner';
 import { useSearchInput } from '../../hooks/useSearchInput';
@@ -169,7 +169,7 @@ function TokenBalancePage() {
   ] = useSearchInput();
 
   const handleAccountData = useCallback(
-    (account: AccountOwner) => {
+    (account: AccountOwnerData) => {
       if (!account) return;
       const { tokenAddress, tokenId, blockchain } = account;
       setData(
@@ -282,7 +282,7 @@ function TokenBalancePage() {
       !socialInfo.isApplicable &&
       (!tokenType || tokenType === 'POAP')
     ) {
-      const poapsQuery = poapsOfCommonOwnersQuery(owners);
+      const poapsQuery = poapsOfCommonOwnersQuery({ owners });
 
       const poapLink = createAppUrlWithQuery(poapsQuery, {
         limit: 10,
@@ -594,7 +594,7 @@ function TokenBalancePage() {
       <div className="flex justify-between w-full z-[21]">
         <div className="flex-row-center gap-3.5">
           {isMobile ? (
-            <AllFilters
+            <TokenBalanceAllFilters
               snapshotDisabled={snapshotFilterDisabled}
               blockchainDisabled={blockchainFilterDisabled}
               sortByDisabled={sortByFilterDisabled}

@@ -1,7 +1,7 @@
-export const maxScore = 10;
+export const MAX_SCORE = 100;
 export const QUERY_LIMIT = 100;
 export const MAX_ITEMS = 2000;
-export const SCORE_KEY = 'airstack-score';
+export const SCORE_KEY = 'airstack-score-v2';
 export const nftsToIgnore = [
   // ENS
   '0x57f1887a8bf19b14fc0df6fd9b2acc9af147ea85',
@@ -12,16 +12,16 @@ export const nftsToIgnore = [
 ];
 
 export const defaultScoreMap = {
-  tokenSent: 10,
-  tokenReceived: 0,
-  followedByOnLens: 5,
-  followingOnLens: 7,
-  followedByOnFarcaster: 5,
-  followingOnFarcaster: 5,
-  commonPoaps: 7,
-  commonEthNfts: 5,
+  tokenSent: 50,
+  tokenReceived: 5,
+  followedByOnLens: 20,
+  followingOnLens: 50,
+  followedByOnFarcaster: 20,
+  followingOnFarcaster: 50,
+  commonPoaps: 5,
+  commonEthNfts: 10,
   commonPolygonNfts: 0,
-  commonBaseNfts: 3
+  commonBaseNfts: 15
 };
 export type ScoreMap = typeof defaultScoreMap;
 

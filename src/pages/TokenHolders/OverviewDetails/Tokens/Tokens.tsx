@@ -37,15 +37,23 @@ import { createTokenBalancesUrl } from '../../../../utils/createTokenUrl';
 import { sortByAddressByNonERC20First } from '../../../../utils/getNFTQueryForTokensHolder';
 import { isMobileDevice } from '../../../../utils/isMobileDevice';
 import { sortAddressByPoapFirst } from '../../../../utils/sortAddressByPoapFirst';
-import { Poap, Token as TokenType, TokensData } from '../../types';
+import {
+  Poap as PoapType,
+  PoapsData,
+  Token as TokenType,
+  TokensData
+} from '../../types';
 import { Header } from './Header';
 import { Token } from './Token';
-import { filterTokens, getRequestFilters } from './filters';
-import { getPoapList, getTokenList } from './utils';
+import {
+  filterTokens,
+  getPoapList,
+  getRequestFilters,
+  getTokenList
+} from './utils';
 import { DownloadCSVOverlay } from '../../../../Components/DownloadCSVOverlay';
 
 const LIMIT = 34;
-const MIN_LIMIT = 34;
 
 const loaderData = Array(6).fill({});
 
@@ -94,8 +102,8 @@ function Loader() {
 
 export function TokensComponent() {
   const ownersSetRef = useRef<Set<string>>(new Set());
-  const [tokens, setTokens] = useState<(TokenType | Poap)[]>([]);
-  const tokensRef = useRef<(TokenType | Poap)[]>([]);
+  const [tokens, setTokens] = useState<(TokenType | PoapType)[]>([]);
+  const tokensRef = useRef<(TokenType | PoapType)[]>([]);
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
   const [
     {
@@ -132,76 +140,65 @@ export function TokensComponent() {
   const hasSomePoap = tokenAddress.some(token => !token.startsWith('0x'));
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
-  const address = useMemo(() => {
+  const addresses = useMemo(() => {
     return sortByAddressByNonERC20First(tokenAddress, overviewTokens, hasPoap);
   }, [hasPoap, tokenAddress, overviewTokens]);
 
   const tokensQuery = useMemo(() => {
-    const hasSocialFilters = Boolean(requestFilters?.socialFilters);
-    const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
-    if (address.length === 1) {
+    if (addresses.length === 1) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQueryWithFilters({
-          address: address[0],
+          tokenAddress: addresses[0],
           snapshotFilter: snapshotInfo.appliedFilter,
-          hasSocialFilters: hasSocialFilters,
-          hasPrimaryDomain: hasPrimaryDomain
+          ...requestFilters
         });
       }
-      return getNftOwnersQueryWithFilters(
-        address[0],
-        hasSocialFilters,
-        hasPrimaryDomain
-      );
+      return getNftOwnersQueryWithFilters({
+        tokenAddress: addresses[0],
+        ...requestFilters
+      });
     }
     if (hasSomePoap) {
-      const tokens = sortAddressByPoapFirst(address);
-      return getCommonPoapAndNftOwnersQueryWithFilters(
-        tokens[0],
-        tokens[1],
-        hasSocialFilters,
-        hasPrimaryDomain
-      );
+      const tokenAddresses = sortAddressByPoapFirst(addresses);
+      return getCommonPoapAndNftOwnersQueryWithFilters({
+        poapAddress: tokenAddresses[0],
+        tokenAddress: tokenAddresses[1],
+        ...requestFilters
+      });
     }
     if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQueryWithFilters({
-        address1: address[0],
-        address2: address[1],
+        tokenAddress1: addresses[0],
+        tokenAddress2: addresses[1],
         snapshotFilter: snapshotInfo.appliedFilter,
-        hasSocialFilters: hasSocialFilters,
-        hasPrimaryDomain: hasPrimaryDomain
+        ...requestFilters
       });
     }
-    return getCommonNftOwnersQueryWithFilters(
-      address[0],
-      address[1],
-      hasSocialFilters,
-      hasPrimaryDomain
-    );
+    return getCommonNftOwnersQueryWithFilters({
+      tokenAddress1: addresses[0],
+      tokenAddress2: addresses[1],
+      ...requestFilters
+    });
   }, [
-    requestFilters?.socialFilters,
-    requestFilters?.hasPrimaryDomain,
-    address,
+    requestFilters,
+    addresses,
     hasSomePoap,
     snapshotInfo.isApplicable,
     snapshotInfo.appliedFilter
   ]);
 
   const poapsQuery = useMemo(() => {
-    const hasSocialFilters = Boolean(requestFilters?.socialFilters);
-    const hasPrimaryDomain = requestFilters?.hasPrimaryDomain;
-    return getFilterablePoapsQuery(address, hasSocialFilters, hasPrimaryDomain);
-  }, [
-    address,
-    requestFilters?.hasPrimaryDomain,
-    requestFilters?.socialFilters
-  ]);
+    return getFilterablePoapsQuery({
+      tokenAddresses: addresses,
+      ...requestFilters
+    });
+  }, [addresses, requestFilters]);
 
-  const shouldFetchTokens = address.length > 0;
-  const hasMultipleTokens = address.length > 1;
+  const shouldFetchTokens = addresses.length > 0;
+  const hasMultipleTokens = addresses.length > 1;
 
   const handleData = useCallback(
-    (tokensData: TokensData) => {
+    (tokensData: TokensData & PoapsData) => {
       if (!tokensData) return;
       const [tokens, size] = hasPoap
         ? getPoapList({ tokensData, hasMultipleTokens })
@@ -323,7 +320,7 @@ export function TokensComponent() {
   useEffect(() => {
     if (!tokensData || loading) return;
 
-    if (tokensRef.current.length < MIN_LIMIT && hasNextPage) {
+    if (tokensRef.current.length < LIMIT && hasNextPage) {
       getNextPage();
     } else {
       tokensRef.current = [];
@@ -358,6 +355,7 @@ export function TokensComponent() {
         inputType: 'ADDRESS',
         truncateLabel: isMobile
       });
+      document.documentElement.scrollTo(0, 0);
       resetCachedUserInputs('tokenBalance');
       navigate(url);
     },
@@ -366,17 +364,18 @@ export function TokensComponent() {
 
   const showDownCSVOverlay = hasNextPage && !loading;
 
+  const statusLoaderLines: [string, number][] = [
+    [`Scanning %n ${activeViewToken}`, loaderData.total],
+    [`Found %n matching results`, loaderData.matching]
+  ];
+
   if (loading && (!tokens || tokens.length === 0)) {
     return (
       <>
         <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
           <Loader />
         </div>
-        <StatusLoader
-          total={loaderData.total}
-          matching={loaderData.matching}
-          totalSuffix={activeViewToken || ''}
-        />
+        <StatusLoader lines={statusLoaderLines} />
       </>
     );
   }
@@ -417,11 +416,7 @@ export function TokensComponent() {
         />
       )}
       {(loading || loaderData.isVisible) && (
-        <StatusLoader
-          total={loaderData.total}
-          matching={loaderData.matching}
-          totalSuffix={activeViewToken || ''}
-        />
+        <StatusLoader lines={statusLoaderLines} />
       )}
     </div>
   );

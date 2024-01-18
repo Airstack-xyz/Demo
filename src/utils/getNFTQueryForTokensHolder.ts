@@ -11,12 +11,12 @@ export function sortByAddressByNonERC20First(
     if (overviewTokens.length === 0) return [];
 
     // sort tokens by holders count so that the token with the least holders is the first one
-    const sortedAddress = (overviewTokens as TokenHolder[]).sort(
+    const sortedAddress = overviewTokens.sort(
       (a, b) => a.holdersCount - b.holdersCount
     );
 
-    const ercTokens: TokenHolder[] = [],
-      otherTokens: TokenHolder[] = [];
+    const ercTokens: TokenHolder[] = [];
+    const otherTokens: TokenHolder[] = [];
 
     sortedAddress.forEach(token => {
       if (token.tokenType === 'ERC20') {

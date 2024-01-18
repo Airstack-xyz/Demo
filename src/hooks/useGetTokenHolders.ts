@@ -2,21 +2,24 @@ import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { tokenHoldersQuery } from '../queries/tokenDetails';
 import { useMemo } from 'react';
 
-export interface TokenHoldersResponse {
-  TokenBalances: TokenBalances;
-}
+type TokenHoldersResponse = {
+  TokenBalances: {
+    TokenBalance: TokenBalance[];
+  };
+};
 
-export interface TokenBalances {
-  TokenBalance: TokenBalance[];
-}
+type TokenHoldersVariables = {
+  tokenId: string;
+  tokenAddress: string;
+  blockchain: string;
+  limit?: number;
+};
 
-export interface TokenBalance {
-  owner: Owner;
-}
-
-export interface Owner {
-  identity: string;
-}
+type TokenBalance = {
+  owner: {
+    identity: string;
+  };
+};
 
 function formatTokenHolders(data: TokenHoldersResponse) {
   if (!data) return [];
@@ -24,9 +27,9 @@ function formatTokenHolders(data: TokenHoldersResponse) {
   return tokens.map(token => token?.owner?.identity);
 }
 
-type Data = ReturnType<typeof formatTokenHolders>;
+type TokenHoldersData = ReturnType<typeof formatTokenHolders>;
 
-export function useTokenHolders(
+export function useGetTokenHolders(
   {
     tokenId,
     tokenAddress,
@@ -38,9 +41,12 @@ export function useTokenHolders(
     blockchain: string;
     limit?: number;
   },
-  onFormatData?: (data: Data) => void
+  onFormatData?: (data: TokenHoldersData) => string[]
 ) {
-  const [fetchHolders, responseObject] = useLazyQueryWithPagination(
+  const [fetchTokenHolders, hookResponseData] = useLazyQueryWithPagination<
+    TokenHoldersResponse,
+    TokenHoldersVariables
+  >(
     tokenHoldersQuery,
     {
       tokenId,
@@ -49,6 +55,8 @@ export function useTokenHolders(
       limit
     },
     {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore-next-line
       dataFormatter: (data: TokenHoldersResponse) => {
         return onFormatData
           ? onFormatData(formatTokenHolders(data))
@@ -59,9 +67,9 @@ export function useTokenHolders(
 
   return useMemo(() => {
     return {
-      fetchHolders,
-      ...responseObject,
-      data: responseObject.data as null | Data
+      fetchHolders: fetchTokenHolders,
+      ...hookResponseData,
+      data: hookResponseData.data as null | TokenHoldersData
     };
-  }, [fetchHolders, responseObject]);
+  }, [fetchTokenHolders, hookResponseData]);
 }

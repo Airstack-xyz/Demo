@@ -4,7 +4,13 @@ const socialInput = '(input: {filter: {dappName: {_in: $socialFilters}}})';
 const primaryDomainInput =
   '(input: {filter: {isPrimary: {_eq: $hasPrimaryDomain}}})';
 
-function getFields(hasSocialFilters = false, hasPrimaryDomainFilter = false) {
+function getFields({
+  hasSocialFilters,
+  hasPrimaryDomain
+}: {
+  hasSocialFilters?: boolean;
+  hasPrimaryDomain?: boolean;
+}) {
   return `id
    blockchain
    tokenId
@@ -42,7 +48,7 @@ function getFields(hasSocialFilters = false, hasPrimaryDomainFilter = false) {
      primaryDomain {
        name
      }
-     domains${hasPrimaryDomainFilter ? primaryDomainInput : ''} {
+     domains${hasPrimaryDomain ? primaryDomainInput : ''} {
        name
      }
      xmtp {
@@ -51,59 +57,68 @@ function getFields(hasSocialFilters = false, hasPrimaryDomainFilter = false) {
    }`;
 }
 
-function getQueryWithFilter(
-  tokenIds: TokenAddress[],
+function getQueryWithFilter({
+  tokenAddresses,
   index = 0,
-  hasSocialFilters: boolean,
-  hasPrimaryDomainFilter: boolean
-): string {
+  hasSocialFilters,
+  hasPrimaryDomain
+}: {
+  tokenAddresses: TokenAddress[];
+  index?: number;
+  hasSocialFilters?: boolean;
+  hasPrimaryDomain?: boolean;
+}): string {
   const children =
-    tokenIds.length - 1 === index
-      ? getFields(hasSocialFilters, hasPrimaryDomainFilter)
-      : getQueryWithFilter(
-          tokenIds,
-          index + 1,
+    tokenAddresses.length - 1 === index
+      ? getFields({ hasSocialFilters, hasPrimaryDomain })
+      : getQueryWithFilter({
+          tokenAddresses,
+          index: index + 1,
           hasSocialFilters,
-          hasPrimaryDomainFilter
-        );
+          hasPrimaryDomain
+        });
   return `owner {
           poaps(
-            input: {filter: {eventId: {_eq: "${tokenIds[index].address}"}}, blockchain: ALL }
+            input: {filter: {eventId: {_eq: "${tokenAddresses[index].address}"}}, blockchain: ALL }
           ) {
               ${children}
             }
           }`;
 }
 
-export function getFilterablePoapsQuery(
-  tokenIds: TokenAddress[],
-  hasSocialFilters = false,
-  hasPrimaryDomainFilter = false
-) {
-  if (tokenIds.length === 0) return '';
+export function getFilterablePoapsQuery({
+  tokenAddresses,
+  hasSocialFilters,
+  hasPrimaryDomain
+}: {
+  tokenAddresses: TokenAddress[];
+  hasSocialFilters?: boolean;
+  hasPrimaryDomain?: boolean;
+}) {
+  if (tokenAddresses.length === 0) return '';
 
   const variables = ['$limit: Int'];
   if (hasSocialFilters) {
     variables.push('$socialFilters: [SocialDappName!]');
   }
-  if (hasPrimaryDomainFilter) {
+  if (hasPrimaryDomain) {
     variables.push('$hasPrimaryDomain: Boolean');
   }
   const variablesString = variables.join(',');
 
   const children =
-    tokenIds.length === 1
-      ? getFields(hasSocialFilters, hasPrimaryDomainFilter)
-      : getQueryWithFilter(
-          tokenIds,
-          1,
+    tokenAddresses.length === 1
+      ? getFields({ hasSocialFilters, hasPrimaryDomain })
+      : getQueryWithFilter({
+          tokenAddresses,
+          index: 1,
           hasSocialFilters,
-          hasPrimaryDomainFilter
-        );
+          hasPrimaryDomain
+        });
 
   return `query GetPoapHolders(${variablesString}) {
       Poaps(
-        input: {filter: {eventId: {_eq: "${tokenIds[0].address}"}}, blockchain: ALL, limit: $limit}
+        input: {filter: {eventId: {_eq: "${tokenAddresses[0].address}"}}, blockchain: ALL, limit: $limit}
       ) {
         Poap {
           ${children}

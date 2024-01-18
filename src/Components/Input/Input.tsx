@@ -23,6 +23,7 @@ import {
 // @ts-ignore
 import { Mention, MentionsInput } from './react-mentions';
 import {
+  AdvancedMentionSearchParams,
   MentionType,
   SearchAIMentionsResponse,
   SearchAIMentionsResults
@@ -34,6 +35,7 @@ import {
   debouncePromise,
   fetchAIMentions,
   generateId,
+  getMentionCount,
   getNameFromMarkup,
   highlightMention,
   truncateMentionLabel
@@ -44,12 +46,6 @@ import './styles.css';
 type Option = SearchAIMentionsResults & {
   id: string;
   display: string;
-};
-
-export type AdvancedMentionSearchParams = {
-  query: string;
-  queryStartIndex: number;
-  queryEndIndex: number;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
@@ -90,6 +86,9 @@ export function InputWithMention({
   const [loading, setLoading] = useState(false);
 
   const isMobile = isMobileDevice();
+
+  // store refs so that it can be used in events without triggering useEffect
+  valueRef.current = value;
 
   const getMentions = useCallback(async (query: string) => {
     setLoading(true);
@@ -143,9 +142,8 @@ export function InputWithMention({
   }, [disableSuggestions]);
 
   const handleUserInput = useCallback(
-    ({ target: { value } }: { target: { value: string } }) => {
-      valueRef.current = value;
-      onChange(value);
+    (event: { target: { value: string } }) => {
+      onChange(event.target.value);
     },
     [onChange]
   );
@@ -161,10 +159,10 @@ export function InputWithMention({
         event.preventDefault();
         // blur on enter key press
         inputRef.current?.blur();
-        onSubmit(value);
+        onSubmit(valueRef.current);
       }
     },
-    [onSubmit, value]
+    [onSubmit]
   );
 
   const handleBlur = useCallback(
@@ -256,7 +254,7 @@ export function InputWithMention({
 
       let extraLengthTakenByMention = 0;
 
-      const mentionMarkups = value.match(ID_REGEX);
+      const mentionMarkups = valueRef.current.match(ID_REGEX);
       // find out how many characters the mention markup is longer than the id
       // so we can adjust the caret position accordingly
       // the mention markup is longer than the id because it contains the display name
@@ -268,8 +266,8 @@ export function InputWithMention({
       const actualCaretPosition =
         lastPositionOfCaretRef.current + extraLengthTakenByMention;
 
-      let textBeforeCaret = value.slice(0, actualCaretPosition);
-      const remainingText = value.slice(actualCaretPosition);
+      let textBeforeCaret = valueRef.current.slice(0, actualCaretPosition);
+      const remainingText = valueRef.current.slice(actualCaretPosition);
       const startsWithAt = textBeforeCaret[0] === '@';
       // add space in front of the mention if it doesn't start with @, otherwise the regex won't match
       textBeforeCaret = startsWithAt ? ' ' + textBeforeCaret : textBeforeCaret;
@@ -291,12 +289,13 @@ export function InputWithMention({
       const newValue = textBeforeCaret + remainingText.trimStart();
       handleUserInput({ target: { value: newValue } });
     },
-    [handleUserInput, isMobile, showInputFor, value]
+    [handleUserInput, isMobile, showInputFor]
   );
 
   const displayTransform = useCallback(
     (_: string, display: string) => {
-      return isMobile ? truncateMentionLabel(display) : display;
+      const truncateLabel = isMobile && getMentionCount(valueRef.current) === 0;
+      return truncateLabel ? truncateMentionLabel(display) : display;
     },
     [isMobile]
   );
