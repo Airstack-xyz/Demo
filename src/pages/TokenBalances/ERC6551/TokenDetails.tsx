@@ -3,7 +3,10 @@ import classNames from 'classnames';
 import { useCallback, useEffect, useRef } from 'react';
 import { createSearchParams, useMatch, useNavigate } from 'react-router-dom';
 import { Icon } from '../../../Components/Icon';
-import { useSearchInput } from '../../../hooks/useSearchInput';
+import {
+  resetCachedUserInputs,
+  useSearchInput
+} from '../../../hooks/useSearchInput';
 import {
   accountHolderQuery,
   erc20TokenDetailsQuery,
@@ -280,6 +283,9 @@ export function TokenDetails(props: {
           : erc20Token?.name || nft?.token?.name) || '--',
       truncateLabel: isMobile
     });
+    // reset cached filters for tokenHolder
+    resetCachedUserInputs('tokenHolder');
+    // reset hasERC6551 status for tokenHolder
     setDetails({ hasERC6551: false });
     navigate(url);
   };
