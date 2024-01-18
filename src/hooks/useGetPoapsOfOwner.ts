@@ -12,6 +12,7 @@ type Inputs = Pick<
   UserInputs,
   'address' | 'tokenType' | 'blockchainType' | 'sortOrder'
 >;
+
 export function useGetPoapsOfOwner(
   inputs: Inputs,
   onDataReceived: (tokens: PoapType[]) => void,
@@ -23,12 +24,12 @@ export function useGetPoapsOfOwner(
   const tokensRef = useRef<PoapType[]>([]);
   const [processedPoapsCount, setProcessedPoapsCount] = useState(0);
 
-  const isSearchingCommonPoaps = owners.length > 1;
+  const isCombination = owners.length > 1;
 
   const canFetchPoaps = !poapDisabled;
 
   const query = useMemo(() => {
-    return poapsOfCommonOwnersQuery(owners);
+    return poapsOfCommonOwnersQuery({ owners });
   }, [owners]);
 
   const [
@@ -69,7 +70,7 @@ export function useGetPoapsOfOwner(
     let poaps = tokensData?.Poaps?.Poap || [];
     const processedPoapsCount = poaps.length;
 
-    if (poaps.length > 0 && isSearchingCommonPoaps) {
+    if (poaps.length > 0 && isCombination) {
       poaps = poaps.reduce((items: CommonPoapType[], poap: CommonPoapType) => {
         if (poap?.poapEvent?.poaps?.length > 0) {
           poap._common_tokens = poap.poapEvent.poaps;
@@ -92,7 +93,7 @@ export function useGetPoapsOfOwner(
     }
   }, [
     canFetchPoaps,
-    isSearchingCommonPoaps,
+    isCombination,
     getNextPage,
     hasNextPage,
     onDataReceived,

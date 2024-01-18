@@ -68,7 +68,7 @@ const filterInputClass =
 
 const currentDate = new Date();
 
-export function AllFilters({
+export function TokenBalanceAllFilters({
   snapshotDisabled,
   blockchainDisabled,
   sortByDisabled,

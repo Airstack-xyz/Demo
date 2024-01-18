@@ -8,7 +8,7 @@ export function ToggleSwitch({
   labelClassName,
   onClick
 }: {
-  label: string;
+  label?: string;
   checked: boolean;
   disabled?: boolean;
   className?: string;
@@ -24,7 +24,9 @@ export function ToggleSwitch({
       disabled={disabled}
       onClick={onClick}
     >
-      <div className={classNames('mr-2', labelClassName)}>{label}</div>
+      {label && (
+        <div className={classNames('mr-2', labelClassName)}>{label}</div>
+      )}
       <div
         className={classNames(
           'flex items-center h-[18px] w-[32px] rounded-18 transition-all',

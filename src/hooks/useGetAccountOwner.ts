@@ -3,33 +3,31 @@ import { tokenBlockchains } from '../constants';
 import { accountOwnerQuery } from '../queries/accountsQuery';
 import { TokenBlockchain } from '../types';
 
-export type AccountOwnerResponse = {
+type AccountOwnerResponse = {
   [Key in TokenBlockchain]: {
     Account: Account[];
   };
 };
 
-export type AccountOwnerVariables = {
+type AccountOwnerVariables = {
   accountAddress: string;
 };
 
-export interface Account {
+type Account = {
   tokenId: string;
   blockchain: string;
   tokenAddress: string;
   nft: {
-    tokenBalances: TokenBalance[];
+    tokenBalances: {
+      tokenId: string;
+      tokenAddress: string;
+      blockchain: string;
+      owner: {
+        identity: string;
+      };
+    }[];
   };
-}
-
-export interface TokenBalance {
-  tokenId: string;
-  tokenAddress: string;
-  blockchain: string;
-  owner: {
-    identity: string;
-  };
-}
+};
 
 function formatData(data: AccountOwnerResponse) {
   if (!data) return null;
@@ -49,15 +47,15 @@ function formatData(data: AccountOwnerResponse) {
     : null;
 }
 
-export type AccountOwner = ReturnType<typeof formatData>;
+export type AccountOwnerData = ReturnType<typeof formatData>;
 
 export function useGetAccountOwner(
   accountAddress: string,
-  onCompleted?: (data: AccountOwner) => void,
+  onCompleted?: (data: AccountOwnerData) => void,
   onError?: () => void
 ) {
   const [fetch, { data, loading }] = useLazyQuery<
-    AccountOwner,
+    AccountOwnerData,
     AccountOwnerVariables
   >(
     accountOwnerQuery,

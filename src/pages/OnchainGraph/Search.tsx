@@ -28,7 +28,7 @@ export const Search = memo(function Search() {
   const identity = useIdentity();
 
   const isHome = !!useMatch('/');
-  const [, setOverviewTokens] = useOverviewTokens(['tokens']);
+  const [, setTokens] = useOverviewTokens(['tokens']);
 
   const isTokenBalances = true;
 
@@ -57,11 +57,11 @@ export const Search = memo(function Search() {
 
   useEffect(() => {
     if (isTokenBalances) {
-      setOverviewTokens({
+      setTokens({
         tokens: []
       });
     }
-  }, [isTokenBalances, setOverviewTokens]);
+  }, [isTokenBalances, setTokens]);
 
   const handleTokenBalancesSearch = useCallback(
     (val: string) => {
@@ -145,8 +145,6 @@ export const Search = memo(function Search() {
 
   const enabledSearchType = isTokenBalances
     ? 'SOCIAL_SEARCH'
-    : isMobile
-    ? 'MENTION_SEARCH'
     : 'ADVANCED_MENTION_SEARCH';
 
   return (

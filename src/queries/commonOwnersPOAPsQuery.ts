@@ -50,27 +50,39 @@ owner {
   }
 }`;
 
-function getQueryWithFilter(tokenIds: TokenAddress[], index = 0): string {
+function getQueryWithFilter({
+  poapAddresses,
+  index = 0
+}: {
+  poapAddresses: TokenAddress[];
+  index?: number;
+}): string {
   const children =
-    tokenIds.length - 1 === index
+    poapAddresses.length - 1 === index
       ? fields
-      : getQueryWithFilter(tokenIds, index + 1);
+      : getQueryWithFilter({ poapAddresses, index: index + 1 });
   return `owner {
         poaps(
-          input: {filter: {eventId: {_eq: "${tokenIds[index].address}"}}, blockchain: ALL}
+          input: {filter: {eventId: {_eq: "${poapAddresses[index].address}"}}, blockchain: ALL}
         ) {
             ${children}
           }
         }`;
 }
 
-export function getCommonOwnersPOAPsQuery(tokenIds: TokenAddress[]) {
-  if (tokenIds.length === 0) return '';
+export function getCommonOwnersPOAPsQuery({
+  poapAddresses
+}: {
+  poapAddresses: TokenAddress[];
+}) {
+  if (poapAddresses.length === 0) return '';
   const children =
-    tokenIds.length === 1 ? fields : getQueryWithFilter(tokenIds, 1);
+    poapAddresses.length === 1
+      ? fields
+      : getQueryWithFilter({ poapAddresses, index: 1 });
   return `query GetPoapHolders($limit: Int) {
     Poaps(
-      input: {filter: {eventId: {_eq: "${tokenIds[0].address}"}}, blockchain: ALL, limit: $limit}
+      input: {filter: {eventId: {_eq: "${poapAddresses[0].address}"}}, blockchain: ALL, limit: $limit}
     ) {
       Poap {
         tokenId

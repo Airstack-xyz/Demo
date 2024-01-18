@@ -77,5 +77,12 @@ export function TokenBalancesLoaderWithInfo() {
     tokensData.total + ERC20Data.total ||
     (isCombination ? COMBINATION_DEFAULT_TOTAL_COUNT : DEFAULT_TOTAL_COUNT);
 
-  return <StatusLoader total={totalCount} matching={totalMatching} />;
+  return (
+    <StatusLoader
+      lines={[
+        [`Scanning %n records`, totalCount],
+        [`Found %n matching results`, totalMatching]
+      ]}
+    />
+  );
 }

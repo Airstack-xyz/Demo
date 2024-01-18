@@ -4,33 +4,38 @@ import { Poap, TokenAddress } from '../pages/TokenHolders/types';
 import { getCommonOwnersPOAPsQuery } from '../queries/commonOwnersPOAPsQuery';
 
 type Token = Poap;
-type NestedTokenBalance = {
+
+type NestedToken = {
   owner: {
     poaps: Token[];
   };
-  poapEvent: Token['_poapEvent'];
+  poapEvent: Token['poapEvent'];
   eventId: string;
   tokenId: string;
   tokenAddress: string;
   blockchain: string;
-}[];
+};
 
 type CommonOwner = {
   Poaps: {
-    Poap: NestedTokenBalance | Token[];
+    Poap: NestedToken[] | Token[];
   };
 };
 
 const LIMIT = 34;
-const MIN_LIMIT = 34;
 
-export function useGetCommonOwnersOfPoaps(eventIds: TokenAddress[]) {
+export function useGetCommonOwnersOfPoaps(poapAddresses: TokenAddress[]) {
   const ownersSetRef = useRef<Set<string>>(new Set());
   const itemsRef = useRef<Token[]>([]);
   const [loading, setLoading] = useState(false);
   const [poaps, setPoaps] = useState<Token[]>([]);
-  const [processedPoapsCount, setProcessedPoapsCount] = useState(LIMIT);
-  const query = useMemo(() => getCommonOwnersPOAPsQuery(eventIds), [eventIds]);
+
+  const [processedPoapsCount, setProcessedPoapsCount] = useState(0);
+
+  const query = useMemo(
+    () => getCommonOwnersPOAPsQuery({ poapAddresses }),
+    [poapAddresses]
+  );
   const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
 
   const { hasNextPage, getNextPage } = pagination;
@@ -38,18 +43,20 @@ export function useGetCommonOwnersOfPoaps(eventIds: TokenAddress[]) {
   // @ts-ignore
   const totalOwners = window.totalOwners;
   const hasMorePages = !totalOwners ? hasNextPage : poaps.length < totalOwners;
-  const fetchSingleToken = eventIds.length === 1;
+  const fetchSingleToken = poapAddresses.length === 1;
 
   useEffect(() => {
     if (!data) return;
     const poaps = data.Poaps?.Poap || ([] as CommonOwner['Poaps']['Poap']);
+
+    setProcessedPoapsCount(count => count + poaps.length);
 
     let tokens: Token[] = [];
 
     if (fetchSingleToken) {
       tokens = poaps as Token[];
     } else {
-      tokens = (poaps as NestedTokenBalance)
+      tokens = (poaps as NestedToken[])
         .filter(token => Boolean(token?.owner?.poaps?.length))
         .reduce(
           (tokens, token) => [
@@ -66,6 +73,7 @@ export function useGetCommonOwnersOfPoaps(eventIds: TokenAddress[]) {
           [] as Token[]
         );
     }
+
     tokens = tokens.filter(token => {
       const address = token?.owner?.identity;
       if (!address) return false;
@@ -75,18 +83,16 @@ export function useGetCommonOwnersOfPoaps(eventIds: TokenAddress[]) {
     });
 
     itemsRef.current = [...itemsRef.current, ...tokens];
+    setPoaps(prev => [...prev, ...tokens].slice(0, LIMIT));
+
     const minItemsToFetch =
-      totalOwners > 0 ? Math.min(totalOwners, MIN_LIMIT) : MIN_LIMIT;
+      totalOwners > 0 ? Math.min(totalOwners, LIMIT) : LIMIT;
+
     if (hasNextPage && itemsRef.current.length < minItemsToFetch) {
       getNextPage();
     } else {
       setLoading(false);
     }
-
-    if (tokens.length > 0) {
-      setPoaps(prev => [...prev, ...tokens].splice(0, LIMIT));
-    }
-    setProcessedPoapsCount(count => count + poaps.length);
   }, [data, fetchSingleToken, getNextPage, hasNextPage, totalOwners]);
 
   const getNext = useCallback(() => {
@@ -101,10 +107,10 @@ export function useGetCommonOwnersOfPoaps(eventIds: TokenAddress[]) {
     setLoading(true);
     setPoaps([]);
     fetch({
-      limit: fetchSingleToken ? MIN_LIMIT : LIMIT
+      limit: LIMIT
     });
-    setProcessedPoapsCount(LIMIT);
-  }, [fetch, fetchSingleToken]);
+    setProcessedPoapsCount(0);
+  }, [fetch]);
 
   return {
     fetch: getTokens,

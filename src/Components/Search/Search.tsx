@@ -182,11 +182,10 @@ export const Search = memo(function Search() {
       const filterValues: Partial<CachedQuery> = {
         address,
         rawInput: rawTextWithMentions,
-        inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType']
+        inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType'],
+        activeSnapshotInfo: undefined, // For every new search reset snapshot filter
+        resolve6551: undefined // For every new search reset resolve6551 filter
       };
-
-      // For every new search reset snapshot filter
-      filterValues.activeSnapshotInfo = undefined;
 
       setValue(rawTextWithMentions + PADDING);
       handleDataChange(filterValues);

@@ -32,11 +32,17 @@ poapEvent {
   }
 }`;
 
-function getQueryWithFilter(owners: string[], index = 0): string {
+function getQueryWithFilter({
+  owners,
+  index = 0
+}: {
+  owners: string[];
+  index?: number;
+}): string {
   const children =
     owners.length - 1 === index
       ? fields
-      : getQueryWithFilter(owners, index + 1);
+      : getQueryWithFilter({ owners, index: index + 1 });
   return `poapEvent {
         city
         eventName
@@ -56,8 +62,9 @@ function getQueryWithFilter(owners: string[], index = 0): string {
         }`;
 }
 
-export function poapsOfCommonOwnersQuery(owners: string[]) {
-  const children = owners.length === 1 ? fields : getQueryWithFilter(owners, 1);
+export function poapsOfCommonOwnersQuery({ owners }: { owners: string[] }) {
+  const children =
+    owners.length === 1 ? fields : getQueryWithFilter({ owners, index: 1 });
   return `query GetPOAPs($limit: Int $sortBy: OrderBy) {
     Poaps(
       input: {filter: {owner: {_eq: "${

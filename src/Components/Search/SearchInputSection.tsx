@@ -1,11 +1,12 @@
 import classNames from 'classnames';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import AdvancedMentionSearch from './AdvancedMentionSearch';
-import { Icon } from '../Icon';
-import { AdvancedMentionSearchParams, InputWithMention } from '../Input/Input';
-import { getSocialSearchQueryData } from './SocialSearch/utils';
-import SocialSearch from './SocialSearch';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { isMobileDevice } from '../../utils/isMobileDevice';
+import { Icon } from '../Icon';
+import { InputWithMention } from '../Input/Input';
+import { AdvancedMentionSearchParams } from '../Input/types';
+import AdvancedMentionSearch from './AdvancedMentionSearch';
+import SocialSearch from './SocialSearch';
+import { getSocialSearchQueryData } from './SocialSearch/utils';
 
 type EnabledSearchType =
   | 'SOCIAL_SEARCH' // social type-ahead infinite dropdown list search

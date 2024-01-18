@@ -1,6 +1,6 @@
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { RefObject, useCallback, useEffect, useRef, useState } from 'react';
 
-export function useInViewportOnce(target: React.RefObject<HTMLElement>) {
+export function useInViewportOnce(target: RefObject<HTMLElement>) {
   const observer = useRef<IntersectionObserver | null>(null);
   const [inViewport, setInViewport] = useState<boolean>(false);
   const intersected = useRef<boolean>(false);

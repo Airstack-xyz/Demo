@@ -274,7 +274,6 @@ export const PoapOwnerQuery = `query GetPoapHolders($eventId: [String!], $limit:
         blockchain
         eventName
         endDate
-        endDate
         city
       }
       owner {
@@ -302,18 +301,6 @@ export const PoapOwnerQuery = `query GetPoapHolders($eventId: [String!], $limit:
       prevCursor
     }
   }
-}`;
-
-const getTokenTotalSupplySubQuery = (blockchain: string) => {
-  return `${blockchain}: Token(input: {address: $tokenAddress, blockchain: ${blockchain}}) {
-    totalSupply
-  }`;
-};
-
-export const TokenTotalSupplyQuery = `query GetTotalSupply($tokenAddress: Address!) {
-  ${tokenBlockchains
-    .map(blockchain => getTokenTotalSupplySubQuery(blockchain))
-    .join('\n')}
 }`;
 
 export const DomainsQuery = `query GetDomains($addresses: [Address!] $limit:Int) {

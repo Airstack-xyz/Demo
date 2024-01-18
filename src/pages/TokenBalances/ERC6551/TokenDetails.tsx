@@ -1,14 +1,12 @@
 import { useLazyQuery } from '@airstack/airstack-react';
 import classNames from 'classnames';
 import { useCallback, useEffect, useRef } from 'react';
-import {
-  Link,
-  createSearchParams,
-  useMatch,
-  useNavigate
-} from 'react-router-dom';
+import { createSearchParams, useMatch, useNavigate } from 'react-router-dom';
 import { Icon } from '../../../Components/Icon';
-import { useSearchInput } from '../../../hooks/useSearchInput';
+import {
+  resetCachedUserInputs,
+  useSearchInput
+} from '../../../hooks/useSearchInput';
 import {
   accountHolderQuery,
   erc20TokenDetailsQuery,
@@ -94,11 +92,8 @@ function formatAccountHolderData(data: AccountHolderResponse) {
     for (let i = 0; i < accounts.length; i++) {
       const account = accounts[i];
       if (account?.nft?.tokenBalances?.length > 0) {
-        account?.nft?.tokenBalances.forEach(token => {
-          token.owner.accounts.length > 0;
-        });
-        for (let i = 0; i < account?.nft?.tokenBalances?.length; i++) {
-          const token = account?.nft?.tokenBalances[i];
+        for (let j = 0; j < account?.nft?.tokenBalances?.length; j++) {
+          const token = account?.nft?.tokenBalances[j];
           if (token?.owner?.accounts.length === 0) {
             return token?.owner?.identity;
           } else {
@@ -274,6 +269,27 @@ export function TokenDetails(props: {
     [activeTokens, setSearchData]
   );
 
+  const handleViewHoldersClick = () => {
+    const url = createTokenHolderUrl({
+      address: (isPoap
+        ? poap?.eventId
+        : erc20Token?.address || nft.address) as string,
+      inputType: isPoap ? 'POAP' : 'ADDRESS',
+      type: isPoap ? 'POAP' : erc20Token?.type || nft.type,
+      blockchain,
+      label:
+        (isPoap
+          ? poap?.poapEvent?.eventName
+          : erc20Token?.name || nft?.token?.name) || '--',
+      truncateLabel: isMobile
+    });
+    // reset cached filters for tokenHolder
+    resetCachedUserInputs('tokenHolder');
+    // reset hasERC6551 status for tokenHolder
+    setDetails({ hasERC6551: false });
+    navigate(url);
+  };
+
   const activeTokenId = isPoap ? poap?.eventId : nft?.tokenId;
 
   const loading = showLoader || loadingToken || loadingERC20 || loadingPoap;
@@ -401,29 +417,17 @@ export function TokenDetails(props: {
             />
           </div>
           <div className="flex justify-center">
-            <Link
-              className={classNames('flex py-2 px-10 mt-7  rounded-18', {
+            <button
+              className={classNames('flex py-2 px-10 mt-7 rounded-18', {
                 'bg-button-primary': !loading,
                 'skeleton-loader': loading
               })}
               data-loader-type="block"
-              to={createTokenHolderUrl({
-                address: (isPoap
-                  ? poap?.eventId
-                  : erc20Token?.address || nft.address) as string,
-                inputType: isPoap ? 'POAP' : 'ADDRESS',
-                type: isPoap ? 'POAP' : erc20Token?.type || nft.type,
-                blockchain,
-                label:
-                  (isPoap
-                    ? poap?.poapEvent?.eventName
-                    : erc20Token?.name || nft?.token?.name) || '--',
-                truncateLabel: isMobile
-              })}
+              onClick={handleViewHoldersClick}
             >
               <Icon name="token-holders-white" />
               <span className="ml-1.5 font-medium">View holders</span>
-            </Link>
+            </button>
           </div>
         </div>
         {!loading && (
