@@ -5,7 +5,7 @@ import {
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { snapshotBlockchains, tokenBlockchains } from '../constants';
 import {
-  Poap,
+  Poap as PoapType,
   TokenAddress,
   Token as TokenType
 } from '../pages/TokenHolders/types';
@@ -28,7 +28,7 @@ import { resolve6551Owner } from './useResolve6551Owner';
 import { walletDetailsQuery } from '../queries/walletDetails';
 
 type Token = TokenType & {
-  _poapEvent?: Poap['poapEvent'];
+  _poapEvent?: PoapType['poapEvent'];
   _blockchain?: string;
   eventId?: string;
 };
@@ -37,11 +37,11 @@ type NestedToken = Pick<
   Token,
   'tokenAddress' | 'tokenId' | 'token' | 'tokenNfts'
 > &
-  Pick<Poap, 'poapEvent' | 'eventId'> & {
+  Pick<PoapType, 'poapEvent' | 'eventId'> & {
     owner: {
       tokenBalances: Token[];
     };
-    poapEvent?: Poap['poapEvent'];
+    poapEvent?: PoapType['poapEvent'];
     blockchain?: string;
   };
 
@@ -183,14 +183,13 @@ export function useGetCommonOwnersOfTokens(tokenAddresses: TokenAddress[]) {
       });
 
       if (isResolve6551Enabled) {
+        // Filter out unresolvable tokens (which are not part of ERC65551 account)
+        tokens = tokens.filter(
+          token =>
+            !!token?.owner?.identity && token?.owner?.accounts?.length > 0
+        );
         for (let i = 0; i < tokens.length; i++) {
           const owner = tokens[i]?.owner;
-          // check if token is part of ERC65551 account
-          if (!owner.identity || !owner.accounts?.length) {
-            itemsRef.current = [...itemsRef.current, tokens[i]];
-            setTokens(prev => [...prev, tokens[i]].slice(0, LIMIT));
-            continue;
-          }
           // resolve ERC65551 account address to actual owner address
           const resolvedData = await resolve6551Owner({
             address: owner.identity,
