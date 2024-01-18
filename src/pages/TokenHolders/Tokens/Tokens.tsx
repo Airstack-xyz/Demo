@@ -44,8 +44,7 @@ function Loader() {
 }
 
 // Show some default total count instead of zero, so that in loader 'Scanning 0 records' is not shown
-const DEFAULT_TOTAL_COUNT = 34;
-const COMBINATION_DEFAULT_TOTAL_COUNT = 1;
+const DEFAULT_TOTAL_COUNT = 1;
 
 export function TokensComponent() {
   const [{ tokens: _overviewTokens }] = useOverviewTokens(['tokens']);
@@ -195,8 +194,7 @@ export function TokensComponent() {
   const tokens = shouldFetchPoaps ? poapsData : tokensData;
 
   const scannedTokensCount =
-    processedTokensCount + processedPoapsCount ||
-    (isCombination ? COMBINATION_DEFAULT_TOTAL_COUNT : DEFAULT_TOTAL_COUNT);
+    processedTokensCount + processedPoapsCount || DEFAULT_TOTAL_COUNT;
 
   const showStatusLoader = loading && (isCombination || isResolve6551Enabled);
 

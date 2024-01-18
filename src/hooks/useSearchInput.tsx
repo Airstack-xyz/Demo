@@ -171,7 +171,7 @@ export function useSearchInput(
       sortOrder: getData('sortOrder'),
       spamFilter: getData('spamFilter'),
       mintFilter: getData('mintFilter'),
-      resolve6551: getData('resolve6551'),
+      resolve6551: searchParams.get('resolve6551') || '',
       activeSocialInfo: searchParams.get('activeSocialInfo') || ''
     };
 

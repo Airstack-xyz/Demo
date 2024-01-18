@@ -95,6 +95,11 @@ function getCommonNftOwnersSubQueryForBlockchain({
             owner {
               identity
               addresses
+              blockchain
+              accounts {
+                tokenId
+                tokenAddress
+              }
               socials {
                 blockchain
                 dappName
@@ -218,6 +223,11 @@ function getNftOwnersSubQueryForBlockchain({
         owner {
           identity
           addresses
+          blockchain
+          accounts {
+            tokenId
+            tokenAddress
+          }
           socials {
             blockchain
             dappName

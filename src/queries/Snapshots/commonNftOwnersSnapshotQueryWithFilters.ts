@@ -57,6 +57,11 @@ function getCommonNftOwnersSubQueryForBlockchain({
               owner {
                 identity
                 addresses
+                blockchain
+                accounts {
+                  tokenId
+                  tokenAddress
+                }
                 socials${hasSocialFilters ? socialInput : ''} {
                   blockchain
                   dappName
@@ -172,6 +177,11 @@ function getNftOwnersSubQueryForBlockchain({
         owner {
           identity
           addresses
+          blockchain
+          accounts {
+            tokenId
+            tokenAddress
+          }
           socials${hasSocialFilters ? socialInput : ''} {
             blockchain
             dappName

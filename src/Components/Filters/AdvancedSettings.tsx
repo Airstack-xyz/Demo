@@ -53,7 +53,7 @@ export function AdvancedSettings() {
             <div className="font-bold text-left whitespace-nowrap">
               Advanced settings
             </div>
-            <div className="flex justify-between mt-4">
+            <div className="flex items-center justify-between mt-4">
               <span className="font-bold">Resolve 6551 Owners</span>
               <ToggleSwitch
                 checked={isResolve6551SwitchChecked}
