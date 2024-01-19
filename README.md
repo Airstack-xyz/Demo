@@ -6,9 +6,9 @@ Visual Blockchain Explorer. Open source. Forkable. Fetch identities including; E
 
 
 <div align="center">
-<img src="./public/images/home.png"/></div>
+<img src="./public/images/screens/home.png"/></div>
 
-<img src="./public/images/token-balances.png"/></div>
+<img src="./public/images/screens/token-balances.png"/></div>
 
-<img src="./public/images/token-holders.png"/></div>
+<img src="./public/images/screens/token-holders.png"/></div>
 </div>

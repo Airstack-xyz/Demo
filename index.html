@@ -22,8 +22,11 @@
       content="Visual Blockchain Explorer. Open source. Forkable. Fetch identities including; ENS, Lens, Farcaster, XMTP, POAPs, NFTs, Tokens."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://explorer.airstack.xyz" />
-    <meta property="og:image" content="/images/open-graph/explorer.png" />
+    <meta property="og:url" content="<%= env.BASE_URL %>" />
+    <meta
+      property="og:image"
+      content="<%= env.BASE_URL %>/images/open-graph/explorer.png"
+    />
 
     <meta property="twitter:title" content="Airstack Explorer" />
     <meta
@@ -32,8 +35,11 @@
     />
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:site" content="@airstack_xyz" />
-    <meta property="twitter:url" content="https://explorer.airstack.xyz" />
-    <meta property="twitter:image" content="/images/open-graph/explorer.png" />
+    <meta property="twitter:url" content="<%= env.BASE_URL %>" />
+    <meta
+      property="twitter:image"
+      content="<%= env.BASE_URL %>/images/open-graph/explorer.png"
+    />
 
     <!-- Google Tag Manager -->
     <% if (env.isProduction) { %>
@@ -47,7 +53,13 @@
         j.async = true;
         j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
         f.parentNode.insertBefore(j, f);
-      })(window, document, 'script', 'dataLayer', 'GTM-K4NGTBLB');
+      })(
+        window,
+        document,
+        'script',
+        'dataLayer',
+        '<%= env.GOOGLE_TAG_MANAGER_ID %>'
+      );
     </script>
     <% }%>
     <!-- End Google Tag Manager -->
@@ -56,17 +68,17 @@
   <body class="no-scrollbar">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <!-- Google Tag Manager (noscript) -->
     <% if (env.isProduction) { %>
-    <noscript
-      ><iframe
-        src="https://www.googletagmanager.com/ns.html?id=GTM-K4NGTBLB"
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+      <iframe
+        src="https://www.googletagmanager.com/ns.html?id=<%= env.GOOGLE_TAG_MANAGER_ID %>"
         height="0"
         width="0"
         style="display: none; visibility: hidden"
-      ></iframe
-    ></noscript>
-    <% } %>
+      ></iframe>
+    </noscript>
     <!-- End Google Tag Manager (noscript) -->
+    <% } %>
   </body>
 </html>

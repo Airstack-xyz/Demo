@@ -6,6 +6,8 @@ import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { OnChainGraph } from './OnChainGraph';
 import { Search } from './Search';
 
+const BASE_URL = process.env.BASE_URL as string;
+
 function MetaData() {
   return (
     <Helmet>
@@ -20,11 +22,9 @@ function MetaData() {
         property="og:description"
         content="The onchain address book - analyze onchain interactions to create recommendations."
       />
-      <meta property="og:type" content="website" />
-      <meta property="og:url" content="https://explorer.airstack.xyz" />
       <meta
         property="og:image"
-        content="/images/open-graph/onchain-graph.png"
+        content={`${BASE_URL}/images/open-graph/onchain-graph.png`}
       />
 
       <meta property="twitter:title" content="Airstack Onchain Graph" />
@@ -32,12 +32,9 @@ function MetaData() {
         property="twitter:description"
         content="The onchain address book - analyze onchain interactions to create recommendations."
       />
-      <meta property="twitter:card" content="summary_large_image" />
-      <meta property="twitter:site" content="@airstack_xyz" />
-      <meta property="twitter:url" content="https://explorer.airstack.xyz" />
       <meta
         property="twitter:image"
-        content="/images/open-graph/onchain-graph.png"
+        content={`${BASE_URL}/images/open-graph/onchain-graph.png`}
       />
     </Helmet>
   );
