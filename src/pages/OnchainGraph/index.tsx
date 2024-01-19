@@ -1,10 +1,10 @@
 import classNames from 'classnames';
+import { Helmet } from 'react-helmet';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Layout } from '../../Components/Layout';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { OnChainGraph } from './OnChainGraph';
 import { Search } from './Search';
-import { Helmet } from 'react-helmet';
 
 function MetaData() {
   return (
@@ -32,7 +32,8 @@ function MetaData() {
         property="twitter:description"
         content="The onchain address book - analyze onchain interactions to create recommendations."
       />
-      <meta property="twitter:card" content="summary" />
+      <meta property="twitter:card" content="summary_large_image" />
+      <meta property="twitter:site" content="@airstack_xyz" />
       <meta property="twitter:url" content="https://explorer.airstack.xyz" />
       <meta
         property="twitter:image"
