@@ -3,44 +3,30 @@ import { Header } from '../Components/Header';
 import { Helmet } from 'react-helmet';
 
 const BASE_URL = process.env.BASE_URL as string;
-const IMAGE_URL = `${BASE_URL}/images/open-graph/explorer.png`;
 
 function BaseMetaData() {
+  const title = 'Airstack Explorer';
+  const description =
+    'Visual Blockchain Explorer. Open source. Forkable. Fetch identities including; ENS, Lens, Farcaster, XMTP, POAPs, NFTs, Tokens.';
+  const image = `${BASE_URL}/images/open-graph/explorer.png`;
+
   return (
     <Helmet>
-      <title>Airstack Explorer</title>
-      <meta
-        name="description"
-        content="Visual Blockchain Explorer. Open source. Forkable. Fetch identities including; ENS, Lens, Farcaster, XMTP, POAPs, NFTs, Tokens."
-      />
+      <title>{title}</title>
+      <meta name="description" content={description} />
 
-      <meta property="og:title" content="Airstack Explorer" />
-      <meta
-        property="og:description"
-        content="Visual Blockchain Explorer. Open source. Forkable. Fetch identities including; ENS, Lens, Farcaster, XMTP, POAPs, NFTs, Tokens."
-      />
-      <meta property="og:type" content="website" />
       <meta property="og:url" content={BASE_URL} />
-      <meta property="og:image" content={IMAGE_URL} />
+      <meta property="og:type" content="website" />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={image} />
 
-      <meta
-        property="twitter:title"
-        content="Airstack Explorer"
-        data-react-helmet="true"
-      />
-      <meta
-        property="twitter:description"
-        content="Visual Blockchain Explorer. Open source. Forkable. Fetch identities including; ENS, Lens, Farcaster, XMTP, POAPs, NFTs, Tokens."
-        data-react-helmet="true"
-      />
-      <meta property="twitter:card" content="summary_large_image" />
-      <meta property="twitter:site" content="@airstack_xyz" />
-      <meta
-        property="twitter:url"
-        content={BASE_URL}
-        data-react-helmet="true"
-      />
-      <meta property="twitter:image" content={IMAGE_URL} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content="@airstack_xyz" />
+      <meta name="twitter:url" content={BASE_URL} />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={image} />
     </Helmet>
   );
 }

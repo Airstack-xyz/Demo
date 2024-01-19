@@ -3,17 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
-    <link rel="canonical" href="https://explorer.airstack.xyz" />
+    <link rel="canonical" href="<%= env.BASE_URL %>" />
 
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1"
     />
-    
+
     <title>Airstack Explorer</title>
     
-    <!-- Google Tag Manager -->
     <% if (env.isProduction) { %>
+    <!-- Google Tag Manager -->
     <script>
       (function (w, d, s, l, i) {
         w[l] = w[l] || [];
@@ -32,8 +32,8 @@
         '<%= env.GOOGLE_TAG_MANAGER_ID %>'
       );
     </script>
-    <% }%>
     <!-- End Google Tag Manager -->
+    <% }%>
   </head>
 
   <body class="no-scrollbar">

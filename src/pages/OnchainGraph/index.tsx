@@ -9,36 +9,30 @@ import { useIdentity } from './hooks/useIdentity';
 import { getAPIDropdownOptions } from './constants';
 
 const BASE_URL = process.env.BASE_URL as string;
-const IMAGE_URL = `${BASE_URL}/images/open-graph/onchain-graph.png`;
 
 function MetaData() {
   const identity = useIdentity();
 
   const url = `${BASE_URL}/onchain-graph?identity=${identity}`;
+  const title = 'Airstack Onchain Graph';
+  const description =
+    'The onchain address book - analyze onchain interactions to create recommendations.';
+  const image = `${BASE_URL}/images/open-graph/onchain-graph.png`;
 
   return (
     <Helmet>
-      <title>Airstack Onchain Graph</title>
-      <meta
-        name="description"
-        content="The onchain address book - analyze onchain interactions to create recommendations."
-      />
+      <title>{title}</title>
+      <meta name="description" content={description} />
 
-      <meta property="og:title" content="Airstack Onchain Graph" />
-      <meta
-        property="og:description"
-        content="The onchain address book - analyze onchain interactions to create recommendations."
-      />
       <meta property="og:url" content={url} />
-      <meta property="og:image" content={IMAGE_URL} />
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:image" content={image} />
 
-      <meta property="twitter:title" content="Airstack Onchain Graph" />
-      <meta
-        property="twitter:description"
-        content="The onchain address book - analyze onchain interactions to create recommendations."
-      />
-      <meta property="twitter:url" content={url} />
-      <meta property="twitter:image" content={IMAGE_URL} />
+      <meta name="twitter:url" content={url} />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={image} />
     </Helmet>
   );
 }
