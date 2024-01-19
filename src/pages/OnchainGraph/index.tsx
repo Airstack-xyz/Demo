@@ -5,10 +5,16 @@ import { Layout } from '../../Components/Layout';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { OnChainGraph } from './OnChainGraph';
 import { Search } from './Search';
+import { useIdentity } from './hooks/useIdentity';
 
 const BASE_URL = process.env.BASE_URL as string;
 
 function MetaData() {
+  const identity = useIdentity();
+
+  const url = `${BASE_URL}/onchain-graph?identity=${identity}`;
+  const image = `${BASE_URL}/images/open-graph/onchain-graph.png`;
+
   return (
     <Helmet>
       <title>Airstack Onchain Graph</title>
@@ -22,20 +28,16 @@ function MetaData() {
         property="og:description"
         content="The onchain address book - analyze onchain interactions to create recommendations."
       />
-      <meta
-        property="og:image"
-        content={`${BASE_URL}/images/open-graph/onchain-graph.png`}
-      />
+      <meta property="og:url" content={url} />
+      <meta property="og:image" content={image} />
 
       <meta property="twitter:title" content="Airstack Onchain Graph" />
       <meta
         property="twitter:description"
         content="The onchain address book - analyze onchain interactions to create recommendations."
       />
-      <meta
-        property="twitter:image"
-        content={`${BASE_URL}/images/open-graph/onchain-graph.png`}
-      />
+      <meta property="twitter:url" content={url} />
+      <meta property="twitter:image" content={image} />
     </Helmet>
   );
 }
