@@ -4,6 +4,43 @@ import { Layout } from '../../Components/Layout';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { OnChainGraph } from './OnChainGraph';
 import { Search } from './Search';
+import { Helmet } from 'react-helmet';
+
+function MetaData() {
+  return (
+    <Helmet>
+      <title>Airstack Onchain Graph</title>
+      <meta
+        name="description"
+        content="The onchain address book - analyze onchain interactions to create recommendations."
+      />
+
+      <meta property="og:title" content="Airstack Onchain Graph" />
+      <meta
+        property="og:description"
+        content="The onchain address book - analyze onchain interactions to create recommendations."
+      />
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content="https://explorer.airstack.xyz" />
+      <meta
+        property="og:image"
+        content="/images/open-graph/onchain-graph.png"
+      />
+
+      <meta property="twitter:title" content="Airstack Onchain Graph" />
+      <meta
+        property="twitter:description"
+        content="The onchain address book - analyze onchain interactions to create recommendations."
+      />
+      <meta property="twitter:card" content="summary" />
+      <meta property="twitter:url" content="https://explorer.airstack.xyz" />
+      <meta
+        property="twitter:image"
+        content="/images/open-graph/onchain-graph.png"
+      />
+    </Helmet>
+  );
+}
 
 const getAPIDropdownOptions = [
   {
@@ -15,6 +52,7 @@ const getAPIDropdownOptions = [
 export function OnChainGraphPage() {
   return (
     <Layout>
+      <MetaData />
       <div className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8')}>
         <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
           <Search />
