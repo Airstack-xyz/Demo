@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { Modal } from '../../../../Components/Modal';
-import { useTokenHolders } from '../../../../hooks/useTokenHolders';
+import { useGetTokenHolders } from '../../../../hooks/useGetTokenHolders';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
 const LIMIT = 50;
@@ -41,7 +41,7 @@ export function HoldersModal({
     data: owners,
     loading,
     pagination: { hasNextPage, getNextPage }
-  } = useTokenHolders(
+  } = useGetTokenHolders(
     {
       ...token,
       limit: LIMIT

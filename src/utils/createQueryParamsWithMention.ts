@@ -1,15 +1,20 @@
+import { truncateMentionLabel } from '../Components/Input/utils';
+
 export type CreateFormattedRawInputArgument = {
   label: string;
   address: string;
   type: string;
   blockchain: string;
+  truncateLabel?: boolean;
 };
 
 export function createFormattedRawInput({
   label,
   address,
   type,
-  blockchain
+  blockchain,
+  truncateLabel
 }: CreateFormattedRawInputArgument) {
-  return `#⎱${label}⎱(${address} ${type} ${blockchain} null)`;
+  const displayLabel = truncateLabel ? truncateMentionLabel(label) : label;
+  return `#⎱${displayLabel}⎱(${address} ${type} ${blockchain} null)`;
 }

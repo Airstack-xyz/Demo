@@ -136,8 +136,8 @@ export const SearchAIMentionsQuery = `
   }
 `;
 
-export const AdvancedSearchAIMentionsQuery = `
-  query AdvancedSearchAIMentions($input: SearchAIMentionsInput!) {
+export const AdvancedMentionSearchQuery = `
+  query GetAIMentions($input: SearchAIMentionsInput!) {
     SearchAIMentions(input: $input) {
       results {
         type
@@ -149,6 +149,7 @@ export const AdvancedSearchAIMentionsQuery = `
         blockchain
         symbol
         image {
+          extraSmall
           medium
         }
         metadata {
@@ -161,6 +162,19 @@ export const AdvancedSearchAIMentionsQuery = `
     }
   }
 `;
+
+export const SocialSearchQuery = `query GetSocials($searchRegex: [String!], $limit: Int) {
+  Socials(
+    input: {filter: {profileName: {_regex_in: $searchRegex}}, blockchain: ethereum, order: {followerCount: DESC}, limit: $limit}
+  ) {
+    Social {
+      id
+      profileName
+      dappName
+      followerCount
+    }
+  }
+}`;
 
 const getTokenOwnerSubQuery = (blockchain: string) => {
   return `${blockchain}: TokenBalances(
@@ -260,7 +274,6 @@ export const PoapOwnerQuery = `query GetPoapHolders($eventId: [String!], $limit:
         blockchain
         eventName
         endDate
-        endDate
         city
       }
       owner {
@@ -288,18 +301,6 @@ export const PoapOwnerQuery = `query GetPoapHolders($eventId: [String!], $limit:
       prevCursor
     }
   }
-}`;
-
-const getTokenTotalSupplySubQuery = (blockchain: string) => {
-  return `${blockchain}: Token(input: {address: $tokenAddress, blockchain: ${blockchain}}) {
-    totalSupply
-  }`;
-};
-
-export const TokenTotalSupplyQuery = `query GetTotalSupply($tokenAddress: Address!) {
-  ${tokenBlockchains
-    .map(blockchain => getTokenTotalSupplySubQuery(blockchain))
-    .join('\n')}
 }`;
 
 export const DomainsQuery = `query GetDomains($addresses: [Address!] $limit:Int) {

@@ -7,6 +7,7 @@ import { SocialOverlapQuery } from '../../../queries';
 import { formatAddress } from '../../../utils';
 import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
 import { SectionHeader } from '../SectionHeader';
 import {
   FollowCombination,
@@ -148,6 +149,8 @@ function SocialsOverlapComponent() {
     SocialOverlapVariables
   >(SocialOverlapQuery);
 
+  const isMobile = isMobileDevice();
+
   const wallet1 = data?.wallet1;
   const wallet2 = data?.wallet2;
 
@@ -186,7 +189,8 @@ function SocialsOverlapComponent() {
         type: 'ADDRESS',
         address: addressValue,
         label: addressValue,
-        blockchain: 'ethereum'
+        blockchain: 'ethereum',
+        truncateLabel: isMobile
       });
 
       setData(
@@ -198,7 +202,7 @@ function SocialsOverlapComponent() {
         { updateQueryParams: true }
       );
     },
-    [setData]
+    [isMobile, setData]
   );
 
   const handleFollowValue = useCallback(

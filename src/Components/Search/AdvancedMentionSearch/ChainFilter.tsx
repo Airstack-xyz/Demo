@@ -1,16 +1,16 @@
 /* eslint-disable react-refresh/only-export-components */
 import classNames from 'classnames';
 import { useCallback, useState } from 'react';
-import { useOutsideClick } from '../../hooks/useOutsideClick';
-import { Icon } from '../Icon';
-import { FilterPlaceholder } from '../Filters/FilterPlaceholder';
-import { mentionBlockchains } from '../../constants';
-import { capitalizeFirstLetter } from '../../utils';
+import { useOutsideClick } from '../../../hooks/useOutsideClick';
+import { Icon } from '../../Icon';
+import { FilterPlaceholder } from '../../Filters/FilterPlaceholder';
+import { mentionBlockchains } from '../../../constants';
+import { capitalizeFirstLetter } from '../../../utils';
 
 export const chainOptions = [
   {
     label: 'All chains',
-    value: 'all'
+    value: null
   },
   ...mentionBlockchains.map(item => ({
     label: capitalizeFirstLetter(item),
@@ -20,18 +20,18 @@ export const chainOptions = [
 
 export const defaultChainOption = chainOptions[0];
 
-export type BlockchainSelectOption = {
+export type ChainSelectOption = {
   label: string;
-  value: string;
+  value: string | null;
 };
 
 type BlockchainFilterProps = {
   isDisabled?: boolean;
-  selectedOption: BlockchainSelectOption;
-  onSelect: (option: BlockchainSelectOption) => void;
+  selectedOption: ChainSelectOption;
+  onSelect: (option: ChainSelectOption) => void;
 };
 
-export default function BlockchainFilter({
+export default function ChainFilter({
   isDisabled,
   selectedOption,
   onSelect

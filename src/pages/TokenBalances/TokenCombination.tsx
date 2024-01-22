@@ -1,25 +1,31 @@
+import classNames from 'classnames';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Icon } from '../../Components/Icon';
-import { formatDate } from '../../utils';
-import { createTokenHolderUrl } from '../../utils/createTokenUrl';
-import { PoapType, TokenType as TokenType } from './types';
 import { Asset } from '../../Components/Asset';
-import { useSearchInput } from '../../hooks/useSearchInput';
-import classNames from 'classnames';
-import { isMobileDevice } from '../../utils/isMobileDevice';
+import { Icon } from '../../Components/Icon';
+import {
+  resetCachedUserInputs,
+  useSearchInput
+} from '../../hooks/useSearchInput';
+import { formatDate } from '../../utils';
 import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
+import { createTokenHolderUrl } from '../../utils/createTokenUrl';
+import { isMobileDevice } from '../../utils/isMobileDevice';
+import { PoapType, TokenType } from './types';
 
 type TokenProps = {
   token: null | TokenType | PoapType;
+  isMobile?: boolean;
 };
 
 function Token({
   token: tokenProp,
-  ownerName
+  ownerName,
+  isMobile
 }: {
   token: TokenType | PoapType;
   ownerName: string;
+  isMobile?: boolean;
 }) {
   const [{ activeTokenInfo }, setSearchData] = useSearchInput();
   const token = (tokenProp || {}) as TokenType;
@@ -143,9 +149,13 @@ function Token({
             inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
             type,
             blockchain,
-            label: tokenName || '--'
+            label: tokenName || '--',
+            truncateLabel: isMobile
           })}
-          onClick={e => e.stopPropagation()}
+          onClick={event => {
+            event.stopPropagation();
+            resetCachedUserInputs('tokenHolder');
+          }}
         >
           <Icon width={16} name="token-holders" />
         </Link>
@@ -186,7 +196,8 @@ function Token({
 const MAX_TOKENS = 2;
 
 export const TokenCombination = memo(function TokenCombination({
-  token: tokenProp
+  token: tokenProp,
+  isMobile
 }: TokenProps) {
   const [showAllTokens, setShowAllTokens] = useState(false);
   const [{ address: owners }] = useSearchInput();
@@ -256,6 +267,7 @@ export const TokenCombination = memo(function TokenCombination({
               token={_token}
               key={index}
               ownerName={index === 0 ? owners[0] : owners[1]}
+              isMobile={isMobile}
             />
           );
         })}

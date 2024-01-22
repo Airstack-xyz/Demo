@@ -4,7 +4,7 @@ import classNames from 'classnames';
 export const tokenOptions: TokenSelectOption[] = [
   {
     label: 'All',
-    value: 'all'
+    value: null
   },
   {
     label: 'ERC721',
@@ -28,15 +28,18 @@ export const defaultTokenOption = tokenOptions[0];
 
 export type TokenSelectOption = {
   label: string;
-  value: string;
+  value: string | null;
 };
 
-type FiltersProps = {
+type TokenFilterProps = {
   selectedOption: TokenSelectOption;
   onSelect: (option: TokenSelectOption) => void;
 };
 
-export default function Filters({ selectedOption, onSelect }: FiltersProps) {
+export default function TokenFilter({
+  selectedOption,
+  onSelect
+}: TokenFilterProps) {
   return (
     <div className="flex gap-3">
       {tokenOptions.map(option => {

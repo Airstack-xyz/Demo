@@ -16,7 +16,7 @@ function getContainer(root: HTMLElement) {
     container = document.createElement('div');
     container.id = toastContainerId;
     container.className =
-      'fixed top-0 w-full z-50 flex flex-col justify-center items-center';
+      'fixed top-0 w-full z-[300] flex flex-col justify-center items-center';
     root.appendChild(container);
   }
 

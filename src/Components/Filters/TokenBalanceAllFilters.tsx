@@ -26,17 +26,20 @@ import {
 } from './SnapshotFilter';
 import { SortOrderType, defaultSortOrder, sortOptions } from './SortBy';
 import { SpamFilterType, defaultSpamFilter } from './SpamFilter';
+import { MintFilterType, defaultMintFilter } from './MintFilter';
 
 const getAppliedFilterCount = ({
   appliedSnapshotFilter,
   appliedBlockchainFilter,
   appliedSortOrder,
-  appliedSpamFilter
+  appliedSpamFilter,
+  appliedMintFilter
 }: {
   appliedSnapshotFilter: SnapshotFilterType;
   appliedBlockchainFilter: BlockchainFilterType;
   appliedSortOrder: SortOrderType;
   appliedSpamFilter: SpamFilterType;
+  appliedMintFilter: MintFilterType;
 }) => {
   let count = 0;
   if (appliedSnapshotFilter != defaultSnapshotFilter) {
@@ -51,6 +54,9 @@ const getAppliedFilterCount = ({
   if (appliedSpamFilter != defaultSpamFilter) {
     count += 1;
   }
+  if (appliedMintFilter != defaultMintFilter) {
+    count += 1;
+  }
   return count;
 };
 
@@ -62,16 +68,18 @@ const filterInputClass =
 
 const currentDate = new Date();
 
-export function AllFilters({
+export function TokenBalanceAllFilters({
   snapshotDisabled,
   blockchainDisabled,
   sortByDisabled,
-  spamFilterDisabled
+  spamFilterDisabled,
+  mintFilterDisabled
 }: {
   snapshotDisabled?: boolean;
   blockchainDisabled?: boolean;
   sortByDisabled?: boolean;
   spamFilterDisabled?: boolean;
+  mintFilterDisabled?: boolean;
 }) {
   const [searchInputs, setData] = useSearchInput();
 
@@ -79,6 +87,7 @@ export function AllFilters({
   const blockchainType = searchInputs.blockchainType as BlockchainFilterType[];
   const sortOrder = searchInputs.sortOrder as SortOrderType;
   const spamFilter = searchInputs.spamFilter as SpamFilterType;
+  const mintFilter = searchInputs.mintFilter as MintFilterType;
 
   const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
@@ -101,6 +110,10 @@ export function AllFilters({
     return spamFilter === '0' ? '0' : defaultSpamFilter;
   }, [spamFilter]);
 
+  const appliedMintFilter = useMemo(() => {
+    return mintFilter === '1' ? '1' : defaultMintFilter;
+  }, [mintFilter]);
+
   const blockchainOptions = useMemo(
     () => getBlockchainOptions(snapshotInfo.isApplicable),
     [snapshotInfo.isApplicable]
@@ -114,6 +127,7 @@ export function AllFilters({
   );
   const [currentSortOrder, setCurrentSortOrder] = useState(appliedSortOrder);
   const [currentSpamFilter, setCurrentSpamFilter] = useState(appliedSpamFilter);
+  const [currentMintFilter, setCurrentMintFilter] = useState(appliedMintFilter);
 
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isDatePickerVisible, setIsDatePickerVisible] = useState(false);
@@ -136,6 +150,7 @@ export function AllFilters({
     setCurrentBlockchainFilter(appliedBlockchainFilter);
     setCurrentSortOrder(appliedSortOrder);
     setCurrentSpamFilter(appliedSpamFilter);
+    setCurrentMintFilter(appliedMintFilter);
   }, [
     snapshotInfo.blockNumber,
     snapshotInfo.customDate,
@@ -143,7 +158,8 @@ export function AllFilters({
     snapshotInfo.appliedFilter,
     appliedBlockchainFilter,
     appliedSortOrder,
-    appliedSpamFilter
+    appliedSpamFilter,
+    appliedMintFilter
   ]);
 
   const dropdownContainerRef =
@@ -154,17 +170,19 @@ export function AllFilters({
   );
 
   useEffect(() => {
-    setCurrentSnapshotFilter(snapshotInfo.appliedFilter);
-    setCurrentBlockchainFilter(appliedBlockchainFilter);
-    setCurrentSortOrder(appliedSortOrder);
-    setCurrentSpamFilter(appliedSpamFilter);
     setBlockNumber(snapshotInfo.blockNumber);
     setCustomDate(
       snapshotInfo.customDate ? new Date(snapshotInfo.customDate) : new Date()
     );
     setTimestamp(snapshotInfo.timestamp);
+    setCurrentSnapshotFilter(snapshotInfo.appliedFilter);
+    setCurrentBlockchainFilter(appliedBlockchainFilter);
+    setCurrentSortOrder(appliedSortOrder);
+    setCurrentSpamFilter(appliedSpamFilter);
+    setCurrentMintFilter(appliedMintFilter);
   }, [
     appliedBlockchainFilter,
+    appliedMintFilter,
     appliedSortOrder,
     appliedSpamFilter,
     snapshotInfo.appliedFilter,
@@ -184,13 +202,15 @@ export function AllFilters({
         appliedSnapshotFilter: snapshotInfo.appliedFilter,
         appliedBlockchainFilter: appliedBlockchainFilter,
         appliedSortOrder: appliedSortOrder,
-        appliedSpamFilter: appliedSpamFilter
+        appliedSpamFilter: appliedSpamFilter,
+        appliedMintFilter: appliedMintFilter
       }),
     [
       snapshotInfo.appliedFilter,
       appliedBlockchainFilter,
       appliedSortOrder,
-      appliedSpamFilter
+      appliedSpamFilter,
+      appliedMintFilter
     ]
   );
 
@@ -251,6 +271,10 @@ export function AllFilters({
     setCurrentSpamFilter(prevValue => (prevValue === '1' ? '0' : '1'));
   }, []);
 
+  const handleMintFilterClick = useCallback(() => {
+    setCurrentMintFilter(prevValue => (prevValue === '1' ? '0' : '1'));
+  }, []);
+
   // Not enclosing in useCallback as its dependencies will change every time
   const handleApplyClick = () => {
     const snapshotData: Record<string, string> = {};
@@ -291,6 +315,7 @@ export function AllFilters({
     // For snapshot filter
     if (currentSnapshotFilter !== 'today') {
       filterValues.sortOrder = defaultSortOrder; // for snapshot query reset sort order
+      filterValues.mintFilter = defaultMintFilter; // for snapshot query reset mint filter
       if (
         blockchainType?.length === 1 &&
         !checkBlockchainSupportForSnapshot(blockchainType[0])
@@ -303,6 +328,9 @@ export function AllFilters({
 
     // For spam filter
     filterValues.spamFilter = currentSpamFilter || defaultSpamFilter;
+
+    // For mint filter
+    filterValues.mintFilter = currentMintFilter || defaultMintFilter;
 
     setIsDropdownVisible(false);
     setData(filterValues, { updateQueryParams: true });
@@ -461,6 +489,23 @@ export function AllFilters({
     );
   };
 
+  const renderMintSection = () => {
+    const isDisabled = mintFilterDisabled;
+    const isChecked = currentMintFilter === '1';
+    return (
+      <>
+        <ToggleSwitch
+          className="py-2 px-3.5"
+          label="Mints only"
+          labelClassName="text-xs font-bold text-white"
+          checked={isChecked}
+          disabled={isDisabled}
+          onClick={handleMintFilterClick}
+        />
+      </>
+    );
+  };
+
   const formattedDate = customDate?.toLocaleString(undefined, {
     day: 'numeric',
     month: 'short',
@@ -488,6 +533,7 @@ export function AllFilters({
             {renderBlockchainSection()}
             {renderSortSection()}
             {renderSpamSection()}
+            {renderMintSection()}
             <div className="p-2 mt-1 flex justify-center gap-5">
               <button
                 type="button"

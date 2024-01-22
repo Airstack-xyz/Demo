@@ -1,24 +1,28 @@
 import { useCallback, useRef, useState } from 'react';
 import { apiKey } from '../constants';
 import { getOverviewQuery } from '../queries/overviewQuery';
-import { OverviewData } from '../pages/TokenHolders/types';
+import { TokenHolders } from '../pages/TokenHolders/types';
 
-const API = 'https://api.uat.airstack.xyz/gql';
+const HOLDERS_COUNT_ENDPOINT = 'https://api.beta.airstack.xyz/gql';
 
-type Variable = {
+type HoldersCountResponse = {
+  TokenHolders: TokenHolders;
+};
+
+type HoldersCountParams = {
   polygonTokens: string[];
   eventIds: string[];
   ethereumTokens: string[];
   baseTokens: string[];
 };
 
-export function useGetTokenOverview() {
-  const [data, setData] = useState<null | OverviewData['TokenHolders']>(null);
+export function useGetHoldersCount() {
+  const [data, setData] = useState<TokenHolders | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<null | string>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
 
-  const fetchTokenOverview = useCallback(async (data: Variable) => {
+  const fetchHoldersCount = useCallback(async (data: HoldersCountParams) => {
     if (abortControllerRef.current) {
       // abort previous request
       abortControllerRef.current.abort();
@@ -28,11 +32,11 @@ export function useGetTokenOverview() {
     setData(null);
     setError(null);
 
-    const variables: Partial<Variable> = {};
+    const variables: Partial<HoldersCountParams> = {};
     for (const key in data) {
-      const value = data[key as keyof Variable];
+      const value = data[key as keyof HoldersCountParams];
       if (value && value.length > 0) {
-        variables[key as keyof Variable] = value;
+        variables[key as keyof HoldersCountParams] = value;
       }
     }
 
@@ -44,8 +48,10 @@ export function useGetTokenOverview() {
         hasEthereum: !!variables.ethereumTokens?.length,
         hasBase: !!variables.baseTokens?.length
       });
+
       abortControllerRef.current = new AbortController();
-      const res = await fetch(API, {
+
+      const res = await fetch(HOLDERS_COUNT_ENDPOINT, {
         method: 'POST',
         signal: abortControllerRef.current.signal,
         headers: {
@@ -57,18 +63,19 @@ export function useGetTokenOverview() {
           variables
         })
       });
+
       const json = await res.json();
-      const data: OverviewData = json?.data;
+      const data = json?.data as HoldersCountResponse;
+
       if (json.errors) {
         setError('Unable to fetch overview data');
         return;
       }
-
       if (data?.TokenHolders) {
-        setData(data?.TokenHolders);
+        setData(data.TokenHolders);
       }
-    } catch (e) {
-      if (e instanceof DOMException && e?.name === 'AbortError') {
+    } catch (err) {
+      if (err instanceof DOMException && err?.name === 'AbortError') {
         requestAborted = true;
         return;
       }
@@ -80,5 +87,6 @@ export function useGetTokenOverview() {
       }
     }
   }, []);
-  return { fetch: fetchTokenOverview, data, loading, error };
+
+  return { fetch: fetchHoldersCount, data, loading, error };
 }

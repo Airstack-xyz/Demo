@@ -1,17 +1,19 @@
 import classNames from 'classnames';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMatch } from 'react-router-dom';
-import { AllFilters } from '../../Components/Filters/AllFilters';
+import { TokenBalanceAllFilters } from '../../Components/Filters/TokenBalanceAllFilters';
 import { BlockchainFilter } from '../../Components/Filters/BlockchainFilter';
+import { MintFilter } from '../../Components/Filters/MintFilter';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import { SortBy, defaultSortOrder } from '../../Components/Filters/SortBy';
 import { SpamFilter } from '../../Components/Filters/SpamFilter';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Layout } from '../../Components/Layout';
 import { Search } from '../../Components/Search';
+import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { Tab, TabContainer } from '../../Components/Tab';
 import {
-  AccountOwner,
+  AccountOwnerData,
   useGetAccountOwner
 } from '../../hooks/useGetAccountOwner';
 import { useSearchInput } from '../../hooks/useSearchInput';
@@ -66,6 +68,7 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
       blockchainType,
       sortOrder,
       spamFilter,
+      mintFilter,
       activeSnapshotInfo
     }
   ] = useSearchInput();
@@ -73,16 +76,21 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
   // force the component to re-render when any of the search input change, so that the ERC20 can reset, refetch
   const erc20Key = useMemo(
     () =>
-      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${spamFilter}-${activeSnapshotInfo}`,
+      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${spamFilter}-${mintFilter}-${activeSnapshotInfo}`,
     [
       address,
       blockchainType,
       tokenType,
       sortOrder,
       spamFilter,
+      mintFilter,
       activeSnapshotInfo
     ]
   );
+
+  // !Gnosis: Don't show ERC20 tokens when gnosis blockchain is selected
+  const hasGnosisChainFilter =
+    blockchainType?.length === 1 && blockchainType[0] === 'gnosis';
 
   return (
     <aside className="w-full min-w-full sm:w-[305px] sm:min-w-[305px] sm:ml-16">
@@ -98,7 +106,7 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
           <div className="mt-11"></div>
         </>
       )}
-      <ERC20Tokens key={erc20Key} />
+      {!hasGnosisChainFilter && <ERC20Tokens key={erc20Key} />}
     </aside>
   );
 });
@@ -117,6 +125,7 @@ function TokenContainer({
       blockchainType,
       sortOrder,
       spamFilter,
+      mintFilter,
       activeSnapshotInfo
     }
   ] = useSearchInput();
@@ -136,6 +145,7 @@ function TokenContainer({
       blockchainType={blockchainType}
       sortOrder={sortOrder}
       spamFilter={spamFilter}
+      mintFilter={mintFilter}
       activeSnapshotInfo={activeSnapshotInfo}
       poapDisabled={poapDisabled}
     />
@@ -150,6 +160,7 @@ function TokenBalancePage() {
       blockchainType,
       sortOrder,
       spamFilter,
+      mintFilter,
       activeTokenInfo,
       activeSnapshotInfo,
       activeSocialInfo
@@ -158,7 +169,7 @@ function TokenBalancePage() {
   ] = useSearchInput();
 
   const handleAccountData = useCallback(
-    (account: AccountOwner) => {
+    (account: AccountOwnerData) => {
       if (!account) return;
       const { tokenAddress, tokenId, blockchain } = account;
       setData(
@@ -247,6 +258,8 @@ function TokenBalancePage() {
 
     const fetchAllBlockchains = blockchainType?.length === 0;
 
+    const isMintFilteringEnabled = mintFilter === '1';
+
     const owners = detailTokensVisible ? [accountAddress] : address;
     const blockchain = fetchAllBlockchains ? null : blockchainType[0];
     const sortBy = sortOrder ? sortOrder : defaultSortOrder;
@@ -269,7 +282,7 @@ function TokenBalancePage() {
       !socialInfo.isApplicable &&
       (!tokenType || tokenType === 'POAP')
     ) {
-      const poapsQuery = poapsOfCommonOwnersQuery(owners);
+      const poapsQuery = poapsOfCommonOwnersQuery({ owners });
 
       const poapLink = createAppUrlWithQuery(poapsQuery, {
         limit: 10,
@@ -305,7 +318,11 @@ function TokenBalancePage() {
         ...queryFilters
       });
     } else {
-      const tokensQuery = getNftWithCommonOwnersQuery(owners, blockchain);
+      const tokensQuery = getNftWithCommonOwnersQuery({
+        owners,
+        blockchain,
+        mintsOnly: isMintFilteringEnabled
+      });
 
       nftLink = createAppUrlWithQuery(tokensQuery, {
         limit: 10,
@@ -484,6 +501,7 @@ function TokenBalancePage() {
     hasERC6551,
     accountAddress,
     blockchainType,
+    mintFilter,
     sortOrder,
     tokenType,
     showTokenDetails,
@@ -498,23 +516,30 @@ function TokenBalancePage() {
   ]);
 
   const { tab1Header, tab2Header } = useMemo(() => {
-    const tab1Header = `NFTs & POAPs${isCombination ? ' in common' : ''}`;
-    const tab2Header = `${isCombination ? 'ERC20' : 'Socials & ERC20'}${
-      isCombination ? ' in common' : ''
-    }`;
+    let tab1Header = 'NFTs & POAPs';
+    let tab2Header = 'Socials & ERC20';
+    // !Gnosis: Don't show ERC20 header in tab2 when gnosis blockchain is selected
+    if (blockchainType?.length === 1 && blockchainType[0] === 'gnosis') {
+      tab2Header = 'Socials';
+    }
+    if (isCombination) {
+      tab1Header += ' in common';
+      tab2Header += ' in common';
+    }
     return { tab1Header, tab2Header };
-  }, [isCombination]);
+  }, [blockchainType, isCombination]);
 
   // force the component to re-render when any of the search input change, so that the tokens are reset and refetch
   const tokensKey = useMemo(
     () =>
-      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${spamFilter}-${activeSnapshotInfo}`,
+      `${address}-${blockchainType}-${tokenType}-${sortOrder}-${spamFilter}-${mintFilter}-${activeSnapshotInfo}`,
     [
       address,
       blockchainType,
       tokenType,
       sortOrder,
       spamFilter,
+      mintFilter,
       activeSnapshotInfo
     ]
   );
@@ -522,11 +547,13 @@ function TokenBalancePage() {
   const {
     snapshotFilterDisabled,
     blockchainFilterDisabled,
-    sortByFilterDisabled
+    sortByFilterDisabled,
+    mintFilterDisabled
   } = useMemo(() => {
     let snapshotFilterDisabled = false;
-    let blockchainFilterDisabled = false;
+    const blockchainFilterDisabled = false;
     let sortByFilterDisabled = false;
+    let mintFilterDisabled = false;
 
     if (
       blockchainType?.length === 1 &&
@@ -536,18 +563,19 @@ function TokenBalancePage() {
     }
     if (isPoap) {
       snapshotFilterDisabled = true;
-      blockchainFilterDisabled = true;
     }
     if (isCombination) {
       snapshotFilterDisabled = true;
     }
     if (snapshotInfo.isApplicable) {
       sortByFilterDisabled = true;
+      mintFilterDisabled = true;
     }
     return {
       snapshotFilterDisabled,
       blockchainFilterDisabled,
-      sortByFilterDisabled
+      sortByFilterDisabled,
+      mintFilterDisabled
     };
   }, [blockchainType, isCombination, isPoap, snapshotInfo.isApplicable]);
 
@@ -566,16 +594,18 @@ function TokenBalancePage() {
       <div className="flex justify-between w-full z-[21]">
         <div className="flex-row-center gap-3.5">
           {isMobile ? (
-            <AllFilters
+            <TokenBalanceAllFilters
               snapshotDisabled={snapshotFilterDisabled}
               blockchainDisabled={blockchainFilterDisabled}
               sortByDisabled={sortByFilterDisabled}
+              mintFilterDisabled={mintFilterDisabled}
             />
           ) : (
             <>
               <SnapshotFilter disabled={snapshotFilterDisabled} />
               <BlockchainFilter disabled={blockchainFilterDisabled} />
               <SortBy disabled={sortByFilterDisabled} />
+              <MintFilter disabled={mintFilterDisabled} />
               <SpamFilter />
             </>
           )}
@@ -673,15 +703,18 @@ function TokenBalancePage() {
       <TokenDetailsReset>
         <div
           className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
-            'flex-1 h-full w-full flex flex-col translate-y-[10vw] items-center text-center':
+            'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
               isHome
           })}
         >
-          <div className="max-w-[645px] mx-auto w-full">
+          <div
+            style={{ maxWidth: MAX_SEARCH_WIDTH }}
+            className="mx-auto w-full"
+          >
             {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
             <Search />
             {isQueryExists && (
-              <div className="my-3 flex-row-center">
+              <div className="mt-3 mb-8 flex-row-center">
                 {renderFilterContent()}
               </div>
             )}

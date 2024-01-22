@@ -1,3 +1,7 @@
+export interface TransferType {
+  type: string;
+}
+
 export interface TokenType {
   amount: string;
   tokenType: string;
@@ -5,6 +9,7 @@ export interface TokenType {
   tokenAddress: string;
   formattedAmount: number;
   tokenNfts: TokenNfts;
+  tokenTransfers?: TransferType[];
   token: Token;
   tokenId?: string;
   _tokenId?: string;
@@ -166,11 +171,18 @@ export interface TokenBalance {
 export interface Owner {
   identity: string;
   addresses: string[];
+  blockchain: string;
+  accounts: Account[];
   poaps: Poap[];
   socials: Social[];
   primaryDomain: PrimaryDomain;
   domains: Domain[];
   xmtp: Xmtp[];
+}
+
+export interface Account {
+  tokenId: string;
+  tokenAddress: string;
 }
 
 export interface Poap {

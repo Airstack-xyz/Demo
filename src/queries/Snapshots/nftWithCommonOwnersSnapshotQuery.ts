@@ -47,15 +47,19 @@ const fields = `
   }
 `;
 
-function getSubQueryWithFilter(
-  owners: string[],
+function getSubQueryWithFilter({
+  owners,
   index = 0,
-  blockchain: string
-): string {
+  blockchain
+}: {
+  owners: string[];
+  index?: number;
+  blockchain: string;
+}): string {
   const children =
     owners.length - 1 === index
       ? fields
-      : getSubQueryWithFilter(owners, index + 1, blockchain);
+      : getSubQueryWithFilter({ owners, index: index + 1, blockchain });
   return `
     token {
       isSpam
@@ -126,7 +130,9 @@ function getSubQueryForBlockchain({
   blockchain: string;
 }) {
   const children =
-    owners.length === 1 ? fields : getSubQueryWithFilter(owners, 1, blockchain);
+    owners.length === 1
+      ? fields
+      : getSubQueryWithFilter({ owners, index: 1, blockchain });
 
   const filters = [
     `owner: {_eq: "${owners[0]}"}`,

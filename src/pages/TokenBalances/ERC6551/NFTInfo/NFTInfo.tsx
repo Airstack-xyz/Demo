@@ -5,7 +5,7 @@ import { ERC20TokenDetailsResponse } from '../types';
 import { LoaderItem } from './LoaderItem';
 import { CopyButton } from './CopyButton';
 import { Owners } from './Owners';
-import { useTokenHolders } from '../../../../hooks/useTokenHolders';
+import { useGetTokenHolders } from '../../../../hooks/useGetTokenHolders';
 
 export function NFTInfo({
   nft,
@@ -33,7 +33,7 @@ export function NFTInfo({
     fetchHolders,
     data: owners,
     loading
-  } = useTokenHolders({
+  } = useGetTokenHolders({
     tokenId,
     tokenAddress,
     blockchain,

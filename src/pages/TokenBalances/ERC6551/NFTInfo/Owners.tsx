@@ -1,9 +1,10 @@
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { resetCachedUserInputs } from '../../../../hooks/useSearchInput';
 import { createTokenBalancesUrl } from '../../../../utils/createTokenUrl';
-import { useState, useMemo } from 'react';
+import { isMobileDevice } from '../../../../utils/isMobileDevice';
 import { CopyButton } from './CopyButton';
 import { HoldersModal, HoldersModalProps } from './HoldersModal';
-import { resetCachedUserInputs } from '../../../../hooks/useSearchInput';
 
 const MIN_OWNERS = 3;
 const MAX_OWNERS = 7;
@@ -17,7 +18,11 @@ export function Owners({
 }) {
   const [showModal, setShowModal] = useState(false);
   const [showMax, setShowMax] = useState(false);
+
   const navigate = useNavigate();
+
+  const isMobile = isMobileDevice();
+
   const items = useMemo(() => {
     if (!showMax) {
       return owners?.slice(0, MIN_OWNERS);
@@ -29,8 +34,10 @@ export function Owners({
     const url = createTokenBalancesUrl({
       address,
       blockchain: '',
-      inputType: 'ADDRESS'
+      inputType: 'ADDRESS',
+      truncateLabel: isMobile
     });
+    document.documentElement.scrollTo(0, 0);
     resetCachedUserInputs('tokenBalance');
     navigate(url);
   };

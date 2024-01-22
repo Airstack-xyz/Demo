@@ -63,7 +63,8 @@ export type IconType =
   | 'follow-purple'
   | 'mutual-follow'
   | 'follower-gray'
-  | 'following-gray';
+  | 'following-gray'
+  | 'settings-gray';
 
 export type IconProps = {
   name: IconType;

@@ -3,17 +3,17 @@ import { snapshotBlockchains } from '../../constants';
 import { TokenAddress } from '../../pages/TokenHolders/types';
 
 function getCommonNftOwnersSubQueryForBlockchain({
-  address1,
-  address2,
+  tokenAddress1,
+  tokenAddress2,
   blockchain,
   snapshotFilter
 }: {
-  address1: TokenAddress;
-  address2: TokenAddress;
+  tokenAddress1: TokenAddress;
+  tokenAddress2: TokenAddress;
   blockchain: string;
   snapshotFilter: SnapshotFilterType;
 }) {
-  const filters = [`tokenAddress: {_eq: "${address1.address}"}`];
+  const filters = [`tokenAddress: {_eq: "${tokenAddress1.address}"}`];
   switch (snapshotFilter) {
     case 'customDate':
       filters.push('date: {_eq: $customDate}');
@@ -61,8 +61,8 @@ function getCommonNftOwnersSubQueryForBlockchain({
         }
         owner {
           tokenBalances(input: {filter :{tokenAddress: {_eq: "${
-            address2.address
-          }"}}, blockchain: ${address2.blockchain || 'ethereum'}}) {
+            tokenAddress2.address
+          }"}}, blockchain: ${tokenAddress2.blockchain || 'ethereum'}}) {
             tokenId
             tokenAddress
             tokenType
@@ -95,6 +95,11 @@ function getCommonNftOwnersSubQueryForBlockchain({
             owner {
               identity
               addresses
+              blockchain
+              accounts {
+                tokenId
+                tokenAddress
+              }
               socials {
                 blockchain
                 dappName
@@ -119,12 +124,12 @@ function getCommonNftOwnersSubQueryForBlockchain({
 }
 
 export function getCommonNftOwnersSnapshotQuery({
-  address1,
-  address2,
+  tokenAddress1,
+  tokenAddress2,
   snapshotFilter
 }: {
-  address1: TokenAddress;
-  address2: TokenAddress;
+  tokenAddress1: TokenAddress;
+  tokenAddress2: TokenAddress;
   snapshotFilter: SnapshotFilterType;
 }) {
   const variables = ['$limit: Int'];
@@ -142,12 +147,12 @@ export function getCommonNftOwnersSnapshotQuery({
   const variablesString = variables.join(',');
   const subQueries: string[] = [];
   snapshotBlockchains.forEach(_blockchain => {
-    if (!address1.blockchain || address1.blockchain === _blockchain) {
+    if (!tokenAddress1.blockchain || tokenAddress1.blockchain === _blockchain) {
       subQueries.push(
         getCommonNftOwnersSubQueryForBlockchain({
           blockchain: _blockchain,
-          address1,
-          address2,
+          tokenAddress1,
+          tokenAddress2,
           snapshotFilter
         })
       );
@@ -161,15 +166,15 @@ export function getCommonNftOwnersSnapshotQuery({
 }
 
 function getNftOwnersSubQueryForBlockchain({
-  address,
+  tokenAddress,
   blockchain,
   snapshotFilter
 }: {
-  address: TokenAddress;
+  tokenAddress: TokenAddress;
   blockchain: string;
   snapshotFilter: SnapshotFilterType;
 }) {
-  const filters = [`tokenAddress: {_eq: "${address.address}"}`];
+  const filters = [`tokenAddress: {_eq: "${tokenAddress.address}"}`];
   switch (snapshotFilter) {
     case 'customDate':
       filters.push('date: {_eq: $customDate}');
@@ -218,6 +223,11 @@ function getNftOwnersSubQueryForBlockchain({
         owner {
           identity
           addresses
+          blockchain
+          accounts {
+            tokenId
+            tokenAddress
+          }
           socials {
             blockchain
             dappName
@@ -240,10 +250,10 @@ function getNftOwnersSubQueryForBlockchain({
 }
 
 export function getNftOwnersSnapshotQuery({
-  address,
+  tokenAddress,
   snapshotFilter
 }: {
-  address: TokenAddress;
+  tokenAddress: TokenAddress;
   snapshotFilter: SnapshotFilterType;
 }) {
   const variables = ['$limit: Int'];
@@ -262,11 +272,11 @@ export function getNftOwnersSnapshotQuery({
 
   const subQueries: string[] = [];
   snapshotBlockchains.forEach(_blockchain => {
-    if (!address.blockchain || address.blockchain === _blockchain) {
+    if (!tokenAddress.blockchain || tokenAddress.blockchain === _blockchain) {
       subQueries.push(
         getNftOwnersSubQueryForBlockchain({
           blockchain: _blockchain,
-          address,
+          tokenAddress,
           snapshotFilter
         })
       );

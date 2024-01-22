@@ -1,6 +1,5 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import InfiniteScroll from 'react-infinite-scroll-component';
 import { useNavigate } from 'react-router-dom';
 import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { StatusLoader } from '../../../Components/StatusLoader';
@@ -25,6 +24,7 @@ import { TableRow, TableRowLoader } from './TableRow';
 import './styles.css';
 import { Follow, SocialFollowQueryFilters } from './types';
 import { filterTableItems, getSocialFollowFilterData } from './utils';
+import { DownloadCSVOverlay } from '../../../Components/DownloadCSVOverlay';
 
 const LOADING_ROW_COUNT = 6;
 
@@ -67,8 +67,8 @@ const mentionValidationFn = ({ mentions }: MentionOutput) => {
   return true;
 };
 
-const MAX_LIMIT = 200;
-const MIN_LIMIT = 20;
+const FETCH_LIMIT = 34;
+const ITEM_LIMIT = 34;
 
 export function TableSection({
   identities,
@@ -94,7 +94,7 @@ export function TableSection({
   });
   const [loaderData, setLoaderData] = useState({
     isVisible: false,
-    total: MAX_LIMIT,
+    total: FETCH_LIMIT,
     matching: 0
   });
 
@@ -168,7 +168,7 @@ export function TableSection({
 
   useEffect(() => {
     if (loading) return;
-    if (tableItemsRef.current.length < MIN_LIMIT && hasNextPage) {
+    if (tableItemsRef.current.length < ITEM_LIMIT && hasNextPage) {
       getNextPage();
     } else {
       setLoaderData(prev => ({
@@ -187,7 +187,7 @@ export function TableSection({
       isVisible: true
     }));
     fetchData({
-      limit: MAX_LIMIT,
+      limit: FETCH_LIMIT,
       ...filterData.queryFilters
     });
   }, [fetchData, identities, filterData.queryFilters, socialInfo.dappName]);
@@ -233,13 +233,14 @@ export function TableSection({
       const url = createTokenBalancesUrl({
         address: formatAddress(address, type),
         blockchain: 'ethereum',
-        inputType: 'ADDRESS'
+        inputType: 'ADDRESS',
+        truncateLabel: isMobile
       });
       document.documentElement.scrollTo(0, 0);
       resetCachedUserInputs('tokenBalance');
       navigate(url);
     },
-    [navigate]
+    [isMobile, navigate]
   );
 
   const handleAssetClick = useCallback(
@@ -282,14 +283,9 @@ export function TableSection({
     });
   };
 
-  const handleNext = useCallback(() => {
-    if (!loading && hasNextPage && getNextPage) {
-      getNextPage();
-    }
-  }, [getNextPage, hasNextPage, loading]);
-
   const isLensDapp = socialInfo.dappName === 'lens';
   const isInputDisabled = loading || loaderData.isVisible;
+  const showDownCSVOverlay = hasNextPage && !loading;
 
   const mentionInputComponent = (
     <MentionInput
@@ -305,7 +301,7 @@ export function TableSection({
   );
 
   return (
-    <>
+    <div className="relative mb-5">
       <Filters
         dappName={socialInfo.dappName}
         selectedFilters={followData.filters}
@@ -315,53 +311,45 @@ export function TableSection({
         onApply={handleFiltersApply}
       />
       {isMobile && <div className="mb-4 mx-1">{mentionInputComponent}</div>}
-      <div className="border-solid-light rounded-2xl sm:overflow-hidden overflow-y-auto mb-5 mx-1">
-        <InfiniteScroll
-          next={handleNext}
-          dataLength={tableItems.length}
-          hasMore={hasNextPage}
-          loader={null}
-        >
-          <table className="sf-table">
-            <thead>
-              <tr>
-                <th
-                  className={
-                    followData.mentionRawText ? 'w-[200px]' : undefined
-                  }
-                >
-                  {followData.mentionRawText ? 'Token image' : 'Profile image'}
-                </th>
-                <th>{isLensDapp ? 'Lens' : 'Farcaster'}</th>
-                {!isLensDapp && <th>FID</th>}
-                <th>Primary ENS</th>
-                <th>ENS</th>
-                <th>Wallet address</th>
-                <th>{isLensDapp ? 'Farcaster' : 'Lens'}</th>
-                <th>XMTP </th>
-              </tr>
-            </thead>
-            <tbody>
-              {tableItems.map((item, index) => (
-                <TableRow
-                  key={index}
-                  item={item}
-                  isFollowerQuery={isFollowerQuery}
-                  isLensDapp={isLensDapp}
-                  onShowMoreClick={handleShowMoreClick}
-                  onAddressClick={handleAddressClick}
-                  onAssetClick={handleAssetClick}
-                />
-              ))}
-            </tbody>
-          </table>
-          {!loading && tableItems.length === 0 && (
-            <div className="flex flex-1 justify-center text-xs font-semibold my-5">
-              No data found!
-            </div>
-          )}
-          {loading && <TableLoader />}
-        </InfiniteScroll>
+      {showDownCSVOverlay && <DownloadCSVOverlay className="h-[307px]" />}
+      <div className="border-solid-light rounded-2xl sm:overflow-hidden overflow-y-auto">
+        <table className="sf-table select-none">
+          <thead>
+            <tr>
+              <th
+                className={followData.mentionRawText ? 'w-[200px]' : undefined}
+              >
+                {followData.mentionRawText ? 'Token image' : 'Profile image'}
+              </th>
+              <th>{isLensDapp ? 'Lens' : 'Farcaster'}</th>
+              {!isLensDapp && <th>FID</th>}
+              <th>Primary ENS</th>
+              <th>ENS</th>
+              <th>Wallet address</th>
+              <th>{isLensDapp ? 'Farcaster' : 'Lens'}</th>
+              <th>XMTP </th>
+            </tr>
+          </thead>
+          <tbody>
+            {tableItems.map((item, index) => (
+              <TableRow
+                key={index}
+                item={item}
+                isFollowerQuery={isFollowerQuery}
+                isLensDapp={isLensDapp}
+                onShowMoreClick={handleShowMoreClick}
+                onAddressClick={handleAddressClick}
+                onAssetClick={handleAssetClick}
+              />
+            ))}
+          </tbody>
+        </table>
+        {!loading && tableItems.length === 0 && (
+          <div className="flex flex-1 justify-center text-xs font-semibold my-5">
+            No data found!
+          </div>
+        )}
+        {loading && <TableLoader />}
       </div>
       {modalData.isOpen && (
         <LazyAddressesModal
@@ -374,8 +362,13 @@ export function TableSection({
         />
       )}
       {(loading || loaderData.isVisible) && (
-        <StatusLoader total={loaderData.total} matching={loaderData.matching} />
+        <StatusLoader
+          lines={[
+            [`Scanning %n records`, loaderData.total],
+            [`Found %n matching results`, loaderData.matching]
+          ]}
+        />
       )}
-    </>
+    </div>
   );
 }

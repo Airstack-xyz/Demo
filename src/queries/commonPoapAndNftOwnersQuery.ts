@@ -1,13 +1,16 @@
 import { TokenAddress } from '../pages/TokenHolders/types';
 
-export function getCommonPoapAndNftOwnersQuery(
-  eventId: TokenAddress,
-  tokenId: TokenAddress
-) {
+export function getCommonPoapAndNftOwnersQuery({
+  poapAddress,
+  tokenAddress
+}: {
+  poapAddress: TokenAddress;
+  tokenAddress: TokenAddress;
+}) {
   return `query CommonPoapAndNftOwners($limit: Int) {
     Poaps(
       input: {filter: {eventId: {_eq: "${
-        eventId.address
+        poapAddress.address
       }"}}, blockchain: ALL, limit: $limit}
     ) {
       Poap {
@@ -40,8 +43,8 @@ export function getCommonPoapAndNftOwnersQuery(
         } 
         owner {
           tokenBalances(input: {filter: {tokenAddress: {_eq: "${
-            tokenId.address
-          }"}}, blockchain: ${tokenId.blockchain || 'ethereum'}}) {
+            tokenAddress.address
+          }"}}, blockchain: ${tokenAddress.blockchain || 'ethereum'}}) {
             tokenId
             tokenAddress
             tokenType
@@ -74,6 +77,11 @@ export function getCommonPoapAndNftOwnersQuery(
             owner {
               identity
               addresses
+              blockchain
+              accounts {
+                tokenId
+                tokenAddress
+              }
               socials {
                 blockchain
                 dappName
