@@ -19,7 +19,7 @@ export function OnChainGraphPage() {
         <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
           <Search />
           <div className="my-3 flex-row-center">
-            <div className="flex justify-center w-full z-[21]">
+            <div className="flex justify-center w-full">
               <GetAPIDropdown
                 options={getAPIDropdownOptions}
                 dropdownAlignment="center"
