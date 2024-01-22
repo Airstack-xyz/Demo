@@ -86,7 +86,7 @@ function Overview({
     useGetTokensSupply();
 
   useEffect(() => {
-    if (shouldFetchHoldersCount && memoizedTokens.length > 0 && !hideOverview) {
+    if (shouldFetchHoldersCount && memoizedTokens.length > 0) {
       const polygonTokens: string[] = [];
       const ethereumTokens: string[] = [];
       const baseTokens: string[] = [];
@@ -117,12 +117,7 @@ function Overview({
         eventIds
       });
     }
-  }, [
-    fetchHoldersCount,
-    shouldFetchHoldersCount,
-    memoizedTokens,
-    hideOverview
-  ]);
+  }, [fetchHoldersCount, shouldFetchHoldersCount, memoizedTokens]);
 
   useEffect(() => {
     if (memoizedTokens.length > 0) {
@@ -147,11 +142,10 @@ function Overview({
   useEffect(() => {
     if (!address.length) return;
     fetchTokens(address);
-    // Don't fetch token supply if for inner overview details or if overview is hidden
-    if (!activeView && !hideOverview) {
+    if (!activeView) {
       fetchTokensSupply(address);
     }
-  }, [activeView, address, fetchTokens, fetchTokensSupply, hideOverview]);
+  }, [activeView, address, fetchTokens, fetchTokensSupply]);
 
   const overviewData = useMemo(() => {
     return {
