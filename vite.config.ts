@@ -9,7 +9,8 @@ export default defineConfig(({ mode }) => {
   const publicVariables = {
     GOOGLE_TAG_MANAGER_ID: env.GOOGLE_TAG_MANAGER_ID,
     API_KEY: env.API_KEY,
-    MENTION_ENDPOINT: env.MENTION_ENDPOINT
+    MENTION_ENDPOINT: env.MENTION_ENDPOINT,
+    BASE_URL: env.BASE_URL
   };
 
   return {
@@ -18,7 +19,9 @@ export default defineConfig(({ mode }) => {
         return {
           // viteConfig is the current Vite resolved config
           env: {
-            isProduction: mode === 'production'
+            isProduction: mode === 'production',
+            GOOGLE_TAG_MANAGER_ID: env.GOOGLE_TAG_MANAGER_ID,
+            BASE_URL: env.BASE_URL
           }
         };
       }),

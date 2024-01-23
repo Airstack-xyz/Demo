@@ -1,20 +1,14 @@
 import classNames from 'classnames';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
-import { Layout } from '../../Components/Layout';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
+import { MainLayout } from '../../layouts/MainLayout';
 import { OnChainGraph } from './OnChainGraph';
 import { Search } from './Search';
-
-const getAPIDropdownOptions = [
-  {
-    label: 'Onchain Graph Guide',
-    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/onchain-graph'
-  }
-];
+import { getAPIDropdownOptions } from './constants';
 
 export function OnChainGraphPage() {
   return (
-    <Layout>
+    <MainLayout>
       <div className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8')}>
         <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
           <Search />
@@ -31,6 +25,6 @@ export function OnChainGraphPage() {
         </div>
         <OnChainGraph />
       </div>
-    </Layout>
+    </MainLayout>
   );
 }
