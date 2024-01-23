@@ -1,12 +1,19 @@
 import classNames from 'classnames';
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { useInProgressDownloads } from '../store/csvDownload';
-import { CSVDownloadTask } from '../types';
+import { CSVDownloadStatus, CSVDownloadTask } from '../types';
 import { Dropdown } from './Dropdown';
 import { Icon } from './Icon';
 import { Tooltip } from './Tooltip';
 const tempToken = '';
-const csvDownloadAPI = 'http://localhost:8080/';
+const csvDownloadAPI = 'http://localhost:8080/api/';
+
+const activeStatus: CSVDownloadStatus[] = [
+  CSVDownloadStatus.pending,
+  CSVDownloadStatus.in_progress,
+  CSVDownloadStatus.data_fetched,
+  CSVDownloadStatus.calculating_credits
+];
 
 export function CSVDownloads() {
   const currentlyPollingRef = useRef<number[]>([]);
@@ -47,7 +54,12 @@ export function CSVDownloads() {
         }
       ).then(data => data.json());
 
-      if (data.status !== 'in-progress' && data.status !== 'pending') {
+      if (
+        data.status !== CSVDownloadStatus.in_progress &&
+        data.status !== CSVDownloadStatus.pending &&
+        data.status !== CSVDownloadStatus.data_fetched &&
+        data.status !== CSVDownloadStatus.calculating_credits
+      ) {
         if (data.status === 'completed') {
           setFileDownloaded(true);
           setTimeout(() => {
@@ -117,7 +129,7 @@ export function CSVDownloads() {
     ).then(data => data.json());
 
     const active = data.filter(
-      item => item.status === 'in-progress' || item.status === 'pending'
+      item => activeStatus.indexOf(item.status) !== -1
     );
     activeRef.current = active.map(item => item.id);
 
@@ -142,9 +154,9 @@ export function CSVDownloads() {
     getHistory();
   }, [getHistory]);
 
-  const cancelDownload = useCallback(
-    async (id: number) => {
-      await fetch(csvDownloadAPI + 'cancel', {
+  const csvDownloadAction = useCallback(
+    async (id: number, action: 'cancel' | 'pause' | 'resume') => {
+      await fetch(csvDownloadAPI + action, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -250,7 +262,7 @@ export function CSVDownloads() {
             )}
             renderOption={({ option }) => {
               const isInProgress =
-                option.status === 'in-progress' || option.status === 'pending';
+                activeStatus.indexOf(option.status as CSVDownloadStatus) !== -1;
               return (
                 <div className="py-2 px-5 rounded-full mb-2 cursor-pointer text-left whitespace-nowrap w-[340px] ">
                   <div className="flex items-center justify-between">
@@ -262,16 +274,41 @@ export function CSVDownloads() {
                       />
                       {option.label}
                     </div>
+                    {option.status === CSVDownloadStatus.paused && (
+                      <div className="flex items-center">
+                        <button
+                          className="mr-2"
+                          onClick={() => {
+                            csvDownloadAction(option.id, 'resume');
+                          }}
+                        >
+                          resume
+                        </button>
+                        <button>
+                          <Icon
+                            name="cancel-circle"
+                            onClick={() => {
+                              csvDownloadAction(option.id, 'cancel');
+                            }}
+                          />
+                        </button>
+                      </div>
+                    )}
                     {isInProgress && (
                       <div className="flex items-center">
-                        <button className="mr-2">
+                        <button
+                          className="mr-2"
+                          onClick={() => {
+                            csvDownloadAction(option.id, 'pause');
+                          }}
+                        >
                           <Icon name="pause-circle" />
                         </button>
                         <button>
                           <Icon
                             name="cancel-circle"
                             onClick={() => {
-                              cancelDownload(option.id);
+                              csvDownloadAction(option.id, 'cancel');
                             }}
                           />
                         </button>
@@ -288,7 +325,7 @@ export function CSVDownloads() {
                       </button>
                       <button
                         onClick={() => {
-                          cancelDownload(option.id);
+                          csvDownloadAction(option.id, 'cancel');
                         }}
                       >
                         Cancel

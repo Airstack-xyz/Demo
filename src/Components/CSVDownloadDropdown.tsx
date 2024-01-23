@@ -84,7 +84,7 @@ export function CSVDownloadDropdown({
         payload['filters'] = filters;
       }
 
-      const data = await fetch('http://localhost:8080/estimate', {
+      const data = await fetch('http://localhost:8080/api/estimate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

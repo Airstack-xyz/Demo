@@ -35,6 +35,7 @@ import { capitalizeFirstLetter } from '../../utils';
 import {
   checkBlockchainSupportForSnapshot,
   getActiveSnapshotInfo,
+  getCSVDownloadSnapshotVariables,
   getSnapshotQueryFilters
 } from '../../utils/activeSnapshotInfoString';
 import { getActiveSocialInfo } from '../../utils/activeSocialInfoString';
@@ -279,6 +280,32 @@ function TokenBalancePage() {
     const getAPIOptions = [];
     const csvDownloadOptions: CSVDownloadOption[] = [];
 
+    const nftBlockchains = fetchAllBlockchains
+      ? {
+          ethereum: true,
+          polygon: true,
+          base: true
+        }
+      : blockchainType.reduce(
+          (acc, curr) => {
+            const blockchain = curr.toLowerCase() as keyof typeof acc;
+            if (acc[blockchain] === false) {
+              acc[blockchain] = true;
+            }
+            return acc;
+          },
+          {
+            ethereum: false,
+            polygon: false,
+            base: false
+          }
+        );
+
+    const snapshotBlockchains = {
+      ethereum: nftBlockchains.ethereum,
+      base: nftBlockchains.base
+    };
+
     if (
       !showTokenDetails &&
       !snapshotInfo.isApplicable &&
@@ -328,12 +355,7 @@ function TokenBalancePage() {
         ...queryFilters
       });
 
-      let snapshotVariableName: string = snapshotInfo.appliedFilter;
-      const snapshotVariableValue =
-        snapshotInfo[snapshotVariableName as keyof typeof snapshotInfo];
-      if (snapshotVariableName === 'customDate') {
-        snapshotVariableName = 'date'; // this is the name of the variable in the query
-      }
+      const { name, value } = getCSVDownloadSnapshotVariables(snapshotInfo);
 
       nftOption = {
         label: 'NFTs',
@@ -342,12 +364,12 @@ function TokenBalancePage() {
         variables: {
           identity: address[0],
           tokenType: tokenType ? [tokenType] : ['ERC721', 'ERC1155'],
-          blockchain: 'ethereum',
-          [snapshotVariableName]: snapshotVariableValue
+          ...nftBlockchains,
+          [name]: value
         },
         filters: {
           filterSpam: false,
-          snapshotFilter: snapshotVariableName
+          snapshotFilter: value
         }
       };
 
@@ -363,12 +385,12 @@ function TokenBalancePage() {
         fileName: `NFT balances of [${address[0]}].csv`,
         variables: {
           identity: address[0],
-          blockchain: 'ethereum',
-          [snapshotVariableName]: snapshotVariableValue
+          ...snapshotBlockchains,
+          [name]: value
         },
         filters: {
           filterSpam: false,
-          snapshotFilter: snapshotVariableName
+          snapshotFilter: name
         }
       };
     } else {
@@ -391,7 +413,7 @@ function TokenBalancePage() {
         variables: {
           identity: address[0],
           tokenType: tokenType ? [tokenType] : ['ERC721', 'ERC1155'],
-          blockchain: 'ethereum'
+          ...nftBlockchains
         },
         filters: {
           filterSpam: false
@@ -410,7 +432,7 @@ function TokenBalancePage() {
         fileName: `NFT balances of [${address[0]}].csv`,
         variables: {
           identity: address[0],
-          blockchain: 'polygon'
+          ...nftBlockchains
         },
         filters: {
           filterSpam: false

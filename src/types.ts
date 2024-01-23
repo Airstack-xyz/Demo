@@ -12,9 +12,21 @@ export type TokenBlockchain = (typeof tokenBlockchains)[number];
 // Used for blockchain type based on actual snapshotsBlockchains
 export type SnapshotBlockchain = (typeof snapshotBlockchains)[number];
 
+export enum CSVDownloadStatus {
+  pending = 'pending',
+  in_progress = 'in_progress',
+  paused = 'paused',
+  cancelled = 'cancelled',
+  data_fetched = 'data_fetched',
+  calculating_credits = 'calculating_credits',
+  completed = 'completed',
+  failed = 'failed',
+  credit_calculation_failed = 'credit_calculation_failed'
+}
+
 export type CSVDownloadTask = {
   id: number;
-  status: string;
+  status: CSVDownloadStatus;
   csv_url: string | null;
   query: string;
   variables: object | null;
@@ -34,5 +46,5 @@ export type CSVDownloadOption = {
   key: (typeof downCSVKeys)[number];
   fileName: string;
   variables: object;
-  filters?: Record<string, string | boolean>;
+  filters?: Record<string, string | boolean | string[]>;
 };

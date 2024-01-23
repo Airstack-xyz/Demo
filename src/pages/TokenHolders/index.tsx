@@ -48,6 +48,7 @@ import {
 import {
   checkBlockchainSupportForSnapshot,
   getActiveSnapshotInfo,
+  getCSVDownloadSnapshotVariables,
   getSnapshotQueryFilters
 } from '../../utils/activeSnapshotInfoString';
 import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
@@ -61,6 +62,8 @@ import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { getRequestFilters } from './OverviewDetails/Tokens/utils';
 import { Tokens } from './Tokens/Tokens';
 import { POAPSupplyQuery, TokenSupplyQuery } from '../../queries/supplyQuery';
+import { CSVDownloadDropdown } from '../../Components/CSVDownloadDropdown';
+import { CSVDownloadOption } from '../../types';
 
 export function TokenHolders() {
   const [
@@ -225,8 +228,111 @@ export function TokenHolders() {
     };
   }, [activeTokenInfo]);
 
-  const options = useMemo(() => {
-    if (addresses.length === 0) return [];
+  const [options, csvDownloadOptions] = useMemo(() => {
+    const csvDownloadOptions: CSVDownloadOption[] = [];
+    if (addresses.length === 0) return [[], []];
+    let key: null | CSVDownloadOption['key'] = null;
+    let variables: CSVDownloadOption['filters'] = undefined;
+    const erc20Tokens = overviewTokens?.filter(v => v.tokenType === 'ERC20');
+    const poaps = overviewTokens?.filter(v => !v.tokenAddress.startsWith('0x'));
+
+    const csvSocialFilters = tokenFilters?.filter(
+      filter => filter !== 'owners'
+    );
+
+    const socialFilters =
+      activeView && csvSocialFilters.length > 0
+        ? { socials: csvSocialFilters }
+        : undefined;
+
+    if (tokenAddress.length > 1) {
+      if (erc20Tokens?.length === 1) {
+        key = poaps.length > 0 ? 'erc20-poap-holders' : 'nft-erc20-holders';
+        variables = {
+          erc20Address: erc20Tokens[0].tokenAddress,
+          [poaps.length > 0 ? 'eventId' : 'nftAddress']:
+            overviewTokens.find(
+              token => token.tokenAddress !== erc20Tokens[0].tokenAddress
+            )?.tokenAddress || '',
+          blockchain: erc20Tokens[0].blockchain
+        };
+      } else {
+        key = 'common-nft-holders';
+        variables = {
+          tokenAddress1: addresses[0].address,
+          tokenAddress2: addresses[1].address,
+          blockchain: addresses[0].blockchain || 'ethereum'
+        };
+      }
+
+      if (key && variables) {
+        const combinationsCSVDownloadOption: CSVDownloadOption = {
+          label: `Combinations ${erc20Tokens?.length > 0 ? 'ERC20' : ''} ${
+            poaps.length > 0 ? 'POAP' : 'NFT'
+          }`,
+          key,
+          fileName: `Combinations ${query}.csv`,
+          variables,
+          filters: {
+            ...socialFilters
+          }
+        };
+        csvDownloadOptions.push(combinationsCSVDownloadOption);
+      }
+    }
+
+    if (hasPoap) {
+      csvDownloadOptions.push({
+        label: 'POAP Holders',
+        key: 'poap-holders',
+        fileName: `Poaps holders ${query}.csv`,
+        variables: {
+          eventId: query
+        },
+        filters: {
+          ...socialFilters
+        }
+      });
+    } else {
+      if (snapshotInfo?.isApplicable) {
+        const { name, value } = getCSVDownloadSnapshotVariables(snapshotInfo);
+        if (poaps.length === 0) {
+          csvDownloadOptions.push({
+            label: 'Nft holders',
+            key:
+              erc20Tokens.length > 0
+                ? 'erc20-holders-snapshot'
+                : 'nft-holders-snapshot',
+            fileName: `NFT holders snapshot ${query}.csv`,
+            variables: {
+              tokenAddress: addresses[0],
+              blockchain: 'ethereum', // TODO: fix this it should be dynamic
+              [name]: value
+            },
+            filters: {
+              snapshotFilter: value,
+              ...socialFilters
+            }
+          });
+        } else {
+          if (poaps.length === 0) {
+            csvDownloadOptions.push({
+              label: 'Nft holders',
+              key: erc20Tokens.length > 0 ? 'erc20-holders' : 'nft-holders',
+              fileName: `NFT holders ${query}.csv`,
+              variables: {
+                tokenAddress: addresses[0],
+                blockchain: 'ethereum' // TODO: fix this it should be dynamic
+              },
+              filters: {
+                ...socialFilters
+              }
+            });
+          }
+        }
+      }
+    }
+
     if (activeView) {
       let combinationsQueryLink = '';
       if (hasPoap) {
@@ -253,11 +359,15 @@ export function TokenHolders() {
           });
         }
       }
+
       return [
-        {
-          label: 'Combinations',
-          link: combinationsQueryLink
-        }
+        [
+          {
+            label: 'Combinations',
+            link: combinationsQueryLink
+          }
+        ],
+        csvDownloadOptions
       ];
     }
 
@@ -282,6 +392,18 @@ export function TokenHolders() {
           link: poapLink
         });
 
+        // csvDownloadOptions.push({
+        //   label: 'POAP Holders',
+        //   key: 'poap-holders',
+        //   fileName: `Poaps holders ${query}.csv`,
+        //   variables: {
+        //     eventId: query
+        //   },
+        //   filters: {
+        //     ...socialFilters
+        //   }
+        // });
+
         options.push({
           label: 'POAP supply',
           link: poapSupplyLink
@@ -298,6 +420,28 @@ export function TokenHolders() {
             label: 'Token holders',
             link: tokenLink
           });
+
+          // const { name, value } = getCSVDownloadSnapshotVariables(snapshotInfo);
+
+          // if (poaps.length === 0) {
+          //   csvDownloadOptions.push({
+          //     label: 'Nft holders',
+          //     key:
+          //       erc20Tokens.length > 0
+          //         ? 'erc20-holders-snapshot'
+          //         : 'nft-holders-snapshot',
+          //     fileName: `NFT holders snapshot ${query}.csv`,
+          //     variables: {
+          //       tokenAddress: addresses[0],
+          //       blockchain: 'ethereum', // TODO: fix this it should be dynamic
+          //       [name]: value
+          //     },
+          //     filters: {
+          //       snapshotFilter: value,
+          //       ...socialFilters
+          //     }
+          // //   });
+          // }
         } else {
           const tokenLink = createAppUrlWithQuery(tokenOwnersQuery, {
             limit: 20
@@ -307,6 +451,21 @@ export function TokenHolders() {
             label: 'Token holders',
             link: tokenLink
           });
+
+          // if (poaps.length === 0) {
+          //   csvDownloadOptions.push({
+          //     label: 'Nft holders',
+          //     key: erc20Tokens.length > 0 ? 'erc20-holders' : 'nft-holders',
+          //     fileName: `NFT holders ${query}.csv`,
+          //     variables: {
+          //       tokenAddress: addresses[0],
+          //       blockchain: 'ethereum' // TODO: fix this it should be dynamic
+          //     },
+          //     filters: {
+          //       ...socialFilters
+          //     }
+          //   });
+          // }
 
           const tokenSupplyLink = createAppUrlWithQuery(TokenSupplyQuery, {
             tokenAddress: query
@@ -405,20 +564,22 @@ export function TokenHolders() {
       }
     }
 
-    return options;
+    return [options, csvDownloadOptions];
   }, [
     addresses,
+    overviewTokens,
+    tokenFilters,
+    tokenAddress,
     activeView,
     activeTokenInfo,
     hasERC6551,
+    query,
     hasPoap,
     requestFilters,
     snapshotInfo,
     tokensQueryWithFilter,
-    query,
     tokenOwnersQuery,
     owner,
-    tokenAddress,
     token.tokenAddress,
     token.blockchain,
     token.tokenId,
@@ -518,6 +679,9 @@ export function TokenHolders() {
       return (
         <div className="flex justify-center w-full">
           <GetAPIDropdown options={options} />
+          <span className="ml-2">
+            <CSVDownloadDropdown options={csvDownloadOptions} />
+          </span>
         </div>
       );
     }
@@ -533,6 +697,9 @@ export function TokenHolders() {
           <AdvancedSettings />
         </div>
         <GetAPIDropdown options={options} />
+        <span className="ml-2">
+          <CSVDownloadDropdown options={csvDownloadOptions} />
+        </span>
       </div>
     );
   };

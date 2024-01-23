@@ -18,7 +18,7 @@ export const mentionBlockchains = [
 export const downCSVKeys = [
   'nft-holders',
   'erc20-holders',
-  'poap-holder',
+  'poap-holders',
   'nft-holders-snapshot',
   'erc20-holders-snapshot',
   'common-nft-holders',
