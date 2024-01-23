@@ -1,16 +1,17 @@
 import classNames from 'classnames';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMatch } from 'react-router-dom';
-import { TokenBalanceAllFilters } from '../../Components/Filters/TokenBalanceAllFilters';
 import { BlockchainFilter } from '../../Components/Filters/BlockchainFilter';
 import { MintFilter } from '../../Components/Filters/MintFilter';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import { SortBy, defaultSortOrder } from '../../Components/Filters/SortBy';
 import { SpamFilter } from '../../Components/Filters/SpamFilter';
+import { TokenBalanceAllFilters } from '../../Components/Filters/TokenBalanceAllFilters';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Layout } from '../../Components/Layout';
 import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
+import { ShareURLDropdown } from '../../Components/ShareURLDropdown';
 import { Tab, TabContainer } from '../../Components/Tab';
 import {
   AccountOwnerData,
@@ -584,8 +585,9 @@ function TokenBalancePage() {
   const renderFilterContent = () => {
     if (showTokenDetails || socialInfo.isApplicable) {
       return (
-        <div className="flex justify-center w-full z-[21]">
+        <div className="flex justify-center w-full gap-3.5 z-[21]">
           <GetAPIDropdown options={options} dropdownAlignment="center" />
+          <ShareURLDropdown dropdownAlignment="center" />
         </div>
       );
     }
@@ -610,7 +612,10 @@ function TokenBalancePage() {
             </>
           )}
         </div>
-        <GetAPIDropdown options={options} dropdownAlignment="right" />
+        <div className="flex-row-center gap-3.5">
+          <GetAPIDropdown options={options} dropdownAlignment="right" />
+          <ShareURLDropdown dropdownAlignment="right" />
+        </div>
       </div>
     );
   };

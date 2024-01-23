@@ -322,3 +322,10 @@ export const SocialsQuery = `query GetSocials($addresses: [Identity!], $dappName
     }
   }
 }`;
+
+export const UrlShortenMutation = `mutation ShortenUrl($longUrl: String!) {
+  ShortenUrl(url: $longUrl) {
+    actualUrl
+    shortenedUrl
+  }
+}`;

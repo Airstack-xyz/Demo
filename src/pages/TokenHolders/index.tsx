@@ -10,6 +10,7 @@ import { getAllWordsAndMentions } from '../../Components/Input/utils';
 import { Layout } from '../../Components/Layout';
 import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
+import { ShareURLDropdown } from '../../Components/ShareURLDropdown';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { SocialQuery } from '../../queries';
 import {
@@ -34,6 +35,7 @@ import { getCommonPoapAndNftOwnersQuery } from '../../queries/commonPoapAndNftOw
 import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../queries/commonPoapAndNftOwnersQueryWithFilters';
 import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { getFilterablePoapsQuery } from '../../queries/overviewDetailsPoap';
+import { POAPSupplyQuery, TokenSupplyQuery } from '../../queries/supplyQuery';
 import {
   erc20TokenDetailsQuery,
   erc6551TokensQuery,
@@ -60,7 +62,6 @@ import { HoldersOverview } from './Overview/Overview';
 import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { getRequestFilters } from './OverviewDetails/Tokens/utils';
 import { Tokens } from './Tokens/Tokens';
-import { POAPSupplyQuery, TokenSupplyQuery } from '../../queries/supplyQuery';
 
 export function TokenHolders() {
   const [
@@ -516,8 +517,9 @@ export function TokenHolders() {
   const renderFilterContent = () => {
     if (activeTokenInfo) {
       return (
-        <div className="flex justify-center w-full">
-          <GetAPIDropdown options={options} />
+        <div className="flex justify-center w-full gap-3.5">
+          <GetAPIDropdown options={options} dropdownAlignment="center" />
+          <ShareURLDropdown dropdownAlignment="center" />
         </div>
       );
     }
@@ -532,7 +534,10 @@ export function TokenHolders() {
           />
           <AdvancedSettings />
         </div>
-        <GetAPIDropdown options={options} />
+        <div className="flex-row-center gap-3.5">
+          <GetAPIDropdown options={options} dropdownAlignment="right" />
+          <ShareURLDropdown dropdownAlignment="right" />
+        </div>
       </div>
     );
   };

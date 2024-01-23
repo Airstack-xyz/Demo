@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Layout } from '../../Components/Layout';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
+import { ShareURLDropdown } from '../../Components/ShareURLDropdown';
 import { OnChainGraph } from './OnChainGraph';
 import { Search } from './Search';
 
@@ -19,13 +20,14 @@ export function OnChainGraphPage() {
         <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
           <Search />
           <div className="my-3 flex-row-center">
-            <div className="flex justify-center w-full z-[21]">
+            <div className="flex justify-center w-full gap-3.5 z-[21]">
               <GetAPIDropdown
                 options={getAPIDropdownOptions}
                 dropdownAlignment="center"
                 hideFooter
                 hideDesktopNudge
               />
+              <ShareURLDropdown dropdownAlignment="center" />
             </div>
           </div>
         </div>
