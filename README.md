@@ -2,7 +2,7 @@
 
 # Airstack Explorer
 
-Visual Blockchain Explorer. Open source. Forkable. Fetch identities including; ENS, Lens, Farcaster, XMTP, POAPs, NFTs, Tokens.
+Multi-chain visual blockchain explorer. Search using ENS, Farcaster, Lens, NFTs, tokens. Fetch historical balances. Download CSV or get APIs.
 
 
 <div align="center">
