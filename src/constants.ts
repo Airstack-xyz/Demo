@@ -10,13 +10,13 @@ export const tokenBlockchains = [
 ] as const;
 
 // Used in queries for generating sub-queries for snapshots
-export const snapshotBlockchains = ['ethereum', 'base'] as const;
+export const snapshotBlockchains = ['ethereum', 'base', 'zora'] as const;
 
 // Used for options in Blockchain filter in @mentions for Advanced Search
 export const mentionBlockchains = [
   'ethereum',
   'base',
   'polygon',
-  'gnosis',
-  'zora'
+  'zora',
+  'gnosis'
 ] as const;
