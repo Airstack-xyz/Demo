@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
-import { Header } from './Header';
+import { Header } from '../Components/Header';
 
-export function Layout({
+export function MainLayout({
   children
 }: {
   children: ReactNode;

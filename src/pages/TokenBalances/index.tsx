@@ -8,7 +8,7 @@ import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import { SortBy, defaultSortOrder } from '../../Components/Filters/SortBy';
 import { SpamFilter } from '../../Components/Filters/SpamFilter';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
-import { Layout } from '../../Components/Layout';
+import { MainLayout } from '../../layouts/MainLayout';
 import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { Tab, TabContainer } from '../../Components/Tab';
@@ -699,7 +699,7 @@ function TokenBalancePage() {
   };
 
   return (
-    <Layout>
+    <MainLayout>
       <TokenDetailsReset>
         <div
           className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
@@ -722,7 +722,7 @@ function TokenBalancePage() {
           {isQueryExists && <>{renderViewContent()}</>}
         </div>
       </TokenDetailsReset>
-    </Layout>
+    </MainLayout>
   );
 }
 
