@@ -7,7 +7,7 @@ import { defaultSortOrder } from '../../Components/Filters/SortBy';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Icon } from '../../Components/Icon';
 import { getAllWordsAndMentions } from '../../Components/Input/utils';
-import { Layout } from '../../Components/Layout';
+import { MainLayout } from '../../layouts/MainLayout';
 import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { useSearchInput } from '../../hooks/useSearchInput';
@@ -538,7 +538,7 @@ export function TokenHolders() {
   };
 
   return (
-    <Layout>
+    <MainLayout>
       <div
         className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
           'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
@@ -587,6 +587,6 @@ export function TokenHolders() {
           </>
         )}
       </div>
-    </Layout>
+    </MainLayout>
   );
 }

@@ -73,17 +73,6 @@ const getLabelAndIcon = ({
   return { label, icon };
 };
 
-export function SnapshotTooltip({ message }: { message?: string }) {
-  return (
-    <div className="absolute left-4 top-4 z-20">
-      <img src="images/cursor.svg" height={30} width={30} />
-      <div className="bg-glass-1 rounded-[16px] py-1.5 px-3 w-max text-text-secondary">
-        {message}
-      </div>
-    </div>
-  );
-}
-
 export function SnapshotToast({ message }: { message: string }) {
   return (
     <div className="fixed bottom-10 left-1/2 -translate-x-1/2 rounded-[30px] w-max py-2 px-5 flex bg-[#5398FF] text-sm font-semibold z-50">
