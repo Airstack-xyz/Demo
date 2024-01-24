@@ -108,10 +108,9 @@ function Overview({
           case 'base':
             baseTokens.push(tokenAddress);
             break;
-          // TODO: Uncomment when beta api supports zora chain
-          // case 'zora':
-          //   zoraTokens.push(tokenAddress);
-          //   break;
+          case 'zora':
+            zoraTokens.push(tokenAddress);
+            break;
         }
       });
 
