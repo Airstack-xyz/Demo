@@ -1,7 +1,8 @@
 import { useCallback, useRef, useState } from 'react';
 import { apiKey } from '../constants';
-import { getOverviewQuery } from '../queries/overviewQuery';
 import { TokenHolders } from '../pages/TokenHolders/types';
+import { getOverviewQuery } from '../queries/overviewQuery';
+import { TokenBlockchain } from '../types';
 
 const HOLDERS_COUNT_ENDPOINT = 'https://api.beta.airstack.xyz/gql';
 
@@ -10,10 +11,9 @@ type HoldersCountResponse = {
 };
 
 type HoldersCountParams = {
-  polygonTokens: string[];
   eventIds: string[];
-  ethereumTokens: string[];
-  baseTokens: string[];
+} & {
+  [Key in `${TokenBlockchain}Tokens`]: string[];
 };
 
 export function useGetHoldersCount() {
@@ -43,10 +43,11 @@ export function useGetHoldersCount() {
     let requestAborted = false;
     try {
       const query = getOverviewQuery({
-        hasPolygon: !!variables.polygonTokens?.length,
-        hasEvents: !!variables.eventIds?.length,
-        hasEthereum: !!variables.ethereumTokens?.length,
-        hasBase: !!variables.baseTokens?.length
+        hasPolygon: Boolean(variables.polygonTokens?.length),
+        hasEvents: Boolean(variables.eventIds?.length),
+        hasEthereum: Boolean(variables.ethereumTokens?.length),
+        hasBase: Boolean(variables.baseTokens?.length),
+        hasZora: Boolean(variables.zoraTokens?.length)
       });
 
       abortControllerRef.current = new AbortController();

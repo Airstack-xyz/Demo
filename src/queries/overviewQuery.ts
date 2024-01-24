@@ -2,12 +2,14 @@ export function getOverviewQuery({
   hasPolygon,
   hasEvents,
   hasEthereum,
-  hasBase
+  hasBase,
+  hasZora
 }: {
   hasPolygon: boolean;
   hasEvents: boolean;
   hasEthereum: boolean;
   hasBase: boolean;
+  hasZora: boolean;
 }) {
   const variables = [];
   const filters = [];
@@ -26,6 +28,10 @@ export function getOverviewQuery({
   if (hasBase) {
     variables.push('$baseTokens: [Address!]');
     filters.push(`baseTokens: {_intersection: $baseTokens}`);
+  }
+  if (hasZora) {
+    variables.push('$zoraTokens: [Address!]');
+    filters.push(`zoraTokens: {_intersection: $zoraTokens}`);
   }
   const variablesString = variables.join(',');
   const filtersString = filters.join(',');
