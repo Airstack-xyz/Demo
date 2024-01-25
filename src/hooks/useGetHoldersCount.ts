@@ -4,7 +4,7 @@ import { TokenHolders } from '../pages/TokenHolders/types';
 import { getOverviewQuery } from '../queries/overviewQuery';
 import { TokenBlockchain } from '../types';
 
-const HOLDERS_COUNT_ENDPOINT = 'https://api.beta.airstack.xyz/gql';
+const HOLDERS_COUNT_ENDPOINT = 'https://api-beta.dev.airstack.xyz/gql';
 
 type HoldersCountResponse = {
   TokenHolders: TokenHolders;
