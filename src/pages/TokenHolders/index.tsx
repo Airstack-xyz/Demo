@@ -305,31 +305,29 @@ export function TokenHolders() {
                 : 'nft-holders-snapshot',
             fileName: `NFT holders snapshot ${query}.csv`,
             variables: {
-              tokenAddress: addresses[0],
-              blockchain: 'ethereum', // TODO: fix this it should be dynamic
+              tokenAddress: addresses[0].address,
+              blockchain: addresses[0].blockchain, // TODO: fix this it should be dynamic
               [name]: value
             },
             filters: {
-              snapshotFilter: value,
+              snapshotFilter: name,
               ...socialFilters
             }
           });
-        } else {
-          if (poaps.length === 0) {
-            csvDownloadOptions.push({
-              label: 'Nft holders',
-              key: erc20Tokens.length > 0 ? 'erc20-holders' : 'nft-holders',
-              fileName: `NFT holders ${query}.csv`,
-              variables: {
-                tokenAddress: addresses[0],
-                blockchain: 'ethereum' // TODO: fix this it should be dynamic
-              },
-              filters: {
-                ...socialFilters
-              }
-            });
-          }
         }
+      } else if (poaps.length === 0) {
+        csvDownloadOptions.push({
+          label: 'Nft holders',
+          key: erc20Tokens.length > 0 ? 'erc20-holders' : 'nft-holders',
+          fileName: `NFT holders ${query}.csv`,
+          variables: {
+            tokenAddress: addresses[0].address,
+            blockchain: addresses[0].blockchain // TODO: fix this it should be dynamic
+          },
+          filters: {
+            ...socialFilters
+          }
+        });
       }
     }
 

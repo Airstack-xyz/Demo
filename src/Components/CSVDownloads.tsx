@@ -266,13 +266,15 @@ export function CSVDownloads() {
               return (
                 <div className="py-2 px-5 rounded-full mb-2 cursor-pointer text-left whitespace-nowrap w-[340px] ">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center">
+                    <div className="flex items-center overflow-hidden">
                       <Icon
                         name="file-arrow-down"
                         className="mr-2"
                         width={14}
                       />
-                      {option.label}
+                      <span className="text-ellipsis w-full">
+                        {option.label}
+                      </span>
                     </div>
                     {option.status === CSVDownloadStatus.paused && (
                       <div className="flex items-center">

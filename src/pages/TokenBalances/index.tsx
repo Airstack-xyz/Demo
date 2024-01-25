@@ -369,7 +369,7 @@ function TokenBalancePage() {
         },
         filters: {
           filterSpam: false,
-          snapshotFilter: value
+          snapshotFilter: name
         }
       };
 
