@@ -365,10 +365,10 @@ function TokenBalancePage() {
         variables: {
           identity: address[0],
           tokenType: tokenType ? [tokenType] : ['ERC721', 'ERC1155'],
-          ...nftBlockchains,
           [name]: value
         },
         filters: {
+          ...nftBlockchains,
           filterSpam: false,
           snapshotFilter: name
         }
@@ -386,10 +386,10 @@ function TokenBalancePage() {
         fileName: `NFT balances of [${address[0]}].csv`,
         variables: {
           identity: address[0],
-          ...snapshotBlockchains,
           [name]: value
         },
         filters: {
+          ...snapshotBlockchains,
           filterSpam: false,
           snapshotFilter: name
         }
@@ -413,10 +413,10 @@ function TokenBalancePage() {
         fileName: `NFT balances of [${address[0]}].csv`,
         variables: {
           identity: address[0],
-          tokenType: tokenType ? [tokenType] : ['ERC721', 'ERC1155'],
-          ...nftBlockchains
+          tokenType: tokenType ? [tokenType] : ['ERC721', 'ERC1155']
         },
         filters: {
+          ...nftBlockchains,
           filterSpam: false
         }
       };
@@ -432,10 +432,10 @@ function TokenBalancePage() {
         key: QueryType.Erc20Balances,
         fileName: `NFT balances of [${address[0]}].csv`,
         variables: {
-          identity: address[0],
-          ...nftBlockchains
+          identity: address[0]
         },
         filters: {
+          ...nftBlockchains,
           filterSpam: false
         }
       };

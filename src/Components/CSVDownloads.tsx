@@ -8,8 +8,8 @@ import { Tooltip } from './Tooltip';
 import { useCSVQuery } from '../hooks/useCSVQuery';
 import { historyQuery } from '../queries/csv-download/history';
 import {
-  CancelTaskInput,
   CancelTaskMutation,
+  CancelTaskMutationVariables,
   DownloadCsvMutation,
   DownloadCsvMutationVariables,
   GetTaskStatusQuery,
@@ -41,9 +41,10 @@ export function CSVDownloads() {
     GetTasksHistoryQueryVariables
   >(historyQuery);
 
-  const [cancelTask] = useCSVQuery<CancelTaskMutation, CancelTaskInput>(
-    cancelTaskMutation
-  );
+  const [cancelTask] = useCSVQuery<
+    CancelTaskMutation,
+    CancelTaskMutationVariables
+  >(cancelTaskMutation);
 
   const [getStatus] = useCSVQuery<
     GetTaskStatusQuery,
@@ -289,7 +290,7 @@ export function CSVDownloads() {
                             name="cancel-circle"
                             onClick={() => {
                               cancelTask({
-                                id: option.id
+                                taskId: option.id
                               });
                             }}
                           />
@@ -308,7 +309,7 @@ export function CSVDownloads() {
                       <button
                         onClick={() => {
                           cancelTask({
-                            id: option.id
+                            taskId: option.id
                           });
                         }}
                       >
