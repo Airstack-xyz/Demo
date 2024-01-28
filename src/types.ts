@@ -1,8 +1,5 @@
-import {
-  downCSVKeys,
-  snapshotBlockchains,
-  tokenBlockchains
-} from './constants';
+import { QueryType } from '../__generated__/types';
+import { snapshotBlockchains, tokenBlockchains } from './constants';
 
 // Please don't update it since it is derived type
 // Used for blockchain type based on actual tokenBlockchains
@@ -43,7 +40,7 @@ export type CSVDownloadTask = {
 
 export type CSVDownloadOption = {
   label: string;
-  key: (typeof downCSVKeys)[number];
+  key: QueryType;
   fileName: string;
   variables: object;
   filters?: Record<string, string | boolean | string[]>;

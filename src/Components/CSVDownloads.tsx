@@ -1,21 +1,60 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import classNames from 'classnames';
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { useInProgressDownloads } from '../store/csvDownload';
-import { CSVDownloadStatus, CSVDownloadTask } from '../types';
 import { Dropdown } from './Dropdown';
 import { Icon } from './Icon';
 import { Tooltip } from './Tooltip';
-const tempToken = '';
-const csvDownloadAPI = 'http://localhost:8080/api/';
+import { useCSVQuery } from '../hooks/useCSVQuery';
+import { historyQuery } from '../queries/csv-download/history';
+import {
+  CancelTaskInput,
+  CancelTaskMutation,
+  DownloadCsvMutation,
+  DownloadCsvMutationVariables,
+  GetTaskStatusQuery,
+  GetTaskStatusQueryVariables,
+  GetTasksHistoryQuery,
+  GetTasksHistoryQueryVariables,
+  Status
+} from '../../__generated__/types';
+import { cancelTaskMutation } from '../queries/csv-download/cancel';
+import { getTaskStatusQuery } from '../queries/csv-download/status';
+import { downloadCsvMutation } from '../queries/csv-download/download';
 
-const activeStatus: CSVDownloadStatus[] = [
-  CSVDownloadStatus.pending,
-  CSVDownloadStatus.in_progress,
-  CSVDownloadStatus.data_fetched,
-  CSVDownloadStatus.calculating_credits
-];
+type Task = NonNullable<
+  NonNullable<GetTasksHistoryQuery['GetCSVDownloadTasks']>[0]
+>;
+
+function isAactive(item: Task | null) {
+  return Boolean(
+    item &&
+      item.status !== Status.Cancelled &&
+      item.status !== Status.Completed &&
+      (item.retryCount || 0) < 3
+  );
+}
 
 export function CSVDownloads() {
+  const [fetchHistory] = useCSVQuery<
+    GetTasksHistoryQuery,
+    GetTasksHistoryQueryVariables
+  >(historyQuery);
+
+  const [cancelTask] = useCSVQuery<CancelTaskMutation, CancelTaskInput>(
+    cancelTaskMutation
+  );
+
+  const [getStatus] = useCSVQuery<
+    GetTaskStatusQuery,
+    GetTaskStatusQueryVariables
+  >(getTaskStatusQuery);
+
+  const [downloadTask] = useCSVQuery<
+    DownloadCsvMutation,
+    DownloadCsvMutationVariables
+  >(downloadCsvMutation);
+
   const currentlyPollingRef = useRef<number[]>([]);
   const [newTaskAdded, setNewTaskAdded] = useState(false);
   const [fileDownloaded, setFileDownloaded] = useState(false);
@@ -30,6 +69,7 @@ export function CSVDownloads() {
       id: number;
       label: string;
       status: string;
+      isActive: boolean;
       value: '';
     }[]
   >([]);
@@ -43,54 +83,47 @@ export function CSVDownloads() {
       if (currentlyPollingRef.current.indexOf(id) === -1) {
         currentlyPollingRef.current.push(id);
       }
-      const data: Pick<CSVDownloadTask, 'status'> = await fetch(
-        csvDownloadAPI + 'status/' + id,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: tempToken
-          }
-        }
-      ).then(data => data.json());
+      const { data } = await getStatus({ taskId: id });
 
-      if (
-        data.status !== CSVDownloadStatus.in_progress &&
-        data.status !== CSVDownloadStatus.pending &&
-        data.status !== CSVDownloadStatus.data_fetched &&
-        data.status !== CSVDownloadStatus.calculating_credits
-      ) {
-        if (data.status === 'completed') {
-          setFileDownloaded(true);
-          setTimeout(() => {
-            setFileDownloaded(false);
-          }, 5000);
-        }
+      if (!data?.GetTaskStatus) {
+        return;
+      }
+      const status = data.GetTaskStatus.status as Status;
 
-        activeRef.current = activeRef.current.filter(item => item !== id);
-        currentlyPollingRef.current = currentlyPollingRef.current.filter(
-          item => item !== id
-        );
-        setInProgressDownloads({
-          inProgressDownloads: activeRef.current
-        });
-        setTasks(tasks =>
-          tasks.map(item =>
-            item.id === id
-              ? {
-                  ...item,
-                  status: data.status
-                }
-              : item
-          )
-        );
-      } else {
+      if (isAactive(data.GetTaskStatus as Task)) {
         setTimeout(() => {
           pollStatus(id);
         }, 5000);
+        return;
       }
+
+      if (status === 'completed') {
+        setFileDownloaded(true);
+        setTimeout(() => {
+          setFileDownloaded(false);
+        }, 5000);
+      }
+
+      activeRef.current = activeRef.current.filter(item => item !== id);
+      currentlyPollingRef.current = currentlyPollingRef.current.filter(
+        item => item !== id
+      );
+
+      setInProgressDownloads({
+        inProgressDownloads: activeRef.current
+      });
+      setTasks(tasks =>
+        tasks.map(item =>
+          item.id === id
+            ? {
+                ...item,
+                status
+              }
+            : item
+        )
+      );
     },
-    [setInProgressDownloads]
+    [getStatus, setInProgressDownloads]
   );
 
   useEffect(() => {
@@ -116,75 +149,49 @@ export function CSVDownloads() {
       abortController.current?.abort();
     }
     abortController.current = new AbortController();
-    const data: CSVDownloadTask[] = await fetch(
-      csvDownloadAPI + 'history?filterDownloaded=true',
-      {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: tempToken
-        },
-        signal: abortController.current.signal
-      }
-    ).then(data => data.json());
+    const { data, error } = await fetchHistory();
 
-    const active = data.filter(
-      item => activeStatus.indexOf(item.status) !== -1
-    );
-    activeRef.current = active.map(item => item.id);
+    if (!data?.GetCSVDownloadTasks || error) {
+      return;
+    }
+
+    const active = data.GetCSVDownloadTasks?.filter(item => isAactive(item));
+
+    if (active) {
+      activeRef.current = active.map(item => item!.id);
+    }
 
     setInProgressDownloads({
       inProgressDownloads: activeRef.current
     });
 
-    const _data = [...data];
+    const _data = [...data.GetCSVDownloadTasks];
     _data.length = 5;
 
     setTasks(
       _data.map(item => ({
-        id: item.id,
-        label: item.name,
-        status: item.status,
+        id: item!.id as number,
+        label: item!.name as string,
+        status: item!.status as string,
+        isActive: isAactive(item),
         value: ''
       }))
     );
-  }, [setInProgressDownloads]);
+  }, [fetchHistory, setInProgressDownloads]);
 
   useEffect(() => {
     getHistory();
   }, [getHistory]);
 
-  const csvDownloadAction = useCallback(
-    async (id: number, action: 'cancel' | 'pause' | 'resume') => {
-      await fetch(csvDownloadAPI + action, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: tempToken
-        },
-        body: JSON.stringify({
-          taskId: id
-        })
-      }).then(data => data.json());
-
-      await getHistory();
+  const handleDownload = useCallback(
+    async (taskId: number) => {
+      const { data } = await downloadTask({ taskId });
+      if (data?.DownloadCSV?.url) {
+        window.open(data.DownloadCSV.url, '_blank');
+      }
     },
-    [getHistory]
+    [downloadTask]
   );
-
-  const handleDownload = useCallback(async (id: number) => {
-    const link = await fetch(csvDownloadAPI + 'download', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: tempToken
-      },
-      body: JSON.stringify({
-        taskId: id
-      })
-    }).then(data => data.json());
-    window.open(link.url, '_blank');
-  }, []);
 
   const showDownload = useCallback(() => {
     setNewTaskAdded(false);
@@ -261,8 +268,7 @@ export function CSVDownloads() {
               </button>
             )}
             renderOption={({ option }) => {
-              const isInProgress =
-                activeStatus.indexOf(option.status as CSVDownloadStatus) !== -1;
+              const isInProgress = option.isActive;
               return (
                 <div className="py-2 px-5 rounded-full mb-2 cursor-pointer text-left whitespace-nowrap w-[340px] ">
                   <div className="flex items-center justify-between">
@@ -276,41 +282,15 @@ export function CSVDownloads() {
                         {option.label}
                       </span>
                     </div>
-                    {option.status === CSVDownloadStatus.paused && (
-                      <div className="flex items-center">
-                        <button
-                          className="mr-2"
-                          onClick={() => {
-                            csvDownloadAction(option.id, 'resume');
-                          }}
-                        >
-                          resume
-                        </button>
-                        <button>
-                          <Icon
-                            name="cancel-circle"
-                            onClick={() => {
-                              csvDownloadAction(option.id, 'cancel');
-                            }}
-                          />
-                        </button>
-                      </div>
-                    )}
                     {isInProgress && (
                       <div className="flex items-center">
-                        <button
-                          className="mr-2"
-                          onClick={() => {
-                            csvDownloadAction(option.id, 'pause');
-                          }}
-                        >
-                          <Icon name="pause-circle" />
-                        </button>
                         <button>
                           <Icon
                             name="cancel-circle"
                             onClick={() => {
-                              csvDownloadAction(option.id, 'cancel');
+                              cancelTask({
+                                id: option.id
+                              });
                             }}
                           />
                         </button>
@@ -327,7 +307,9 @@ export function CSVDownloads() {
                       </button>
                       <button
                         onClick={() => {
-                          csvDownloadAction(option.id, 'cancel');
+                          cancelTask({
+                            id: option.id
+                          });
                         }}
                       >
                         Cancel
@@ -349,7 +331,7 @@ export function CSVDownloads() {
                       <div>We will notify you once it is ready.</div>
                     </div>
                   )}
-                  {option.status === 'failed' && (
+                  {!isInProgress && option.status === 'failed' && (
                     <div className="text-text-secondary mt-2">
                       <div className="flex items-center">
                         Failed to download

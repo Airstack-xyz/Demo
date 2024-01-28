@@ -58,6 +58,7 @@ import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { Tokens, TokensLoader } from './Tokens';
 import { CSVDownloadDropdown } from '../../Components/CSVDownloadDropdown';
 import { CSVDownloadOption } from '../../types';
+import { QueryType } from '../../../__generated__/types';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -326,7 +327,7 @@ function TokenBalancePage() {
 
       csvDownloadOptions.push({
         label: 'POAPs',
-        key: 'poap-balances',
+        key: QueryType.PoapBalances,
         fileName: `Poaps of [${address[0]}].csv`,
         variables: {
           identity: address[0],
@@ -359,7 +360,7 @@ function TokenBalancePage() {
 
       nftOption = {
         label: 'NFTs',
-        key: 'nft-balances-snapshot',
+        key: QueryType.NftBalancesSnapshot,
         fileName: `NFT balances of [${address[0]}].csv`,
         variables: {
           identity: address[0],
@@ -381,7 +382,7 @@ function TokenBalancePage() {
 
       erc20Option = {
         label: 'ERC20s',
-        key: 'erc20-balances-snapshot',
+        key: QueryType.Erc20BalancesSnapshot,
         fileName: `NFT balances of [${address[0]}].csv`,
         variables: {
           identity: address[0],
@@ -408,7 +409,7 @@ function TokenBalancePage() {
 
       nftOption = {
         label: 'NFTs',
-        key: 'nft-balances',
+        key: QueryType.NftBalances,
         fileName: `NFT balances of [${address[0]}].csv`,
         variables: {
           identity: address[0],
@@ -428,7 +429,7 @@ function TokenBalancePage() {
 
       erc20Option = {
         label: 'ERC20s',
-        key: 'erc20-balances',
+        key: QueryType.Erc20Balances,
         fileName: `NFT balances of [${address[0]}].csv`,
         variables: {
           identity: address[0],
@@ -470,7 +471,7 @@ function TokenBalancePage() {
         });
         csvDownloadOptions.push({
           label: 'Socials, Domains & XMTP',
-          key: 'socials',
+          key: QueryType.Socials,
           fileName: `Socials of [${address[0]}].csv`,
           variables: {
             identity: address[0],
@@ -603,7 +604,10 @@ function TokenBalancePage() {
       const dappName = socialInfo.dappName as 'farcaster' | 'lens';
       csvDownloadOptions.push({
         label: `${formattedDappName} followers`,
-        key: `${dappName}-followers`,
+        key:
+          dappName === 'farcaster'
+            ? QueryType.FarcasterFollowers
+            : QueryType.LensFollowers,
         fileName: `Social followers of [${address[0]}].csv`,
         variables: {
           identity: address[0]
@@ -617,7 +621,10 @@ function TokenBalancePage() {
 
       csvDownloadOptions.push({
         label: `${formattedDappName} following`,
-        key: `${dappName}-followings`,
+        key:
+          dappName === 'farcaster'
+            ? QueryType.FarcasterFollowings
+            : QueryType.LensFollowings,
         fileName: `Social following of [${address[0]}].csv`,
         variables: {
           identity: address[0]

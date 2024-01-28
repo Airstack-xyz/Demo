@@ -5,6 +5,13 @@ import { isMobileDevice } from '../utils/isMobileDevice';
 import { Modal } from './Modal';
 import { useInProgressDownloads } from '../store/csvDownload';
 import { CSVDownloadOption } from '../types';
+import { useCSVQuery } from '../hooks/useCSVQuery';
+import {
+  EstimateTaskInput,
+  EstimateTaskMutation,
+  EstimateTaskMutationVariables
+} from '../../__generated__/types';
+import { estimateTaskMutation } from '../queries/csv-download/estimate';
 
 function CodeIconBlue() {
   return (
@@ -42,6 +49,10 @@ export function CSVDownloadDropdown({
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const isMobile = isMobileDevice();
+  const [estimateTask] = useCSVQuery<
+    EstimateTaskMutation,
+    EstimateTaskMutationVariables
+  >(estimateTaskMutation);
 
   const [{ inProgressDownloads }, setInProgressDownloads] =
     useInProgressDownloads(['inProgressDownloads']);
@@ -84,19 +95,16 @@ export function CSVDownloadDropdown({
         payload['filters'] = filters;
       }
 
-      const data = await fetch('http://localhost:8080/api/estimate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: '123' // TODO pass token here
-        },
-        body: JSON.stringify(payload)
-      }).then(data => data.json());
-      setInProgressDownloads({
-        inProgressDownloads: [...inProgressDownloads, data.id]
+      const { data } = await estimateTask({
+        estimateTaskInput: payload as EstimateTaskInput
       });
+      if (data?.EstimateTask) {
+        setInProgressDownloads({
+          inProgressDownloads: [...inProgressDownloads, data?.EstimateTask.id]
+        });
+      }
     },
-    [inProgressDownloads, setInProgressDownloads]
+    [estimateTask, inProgressDownloads, setInProgressDownloads]
   );
 
   const showDesktopNudgeModal = !hideDesktopNudge && isMobile;
