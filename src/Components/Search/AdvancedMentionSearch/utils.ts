@@ -90,3 +90,12 @@ export const getAppliedFilterCount = ({
   }
   return count;
 };
+
+const DEFAULT_IMAGE_REGEX = /ai-suggestion-(.+).png$/;
+
+export const isDefaultImage = (url: string) => {
+  if (!url) {
+    return false;
+  }
+  return DEFAULT_IMAGE_REGEX.test(url);
+};
