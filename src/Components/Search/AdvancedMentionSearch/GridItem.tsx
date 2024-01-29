@@ -1,7 +1,7 @@
 import { Icon, IconType } from '../../Icon';
 import LazyImage from '../../LazyImage';
 import { AdvancedMentionSearchItem } from './types';
-import { getFormattedAddress } from './utils';
+import { getFormattedAddress, isDefaultImage } from './utils';
 import classNames from 'classnames';
 
 export const GridItemLoader = () => {
@@ -45,6 +45,9 @@ export default function GridItem({
   const tokenMints = metadata?.tokenMints;
   const showPOAPHolderCount = type === 'POAP' && Number.isInteger(tokenMints);
 
+  const showHalfWidth =
+    image?.medium && (tokenType === 'ERC20' || isDefaultImage(image.medium));
+
   return (
     <button
       tabIndex={-1}
@@ -59,7 +62,7 @@ export default function GridItem({
           src={image?.medium}
           className={classNames(
             'aspect-square',
-            tokenType === 'ERC20' && image?.medium ? 'h-[50%]' : 'h-full'
+            showHalfWidth ? 'h-[50%]' : 'h-full'
           )}
           fallbackClassName="!h-full"
         />
