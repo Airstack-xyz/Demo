@@ -64,11 +64,12 @@ export function ScoreOverview() {
   ]);
   const [loading, setLoading] = useState(false);
   const [{ address }] = useSearchInput();
-  const [{ ethereumCount, polygonCount, baseCount }, setNftCount] =
+  const [{ ethereumCount, polygonCount, baseCount, zoraCount }, setNftCount] =
     useState<NFTCountData>({
       ethereumCount: 0,
       polygonCount: 0,
-      baseCount: 0
+      baseCount: 0,
+      zoraCount: 0
     });
   const [poapsCount, setPoapsCount] = useState(0);
   const [follow, setFollow] = useState({
@@ -164,6 +165,7 @@ export function ScoreOverview() {
     _score += (ethereumCount || 0) * scoreMap.commonEthNfts;
     _score += (polygonCount || 0) * scoreMap.commonPolygonNfts;
     _score += (baseCount || 0) * scoreMap.commonBaseNfts;
+    _score += (zoraCount || 0) * scoreMap.commonZoraNfts;
     return _score;
   }, [
     baseCount,
@@ -172,7 +174,8 @@ export function ScoreOverview() {
     poapsCount,
     polygonCount,
     tokenTransfer.received,
-    tokenTransfer.sent
+    tokenTransfer.sent,
+    zoraCount
   ]);
 
   const totalNFTCount = ethereumCount + polygonCount + baseCount || 0;

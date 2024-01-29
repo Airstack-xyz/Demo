@@ -19,6 +19,7 @@ export type IconType =
   | 'polygon'
   | 'gnosis'
   | 'base'
+  | 'zora'
   | 'token-balances'
   | 'token-holders'
   | 'erc20'
