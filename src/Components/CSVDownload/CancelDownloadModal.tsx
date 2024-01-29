@@ -17,13 +17,13 @@ export function CancelDownloadModal(props: {
         <div className="flex items-center justify-between mb-3">
           <button
             className="bg-button-primary px-5 py-2.5 rounded-18 text-sm font-semibold flex-1 mr-2"
-            onClick={props.onConfirm}
+            onClick={props.onRequestClose}
           >
             Do not cancel
           </button>
           <button
             className="px-5 py-2.5 rounded-18 text-sm font-semibold border border-solid border-white flex-1"
-            onClick={props.onRequestClose}
+            onClick={props.onConfirm}
           >
             Cancel download
           </button>

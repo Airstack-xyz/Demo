@@ -16,6 +16,7 @@ export const historyQuery = /* GraphQL */ `
       completedAt
       createdAt
       updatedAt
+      fileSize
     }
   }
 `;

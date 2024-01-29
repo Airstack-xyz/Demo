@@ -74,78 +74,12 @@ export function CSVDownloads() {
       status: string;
       isActive: boolean;
       value: '';
+      fileSize: number;
+      totalRows: number;
+      creditUsed: number;
+      creditPrice: number;
     }[]
   >([]);
-
-  const pollStatus = useCallback(
-    async (id: number) => {
-      if (activeRef.current.indexOf(id) === -1) {
-        return;
-      }
-
-      if (currentlyPollingRef.current.indexOf(id) === -1) {
-        currentlyPollingRef.current.push(id);
-      }
-      const { data } = await getStatus({ taskId: id });
-
-      if (!data?.GetTaskStatus) {
-        return;
-      }
-      const status = data.GetTaskStatus.status as Status;
-
-      if (isAactive(data.GetTaskStatus as Task)) {
-        setTimeout(() => {
-          pollStatus(id);
-        }, 5000);
-        return;
-      }
-
-      if (status === 'completed') {
-        setFileDownloaded(true);
-        setTimeout(() => {
-          setFileDownloaded(false);
-        }, 5000);
-      }
-
-      activeRef.current = activeRef.current.filter(item => item !== id);
-      currentlyPollingRef.current = currentlyPollingRef.current.filter(
-        item => item !== id
-      );
-
-      setInProgressDownloads({
-        inProgressDownloads: activeRef.current
-      });
-      setTasks(tasks =>
-        tasks.map(item =>
-          item.id === id
-            ? {
-                ...item,
-                status
-              }
-            : item
-        )
-      );
-    },
-    [getStatus, setInProgressDownloads]
-  );
-
-  useEffect(() => {
-    const ids = (inProgressDownloads as number[]).filter(
-      id => currentlyPollingRef.current.indexOf(id) === -1
-    );
-    ids.forEach(id => {
-      pollStatus(id);
-    });
-    if (ids.length > 0) {
-      setNewTaskAdded(true);
-      const timer = setTimeout(() => {
-        setNewTaskAdded(false);
-      }, 5000);
-      return () => {
-        clearTimeout(timer);
-      };
-    }
-  }, [inProgressDownloads, pollStatus]);
 
   const getHistory = useCallback(async () => {
     if (abortController) {
@@ -177,10 +111,85 @@ export function CSVDownloads() {
         label: item!.name as string,
         status: item!.status as string,
         isActive: isAactive(item),
+        fileSize: item!.creditPrice as number,
+        totalRows: item!.totalRows as number,
+        creditUsed: item!.creditsUsed as number,
+        creditPrice: item!.creditPrice as number,
         value: ''
       }))
     );
   }, [fetchHistory, setInProgressDownloads]);
+
+  const pollStatus = useCallback(
+    async (id: number) => {
+      if (activeRef.current.indexOf(id) === -1) {
+        return;
+      }
+
+      if (currentlyPollingRef.current.indexOf(id) === -1) {
+        currentlyPollingRef.current.push(id);
+      }
+      const { data } = await getStatus({ taskId: id });
+
+      if (!data?.GetTaskStatus) {
+        return;
+      }
+      const status = data.GetTaskStatus.status as Status;
+
+      if (isAactive(data.GetTaskStatus as Task)) {
+        setTimeout(() => {
+          pollStatus(id);
+        }, 5000);
+        return;
+      }
+
+      if (status === Status.Completed) {
+        setFileDownloaded(true);
+        getHistory();
+        setTimeout(() => {
+          setFileDownloaded(false);
+        }, 5000);
+      }
+
+      activeRef.current = activeRef.current.filter(item => item !== id);
+      currentlyPollingRef.current = currentlyPollingRef.current.filter(
+        item => item !== id
+      );
+
+      setInProgressDownloads({
+        inProgressDownloads: activeRef.current
+      });
+      setTasks(tasks =>
+        tasks.map(item =>
+          item.id === id
+            ? {
+                ...item,
+                status
+              }
+            : item
+        )
+      );
+    },
+    [getHistory, getStatus, setInProgressDownloads]
+  );
+
+  useEffect(() => {
+    const ids = (inProgressDownloads as number[]).filter(
+      id => currentlyPollingRef.current.indexOf(id) === -1
+    );
+    ids.forEach(id => {
+      pollStatus(id);
+    });
+    if (ids.length > 0) {
+      setNewTaskAdded(true);
+      const timer = setTimeout(() => {
+        setNewTaskAdded(false);
+      }, 5000);
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [inProgressDownloads, pollStatus]);
 
   useEffect(() => {
     getHistory();
@@ -288,6 +297,9 @@ export function CSVDownloads() {
             )}
             renderOption={({ option }) => {
               const isInProgress = option.isActive;
+              const failed =
+                option.status === Status.Failed ||
+                option.status === Status.CreditCalculationFailed;
               return (
                 <div className="py-2 px-5 rounded-full mb-2 cursor-pointer text-left whitespace-nowrap w-[340px] ">
                   <div className="flex items-center justify-between">
@@ -302,7 +314,7 @@ export function CSVDownloads() {
                       </span>
                     </div>
                     {isInProgress && (
-                      <div className="flex items-center">
+                      <div className="flex items-center ml-2">
                         <button>
                           <Icon
                             name="cancel-circle"
@@ -315,51 +327,61 @@ export function CSVDownloads() {
                       </div>
                     )}
                   </div>
-                  {option.status === 'completed' && (
-                    <div className="mt-2">
-                      <button
-                        className="py-1 px-3 rounded-full cursor-pointer text-left whitespace-nowrap bg-white text-tertiary mr-5"
-                        onClick={() => handleDownload(option.id)}
-                      >
-                        Download CSV
-                      </button>
-                      <button
-                        onClick={e => {
-                          e.preventDefault();
-                          setTaskToCancel(option.id);
-                        }}
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  )}
+                  <div className="ml-5">
+                    {option.status === Status.Completed && (
+                      <div className="mt-2">
+                        <div className="mb-2">
+                          {option.fileSize} • {option.totalRows} rows •{' '}
+                          <span className="text-stroke-highlight-blue">
+                            {option.creditUsed} credits to download
+                          </span>
+                        </div>
+                        <div>
+                          <button
+                            className="py-1 px-3 rounded-full cursor-pointer text-left whitespace-nowrap bg-white text-tertiary mr-5"
+                            onClick={() => handleDownload(option.id)}
+                          >
+                            Download CSV (${option.creditPrice})
+                          </button>
+                          <button
+                            onClick={e => {
+                              e.preventDefault();
+                              setTaskToCancel(option.id);
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
 
-                  {isInProgress && (
-                    <div className="text-text-secondary">
-                      <div className="flex items-center">
-                        <img
-                          src="images/loader.svg"
-                          height={20}
-                          width={30}
-                          className="mr-2"
-                        />{' '}
-                        Preparing your file...
+                    {isInProgress && (
+                      <div className="text-text-secondary">
+                        <div className="flex items-center">
+                          <img
+                            src="images/loader.svg"
+                            height={20}
+                            width={30}
+                            className="mr-2"
+                          />{' '}
+                          Preparing your file...
+                        </div>
+                        <div>We will notify you once it is ready.</div>
                       </div>
-                      <div>We will notify you once it is ready.</div>
-                    </div>
-                  )}
-                  {!isInProgress && option.status === 'failed' && (
-                    <div className="text-text-secondary mt-2">
-                      <div className="flex items-center">
-                        Failed to download
+                    )}
+                    {!isInProgress && failed && (
+                      <div className="text-text-secondary mt-2">
+                        <div className="flex items-center">
+                          Failed to download
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {option.status === 'cancelled' && (
-                    <div className="text-text-secondary mt-2">
-                      <div className="flex items-center">Cancelled</div>
-                    </div>
-                  )}
+                    )}
+                    {option.status === Status.Cancelled && (
+                      <div className="text-text-secondary mt-2">
+                        <div className="flex items-center">Cancelled</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             }}
