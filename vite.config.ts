@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => {
 
   const publicVariables = {
     GOOGLE_TAG_MANAGER_ID: env.GOOGLE_TAG_MANAGER_ID,
+    TWITTER_PIXEL_ID: env.TWITTER_PIXEL_ID,
     API_KEY: env.API_KEY,
     MENTION_ENDPOINT: env.MENTION_ENDPOINT,
     BASE_URL: env.BASE_URL
@@ -21,6 +22,7 @@ export default defineConfig(({ mode }) => {
           env: {
             isProduction: mode === 'production',
             GOOGLE_TAG_MANAGER_ID: env.GOOGLE_TAG_MANAGER_ID,
+            TWITTER_PIXEL_ID: env.TWITTER_PIXEL_ID,
             BASE_URL: env.BASE_URL
           }
         };
