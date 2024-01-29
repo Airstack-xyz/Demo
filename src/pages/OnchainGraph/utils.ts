@@ -82,6 +82,7 @@ export function filterDuplicatedAndCalculateScore(
       let ethereumNftCount = 0;
       let polygonNftCount = 0;
       let baseNftCount = 0;
+      let zoraNftCount = 0;
 
       uniqueNfts.forEach(nft => {
         switch (nft.blockchain) {
@@ -94,12 +95,16 @@ export function filterDuplicatedAndCalculateScore(
           case 'base':
             baseNftCount += 1;
             break;
+          case 'zora':
+            zoraNftCount += 1;
+            break;
         }
       });
 
       score += scoreMap.commonEthNfts * ethereumNftCount;
       score += scoreMap.commonPolygonNfts * polygonNftCount;
       score += scoreMap.commonBaseNfts * baseNftCount;
+      score += scoreMap.commonZoraNfts * zoraNftCount;
     }
 
     let uniquePoaps: RecommendedUser['poaps'] = [];

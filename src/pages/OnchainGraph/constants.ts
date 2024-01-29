@@ -22,7 +22,8 @@ export const defaultScoreMap = {
   commonPoaps: 5,
   commonEthNfts: 10,
   commonPolygonNfts: 0,
-  commonBaseNfts: 15
+  commonBaseNfts: 15,
+  commonZoraNfts: 15
 };
 
 export type ScoreMap = typeof defaultScoreMap;
@@ -70,6 +71,10 @@ export const scoreOptions: {
   {
     label: 'Base NFTs in common (each)',
     value: 'commonBaseNfts'
+  },
+  {
+    label: 'Zora NFTs in common (each)',
+    value: 'commonZoraNfts'
   }
 ];
 

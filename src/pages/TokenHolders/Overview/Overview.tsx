@@ -90,6 +90,7 @@ function Overview({
       const polygonTokens: string[] = [];
       const ethereumTokens: string[] = [];
       const baseTokens: string[] = [];
+      const zoraTokens: string[] = [];
       const eventIds: string[] = [];
 
       memoizedTokens.forEach(({ eventId, blockchain, tokenAddress }) => {
@@ -107,6 +108,9 @@ function Overview({
           case 'base':
             baseTokens.push(tokenAddress);
             break;
+          case 'zora':
+            zoraTokens.push(tokenAddress);
+            break;
         }
       });
 
@@ -114,6 +118,7 @@ function Overview({
         ethereumTokens,
         polygonTokens,
         baseTokens,
+        zoraTokens,
         eventIds
       });
     }
