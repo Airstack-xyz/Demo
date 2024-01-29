@@ -1,17 +1,18 @@
 import classNames from 'classnames';
 import { useCallback, useState } from 'react';
-import { useOutsideClick } from '../hooks/useOutsideClick';
-import { isMobileDevice } from '../utils/isMobileDevice';
-import { Modal } from './Modal';
-import { useInProgressDownloads } from '../store/csvDownload';
-import { CSVDownloadOption } from '../types';
-import { useCSVQuery } from '../hooks/useCSVQuery';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { isMobileDevice } from '../../utils/isMobileDevice';
+import { Modal } from '../Modal';
+import { useInProgressDownloads } from '../../store/csvDownload';
+import { CSVDownloadOption } from '../../types';
+import { useCSVQuery } from '../../hooks/useCSVQuery';
 import {
   EstimateTaskInput,
   EstimateTaskMutation,
   EstimateTaskMutationVariables
-} from '../../__generated__/types';
-import { estimateTaskMutation } from '../queries/csv-download/estimate';
+} from '../../../__generated__/types';
+import { estimateTaskMutation } from '../../queries/csv-download/estimate';
+import { useAuth } from '../../hooks/useAuth';
 
 function CodeIconBlue() {
   return (
@@ -46,6 +47,7 @@ export function CSVDownloadDropdown({
   hideFooter?: boolean;
   hideDesktopNudge?: boolean;
 }) {
+  const { user, login } = useAuth();
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const isMobile = isMobileDevice();
@@ -82,6 +84,11 @@ export function CSVDownloadDropdown({
       variables: CSVDownloadOption['variables'],
       filters?: CSVDownloadOption['filters']
     ) => {
+      if (!user) {
+        login(true);
+        return;
+      }
+
       const payload: Pick<CSVDownloadOption, 'variables' | 'filters'> & {
         query: string;
         name: string;
@@ -104,7 +111,7 @@ export function CSVDownloadDropdown({
         });
       }
     },
-    [estimateTask, inProgressDownloads, setInProgressDownloads]
+    [user, estimateTask, inProgressDownloads, login, setInProgressDownloads]
   );
 
   const showDesktopNudgeModal = !hideDesktopNudge && isMobile;

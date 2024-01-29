@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import classNames from 'classnames';
 import { useRef, useState, useCallback, useEffect } from 'react';
-import { useInProgressDownloads } from '../store/csvDownload';
-import { Dropdown } from './Dropdown';
-import { Icon } from './Icon';
-import { Tooltip } from './Tooltip';
-import { useCSVQuery } from '../hooks/useCSVQuery';
-import { historyQuery } from '../queries/csv-download/history';
+import { useInProgressDownloads } from '../../store/csvDownload';
+import { Dropdown } from '../Dropdown';
+import { Icon } from '../Icon';
+import { Tooltip } from '../Tooltip';
+import { useCSVQuery } from '../../hooks/useCSVQuery';
+import { historyQuery } from '../../queries/csv-download/history';
 import {
   CancelTaskMutation,
   CancelTaskMutationVariables,
@@ -17,10 +17,11 @@ import {
   GetTasksHistoryQuery,
   GetTasksHistoryQueryVariables,
   Status
-} from '../../__generated__/types';
-import { cancelTaskMutation } from '../queries/csv-download/cancel';
-import { getTaskStatusQuery } from '../queries/csv-download/status';
-import { downloadCsvMutation } from '../queries/csv-download/download';
+} from '../../../__generated__/types';
+import { cancelTaskMutation } from '../../queries/csv-download/cancel';
+import { getTaskStatusQuery } from '../../queries/csv-download/status';
+import { downloadCsvMutation } from '../../queries/csv-download/download';
+import { CancelDownloadModal } from '../CSVDownload/CancelDownloadModal';
 
 type Task = NonNullable<
   NonNullable<GetTasksHistoryQuery['GetCSVDownloadTasks']>[0]
@@ -56,6 +57,7 @@ export function CSVDownloads() {
     DownloadCsvMutationVariables
   >(downloadCsvMutation);
 
+  const [taskToCancel, setTaskToCancel] = useState<number | null>(null);
   const currentlyPollingRef = useRef<number[]>([]);
   const [newTaskAdded, setNewTaskAdded] = useState(false);
   const [fileDownloaded, setFileDownloaded] = useState(false);
@@ -204,6 +206,21 @@ export function CSVDownloads() {
 
   return (
     <div>
+      {taskToCancel && (
+        <CancelDownloadModal
+          onRequestClose={() => {
+            setTaskToCancel(null);
+          }}
+          onConfirm={() => {
+            if (taskToCancel) {
+              cancelTask({
+                taskId: taskToCancel
+              });
+            }
+            setTaskToCancel(null);
+          }}
+        />
+      )}
       <Tooltip
         disabled={!showTooltip}
         contentClassName={classNames(
@@ -244,9 +261,10 @@ export function CSVDownloads() {
               <button
                 onClick={showDownload}
                 className={classNames(
-                  'py-1.5 px-3 text-text-button bg-glass-1 rounded-full text-xs font-medium flex-row-center border border-solid border-transparent',
+                  'w-10 h-[30px] bg-glass-1 rounded-full text-xs font-medium flex-row-center border border-solid border-transparent hover:opacity-90',
                   {
-                    'border-white': isOpen
+                    'border-white text-text-button ': isOpen,
+                    'text-[#8B8EA0]': !isOpen
                     // 'cursor-not-allowed pointer-events-none opacity-80': disabled
                   }
                 )}
@@ -260,7 +278,7 @@ export function CSVDownloads() {
                 >
                   <path
                     d="M10.8327 2.5H6.83268C5.89927 2.5 5.43255 2.5 5.07603 2.68166C4.76242 2.84144 4.50746 3.09641 4.34767 3.41002C4.16602 3.76653 4.16602 4.23325 4.16602 5.16667V14.8333C4.16602 15.7667 4.16602 16.2335 4.34767 16.59C4.50746 16.9036 4.76242 17.1586 5.07603 17.3183C5.43255 17.5 5.89927 17.5 6.83268 17.5H12.4993M10.8327 2.5L15.8327 7.5M10.8327 2.5V6.16667C10.8327 6.63337 10.8327 6.86673 10.9235 7.04499C11.0034 7.20179 11.1308 7.32927 11.2877 7.40917C11.4659 7.5 11.6993 7.5 12.166 7.5H15.8327M15.8327 7.5V9.16667M15.8344 12.5V17.4764M15.8344 17.4764V17.5M15.8344 17.4764L15.8579 17.5L17.5246 15.8333M15.8344 17.4764L14.1913 15.8333"
-                    stroke="#4B97F7"
+                    stroke="currentColor"
                     stroke-width="1.62195"
                     stroke-linecap="round"
                     stroke-linejoin="round"
@@ -288,10 +306,9 @@ export function CSVDownloads() {
                         <button>
                           <Icon
                             name="cancel-circle"
-                            onClick={() => {
-                              cancelTask({
-                                taskId: option.id
-                              });
+                            onClick={e => {
+                              e.preventDefault();
+                              setTaskToCancel(option.id);
                             }}
                           />
                         </button>
@@ -307,10 +324,9 @@ export function CSVDownloads() {
                         Download CSV
                       </button>
                       <button
-                        onClick={() => {
-                          cancelTask({
-                            taskId: option.id
-                          });
+                        onClick={e => {
+                          e.preventDefault();
+                          setTaskToCancel(option.id);
                         }}
                       >
                         Cancel

@@ -62,7 +62,7 @@ import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { getRequestFilters } from './OverviewDetails/Tokens/utils';
 import { Tokens } from './Tokens/Tokens';
 import { POAPSupplyQuery, TokenSupplyQuery } from '../../queries/supplyQuery';
-import { CSVDownloadDropdown } from '../../Components/CSVDownloadDropdown';
+import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDropdown';
 import { CSVDownloadOption } from '../../types';
 import { QueryType } from '../../../__generated__/types';
 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Modal } from './Modal';
-import { Icon } from './Icon';
+import { Modal } from '../Modal';
+import { Icon } from '../Icon';
 
 export function AddCardModal() {
   return (
@@ -8,7 +8,6 @@ export function AddCardModal() {
       isOpen
       heading={
         <div className="text-lg">
-          <div>You do not have enough free credits.</div>
           <div>Please add a card to download this file</div>
         </div>
       }
@@ -18,28 +17,32 @@ export function AddCardModal() {
           <li>
             <Icon name="check-mark-circle" className="mt-1 w-[14px]" />
             <span className="ml-1.5">
-              Your Airstack credits will be utilized for downloading CSV
-              responses and API calls.
+              It is free to browse Airstack. We only charge for CSV downloads
+              and API requests.
+            </span>
+          </li>
+
+          <li>
+            <Icon name="check-mark-circle" className="mt-1 w-[14px]" />
+            <span className="ml-1.5">
+              The are no recurring fees. You only pay for what you use.
             </span>
           </li>
           <li>
             <Icon name="check-mark-circle" className="mt-1 w-[14px]" />
             <span className="ml-1.5">
-              You will be billed weekly at the rate of $0.00002 per credit,
-              which is $1.99 for each 99,500 credit CSV download. Know more{' '}
-              <a className="text-text-button font-semibold cursor-pointer">
-                Know more
-              </a>
+              Your card will be charged once-per-week $0.00002 per credit used.
+              If you do not use the service during a weekly period, there will
+              be no charges.
             </span>
           </li>
           <li>
             <Icon name="check-mark-circle" className="mt-1 w-[14px]" />
             <span className="ml-1.5">
-              There are no monthly subscription fees. You only pay for what you
-              use.
+              All charges will be made clear before purchase.
+              <a className="text-text-button ml-1 cursor-pointer">Know more</a>
             </span>
           </li>
-          <li></li>
         </ul>
         <button className="bg-button-primary px-10 rounded-full w-full flex-col-center justify-between text-white py-2">
           <span className="text-sm font-bold">Add card</span>

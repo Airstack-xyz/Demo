@@ -17,6 +17,7 @@ import { useAppQuery } from '../hooks/useAppQuery';
 import { MeQuery as MeQueryType, Mutation } from '../../__generated__/types';
 import { MeQuery } from '../queries/auth/me';
 import { LoginMutation } from '../queries/auth/login';
+import { SignInModal } from '../Components/SignInModal';
 
 // eslint-disable-next-line
 function noop() {}
@@ -29,7 +30,7 @@ export type AuthContext = Omit<PrivyInterface, 'user' | 'login'> & {
   loggedIn: boolean;
   getUser: () => void;
   privyUser?: PrivyInterface['user'];
-  login: () => void;
+  login: (showModal?: boolean) => void;
 };
 
 const defaultState = {
@@ -54,6 +55,7 @@ type AuthProviderProps = {
 };
 
 function Provider({ children }: AuthProviderProps) {
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const auth = usePrivy();
   const loginCompleted = useRef(false);
 
@@ -101,6 +103,16 @@ function Provider({ children }: AuthProviderProps) {
     setMe(null);
   }, [auth]);
 
+  const onLoginClick = useCallback(() => {
+    setShowLoginModal(false);
+    if (process.env.NODE_ENV === 'development') {
+      auth.login();
+      return;
+    }
+    location.href =
+      'https://app.dev.airstack.xyz/login?origin=' + location.href;
+  }, [auth]);
+
   const value: AuthContext = useMemo(
     (): AuthContext => ({
       ...auth,
@@ -108,22 +120,29 @@ function Provider({ children }: AuthProviderProps) {
       user: user,
       loading: userLoading || loginInProgress,
       getUser,
-      login: () => {
-        if (process.env.NODE_ENV === 'development') {
-          auth.login();
+      login: (showModal?: boolean) => {
+        if (showModal) {
+          setShowLoginModal(true);
           return;
         }
-        location.href =
-          'https://app.dev.airstack.xyz/login?origin=' + location.href;
+        onLoginClick();
       },
       logout,
       loggedIn: (user && user?.isProfileCompleted) || false
     }),
-    [auth, user, userLoading, loginInProgress, getUser, logout]
+    [auth, user, userLoading, loginInProgress, getUser, logout, onLoginClick]
   );
 
   return (
     <authContext.Provider value={value}>
+      {showLoginModal && (
+        <SignInModal
+          onRequestClose={() => {
+            setShowLoginModal(false);
+          }}
+          onLogin={onLoginClick}
+        />
+      )}
       {auth.ready ? children : null}
     </authContext.Provider>
   );

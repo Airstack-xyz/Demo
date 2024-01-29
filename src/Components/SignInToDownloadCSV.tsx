@@ -24,7 +24,9 @@ export function SignInToDownloadCSV() {
         </div>
         <button
           className="bg-button-primary h-10 px-10 rounded-full text-sm font-semibold"
-          onClick={login}
+          onClick={() => {
+            login();
+          }}
         >
           Sign In
         </button>

@@ -56,7 +56,7 @@ import { Socials } from './Socials';
 import { SocialsOverlap } from './Socials/SocialsOverlap';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { Tokens, TokensLoader } from './Tokens';
-import { CSVDownloadDropdown } from '../../Components/CSVDownloadDropdown';
+import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDropdown';
 import { CSVDownloadOption } from '../../types';
 import { QueryType } from '../../../__generated__/types';
 
