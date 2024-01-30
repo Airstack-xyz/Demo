@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import { useCallback, useEffect, useState } from 'react';
 import { useOutsideClick } from '../hooks/useOutsideClick';
-import { useShortenURL } from '../hooks/useShortenURL';
+import { shortenUrl } from '../hooks/useShortenURL';
 import { showToast } from '../utils/showToast';
 
 function CopyIconWhite() {
@@ -68,9 +68,7 @@ export function ShareURLDropdown({
   dropdownAlignment?: string;
 }) {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-  const { fetchShortenedUrl, data, loading } = useShortenURL();
-
-  const shortUrl = data?.shortenedUrl || '';
+  const [shortUrl, setShortUrl] = useState<string | null>(null);
 
   const handleDropdownClose = useCallback(() => {
     setIsDropdownVisible(false);
@@ -89,11 +87,16 @@ export function ShareURLDropdown({
   }, [shortUrl]);
 
   useEffect(() => {
-    if (isDropdownVisible) {
+    if (isDropdownVisible && shortUrl === null) {
       const longUrl = window.location.href;
-      fetchShortenedUrl(longUrl);
+      shortenUrl(longUrl).then(({ data, error }) => {
+        if (error) {
+          showToast(`Couldn't shorten url`, 'negative');
+        }
+        setShortUrl(data?.shortenedUrl || '');
+      });
     }
-  }, [isDropdownVisible, fetchShortenedUrl]);
+  }, [isDropdownVisible, shortUrl]);
 
   return (
     <>
@@ -115,7 +118,7 @@ export function ShareURLDropdown({
         {isDropdownVisible && (
           <div
             className={classNames(
-              'bg-glass rounded-18 p-3.5 mt-1 absolute w-[334px] top-9 z-20',
+              'bg-glass border-solid-stroke rounded-18 p-3.5 mt-1 absolute w-[334px] top-9 z-20',
               {
                 'left-0': dropdownAlignment === 'left',
                 'left-1/2 -translate-x-1/2': dropdownAlignment === 'center',
@@ -127,7 +130,7 @@ export function ShareURLDropdown({
               Share this view with others
             </div>
             <div className="flex-row-center mt-2.5 gap-3 h-[35px]">
-              {loading || !shortUrl ? (
+              {shortUrl === null ? (
                 <img src="images/loader.svg" height={20} width={30} />
               ) : (
                 <>
