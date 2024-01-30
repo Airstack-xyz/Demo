@@ -7,7 +7,7 @@
     "dev": "npm run codegen-watch & vite",
     "prebuild": "npm run codegen && npm run lint && npm run ts-lint",
     "build": "vite build",
-    "build-dev": "tsc && vite build --mode development",
+    "build-dev": "npm run codegen && tsc && vite build --mode development",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "ts-lint": "tsc --noEmit --incremental",
     "preview": "vite preview",
