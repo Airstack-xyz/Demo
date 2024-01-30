@@ -10,6 +10,7 @@ export default defineConfig(({ mode }) => {
     GOOGLE_TAG_MANAGER_ID: env.GOOGLE_TAG_MANAGER_ID,
     API_KEY: env.API_KEY,
     MENTION_ENDPOINT: env.MENTION_ENDPOINT,
+    CSV_ENDPOINT: env.CSV_ENDPOINT,
     PRIVY_APP_ID: env.PRIVY_APP_ID
   };
 

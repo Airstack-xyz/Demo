@@ -5,7 +5,7 @@ const config: CodegenConfig = {
   overwrite: true,
   schema: [
     'https://backend.uat.airstack.xyz/graphql',
-    'http://localhost:8080/graphql'
+    'https://backend.dev.airstack.xyz/graphql'
   ],
   documents: ['src/**/*.tsx', 'src/**/*.ts'],
   generates: {

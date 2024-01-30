@@ -14,7 +14,7 @@ import {
   useState
 } from 'react';
 import { useAppQuery } from '../hooks/useAppQuery';
-import { MeQuery as MeQueryType, Mutation } from '../../__generated__/types';
+import { MeQuery as MeCsvQueryType, Mutation } from '../../__generated__/types';
 import { MeQuery } from '../queries/auth/me';
 import { LoginMutation } from '../queries/auth/login';
 import { SignInModal } from '../Components/SignInModal';
@@ -22,7 +22,7 @@ import { SignInModal } from '../Components/SignInModal';
 // eslint-disable-next-line
 function noop() {}
 
-export type User = MeQueryType['Me'];
+export type User = MeCsvQueryType['Me'];
 
 export type AuthContext = Omit<PrivyInterface, 'user' | 'login'> & {
   user?: User;
@@ -62,7 +62,7 @@ function Provider({ children }: AuthProviderProps) {
   const [me, setMe] = useState<User>(null);
 
   const [_getUser, { loading: userLoading }] =
-    useAppQuery<MeQueryType>(MeQuery);
+    useAppQuery<MeCsvQueryType>(MeQuery);
 
   const [loginMutation, { loading: loginInProgress }] =
     useAppQuery<Mutation>(LoginMutation);

@@ -1,4 +1,4 @@
-import { QueryType } from '../__generated__/types';
+import { CsvQueryType } from '../__generated__/types';
 import { snapshotBlockchains, tokenBlockchains } from './constants';
 
 // Please don't update it since it is derived type
@@ -40,7 +40,7 @@ export type CSVDownloadTask = {
 
 export type CSVDownloadOption = {
   label: string;
-  key: QueryType;
+  key: CsvQueryType;
   fileName: string;
   variables: object;
   filters?: Record<string, string | boolean | string[]>;

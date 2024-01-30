@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 
-const API = 'http://localhost:8080/graphql';
+const API = process.env.CSV_ENDPOINT as string;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useCSVQuery<Response = any, Variables = any>(query: string) {

@@ -64,7 +64,7 @@ import { Tokens } from './Tokens/Tokens';
 import { POAPSupplyQuery, TokenSupplyQuery } from '../../queries/supplyQuery';
 import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDropdown';
 import { CSVDownloadOption } from '../../types';
-import { QueryType } from '../../../__generated__/types';
+import { CsvQueryType } from '../../../__generated__/types';
 
 export function TokenHolders() {
   const [
@@ -250,8 +250,8 @@ export function TokenHolders() {
       if (erc20Tokens?.length === 1) {
         key =
           poaps.length > 0
-            ? QueryType.Erc20PoapHolders
-            : QueryType.Erc20Holders;
+            ? CsvQueryType.Erc20PoapHolders
+            : CsvQueryType.Erc20Holders;
         variables = {
           erc20Address: erc20Tokens[0].tokenAddress,
           [poaps.length > 0 ? 'eventId' : 'nftAddress']:
@@ -261,7 +261,7 @@ export function TokenHolders() {
           blockchain: erc20Tokens[0].blockchain
         };
       } else {
-        key = QueryType.CommonNftHolders;
+        key = CsvQueryType.CommonNftHolders;
         variables = {
           tokenAddress1: addresses[0].address,
           tokenAddress2: addresses[1].address,
@@ -288,7 +288,7 @@ export function TokenHolders() {
     if (hasPoap) {
       csvDownloadOptions.push({
         label: 'POAP Holders',
-        key: QueryType.PoapHolders,
+        key: CsvQueryType.PoapHolders,
         fileName: `Poaps holders ${query}.csv`,
         variables: {
           eventId: query
@@ -305,8 +305,8 @@ export function TokenHolders() {
             label: 'Nft holders',
             key:
               erc20Tokens.length > 0
-                ? QueryType.Erc20HoldersSnapshot
-                : QueryType.NftHoldersSnapshot,
+                ? CsvQueryType.Erc20HoldersSnapshot
+                : CsvQueryType.NftHoldersSnapshot,
             fileName: `NFT holders snapshot ${query}.csv`,
             variables: {
               tokenAddress: addresses[0].address,
@@ -324,8 +324,8 @@ export function TokenHolders() {
           label: 'Nft holders',
           key:
             erc20Tokens.length > 0
-              ? QueryType.Erc20Holders
-              : QueryType.NftHolders,
+              ? CsvQueryType.Erc20Holders
+              : CsvQueryType.NftHolders,
           fileName: `NFT holders ${query}.csv`,
           variables: {
             tokenAddress: addresses[0].address,
