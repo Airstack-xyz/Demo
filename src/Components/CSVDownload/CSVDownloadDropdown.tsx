@@ -13,6 +13,7 @@ import {
 } from '../../../__generated__/types';
 import { estimateTaskMutation } from '../../queries/csv-download/estimate';
 import { useAuth } from '../../hooks/useAuth';
+import { AddCardModal } from './AddCardModal';
 
 function CodeIconBlue() {
   return (
@@ -48,6 +49,7 @@ export function CSVDownloadDropdown({
   hideDesktopNudge?: boolean;
 }) {
   const { user, login } = useAuth();
+  const [showAddCardModal, setShowAddCardModal] = useState(false);
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const isMobile = isMobileDevice();
@@ -89,6 +91,13 @@ export function CSVDownloadDropdown({
         return;
       }
 
+      const userHasNoCard = !user?.credits?.[0]?.isPaymentMethodAdded;
+
+      if (userHasNoCard) {
+        setShowAddCardModal(true);
+        return;
+      }
+
       const payload: Pick<CSVDownloadOption, 'variables' | 'filters'> & {
         query: string;
         name: string;
@@ -118,6 +127,13 @@ export function CSVDownloadDropdown({
 
   return (
     <>
+      {showAddCardModal && (
+        <AddCardModal
+          onRequestClose={() => {
+            setShowAddCardModal(false);
+          }}
+        />
+      )}
       <div
         className="text-xs font-medium relative flex flex-col items-end"
         ref={containerRef}

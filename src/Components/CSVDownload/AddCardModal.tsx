@@ -1,10 +1,36 @@
 import React from 'react';
 import { Modal } from '../Modal';
 import { Icon } from '../Icon';
+import { GenerateUrlQuery, UrlType } from '../../../__generated__/types';
+import { useCSVQuery } from '../../hooks/useCSVQuery';
+import { GeneratePaymentUrlQuery } from '../../queries/auth/generatePaymentUrl';
 
-export function AddCardModal() {
+export function AddCardModal({
+  onRequestClose
+}: {
+  onRequestClose: () => void;
+}) {
+  const [generateUrl, { loading }] = useCSVQuery<GenerateUrlQuery>(
+    GeneratePaymentUrlQuery
+  );
+  const getGenerateUrl = async () => {
+    const { data } = await generateUrl({
+      variables: {
+        input: {
+          urlType: UrlType.ManageSubscription,
+          successUrl: window.location.href,
+          cancelUrl: window.location.href
+        }
+      }
+    });
+    if (data?.GenerateUrl?.url) {
+      window.location.href = data.GenerateUrl.url;
+    }
+  };
+
   return (
     <Modal
+      onRequestClose={onRequestClose}
       isOpen
       heading={
         <div className="text-lg">
@@ -44,7 +70,11 @@ export function AddCardModal() {
             </span>
           </li>
         </ul>
-        <button className="bg-button-primary px-10 rounded-full w-full flex-col-center justify-between text-white py-2">
+        <button
+          className="bg-button-primary px-10 rounded-full w-full flex-col-center justify-between text-white py-2"
+          disabled={loading}
+          onClick={getGenerateUrl}
+        >
           <span className="text-sm font-bold">Add card</span>
           <span className="text-xs">(you will be redirected to Stripe)</span>
         </button>
