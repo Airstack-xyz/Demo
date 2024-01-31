@@ -4,11 +4,8 @@ import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { SocialOverlapQuery } from '../../../queries';
-import { formatAddress } from '../../../utils';
 import { getActiveENSInfoString } from '../../../utils/activeENSInfoString';
 import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
-import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
-import { isMobileDevice } from '../../../utils/isMobileDevice';
 import { SectionHeader } from '../SectionHeader';
 import {
   FollowCombination,
@@ -150,8 +147,6 @@ function SocialsOverlapComponent() {
     SocialOverlapVariables
   >(SocialOverlapQuery);
 
-  const isMobile = isMobileDevice();
-
   const wallet1 = data?.wallet1;
   const wallet2 = data?.wallet2;
 
@@ -181,32 +176,17 @@ function SocialsOverlapComponent() {
   }, []);
 
   const handleAddressValue = useCallback(
-    (value: unknown, type?: string) => {
+    (value: unknown) => {
       if (typeof value !== 'string' || value == '--') return;
-
-      const addressValue = formatAddress(value, type);
-
-      const rawInput = createFormattedRawInput({
-        type: 'ADDRESS',
-        address: addressValue,
-        label: addressValue,
-        blockchain: 'ethereum',
-        truncateLabel: isMobile
-      });
-
-      const activeENSInfo = getActiveENSInfoString({ identity: addressValue });
 
       setData(
         {
-          rawInput: rawInput,
-          address: [addressValue],
-          inputType: 'ADDRESS',
-          activeENSInfo
+          activeENSInfo: getActiveENSInfoString({ identity: value })
         },
         { updateQueryParams: true }
       );
     },
-    [isMobile, setData]
+    [setData]
   );
 
   const handleFollowValue = useCallback(
@@ -236,8 +216,8 @@ function SocialsOverlapComponent() {
   );
 
   const handleAddressClick = useCallback(
-    (value: string, type?: string) => {
-      handleAddressValue(value, type);
+    (value: string) => {
+      handleAddressValue(value);
       handleModalClose();
     },
     [handleModalClose, handleAddressValue]

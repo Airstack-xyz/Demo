@@ -13,11 +13,8 @@ import { Icon } from '../../../Components/Icon';
 import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { SocialQuery } from '../../../queries';
-import { formatAddress } from '../../../utils';
 import { getActiveENSInfoString } from '../../../utils/activeENSInfoString';
 import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
-import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
-import { isMobileDevice } from '../../../utils/isMobileDevice';
 import { SectionHeader } from '../SectionHeader';
 import { Follow, FollowParams, FollowType } from './Follow';
 import { Social } from './Social';
@@ -110,8 +107,6 @@ function SocialsComponent() {
     SocialVariables
   >(SocialQuery);
 
-  const isMobile = isMobileDevice();
-
   const wallet = data?.Wallet;
 
   useEffect(() => {
@@ -168,37 +163,22 @@ function SocialsComponent() {
   );
 
   const handleAddressValue = useCallback(
-    (value: unknown, type?: string) => {
+    (value: unknown) => {
       if (typeof value !== 'string' || value == '--') return;
-
-      const addressValue = formatAddress(value, type);
-
-      const rawInput = createFormattedRawInput({
-        type: 'ADDRESS',
-        address: addressValue,
-        label: addressValue,
-        blockchain: 'ethereum',
-        truncateLabel: isMobile
-      });
-
-      const activeENSInfo = getActiveENSInfoString({ identity: addressValue });
 
       setData(
         {
-          rawInput: rawInput,
-          address: [addressValue],
-          inputType: 'ADDRESS',
-          activeENSInfo
+          activeENSInfo: getActiveENSInfoString({ identity: value })
         },
         { updateQueryParams: true }
       );
     },
-    [isMobile, setData]
+    [setData]
   );
 
   const handleAddressClick = useCallback(
-    (value: string, type?: string) => {
-      handleAddressValue(value, type);
+    (value: string) => {
+      handleAddressValue(value);
       handleModalClose();
     },
     [handleModalClose, handleAddressValue]

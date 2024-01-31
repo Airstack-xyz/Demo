@@ -8,6 +8,7 @@ export function StatusLoader({ lines }: LoaderProps) {
   const renderRow = (line: string, count: number) => {
     return (
       <div
+        key={line}
         className={classNames('flex items-center ellipsis py-1', {
           'text-text-secondary': !count
         })}
