@@ -1,9 +1,9 @@
-import { Asset } from '../../../Components/Asset';
+import { Asset } from '@airstack/airstack-react';
 import { Icon } from '../../../Components/Icon';
 import LazyImage from '../../../Components/LazyImage';
 import { formatDate } from '../../../utils';
-import { checkBlockchainSupportForToken } from '../../../utils/activeTokenInfoString';
 import { Social } from './types';
+import { checkBlockchainSupportForToken } from '../../../utils/activeTokenInfoString';
 
 export function CardLoader({ isLensDapp }: { isLensDapp: boolean }) {
   return (
@@ -44,16 +44,16 @@ export function Card({
   item: Social;
   isLensDapp: boolean;
 }) {
-  // for lens pick profile image url from profileImageContentValue
-  const profileImageUrl = isLensDapp
-    ? item.profileImageContentValue?.image?.small
-    : item.profileImage;
+  const profileImageUrl = item.profileImageContentValue?.image?.small;
+
+  const lensTokenImageUrl =
+    isLensDapp && item.profileHandleNft?.contentValue?.image?.extraSmall;
 
   const useAssetComponent =
     !profileImageUrl && checkBlockchainSupportForToken(item.blockchain);
 
   return (
-    <div className="flex-1 flex max-sm:flex-col items-center">
+    <div className="flex-1 flex max-sm:flex-col max-sm:items-center gap-6">
       {useAssetComponent ? (
         <Asset
           preset="medium"
@@ -71,47 +71,57 @@ export function Card({
           width={180}
         />
       )}
-      <div className="p-6 w-full">
+      <div className="w-full">
         <div className="flex items-center max-sm:justify-center">
+          {!!lensTokenImageUrl && (
+            <img
+              src={lensTokenImageUrl}
+              height={24}
+              width={24}
+              className="mr-2"
+            />
+          )}
           <div className="mr-1 text-base">{item.profileHandle}</div>
           <div className="text-text-secondary text-sm">
             #{item.profileTokenId}
           </div>
+          {item.isDefault && (
+            <div className="flex items-center text-xs text-text-secondary ml-3">
+              <Icon
+                name="check-mark-circle"
+                className="mr-1.5"
+                height={12}
+                width={12}
+              />
+              Default profile
+            </div>
+          )}
         </div>
-        <div className="mt-4 grid grid-cols-[auto_1fr] [&>div:nth-child(even)]:text-text-secondary gap-x-4 gap-y-3 text-sm">
+        <div className="mt-3 grid grid-cols-[auto_1fr] [&>div:nth-child(even)]:text-text-secondary gap-x-4 gap-y-3 text-sm">
+          <div>Display name</div>
+          <div>{item.profileDisplayName || '--'}</div>
+          <div>Bio</div>
+          <div>{item.profileBio || '--'}</div>
           {isLensDapp ? (
             <>
-              {item.isDefault ? (
-                <>
-                  <div className="flex items-center">
-                    <Icon
-                      name="check-mark-circle"
-                      className="mr-1.5"
-                      height={14}
-                      width={14}
-                    />
-                    Default profile
-                  </div>
-                  <div />
-                </>
-              ) : null}
+              <div>Location</div>
+              <div>{item.location || '--'}</div>
+              <div>Website</div>
+              <div>{item.website || '--'}</div>
             </>
-          ) : (
-            <>
-              <div>Display name</div>
-              <div>{item.profileDisplayName || '--'}</div>
-              <div>Bio</div>
-              <div>{item.profileBio || '--'}</div>
-            </>
-          )}
+          ) : null}
           <div>Created date</div>
           <div>
             {item.profileCreatedAtBlockTimestamp
               ? formatDate(item.profileCreatedAtBlockTimestamp)
               : '--'}
           </div>
-          <div>Created at (block)</div>
-          <div>{item.profileCreatedAtBlockNumber || '--'}</div>
+          {isLensDapp ? null : (
+            <>
+              <div>Created at (block)</div>
+              <div>{item.profileCreatedAtBlockNumber || '--'}</div>
+            </>
+          )}
         </div>
       </div>
     </div>

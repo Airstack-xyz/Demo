@@ -155,11 +155,7 @@ function UserInfo({
     blockchain = '';
   }
 
-  // for lens pick profile image url from profileImageContentValue
-  const profileImageUrl =
-    social?.dappName === 'lens'
-      ? social?.profileImageContentValue?.image?.small
-      : social?.profileImage;
+  const profileImageUrl = social?.profileImageContentValue?.image?.small;
 
   const tokenId = hasDomainToken
     ? domain?.tokenNft?.tokenId

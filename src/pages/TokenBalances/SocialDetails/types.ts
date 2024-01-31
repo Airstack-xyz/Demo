@@ -7,6 +7,8 @@ export type Social = {
   isDefault: boolean;
   blockchain: Chain;
   dappName: string;
+  website: string;
+  location: string;
   profileName: string;
   profileHandle: string;
   profileDisplayName: string;
@@ -21,6 +23,13 @@ export type Social = {
   profileImageContentValue: {
     image: {
       small: string;
+    };
+  };
+  profileHandleNft: {
+    contentValue: {
+      image: {
+        extraSmall: string;
+      };
     };
   };
 };

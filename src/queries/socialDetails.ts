@@ -7,6 +7,8 @@ export const socialDetailsQuery = `query SocialDetails($identities: [Identity!],
       isDefault
       blockchain
       dappName
+      website
+      location
       profileName
       profileHandle
       profileDisplayName
@@ -21,6 +23,13 @@ export const socialDetailsQuery = `query SocialDetails($identities: [Identity!],
       profileImageContentValue {
         image {
           small
+        }
+      }
+      profileHandleNft {
+        contentValue {
+          image {
+            extraSmall
+          }
         }
       }
     }
