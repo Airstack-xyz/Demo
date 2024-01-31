@@ -1,50 +1,50 @@
-export const LoginMutation = `
+export const loginMutation = /* GraphQL */ `
   mutation LoginMutation {
     Login {
       id
-      email
-      name
+      privyId
       userName
-      isVerified
-      projectName
+      name
+      email
       walletAddress
-      telegramHandle
+      projectName
       communicationEmail
+      telegramHandle
       isProfileCompleted
+      isVerified
       credits {
         id
         type
-        createdAt
-        updatedAt
-        isPaymentMethodAdded
         initialFreeCreditAllocatedTs
-        subscription {
-          id
-          status
-          updatedAt
-          endedAtTs
-          createdAt
-          cancelAtTs
-          lastBillingTs
-          nextBillingTs
-          startBillingTs
-          collectionMethod
+        isPaymentMethodAdded
+        creditUsage {
+          freeCreditsUsed
+          totalFreeCredits
+          lifetimeCreditsUsed
+          lastUpdatedAt
+          currentCycleCreditsUsed
         }
         keys {
           id
           key
+          keyHash
           type
           status
-          keyHash
-          createdAt
+          userId
+          creditUsed
           updatedAt
-          usage {
-            lastUpdatedAt
-            freeCreditsUsed
-            totalFreeCredits
-            lifetimeCreditsUsed
-            currentCycleCreditsUsed
-          }
+        }
+        subscription {
+          id
+          userId
+          status
+          collectionMethod
+          startBillingTs
+          nextBillingTs
+          lastBillingTs
+          cancelAtTs
+          endedAtTs
+          updatedAt
         }
       }
     }

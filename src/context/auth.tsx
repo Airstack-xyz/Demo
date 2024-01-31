@@ -14,15 +14,15 @@ import {
   useState
 } from 'react';
 import { useAppQuery } from '../hooks/useAppQuery';
-import { MeQuery as MeCsvQueryType, Mutation } from '../../__generated__/types';
-import { MeQuery } from '../queries/auth/me';
-import { LoginMutation } from '../queries/auth/login';
+import { LoginMutationMutation, MeQuery } from '../../__generated__/types';
+import { meQuery } from '../queries/auth/me';
+import { loginMutation } from '../queries/auth/login';
 import { SignInModal } from '../Components/SignInModal';
 
 // eslint-disable-next-line
 function noop() {}
 
-export type User = MeCsvQueryType['Me'];
+export type User = MeQuery['Me'];
 
 export type AuthContext = Omit<PrivyInterface, 'user' | 'login'> & {
   user?: User;
@@ -61,11 +61,10 @@ function Provider({ children }: AuthProviderProps) {
 
   const [me, setMe] = useState<User>(null);
 
-  const [_getUser, { loading: userLoading }] =
-    useAppQuery<MeCsvQueryType>(MeQuery);
+  const [_getUser, { loading: userLoading }] = useAppQuery<MeQuery>(meQuery);
 
-  const [loginMutation, { loading: loginInProgress }] =
-    useAppQuery<Mutation>(LoginMutation);
+  const [login, { loading: loginInProgress }] =
+    useAppQuery<LoginMutationMutation>(loginMutation);
 
   const authenticated = auth?.authenticated;
   const user = authenticated ? me : null;
@@ -79,7 +78,7 @@ function Provider({ children }: AuthProviderProps) {
       }
 
       loginCompleted.current = true;
-      const res = await loginMutation();
+      const res = await login();
 
       if (res.data?.Login) {
         setMe(res.data.Login);
