@@ -7,16 +7,20 @@ import { checkBlockchainSupportForToken } from '../../../utils/activeTokenInfoSt
 
 export function CardLoader({ isLensDapp }: { isLensDapp: boolean }) {
   return (
-    <div className="skeleton-loader w-full flex max-sm:flex-col items-center">
+    <div className="skeleton-loader w-full flex max-sm:flex-col max-sm:items-center gap-6">
       <div
         data-loader-type="block"
         className="w-[180px] h-[180px] shrink-0 rounded-2xl"
       />
-      <div className="p-6 w-full flex flex-col max-sm:items-center">
+      <div className="w-full flex flex-col max-sm:items-center">
         <div data-loader-type="block" className="h-6 w-[200px]" />
         <div
           data-loader-type="block"
-          className="h-5 w-[246px] max-sm:w-full mt-4"
+          className="h-5 w-[246px] max-sm:w-full mt-3"
+        />
+        <div
+          data-loader-type="block"
+          className="h-5 w-[246px] max-sm:w-full mt-3"
         />
         <div
           data-loader-type="block"
@@ -26,7 +30,7 @@ export function CardLoader({ isLensDapp }: { isLensDapp: boolean }) {
           data-loader-type="block"
           className="h-5 w-[246px] max-sm:w-full mt-3"
         />
-        {!isLensDapp && (
+        {isLensDapp && (
           <div
             data-loader-type="block"
             className="h-5 w-[246px] max-sm:w-full mt-3"
@@ -78,7 +82,7 @@ export function Card({
               src={lensTokenImageUrl}
               height={24}
               width={24}
-              className="mr-2"
+              className="rounded-sm mr-2"
             />
           )}
           <div className="mr-1 text-base">{item.profileHandle}</div>

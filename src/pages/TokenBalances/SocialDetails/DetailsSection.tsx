@@ -40,13 +40,19 @@ function DetailsSectionComponent({
 
   const isLensDapp = dappName === 'lens';
 
+  if (loading) {
+    return (
+      <div className="my-5 mb-[30px] flex">
+        <CardLoader isLensDapp={isLensDapp} />
+      </div>
+    );
+  }
+
   return (
     <div className="my-5 mb-[30px] flex">
-      {!loading &&
-        socialItems?.map(item => (
-          <Card key={item.id} item={item} isLensDapp={isLensDapp} />
-        ))}
-      {loading && <CardLoader isLensDapp={isLensDapp} />}
+      {socialItems?.map(item => (
+        <Card key={item.id} item={item} isLensDapp={isLensDapp} />
+      ))}
     </div>
   );
 }
