@@ -1,13 +1,16 @@
 import { Icon } from './Icon';
 import { showToast } from '../utils/showToast';
+import classNames from 'classnames';
 
 export function WalletAddress({
   address,
   dataType,
+  className,
   onClick
 }: {
   address: string;
   dataType?: string;
+  className?: string;
   onClick?: (address: string, dataType?: string) => void;
 }) {
   const handleClick = () => {
@@ -24,7 +27,10 @@ export function WalletAddress({
 
   return (
     <div
-      className="flex px-1 py-1 rounded-18 hover:bg-glass-1 cursor-pointer"
+      className={classNames(
+        'flex px-1 py-1 rounded-18 hover:bg-glass-1 cursor-pointer',
+        className
+      )}
       onClick={handleClick}
     >
       <span className="ellipsis">{address || '--'}</span>

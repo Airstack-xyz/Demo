@@ -1,14 +1,13 @@
 import classNames from 'classnames';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMatch } from 'react-router-dom';
-import { TokenBalanceAllFilters } from '../../Components/Filters/TokenBalanceAllFilters';
 import { BlockchainFilter } from '../../Components/Filters/BlockchainFilter';
 import { MintFilter } from '../../Components/Filters/MintFilter';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import { SortBy, defaultSortOrder } from '../../Components/Filters/SortBy';
 import { SpamFilter } from '../../Components/Filters/SpamFilter';
+import { TokenBalanceAllFilters } from '../../Components/Filters/TokenBalanceAllFilters';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
-import { MainLayout } from '../../layouts/MainLayout';
 import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { Tab, TabContainer } from '../../Components/Tab';
@@ -17,8 +16,10 @@ import {
   useGetAccountOwner
 } from '../../hooks/useGetAccountOwner';
 import { useSearchInput } from '../../hooks/useSearchInput';
+import { MainLayout } from '../../layouts/MainLayout';
 import { SocialOverlapQuery, SocialQuery } from '../../queries';
 import { getNftWithCommonOwnersSnapshotQuery } from '../../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
+import { domainDetailsQuery } from '../../queries/domainDetails';
 import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
 import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
 import { socialDetailsQuery } from '../../queries/socialDetails';
@@ -32,6 +33,7 @@ import {
 } from '../../queries/tokenDetails';
 import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
 import { capitalizeFirstLetter } from '../../utils';
+import { getActiveENSInfo } from '../../utils/activeENSInfoString';
 import {
   checkBlockchainSupportForSnapshot,
   getActiveSnapshotInfo,
@@ -45,15 +47,16 @@ import {
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { ScoreOverview } from '../OnchainGraph/CommonScore/ScoreOverview';
+import { ENSDetails } from './ENSDetails/ENSDetails';
 import { ERC20Tokens } from './ERC20/ERC20Tokens';
-import { TokenDetails } from './ERC6551/TokenDetails';
 import { Filters } from './Filters';
 import { SectionHeader } from './SectionHeader';
-import { SocialFollows } from './SocialFollows/SocialFollows';
-import { getSocialFollowFilterData } from './SocialFollows/utils';
+import { SocialDetails } from './SocialDetails/SocialDetails';
+import { getSocialFollowFilterData } from './SocialDetails/utils';
 import { Socials } from './Socials';
 import { SocialsOverlap } from './Socials/SocialsOverlap';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
+import { TokenDetails } from './TokenDetails/TokenDetails';
 import { Tokens, TokensLoader } from './Tokens';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
@@ -163,7 +166,8 @@ function TokenBalancePage() {
       mintFilter,
       activeTokenInfo,
       activeSnapshotInfo,
-      activeSocialInfo
+      activeSocialInfo,
+      activeENSInfo
     },
     setData
   ] = useSearchInput();
@@ -237,10 +241,13 @@ function TokenBalancePage() {
     () => getActiveSnapshotInfo(activeSnapshotInfo),
     [activeSnapshotInfo]
   );
-
   const socialInfo = useMemo(
     () => getActiveSocialInfo(activeSocialInfo),
     [activeSocialInfo]
+  );
+  const ensInfo = useMemo(
+    () => getActiveENSInfo(activeENSInfo),
+    [activeENSInfo]
   );
 
   const token = activeTokens[activeTokens.length - 1];
@@ -276,113 +283,7 @@ function TokenBalancePage() {
 
     const options = [];
 
-    if (
-      !showTokenDetails &&
-      !snapshotInfo.isApplicable &&
-      !socialInfo.isApplicable &&
-      (!tokenType || tokenType === 'POAP')
-    ) {
-      const poapsQuery = poapsOfCommonOwnersQuery({ owners });
-
-      const poapLink = createAppUrlWithQuery(poapsQuery, {
-        limit: 10,
-        sortBy
-      });
-
-      options.push({
-        label: 'POAPs',
-        link: poapLink
-      });
-    }
-
-    let nftLink = '';
-    let erc20Link = '';
-
-    if (snapshotInfo.isApplicable) {
-      const queryFilters = getSnapshotQueryFilters(snapshotInfo);
-      const tokensQuery = getNftWithCommonOwnersSnapshotQuery({
-        owners,
-        blockchain,
-        snapshotFilter: snapshotInfo.appliedFilter
-      });
-
-      nftLink = createAppUrlWithQuery(tokensQuery, {
-        limit: 10,
-        tokenType: tokenFilters,
-        ...queryFilters
-      });
-
-      erc20Link = createAppUrlWithQuery(tokensQuery, {
-        limit: 50,
-        tokenType: ['ERC20'],
-        ...queryFilters
-      });
-    } else {
-      const tokensQuery = getNftWithCommonOwnersQuery({
-        owners,
-        blockchain,
-        mintsOnly: isMintFilteringEnabled
-      });
-
-      nftLink = createAppUrlWithQuery(tokensQuery, {
-        limit: 10,
-        sortBy: sortBy,
-        tokenType: tokenFilters
-      });
-
-      erc20Link = createAppUrlWithQuery(tokensQuery, {
-        limit: 50,
-        sortBy: sortBy,
-        tokenType: ['ERC20']
-      });
-    }
-
-    if (
-      (!showTokenDetails || detailTokensVisible) &&
-      !socialInfo.isApplicable &&
-      tokenType !== 'POAP'
-    ) {
-      options.push({
-        label: 'Token Balances (NFT)',
-        link: nftLink
-      });
-    }
-
-    if (!showTokenDetails && !socialInfo.isApplicable) {
-      options.push({
-        label: 'Token Balances (ERC20)',
-        link: erc20Link
-      });
-
-      if (address.length === 1) {
-        const socialLink = createAppUrlWithQuery(SocialQuery, {
-          identity: address[0]
-        });
-
-        options.push({
-          label: 'Socials, Domains & XMTP',
-          link: socialLink
-        });
-      }
-
-      if (address.length === 2) {
-        const socialLink = createAppUrlWithQuery(SocialOverlapQuery, {
-          identity1: address[0],
-          identity2: address[1]
-        });
-
-        options.push({
-          label: 'Socials, Domains & XMTP',
-          link: socialLink
-        });
-      }
-
-      options.push({
-        label: 'Spam Filters Guide',
-        link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/xmtp/spam-filters'
-      });
-    }
-
+    // Token details page options ==================================
     if (showTokenDetails && token) {
       const erc6551AccountsQueryLink = createAppUrlWithQuery(
         erc6551TokensQuery,
@@ -432,8 +333,8 @@ function TokenBalancePage() {
         });
       }
     }
-
-    if (!showTokenDetails && socialInfo.isApplicable) {
+    // Social details page options ==================================
+    else if (socialInfo.isApplicable) {
       const formattedDappName = capitalizeFirstLetter(socialInfo.dappName);
       const socialFollowersFilterData = getSocialFollowFilterData({
         ...socialInfo.followerData,
@@ -494,6 +395,116 @@ function TokenBalancePage() {
         link: socialDetailsLink
       });
     }
+    // Ens details page options ==================================
+    else if (ensInfo.isApplicable) {
+      const ensDetailsLink = createAppUrlWithQuery(domainDetailsQuery, {
+        name: ensInfo.identity
+      });
+
+      options.push({
+        label: `ENS details`,
+        link: ensDetailsLink
+      });
+    }
+    // Tokens page options ==================================
+    else {
+      if (!snapshotInfo.isApplicable && (!tokenType || tokenType === 'POAP')) {
+        const poapsQuery = poapsOfCommonOwnersQuery({ owners });
+        const poapLink = createAppUrlWithQuery(poapsQuery, {
+          limit: 10,
+          sortBy
+        });
+
+        options.push({
+          label: 'POAPs',
+          link: poapLink
+        });
+      }
+
+      let nftLink = '';
+      let erc20Link = '';
+
+      if (snapshotInfo.isApplicable) {
+        const queryFilters = getSnapshotQueryFilters(snapshotInfo);
+        const tokensQuery = getNftWithCommonOwnersSnapshotQuery({
+          owners,
+          blockchain,
+          snapshotFilter: snapshotInfo.appliedFilter
+        });
+
+        nftLink = createAppUrlWithQuery(tokensQuery, {
+          limit: 10,
+          tokenType: tokenFilters,
+          ...queryFilters
+        });
+
+        erc20Link = createAppUrlWithQuery(tokensQuery, {
+          limit: 50,
+          tokenType: ['ERC20'],
+          ...queryFilters
+        });
+      } else {
+        const tokensQuery = getNftWithCommonOwnersQuery({
+          owners,
+          blockchain,
+          mintsOnly: isMintFilteringEnabled
+        });
+
+        nftLink = createAppUrlWithQuery(tokensQuery, {
+          limit: 10,
+          sortBy: sortBy,
+          tokenType: tokenFilters
+        });
+
+        erc20Link = createAppUrlWithQuery(tokensQuery, {
+          limit: 50,
+          sortBy: sortBy,
+          tokenType: ['ERC20']
+        });
+      }
+
+      if (tokenType !== 'POAP') {
+        options.push({
+          label: 'Token Balances (NFT)',
+          link: nftLink
+        });
+      }
+
+      // !Gnosis: Don't show ERC20 option when gnosis blockchain is selected
+      if (blockchain !== 'gnosis') {
+        options.push({
+          label: 'Token Balances (ERC20)',
+          link: erc20Link
+        });
+      }
+
+      if (address.length === 1) {
+        const socialLink = createAppUrlWithQuery(SocialQuery, {
+          identity: address[0]
+        });
+
+        options.push({
+          label: 'Socials, Domains & XMTP',
+          link: socialLink
+        });
+      }
+      if (address.length === 2) {
+        const socialLink = createAppUrlWithQuery(SocialOverlapQuery, {
+          identity1: address[0],
+          identity2: address[1]
+        });
+
+        options.push({
+          label: 'Socials, Domains & XMTP',
+          link: socialLink
+        });
+      }
+
+      options.push({
+        label: 'Spam Filters Guide',
+        link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/xmtp/spam-filters'
+      });
+    }
 
     return options;
   }, [
@@ -505,14 +516,16 @@ function TokenBalancePage() {
     sortOrder,
     tokenType,
     showTokenDetails,
-    snapshotInfo,
+    token,
     socialInfo.isApplicable,
     socialInfo.dappName,
     socialInfo.followerData,
     socialInfo.profileTokenIds,
     socialInfo.followingData,
     socialInfo.profileNames,
-    token
+    ensInfo.isApplicable,
+    ensInfo.identity,
+    snapshotInfo
   ]);
 
   const { tab1Header, tab2Header } = useMemo(() => {
@@ -628,10 +641,9 @@ function TokenBalancePage() {
         />
       );
     }
-
     if (socialInfo.isApplicable) {
       return (
-        <SocialFollows
+        <SocialDetails
           identities={address}
           socialInfo={socialInfo}
           activeSocialInfo={activeSocialInfo}
@@ -639,6 +651,17 @@ function TokenBalancePage() {
         />
       );
     }
+    if (ensInfo.isApplicable) {
+      return (
+        <ENSDetails
+          identities={address}
+          ensInfo={ensInfo}
+          activeENSInfo={activeENSInfo}
+          setQueryData={setData}
+        />
+      );
+    }
+
     return (
       <div key={query} className="flex justify-between sm:px-5">
         <div className="w-full h-full">

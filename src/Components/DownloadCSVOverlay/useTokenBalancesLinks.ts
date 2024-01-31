@@ -4,7 +4,7 @@ import { getActiveSocialInfo } from '../../utils/activeSocialInfoString';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
 import { getSocialFollowersQuery } from '../../queries/socialFollowersQuery';
 import { getSocialFollowingsQuery } from '../../queries/socialFollowingQuery';
-import { getSocialFollowFilterData } from '../../pages/TokenBalances/SocialFollows/utils';
+import { getSocialFollowFilterData } from '../../pages/TokenBalances/SocialDetails/utils';
 
 export function useTokenBalancesLinks() {
   const [{ address, activeTokenInfo, activeSocialInfo }] = useSearchInput();

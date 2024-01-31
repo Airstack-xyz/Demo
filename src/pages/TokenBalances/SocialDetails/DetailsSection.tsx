@@ -1,8 +1,8 @@
-import React, { memo, useEffect } from 'react';
-import { useLazyQuery } from '@airstack/airstack-react';
+import { useQuery } from '@airstack/airstack-react';
+import { memo } from 'react';
 import { socialDetailsQuery } from '../../../queries/socialDetails';
-import { Social } from './types';
 import { Card, CardLoader } from './Card';
+import { Social } from './types';
 
 type SocialDetailsResponse = {
   Socials: {
@@ -27,18 +27,14 @@ function DetailsSectionComponent({
   profileNames,
   dappName
 }: DetailsSectionProps) {
-  const [fetchData, { data, loading }] = useLazyQuery<
+  const { data, loading } = useQuery<
     SocialDetailsResponse,
     SocialDetailsVariables
-  >(socialDetailsQuery);
-
-  useEffect(() => {
-    fetchData({
-      identities,
-      profileNames,
-      dappName
-    });
-  }, [fetchData, profileNames, dappName, identities]);
+  >(socialDetailsQuery, {
+    identities,
+    profileNames,
+    dappName
+  });
 
   const socialItems = data?.Socials?.Social;
 

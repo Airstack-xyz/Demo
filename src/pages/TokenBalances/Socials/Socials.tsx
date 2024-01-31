@@ -14,6 +14,7 @@ import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { SocialQuery } from '../../../queries';
 import { formatAddress } from '../../../utils';
+import { getActiveENSInfoString } from '../../../utils/activeENSInfoString';
 import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';
 import { isMobileDevice } from '../../../utils/isMobileDevice';
@@ -180,11 +181,14 @@ function SocialsComponent() {
         truncateLabel: isMobile
       });
 
+      const activeENSInfo = getActiveENSInfoString({ identity: addressValue });
+
       setData(
         {
           rawInput: rawInput,
           address: [addressValue],
-          inputType: 'ADDRESS'
+          inputType: 'ADDRESS',
+          activeENSInfo
         },
         { updateQueryParams: true }
       );
