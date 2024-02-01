@@ -67,12 +67,15 @@ export function DetailsSection({ identity }: { identity: string }) {
     );
   }
 
+  const tokenImageUrl =
+    domain?.tokenNft?.contentValue?.image?.small || domain?.avatar;
+
   return (
     <section className="bg-glass border-solid-stroke rounded-18 p-5">
       <div className="flex max-sm:flex-col max-sm:items-center gap-6">
         <LazyImage
-          alt="Avatar"
-          src={domain?.tokenNft?.contentValue?.image?.small}
+          alt="TokenImage"
+          src={tokenImageUrl}
           height={180}
           width={180}
           className="object-cover rounded-2xl h-[180px] w-[180px] shrink-0"
