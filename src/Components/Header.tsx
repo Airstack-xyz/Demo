@@ -58,7 +58,7 @@ export function Header() {
           </a>
           <span className="ml-7">
             {user ? (
-              <ProfileAvatar userName="Vysakh" />
+              <ProfileAvatar userName={user?.userName || ''} />
             ) : (
               <button
                 className="h-[30px] border border-solid border-white px-5 rounded-18 hover:opacity-90"

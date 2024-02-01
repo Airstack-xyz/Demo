@@ -34,7 +34,7 @@ export function PlanBadge({
 export function ProfileAvatar({ userName }: { userName: string }) {
   return (
     <div
-      className="flex justify-center items-center cursor-default py-2 pr-3"
+      className="flex justify-center items-center cursor-default"
       data-loader-type="block"
     >
       <img
