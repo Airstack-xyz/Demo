@@ -1,7 +1,11 @@
 import React from 'react';
 import { Modal } from '../Modal';
 import { Icon } from '../Icon';
-import { GenerateUrlQuery, UrlType } from '../../../__generated__/types';
+import {
+  GenerateUrlQuery,
+  GenerateUrlQueryVariables,
+  UrlType
+} from '../../../__generated__/types';
 import { useCSVQuery } from '../../hooks/useCSVQuery';
 import { GeneratePaymentUrlQuery } from '../../queries/auth/generatePaymentUrl';
 
@@ -10,17 +14,16 @@ export function AddCardModal({
 }: {
   onRequestClose: () => void;
 }) {
-  const [generateUrl, { loading }] = useCSVQuery<GenerateUrlQuery>(
-    GeneratePaymentUrlQuery
-  );
+  const [generateUrl, { loading }] = useCSVQuery<
+    GenerateUrlQuery,
+    GenerateUrlQueryVariables
+  >(GeneratePaymentUrlQuery);
   const getGenerateUrl = async () => {
     const { data } = await generateUrl({
-      variables: {
-        input: {
-          urlType: UrlType.ManageSubscription,
-          successUrl: window.location.href,
-          cancelUrl: window.location.href
-        }
+      input: {
+        urlType: UrlType.ManageSubscription,
+        successUrl: window.location.href,
+        cancelUrl: window.location.href
       }
     });
     if (data?.GenerateUrl?.url) {
@@ -66,7 +69,13 @@ export function AddCardModal({
             <Icon name="check-mark-circle" className="mt-1 w-[14px]" />
             <span className="ml-1.5">
               All charges will be made clear before purchase.
-              <a className="text-text-button ml-1 cursor-pointer">Know more</a>
+              <a
+                className="text-text-button ml-1 cursor-pointer"
+                target="_blank"
+                href="https://app.airstack.xyz/pricing"
+              >
+                Know more
+              </a>
             </span>
           </li>
         </ul>
