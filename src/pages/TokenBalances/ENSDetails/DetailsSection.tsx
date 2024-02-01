@@ -5,7 +5,8 @@ import LazyImage from '../../../Components/LazyImage';
 import { WalletAddress } from '../../../Components/WalletAddress';
 import { domainDetailsQuery } from '../../../queries/domainDetails';
 import { formatDate } from '../../../utils';
-import { Domain } from './types';
+import { DomainType } from './types';
+import { processRecords } from './utils';
 
 const LOADING_ROW_COUNT = 10;
 
@@ -33,7 +34,7 @@ function DetailsLoader() {
 }
 
 type DomainDetailsResponse = {
-  Domain: Domain;
+  Domain: DomainType;
 };
 
 type DomainDetailsVariables = {
@@ -48,16 +49,10 @@ export function DetailsSection({ identity }: { identity: string }) {
 
   const domain = data?.Domain;
 
-  const traits = useMemo(() => {
-    const obj: Record<string, string> = {};
-    if (!domain?.texts) {
-      return obj;
-    }
-    domain.texts.forEach(item => {
-      obj[item.key] = item.value;
-    });
-    return obj;
-  }, [domain]);
+  const { primaryRecords, otherRecords } = useMemo(
+    () => processRecords(domain?.texts || []),
+    [domain]
+  );
 
   if (loading) {
     return (
@@ -102,14 +97,12 @@ export function DetailsSection({ identity }: { identity: string }) {
             )}
           </div>
           <div className="mt-4 grid grid-cols-[auto_1fr] [&>div:nth-child(even)]:text-text-secondary gap-x-4 gap-y-3 text-sm">
-            <div>Description</div>
-            <div>{traits.description || '--'}</div>
-            <div>Website</div>
-            <div>{traits.url || '--'}</div>
-            <div>Email</div>
-            <div>{traits.email || '--'}</div>
-            <div>Twitter</div>
-            <div>{traits['com.twitter'] || '--'}</div>
+            {primaryRecords.map(item => (
+              <Fragment key={item.key}>
+                <div>{item.key}</div>
+                <div>{item.value}</div>
+              </Fragment>
+            ))}
             {!!domain?.multiChainAddresses?.length && (
               <>
                 <div className="font-semibold">Multi-chain addresses</div>
@@ -125,19 +118,33 @@ export function DetailsSection({ identity }: { identity: string }) {
                 ))}
               </>
             )}
-            <div className="self-center">Avatar</div>
-            {domain?.avatar ? (
-              <WalletAddress
-                address={domain.avatar}
-                className="max-w-[448px] ellipsis"
-              />
-            ) : (
-              <div>--</div>
+            {!!domain?.avatar && (
+              <>
+                <div className="self-center">Avatar</div>
+                <WalletAddress
+                  address={domain.avatar}
+                  className="max-w-[448px] ellipsis"
+                />
+              </>
             )}
-            <div>Manager</div>
-            <div className="ellipsis">{domain?.manager || '--'}</div>
-            <div>Owner</div>
-            <div className="ellipsis">{domain?.owner || '--'}</div>
+            {!!domain?.manager && (
+              <>
+                <div>Manager</div>
+                <div className="ellipsis">{domain.manager}</div>
+              </>
+            )}
+            {!!domain?.owner && (
+              <>
+                <div>Owner</div>
+                <div className="ellipsis">{domain.owner}</div>
+              </>
+            )}
+            {otherRecords.map(item => (
+              <Fragment key={item.key}>
+                <div>{item.key}</div>
+                <div>{item.value}</div>
+              </Fragment>
+            ))}
             <div>Created At</div>
             <div>
               {domain?.createdAtBlockTimestamp

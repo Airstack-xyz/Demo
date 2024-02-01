@@ -1,4 +1,4 @@
-export const domainDetailsQuery = `query ENSDetails($name: String!) {
+export const domainDetailsQuery = `query DomainDetails($name: String!) {
     Domain(input: {name: $name, blockchain: ethereum}) {
       isPrimary
       avatar

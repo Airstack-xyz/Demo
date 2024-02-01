@@ -1,13 +1,15 @@
-export type Domain = {
+export type RecordType = {
+  key: string;
+  value: string;
+};
+
+export type DomainType = {
   isPrimary: boolean;
   avatar: string;
   name: string;
   owner: string;
   manager: string;
-  texts: {
-    key: string;
-    value: string;
-  }[];
+  texts: RecordType[];
   multiChainAddresses: {
     symbol: string;
     address: string;
