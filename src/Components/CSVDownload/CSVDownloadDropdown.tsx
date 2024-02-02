@@ -3,7 +3,6 @@ import { useCallback, useState } from 'react';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Modal } from '../Modal';
-import { useInProgressDownloads } from '../../store/csvDownload';
 import { CSVDownloadOption } from '../../types';
 import { useCSVQuery } from '../../hooks/useCSVQuery';
 import {
@@ -14,6 +13,7 @@ import {
 import { estimateTaskMutation } from '../../queries/csv-download/estimate';
 import { useAuth } from '../../hooks/useAuth';
 import { AddCardModal } from './AddCardModal';
+import { triggerNewTaskAddedEvent } from './utils';
 
 function CodeIconBlue() {
   return (
@@ -57,9 +57,6 @@ export function CSVDownloadDropdown({
     EstimateTaskMutation,
     EstimateTaskMutationVariables
   >(estimateTaskMutation);
-
-  const [{ inProgressDownloads }, setInProgressDownloads] =
-    useInProgressDownloads(['inProgressDownloads']);
 
   const handleDropdownClose = useCallback(() => {
     setIsDropdownVisible(false);
@@ -114,13 +111,11 @@ export function CSVDownloadDropdown({
       const { data } = await estimateTask({
         estimateTaskInput: payload as EstimateTaskInput
       });
-      if (data?.EstimateTask) {
-        setInProgressDownloads({
-          inProgressDownloads: [...inProgressDownloads, data?.EstimateTask.id]
-        });
+      if (data?.EstimateTask?.id) {
+        triggerNewTaskAddedEvent(data.EstimateTask.id);
       }
     },
-    [user, estimateTask, inProgressDownloads, login, setInProgressDownloads]
+    [user, estimateTask, login]
   );
 
   const showDesktopNudgeModal = !hideDesktopNudge && isMobile;

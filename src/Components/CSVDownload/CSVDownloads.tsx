@@ -22,6 +22,7 @@ import { cancelTaskMutation } from '../../queries/csv-download/cancel';
 import { getTaskStatusQuery } from '../../queries/csv-download/status';
 import { downloadCsvMutation } from '../../queries/csv-download/download';
 import { CancelDownloadModal } from '../CSVDownload/CancelDownloadModal';
+import { listenTaskAdded } from './utils';
 
 type Task = NonNullable<
   NonNullable<GetTasksHistoryQuery['GetCSVDownloadTasks']>[0]
@@ -64,6 +65,7 @@ export function CSVDownloads() {
   const activeRef = useRef<number[]>([]);
   const [{ inProgressDownloads }, setInProgressDownloads] =
     useInProgressDownloads(['inProgressDownloads']);
+
   activeRef.current = inProgressDownloads;
 
   const abortController = useRef<AbortController | null>(null);
@@ -81,44 +83,64 @@ export function CSVDownloads() {
     }[]
   >([]);
 
-  const getHistory = useCallback(async () => {
-    if (abortController) {
-      abortController.current?.abort();
-    }
-    abortController.current = new AbortController();
-    const { data, error } = await fetchHistory();
+  const getHistory = useCallback(
+    async (fetchAll = true) => {
+      if (abortController) {
+        abortController.current?.abort();
+      }
+      abortController.current = new AbortController();
+      const { data, error } = await fetchHistory();
 
-    if (!data?.GetCSVDownloadTasks || error) {
-      return;
-    }
+      if (!data?.GetCSVDownloadTasks || error) {
+        return;
+      }
 
-    const active = data.GetCSVDownloadTasks?.filter(item => isAactive(item));
+      const active = data.GetCSVDownloadTasks?.filter(item => isAactive(item));
 
-    if (active) {
-      activeRef.current = active.map(item => item!.id);
-    }
+      if (active) {
+        activeRef.current = active.map(item => item!.id);
+      }
 
-    setInProgressDownloads({
-      inProgressDownloads: activeRef.current
-    });
+      setInProgressDownloads({
+        inProgressDownloads: activeRef.current
+      });
 
-    const _data = [...data.GetCSVDownloadTasks];
-    _data.length = 5;
+      let _data = [...data.GetCSVDownloadTasks];
 
-    setTasks(
-      _data.map(item => ({
-        id: item!.id as number,
-        label: item!.name as string,
-        status: item!.status as string,
-        isActive: isAactive(item),
-        fileSize: item!.creditPrice as number,
-        totalRows: item!.totalRows as number,
-        creditUsed: item!.creditsUsed as number,
-        creditPrice: item!.creditPrice as number,
-        value: ''
-      }))
-    );
-  }, [fetchHistory, setInProgressDownloads]);
+      if (!fetchAll) {
+        _data = _data.filter(
+          item =>
+            (item?.status === Status.Completed && !item?.downloadedAt) ||
+            item?.status === Status.InProgress ||
+            item?.status === Status.CalculatingCredits
+        );
+
+        // if there is a file that is completed but not downloaded, show the tooltip
+        if (
+          _data.find(
+            item => item?.status === Status.Completed && !item?.downloadedAt
+          )
+        ) {
+          setFileDownloaded(true);
+        }
+      }
+
+      setTasks(
+        _data.map(item => ({
+          id: item!.id as number,
+          label: item!.name as string,
+          status: item!.status as string,
+          isActive: isAactive(item),
+          fileSize: item!.creditPrice as number,
+          totalRows: item!.totalRows as number,
+          creditUsed: item!.creditsUsed as number,
+          creditPrice: item!.creditPrice as number,
+          value: ''
+        }))
+      );
+    },
+    [fetchHistory, setInProgressDownloads]
+  );
 
   const pollStatus = useCallback(
     async (id: number) => {
@@ -129,6 +151,7 @@ export function CSVDownloads() {
       if (currentlyPollingRef.current.indexOf(id) === -1) {
         currentlyPollingRef.current.push(id);
       }
+
       const { data } = await getStatus({ taskId: id });
 
       if (!data?.GetTaskStatus) {
@@ -146,9 +169,6 @@ export function CSVDownloads() {
       if (status === Status.Completed) {
         setFileDownloaded(true);
         getHistory();
-        setTimeout(() => {
-          setFileDownloaded(false);
-        }, 5000);
       }
 
       activeRef.current = activeRef.current.filter(item => item !== id);
@@ -192,7 +212,26 @@ export function CSVDownloads() {
   }, [inProgressDownloads, pollStatus]);
 
   useEffect(() => {
-    getHistory();
+    return listenTaskAdded((id: number) => {
+      if (currentlyPollingRef.current.findIndex(item => item === id)) {
+        return;
+      }
+
+      pollStatus(id);
+      setNewTaskAdded(true);
+
+      const timer = setTimeout(() => {
+        setNewTaskAdded(false);
+      }, 5000);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    });
+  });
+
+  useEffect(() => {
+    getHistory(false);
   }, [getHistory]);
 
   const handleDownload = useCallback(
@@ -242,7 +281,36 @@ export function CSVDownloads() {
           fileDownloaded ? (
             <div className="bg-toast-positive rounded-18 p-4 font-medium text-sm leading-7 mt-5 relative">
               <span className="absolute -top-[12px] left-10 w-0 h-0 z-20 border border-solid border-l-[10px] border-l-transparent border-b-[12.5px] border-toast-positive border-r-[10px] border-r-transparent border-t-transparent"></span>
-              Your file is ready to be downloaded
+              <div className="flex items-center">
+                <span>Your file is ready to be downloaded</span>
+                <span
+                  className="ml-2 hover:cursor-pointer"
+                  onClick={() => {
+                    setFileDownloaded(false);
+                  }}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 14 14"
+                    fill="none"
+                  >
+                    <path
+                      d="M1 1L13 13"
+                      stroke="white"
+                      stroke-width="1.33333"
+                      stroke-linecap="round"
+                    />
+                    <path
+                      d="M1 13L13 1"
+                      stroke="white"
+                      stroke-width="1.33333"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </span>
+              </div>
             </div>
           ) : (
             <div className="bg-stroke-highlight-blue rounded-18 p-4 font-medium text-sm leading-7 mt-5 relative">
@@ -265,7 +333,7 @@ export function CSVDownloads() {
               // console.log('do nothing');
             }}
             heading="CSV Downloads In Progress"
-            optionsContainerClassName="min-w-[214px] top-9 !bg-[#303030]"
+            optionsContainerClassName="min-w-[214px] top-9 !bg-[#303030] max-h-[50vh] overflow-y-auto"
             renderPlaceholder={(_, isOpen) => (
               <button
                 onClick={showDownload}
