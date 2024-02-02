@@ -105,14 +105,8 @@ export function TokensComponent() {
   const [tokens, setTokens] = useState<(TokenType | PoapType)[]>([]);
   const tokensRef = useRef<(TokenType | PoapType)[]>([]);
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
-  const [
-    {
-      tokenFilters: filters,
-      address: tokenAddress,
-      activeViewToken,
-      activeSnapshotInfo
-    }
-  ] = useSearchInput();
+  const [{ tokenFilters: filters, address: tokenAddress, activeSnapshotInfo }] =
+    useSearchInput();
   const [modalData, setModalData] = useState<ModalData>({
     isOpen: false,
     dataType: '',
@@ -120,7 +114,7 @@ export function TokensComponent() {
   });
   const [loaderData, setLoaderData] = useState({
     isVisible: false,
-    total: LIMIT,
+    total: 0,
     matching: 0
   });
 
@@ -270,7 +264,7 @@ export function TokensComponent() {
       setTokens([]);
       setLoaderData({
         isVisible: true,
-        total: LIMIT,
+        total: 0,
         matching: 0
       });
 
@@ -365,7 +359,9 @@ export function TokensComponent() {
   const showDownCSVOverlay = hasNextPage && !loading;
 
   const statusLoaderLines: [string, number][] = [
-    [`Scanning %n ${activeViewToken}`, loaderData.total],
+    loaderData.total
+      ? [`Scanning next 30 records (total %n)`, loaderData.total]
+      : [`Scanning first 30 records`, 1],
     [`Found %n matching results`, loaderData.matching]
   ];
 
