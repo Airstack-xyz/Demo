@@ -236,15 +236,7 @@ export function TokenHolders() {
     let variables: CSVDownloadOption['filters'] = undefined;
     const erc20Tokens = overviewTokens?.filter(v => v.tokenType === 'ERC20');
     const poaps = overviewTokens?.filter(v => !v.tokenAddress.startsWith('0x'));
-
-    const csvSocialFilters = tokenFilters?.filter(
-      filter => filter !== 'owners'
-    );
-
-    const socialFilters =
-      activeView && csvSocialFilters.length > 0
-        ? { socials: csvSocialFilters }
-        : undefined;
+    const socialFilters = {};
 
     if (tokenAddress.length > 1) {
       if (erc20Tokens?.length === 1) {
@@ -573,7 +565,6 @@ export function TokenHolders() {
   }, [
     addresses,
     overviewTokens,
-    tokenFilters,
     tokenAddress,
     activeView,
     activeTokenInfo,

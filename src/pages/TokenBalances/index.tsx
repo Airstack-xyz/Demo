@@ -281,26 +281,11 @@ function TokenBalancePage() {
     const getAPIOptions = [];
     const csvDownloadOptions: CSVDownloadOption[] = [];
 
-    const nftBlockchains = fetchAllBlockchains
-      ? {
-          ethereum: true,
-          polygon: true,
-          base: true
-        }
-      : blockchainType.reduce(
-          (acc, curr) => {
-            const blockchain = curr.toLowerCase() as keyof typeof acc;
-            if (acc[blockchain] === false) {
-              acc[blockchain] = true;
-            }
-            return acc;
-          },
-          {
-            ethereum: false,
-            polygon: false,
-            base: false
-          }
-        );
+    const nftBlockchains = {
+      ethereum: true,
+      polygon: true,
+      base: true
+    };
 
     const snapshotBlockchains = {
       ethereum: nftBlockchains.ethereum,
@@ -364,7 +349,7 @@ function TokenBalancePage() {
         fileName: `NFT balances of [${address[0]}].csv`,
         variables: {
           identity: address[0],
-          tokenType: tokenType ? [tokenType] : ['ERC721', 'ERC1155'],
+          tokenType: ['ERC721', 'ERC1155'],
           [name]: value
         },
         filters: {
@@ -475,7 +460,7 @@ function TokenBalancePage() {
           fileName: `Socials of [${address[0]}].csv`,
           variables: {
             identity: address[0],
-            tokenType: tokenType ? [tokenType] : ['ERC721', 'ERC1155'],
+            tokenType: ['ERC721', 'ERC1155'],
             blockchain: 'ethereum',
             orderBy: 'DESC'
           }
