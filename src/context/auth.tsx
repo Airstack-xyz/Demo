@@ -18,6 +18,7 @@ import { LoginMutationMutation, MeQuery } from '../../__generated__/types';
 import { meQuery } from '../queries/auth/me';
 import { loginMutation } from '../queries/auth/login';
 import { SignInModal } from '../Components/SignInModal';
+import { encode } from '../utils/encode';
 
 // eslint-disable-next-line
 function noop() {}
@@ -108,8 +109,8 @@ function Provider({ children }: AuthProviderProps) {
       auth.login();
       return;
     }
-    location.href =
-      'https://app.dev.airstack.xyz/login?origin=' + location.href;
+    const encodedUrl = encode(location.href);
+    location.href = 'https://app.dev.airstack.xyz/login?origin=' + encodedUrl;
   }, [auth]);
 
   const value: AuthContext = useMemo(
