@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import classNames from 'classnames';
 import { useRef, useState, useCallback, useEffect } from 'react';
-import { useInProgressDownloads } from '../../store/csvDownload';
 import { Dropdown } from '../Dropdown';
 import { Icon } from '../Icon';
 import { Tooltip } from '../Tooltip';
@@ -10,6 +9,7 @@ import { historyQuery } from '../../queries/csv-download/history';
 import {
   CancelTaskMutation,
   CancelTaskMutationVariables,
+  CsvDownloadTask,
   DownloadCsvMutation,
   DownloadCsvMutationVariables,
   GetTaskStatusQuery,
@@ -28,7 +28,7 @@ type Task = NonNullable<
   NonNullable<GetTasksHistoryQuery['GetCSVDownloadTasks']>[0]
 >;
 
-function isAactive(item: Task | null) {
+function isActive(item: Task | null) {
   return Boolean(
     item &&
       item.status !== Status.Cancelled &&
@@ -37,6 +37,22 @@ function isAactive(item: Task | null) {
   );
 }
 
+type Option = {
+  id: number;
+  label: string;
+  value: '';
+  isActive: boolean;
+} & Pick<
+  CsvDownloadTask,
+  | 'status'
+  | 'fileSize'
+  | 'totalRows'
+  | 'creditPrice'
+  | 'creditsUsed'
+  | 'downloadedAt'
+>;
+
+let dataFetched = false;
 export function CSVDownloads() {
   const [fetchHistory] = useCSVQuery<
     GetTasksHistoryQuery,
@@ -63,25 +79,12 @@ export function CSVDownloads() {
   const [newTaskAdded, setNewTaskAdded] = useState(false);
   const [fileDownloaded, setFileDownloaded] = useState(false);
   const activeRef = useRef<number[]>([]);
-  const [{ inProgressDownloads }, setInProgressDownloads] =
-    useInProgressDownloads(['inProgressDownloads']);
+  const [inProgressDownloads, setInProgressDownloads] = useState<number[]>([]);
 
   activeRef.current = inProgressDownloads;
 
   const abortController = useRef<AbortController | null>(null);
-  const [tasks, setTasks] = useState<
-    {
-      id: number;
-      label: string;
-      status: string;
-      isActive: boolean;
-      value: '';
-      fileSize: number;
-      totalRows: number;
-      creditUsed: number;
-      creditPrice: number;
-    }[]
-  >([]);
+  const [tasks, setTasks] = useState<Option[]>([]);
 
   const getHistory = useCallback(
     async (fetchAll = true) => {
@@ -95,15 +98,13 @@ export function CSVDownloads() {
         return;
       }
 
-      const active = data.GetCSVDownloadTasks?.filter(item => isAactive(item));
+      const active = data.GetCSVDownloadTasks?.filter(item => isActive(item));
 
       if (active) {
         activeRef.current = active.map(item => item!.id);
       }
 
-      setInProgressDownloads({
-        inProgressDownloads: activeRef.current
-      });
+      setInProgressDownloads(activeRef.current);
 
       let _data = [...data.GetCSVDownloadTasks];
 
@@ -127,15 +128,16 @@ export function CSVDownloads() {
 
       setTasks(
         _data.map(item => ({
+          value: '',
           id: item!.id as number,
           label: item!.name as string,
-          status: item!.status as string,
-          isActive: isAactive(item),
+          status: item!.status as Status,
+          isActive: isActive(item),
           fileSize: item!.creditPrice as number,
           totalRows: item!.totalRows as number,
-          creditUsed: item!.creditsUsed as number,
+          creditsUsed: item!.creditsUsed as number,
           creditPrice: item!.creditPrice as number,
-          value: ''
+          downloadedAt: item!.downloadedAt as string
         }))
       );
     },
@@ -159,7 +161,7 @@ export function CSVDownloads() {
       }
       const status = data.GetTaskStatus.status as Status;
 
-      if (isAactive(data.GetTaskStatus as Task)) {
+      if (isActive(data.GetTaskStatus as Task)) {
         setTimeout(() => {
           pollStatus(id);
         }, 5000);
@@ -168,7 +170,7 @@ export function CSVDownloads() {
 
       if (status === Status.Completed) {
         setFileDownloaded(true);
-        getHistory();
+        getHistory(true);
       }
 
       activeRef.current = activeRef.current.filter(item => item !== id);
@@ -176,19 +178,7 @@ export function CSVDownloads() {
         item => item !== id
       );
 
-      setInProgressDownloads({
-        inProgressDownloads: activeRef.current
-      });
-      setTasks(tasks =>
-        tasks.map(item =>
-          item.id === id
-            ? {
-                ...item,
-                status
-              }
-            : item
-        )
-      );
+      setInProgressDownloads(activeRef.current);
     },
     [getHistory, getStatus, setInProgressDownloads]
   );
@@ -213,10 +203,6 @@ export function CSVDownloads() {
 
   useEffect(() => {
     return listenTaskAdded((id: number) => {
-      if (currentlyPollingRef.current.findIndex(item => item === id)) {
-        return;
-      }
-
       pollStatus(id);
       setNewTaskAdded(true);
 
@@ -231,7 +217,8 @@ export function CSVDownloads() {
   });
 
   useEffect(() => {
-    getHistory(false);
+    getHistory(dataFetched);
+    dataFetched = true;
   }, [getHistory]);
 
   const handleDownload = useCallback(
@@ -401,24 +388,27 @@ export function CSVDownloads() {
                         <div className="mb-2">
                           {option.fileSize} • {option.totalRows} rows •{' '}
                           <span className="text-stroke-highlight-blue">
-                            {option.creditUsed} credits to download
+                            {option.creditsUsed} credits to download
                           </span>
                         </div>
                         <div>
                           <button
-                            className="py-1 px-3 rounded-full cursor-pointer text-left whitespace-nowrap bg-white text-tertiary mr-5"
+                            disabled={!option.totalRows}
+                            className="py-1 px-3 rounded-full cursor-pointer text-left whitespace-nowrap bg-white text-tertiary mr-5 disabled:bg-opacity-75 disabled:cursor-not-allowed"
                             onClick={() => handleDownload(option.id)}
                           >
                             Download CSV (${option.creditPrice})
                           </button>
-                          <button
-                            onClick={e => {
-                              e.preventDefault();
-                              setTaskToCancel(option.id);
-                            }}
-                          >
-                            Cancel
-                          </button>
+                          {!option.downloadedAt && (
+                            <button
+                              onClick={e => {
+                                e.preventDefault();
+                                setTaskToCancel(option.id);
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          )}
                         </div>
                       </div>
                     )}
