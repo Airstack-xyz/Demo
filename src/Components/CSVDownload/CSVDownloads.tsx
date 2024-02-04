@@ -351,8 +351,9 @@ export function CSVDownloads() {
                 className={classNames(
                   'w-10 h-[30px] bg-glass-1 rounded-full text-xs font-medium flex-row-center border border-solid border-transparent hover:opacity-90',
                   {
-                    'border-white text-text-button ': isOpen,
-                    'text-[#8B8EA0]': !isOpen
+                    'border-white text-text-button': isOpen,
+                    'text-[#8B8EA0]': !isOpen,
+                    'text-text-button': inProgressDownloads.length > 0
                     // 'cursor-not-allowed pointer-events-none opacity-80': disabled
                   }
                 )}
