@@ -23,6 +23,8 @@ import { getTaskStatusQuery } from '../../queries/csv-download/status';
 import { downloadCsvMutation } from '../../queries/csv-download/download';
 import { CancelDownloadModal } from '../CSVDownload/CancelDownloadModal';
 import { listenTaskAdded } from './utils';
+import { Close, Download, Retry } from './Icons';
+import { restartTaskMutation } from '../../queries/csv-download/restart';
 
 type Task = NonNullable<
   NonNullable<GetTasksHistoryQuery['GetCSVDownloadTasks']>[0]
@@ -64,6 +66,10 @@ export function CSVDownloads() {
     CancelTaskMutationVariables
   >(cancelTaskMutation);
 
+  // TODO: use proper types here once the BFF has the schema
+  const [restartTask, { loading: restartingTask }] =
+    useCSVQuery(restartTaskMutation);
+
   const [getStatus] = useCSVQuery<
     GetTaskStatusQuery,
     GetTaskStatusQueryVariables
@@ -78,6 +84,7 @@ export function CSVDownloads() {
   const currentlyPollingRef = useRef<number[]>([]);
   const [newTaskAdded, setNewTaskAdded] = useState(false);
   const [fileDownloaded, setFileDownloaded] = useState(false);
+  const [taskFailed, setTaskFailed] = useState(false);
   const activeRef = useRef<number[]>([]);
   const [inProgressDownloads, setInProgressDownloads] = useState<number[]>([]);
 
@@ -159,7 +166,7 @@ export function CSVDownloads() {
       if (!data?.GetTaskStatus) {
         return;
       }
-      const status = data.GetTaskStatus.status as Status;
+      const { status, retryCount } = data.GetTaskStatus;
 
       if (isActive(data.GetTaskStatus as Task)) {
         setTimeout(() => {
@@ -173,6 +180,15 @@ export function CSVDownloads() {
         getHistory(true);
       }
 
+      if (
+        (status === Status.Failed ||
+          status === Status.CreditCalculationFailed) &&
+        retryCount &&
+        retryCount >= 3
+      ) {
+        setTaskFailed(true);
+      }
+
       activeRef.current = activeRef.current.filter(item => item !== id);
       currentlyPollingRef.current = currentlyPollingRef.current.filter(
         item => item !== id
@@ -181,6 +197,14 @@ export function CSVDownloads() {
       setInProgressDownloads(activeRef.current);
     },
     [getHistory, getStatus, setInProgressDownloads]
+  );
+
+  const handleRestart = useCallback(
+    async (taskId: number) => {
+      await restartTask({ taskId });
+      getHistory();
+    },
+    [getHistory, restartTask]
   );
 
   useEffect(() => {
@@ -237,7 +261,7 @@ export function CSVDownloads() {
     getHistory();
   }, [getHistory]);
 
-  const showTooltip = fileDownloaded || newTaskAdded;
+  const showTooltip = fileDownloaded || newTaskAdded || taskFailed;
 
   return (
     <div>
@@ -276,34 +300,31 @@ export function CSVDownloads() {
                     setFileDownloaded(false);
                   }}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="12"
-                    height="12"
-                    viewBox="0 0 14 14"
-                    fill="none"
-                  >
-                    <path
-                      d="M1 1L13 13"
-                      stroke="white"
-                      stroke-width="1.33333"
-                      stroke-linecap="round"
-                    />
-                    <path
-                      d="M1 13L13 1"
-                      stroke="white"
-                      stroke-width="1.33333"
-                      stroke-linecap="round"
-                    />
-                  </svg>
+                  <Close />
                 </span>
               </div>
             </div>
           ) : (
-            <div className="bg-stroke-highlight-blue rounded-18 p-4 font-medium text-sm leading-7 mt-5 relative">
+            <div
+              className={classNames(
+                'rounded-18 p-4 font-medium text-sm leading-7 mt-5 relative',
+                {
+                  'bg-stroke-highlight-blue': newTaskAdded,
+                  'bg-toast-negative': taskFailed
+                }
+              )}
+            >
               <span className="absolute -top-[12px] left-10 w-0 h-0 z-20 border border-solid border-l-[10px] border-l-transparent border-b-[12.5px] border-b-stroke-highlight-blue border-r-[10px] border-r-transparent border-t-transparent"></span>
-              <div>Preparing your file!</div>
-              <div>We will notify you once it is ready.</div>
+              <div>
+                {newTaskAdded
+                  ? 'Preparing your file!'
+                  : 'Failed to prepare your file due to some error.'}
+              </div>
+              <div>
+                {newTaskAdded
+                  ? 'We will notify you once it is ready.'
+                  : 'Please try again.'}
+              </div>
             </div>
           )
         }
@@ -333,21 +354,7 @@ export function CSVDownloads() {
                   }
                 )}
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                >
-                  <path
-                    d="M10.8327 2.5H6.83268C5.89927 2.5 5.43255 2.5 5.07603 2.68166C4.76242 2.84144 4.50746 3.09641 4.34767 3.41002C4.16602 3.76653 4.16602 4.23325 4.16602 5.16667V14.8333C4.16602 15.7667 4.16602 16.2335 4.34767 16.59C4.50746 16.9036 4.76242 17.1586 5.07603 17.3183C5.43255 17.5 5.89927 17.5 6.83268 17.5H12.4993M10.8327 2.5L15.8327 7.5M10.8327 2.5V6.16667C10.8327 6.63337 10.8327 6.86673 10.9235 7.04499C11.0034 7.20179 11.1308 7.32927 11.2877 7.40917C11.4659 7.5 11.6993 7.5 12.166 7.5H15.8327M15.8327 7.5V9.16667M15.8344 12.5V17.4764M15.8344 17.4764V17.5M15.8344 17.4764L15.8579 17.5L17.5246 15.8333M15.8344 17.4764L14.1913 15.8333"
-                    stroke="currentColor"
-                    stroke-width="1.62195"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
+                <Download />
               </button>
             )}
             renderOption={({ option }) => {
@@ -430,8 +437,18 @@ export function CSVDownloads() {
                     {!isInProgress && failed && (
                       <div className="text-text-secondary mt-2">
                         <div className="flex items-center">
-                          Failed to download
+                          Failed to prepare the file. Please try again.
                         </div>
+                        <button
+                          disabled={restartingTask}
+                          onClick={() => {
+                            handleRestart(option.id);
+                          }}
+                          className="bg-white text-primary hover:opacity-80 flex items-center rounded-18 pl-2 pr-3 py-1 mt-2"
+                        >
+                          <Retry />
+                          Retry
+                        </button>
                       </div>
                     )}
                     {option.status === Status.Cancelled && (
