@@ -7,7 +7,6 @@ import { defaultSortOrder } from '../../Components/Filters/SortBy';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Icon } from '../../Components/Icon';
 import { getAllWordsAndMentions } from '../../Components/Input/utils';
-import { Layout } from '../../Components/Layout';
 import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { useSearchInput } from '../../hooks/useSearchInput';
@@ -701,55 +700,51 @@ export function TokenHolders() {
   };
 
   return (
-    <Layout>
-      <div
-        className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
-          'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
-            isHome
-        })}
-      >
-        <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
-          {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
-          <Search />
-          {!hasMultipleERC20 && isQueryExists && (
-            <div className="m-3 flex-row-center">{renderFilterContent()}</div>
-          )}
-        </div>
-        {isQueryExists && (
-          <>
-            <div
-              className="flex flex-col justify-center mt-7 max-w-[950px] mx-auto"
-              key={query}
-            >
-              {/* 
+    <div
+      className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
+        'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
+          isHome
+      })}
+    >
+      <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
+        {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
+        <Search />
+        {!hasMultipleERC20 && isQueryExists && (
+          <div className="m-3 flex-row-center">{renderFilterContent()}</div>
+        )}
+      </div>
+      {isQueryExists && (
+        <>
+          <div
+            className="flex flex-col justify-center mt-7 max-w-[950px] mx-auto"
+            key={query}
+          >
+            {/* 
                 Overview token fetching happen inside HoldersOverview, that's 
                 why it is need to be mounted every time, even if we don't show ui 
                 TODO: Move overview fetching logic outside 
                */}
-              <HoldersOverview
-                hideOverview={hideOverview}
-                onAddress404={handleInvalidAddress}
-              />
-              {showTokens && (
-                <>
-                  {activeView && <OverviewDetails />}
-                  {!activeView && (
-                    <div key={tokensKey}>
-                      <div className="flex mb-4">
-                        <Icon name="token-holders" height={20} width={20} />{' '}
-                        <span className="font-bold ml-1.5 text-sm">
-                          Holders
-                        </span>
-                      </div>
-                      <Tokens />
+            <HoldersOverview
+              hideOverview={hideOverview}
+              onAddress404={handleInvalidAddress}
+            />
+            {showTokens && (
+              <>
+                {activeView && <OverviewDetails />}
+                {!activeView && (
+                  <div key={tokensKey}>
+                    <div className="flex mb-4">
+                      <Icon name="token-holders" height={20} width={20} />{' '}
+                      <span className="font-bold ml-1.5 text-sm">Holders</span>
                     </div>
-                  )}
-                </>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-    </Layout>
+                    <Tokens />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </>
+      )}
+    </div>
   );
 }
