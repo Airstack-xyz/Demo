@@ -702,10 +702,12 @@ export function TokenHolders() {
           />
           <AdvancedSettings />
         </div>
-        <GetAPIDropdown options={options} />
-        <span className="ml-2">
-          <CSVDownloadDropdown options={csvDownloadOptions} />
-        </span>
+        <div className="flex items-center">
+          <GetAPIDropdown options={options} />
+          <span className="ml-2">
+            <CSVDownloadDropdown options={csvDownloadOptions} />
+          </span>
+        </div>
       </div>
     );
   };

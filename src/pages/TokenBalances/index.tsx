@@ -712,7 +712,9 @@ function TokenBalancePage() {
       return (
         <div className="flex justify-center w-full z-[21]">
           <GetAPIDropdown options={options} dropdownAlignment="center" />
-          <CSVDownloadDropdown options={csvDownloadOptions} />
+          <span className="ml-2">
+            <CSVDownloadDropdown options={csvDownloadOptions} />
+          </span>
         </div>
       );
     }
@@ -737,8 +739,12 @@ function TokenBalancePage() {
             </>
           )}
         </div>
-        <GetAPIDropdown options={options} dropdownAlignment="right" />
-        <CSVDownloadDropdown options={csvDownloadOptions} />
+        <div className="flex items-center">
+          <GetAPIDropdown options={options} dropdownAlignment="right" />
+          <span className="ml-2">
+            <CSVDownloadDropdown options={csvDownloadOptions} />
+          </span>
+        </div>
       </div>
     );
   };
