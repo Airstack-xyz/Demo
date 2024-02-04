@@ -23,7 +23,7 @@ import { getTaskStatusQuery } from '../../queries/csv-download/status';
 import { downloadCsvMutation } from '../../queries/csv-download/download';
 import { CancelDownloadModal } from '../CSVDownload/CancelDownloadModal';
 import { listenTaskAdded } from './utils';
-import { Close, Download, Retry } from './Icons';
+import { Close, Download, NoItems, Retry } from './Icons';
 import { restartTaskMutation } from '../../queries/csv-download/restart';
 
 type Task = NonNullable<
@@ -336,7 +336,11 @@ export function CSVDownloads() {
             </span>
           )}
           <Dropdown
-            options={tasks}
+            options={
+              tasks.length
+                ? tasks
+                : [{ id: -1, label: '', value: '', isActive: false } as Option]
+            }
             onChange={() => {
               // console.log('do nothing');
             }}
@@ -362,8 +366,21 @@ export function CSVDownloads() {
               const failed =
                 option.status === Status.Failed ||
                 option.status === Status.CreditCalculationFailed;
+
+              if (option.id === -1) {
+                // no tasks
+                return (
+                  <div className="flex flex-col justify-center items-center py-5 w-[340px]">
+                    <NoItems />
+
+                    <div className="mt-5 text-text-secondary">
+                      No downloads in progress
+                    </div>
+                  </div>
+                );
+              }
               return (
-                <div className="py-2 px-5 rounded-full mb-2 cursor-pointer text-left whitespace-nowrap w-[340px] ">
+                <div className="py-2 px-5 rounded-full mb-2 cursor-pointer text-left whitespace-nowrap w-[340px]">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center overflow-hidden">
                       <Icon
