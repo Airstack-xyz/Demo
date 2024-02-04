@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { CSVDownloads } from './CSVDownload/CSVDownloads';
-import { ProfileAvatar } from './ProfileAvatar';
+import { Profile } from './Profile';
 
 export function Header() {
   const { user, login } = useAuth();
@@ -59,7 +59,7 @@ export function Header() {
           </a>
           <span className="ml-7">
             {user ? (
-              <ProfileAvatar userName={user?.userName || ''} />
+              <Profile />
             ) : (
               <button
                 className="h-[30px] border border-solid border-white px-5 rounded-18 hover:opacity-90"

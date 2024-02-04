@@ -47,3 +47,21 @@ export const downCSVKeys = [
   'lens-poap-followings',
   'lens-nft-followings'
 ] as const;
+
+export const ROUTES = {
+  logout: '/logout',
+  home: '/',
+  explorer: '/api-studio',
+  myQueries: '/my-queries',
+  publicQuery: '/query',
+  apps: '/apps',
+  sdks: '/sdks',
+  profilesSettings: '/profile-settings',
+  pricing: '/pricing',
+  paymentSuccess: '/payment-success'
+};
+
+export const APP_BASE_URL =
+  process.env.APP_BASE_URL || 'http://app.dev.airstack.xyz';
+
+export default ROUTES;
