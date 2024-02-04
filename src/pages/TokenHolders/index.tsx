@@ -64,6 +64,7 @@ import { POAPSupplyQuery, TokenSupplyQuery } from '../../queries/supplyQuery';
 import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDropdown';
 import { CSVDownloadOption } from '../../types';
 import { CsvQueryType } from '../../../__generated__/types';
+import { formatDate } from '../../utils';
 
 export function TokenHolders() {
   const [
@@ -240,9 +241,10 @@ export function TokenHolders() {
     );
     const socialFilters = {};
     const hasMultipleTokens = tokenAddress.length > 1;
+    const hasERC20 = erc20Tokens?.length > 0;
 
     if (hasMultipleTokens) {
-      if (erc20Tokens?.length === 1) {
+      if (hasERC20) {
         variables = {
           erc20Address: erc20Tokens[0].tokenAddress,
           blockchain: erc20Tokens[0].blockchain
@@ -272,12 +274,17 @@ export function TokenHolders() {
       }
 
       if (key && variables) {
+        const names: string[] = [];
+
+        overviewTokens.forEach(token => {
+          names.push(token.name);
+        });
+
+        const name = `Combinations ${names.join(' x ')}`;
         const combinationsCSVDownloadOption: CSVDownloadOption = {
-          label: `Combinations ${erc20Tokens?.length > 0 ? 'ERC20 and' : ''} ${
-            poaps.length > 0 ? 'POAP' : 'NFT'
-          }`,
+          label: name,
           key,
-          fileName: `Combinations ${query}.csv`,
+          fileName: `${name}.csv`,
           variables,
           filters: {
             ...socialFilters
@@ -286,13 +293,14 @@ export function TokenHolders() {
         csvDownloadOptions.push(combinationsCSVDownloadOption);
       }
     } else {
-      if (hasPoap) {
+      const tokenName = overviewTokens?.[0]?.name;
+      if (poaps.length) {
         csvDownloadOptions.push({
           label: 'POAP Holders',
           key: CsvQueryType.PoapHolders,
-          fileName: `Poaps holders ${query}.csv`,
+          fileName: `Poaps holders of ${tokenName}.csv`,
           variables: {
-            eventId: query
+            eventId: poaps[0].tokenAddress // event id
           },
           filters: {
             ...socialFilters
@@ -301,14 +309,19 @@ export function TokenHolders() {
       } else {
         if (snapshotInfo?.isApplicable) {
           const { name, value } = getCSVDownloadSnapshotVariables(snapshotInfo);
+          let postFix = 'as of block ' + value;
+
+          if (name === 'date' || name === 'timestamp') {
+            postFix = 'as of ' + formatDate(value as string);
+          }
+
           if (poaps.length === 0) {
             csvDownloadOptions.push({
               label: 'Nft holders',
-              key:
-                erc20Tokens.length > 0
-                  ? CsvQueryType.Erc20HoldersSnapshot
-                  : CsvQueryType.NftHoldersSnapshot,
-              fileName: `NFT holders snapshot ${query}.csv`,
+              key: hasERC20
+                ? CsvQueryType.Erc20HoldersSnapshot
+                : CsvQueryType.NftHoldersSnapshot,
+              fileName: `NFT holders snapshot ${tokenName} ${postFix}.csv`,
               variables: {
                 tokenAddress: addresses[0].address,
                 blockchain: addresses[0].blockchain, // TODO: fix this it should be dynamic
@@ -323,11 +336,8 @@ export function TokenHolders() {
         } else if (poaps.length === 0) {
           csvDownloadOptions.push({
             label: 'Nft holders',
-            key:
-              erc20Tokens.length > 0
-                ? CsvQueryType.Erc20Holders
-                : CsvQueryType.NftHolders,
-            fileName: `NFT holders ${query}.csv`,
+            key: hasERC20 ? CsvQueryType.Erc20Holders : CsvQueryType.NftHolders,
+            fileName: `NFT holders ${tokenName}.csv`,
             variables: {
               tokenAddress: addresses[0].address,
               blockchain: addresses[0].blockchain // TODO: fix this it should be dynamic

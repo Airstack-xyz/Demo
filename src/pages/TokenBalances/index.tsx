@@ -30,7 +30,7 @@ import {
   tokenDetailsQuery
 } from '../../queries/tokenDetails';
 import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
-import { capitalizeFirstLetter } from '../../utils';
+import { capitalizeFirstLetter, formatDate } from '../../utils';
 import {
   checkBlockchainSupportForSnapshot,
   getActiveSnapshotInfo,
@@ -341,11 +341,16 @@ function TokenBalancePage() {
       });
 
       const { name, value } = getCSVDownloadSnapshotVariables(snapshotInfo);
+      let postFix = 'as of block ' + value;
+
+      if (name === 'date' || name === 'timestamp') {
+        postFix = 'as of ' + formatDate(value as string);
+      }
 
       nftOption = {
         label: 'NFTs',
         key: CsvQueryType.NftBalancesSnapshot,
-        fileName: `NFT balances of [${address[0]}].csv`,
+        fileName: `NFT balances of [${address[0]}] ${postFix}.csv`,
         variables: {
           identity: address[0],
           tokenType: ['ERC721', 'ERC1155'],
@@ -367,7 +372,7 @@ function TokenBalancePage() {
       erc20Option = {
         label: 'ERC20s',
         key: CsvQueryType.Erc20BalancesSnapshot,
-        fileName: `NFT balances of [${address[0]}].csv`,
+        fileName: `NFT balances of [${address[0]}] ${postFix}.csv`,
         variables: {
           identity: address[0],
           [name]: value
