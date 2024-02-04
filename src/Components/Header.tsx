@@ -20,9 +20,11 @@ export function Header() {
           </Link>
         </div>
         <div className="hidden sm:flex-row-center text-sm">
-          <span className="ml-5">
-            <CSVDownloads />
-          </span>
+          {user && (
+            <span className="ml-5">
+              <CSVDownloads />
+            </span>
+          )}
           <a
             className="text-text-button font-bold bg-glass-1 hover:opacity-90 px-2.5 py-1px-2.5 py-1 rounded-18 mx-7"
             href="https://github.com/Airstack-xyz/Demo"
