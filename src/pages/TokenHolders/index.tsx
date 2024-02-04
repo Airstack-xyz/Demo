@@ -243,6 +243,7 @@ export function TokenHolders() {
     const hasMultipleTokens = tokenAddress.length > 1;
     const hasERC20 = erc20Tokens?.length > 0;
 
+    // for now there is no support for multiple ERC20 tokens and multiple Popas
     if (hasMultipleTokens) {
       if (hasERC20) {
         variables = {
@@ -262,9 +263,18 @@ export function TokenHolders() {
             nftAddress: nfts[0].tokenAddress
           };
         }
-      }
-      // there is no query for poaps + nfts
-      else if (poaps.length === 0) {
+      } else if (poaps.length === 1) {
+        // TODO: this will not work untill the BFF schema is ready
+        // eslint-disable-next-line
+        // @ts-ignore
+        key = CsvQueryType.PoapNftHolders;
+        variables = {
+          eventId: poaps[0].tokenAddress,
+          tokenAddress: nfts[0].tokenAddress,
+          blockchain: nfts[0].blockchain
+        };
+      } // there is no support for multiple Poaps
+      else if (nfts.length === 2) {
         key = CsvQueryType.CommonNftHolders;
         variables = {
           tokenAddress1: addresses[0].address,
