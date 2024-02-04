@@ -88,8 +88,6 @@ export function CSVDownloads() {
   const activeRef = useRef<number[]>([]);
   const [inProgressDownloads, setInProgressDownloads] = useState<number[]>([]);
 
-  activeRef.current = inProgressDownloads;
-
   const abortController = useRef<AbortController | null>(null);
   const [tasks, setTasks] = useState<Option[]>([]);
 
@@ -227,6 +225,7 @@ export function CSVDownloads() {
 
   useEffect(() => {
     return listenTaskAdded((id: number) => {
+      activeRef.current.push(id);
       pollStatus(id);
       setNewTaskAdded(true);
 
