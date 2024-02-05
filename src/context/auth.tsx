@@ -110,7 +110,7 @@ function Provider({ children }: AuthProviderProps) {
       return;
     }
     const encodedUrl = encode(location.href);
-    location.href = 'https://app.dev.airstack.xyz/login?origin=' + encodedUrl;
+    location.href = 'https://app.uat.airstack.xyz/login?origin=' + encodedUrl;
   }, [auth]);
 
   const value: AuthContext = useMemo(

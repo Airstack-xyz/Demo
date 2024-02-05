@@ -62,6 +62,6 @@ export const ROUTES = {
 };
 
 export const APP_BASE_URL =
-  process.env.APP_BASE_URL || 'http://app.dev.airstack.xyz';
+  process.env.APP_BASE_URL || 'http://app.uat.airstack.xyz';
 
 export default ROUTES;
