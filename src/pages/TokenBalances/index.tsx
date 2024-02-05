@@ -283,12 +283,14 @@ function TokenBalancePage() {
     const nftBlockchains = {
       ethereum: true,
       polygon: true,
-      base: true
+      base: true,
+      zora: true
     };
 
     const snapshotBlockchains = {
       ethereum: nftBlockchains.ethereum,
-      base: nftBlockchains.base
+      base: nftBlockchains.base,
+      zora: nftBlockchains.zora
     };
 
     if (

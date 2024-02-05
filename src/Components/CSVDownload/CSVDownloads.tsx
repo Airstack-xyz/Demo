@@ -22,7 +22,7 @@ import { cancelTaskMutation } from '../../queries/csv-download/cancel';
 import { getTaskStatusQuery } from '../../queries/csv-download/status';
 import { downloadCsvMutation } from '../../queries/csv-download/download';
 import { CancelDownloadModal } from '../CSVDownload/CancelDownloadModal';
-import { listenTaskAdded } from './utils';
+import { formatNumber, listenTaskAdded } from './utils';
 import { Close, Download, NoItems, Retry } from './Icons';
 import { restartTaskMutation } from '../../queries/csv-download/restart';
 
@@ -388,7 +388,7 @@ export function CSVDownloads() {
                         className="mr-2"
                         width={14}
                       />
-                      <span className="text-ellipsis w-full">
+                      <span className="ellipsis w-full flex-1">
                         {option.label}
                       </span>
                     </div>
@@ -410,22 +410,27 @@ export function CSVDownloads() {
                     {option.status === Status.Completed && (
                       <div className="mt-2">
                         <div className="mb-2">
-                          {(option.fileSize || 0).toFixed(4)} •{' '}
-                          {(option.totalRows || 0).toFixed(4)} rows •{' '}
+                          {formatNumber(option.fileSize || 0, 2)} •{' '}
+                          {option.totalRows} rows •{' '}
                           <span className="text-stroke-highlight-blue">
-                            {(option.creditsUsed || 0).toFixed(4)} credits to
-                            download
+                            {formatNumber(
+                              !option.totalRows ? 0 : option.creditsUsed || 0,
+                              2
+                            )}{' '}
+                            credits to download
                           </span>
                         </div>
                         <div>
-                          <button
-                            disabled={!option.totalRows}
-                            className="py-1 px-3 rounded-full cursor-pointer text-left whitespace-nowrap bg-white text-tertiary mr-5 disabled:bg-opacity-75 disabled:cursor-not-allowed"
-                            onClick={() => handleDownload(option.id)}
-                          >
-                            Download CSV ($
-                            {(option.creditPrice || 0).toFixed(4)})
-                          </button>
+                          {option.totalRows ? (
+                            <button
+                              disabled={!option.totalRows}
+                              className="py-1 px-3 rounded-full cursor-pointer text-left whitespace-nowrap bg-white text-tertiary mr-5 disabled:bg-opacity-75 disabled:cursor-not-allowed"
+                              onClick={() => handleDownload(option.id)}
+                            >
+                              Download CSV ($
+                              {formatNumber(option.creditPrice || 0, 4)})
+                            </button>
+                          ) : null}
                           {!option.downloadedAt && (
                             <button
                               onClick={e => {

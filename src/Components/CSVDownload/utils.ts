@@ -35,3 +35,7 @@ export function listenTaskAdded(callback: (id: number) => void | (() => void)) {
     }
   };
 }
+
+export function formatNumber(number: number, fixed = 2) {
+  return number % 1 ? number.toFixed(fixed) : number;
+}
