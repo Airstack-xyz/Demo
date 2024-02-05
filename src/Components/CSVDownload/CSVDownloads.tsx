@@ -138,7 +138,7 @@ export function CSVDownloads() {
           label: item!.name as string,
           status: item!.status as Status,
           isActive: isActive(item),
-          fileSize: item!.creditPrice as number,
+          fileSize: item!.fileSize as number,
           totalRows: item!.totalRows as number,
           creditsUsed: item!.creditsUsed as number,
           creditPrice: item!.creditPrice as number,
@@ -410,9 +410,11 @@ export function CSVDownloads() {
                     {option.status === Status.Completed && (
                       <div className="mt-2">
                         <div className="mb-2">
-                          {option.fileSize} • {option.totalRows} rows •{' '}
+                          {(option.fileSize || 0).toFixed(4)} •{' '}
+                          {(option.totalRows || 0).toFixed(4)} rows •{' '}
                           <span className="text-stroke-highlight-blue">
-                            {option.creditsUsed} credits to download
+                            {(option.creditsUsed || 0).toFixed(4)} credits to
+                            download
                           </span>
                         </div>
                         <div>
@@ -421,7 +423,8 @@ export function CSVDownloads() {
                             className="py-1 px-3 rounded-full cursor-pointer text-left whitespace-nowrap bg-white text-tertiary mr-5 disabled:bg-opacity-75 disabled:cursor-not-allowed"
                             onClick={() => handleDownload(option.id)}
                           >
-                            Download CSV (${option.creditPrice})
+                            Download CSV ($
+                            {(option.creditPrice || 0).toFixed(4)})
                           </button>
                           {!option.downloadedAt && (
                             <button
