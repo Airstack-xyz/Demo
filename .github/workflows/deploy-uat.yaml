@@ -32,6 +32,9 @@ jobs:
         env:
           CI: false
           NODE_OPTIONS: --max_old_space_size=4096
+          PRIVY_APP_ID: ${{ secrets.PRIVY_APP_ID }}
+          GOOGLE_TAG_MANAGER_ID: ''
+          API_KEY: ${{ secrets.API_KEY }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
