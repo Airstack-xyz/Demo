@@ -293,6 +293,16 @@ function TokenBalancePage() {
       zora: nftBlockchains.zora
     };
 
+    csvDownloadOptions.push({
+      label: 'POAPs',
+      key: CsvQueryType.PoapBalances,
+      fileName: `Poaps of [${address[0]}].csv`,
+      variables: {
+        identity: address[0],
+        orderBy: 'DESC'
+      }
+    });
+
     if (
       !showTokenDetails &&
       !snapshotInfo.isApplicable &&
@@ -309,16 +319,6 @@ function TokenBalancePage() {
       getAPIOptions.push({
         label: 'POAPs',
         link: poapLink
-      });
-
-      csvDownloadOptions.push({
-        label: 'POAPs',
-        key: CsvQueryType.PoapBalances,
-        fileName: `Poaps of [${address[0]}].csv`,
-        variables: {
-          identity: address[0],
-          orderBy: 'DESC'
-        }
       });
     }
 
@@ -432,6 +432,10 @@ function TokenBalancePage() {
       };
     }
 
+    if (nftOption) {
+      csvDownloadOptions.push(nftOption);
+    }
+
     if (
       (!showTokenDetails || detailTokensVisible) &&
       !socialInfo.isApplicable &&
@@ -441,7 +445,6 @@ function TokenBalancePage() {
         label: 'Token Balances (NFT)',
         link: nftLink
       });
-      csvDownloadOptions.push(nftOption);
     }
 
     if (!showTokenDetails && !socialInfo.isApplicable) {
