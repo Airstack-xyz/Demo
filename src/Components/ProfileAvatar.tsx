@@ -31,7 +31,15 @@ export function PlanBadge({
   );
 }
 
-export function ProfileAvatar({ userName }: { userName: string }) {
+export function ProfileAvatar({
+  userName,
+  freeTrialActive,
+  isSubscriptionActive
+}: {
+  userName: string;
+  freeTrialActive: boolean;
+  isSubscriptionActive: boolean;
+}) {
   return (
     <div
       className="flex justify-center items-center cursor-default"
@@ -47,8 +55,8 @@ export function ProfileAvatar({ userName }: { userName: string }) {
         <span>{userName}</span>
         <PlanBadge
           className="!text-[8px]"
-          freeTrialActive
-          isSubscriptionActive
+          freeTrialActive={freeTrialActive}
+          isSubscriptionActive={isSubscriptionActive}
         />
       </span>
     </div>

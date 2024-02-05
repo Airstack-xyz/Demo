@@ -21,7 +21,7 @@ export function AddCardModal({
   const getGenerateUrl = async () => {
     const { data } = await generateUrl({
       input: {
-        urlType: UrlType.ManageSubscription,
+        urlType: UrlType.Subscription,
         successUrl: window.location.href,
         cancelUrl: window.location.href
       }

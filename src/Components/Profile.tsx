@@ -33,6 +33,13 @@ export function Profile() {
   const handleLogout = () => {
     logout();
   };
+  const prodCredit = user?.credits?.[0];
+  const subscription = prodCredit?.subscription;
+  const isSubscriptionActive =
+    subscription?.status === 'active' || subscription?.status === 'past_due';
+
+  const freeTrialActive = Boolean(prodCredit?.initialFreeCreditAllocatedTs);
+
   const name = user?.name || user?.userName || 'Unknown User';
   const userName =
     name.length > MAX_NAME_LENGTH
@@ -43,7 +50,13 @@ export function Profile() {
     <Popover
       openOnHover
       className="p-0"
-      anchor={<ProfileAvatar userName={userName} />}
+      anchor={
+        <ProfileAvatar
+          userName={userName}
+          isSubscriptionActive={isSubscriptionActive}
+          freeTrialActive={freeTrialActive}
+        />
+      }
     >
       <div className="flex flex-col w-32 py-2">
         {options.map(option => (
