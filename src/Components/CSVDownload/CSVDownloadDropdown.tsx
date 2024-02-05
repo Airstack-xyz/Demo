@@ -88,9 +88,11 @@ export function CSVDownloadDropdown({
         return;
       }
 
-      const userHasNoCard = !user?.credits?.[0]?.isPaymentMethodAdded;
+      const subscriptionStatus = user?.credits?.[0]?.subscription?.status;
+      const hasSubscription =
+        subscriptionStatus === 'active' || subscriptionStatus === 'past_due';
 
-      if (userHasNoCard) {
+      if (!hasSubscription) {
         setShowAddCardModal(true);
         return;
       }
