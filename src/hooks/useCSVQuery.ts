@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 
-const API = process.env.CSV_ENDPOINT as string;
+const API = process.env.BFF_ENDPOINT as string;
+
+if (!API) {
+  // eslint-disable-next-line
+  console.error('BFF_ENDPOINT is not defined');
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useCSVQuery<Response = any, Variables = any>(query: string) {

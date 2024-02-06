@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 
-const API = 'https://backend.dev.airstack.xyz/graphql';
+const API = process.env.BFF_ENDPOINT || '';
+
+if (!API) {
+  // eslint-disable-next-line
+  console.error('BFF_ENDPOINT is not defined');
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useAppQuery<Response = any, Variables = any>(query: string) {
