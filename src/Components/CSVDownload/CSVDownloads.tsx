@@ -25,6 +25,8 @@ import { CancelDownloadModal } from '../CSVDownload/CancelDownloadModal';
 import { formatNumber, listenTaskAdded } from './utils';
 import { Close, Download, NoItems, Retry } from './Icons';
 import { restartTaskMutation } from '../../queries/csv-download/restart';
+import { AddCardModal } from './AddCardModal';
+import { useAuth } from '../../hooks/useAuth';
 
 type Task = NonNullable<
   NonNullable<GetTasksHistoryQuery['GetCSVDownloadTasks']>[0]
@@ -80,6 +82,8 @@ export function CSVDownloads() {
     DownloadCsvMutationVariables
   >(downloadCsvMutation);
 
+  const { user } = useAuth();
+  const [showAddCardModal, setShowAddCardModal] = useState(false);
   const [taskToCancel, setTaskToCancel] = useState<number | null>(null);
   const currentlyPollingRef = useRef<number[]>([]);
   const [newTaskAdded, setNewTaskAdded] = useState(false);
@@ -246,12 +250,21 @@ export function CSVDownloads() {
 
   const handleDownload = useCallback(
     async (taskId: number) => {
+      const subscriptionStatus = user?.credits?.[0]?.subscription?.status;
+      const hasSubscription =
+        subscriptionStatus === 'active' || subscriptionStatus === 'past_due';
+
+      if (!hasSubscription) {
+        setShowAddCardModal(true);
+        return;
+      }
+
       const { data } = await downloadTask({ taskId });
       if (data?.DownloadCSV?.url) {
         window.open(data.DownloadCSV.url, '_blank');
       }
     },
-    [downloadTask]
+    [downloadTask, user?.credits]
   );
 
   const showDownload = useCallback(() => {
@@ -264,6 +277,13 @@ export function CSVDownloads() {
 
   return (
     <div>
+      {showAddCardModal && (
+        <AddCardModal
+          onRequestClose={() => {
+            setShowAddCardModal(false);
+          }}
+        />
+      )}
       {taskToCancel && (
         <CancelDownloadModal
           onRequestClose={() => {
