@@ -244,7 +244,7 @@ export function CSVDownloads() {
         _data = _data.filter(
           item =>
             item?.status !== Status.Cancelled &&
-            item?.status === Status.Completed &&
+            item?.status !== Status.Completed &&
             !item?.downloadedAt
         );
       }

@@ -32,7 +32,7 @@ export function PreparingFile() {
 export function Failed() {
   return (
     <div className="rounded-18 p-4 font-medium text-sm leading-7 mt-5 relative bg-toast-negative">
-      <span className="absolute -top-[12px] left-10 w-0 h-0 z-20 border border-solid border-l-[10px] border-l-transparent border-b-[12.5px] border-b-stroke-highlight-blue border-r-[10px] border-r-transparent border-t-transparent"></span>
+      <span className="absolute -top-[12px] left-10 w-0 h-0 z-20 border border-solid border-l-[10px] border-l-transparent border-b-[12.5px] bg-toast-negative border-r-[10px] border-r-transparent border-t-transparent"></span>
       <div>Failed to prepare your file due to some error.</div>
       <div>Please try again.</div>
     </div>
