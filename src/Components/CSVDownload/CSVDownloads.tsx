@@ -16,28 +16,38 @@ import {
   GetTaskStatusQueryVariables,
   GetTasksHistoryQuery,
   GetTasksHistoryQueryVariables,
+  RestartTaskMutation,
+  RestartTaskMutationVariables,
   Status
 } from '../../../__generated__/types';
 import { cancelTaskMutation } from '../../queries/csv-download/cancel';
 import { getTaskStatusQuery } from '../../queries/csv-download/status';
 import { downloadCsvMutation } from '../../queries/csv-download/download';
 import { CancelDownloadModal } from '../CSVDownload/CancelDownloadModal';
-import { formatNumber, listenTaskAdded } from './utils';
-import { Close, Download, NoItems, Retry } from './Icons';
+import {
+  formatNumber,
+  getActiveDownload,
+  listenTaskAdded,
+  removeFromActiveDownload,
+  saveToActiveDownload
+} from './utils';
+import { Download, NoItems, Retry } from './Icons';
 import { restartTaskMutation } from '../../queries/csv-download/restart';
 import { AddCardModal } from './AddCardModal';
 import { useAuth } from '../../hooks/useAuth';
+import { Failed, FileReadyToDownload, PreparingFile } from './Alerts';
 
 type Task = NonNullable<
   NonNullable<GetTasksHistoryQuery['GetCSVDownloadTasks']>[0]
 >;
 
+const maxRetryCount = 3;
 function isActive(item: Task | null) {
+  const inactiveStatus = [Status.Cancelled, Status.Completed];
   return Boolean(
     item &&
-      item.status !== Status.Cancelled &&
-      item.status !== Status.Completed &&
-      (item.retryCount || 0) < 3
+      !inactiveStatus.includes(item.status as Status) &&
+      (item.retryCount || 0) < maxRetryCount
   );
 }
 
@@ -56,7 +66,6 @@ type Option = {
   | 'downloadedAt'
 >;
 
-let dataFetched = false;
 export function CSVDownloads() {
   const [fetchHistory] = useCSVQuery<
     GetTasksHistoryQuery,
@@ -68,9 +77,10 @@ export function CSVDownloads() {
     CancelTaskMutationVariables
   >(cancelTaskMutation);
 
-  // TODO: use proper types here once the BFF has the schema
-  const [restartTask, { loading: restartingTask }] =
-    useCSVQuery(restartTaskMutation);
+  const [restartTask, { loading: restartingTask }] = useCSVQuery<
+    RestartTaskMutation,
+    RestartTaskMutationVariables
+  >(restartTaskMutation);
 
   const [getStatus] = useCSVQuery<
     GetTaskStatusQuery,
@@ -85,7 +95,6 @@ export function CSVDownloads() {
   const { user } = useAuth();
   const [showAddCardModal, setShowAddCardModal] = useState(false);
   const [taskToCancel, setTaskToCancel] = useState<number | null>(null);
-  const currentlyPollingRef = useRef<number[]>([]);
   const [newTaskAdded, setNewTaskAdded] = useState(false);
   const [fileDownloaded, setFileDownloaded] = useState(false);
   const [taskFailed, setTaskFailed] = useState(false);
@@ -94,6 +103,107 @@ export function CSVDownloads() {
 
   const abortController = useRef<AbortController | null>(null);
   const [tasks, setTasks] = useState<Option[]>([]);
+
+  const showFailedAlert = useCallback(() => {
+    setTaskFailed(true);
+    setTimeout(() => {
+      setTaskFailed(false);
+    }, 5000);
+  }, []);
+
+  const pollStatus = useCallback(
+    async (id: number) => {
+      if (activeRef.current.indexOf(id) === -1) {
+        return;
+      }
+
+      const { data } = await getStatus({ taskId: id });
+
+      if (!data?.GetTaskStatus) {
+        return;
+      }
+      const { status, retryCount } = data.GetTaskStatus;
+
+      if (isActive(data.GetTaskStatus as Task)) {
+        setTimeout(() => {
+          pollStatus(id);
+        }, 5000);
+        return;
+      }
+
+      if (status === Status.Completed) {
+        setFileDownloaded(true);
+      }
+
+      if (
+        (status === Status.Failed ||
+          status === Status.CreditCalculationFailed) &&
+        retryCount &&
+        retryCount >= maxRetryCount
+      ) {
+        showFailedAlert();
+      }
+
+      activeRef.current = activeRef.current.filter(item => item !== id);
+
+      setInProgressDownloads(activeRef.current);
+    },
+    [getStatus, showFailedAlert]
+  );
+
+  const pollSavedTasks = useCallback(
+    (tasks: (null | Task)[]) => {
+      const savedTasks = getActiveDownload();
+      const active: Task[] = [];
+      tasks.forEach(item => {
+        if (!item) {
+          return;
+        }
+
+        if (savedTasks.includes(item.id.toString())) {
+          active.push(item);
+        } else if (
+          isActive(item) ||
+          (item.status === Status.Completed && !item.downloadedAt)
+        ) {
+          saveToActiveDownload(item.id);
+          active.push(item);
+        }
+      });
+
+      let downloadCompleted = false;
+      let downloadFailed = false;
+
+      active.forEach(item => {
+        if (!item) return;
+
+        if (item.status === Status.Completed && !item.downloadedAt) {
+          downloadCompleted = true;
+          removeFromActiveDownload(item.id);
+        }
+
+        if (isActive(item)) {
+          pollStatus(item.id);
+          if (!activeRef.current.includes(item.id)) {
+            activeRef.current.push(item.id);
+          }
+        } else {
+          removeFromActiveDownload(item.id);
+          downloadFailed = downloadFailed || item.status === Status.Failed;
+          activeRef.current = activeRef.current.filter(id => id !== item.id);
+        }
+      });
+
+      setInProgressDownloads(activeRef.current);
+
+      if (downloadCompleted) {
+        setFileDownloaded(true);
+      } else if (downloadFailed) {
+        showFailedAlert();
+      }
+    },
+    [pollStatus, showFailedAlert]
+  );
 
   const getHistory = useCallback(
     async (fetchAll = true) => {
@@ -117,22 +227,16 @@ export function CSVDownloads() {
 
       let _data = [...data.GetCSVDownloadTasks];
 
+      pollSavedTasks(_data);
+
       if (!fetchAll) {
         _data = _data.filter(
           item =>
             (item?.status === Status.Completed && !item?.downloadedAt) ||
-            item?.status === Status.InProgress ||
-            item?.status === Status.CalculatingCredits
+            isActive(item)
         );
-
-        // if there is a file that is completed but not downloaded, show the tooltip
-        if (
-          _data.find(
-            item => item?.status === Status.Completed && !item?.downloadedAt
-          )
-        ) {
-          setFileDownloaded(true);
-        }
+      } else {
+        _data = _data.filter(item => item?.status !== Status.Cancelled);
       }
 
       setTasks(
@@ -150,55 +254,7 @@ export function CSVDownloads() {
         }))
       );
     },
-    [fetchHistory, setInProgressDownloads]
-  );
-
-  const pollStatus = useCallback(
-    async (id: number) => {
-      if (activeRef.current.indexOf(id) === -1) {
-        return;
-      }
-
-      if (currentlyPollingRef.current.indexOf(id) === -1) {
-        currentlyPollingRef.current.push(id);
-      }
-
-      const { data } = await getStatus({ taskId: id });
-
-      if (!data?.GetTaskStatus) {
-        return;
-      }
-      const { status, retryCount } = data.GetTaskStatus;
-
-      if (isActive(data.GetTaskStatus as Task)) {
-        setTimeout(() => {
-          pollStatus(id);
-        }, 5000);
-        return;
-      }
-
-      if (status === Status.Completed) {
-        setFileDownloaded(true);
-        getHistory(true);
-      }
-
-      if (
-        (status === Status.Failed ||
-          status === Status.CreditCalculationFailed) &&
-        retryCount &&
-        retryCount >= 3
-      ) {
-        setTaskFailed(true);
-      }
-
-      activeRef.current = activeRef.current.filter(item => item !== id);
-      currentlyPollingRef.current = currentlyPollingRef.current.filter(
-        item => item !== id
-      );
-
-      setInProgressDownloads(activeRef.current);
-    },
-    [getHistory, getStatus, setInProgressDownloads]
+    [fetchHistory, pollSavedTasks]
   );
 
   const handleRestart = useCallback(
@@ -210,26 +266,9 @@ export function CSVDownloads() {
   );
 
   useEffect(() => {
-    const ids = (inProgressDownloads as number[]).filter(
-      id => currentlyPollingRef.current.indexOf(id) === -1
-    );
-    ids.forEach(id => {
-      pollStatus(id);
-    });
-    if (ids.length > 0) {
-      setNewTaskAdded(true);
-      const timer = setTimeout(() => {
-        setNewTaskAdded(false);
-      }, 5000);
-      return () => {
-        clearTimeout(timer);
-      };
-    }
-  }, [inProgressDownloads, pollStatus]);
-
-  useEffect(() => {
     return listenTaskAdded((id: number) => {
       activeRef.current.push(id);
+      saveToActiveDownload(id);
       pollStatus(id);
       setNewTaskAdded(true);
 
@@ -244,8 +283,7 @@ export function CSVDownloads() {
   });
 
   useEffect(() => {
-    getHistory(dataFetched);
-    dataFetched = true;
+    getHistory(false);
   }, [getHistory]);
 
   const handleDownload = useCallback(
@@ -309,42 +347,15 @@ export function CSVDownloads() {
         )}
         content={
           fileDownloaded ? (
-            <div className="bg-toast-positive rounded-18 p-4 font-medium text-sm leading-7 mt-5 relative">
-              <span className="absolute -top-[12px] left-10 w-0 h-0 z-20 border border-solid border-l-[10px] border-l-transparent border-b-[12.5px] border-toast-positive border-r-[10px] border-r-transparent border-t-transparent"></span>
-              <div className="flex items-center">
-                <span>Your file is ready to be downloaded</span>
-                <span
-                  className="ml-2 hover:cursor-pointer"
-                  onClick={() => {
-                    setFileDownloaded(false);
-                  }}
-                >
-                  <Close />
-                </span>
-              </div>
-            </div>
+            <FileReadyToDownload
+              onClose={() => {
+                setFileDownloaded(false);
+              }}
+            />
+          ) : taskFailed ? (
+            <Failed />
           ) : (
-            <div
-              className={classNames(
-                'rounded-18 p-4 font-medium text-sm leading-7 mt-5 relative',
-                {
-                  'bg-stroke-highlight-blue': newTaskAdded,
-                  'bg-toast-negative': taskFailed
-                }
-              )}
-            >
-              <span className="absolute -top-[12px] left-10 w-0 h-0 z-20 border border-solid border-l-[10px] border-l-transparent border-b-[12.5px] border-b-stroke-highlight-blue border-r-[10px] border-r-transparent border-t-transparent"></span>
-              <div>
-                {newTaskAdded
-                  ? 'Preparing your file!'
-                  : 'Failed to prepare your file due to some error.'}
-              </div>
-              <div>
-                {newTaskAdded
-                  ? 'We will notify you once it is ready.'
-                  : 'Please try again.'}
-              </div>
-            </div>
+            <PreparingFile />
           )
         }
       >

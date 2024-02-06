@@ -39,3 +39,24 @@ export function listenTaskAdded(callback: (id: number) => void | (() => void)) {
 export function formatNumber(number: number, fixed = 2) {
   return number % 1 ? number.toFixed(fixed) : number;
 }
+
+const localStorageKey = 'csv-active-downloads';
+
+export function getActiveDownload() {
+  const activeDownloads = localStorage.getItem(localStorageKey);
+  return activeDownloads ? activeDownloads.split(',') : [];
+}
+
+export function saveToActiveDownload(id: number) {
+  const activeDownloads = getActiveDownload();
+  activeDownloads.push(id.toString());
+  localStorage.setItem(localStorageKey, activeDownloads.join(','));
+}
+
+export function removeFromActiveDownload(id: number) {
+  const activeDownloads = getActiveDownload();
+  const newActiveDownloads = activeDownloads.filter(
+    activeDownload => activeDownload !== id.toString()
+  );
+  localStorage.setItem(localStorageKey, newActiveDownloads.join(','));
+}
