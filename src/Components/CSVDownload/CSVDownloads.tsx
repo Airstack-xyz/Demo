@@ -232,9 +232,9 @@ export function CSVDownloads() {
 
       let _data = [...data.GetCSVDownloadTasks];
 
-      pollSavedTasks(_data);
-
       if (!fetchAll) {
+        pollSavedTasks(_data);
+
         _data = _data.filter(
           item =>
             (item?.status === Status.Completed && !item?.downloadedAt) ||
@@ -242,10 +242,7 @@ export function CSVDownloads() {
         );
       } else {
         _data = _data.filter(
-          item =>
-            item?.status !== Status.Cancelled &&
-            item?.status !== Status.Completed &&
-            !item?.downloadedAt
+          item => item?.status !== Status.Cancelled && !item?.downloadedAt
         );
       }
 

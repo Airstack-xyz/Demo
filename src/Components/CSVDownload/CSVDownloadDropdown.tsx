@@ -4,15 +4,7 @@ import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Modal } from '../Modal';
 import { CSVDownloadOption } from '../../types';
-import { useCSVQuery } from '../../hooks/useCSVQuery';
-import {
-  EstimateTaskInput,
-  EstimateTaskMutation,
-  EstimateTaskMutationVariables
-} from '../../../__generated__/types';
-import { estimateTaskMutation } from '../../queries/csv-download/estimate';
-import { useAuth } from '../../hooks/useAuth';
-import { triggerNewTaskAddedEvent } from './utils';
+import { useEstimateTask } from '../../hooks/useEstimateTask';
 
 function CodeIconBlue() {
   return (
@@ -47,14 +39,10 @@ export function CSVDownloadDropdown({
   hideFooter?: boolean;
   hideDesktopNudge?: boolean;
 }) {
-  const { user, login } = useAuth();
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const isMobile = isMobileDevice();
-  const [estimateTask] = useCSVQuery<
-    EstimateTaskMutation,
-    EstimateTaskMutationVariables
-  >(estimateTaskMutation);
+  const [estimateTask] = useEstimateTask();
 
   const handleDropdownClose = useCallback(() => {
     setIsDropdownVisible(false);
@@ -81,32 +69,9 @@ export function CSVDownloadDropdown({
       variables: CSVDownloadOption['variables'],
       filters?: CSVDownloadOption['filters']
     ) => {
-      if (!user) {
-        login(true);
-        return;
-      }
-
-      const payload: Pick<CSVDownloadOption, 'variables' | 'filters'> & {
-        query: string;
-        name: string;
-      } = {
-        query: key,
-        name: fileName,
-        variables
-      };
-
-      if (filters) {
-        payload['filters'] = filters;
-      }
-
-      const { data } = await estimateTask({
-        estimateTaskInput: payload as EstimateTaskInput
-      });
-      if (data?.EstimateTask?.id) {
-        triggerNewTaskAddedEvent(data.EstimateTask.id);
-      }
+      estimateTask(key, fileName, variables, filters);
     },
-    [user, estimateTask, login]
+    [estimateTask]
   );
 
   const showDesktopNudgeModal = !hideDesktopNudge && isMobile;

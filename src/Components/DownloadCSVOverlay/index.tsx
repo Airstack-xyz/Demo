@@ -1,9 +1,10 @@
 import classNames from 'classnames';
-import { useState } from 'react';
 import classnames from 'classnames';
 import { useTokenBalancesLinks } from './useTokenBalancesLinks';
 import { useTokenHoldersLinks } from './useTokenHoldersLinks';
 import { useMatch } from 'react-router-dom';
+import { useCsvDownloadOptions } from '../../store/csvDownload';
+import { useEstimateTask } from '../../hooks/useEstimateTask';
 
 function DownloadIcon() {
   return (
@@ -43,13 +44,16 @@ function CodeIcon() {
 }
 
 export function DownloadCSVOverlay({ className }: { className?: string }) {
-  const [showComingSoon, setShowComingSoon] = useState(false);
+  const { options } = useCsvDownloadOptions(['options'])[0];
+  const [estimateTask, { loading }] = useEstimateTask();
   const isTokenBalancesPage = !!useMatch('/token-balances');
   const getTokenBalanceLink = useTokenBalancesLinks();
   const getTokenHoldersLink = useTokenHoldersLinks();
   const apiLink = isTokenBalancesPage
     ? getTokenBalanceLink()
     : getTokenHoldersLink();
+
+  const { key, fileName, variables, filters } = options[0];
 
   return (
     <div
@@ -58,47 +62,29 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
         className
       )}
     >
-      {showComingSoon && (
-        <div>
-          <div className="bg-[#C28120] rounded-lg px-2.5 py-1 mb-5">
-            coming soon!
-          </div>
-        </div>
-      )}
-      <div
-        className={classNames('font-semibold mb-8 text-center', {
-          'text-xl': showComingSoon,
-          'text-lg': !showComingSoon
-        })}
-      >
-        {showComingSoon
-          ? 'CSV downloads are coming soon. In meantime you can get API.'
-          : 'Download CSV or Get API to view the entire results'}
+      <div className={classNames('font-semibold mb-8 text-center text-lg')}>
+        Only the first 30 rows are displayed. Download CSV or Get API to view
+        the entire results
       </div>
       <div className="flex-row-center">
-        {!showComingSoon && (
-          <button
-            id="download-csv"
-            className="bg-text-button hover:opacity-90 text-white rounded-18 font-medium px-5 py-1.5 mr-5 flex-row-center"
-            onClick={() => {
-              setShowComingSoon(true);
-            }}
-          >
-            <span className="mr-1.5">
-              <DownloadIcon />
-            </span>
-            Download CSV
-          </button>
-        )}
+        <button
+          id="download-csv"
+          className="bg-text-button hover:opacity-90 text-white rounded-18 font-medium px-5 py-1.5 mr-5 flex-row-center"
+          disabled={options.length === 0 || loading}
+          onClick={() => {
+            estimateTask(key, fileName, variables, filters);
+          }}
+        >
+          <span className="mr-1.5">
+            <DownloadIcon />
+          </span>
+          Download entire table as CSV
+        </button>
         <a
           className="bg-text-button hover:opacity-90 text-white rounded-18 font-medium px-5 py-1.5 flex-row-center"
           href={apiLink}
           target="_blank"
-          id={
-            showComingSoon
-              ? 'get-api-csv-download-coming-soon'
-              : 'get-api-csv-download'
-          }
+          id="get-api-csv-download"
         >
           <span className="mr-1.5">
             <CodeIcon />

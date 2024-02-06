@@ -65,6 +65,7 @@ import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDro
 import { CSVDownloadOption } from '../../types';
 import { CsvQueryType } from '../../../__generated__/types';
 import { formatDate } from '../../utils';
+import { useCsvDownloadOptions } from '../../store/csvDownload';
 
 export function TokenHolders() {
   const [
@@ -616,6 +617,10 @@ export function TokenHolders() {
     token.eventId,
     accountAddress
   ]);
+  const setOptions = useCsvDownloadOptions(['options'])[1];
+  useEffect(() => {
+    setOptions({ options: csvDownloadOptions });
+  }, [csvDownloadOptions, setOptions]);
 
   const { hasMultipleERC20, hasEveryERC20 } = useMemo(() => {
     const erc20Tokens = overviewTokens?.filter(v => v.tokenType === 'ERC20');

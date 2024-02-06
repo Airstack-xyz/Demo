@@ -58,6 +58,7 @@ import { Tokens, TokensLoader } from './Tokens';
 import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDropdown';
 import { CSVDownloadOption } from '../../types';
 import { CsvQueryType } from '../../../__generated__/types';
+import { useCsvDownloadOptions } from '../../store/csvDownload';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -293,15 +294,17 @@ function TokenBalancePage() {
       zora: nftBlockchains.zora
     };
 
-    csvDownloadOptions.push({
-      label: 'POAPs',
-      key: CsvQueryType.PoapBalances,
-      fileName: `Poaps of [${address[0]}].csv`,
-      variables: {
-        identity: address[0],
-        orderBy: 'DESC'
-      }
-    });
+    if (!socialInfo.isApplicable) {
+      csvDownloadOptions.push({
+        label: 'POAPs',
+        key: CsvQueryType.PoapBalances,
+        fileName: `Poaps of [${address[0]}].csv`,
+        variables: {
+          identity: address[0],
+          orderBy: 'DESC'
+        }
+      });
+    }
 
     if (
       !showTokenDetails &&
@@ -432,7 +435,7 @@ function TokenBalancePage() {
       };
     }
 
-    if (nftOption) {
+    if (nftOption && !socialInfo.isApplicable) {
       csvDownloadOptions.push(nftOption);
     }
 
@@ -649,6 +652,25 @@ function TokenBalancePage() {
     socialInfo.followingData,
     socialInfo.profileNames,
     token
+  ]);
+
+  const setOptions = useCsvDownloadOptions(['options'])[1];
+  useEffect(() => {
+    let options = csvDownloadOptions;
+
+    if (socialInfo.isApplicable) {
+      options = csvDownloadOptions.filter(option =>
+        option.label.includes(
+          socialInfo.followerTab ? 'followers' : 'following'
+        )
+      );
+    }
+    setOptions({ options });
+  }, [
+    csvDownloadOptions,
+    setOptions,
+    socialInfo.followerTab,
+    socialInfo.isApplicable
   ]);
 
   const { tab1Header, tab2Header } = useMemo(() => {

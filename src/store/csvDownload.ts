@@ -1,9 +1,10 @@
 import { createStore } from 'react-nano-store';
+import { CSVDownloadOption } from '../types';
 
 const store: {
-  inProgressDownloads: number[];
+  options: CSVDownloadOption[];
 } = {
-  inProgressDownloads: []
+  options: []
 };
 
-export const useInProgressDownloads = createStore(store);
+export const useCsvDownloadOptions = createStore(store);
