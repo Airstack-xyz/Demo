@@ -21,7 +21,9 @@ export default defineConfig(({ mode }) => {
         return {
           // viteConfig is the current Vite resolved config
           env: {
-            isProduction: mode === 'production'
+            isProduction: mode === 'production',
+            GOOGLE_TAG_MANAGER_ID: env.GOOGLE_TAG_MANAGER_ID,
+            BASE_URL: env.BASE_URL
           }
         };
       }),

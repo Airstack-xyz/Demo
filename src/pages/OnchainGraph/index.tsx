@@ -3,13 +3,7 @@ import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { OnChainGraph } from './OnChainGraph';
 import { Search } from './Search';
-
-const getAPIDropdownOptions = [
-  {
-    label: 'Onchain Graph Guide',
-    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/onchain-graph'
-  }
-];
+import { getAPIDropdownOptions } from './constants';
 
 export function OnChainGraphPage() {
   return (

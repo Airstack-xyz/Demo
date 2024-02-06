@@ -26,6 +26,7 @@ export function useGetOnChainData(address: string) {
     'polygon'
   );
   const [fetchBaseNft, cancelBaseRequest] = useGetNFTs(address, 'base');
+  const [fetchZoraNft, cancelZoraRequest] = useGetNFTs(address, 'zora');
 
   const [fetchTokenSent, cancelSentRequest] = useTokenTransfer(address, 'sent');
   const [fetchTokenReceived, cancelReceivedRequest] = useTokenTransfer(
@@ -46,6 +47,7 @@ export function useGetOnChainData(address: string) {
     await fetchEthNft();
     await fetchPolygonNft();
     await fetchBaseNft();
+    await fetchZoraNft();
     await fetchTokenSent();
     await fetchTokenReceived();
     setLoading(false);
@@ -61,7 +63,8 @@ export function useGetOnChainData(address: string) {
     fetchPoapsData,
     fetchPolygonNft,
     fetchTokenReceived,
-    fetchTokenSent
+    fetchTokenSent,
+    fetchZoraNft
   ]);
 
   const cancelRequests = useCallback(() => {
@@ -74,6 +77,7 @@ export function useGetOnChainData(address: string) {
     cancelEthRequest();
     cancelPolygonRequest();
     cancelBaseRequest();
+    cancelZoraRequest();
     cancelSentRequest();
     cancelReceivedRequest();
     setLoading(false);
@@ -88,7 +92,8 @@ export function useGetOnChainData(address: string) {
     cancelPoapRequests,
     cancelPolygonRequest,
     cancelReceivedRequest,
-    cancelSentRequest
+    cancelSentRequest,
+    cancelZoraRequest
   ]);
 
   useEffect(() => {
