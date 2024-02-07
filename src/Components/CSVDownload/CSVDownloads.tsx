@@ -25,6 +25,7 @@ import { getTaskStatusQuery } from '../../queries/csv-download/status';
 import { downloadCsvMutation } from '../../queries/csv-download/download';
 import { CancelDownloadModal } from '../CSVDownload/CancelDownloadModal';
 import {
+  formatBytes,
   formatNumber,
   getActiveDownload,
   listenTaskAdded,
@@ -470,7 +471,7 @@ export function CSVDownloads() {
                     {option.status === Status.Completed && (
                       <div className="mt-2">
                         <div className="mb-2">
-                          {formatNumber(option.fileSize || 0, 2)} •{' '}
+                          {formatBytes(option.fileSize || 0, 2)} •{' '}
                           {option.totalRows} rows •{' '}
                           <span className="text-stroke-highlight-blue">
                             {formatNumber(
