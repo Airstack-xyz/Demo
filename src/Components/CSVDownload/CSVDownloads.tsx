@@ -31,11 +31,12 @@ import {
   removeFromActiveDownload,
   saveToActiveDownload
 } from './utils';
-import { CheckCircle, Download, NoItems, Retry } from './Icons';
+import { CheckCircle, Download, HistoryIcon, NoItems, Retry } from './Icons';
 import { restartTaskMutation } from '../../queries/csv-download/restart';
 import { AddCardModal } from './AddCardModal';
 import { useAuth } from '../../hooks/useAuth';
 import { Failed, FileReadyToDownload, PreparingFile } from './Alerts';
+import { historyPage } from '../../constants';
 
 type Task = NonNullable<
   NonNullable<GetTasksHistoryQuery['GetCSVDownloadTasks']>[0]
@@ -387,7 +388,21 @@ export function CSVDownloads() {
             onChange={() => {
               // console.log('do nothing');
             }}
-            heading="CSV Downloads In Progress"
+            heading={
+              <div className="flex items-center justify-between">
+                <span>CSV Downloads In Progress</span>
+                <a
+                  href={historyPage}
+                  target="_blank"
+                  className="flex items-center cursor-pointer"
+                >
+                  <HistoryIcon />
+                  <span className="text-text-button text-xs font-medium ml-0.5">
+                    View History
+                  </span>
+                </a>
+              </div>
+            }
             optionsContainerClassName="min-w-[214px] top-9 !bg-[#303030] max-h-[50vh] overflow-y-auto"
             renderPlaceholder={(_, isOpen) => (
               <button

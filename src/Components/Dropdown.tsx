@@ -32,7 +32,7 @@ export function Dropdown<T extends Option = Option>({
   }) => ReactNode;
   onChange: (selected: T[]) => void;
   disabled?: boolean;
-  heading?: string;
+  heading?: ReactNode;
   footerComponent?: ReactNode;
 }) {
   const [_selected, setSelected] = useState<T[]>([]);

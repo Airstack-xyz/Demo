@@ -70,4 +70,7 @@ export const ROUTES = {
 export const APP_BASE_URL =
   process.env.APP_BASE_URL || 'http://app.uat.airstack.xyz';
 
+export const historyPage =
+  APP_BASE_URL + ROUTES.profilesSettings + '/usage-details?activeKey=csv';
+
 export default ROUTES;
