@@ -34,6 +34,7 @@ export function AddCardModal({
   return (
     <Modal
       onRequestClose={onRequestClose}
+      className="[&>div]:border-white"
       isOpen
       heading={
         <div className="text-lg">
@@ -41,7 +42,7 @@ export function AddCardModal({
         </div>
       }
     >
-      <div className="flex-col-center max-w-[565px] text-sm pt-1">
+      <div className="flex-col-center max-w-[565px] text-sm py-1">
         <ul className="[&>li]:flex [&>li]:items-start [&>li]:mb-5 text-text-secondary">
           <li>
             <Icon name="check-mark-circle" className="mt-1 w-[14px]" />
