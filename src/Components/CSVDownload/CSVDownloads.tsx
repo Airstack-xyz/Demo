@@ -224,12 +224,6 @@ export function CSVDownloads() {
         return;
       }
 
-      const active = data.GetCSVDownloadTasks?.filter(item => isActive(item));
-
-      if (active) {
-        activeRef.current = active.map(item => item!.id);
-      }
-
       setInProgressDownloads(activeRef.current);
 
       let _data = [...data.GetCSVDownloadTasks];
@@ -251,6 +245,9 @@ export function CSVDownloads() {
             !item?.downloadedAt
         );
       }
+
+      const active = _data?.filter(item => isActive(item));
+      activeRef.current = active.map(item => item!.id);
 
       const tasks = _data
         .map(item => ({
