@@ -37,8 +37,22 @@ export function Profile() {
   const subscription = prodCredit?.subscription;
   const isSubscriptionActive =
     subscription?.status === 'active' || subscription?.status === 'past_due';
-
-  const freeTrialActive = Boolean(prodCredit?.initialFreeCreditAllocatedTs);
+  const prodKeyUsage = prodCredit?.creditUsage;
+  const freeCreditUsed = prodKeyUsage?.freeCreditsUsed || 0;
+  const totalFreeCredits = prodKeyUsage?.totalFreeCredits || 0;
+  const subscriptionEnded = subscription?.status === 'canceled';
+  const usedFreeTrial = Boolean(prodCredit?.initialFreeCreditAllocatedTs);
+  const _creditUsePercentage = (freeCreditUsed / totalFreeCredits) * 100 || 0;
+  const creditUsePercentage = parseFloat(_creditUsePercentage.toFixed(2));
+  const freeCreditConsumed =
+    // if free trial was not used and subscription ended, consider it as free credits consumed.
+    // this will make sure all the views are correctly shown
+    !usedFreeTrial && subscriptionEnded
+      ? true
+      : usedFreeTrial
+      ? creditUsePercentage >= 100
+      : false;
+  const freeTrialActive = !freeCreditConsumed && usedFreeTrial;
 
   const name = user?.name || user?.userName || 'Unknown User';
   const userName =
