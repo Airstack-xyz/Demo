@@ -636,7 +636,7 @@ function TokenBalancePage() {
       if (!socialInfo.followerTab && socialInfo.followingData?.mention) {
         const { followingData } = socialInfo;
         const nameFromMarkup = followingData.mentionRawText
-          ? getUsableValues(followingData.mentionRawText)?.displayValue
+          ? getUsableValues(followingData.mentionRawText)?.displayValue?.trim()
           : null;
         const name =
           nameFromMarkup ??
@@ -684,7 +684,7 @@ function TokenBalancePage() {
         const { followerData } = socialInfo;
 
         const nameFromMarkup = followerData.mentionRawText
-          ? getUsableValues(followerData.mentionRawText)?.displayValue
+          ? getUsableValues(followerData.mentionRawText)?.displayValue?.trim()
           : null;
         const name =
           nameFromMarkup ??
@@ -759,6 +759,8 @@ function TokenBalancePage() {
         )
       );
     }
+    options = [options[options.length - 1]];
+
     setOptions({ options });
   }, [
     csvDownloadOptions,
