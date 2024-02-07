@@ -278,14 +278,6 @@ export function CSVDownloads() {
       saveToActiveDownload(id);
       pollStatus(id);
       setNewTaskAdded(true);
-
-      const timer = setTimeout(() => {
-        setNewTaskAdded(false);
-      }, alertTimeout);
-
-      return () => {
-        clearTimeout(timer);
-      };
     });
   });
 
@@ -323,6 +315,10 @@ export function CSVDownloads() {
     setFileDownloaded(false);
     getHistory();
   }, [getHistory]);
+
+  const closeFilterPreparation = useCallback(() => {
+    setNewTaskAdded(false);
+  }, []);
 
   const showTooltip = fileDownloaded || newTaskAdded || taskFailed;
 
@@ -366,9 +362,13 @@ export function CSVDownloads() {
               }}
             />
           ) : taskFailed ? (
-            <Failed />
+            <Failed
+              onClose={() => {
+                setTaskFailed(false);
+              }}
+            />
           ) : (
-            <PreparingFile />
+            <PreparingFile onClose={closeFilterPreparation} />
           )
         }
       >
