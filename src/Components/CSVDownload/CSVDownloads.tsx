@@ -226,23 +226,19 @@ export function CSVDownloads() {
 
       setInProgressDownloads(activeRef.current);
 
-      let _data = [...data.GetCSVDownloadTasks];
+      let _data = [...data.GetCSVDownloadTasks].filter(item => !item?.expired);
 
       if (!fetchAll) {
         pollSavedTasks(_data);
 
         _data = _data.filter(
           item =>
-            !item?.expired &&
-            ((item?.status === Status.Completed && !item?.downloadedAt) ||
-              isActive(item))
+            (item?.status === Status.Completed && !item?.downloadedAt) ||
+            isActive(item)
         );
       } else {
         _data = _data.filter(
-          item =>
-            !item?.expired &&
-            item?.status !== Status.Cancelled &&
-            !item?.downloadedAt
+          item => item?.status !== Status.Cancelled && !item?.downloadedAt
         );
       }
 

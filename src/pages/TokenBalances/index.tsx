@@ -379,7 +379,7 @@ function TokenBalancePage() {
       erc20Option = {
         label: 'ERC20s',
         key: CsvQueryType.Erc20BalancesSnapshot,
-        fileName: `NFT balances of [${address[0]}] ${postFix}.csv`,
+        fileName: `ERC20 balances of [${address[0]}] ${postFix}.csv`,
         variables: {
           identity: address[0],
           [name]: value
