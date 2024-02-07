@@ -59,6 +59,8 @@ import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDro
 import { CSVDownloadOption } from '../../types';
 import { CsvQueryType } from '../../../__generated__/types';
 import { useCsvDownloadOptions } from '../../store/csvDownload';
+import { getUsableValues } from '../../Components/Input/utils';
+import { MentionType } from '../../Components/Input/types';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -466,17 +468,6 @@ function TokenBalancePage() {
           label: 'Socials, Domains & XMTP',
           link: socialLink
         });
-        csvDownloadOptions.push({
-          label: 'Socials, Domains & XMTP',
-          key: CsvQueryType.Socials,
-          fileName: `Socials of [${address[0]}].csv`,
-          variables: {
-            identity: address[0],
-            tokenType: ['ERC721', 'ERC1155'],
-            blockchain: 'ethereum',
-            orderBy: 'DESC'
-          }
-        });
       }
 
       if (address.length === 2) {
@@ -494,6 +485,20 @@ function TokenBalancePage() {
       getAPIOptions.push({
         label: 'Spam Filters Guide',
         link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/xmtp/spam-filters'
+      });
+    }
+
+    if (!showTokenDetails) {
+      csvDownloadOptions.push({
+        label: 'Socials, Domains & XMTP',
+        key: CsvQueryType.Socials,
+        fileName: `Socials of [${address[0]}].csv`,
+        variables: {
+          identity: address[0],
+          tokenType: ['ERC721', 'ERC1155'],
+          blockchain: 'ethereum',
+          orderBy: 'DESC'
+        }
       });
     }
 
@@ -628,6 +633,100 @@ function TokenBalancePage() {
         }
       });
 
+      if (!socialInfo.followerTab && socialInfo.followingData?.mention) {
+        const { followingData } = socialInfo;
+        const nameFromMarkup = followingData.mentionRawText
+          ? getUsableValues(followingData.mentionRawText)?.displayValue
+          : null;
+        const name =
+          nameFromMarkup ??
+          `${followingData?.mention?.token?.toLowerCase().replace('_', ' ')} (${
+            followingData?.mention?.address
+          })`;
+
+        const label = `${formattedDappName} following of [${address[0]}] x ${name} holders`;
+        const tokenType = followingData.mention?.token;
+        let key: null | CsvQueryType = null;
+
+        if (dappName === 'farcaster') {
+          key =
+            tokenType === MentionType.TOKEN
+              ? CsvQueryType.FarcasterErc20Followings
+              : tokenType === MentionType.POAP
+              ? CsvQueryType.FarcasterPoapFollowings
+              : CsvQueryType.FarcasterNftFollowings;
+        } else {
+          key =
+            tokenType === MentionType.TOKEN
+              ? CsvQueryType.LensErc20Followings
+              : tokenType === MentionType.POAP
+              ? CsvQueryType.LensPoapFollowings
+              : CsvQueryType.LensNftFollowings;
+        }
+        if (key) {
+          csvDownloadOptions.push({
+            label,
+            key,
+            fileName: `${label}.csv`,
+            variables: {
+              identity: address[0],
+              ...(tokenType === MentionType.POAP
+                ? {
+                    eventId: followingData.mention?.eventId
+                  }
+                : { tokenAddress: followingData.mention?.address })
+            }
+          });
+        }
+      }
+
+      if (socialInfo.followerTab && socialInfo.followerData?.mention) {
+        const { followerData } = socialInfo;
+
+        const nameFromMarkup = followerData.mentionRawText
+          ? getUsableValues(followerData.mentionRawText)?.displayValue
+          : null;
+        const name =
+          nameFromMarkup ??
+          `${followerData?.mention?.token?.toLowerCase().replace('_', ' ')} (${
+            followerData?.mention?.address
+          })`;
+        const label = `${formattedDappName} followers of [${address[0]}] x ${name} holders`;
+        const tokenType = followerData.mention?.token;
+        let key: null | CsvQueryType = null;
+
+        if (dappName === 'farcaster') {
+          key =
+            tokenType === MentionType.TOKEN
+              ? CsvQueryType.FarcasterErc20Followers
+              : tokenType === MentionType.POAP
+              ? CsvQueryType.FarcasterPoapFollowers
+              : CsvQueryType.FarcasterNftFollowers;
+        } else {
+          key =
+            tokenType === MentionType.TOKEN
+              ? CsvQueryType.LensErc20Followers
+              : tokenType === MentionType.POAP
+              ? CsvQueryType.LensPoapFollowers
+              : CsvQueryType.LensNftFollowers;
+        }
+        if (key) {
+          csvDownloadOptions.push({
+            label,
+            key,
+            fileName: `${label}.csv`,
+            variables: {
+              identity: address[0],
+              ...(tokenType === MentionType.POAP
+                ? {
+                    eventId: followerData.mention?.eventId
+                  }
+                : { tokenAddress: followerData.mention?.address })
+            }
+          });
+        }
+      }
+
       getAPIOptions.push({
         label: `${formattedDappName} profile details`,
         link: socialDetailsLink
@@ -636,6 +735,7 @@ function TokenBalancePage() {
 
     return [getAPIOptions, csvDownloadOptions];
   }, [
+    socialInfo,
     address,
     hasERC6551,
     accountAddress,
@@ -645,12 +745,6 @@ function TokenBalancePage() {
     tokenType,
     showTokenDetails,
     snapshotInfo,
-    socialInfo.isApplicable,
-    socialInfo.dappName,
-    socialInfo.followerData,
-    socialInfo.profileTokenIds,
-    socialInfo.followingData,
-    socialInfo.profileNames,
     token
   ]);
 
