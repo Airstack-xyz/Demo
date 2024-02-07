@@ -6,6 +6,7 @@ export const historyQuery = /* GraphQL */ `
       id
       filters
       name
+      expired
       totalRows
       status
       retryCount

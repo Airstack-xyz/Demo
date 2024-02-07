@@ -239,17 +239,21 @@ export function CSVDownloads() {
 
         _data = _data.filter(
           item =>
-            (item?.status === Status.Completed && !item?.downloadedAt) ||
-            isActive(item)
+            !item?.expired &&
+            ((item?.status === Status.Completed && !item?.downloadedAt) ||
+              isActive(item))
         );
       } else {
         _data = _data.filter(
-          item => item?.status !== Status.Cancelled && !item?.downloadedAt
+          item =>
+            !item?.expired &&
+            item?.status !== Status.Cancelled &&
+            !item?.downloadedAt
         );
       }
 
-      setTasks(
-        _data.map(item => ({
+      const tasks = _data
+        .map(item => ({
           value: '',
           id: item!.id as number,
           label: item!.name as string,
@@ -261,7 +265,11 @@ export function CSVDownloads() {
           creditPrice: item!.creditPrice as number,
           downloadedAt: item!.downloadedAt as string
         }))
-      );
+        .sort(item => (item.isActive ? -1 : 1));
+
+      // eslint-disable-next-line
+      // @ts-ignore
+      setTasks(tasks);
     },
     [fetchHistory, pollSavedTasks]
   );
