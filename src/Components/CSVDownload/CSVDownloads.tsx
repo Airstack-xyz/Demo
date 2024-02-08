@@ -110,6 +110,9 @@ export function CSVDownloads() {
   const [downloadCompletedFor, setDownloadCompletedFor] = useState<
     number | null
   >(null);
+  const getHistoryRef = useRef<null | ((fetchAll?: boolean) => Promise<void>)>(
+    null
+  );
 
   const showFailedAlert = useCallback(() => {
     setTaskFailed(true);
@@ -140,6 +143,7 @@ export function CSVDownloads() {
 
       if (status === Status.Completed) {
         setFileDownloaded(true);
+        getHistoryRef.current?.();
       }
 
       if (
@@ -149,6 +153,7 @@ export function CSVDownloads() {
         retryCount >= maxRetryCount
       ) {
         showFailedAlert();
+        getHistoryRef.current?.();
       }
 
       activeRef.current = activeRef.current.filter(item => item !== id);
@@ -267,6 +272,8 @@ export function CSVDownloads() {
     [fetchHistory, pollSavedTasks]
   );
 
+  getHistoryRef.current = getHistory;
+
   const handleRestart = useCallback(
     async (taskId: number) => {
       await restartTask({ taskId });
@@ -278,11 +285,12 @@ export function CSVDownloads() {
   useEffect(() => {
     return listenTaskAdded((id: number) => {
       activeRef.current.push(id);
+      setInProgressDownloads(activeRef.current);
       saveToActiveDownload(id);
       pollStatus(id);
       setNewTaskAdded(true);
     });
-  });
+  }, [pollStatus]);
 
   useEffect(() => {
     getHistory(false);
