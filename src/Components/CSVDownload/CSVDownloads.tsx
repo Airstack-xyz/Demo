@@ -242,9 +242,7 @@ export function CSVDownloads() {
             isActive(item)
         );
       } else {
-        _data = _data.filter(
-          item => item?.status !== Status.Cancelled && !item?.downloadedAt
-        );
+        _data = _data.filter(item => !item?.downloadedAt);
       }
 
       const active = _data?.filter(item => isActive(item));
