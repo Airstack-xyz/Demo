@@ -146,7 +146,7 @@ export function CSVDownloadDropdown({
       >
         <div className="bg-primary backdrop-blur-[100px] p-5 border-solid-stroke rounded-xl text-center">
           <div className="text-base font-bold">
-            Use desktop web to get all the APIs
+            Use desktop web to download CSV
           </div>
           <div className="text-sm text-text-secondary pt-1 pb-2">
             There is more on desktop. Fork code, SDKs, AI Assistant, and more!

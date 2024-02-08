@@ -300,7 +300,7 @@ function TokenBalancePage() {
       csvDownloadOptions.push({
         label: 'POAPs',
         key: CsvQueryType.PoapBalances,
-        fileName: `Poaps of [${address[0]}].csv`,
+        fileName: `Poaps balances of [${address[0]}].csv`,
         variables: {
           identity: address[0],
           orderBy: 'DESC'
@@ -492,7 +492,7 @@ function TokenBalancePage() {
       csvDownloadOptions.push({
         label: 'Socials, Domains & XMTP',
         key: CsvQueryType.Socials,
-        fileName: `Socials of [${address[0]}].csv`,
+        fileName: `Socials, domains, XMTP of [${address[0]}].csv`,
         variables: {
           identity: address[0],
           tokenType: ['ERC721', 'ERC1155'],
@@ -610,7 +610,7 @@ function TokenBalancePage() {
           dappName === 'farcaster'
             ? CsvQueryType.FarcasterFollowers
             : CsvQueryType.LensFollowers,
-        fileName: `Social followers of [${address[0]}].csv`,
+        fileName: `${dappName} followers of [${address[0]}].csv`,
         variables: {
           identity: address[0]
         }
@@ -627,7 +627,7 @@ function TokenBalancePage() {
           dappName === 'farcaster'
             ? CsvQueryType.FarcasterFollowings
             : CsvQueryType.LensFollowings,
-        fileName: `Social following of [${address[0]}].csv`,
+        fileName: `${formattedDappName} following of [${address[0]}].csv`,
         variables: {
           identity: address[0]
         }

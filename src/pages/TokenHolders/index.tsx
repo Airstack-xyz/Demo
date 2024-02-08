@@ -295,7 +295,7 @@ export function TokenHolders() {
           names.push(token.name);
         });
 
-        const name = `Combinations ${names.join(' x ')}`;
+        const name = `Holders ${names.join(' & ')}`;
         const combinationsCSVDownloadOption: CSVDownloadOption = {
           label: name,
           key,
@@ -313,7 +313,7 @@ export function TokenHolders() {
         csvDownloadOptions.push({
           label: 'POAP Holders',
           key: CsvQueryType.PoapHolders,
-          fileName: `Poaps holders of ${tokenName}.csv`,
+          fileName: `Holders of ${tokenName}.csv`,
           variables: {
             eventId: poaps[0].tokenAddress // event id
           },
@@ -336,7 +336,7 @@ export function TokenHolders() {
               key: hasERC20
                 ? CsvQueryType.Erc20HoldersSnapshot
                 : CsvQueryType.NftHoldersSnapshot,
-              fileName: `NFT holders snapshot ${tokenName} ${postFix}.csv`,
+              fileName: `Holders of ${tokenName} ${postFix}.csv`,
               variables: {
                 tokenAddress: addresses[0].address,
                 blockchain: addresses[0].blockchain, // TODO: fix this it should be dynamic
@@ -352,7 +352,7 @@ export function TokenHolders() {
           csvDownloadOptions.push({
             label: 'Nft holders',
             key: hasERC20 ? CsvQueryType.Erc20Holders : CsvQueryType.NftHolders,
-            fileName: `NFT holders ${tokenName}.csv`,
+            fileName: `Holders of ${tokenName}.csv`,
             variables: {
               tokenAddress: addresses[0].address,
               blockchain: addresses[0].blockchain // TODO: fix this it should be dynamic
