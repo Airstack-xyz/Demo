@@ -409,7 +409,7 @@ function TokenBalancePage() {
         fileName: `NFT balances of [${address[0]}].csv`,
         variables: {
           identity: address[0],
-          tokenType: tokenType ? [tokenType] : ['ERC721', 'ERC1155']
+          tokenType: ['ERC721', 'ERC1155']
         },
         filters: {
           ...nftBlockchains,
