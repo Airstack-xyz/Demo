@@ -163,29 +163,34 @@ export const Token = memo(function Token({
           </div>
         </div>
       </div>
-      <div className="h-14 rounded-3xl flex flex-col px-3.5 py-2 text-sm bg-glass border-solid-light">
-        <div className="ellipsis text-xs mb-">{name || '--'}</div>
-        <div className="flex items-center justify-between font-bold ">
-          {type !== 'ERC20' && (
-            <div className="ellipsis flex flex-1 mr-2">
-              {ids.map((id, index) => (
-                <Fragment key={id}>
-                  <span
-                    className={classNames('ellipsis', {
-                      'max-w-[50%]': ids.length > 1
-                    })}
-                  >
-                    {!isPoap && '#'}
-                    {id}
-                  </span>
-                  {index < ids.length - 1 && <span className="mr-1">,</span>}
-                </Fragment>
-              ))}
+      {/* Temporarily hide token name overlay */}
+      {false && (
+        <div className="h-14 rounded-3xl flex flex-col px-3.5 py-2 text-sm bg-glass border-solid-light">
+          <div className="ellipsis text-xs mb-">{name || '--'}</div>
+          <div className="flex items-center justify-between font-bold ">
+            {type !== 'ERC20' && (
+              <div className="ellipsis flex flex-1 mr-2">
+                {ids.map((id, index) => (
+                  <Fragment key={id}>
+                    <span
+                      className={classNames('ellipsis', {
+                        'max-w-[50%]': ids.length > 1
+                      })}
+                    >
+                      {!isPoap && '#'}
+                      {id}
+                    </span>
+                    {index < ids.length - 1 && <span className="mr-1">,</span>}
+                  </Fragment>
+                ))}
+              </div>
+            )}
+            <div className="ellipsis text-right max-w-[50%]">
+              {symbol || ''}
             </div>
-          )}
-          <div className="ellipsis text-right max-w-[50%]">{symbol || ''}</div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 });
