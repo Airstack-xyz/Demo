@@ -25,7 +25,9 @@ export function ListWithMoreOptions({
 
   const getItemClickHandler = useCallback(
     (value: string) => () => {
-      onItemClick?.(value, listFor);
+      if (value) {
+        onItemClick?.(value, listFor);
+      }
     },
     [listFor, onItemClick]
   );

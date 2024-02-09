@@ -45,3 +45,9 @@ export type SearchAIMentionsResponse = {
     results: SearchAIMentionsResults[];
   };
 };
+
+export type AdvancedMentionSearchParams = {
+  query: string;
+  queryStartIndex: number;
+  queryEndIndex: number;
+};

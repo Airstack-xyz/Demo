@@ -14,10 +14,11 @@ import {
 } from '../../utils/activeSnapshotInfoString';
 import { DatePicker, DateValue } from '../DatePicker';
 import { Icon, IconType } from '../Icon';
-import { DisabledTooltip, useDisabledTooltip } from './DisabledTooltip';
 import { FilterOption } from './FilterOption';
 import { FilterPlaceholder } from './FilterPlaceholder';
+import { defaultMintFilter } from './MintFilter';
 import { defaultSortOrder } from './SortBy';
+import { TooltipWrapper } from './TooltipWrapper';
 
 export type SnapshotFilterType =
   | 'today'
@@ -72,17 +73,6 @@ const getLabelAndIcon = ({
   return { label, icon };
 };
 
-export function SnapshotTooltip({ message }: { message?: string }) {
-  return (
-    <div className="absolute left-4 top-4 z-20">
-      <img src="images/cursor.svg" height={30} width={30} />
-      <div className="bg-glass-1 rounded-[16px] py-1.5 px-3 w-max text-text-secondary">
-        {message}
-      </div>
-    </div>
-  );
-}
-
 export function SnapshotToast({ message }: { message: string }) {
   return (
     <div className="fixed bottom-10 left-1/2 -translate-x-1/2 rounded-[30px] w-max py-2 px-5 flex bg-[#5398FF] text-sm font-semibold z-50">
@@ -107,13 +97,6 @@ export function SnapshotFilter({
   disabledTooltipIconHidden?: boolean;
 }) {
   const [{ blockchainType, activeSnapshotInfo }, setData] = useSearchInput();
-  const {
-    tooltipRef,
-    containerRef,
-    handleTooltipShow,
-    handleTooltipHide,
-    handleTooltipMove
-  } = useDisabledTooltip();
 
   const isTokenBalancesPage = !!useMatch('/token-balances');
 
@@ -158,7 +141,7 @@ export function SnapshotFilter({
     setIsDatePickerVisible(false)
   );
 
-  const enableTooltipHover = disabled && Boolean(disabledTooltipText);
+  const enableTooltip = disabled && Boolean(disabledTooltipText);
 
   const isFilterDisabled = disabled;
 
@@ -251,11 +234,16 @@ export function SnapshotFilter({
     }
 
     const filterValues: Partial<CachedQuery> = {
-      activeSnapshotInfo: getActiveSnapshotInfoString(snapshotData)
+      activeSnapshotInfo: getActiveSnapshotInfoString(snapshotData),
+      // clear active view and go back to list page
+      activeView: '',
+      activeViewToken: '',
+      activeTokenInfo: ''
     };
 
     if (currentFilter !== 'today') {
       filterValues.sortOrder = defaultSortOrder; // for snapshot query reset sort order
+      filterValues.mintFilter = defaultMintFilter; // for snapshot query reset mint filter
       if (
         blockchainType?.length === 1 &&
         !checkBlockchainSupportForSnapshot(blockchainType[0])
@@ -290,12 +278,10 @@ export function SnapshotFilter({
         className="text-xs font-medium relative flex flex-col items-end"
         ref={dropdownContainerRef}
       >
-        <div
-          className="relative"
-          ref={containerRef}
-          onMouseEnter={enableTooltipHover ? handleTooltipShow : undefined}
-          onMouseLeave={enableTooltipHover ? handleTooltipHide : undefined}
-          onMouseMove={enableTooltipHover ? handleTooltipMove : undefined}
+        <TooltipWrapper
+          tooltipEnabled={enableTooltip}
+          tooltipText={disabledTooltipText}
+          tooltipIconHidden={disabledTooltipIconHidden}
         >
           <FilterPlaceholder
             isDisabled={isFilterDisabled}
@@ -303,17 +289,11 @@ export function SnapshotFilter({
             label={label}
             icon={icon}
             className={classNames({
-              'disabled:cursor-auto': enableTooltipHover // for not showing disabled cursor for tooltip
+              'disabled:cursor-auto': enableTooltip // for not showing disabled cursor for tooltip
             })}
             onClick={handleDropdownToggle}
           />
-          <DisabledTooltip
-            isEnabled={enableTooltipHover}
-            tooltipRef={tooltipRef}
-            tooltipText={disabledTooltipText}
-            tooltipIconHidden={disabledTooltipIconHidden}
-          />
-        </div>
+        </TooltipWrapper>
         {isDropdownVisible && (
           <div className="before-bg-glass before:-z-10 before:rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">
             <div className="font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap">

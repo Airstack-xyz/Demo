@@ -92,6 +92,10 @@ module.exports = {
             rgba(255, 255, 255, 0) 100%
           )`
         },
+        '.bg-glass-2': {
+          background: `linear-gradient(111deg, rgba(255, 255, 255, 0.04) -8.95%, rgba(255, 255, 255, 0.00) 200%)`,
+          'backdrop-filter': 'blur(7.5px)'
+        },
         '.before-bg-glass': {
           // Use this class if bg-glass will used in nesting fashion, normally blur doesn't work correctly if applied in nested fashion
           '@apply before:bg-glass before:absolute before:inset-0': {}

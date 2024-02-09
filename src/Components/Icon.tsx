@@ -19,6 +19,7 @@ export type IconType =
   | 'polygon'
   | 'gnosis'
   | 'base'
+  | 'zora'
   | 'token-balances'
   | 'token-holders'
   | 'erc20'
@@ -63,7 +64,8 @@ export type IconType =
   | 'follow-purple'
   | 'mutual-follow'
   | 'follower-gray'
-  | 'following-gray';
+  | 'following-gray'
+  | 'settings-gray';
 
 export type IconProps = {
   name: IconType;

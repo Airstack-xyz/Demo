@@ -1,8 +1,11 @@
-import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import {
+  fetchQuery,
+  useLazyQueryWithPagination
+} from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { snapshotBlockchains, tokenBlockchains } from '../constants';
 import {
-  Poap,
+  Poap as PoapType,
   TokenAddress,
   Token as TokenType
 } from '../pages/TokenHolders/types';
@@ -21,38 +24,45 @@ import {
 } from '../utils/activeSnapshotInfoString';
 import { sortAddressByPoapFirst } from '../utils/sortAddressByPoapFirst';
 import { useSearchInput } from './useSearchInput';
+import { resolve6551Owner } from './useResolve6551Owner';
+import { walletDetailsQuery } from '../queries/walletDetails';
 
 type Token = TokenType & {
-  _poapEvent?: Poap['poapEvent'];
+  _poapEvent?: PoapType['poapEvent'];
   _blockchain?: string;
   eventId?: string;
 };
 
-type NestedTokenBalance = (Pick<
+type NestedToken = Pick<
   Token,
   'tokenAddress' | 'tokenId' | 'token' | 'tokenNfts'
 > &
-  Pick<Poap, 'poapEvent' | 'eventId'> & {
+  Pick<PoapType, 'poapEvent' | 'eventId'> & {
     owner: {
       tokenBalances: Token[];
     };
-    poapEvent?: Poap['poapEvent'];
+    poapEvent?: PoapType['poapEvent'];
     blockchain?: string;
-  })[];
+  };
 
-const LIMIT = 200;
-const MIN_LIMIT = 50;
+const LIMIT = 34;
 
-export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
+export function useGetCommonOwnersOfTokens(tokenAddresses: TokenAddress[]) {
   const ownersSetRef = useRef<Set<string>>(new Set());
   const itemsRef = useRef<Token[]>([]);
   const [loading, setLoading] = useState(false);
   const [tokens, setTokens] = useState<Token[]>([]);
-  const [processedTokensCount, setProcessedTokensCount] = useState(LIMIT);
 
-  const [{ activeSnapshotInfo }] = useSearchInput();
+  const [processedTokensCount, setProcessedTokensCount] = useState(0); // for showing total scanned count
+  const [resolvedTokensCount, setResolvedTokensCount] = useState(0); // for showing 6551 resolved count
 
-  const hasPoap = tokenAddress.some(token => !token.address.startsWith('0x'));
+  const [{ activeSnapshotInfo, resolve6551 }] = useSearchInput();
+
+  const hasSomePoap = tokenAddresses.some(
+    item => !item.address.startsWith('0x')
+  );
+
+  const isResolve6551Enabled = resolve6551 === '1';
 
   const snapshotInfo = useMemo(
     () => getActiveSnapshotInfo(activeSnapshotInfo),
@@ -60,30 +70,36 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
   );
 
   const query = useMemo(() => {
-    if (tokenAddress.length === 1) {
+    if (tokenAddresses.length === 1) {
       if (snapshotInfo.isApplicable) {
         return getNftOwnersSnapshotQuery({
-          address: tokenAddress[0],
+          tokenAddress: tokenAddresses[0],
           snapshotFilter: snapshotInfo.appliedFilter
         });
       }
-      return getNftOwnersQuery(tokenAddress[0]);
+      return getNftOwnersQuery({ tokenAddress: tokenAddresses[0] });
     }
-    if (hasPoap) {
-      const tokens = sortAddressByPoapFirst(tokenAddress);
-      return getCommonPoapAndNftOwnersQuery(tokens[0], tokens[1]);
+    if (hasSomePoap) {
+      const addresses = sortAddressByPoapFirst(tokenAddresses);
+      return getCommonPoapAndNftOwnersQuery({
+        poapAddress: addresses[0],
+        tokenAddress: addresses[1]
+      });
     }
     if (snapshotInfo.isApplicable) {
       return getCommonNftOwnersSnapshotQuery({
-        address1: tokenAddress[0],
-        address2: tokenAddress[1],
+        tokenAddress1: tokenAddresses[0],
+        tokenAddress2: tokenAddresses[1],
         snapshotFilter: snapshotInfo.appliedFilter
       });
     }
-    return getCommonNftOwnersQuery(tokenAddress[0], tokenAddress[1]);
+    return getCommonNftOwnersQuery({
+      tokenAddress1: tokenAddresses[0],
+      tokenAddress2: tokenAddresses[1]
+    });
   }, [
-    tokenAddress,
-    hasPoap,
+    tokenAddresses,
+    hasSomePoap,
     snapshotInfo.isApplicable,
     snapshotInfo.appliedFilter
   ]);
@@ -99,90 +115,135 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     : hasNextPage === false
     ? false
     : tokens.length < totalOwners;
-  const fetchSingleToken = tokenAddress.length === 1;
+  const fetchSingleToken = tokenAddresses.length === 1;
 
   useEffect(() => {
-    if (!data) return;
+    async function processData() {
+      if (!data) return;
 
-    const appropriateBlockchains = snapshotInfo.isApplicable
-      ? snapshotBlockchains
-      : tokenBlockchains;
+      const appropriateBlockchains = snapshotInfo.isApplicable
+        ? snapshotBlockchains
+        : tokenBlockchains;
 
-    if (
-      hasPoap
-        ? !data.Poaps?.Poap
-        : !appropriateBlockchains.some(
-            blockchain => data?.[blockchain]?.TokenBalance
-          )
-    ) {
-      // if there is no data, hide the loader
-      setLoading(false);
-      return;
-    }
+      if (
+        hasSomePoap
+          ? !data.Poaps?.Poap
+          : !appropriateBlockchains.some(
+              blockchain => data?.[blockchain]?.TokenBalance
+            )
+      ) {
+        setLoading(false);
+        return;
+      }
 
-    let tokenBalances: NestedTokenBalance | Token[] = [];
+      let tokenBalances: NestedToken[] | Token[] = [];
 
-    if (hasPoap) {
-      tokenBalances = data.Poaps?.Poap;
-    } else {
-      appropriateBlockchains.forEach(blockchain => {
-        const balances = data?.[blockchain]?.TokenBalance || [];
-        tokenBalances.push(...balances);
+      if (hasSomePoap) {
+        tokenBalances = data.Poaps?.Poap;
+      } else {
+        appropriateBlockchains.forEach(blockchain => {
+          const balances = data?.[blockchain]?.TokenBalance || [];
+          tokenBalances.push(...balances);
+        });
+      }
+
+      setProcessedTokensCount(count => count + tokenBalances.length);
+
+      let tokens: Token[] = [];
+
+      if (fetchSingleToken) {
+        tokens = tokenBalances as Token[];
+      } else {
+        tokens = (tokenBalances as NestedToken[])
+          .filter(token => Boolean(token?.owner?.tokenBalances?.length))
+          .reduce(
+            (tokens, token) => [
+              ...tokens,
+              {
+                ...token.owner.tokenBalances[0],
+                _tokenAddress: token.tokenAddress,
+                _tokenId: token.tokenId,
+                _token: token.token,
+                _tokenNfts: token.tokenNfts,
+                _poapEvent: token.poapEvent,
+                _eventId: token.eventId,
+                _blockchain: token.blockchain
+              }
+            ],
+            [] as Token[]
+          );
+      }
+
+      tokens = tokens.filter(token => {
+        const address = token?.owner?.identity;
+        if (!address) return false;
+        if (ownersSetRef.current.has(address)) return false;
+        ownersSetRef.current.add(address);
+        return true;
       });
-    }
 
-    let tokens: Token[] = [];
-
-    if (fetchSingleToken) {
-      tokens = tokenBalances as Token[];
-    } else {
-      tokens = (tokenBalances as NestedTokenBalance)
-        .filter(token => Boolean(token?.owner?.tokenBalances?.length))
-        .reduce(
-          (tokens, token) => [
-            ...tokens,
-            {
-              ...token.owner.tokenBalances[0],
-              _tokenAddress: token.tokenAddress,
-              _tokenId: token.tokenId,
-              _token: token.token,
-              _tokenNfts: token.tokenNfts,
-              _poapEvent: token.poapEvent,
-              _eventId: token.eventId,
-              _blockchain: token.blockchain
-            }
-          ],
-          [] as Token[]
+      if (isResolve6551Enabled) {
+        // Filter out unresolvable tokens (which are not part of ERC65551 account)
+        tokens = tokens.filter(
+          token =>
+            !!token?.owner?.identity && token?.owner?.accounts?.length > 0
         );
+        for (let i = 0; i < tokens.length; i++) {
+          const owner = tokens[i]?.owner;
+          // resolve ERC65551 account address to actual owner address
+          const resolvedData = await resolve6551Owner({
+            address: owner.identity,
+            blockchain: owner.blockchain
+          });
+          const ownerAddress = resolvedData?.data?.ownerAddress;
+          if (!ownerAddress) {
+            itemsRef.current = [...itemsRef.current, tokens[i]];
+            setTokens(prev => [...prev, tokens[i]].slice(0, LIMIT));
+            continue;
+          }
+          // fetch wallet data for the resolved address
+          const walletData = await fetchQuery(walletDetailsQuery, {
+            address: ownerAddress,
+            blockchain: owner.blockchain
+          });
+          const ownerWallet = walletData?.data?.Wallet;
+          if (!ownerWallet) {
+            itemsRef.current = [...itemsRef.current, tokens[i]];
+            setTokens(prev => [...prev, tokens[i]].slice(0, LIMIT));
+            continue;
+          }
+          // merge wallet data in token so that, correct social info can be displayed
+          tokens[i].owner = {
+            ...tokens[i]?.owner,
+            ...ownerWallet
+          };
+          itemsRef.current = [...itemsRef.current, tokens[i]];
+          setResolvedTokensCount(count => count + 1);
+          setTokens(prev => [...prev, tokens[i]].slice(0, LIMIT));
+        }
+      } else {
+        itemsRef.current = [...itemsRef.current, ...tokens];
+        setTokens(prev => [...prev, ...tokens].slice(0, LIMIT));
+      }
+
+      const minItemsToFetch =
+        totalOwners > 0 ? Math.min(totalOwners, LIMIT) : LIMIT;
+
+      if (hasNextPage && itemsRef.current.length < minItemsToFetch) {
+        getNextPage();
+      } else {
+        setLoading(false);
+      }
     }
 
-    tokens = tokens.filter(token => {
-      const address = token?.owner?.identity;
-      if (!address) return false;
-      if (ownersSetRef.current.has(address)) return false;
-      ownersSetRef.current.add(address);
-      return true;
-    });
-
-    itemsRef.current = [...itemsRef.current, ...tokens];
-    const minItemsToFetch =
-      totalOwners > 0 ? Math.min(totalOwners, MIN_LIMIT) : MIN_LIMIT;
-    if (hasNextPage && itemsRef.current.length < minItemsToFetch) {
-      getNextPage();
-    } else {
-      setLoading(false);
-    }
-
-    if (tokens.length > 0) {
-      setTokens(prevTokens => [...prevTokens, ...tokens]);
-    }
-    setProcessedTokensCount(count => count + tokenBalances.length);
+    processData();
   }, [
     data,
     fetchSingleToken,
     getNextPage,
     hasNextPage,
-    hasPoap,
+    hasSomePoap,
+    isResolve6551Enabled,
     snapshotInfo.isApplicable,
     totalOwners
   ]);
@@ -195,28 +256,28 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
   }, [getNextPage, hasMorePages]);
 
   const getTokens = useCallback(() => {
-    if (tokenAddress.length === 0) return;
+    if (tokenAddresses.length === 0) return;
+
     itemsRef.current = [];
     setLoading(true);
     setTokens([]);
     ownersSetRef.current = new Set();
 
-    const limit = fetchSingleToken ? MIN_LIMIT : LIMIT;
-
     if (snapshotInfo.isApplicable) {
       const queryFilters = getSnapshotQueryFilters(snapshotInfo);
       fetch({
-        limit: limit,
+        limit: LIMIT,
         ...queryFilters
       });
     } else {
       fetch({
-        limit: limit
+        limit: LIMIT
       });
     }
 
-    setProcessedTokensCount(LIMIT);
-  }, [tokenAddress.length, fetchSingleToken, snapshotInfo, fetch]);
+    setProcessedTokensCount(0);
+    setResolvedTokensCount(0);
+  }, [tokenAddresses.length, snapshotInfo, fetch]);
 
   return {
     fetch: getTokens,
@@ -224,6 +285,7 @@ export function useGetCommonOwnersOfTokens(tokenAddress: TokenAddress[]) {
     loading,
     hasNextPage: hasMorePages,
     processedTokensCount,
+    resolvedTokensCount,
     getNextPage: getNext
   };
 }

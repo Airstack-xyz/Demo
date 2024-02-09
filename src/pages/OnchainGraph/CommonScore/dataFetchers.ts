@@ -36,6 +36,7 @@ export async function fetchNfts(
   let ethereumCount = 0;
   let polygonCount = 0;
   let baseCount = 0;
+  let zoraCount = 0;
   const visited = new Set<string>();
 
   const request = fetchQueryWithPagination<CommonNFTQueryResponse>(
@@ -50,23 +51,27 @@ export async function fetchNfts(
     if (!data) {
       return false;
     }
-    const { ethereum, polygon, base } = data;
+    const { ethereum, polygon, base, zora } = data;
     let ethereumBalances = ethereum?.TokenBalance || [];
     let polygonBalances = polygon?.TokenBalance || [];
     let baseBalances = base?.TokenBalance || [];
+    let zoraBalances = zora?.TokenBalance || [];
 
     ethereumBalances = processTokens(ethereumBalances, visited);
     polygonBalances = processTokens(polygonBalances, visited);
     baseBalances = processTokens(baseBalances, visited);
+    zoraBalances = processTokens(zoraBalances, visited);
 
     ethereumCount += ethereumBalances.length;
     polygonCount += polygonBalances.length;
     baseCount += baseBalances.length;
+    zoraCount += zoraBalances.length;
 
     onCountChange?.({
       ethereumCount,
       polygonCount,
-      baseCount
+      baseCount,
+      zoraCount
     });
 
     return true;
@@ -74,7 +79,8 @@ export async function fetchNfts(
   return {
     ethereumCount,
     polygonCount,
-    baseCount
+    baseCount,
+    zoraCount
   };
 }
 
@@ -161,11 +167,13 @@ export async function fetchMutualFollowings(address: string[]) {
       if (!following.followingAddress) {
         continue;
       }
-      let match = following.followingAddress.addresses.some(x => x === address);
+      let match = following.followingAddress?.addresses?.some(
+        x => x === address
+      );
       match =
         match ||
         Boolean(
-          following.followingAddress.domains?.some(x => x.name === address)
+          following.followingAddress?.domains?.some(x => x.name === address)
         );
 
       if (match) {

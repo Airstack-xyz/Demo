@@ -1,5 +1,6 @@
 import {
   KeyboardEventHandler,
+  MutableRefObject,
   useCallback,
   useEffect,
   useMemo,
@@ -7,7 +8,9 @@ import {
   useState
 } from 'react';
 import { capitalizeFirstLetter, pluralize } from '../../utils';
+import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Icon } from '../Icon';
+import ImageWithFallback from '../ImageWithFallback';
 import { AddressInput } from './AddressInput';
 import {
   ADDRESS_OPTION_ID,
@@ -16,23 +19,26 @@ import {
   MENTION_REGEX,
   POAP_OPTION_ID
 } from './constants';
-import ImageWithFallback from '../ImageWithFallback';
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { Mention, MentionsInput } from './react-mentions';
 import {
+  AdvancedMentionSearchParams,
   MentionType,
   SearchAIMentionsResponse,
   SearchAIMentionsResults
 } from './types';
 import {
   ID_REGEX,
+  MENTION_TYPE_MAP,
   REGEX_LAST_WORD_STARTS_WITH_AT,
   debouncePromise,
   fetchAIMentions,
   generateId,
+  getMentionCount,
   getNameFromMarkup,
-  highlightMention
+  highlightMention,
+  truncateMentionLabel
 } from './utils';
 
 import './styles.css';
@@ -42,32 +48,27 @@ type Option = SearchAIMentionsResults & {
   display: string;
 };
 
-const mentionTypeMap: Record<MentionType, string> = {
-  [MentionType.NFT_COLLECTION]: 'NFT',
-  [MentionType.DAO_TOKEN]: 'DAO',
-  [MentionType.TOKEN]: 'Token',
-  [MentionType.POAP]: 'POAP'
-};
-
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
 
 export function InputWithMention({
+  mentionInputRef,
   value,
   disabled,
   placeholder,
   disableSuggestions,
   onChange,
   onSubmit,
-  onAdvancedSearch
+  onAdvancedMentionSearch
 }: {
+  mentionInputRef?: MutableRefObject<HTMLTextAreaElement | null>;
   value: string;
   disabled?: boolean;
   placeholder?: string;
   disableSuggestions?: boolean;
   onChange: (value: string) => void;
   onSubmit: (value: string) => void;
-  onAdvancedSearch?: (startIndex: number, endIndex: number) => void;
+  onAdvancedMentionSearch?: (data: AdvancedMentionSearchParams) => void;
 }) {
   const [showInputFor, setShowInputFor] = useState<
     'ID_ADDRESS' | 'ID_POAP' | null
@@ -77,12 +78,17 @@ export function InputWithMention({
     left: 'auto',
     right: 'auto'
   });
-  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const allowSubmitRef = useRef(true);
   const valueRef = useRef(value);
   const lastPositionOfCaretRef = useRef(0);
   const isSuggestionClickedRef = useRef(false);
   const [loading, setLoading] = useState(false);
+
+  const isMobile = isMobileDevice();
+
+  // store refs so that it can be used in events without triggering useEffect
+  valueRef.current = value;
 
   const getMentions = useCallback(async (query: string) => {
     setLoading(true);
@@ -92,6 +98,16 @@ export function InputWithMention({
     setLoading(false);
     return res;
   }, []);
+
+  const handleInputRef = useCallback(
+    (el: HTMLTextAreaElement) => {
+      inputRef.current = el;
+      if (mentionInputRef) {
+        mentionInputRef.current = el; // expose mention input to outside
+      }
+    },
+    [mentionInputRef]
+  );
 
   const handlePaste = useCallback((event: ClipboardEvent) => {
     if (event.target !== inputRef.current) {
@@ -126,9 +142,8 @@ export function InputWithMention({
   }, [disableSuggestions]);
 
   const handleUserInput = useCallback(
-    ({ target: { value } }: { target: { value: string } }) => {
-      valueRef.current = value;
-      onChange(value);
+    (event: { target: { value: string } }) => {
+      onChange(event.target.value);
     },
     [onChange]
   );
@@ -144,10 +159,10 @@ export function InputWithMention({
         event.preventDefault();
         // blur on enter key press
         inputRef.current?.blur();
-        onSubmit(value);
+        onSubmit(valueRef.current);
       }
     },
-    [onSubmit, value]
+    [onSubmit]
   );
 
   const handleBlur = useCallback(
@@ -159,22 +174,27 @@ export function InputWithMention({
     []
   );
 
-  const triggerAdvancedSearch = useCallback(() => {
-    if (!onAdvancedSearch) {
-      return;
-    }
-
-    const inputValue = inputRef.current?.value || '';
-    const endIndex = inputRef.current?.selectionStart ?? -1;
-    let startIndex = endIndex;
-
-    // find start index of query
-    while (inputValue[startIndex] !== '@' && startIndex > 0) {
-      startIndex--;
-    }
-
-    onAdvancedSearch(startIndex, endIndex);
-  }, [onAdvancedSearch]);
+  const triggerAdvancedMentionSearch = useCallback(
+    ({
+      query,
+      querySequenceStart,
+      querySequenceEnd
+    }: {
+      query: string;
+      querySequenceStart: number;
+      querySequenceEnd: number;
+    }) => {
+      if (!onAdvancedMentionSearch) {
+        return;
+      }
+      onAdvancedMentionSearch({
+        query,
+        queryStartIndex: querySequenceStart,
+        queryEndIndex: querySequenceEnd
+      });
+    },
+    [onAdvancedMentionSearch]
+  );
 
   const onAddSuggestion = useCallback((id: string) => {
     // allow submission only if suggestion is clicked
@@ -234,7 +254,7 @@ export function InputWithMention({
 
       let extraLengthTakenByMention = 0;
 
-      const mentionMarkups = value.match(ID_REGEX);
+      const mentionMarkups = valueRef.current.match(ID_REGEX);
       // find out how many characters the mention markup is longer than the id
       // so we can adjust the caret position accordingly
       // the mention markup is longer than the id because it contains the display name
@@ -246,17 +266,19 @@ export function InputWithMention({
       const actualCaretPosition =
         lastPositionOfCaretRef.current + extraLengthTakenByMention;
 
-      let textBeforeCaret = value.slice(0, actualCaretPosition);
-      const remainingText = value.slice(actualCaretPosition);
+      let textBeforeCaret = valueRef.current.slice(0, actualCaretPosition);
+      const remainingText = valueRef.current.slice(actualCaretPosition);
       const startsWithAt = textBeforeCaret[0] === '@';
       // add space in front of the mention if it doesn't start with @, otherwise the regex won't match
       textBeforeCaret = startsWithAt ? ' ' + textBeforeCaret : textBeforeCaret;
+
+      const displayLabel = isMobile ? truncateMentionLabel(address) : address;
 
       textBeforeCaret = textBeforeCaret
         .trimEnd()
         .replace(
           REGEX_LAST_WORD_STARTS_WITH_AT,
-          ` #⎱${address}⎱(${address}    ${showInputFor})`
+          ` #⎱${displayLabel}⎱(${address}    ${showInputFor})`
         );
 
       if (startsWithAt) {
@@ -267,7 +289,15 @@ export function InputWithMention({
       const newValue = textBeforeCaret + remainingText.trimStart();
       handleUserInput({ target: { value: newValue } });
     },
-    [handleUserInput, showInputFor, value]
+    [handleUserInput, isMobile, showInputFor]
+  );
+
+  const displayTransform = useCallback(
+    (_: string, display: string) => {
+      const truncateLabel = isMobile && getMentionCount(valueRef.current) === 0;
+      return truncateLabel ? truncateMentionLabel(display) : display;
+    },
+    [isMobile]
   );
 
   const fetchMentions = useCallback(
@@ -281,7 +311,6 @@ export function InputWithMention({
           blockchain: capitalizeFirstLetter(mention.blockchain || '')
         }));
       }
-
       return [];
     },
     [getMentions]
@@ -293,7 +322,7 @@ export function InputWithMention({
   );
 
   const getData = useCallback(
-    async (query: string, callback: (data: unknown) => void) => {
+    async ({ query }: { query: string }, callback: (data: unknown) => void) => {
       // Prevent debouncedFetch from invoking after selecting suggestion
       // It solves the issue of the dropdown skeleton appearing for 2 seconds again
       if (isSuggestionClickedRef.current) {
@@ -351,7 +380,7 @@ export function InputWithMention({
             <span className="type">
               {suggestion.blockchain}
               <span>•</span>
-              {mentionTypeMap[suggestion.type as MentionType] || ''}
+              {MENTION_TYPE_MAP[suggestion.type] || ''}
               {showPOAPHolderCount && (
                 <>
                   <span>•</span>
@@ -380,7 +409,7 @@ export function InputWithMention({
         value={value}
         onChange={handleUserInput}
         spellCheck={false}
-        inputRef={inputRef}
+        inputRef={handleInputRef}
         disabled={showInputFor || disabled}
         customChildren={
           showInputFor ? (
@@ -399,6 +428,7 @@ export function InputWithMention({
         <Mention
           markup={MENTION_MARKUP}
           regex={MENTION_REGEX}
+          displayTransform={displayTransform}
           trigger="@"
           appendSpaceOnAdd
           onAdd={onAddSuggestion}
@@ -408,8 +438,8 @@ export function InputWithMention({
           data={
             disableSuggestions
               ? noop
-              : onAdvancedSearch
-              ? triggerAdvancedSearch
+              : onAdvancedMentionSearch
+              ? triggerAdvancedMentionSearch
               : getData
           }
         />

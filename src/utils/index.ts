@@ -29,13 +29,13 @@ export const pluralize = (
   noun: string | null | undefined,
   suffix = 's'
 ) => {
-  if (!count || !noun) {
+  if (count == null || !noun) {
     return '';
   }
   return `${count} ${noun}${count > 1 ? suffix : ''}`;
 };
 
 export function capitalizeFirstLetter(str: string) {
-  const capitalized = str.charAt(0).toUpperCase() + str.slice(1);
-  return capitalized;
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1);
 }

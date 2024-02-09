@@ -23,7 +23,12 @@ type AssetProps = ComponentProps<typeof AirstackAsset> & {
   useImageOnError?: boolean;
 };
 
-export function Asset({ image, useImageOnError, ...props }: AssetProps) {
+export function Asset({
+  image,
+  useImageOnError,
+  videoProps,
+  ...props
+}: AssetProps) {
   if (
     !checkBlockchainSupportForToken(props.chain) || // check if blockchain is supported for token apis
     !props.address ||
@@ -55,6 +60,10 @@ export function Asset({ image, useImageOnError, ...props }: AssetProps) {
           alt="loading"
         />
       }
+      videoProps={{
+        playsInline: true, // forces video to play in same place
+        ...videoProps
+      }}
       {...props}
     />
   );
