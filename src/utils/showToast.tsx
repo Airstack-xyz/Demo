@@ -25,7 +25,8 @@ function getContainer(root: HTMLElement) {
 
 export function showToast(
   message: string,
-  type: 'positive' | 'negative' = 'positive'
+  type: 'positive' | 'negative' = 'positive',
+  autoHideTimeout = 3000
 ) {
   const root = document.getElementById('root');
   if (!root) return;
@@ -46,5 +47,5 @@ export function showToast(
     setTimeout(() => {
       container && container.removeChild(toast);
     }, 300);
-  }, 3000);
+  }, autoHideTimeout);
 }

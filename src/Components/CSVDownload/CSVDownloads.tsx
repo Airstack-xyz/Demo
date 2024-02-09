@@ -32,12 +32,13 @@ import {
   removeFromActiveDownload,
   saveToActiveDownload
 } from './utils';
-import { CheckCircle, Download, HistoryIcon, NoItems, Retry } from './Icons';
+import { Download, HistoryIcon, NoItems, Retry } from './Icons';
 import { restartTaskMutation } from '../../queries/csv-download/restart';
 import { AddCardModal } from './AddCardModal';
 import { useAuth } from '../../hooks/useAuth';
 import { Failed, FileReadyToDownload, PreparingFile } from './Alerts';
 import { historyPage } from '../../constants';
+import { showToast } from '../../utils/showToast';
 
 type Task = NonNullable<
   NonNullable<GetTasksHistoryQuery['GetCSVDownloadTasks']>[0]
@@ -107,9 +108,6 @@ export function CSVDownloads() {
 
   const abortController = useRef<AbortController | null>(null);
   const [tasks, setTasks] = useState<Option[]>([]);
-  const [downloadCompletedFor, setDownloadCompletedFor] = useState<
-    number | null
-  >(null);
   const getHistoryRef = useRef<null | ((fetchAll?: boolean) => Promise<void>)>(
     null
   );
@@ -308,15 +306,12 @@ export function CSVDownloads() {
       const { data } = await downloadTask({ taskId });
       if (data?.DownloadCSV?.url) {
         window.open(data.DownloadCSV.url, '_blank');
-        setDownloadCompletedFor(taskId);
         setTimeout(() => {
-          getHistory().then(() => {
-            setDownloadCompletedFor(null);
-          });
-        }, alertTimeout);
+          showToast('Download successful!');
+        }, 1500);
       }
     },
-    [downloadTask, getHistory, user?.credits]
+    [downloadTask, user?.credits]
   );
 
   const showDownload = useCallback(() => {
@@ -433,7 +428,6 @@ export function CSVDownloads() {
               const failed =
                 option.status === Status.Failed ||
                 option.status === Status.CreditCalculationFailed;
-              const downloadedNow = downloadCompletedFor === option.id;
 
               if (option.id === -1) {
                 // no tasks
@@ -488,41 +482,31 @@ export function CSVDownloads() {
                             credits to download
                           </span>
                         </div>
-                        {!downloadedNow && (
-                          <div>
-                            {option.totalRows ? (
-                              <button
-                                disabled={!option.totalRows || downloading}
-                                className="py-1 px-3 rounded-full cursor-pointer text-left whitespace-nowrap bg-white text-tertiary mr-5 disabled:bg-opacity-75 disabled:cursor-not-allowed"
-                                onClick={e => {
-                                  e.stopPropagation();
-                                  handleDownload(option.id);
-                                }}
-                              >
-                                Download CSV ($
-                                {formatNumber(option.creditPrice || 0, 4)})
-                              </button>
-                            ) : null}
-                            {!option.downloadedAt && (
-                              <button
-                                onClick={e => {
-                                  e.preventDefault();
-                                  setTaskToCancel(option.id);
-                                }}
-                              >
-                                Cancel
-                              </button>
-                            )}
-                          </div>
-                        )}
-                        {downloadedNow && (
-                          <div className="flex items-center">
-                            <CheckCircle />{' '}
-                            <span className="ml-1 text-toast-positive font-medium">
-                              Download successful!
-                            </span>
-                          </div>
-                        )}
+                        <div>
+                          {option.totalRows ? (
+                            <button
+                              disabled={!option.totalRows || downloading}
+                              className="py-1 px-3 rounded-full cursor-pointer text-left whitespace-nowrap bg-white text-tertiary mr-5 disabled:bg-opacity-75 disabled:cursor-not-allowed"
+                              onClick={() => {
+                                handleDownload(option.id);
+                              }}
+                            >
+                              Download CSV ($
+                              {formatNumber(option.creditPrice || 0, 4)})
+                            </button>
+                          ) : null}
+
+                          {!option.downloadedAt && (
+                            <button
+                              onClick={e => {
+                                e.preventDefault();
+                                setTaskToCancel(option.id);
+                              }}
+                            >
+                              Cancel
+                            </button>
+                          )}
+                        </div>
                       </div>
                     )}
 
