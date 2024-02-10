@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "npm run codegen-watch & vite",
+    "dev-server": "vite",
     "prebuild": "npm run codegen && npm run lint && npm run ts-lint",
     "build": "vite build",
     "build-uat": "npm run codegen && tsc && vite build --mode uat",
