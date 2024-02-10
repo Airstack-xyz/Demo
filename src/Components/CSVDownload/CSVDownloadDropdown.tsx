@@ -68,9 +68,10 @@ export function CSVDownloadDropdown({
       key: CSVDownloadOption['key'],
       fileName: CSVDownloadOption['fileName'],
       variables: CSVDownloadOption['variables'],
-      filters?: CSVDownloadOption['filters']
+      filters?: CSVDownloadOption['filters'],
+      totalSupply?: number
     ) => {
-      estimateTask(key, fileName, variables, filters);
+      estimateTask(key, fileName, variables, filters, totalSupply);
     },
     [estimateTask]
   );
@@ -117,17 +118,19 @@ export function CSVDownloadDropdown({
             )}
             onClick={handleDropdownClose}
           >
-            {options.map(({ label, key, fileName, variables, filters }) => (
-              <button
-                className="py-2 px-5 text-text-button rounded-full hover:bg-glass mb-1 cursor-pointer text-left whitespace-nowrap"
-                key={key}
-                onClick={() => {
-                  downloadCSV(key, fileName, variables, filters);
-                }}
-              >
-                {label}
-              </button>
-            ))}
+            {options.map(
+              ({ label, key, fileName, variables, filters, totalSupply }) => (
+                <button
+                  className="py-2 px-5 text-text-button rounded-full hover:bg-glass mb-1 cursor-pointer text-left whitespace-nowrap"
+                  key={key}
+                  onClick={() => {
+                    downloadCSV(key, fileName, variables, filters, totalSupply);
+                  }}
+                >
+                  {label}
+                </button>
+              )
+            )}
             {!hideFooter && (
               <div className="pt-1 pb-3 px-5 text-[10px]">
                 *CSV will contain the complete data. You can apply filters after

@@ -5,6 +5,7 @@ import { useTokenHoldersLinks } from './useTokenHoldersLinks';
 import { useMatch } from 'react-router-dom';
 import { useCsvDownloadOptions } from '../../store/csvDownload';
 import { useEstimateTask } from '../../hooks/useEstimateTask';
+import { CSVDownloadOption } from '../../types';
 
 function DownloadIcon() {
   return (
@@ -53,7 +54,8 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
     ? getTokenBalanceLink()
     : getTokenHoldersLink();
 
-  const { key, fileName, variables, filters } = options[0];
+  const { key, fileName, variables, filters, totalSupply } = (options[0] ||
+    {}) as CSVDownloadOption;
 
   return (
     <div
@@ -72,7 +74,7 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
           className="bg-text-button hover:opacity-90 text-white rounded-18 font-medium px-5 py-1.5 mr-5 flex-row-center"
           disabled={options.length === 0 || loading}
           onClick={() => {
-            estimateTask(key, fileName, variables, filters);
+            estimateTask(key, fileName, variables, filters, totalSupply);
           }}
         >
           <span className="mr-1.5">

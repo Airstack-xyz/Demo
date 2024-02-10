@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Close } from './Icons';
+import { AlertBlack, Close } from './Icons';
 import classNames from 'classnames';
 
 const containerClassName =
@@ -56,6 +56,36 @@ export function Failed({ onClose }: { onClose: () => void }) {
         <div>
           <div>Failed to prepare your file due to some error.</div>
           <div>Please try again.</div>
+        </div>
+        <span
+          className="ml-3 hover:cursor-pointer mt-2"
+          onClick={() => {
+            onClose();
+          }}
+        >
+          <Close />
+        </span>
+      </div>
+    </div>
+  );
+}
+
+export function LargeDatasetWarning({ onClose }: { onClose: () => void }) {
+  return (
+    <div className={classNames('bg-[#FFDE2E]', containerClassName)}>
+      <span className={classNames('border-b-[#FFDE2E]', arrowClassName)}></span>
+      <div className="flex items-start text-black">
+        <div className="flex items-start">
+          <div className="mr-1.5 mt-2">
+            <AlertBlack />
+          </div>
+          <div>
+            <div>This file is rather large. Please contact.</div>
+            <div>
+              <span className="font-semibold">csv@airstack.xyz</span> for more
+              help.
+            </div>
+          </div>
         </div>
         <span
           className="ml-3 hover:cursor-pointer mt-2"

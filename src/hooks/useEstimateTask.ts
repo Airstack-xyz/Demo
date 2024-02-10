@@ -9,6 +9,8 @@ import { estimateTaskMutation } from '../queries/csv-download/estimate';
 import { CSVDownloadOption } from '../types';
 import { useCSVQuery } from './useCSVQuery';
 import { useAuth } from './useAuth';
+import { showToast } from '../utils/showToast';
+const maxAllowedRows = 1000000; // 1 million
 
 export function useEstimateTask() {
   const { user, login } = useAuth();
@@ -22,10 +24,20 @@ export function useEstimateTask() {
       key: CSVDownloadOption['key'],
       fileName: CSVDownloadOption['fileName'],
       variables: CSVDownloadOption['variables'],
-      filters?: CSVDownloadOption['filters']
+      filters?: CSVDownloadOption['filters'],
+      totalSupply?: number
     ) => {
       if (!user) {
         login(true);
+        return;
+      }
+
+      if (totalSupply && totalSupply > maxAllowedRows) {
+        showToast(
+          ' This file is rather large. Please contact csv@airstack.xyz for more help. ',
+          'warning',
+          7000
+        );
         return;
       }
 

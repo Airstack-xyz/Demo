@@ -44,4 +44,5 @@ export type CSVDownloadOption = {
   fileName: string;
   variables: object;
   filters?: Record<string, string | boolean | string[]>;
+  totalSupply?: number;
 };

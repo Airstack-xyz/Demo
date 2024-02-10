@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import classNames from 'classnames';
-import { useRef, useState, useCallback, useEffect } from 'react';
+import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import { Dropdown } from '../Dropdown';
 import { Icon } from '../Icon';
 import { Tooltip } from '../Tooltip';
@@ -32,11 +32,16 @@ import {
   removeFromActiveDownload,
   saveToActiveDownload
 } from './utils';
-import { Download, HistoryIcon, NoItems, Retry } from './Icons';
+import { AlertYellow, Download, HistoryIcon, NoItems, Retry } from './Icons';
 import { restartTaskMutation } from '../../queries/csv-download/restart';
 import { AddCardModal } from './AddCardModal';
 import { useAuth } from '../../hooks/useAuth';
-import { Failed, FileReadyToDownload, PreparingFile } from './Alerts';
+import {
+  Failed,
+  FileReadyToDownload,
+  PreparingFile,
+  LargeDatasetWarning
+} from './Alerts';
 import { historyPage } from '../../constants';
 import { showToast } from '../../utils/showToast';
 
@@ -45,12 +50,21 @@ type Task = NonNullable<
 >;
 
 const maxRetryCount = 3;
+const largeFileAlertDiffTime = 1000 * 60 * 30; // 30 minutes
+const inactiveStatus = [Status.Cancelled, Status.Completed];
 function isActive(item: Task | null) {
-  const inactiveStatus = [Status.Cancelled, Status.Completed];
   return Boolean(
     item &&
       !inactiveStatus.includes(item.status as Status) &&
       (item.retryCount || 0) < maxRetryCount
+  );
+}
+
+function isLargeFile(createdAt: number, status: Status) {
+  const createdAtDate = new Date(createdAt);
+  const time = new Date(Date.now() - largeFileAlertDiffTime);
+  return (
+    createdAtDate.getTime() < time.getTime() && !inactiveStatus.includes(status)
   );
 }
 
@@ -66,6 +80,7 @@ type Option = {
   | 'totalRows'
   | 'creditPrice'
   | 'creditsUsed'
+  | 'createdAt'
   | 'downloadedAt'
 >;
 
@@ -103,6 +118,7 @@ export function CSVDownloads() {
   const [newTaskAdded, setNewTaskAdded] = useState(false);
   const [fileDownloaded, setFileDownloaded] = useState(false);
   const [taskFailed, setTaskFailed] = useState(false);
+  const [foundLargeDataset, setFoundLargeDataset] = useState(false);
   const activeRef = useRef<number[]>([]);
   const [inProgressDownloads, setInProgressDownloads] = useState<number[]>([]);
 
@@ -183,6 +199,7 @@ export function CSVDownloads() {
 
       let downloadCompleted = false;
       let downloadFailed = false;
+      let hasLargeFile = false;
 
       active.forEach(item => {
         if (!item) return;
@@ -190,6 +207,10 @@ export function CSVDownloads() {
         if (item.status === Status.Completed && !item.downloadedAt) {
           downloadCompleted = true;
           removeFromActiveDownload(item.id);
+        }
+
+        if (isLargeFile(item.createdAt, item.status!)) {
+          hasLargeFile = true;
         }
 
         if (isActive(item)) {
@@ -210,6 +231,8 @@ export function CSVDownloads() {
         setFileDownloaded(true);
       } else if (downloadFailed) {
         showFailedAlert();
+      } else if (hasLargeFile) {
+        setFoundLargeDataset(true);
       }
     },
     [pollStatus, showFailedAlert]
@@ -257,7 +280,8 @@ export function CSVDownloads() {
           totalRows: item!.totalRows as number,
           creditsUsed: item!.creditsUsed as number,
           creditPrice: item!.creditPrice as number,
-          downloadedAt: item!.downloadedAt as string
+          downloadedAt: item!.downloadedAt as string,
+          createdAt: item!.createdAt as number
         }))
         .sort(item => (item.isActive ? -1 : 1));
 
@@ -324,7 +348,50 @@ export function CSVDownloads() {
     setNewTaskAdded(false);
   }, []);
 
-  const showTooltip = fileDownloaded || newTaskAdded || taskFailed;
+  // prioirty to display alert - green, red, blue, yellow
+  const showTooltip =
+    fileDownloaded || newTaskAdded || taskFailed || foundLargeDataset;
+
+  const alert = useMemo(() => {
+    if (fileDownloaded) {
+      return (
+        <FileReadyToDownload
+          onClose={() => {
+            setFileDownloaded(false);
+          }}
+        />
+      );
+    }
+
+    if (newTaskAdded) {
+      return <PreparingFile onClose={closeFilterPreparation} />;
+    }
+    if (taskFailed) {
+      return (
+        <Failed
+          onClose={() => {
+            setTaskFailed(false);
+          }}
+        />
+      );
+    }
+
+    if (foundLargeDataset) {
+      return (
+        <LargeDatasetWarning
+          onClose={() => {
+            setFoundLargeDataset(false);
+          }}
+        />
+      );
+    }
+  }, [
+    closeFilterPreparation,
+    fileDownloaded,
+    foundLargeDataset,
+    newTaskAdded,
+    taskFailed
+  ]);
 
   return (
     <div>
@@ -358,23 +425,7 @@ export function CSVDownloads() {
             '!flex': showTooltip
           }
         )}
-        content={
-          fileDownloaded ? (
-            <FileReadyToDownload
-              onClose={() => {
-                setFileDownloaded(false);
-              }}
-            />
-          ) : taskFailed ? (
-            <Failed
-              onClose={() => {
-                setTaskFailed(false);
-              }}
-            />
-          ) : (
-            <PreparingFile onClose={closeFilterPreparation} />
-          )
-        }
+        content={alert}
       >
         <div className="relative">
           {inProgressDownloads.length > 0 && (
@@ -425,9 +476,11 @@ export function CSVDownloads() {
             )}
             renderOption={({ option }) => {
               const isInProgress = option.isActive;
+              const status = option.status as Status;
               const failed =
-                option.status === Status.Failed ||
-                option.status === Status.CreditCalculationFailed;
+                status === Status.Failed ||
+                status === Status.CreditCalculationFailed;
+              const largeFile = isLargeFile(option.createdAt, status);
 
               if (option.id === -1) {
                 // no tasks
@@ -469,7 +522,7 @@ export function CSVDownloads() {
                     )}
                   </div>
                   <div className="ml-5">
-                    {option.status === Status.Completed && (
+                    {status === Status.Completed && (
                       <div className="mt-2">
                         <div className="mb-2">
                           {formatBytes(option.fileSize || 0, 2)} •{' '}
@@ -521,10 +574,12 @@ export function CSVDownloads() {
                           />{' '}
                           Preparing your file...
                         </div>
-                        <div>We will notify you once it is ready.</div>
+                        {!largeFile && (
+                          <div>We will notify you once it is ready.</div>
+                        )}
                       </div>
                     )}
-                    {!isInProgress && failed && (
+                    {!isInProgress && !largeFile && failed && (
                       <div className="text-text-secondary mt-2">
                         <div className="flex items-center">
                           Failed to prepare the file. Please try again.
@@ -541,11 +596,26 @@ export function CSVDownloads() {
                         </button>
                       </div>
                     )}
-                    {option.status === Status.Cancelled && (
+                    {status === Status.Cancelled && (
                       <div className="text-text-secondary mt-2">
                         <div className="flex items-center">Cancelled</div>
                       </div>
                     )}
+                    <div className="flex items-start text-text-secondary mt-2">
+                      <span className="mt-1 mr-1.5">
+                        <AlertYellow />
+                      </span>
+                      <div className="">
+                        This file is rather large. Please wait
+                        <div className="mt-1">
+                          or contact
+                          <span className="font-semibold mr-1.5 text-text-button">
+                            csv@airstack.xyz
+                          </span>
+                          for more help.
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               );
