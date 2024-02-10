@@ -677,11 +677,8 @@ export function TokenHolders() {
   const renderFilterContent = () => {
     if (activeTokenInfo) {
       return (
-        <div className="flex justify-center w-full">
+        <div className="flex justify-center gap-3.5 w-full">
           <GetAPIDropdown options={options} />
-          <span className="ml-2">
-            <CSVDownloadDropdown options={csvDownloadOptions} />
-          </span>
         </div>
       );
     }
@@ -696,11 +693,9 @@ export function TokenHolders() {
           />
           <AdvancedSettings />
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center gap-3.5">
           <GetAPIDropdown options={options} />
-          <span className="ml-2">
-            <CSVDownloadDropdown options={csvDownloadOptions} />
-          </span>
+          <CSVDownloadDropdown options={csvDownloadOptions} />
         </div>
       </div>
     );

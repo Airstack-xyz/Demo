@@ -836,13 +836,19 @@ function TokenBalancePage() {
   const isQueryExists = query && query.length > 0;
 
   const renderFilterContent = () => {
-    if (showTokenDetails || socialInfo.isApplicable) {
+    if (showTokenDetails) {
       return (
-        <div className="flex justify-center w-full z-[21]">
+        <div className="flex justify-center gap-3.5 w-full z-[21]">
           <GetAPIDropdown options={options} dropdownAlignment="center" />
-          <span className="ml-2">
-            <CSVDownloadDropdown options={csvDownloadOptions} />
-          </span>
+        </div>
+      );
+    }
+
+    if (socialInfo.isApplicable) {
+      return (
+        <div className="flex justify-center gap-3.5 w-full z-[21]">
+          <GetAPIDropdown options={options} dropdownAlignment="center" />
+          <CSVDownloadDropdown options={csvDownloadOptions} />
         </div>
       );
     }
@@ -867,11 +873,9 @@ function TokenBalancePage() {
             </>
           )}
         </div>
-        <div className="flex items-center">
+        <div className="flex items-center gap-3.5">
           <GetAPIDropdown options={options} dropdownAlignment="right" />
-          <span className="ml-2">
-            <CSVDownloadDropdown options={csvDownloadOptions} />
-          </span>
+          <CSVDownloadDropdown options={csvDownloadOptions} />
         </div>
       </div>
     );
