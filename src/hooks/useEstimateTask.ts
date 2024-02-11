@@ -12,6 +12,8 @@ import { useAuth } from './useAuth';
 import { showToast } from '../utils/showToast';
 const maxAllowedRows = 1000000; // 1 million
 
+const fileType = '.zip';
+
 export function useEstimateTask() {
   const { user, login } = useAuth();
   const [estimateTask, data] = useCSVQuery<
@@ -41,12 +43,16 @@ export function useEstimateTask() {
         return;
       }
 
+      const name = fileName.endsWith(fileType)
+        ? fileName
+        : `${fileName}${fileType}`;
+
       const payload: Pick<CSVDownloadOption, 'variables' | 'filters'> & {
         query: string;
         name: string;
       } = {
         query: key,
-        name: fileName,
+        name,
         variables
       };
 

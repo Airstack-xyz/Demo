@@ -309,7 +309,7 @@ export function TokenHolders() {
         const combinationsCSVDownloadOption: CSVDownloadOption = {
           label: name,
           key,
-          fileName: `${name}.csv`,
+          fileName: `${name}`,
           totalSupply,
           variables,
           filters: {
@@ -325,7 +325,7 @@ export function TokenHolders() {
           label: 'POAP Holders',
           key: CsvQueryType.PoapHolders,
           totalSupply: poaps[0].holdersCount,
-          fileName: `Holders of ${tokenName}.csv`,
+          fileName: `Holders of ${tokenName}`,
           variables: {
             eventId: poaps[0].tokenAddress // event id
           },
@@ -349,7 +349,7 @@ export function TokenHolders() {
               key: hasERC20
                 ? CsvQueryType.Erc20HoldersSnapshot
                 : CsvQueryType.NftHoldersSnapshot,
-              fileName: `Holders of ${tokenName} ${postFix}.csv`,
+              fileName: `Holders of ${tokenName} ${postFix}`,
               variables: {
                 tokenAddress: overviewTokens[0].tokenAddress,
                 blockchain: overviewTokens[0].blockchain, // TODO: fix this it should be dynamic
@@ -366,7 +366,7 @@ export function TokenHolders() {
             label: 'Nft holders',
             totalSupply: overviewTokens[0].holdersCount,
             key: hasERC20 ? CsvQueryType.Erc20Holders : CsvQueryType.NftHolders,
-            fileName: `Holders of ${tokenName}.csv`,
+            fileName: `Holders of ${tokenName}`,
             variables: {
               tokenAddress: overviewTokens[0].tokenAddress,
               blockchain: overviewTokens[0].blockchain // TODO: fix this it should be dynamic

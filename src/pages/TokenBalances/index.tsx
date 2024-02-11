@@ -300,7 +300,7 @@ function TokenBalancePage() {
       csvDownloadOptions.push({
         label: 'POAPs',
         key: CsvQueryType.PoapBalances,
-        fileName: `Poaps balances of [${address[0]}].csv`,
+        fileName: `Poaps balances of [${address[0]}]`,
         variables: {
           identity: address[0],
           orderBy: 'DESC'
@@ -357,7 +357,7 @@ function TokenBalancePage() {
       nftOption = {
         label: 'NFTs',
         key: CsvQueryType.NftBalancesSnapshot,
-        fileName: `NFT balances of [${address[0]}] ${postFix}.csv`,
+        fileName: `NFT balances of [${address[0]}] ${postFix}`,
         variables: {
           identity: address[0],
           tokenType: ['ERC721', 'ERC1155'],
@@ -379,7 +379,7 @@ function TokenBalancePage() {
       erc20Option = {
         label: 'ERC20s',
         key: CsvQueryType.Erc20BalancesSnapshot,
-        fileName: `ERC20 balances of [${address[0]}] ${postFix}.csv`,
+        fileName: `ERC20 balances of [${address[0]}] ${postFix}`,
         variables: {
           identity: address[0],
           [name]: value
@@ -406,7 +406,7 @@ function TokenBalancePage() {
       nftOption = {
         label: 'NFTs',
         key: CsvQueryType.NftBalances,
-        fileName: `NFT balances of [${address[0]}].csv`,
+        fileName: `NFT balances of [${address[0]}]`,
         variables: {
           identity: address[0],
           tokenType: ['ERC721', 'ERC1155']
@@ -426,7 +426,7 @@ function TokenBalancePage() {
       erc20Option = {
         label: 'ERC20s',
         key: CsvQueryType.Erc20Balances,
-        fileName: `ERC20 balances of [${address[0]}].csv`,
+        fileName: `ERC20 balances of [${address[0]}]`,
         variables: {
           identity: address[0]
         },
@@ -492,7 +492,7 @@ function TokenBalancePage() {
       csvDownloadOptions.push({
         label: 'Socials, Domains & XMTP',
         key: CsvQueryType.Socials,
-        fileName: `Socials, domains, XMTP of [${address[0]}].csv`,
+        fileName: `Socials, domains, XMTP of [${address[0]}]`,
         variables: {
           identity: address[0],
           tokenType: ['ERC721', 'ERC1155'],
@@ -610,7 +610,7 @@ function TokenBalancePage() {
           dappName === 'farcaster'
             ? CsvQueryType.FarcasterFollowers
             : CsvQueryType.LensFollowers,
-        fileName: `${dappName} followers of [${address[0]}].csv`,
+        fileName: `${dappName} followers of [${address[0]}]`,
         variables: {
           identity: address[0]
         }
@@ -627,7 +627,7 @@ function TokenBalancePage() {
           dappName === 'farcaster'
             ? CsvQueryType.FarcasterFollowings
             : CsvQueryType.LensFollowings,
-        fileName: `${formattedDappName} following of [${address[0]}].csv`,
+        fileName: `${formattedDappName} following of [${address[0]}]`,
         variables: {
           identity: address[0]
         }
@@ -667,7 +667,7 @@ function TokenBalancePage() {
           csvDownloadOptions.push({
             label,
             key,
-            fileName: `${label}.csv`,
+            fileName: `${label}`,
             variables: {
               identity: address[0],
               ...(tokenType === MentionType.POAP
@@ -714,7 +714,7 @@ function TokenBalancePage() {
           csvDownloadOptions.push({
             label,
             key,
-            fileName: `${label}.csv`,
+            fileName: `${label}`,
             variables: {
               identity: address[0],
               ...(tokenType === MentionType.POAP
