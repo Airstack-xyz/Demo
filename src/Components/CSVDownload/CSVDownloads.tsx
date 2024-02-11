@@ -86,6 +86,9 @@ type Option = {
 
 const alertTimeout = 5000;
 const pollingInterval = 5000;
+
+const notSubscribedError = 'graphql: User does not have an active subscription';
+
 export function CSVDownloads() {
   const [fetchHistory] = useCSVQuery<
     GetTasksHistoryQuery,
@@ -333,7 +336,13 @@ export function CSVDownloads() {
         return;
       }
 
-      const { data } = await downloadTask({ taskId });
+      const { data, error } = await downloadTask({ taskId });
+
+      const message = error?.message || error?.[0]?.message;
+      if (message && message === notSubscribedError) {
+        setShowAddCardModal(true);
+        return;
+      }
 
       const downloadUrl = data?.DownloadCSV?.url;
 

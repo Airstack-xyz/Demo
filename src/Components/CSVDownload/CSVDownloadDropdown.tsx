@@ -86,7 +86,7 @@ export function CSVDownloadDropdown({
       >
         <Tooltip
           content="Download CSV"
-          contentClassName="mt-2 px-2 py-1.5 bg-secondary runded-18 text-text-secondary"
+          contentClassName="mt-2 px-2 py-1.5 bg-secondary rounded-18 text-text-secondary"
         >
           <button
             className={classNames(

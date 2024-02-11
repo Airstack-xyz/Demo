@@ -72,7 +72,6 @@ export function Header() {
                 Sign In
               </button>
             )}
-            {}
           </span>
         </div>
       </div>

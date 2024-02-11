@@ -58,7 +58,7 @@ export function useCSVQuery<Response = any, Variables = any>(query: string) {
         const json = await res.json();
         const data: Response = json?.data;
         if (json.errors) {
-          setError('Unable to fetch overview data');
+          setError('Unable to fetch csv query data');
           return {
             data: null,
             error: json.errors
@@ -81,7 +81,7 @@ export function useCSVQuery<Response = any, Variables = any>(query: string) {
             error: null
           };
         }
-        setError('Unable to fetch overview data');
+        setError('Unable to fetch csv query data');
       } finally {
         abortControllerRef.current = null;
         if (!requestAborted) {
