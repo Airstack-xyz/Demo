@@ -626,21 +626,23 @@ export function CSVDownloads() {
                         <div className="flex items-center">Cancelled</div>
                       </div>
                     )}
-                    <div className="flex items-start text-text-secondary mt-2">
-                      <span className="mt-1 mr-1.5">
-                        <AlertYellow />
-                      </span>
-                      <div className="">
-                        This file is rather large. Please wait
-                        <div className="mt-1">
-                          or contact{' '}
-                          <span className="font-semibold text-text-button">
-                            csv@airstack.xyz
-                          </span>{' '}
-                          for more help.
+                    {largeFile && (
+                      <div className="flex items-start text-text-secondary mt-2">
+                        <span className="mt-1 mr-1.5">
+                          <AlertYellow />
+                        </span>
+                        <div className="">
+                          This file is rather large. Please wait
+                          <div className="mt-1">
+                            or contact{' '}
+                            <span className="font-semibold text-text-button">
+                              csv@airstack.xyz
+                            </span>{' '}
+                            for more help.
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               );
