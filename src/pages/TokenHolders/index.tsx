@@ -344,7 +344,7 @@ export function TokenHolders() {
 
           if (poaps.length === 0) {
             csvDownloadOptions.push({
-              label: 'Nft holders',
+              label: 'Token holders',
               totalSupply: overviewTokens[0].holdersCount,
               key: hasERC20
                 ? CsvQueryType.Erc20HoldersSnapshot
@@ -363,7 +363,7 @@ export function TokenHolders() {
           }
         } else if (poaps.length === 0) {
           csvDownloadOptions.push({
-            label: 'Nft holders',
+            label: 'Token holders',
             totalSupply: overviewTokens[0].holdersCount,
             key: hasERC20 ? CsvQueryType.Erc20Holders : CsvQueryType.NftHolders,
             fileName: `Holders of ${tokenName}`,

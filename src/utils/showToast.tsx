@@ -5,7 +5,13 @@ function createToastElement(
   type: 'positive' | 'negative' | 'warning'
 ) {
   const toast = document.createElement('div');
-  toast.className = `bg-toast-${type} ${
+  // we must have all the classes in a map so tailwind can detect them, and so it doesn't purge them
+  const classNameMaps = {
+    positive: 'bg-toast-positive',
+    negative: 'bg-toast-negative',
+    warning: 'bg-toast-warning'
+  };
+  toast.className = `${classNameMaps[type]} ${
     type === 'warning' ? 'text-black' : 'text-white'
   } relative z-20 mt-5 py-2 px-3 rounded-18 text-xs font-medium shadow-2xl transition-all ease-in-out -translate-y-[100px]`;
   toast.innerText = message;

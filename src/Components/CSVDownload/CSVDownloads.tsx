@@ -576,6 +576,7 @@ export function CSVDownloads() {
 
                           {!option.downloadedAt && (
                             <button
+                              className="ml-2.5 text-white font-medium py-2 px-3 hover:text-opacity-90"
                               onClick={e => {
                                 e.preventDefault();
                                 setTaskToCancel(option.id);
@@ -609,16 +610,27 @@ export function CSVDownloads() {
                         <div className="flex items-center">
                           Failed to prepare the file. Please try again.
                         </div>
-                        <button
-                          disabled={restartingTask}
-                          onClick={() => {
-                            handleRestart(option.id);
-                          }}
-                          className="bg-white text-primary hover:opacity-80 flex items-center rounded-18 pl-2 pr-3 py-1 mt-2"
-                        >
-                          <Retry />
-                          Retry
-                        </button>
+                        <div className="flex items-center mt-3">
+                          <button
+                            disabled={restartingTask}
+                            onClick={() => {
+                              handleRestart(option.id);
+                            }}
+                            className="bg-white text-primary hover:opacity-80 flex items-center rounded-18 pl-2 pr-3 py-1"
+                          >
+                            <Retry />
+                            Retry
+                          </button>
+                          <button
+                            className="ml-2.5 text-white font-medium py-2 px-3 hover:text-opacity-90"
+                            onClick={e => {
+                              e.preventDefault();
+                              setTaskToCancel(option.id);
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        </div>
                       </div>
                     )}
                     {status === Status.Cancelled && (
