@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import classNames from 'classnames';
 import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
-import { Dropdown } from '../Dropdown';
+import { Dropdown, DropdownHandle } from '../Dropdown';
 import { Icon } from '../Icon';
 import { Tooltip } from '../Tooltip';
 import { useCSVQuery } from '../../hooks/useCSVQuery';
@@ -127,6 +127,8 @@ export function CSVDownloads() {
   const getHistoryRef = useRef<null | ((fetchAll?: boolean) => Promise<void>)>(
     null
   );
+
+  const dropdownRef = useRef<DropdownHandle>(null);
 
   const showFailedAlert = useCallback(() => {
     setTaskFailed(true);
@@ -316,6 +318,10 @@ export function CSVDownloads() {
     getHistory(false);
   }, [getHistory]);
 
+  const removeTask = useCallback((taskId: number) => {
+    setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+  }, []);
+
   const handleDownload = useCallback(
     async (taskId: number) => {
       const subscriptionStatus = user?.credits?.[0]?.subscription?.status;
@@ -328,14 +334,23 @@ export function CSVDownloads() {
       }
 
       const { data } = await downloadTask({ taskId });
-      if (data?.DownloadCSV?.url) {
-        window.open(data.DownloadCSV.url, '_blank');
+
+      const downloadUrl = data?.DownloadCSV?.url;
+
+      if (downloadUrl) {
+        // When user clicks download CSV button for a prepared file:
+        // 1. close the dropdown automatically,
+        // 2. clear that item from the dropdown list and
+        // 3. show a download success toast
+        dropdownRef.current?.hide();
+        removeTask(taskId);
+        showToast('Download successful!');
         setTimeout(() => {
-          showToast('Download successful!');
-        }, 1500);
+          window.open(downloadUrl, '_blank');
+        }, 500);
       }
     },
-    [downloadTask, user?.credits]
+    [downloadTask, removeTask, user?.credits]
   );
 
   const showDownload = useCallback(() => {
@@ -348,7 +363,7 @@ export function CSVDownloads() {
     setNewTaskAdded(false);
   }, []);
 
-  // prioirty to display alert - green, red, blue, yellow
+  // priority to display alert - green, red, blue, yellow
   const showTooltip =
     fileDownloaded || newTaskAdded || taskFailed || foundLargeDataset;
 
@@ -434,6 +449,7 @@ export function CSVDownloads() {
             </span>
           )}
           <Dropdown
+            dropdownRef={dropdownRef}
             options={
               tasks.length
                 ? tasks
@@ -608,10 +624,10 @@ export function CSVDownloads() {
                       <div className="">
                         This file is rather large. Please wait
                         <div className="mt-1">
-                          or contact
-                          <span className="font-semibold mr-1.5 text-text-button">
+                          or contact{' '}
+                          <span className="font-semibold text-text-button">
                             csv@airstack.xyz
-                          </span>
+                          </span>{' '}
                           for more help.
                         </div>
                       </div>
