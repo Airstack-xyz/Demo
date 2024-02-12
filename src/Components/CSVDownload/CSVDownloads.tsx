@@ -280,7 +280,9 @@ export function CSVDownloads() {
             isActive(item)
         );
       } else {
-        _data = _data.filter(item => !item?.downloadedAt);
+        _data = _data.filter(
+          item => !item?.downloadedAt && item?.status !== Status.Cancelled
+        );
       }
 
       const active = _data?.filter(item => isActive(item));
