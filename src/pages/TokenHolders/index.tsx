@@ -695,7 +695,9 @@ export function TokenHolders() {
         </div>
         <div className="flex items-center gap-3.5">
           <GetAPIDropdown options={options} />
-          <CSVDownloadDropdown options={csvDownloadOptions} />
+          {!isResolve6551Enabled && (
+            <CSVDownloadDropdown options={csvDownloadOptions} />
+          )}
         </div>
       </div>
     );
