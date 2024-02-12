@@ -32,6 +32,12 @@ jobs:
         env:
           CI: false
           NODE_OPTIONS: --max_old_space_size=4096
+          PRIVY_APP_ID: ${{ secrets.PRIVY_APP_ID }}
+          API_KEY: ${{ secrets.API_KEY }}
+          GOOGLE_TAG_MANAGER_ID: ${{ secrets.GOOGLE_TAG_MANAGER_ID }}
+          MENTION_ENDPOINT: 'https://bff-prod.airstack.xyz/graphql'
+          AIRSTACK_ENDPOINT: 'https://api.airstack.xyz/gql'
+          APP_BASE_URL: 'https://app.airstack.xyz'
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
