@@ -3,6 +3,7 @@ import {
   ReactNode,
   useCallback,
   useImperativeHandle,
+  useRef,
   useState
 } from 'react';
 import { useOutsideClick } from '../hooks/useOutsideClick';
@@ -14,6 +15,7 @@ export type Option = {
 };
 
 export type DropdownHandle = {
+  isVisible: () => boolean;
   show: () => void;
   hide: () => void;
 };
@@ -51,9 +53,14 @@ export function Dropdown<T extends Option = Option>({
   const [_selected, setSelected] = useState<T[]>([]);
   const [show, setShow] = useState(false);
 
+  const isVisibleRef = useRef(show);
+
+  isVisibleRef.current = show;
+
   useImperativeHandle(
     dropdownRef,
     () => ({
+      isVisible: () => isVisibleRef.current,
       show: () => setShow(true),
       hide: () => setShow(false)
     }),

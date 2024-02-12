@@ -161,7 +161,9 @@ export function CSVDownloads() {
       }
 
       if (status === Status.Completed) {
-        setFileDownloaded(true);
+        if (!dropdownRef.current?.isVisible()) {
+          setFileDownloaded(true);
+        }
         getHistoryRef.current?.();
       }
 
@@ -171,7 +173,9 @@ export function CSVDownloads() {
         retryCount &&
         retryCount >= maxRetryCount
       ) {
-        showFailedAlert();
+        if (!dropdownRef.current?.isVisible()) {
+          showFailedAlert();
+        }
         getHistoryRef.current?.();
       }
 
@@ -232,11 +236,11 @@ export function CSVDownloads() {
 
       setInProgressDownloads(activeRef.current);
 
-      if (downloadCompleted) {
+      if (downloadCompleted && !dropdownRef.current?.isVisible()) {
         setFileDownloaded(true);
-      } else if (downloadFailed) {
+      } else if (downloadFailed && !dropdownRef.current?.isVisible()) {
         showFailedAlert();
-      } else if (hasLargeFile) {
+      } else if (hasLargeFile && !dropdownRef.current?.isVisible()) {
         setFoundLargeDataset(true);
       }
     },
@@ -313,7 +317,9 @@ export function CSVDownloads() {
       setInProgressDownloads(activeRef.current);
       saveToActiveDownload(id);
       pollStatus(id);
-      setNewTaskAdded(true);
+      if (!dropdownRef.current?.isVisible()) {
+        setNewTaskAdded(true);
+      }
     });
   }, [pollStatus]);
 
@@ -365,6 +371,8 @@ export function CSVDownloads() {
   const showDownload = useCallback(() => {
     setNewTaskAdded(false);
     setFileDownloaded(false);
+    setTaskFailed(false);
+    setFoundLargeDataset(false);
     getHistory();
   }, [getHistory]);
 
