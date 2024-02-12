@@ -19,6 +19,7 @@ import { meQuery } from '../queries/auth/me';
 import { loginMutation } from '../queries/auth/login';
 import { SignInModal } from '../Components/SignInModal';
 import { encode } from '../utils/encode';
+import { APP_BASE_URL } from '../constants';
 
 // eslint-disable-next-line
 function noop() {}
@@ -110,7 +111,7 @@ function Provider({ children }: AuthProviderProps) {
       return;
     }
     const encodedUrl = encode(location.href);
-    location.href = 'https://app.uat.airstack.xyz/login?origin=' + encodedUrl;
+    location.href = `${APP_BASE_URL}/login?origin=` + encodedUrl;
   }, [auth]);
 
   const value: AuthContext = useMemo(
