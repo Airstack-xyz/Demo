@@ -84,6 +84,11 @@ type Option = {
   | 'downloadedAt'
 >;
 
+type AddCardModalData = {
+  visible: boolean;
+  type?: 'subscription' | 'renew';
+};
+
 const alertTimeout = 5000;
 const pollingInterval = 5000;
 
@@ -116,7 +121,10 @@ export function CSVDownloads() {
   >(downloadCsvMutation);
 
   const { user } = useAuth();
-  const [showAddCardModal, setShowAddCardModal] = useState(false);
+  const [addCardModalData, setAddCardModalData] = useState<AddCardModalData>({
+    visible: false,
+    type: 'subscription'
+  });
   const [taskToCancel, setTaskToCancel] = useState<number | null>(null);
   const [newTaskAdded, setNewTaskAdded] = useState(false);
   const [fileDownloaded, setFileDownloaded] = useState(false);
@@ -338,7 +346,7 @@ export function CSVDownloads() {
         subscriptionStatus === 'active' || subscriptionStatus === 'past_due';
 
       if (!hasSubscription) {
-        setShowAddCardModal(true);
+        setAddCardModalData({ visible: true, type: 'subscription' });
         return;
       }
 
@@ -346,7 +354,7 @@ export function CSVDownloads() {
 
       const message = error?.message || error?.[0]?.message;
       if (message && message === notSubscribedError) {
-        setShowAddCardModal(true);
+        setAddCardModalData({ visible: true, type: 'renew' });
         return;
       }
 
@@ -427,10 +435,11 @@ export function CSVDownloads() {
 
   return (
     <div>
-      {showAddCardModal && (
+      {addCardModalData?.visible && (
         <AddCardModal
+          type={addCardModalData.type}
           onRequestClose={() => {
-            setShowAddCardModal(false);
+            setAddCardModalData({ visible: false });
           }}
         />
       )}

@@ -10,8 +10,10 @@ import { useCSVQuery } from '../../hooks/useCSVQuery';
 import { GeneratePaymentUrlQuery } from '../../queries/auth/generatePaymentUrl';
 
 export function AddCardModal({
+  type = 'subscription',
   onRequestClose
 }: {
+  type?: 'subscription' | 'renew';
   onRequestClose: () => void;
 }) {
   const [generateUrl, { loading }] = useCSVQuery<
@@ -38,7 +40,11 @@ export function AddCardModal({
       isOpen
       heading={
         <div className="text-lg">
-          <div>Please add a card to download this file</div>
+          <div>
+            {type === 'renew'
+              ? 'Please renew your plan to download this file'
+              : 'Please add a card to download this file'}
+          </div>
         </div>
       }
     >
@@ -85,7 +91,9 @@ export function AddCardModal({
           disabled={loading}
           onClick={getGenerateUrl}
         >
-          <span className="text-sm font-bold">Add card</span>
+          <span className="text-sm font-bold">
+            {type === 'renew' ? 'Renew Plan' : 'Add card'}
+          </span>
           <span className="text-xs">(you will be redirected to Stripe)</span>
         </button>
       </div>
