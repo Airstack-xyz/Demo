@@ -8,7 +8,7 @@ export function SignInModal(props: {
     <Modal
       isOpen
       onRequestClose={props.onRequestClose}
-      className="w-[340px] min-w-[340px]"
+      className="!w-[340px] !min-w-[340px]"
       containerClassName="!border-white"
     >
       <div className="flex flex-col justify-center">
