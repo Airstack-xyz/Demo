@@ -7,6 +7,7 @@ export type ModalProps = ReactModal.Props & {
   hideCloseButton?: boolean;
   hideDefaultContainer?: boolean;
   heading?: ReactNode;
+  containerClassName?: string;
 };
 
 export function Modal({
@@ -15,6 +16,7 @@ export function Modal({
   hideDefaultContainer,
   className = '',
   overlayClassName = '',
+  containerClassName,
   heading,
   ...props
 }: ModalProps) {
@@ -58,7 +60,12 @@ export function Modal({
       {hideDefaultContainer ? (
         children
       ) : (
-        <div className="bg-glass p-5 border-solid-stroke rounded-xl">
+        <div
+          className={classnames(
+            'bg-glass p-5 border-solid-stroke rounded-xl',
+            containerClassName
+          )}
+        >
           {heading && (
             <div>
               <h2 className="text-lg font-bold mb-3"> {heading} </h2>
