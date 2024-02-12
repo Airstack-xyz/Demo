@@ -30,10 +30,10 @@ export function useCSVQuery<Response = any, Variables = any>(query: string) {
 
   const fetchQuery = useCallback(
     async (variables?: Variables) => {
-      if (abortControllerRef.current) {
-        // abort previous request
-        abortControllerRef.current.abort();
-      }
+      // if (abortControllerRef.current) {
+      //   // abort previous request
+      //   abortControllerRef.current.abort();
+      // }
 
       setLoading(true);
       setData(null);
