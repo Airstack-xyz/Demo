@@ -12,7 +12,8 @@ export default defineConfig(({ mode }) => {
     MENTION_ENDPOINT: env.MENTION_ENDPOINT,
     BFF_ENDPOINT: env.BFF_ENDPOINT,
     PRIVY_APP_ID: env.PRIVY_APP_ID,
-    AIRSTACK_ENDPOINT: env.AIRSTACK_ENDPOINT
+    AIRSTACK_ENDPOINT: env.AIRSTACK_ENDPOINT,
+    APP_BASE_URL: env.APP_BASE_URL
   };
 
   return {
