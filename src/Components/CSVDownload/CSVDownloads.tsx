@@ -51,6 +51,7 @@ type Task = NonNullable<
 
 const maxRetryCount = 3;
 const largeFileAlertDiffTime = 1000 * 60 * 30; // 30 minutes
+const maxRowsAllowed = 1000000; // 1 million
 const inactiveStatus = [Status.Cancelled, Status.Completed];
 function isActive(item: Task | null) {
   return Boolean(
@@ -60,11 +61,13 @@ function isActive(item: Task | null) {
   );
 }
 
-function isLargeFile(createdAt: number, status: Status) {
+function isLargeFile(createdAt: number, status: Status, totalRows = 0) {
   const createdAtDate = new Date(createdAt);
   const time = new Date(Date.now() - largeFileAlertDiffTime);
   return (
-    createdAtDate.getTime() < time.getTime() && !inactiveStatus.includes(status)
+    createdAtDate.getTime() < time.getTime() &&
+    !inactiveStatus.includes(status) &&
+    totalRows > maxRowsAllowed
   );
 }
 
@@ -226,7 +229,7 @@ export function CSVDownloads() {
           removeFromActiveDownload(item.id);
         }
 
-        if (isLargeFile(item.createdAt, item.status!)) {
+        if (isLargeFile(item.createdAt, item.status!, item.totalRows || 0)) {
           hasLargeFile = true;
         }
 
@@ -524,7 +527,11 @@ export function CSVDownloads() {
               const failed =
                 status === Status.Failed ||
                 status === Status.CreditCalculationFailed;
-              const largeFile = isLargeFile(option.createdAt, status);
+              const largeFile = isLargeFile(
+                option.createdAt,
+                status,
+                option.totalRows || 0
+              );
 
               if (option.id === -1) {
                 // no tasks
