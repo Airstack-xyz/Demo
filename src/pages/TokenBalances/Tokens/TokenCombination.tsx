@@ -1,17 +1,17 @@
 import classNames from 'classnames';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Asset } from '../../Components/Asset';
-import { Icon } from '../../Components/Icon';
+import { Asset } from '../../../Components/Asset';
+import { Icon } from '../../../Components/Icon';
 import {
   resetCachedUserInputs,
   useSearchInput
-} from '../../hooks/useSearchInput';
-import { formatDate } from '../../utils';
-import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
-import { createTokenHolderUrl } from '../../utils/createTokenUrl';
-import { isMobileDevice } from '../../utils/isMobileDevice';
-import { PoapType, TokenType } from './types';
+} from '../../../hooks/useSearchInput';
+import { formatDate } from '../../../utils';
+import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
+import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
+import { PoapType, TokenType } from '../types';
 
 type TokenProps = {
   token: null | TokenType | PoapType;

@@ -1,11 +1,11 @@
 import { useQuery } from '@airstack/airstack-react';
-import { Token } from '../Token';
+import { Token } from '../Tokens/Token';
 import { AccountsResponse, TokenBalance } from './types';
 import { erc6551TokensQuery } from '../../../queries/tokenDetails';
 import { useEffect, useMemo, useState } from 'react';
 import { Icon } from '../../../Components/Icon';
 import classNames from 'classnames';
-import { Tokens } from '../Tokens';
+import { Tokens } from '../Tokens/Tokens';
 import { useTokenDetails } from '../../../store/tokenDetails';
 
 const loaderData = Array(3).fill({ token: {}, tokenNfts: {} });

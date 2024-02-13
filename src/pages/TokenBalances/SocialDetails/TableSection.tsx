@@ -94,7 +94,7 @@ export function TableSection({
   });
   const [loaderData, setLoaderData] = useState({
     isVisible: false,
-    total: FETCH_LIMIT,
+    total: 0,
     matching: 0
   });
 
@@ -364,7 +364,9 @@ export function TableSection({
       {(loading || loaderData.isVisible) && (
         <StatusLoader
           lines={[
-            [`Scanning %n records`, loaderData.total],
+            loaderData.total
+              ? [`Scanning next 30 records (total %n)`, loaderData.total]
+              : [`Scanning first 30 records`, 1],
             [`Found %n matching results`, loaderData.matching]
           ]}
         />

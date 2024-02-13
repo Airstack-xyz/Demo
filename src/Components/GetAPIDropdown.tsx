@@ -4,7 +4,7 @@ import { useOutsideClick } from '../hooks/useOutsideClick';
 import { isMobileDevice } from '../utils/isMobileDevice';
 import { Modal } from './Modal';
 
-type Options = {
+export type Option = {
   label: string;
   link: string;
 };
@@ -33,7 +33,7 @@ export function GetAPIDropdown({
   hideFooter,
   hideDesktopNudge
 }: {
-  options: Options[];
+  options: Option[];
   disabled?: boolean;
   dropdownAlignment?: 'left' | 'center' | 'right';
   hideFooter?: boolean;

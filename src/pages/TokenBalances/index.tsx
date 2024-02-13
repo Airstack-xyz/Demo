@@ -1,10 +1,11 @@
 import classNames from 'classnames';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { useMatch } from 'react-router-dom';
+import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDropdown';
 import { BlockchainFilter } from '../../Components/Filters/BlockchainFilter';
 import { MintFilter } from '../../Components/Filters/MintFilter';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
-import { SortBy, defaultSortOrder } from '../../Components/Filters/SortBy';
+import { SortBy } from '../../Components/Filters/SortBy';
 import { SpamFilter } from '../../Components/Filters/SpamFilter';
 import { TokenBalanceAllFilters } from '../../Components/Filters/TokenBalanceAllFilters';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
@@ -16,35 +17,18 @@ import {
   useGetAccountOwner
 } from '../../hooks/useGetAccountOwner';
 import { useSearchInput } from '../../hooks/useSearchInput';
-import { MainLayout } from '../../layouts/MainLayout';
-import { SocialOverlapQuery, SocialQuery } from '../../queries';
-import { getNftWithCommonOwnersSnapshotQuery } from '../../queries/Snapshots/nftWithCommonOwnersSnapshotQuery';
-import { domainDetailsQuery } from '../../queries/domainDetails';
-import { getNftWithCommonOwnersQuery } from '../../queries/nftWithCommonOwnersQuery';
-import { poapsOfCommonOwnersQuery } from '../../queries/poapsOfCommonOwnersQuery';
-import { socialDetailsQuery } from '../../queries/socialDetails';
-import { getSocialFollowersQuery } from '../../queries/socialFollowersQuery';
-import { getSocialFollowingsQuery } from '../../queries/socialFollowingQuery';
-import {
-  erc20TokenDetailsQuery,
-  erc6551TokensQuery,
-  poapDetailsQuery,
-  tokenDetailsQuery
-} from '../../queries/tokenDetails';
+import { useCsvDownloadOptions } from '../../store/csvDownload';
 import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
-import { capitalizeFirstLetter } from '../../utils';
 import { getActiveENSInfo } from '../../utils/activeENSInfoString';
 import {
   checkBlockchainSupportForSnapshot,
-  getActiveSnapshotInfo,
-  getSnapshotQueryFilters
+  getActiveSnapshotInfo
 } from '../../utils/activeSnapshotInfoString';
 import { getActiveSocialInfo } from '../../utils/activeSocialInfoString';
 import {
   addToActiveTokenInfo,
   getAllActiveTokenInfo
 } from '../../utils/activeTokenInfoString';
-import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { ScoreOverview } from '../OnchainGraph/CommonScore/ScoreOverview';
 import { ENSDetails } from './ENSDetails/ENSDetails';
@@ -52,12 +36,12 @@ import { ERC20Tokens } from './ERC20/ERC20Tokens';
 import { Filters } from './Filters';
 import { SectionHeader } from './SectionHeader';
 import { SocialDetails } from './SocialDetails/SocialDetails';
-import { getSocialFollowFilterData } from './SocialDetails/utils';
 import { Socials } from './Socials';
 import { SocialsOverlap } from './Socials/SocialsOverlap';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenDetails } from './TokenDetails/TokenDetails';
-import { Tokens, TokensLoader } from './Tokens';
+import { Tokens, TokensLoader } from './Tokens/Tokens';
+import { useDropdownOptions } from './hooks/useDropdownOptions';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -230,6 +214,8 @@ function TokenBalancePage() {
     'accountAddress'
   ]);
 
+  const [, setCsvDownloadOptions] = useCsvDownloadOptions(['options']);
+
   const activeTokens = useMemo(() => {
     if (activeTokenInfo) {
       return getAllActiveTokenInfo(activeTokenInfo);
@@ -250,7 +236,7 @@ function TokenBalancePage() {
     [activeENSInfo]
   );
 
-  const token = activeTokens[activeTokens.length - 1];
+  const tokenInfo = activeTokens[activeTokens.length - 1];
 
   const isCombination = address.length > 1;
   const isPoap = tokenType === 'POAP';
@@ -258,256 +244,8 @@ function TokenBalancePage() {
   const showTokenDetails = Boolean(activeTokenInfo || account);
   const hideBackBreadcrumb = Boolean(account);
 
-  const options = useMemo(() => {
-    if (address.length === 0) return [];
-
-    const detailTokensVisible = hasERC6551 && accountAddress;
-
-    const fetchAllBlockchains = blockchainType?.length === 0;
-
-    const isMintFilteringEnabled = mintFilter === '1';
-
-    const owners = detailTokensVisible ? [accountAddress] : address;
-    const blockchain = fetchAllBlockchains ? null : blockchainType[0];
-    const sortBy = sortOrder ? sortOrder : defaultSortOrder;
-
-    let tokenFilters = ['ERC721', 'ERC1155'];
-
-    if (tokenType) {
-      if (tokenType === 'ERC6551') {
-        tokenFilters = ['ERC721'];
-      } else {
-        tokenFilters = [tokenType];
-      }
-    }
-
-    const options = [];
-
-    // Token details page options ==================================
-    if (showTokenDetails && token) {
-      const erc6551AccountsQueryLink = createAppUrlWithQuery(
-        erc6551TokensQuery,
-        {
-          tokenAddress: token.tokenAddress,
-          blockchain: token.blockchain,
-          tokenId: token.tokenId
-        }
-      );
-
-      const poapDetailsQueryLink = createAppUrlWithQuery(poapDetailsQuery, {
-        tokenAddress: token.tokenAddress,
-        eventId: token.eventId
-      });
-
-      const tokenDetailsQueryLink = createAppUrlWithQuery(tokenDetailsQuery, {
-        tokenAddress: token.tokenAddress,
-        blockchain: token.blockchain,
-        tokenId: token.tokenId
-      });
-
-      const erc20DetailsQueryLink = createAppUrlWithQuery(
-        erc20TokenDetailsQuery,
-        {
-          tokenAddress: token.tokenAddress,
-          blockchain: token.blockchain,
-          tokenId: token.tokenId
-        }
-      );
-
-      if (token?.eventId) {
-        options.push({
-          label: 'POAP Details',
-          link: poapDetailsQueryLink
-        });
-      } else {
-        options.push({
-          label: 'Token Details',
-          link: token?.tokenId ? tokenDetailsQueryLink : erc20DetailsQueryLink
-        });
-      }
-
-      if (hasERC6551) {
-        options.push({
-          label: 'ERC6551 Accounts',
-          link: erc6551AccountsQueryLink
-        });
-      }
-    }
-    // Social details page options ==================================
-    else if (socialInfo.isApplicable) {
-      const formattedDappName = capitalizeFirstLetter(socialInfo.dappName);
-      const socialFollowersFilterData = getSocialFollowFilterData({
-        ...socialInfo.followerData,
-        dappName: socialInfo.dappName,
-        identities: address,
-        profileTokenIds: socialInfo.profileTokenIds,
-        isFollowerQuery: true
-      });
-      const socialFollowingsFilterData = getSocialFollowFilterData({
-        ...socialInfo.followingData,
-        dappName: socialInfo.dappName,
-        identities: address,
-        profileTokenIds: socialInfo.profileTokenIds,
-        isFollowerQuery: false
-      });
-
-      const socialFollowersDetailsQuery = getSocialFollowersQuery(
-        socialFollowersFilterData
-      );
-      const socialFollowingDetailsQuery = getSocialFollowingsQuery(
-        socialFollowingsFilterData
-      );
-
-      const socialFollowersDetailsLink = createAppUrlWithQuery(
-        socialFollowersDetailsQuery,
-        {
-          limit: 10,
-          ...socialFollowersFilterData.queryFilters
-        }
-      );
-
-      const socialFollowingDetailsLink = createAppUrlWithQuery(
-        socialFollowingDetailsQuery,
-        {
-          limit: 10,
-          ...socialFollowingsFilterData.queryFilters
-        }
-      );
-
-      const socialDetailsLink = createAppUrlWithQuery(socialDetailsQuery, {
-        identities: owners,
-        profileNames: socialInfo.profileNames,
-        dappName: socialInfo.dappName
-      });
-
-      options.push({
-        label: `${formattedDappName} followers`,
-        link: socialFollowersDetailsLink
-      });
-
-      options.push({
-        label: `${formattedDappName} following`,
-        link: socialFollowingDetailsLink
-      });
-
-      options.push({
-        label: `${formattedDappName} profile details`,
-        link: socialDetailsLink
-      });
-    }
-    // Ens details page options ==================================
-    else if (ensInfo.isApplicable) {
-      const ensDetailsLink = createAppUrlWithQuery(domainDetailsQuery, {
-        name: ensInfo.identity
-      });
-
-      options.push({
-        label: `ENS details`,
-        link: ensDetailsLink
-      });
-    }
-    // Tokens page options ==================================
-    else {
-      if (!snapshotInfo.isApplicable && (!tokenType || tokenType === 'POAP')) {
-        const poapsQuery = poapsOfCommonOwnersQuery({ owners });
-        const poapLink = createAppUrlWithQuery(poapsQuery, {
-          limit: 10,
-          sortBy
-        });
-
-        options.push({
-          label: 'POAPs',
-          link: poapLink
-        });
-      }
-
-      let nftLink = '';
-      let erc20Link = '';
-
-      if (snapshotInfo.isApplicable) {
-        const queryFilters = getSnapshotQueryFilters(snapshotInfo);
-        const tokensQuery = getNftWithCommonOwnersSnapshotQuery({
-          owners,
-          blockchain,
-          snapshotFilter: snapshotInfo.appliedFilter
-        });
-
-        nftLink = createAppUrlWithQuery(tokensQuery, {
-          limit: 10,
-          tokenType: tokenFilters,
-          ...queryFilters
-        });
-
-        erc20Link = createAppUrlWithQuery(tokensQuery, {
-          limit: 50,
-          tokenType: ['ERC20'],
-          ...queryFilters
-        });
-      } else {
-        const tokensQuery = getNftWithCommonOwnersQuery({
-          owners,
-          blockchain,
-          mintsOnly: isMintFilteringEnabled
-        });
-
-        nftLink = createAppUrlWithQuery(tokensQuery, {
-          limit: 10,
-          sortBy: sortBy,
-          tokenType: tokenFilters
-        });
-
-        erc20Link = createAppUrlWithQuery(tokensQuery, {
-          limit: 50,
-          sortBy: sortBy,
-          tokenType: ['ERC20']
-        });
-      }
-
-      if (tokenType !== 'POAP') {
-        options.push({
-          label: 'Token Balances (NFT)',
-          link: nftLink
-        });
-      }
-
-      // !Gnosis: Don't show ERC20 option when gnosis blockchain is selected
-      if (blockchain !== 'gnosis') {
-        options.push({
-          label: 'Token Balances (ERC20)',
-          link: erc20Link
-        });
-      }
-
-      if (address.length === 1) {
-        const socialLink = createAppUrlWithQuery(SocialQuery, {
-          identity: address[0]
-        });
-
-        options.push({
-          label: 'Socials, Domains & XMTP',
-          link: socialLink
-        });
-      }
-      if (address.length === 2) {
-        const socialLink = createAppUrlWithQuery(SocialOverlapQuery, {
-          identity1: address[0],
-          identity2: address[1]
-        });
-
-        options.push({
-          label: 'Socials, Domains & XMTP',
-          link: socialLink
-        });
-      }
-
-      options.push({
-        label: 'Spam Filters Guide',
-        link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/xmtp/spam-filters'
-      });
-    }
-
-    return options;
-  }, [
+  const [getAPIOptions, csvDownloadOptions] = useDropdownOptions({
+    socialInfo,
     address,
     hasERC6551,
     accountAddress,
@@ -516,16 +254,30 @@ function TokenBalancePage() {
     sortOrder,
     tokenType,
     showTokenDetails,
-    token,
-    socialInfo.isApplicable,
-    socialInfo.dappName,
-    socialInfo.followerData,
-    socialInfo.profileTokenIds,
-    socialInfo.followingData,
-    socialInfo.profileNames,
-    ensInfo.isApplicable,
-    ensInfo.identity,
+    tokenInfo,
+    ensInfo,
     snapshotInfo
+  });
+
+  useEffect(() => {
+    let options = csvDownloadOptions;
+
+    if (socialInfo.isApplicable) {
+      options = csvDownloadOptions.filter(option =>
+        option.label.includes(
+          socialInfo.followerTab ? 'followers' : 'following'
+        )
+      );
+    }
+
+    options = [options[options.length - 1]];
+
+    setCsvDownloadOptions({ options });
+  }, [
+    csvDownloadOptions,
+    setCsvDownloadOptions,
+    socialInfo.followerTab,
+    socialInfo.isApplicable
   ]);
 
   const { tab1Header, tab2Header } = useMemo(() => {
@@ -595,10 +347,19 @@ function TokenBalancePage() {
   const isQueryExists = query && query.length > 0;
 
   const renderFilterContent = () => {
-    if (showTokenDetails || socialInfo.isApplicable) {
+    if (showTokenDetails) {
       return (
-        <div className="flex justify-center w-full z-[21]">
-          <GetAPIDropdown options={options} dropdownAlignment="center" />
+        <div className="flex justify-center gap-3.5 w-full z-[21]">
+          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="center" />
+        </div>
+      );
+    }
+
+    if (socialInfo.isApplicable) {
+      return (
+        <div className="flex justify-center gap-3.5 w-full z-[21]">
+          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="center" />
+          <CSVDownloadDropdown options={csvDownloadOptions} />
         </div>
       );
     }
@@ -623,7 +384,10 @@ function TokenBalancePage() {
             </>
           )}
         </div>
-        <GetAPIDropdown options={options} dropdownAlignment="right" />
+        <div className="flex items-center gap-3.5">
+          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="right" />
+          <CSVDownloadDropdown options={csvDownloadOptions} />
+        </div>
       </div>
     );
   };
@@ -722,30 +486,25 @@ function TokenBalancePage() {
   };
 
   return (
-    <MainLayout>
-      <TokenDetailsReset>
-        <div
-          className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
-            'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
-              isHome
-          })}
-        >
-          <div
-            style={{ maxWidth: MAX_SEARCH_WIDTH }}
-            className="mx-auto w-full"
-          >
-            {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
-            <Search />
-            {isQueryExists && (
-              <div className="mt-3 mb-8 flex-row-center">
-                {renderFilterContent()}
-              </div>
-            )}
-          </div>
-          {isQueryExists && <>{renderViewContent()}</>}
+    <TokenDetailsReset>
+      <div
+        className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
+          'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
+            isHome
+        })}
+      >
+        <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
+          {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
+          <Search />
+          {isQueryExists && (
+            <div className="mt-3 mb-8 flex-row-center">
+              {renderFilterContent()}
+            </div>
+          )}
         </div>
-      </TokenDetailsReset>
-    </MainLayout>
+        {isQueryExists && <>{renderViewContent()}</>}
+      </div>
+    </TokenDetailsReset>
   );
 }
 
