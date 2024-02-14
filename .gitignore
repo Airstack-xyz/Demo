@@ -25,3 +25,6 @@ dist-ssr
 
 # TypeScript cache
 *.tsbuildinfo
+
+#generated graphql types
+__generated__

@@ -1,17 +1,22 @@
 import ReactModal from 'react-modal';
 import { ReactNode, useEffect, useRef } from 'react';
 import { Icon } from './Icon';
+import classnames from 'classnames';
 
 export type ModalProps = ReactModal.Props & {
   hideCloseButton?: boolean;
   hideDefaultContainer?: boolean;
   heading?: ReactNode;
+  containerClassName?: string;
 };
 
 export function Modal({
   children,
   hideCloseButton = false,
   hideDefaultContainer,
+  className = '',
+  overlayClassName = '',
+  containerClassName,
   heading,
   ...props
 }: ModalProps) {
@@ -31,8 +36,14 @@ export function Modal({
 
   return (
     <ReactModal
-      overlayClassName="modal-overlay flex flex-col justify-center items-center fixed inset-0"
-      className="bg-transparent min-h-[400px] min-w-[400px] outline-none"
+      overlayClassName={classnames(
+        'modal-overlay flex flex-col justify-center items-center fixed inset-0',
+        overlayClassName as string
+      )}
+      className={classnames(
+        'bg-transparent min-h-[400px] min-w-[400px] outline-none',
+        className as string
+      )}
       ariaHideApp={false}
       {...props}
     >
@@ -49,7 +60,12 @@ export function Modal({
       {hideDefaultContainer ? (
         children
       ) : (
-        <div className="bg-glass p-5 border-solid-stroke rounded-xl">
+        <div
+          className={classnames(
+            'bg-glass p-5 border-solid-stroke rounded-xl',
+            containerClassName
+          )}
+        >
           {heading && (
             <div>
               <h2 className="text-lg font-bold mb-3"> {heading} </h2>

@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
-import { TokenDetails } from '../../TokenBalances/ERC6551/TokenDetails';
+import { TokenDetails } from '../../TokenBalances/TokenDetails/TokenDetails';
 import { TokenDetailsReset } from '../../../store/tokenDetails';
 import { getAllActiveTokenInfo } from '../../../utils/activeTokenInfoString';
 

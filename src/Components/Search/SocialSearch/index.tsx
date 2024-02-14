@@ -290,7 +290,8 @@ export default function SocialSearch({
         >
           {isDataNotFound && (
             <div className="p-2 text-center text-sm text-white w-full">
-              Couldn't find any Lens or Farcaster profile
+              Couldn't find any Farcaster or Lens profile. Click enter to search
+              ENS.
             </div>
           )}
           {isErrorOccurred && (
