@@ -80,7 +80,7 @@ export function NFTInfo({
     <div className="overflow-hidden text-sm">
       <div>
         <KeyValue name="Token name" value={nft?.token?.name} />
-        <KeyValue name="Symbol" value={nft?.token?.symbol} />
+        <KeyValue name="Symbol" value={nft?.token?.symbol || '--'} />
         <KeyValue name="Token ID" value={nft?.tokenId} />
         <KeyValue
           name="Token address"

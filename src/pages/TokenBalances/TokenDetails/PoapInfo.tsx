@@ -14,8 +14,8 @@ export function PoapInfo({
 
   return (
     <div className="overflow-hidden text-sm">
-      <KeyValue name="Event name" value={poap.poapEvent?.eventName} />
-      <KeyValue name="Token type" value={transferDetails.tokenType} />
+      <KeyValue name="Event name" value={poapEvent.eventName} />
+      <KeyValue name="Token type" value={transferDetails?.tokenType} />
       <KeyValue name="Event ID" value={poap.eventId} />
       <KeyValue name="Blockchain" value={poap.blockchain} />
       <KeyValue name="Start date" value={formatDate(poapEvent.startDate)} />
