@@ -167,7 +167,7 @@ export const Token = memo(function Token({
       </div>
       <div
         className={classNames(
-          'h-14 rounded-[22px] flex flex-col px-3.5 py-2 text-sm bg-glass border-solid-light invisible',
+          'h-14 rounded-[14px] flex flex-col px-3.5 py-2 text-sm bg-glass border-solid-light invisible',
           {
             'group-hover:visible': !hideDetailsOverlay
           }
