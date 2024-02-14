@@ -8,7 +8,6 @@ import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
 import { SortBy, defaultSortOrder } from '../../Components/Filters/SortBy';
 import { SpamFilter } from '../../Components/Filters/SpamFilter';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
-import { MainLayout } from '../../layouts/MainLayout';
 import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { Tab, TabContainer } from '../../Components/Tab';
@@ -31,10 +30,11 @@ import {
   tokenDetailsQuery
 } from '../../queries/tokenDetails';
 import { TokenDetailsReset, useTokenDetails } from '../../store/tokenDetails';
-import { capitalizeFirstLetter } from '../../utils';
+import { capitalizeFirstLetter, formatDate } from '../../utils';
 import {
   checkBlockchainSupportForSnapshot,
   getActiveSnapshotInfo,
+  getCSVDownloadSnapshotVariables,
   getSnapshotQueryFilters
 } from '../../utils/activeSnapshotInfoString';
 import { getActiveSocialInfo } from '../../utils/activeSocialInfoString';
@@ -55,6 +55,12 @@ import { Socials } from './Socials';
 import { SocialsOverlap } from './Socials/SocialsOverlap';
 import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { Tokens, TokensLoader } from './Tokens';
+import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDropdown';
+import { CSVDownloadOption } from '../../types';
+import { CsvQueryType } from '../../../__generated__/types';
+import { useCsvDownloadOptions } from '../../store/csvDownload';
+import { getUsableValues } from '../../Components/Input/utils';
+import { MentionType } from '../../Components/Input/types';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -251,8 +257,8 @@ function TokenBalancePage() {
   const showTokenDetails = Boolean(activeTokenInfo || account);
   const hideBackBreadcrumb = Boolean(account);
 
-  const options = useMemo(() => {
-    if (address.length === 0) return [];
+  const [options, csvDownloadOptions] = useMemo(() => {
+    if (address.length === 0) return [[], []];
 
     const detailTokensVisible = hasERC6551 && accountAddress;
 
@@ -274,7 +280,33 @@ function TokenBalancePage() {
       }
     }
 
-    const options = [];
+    const getAPIOptions = [];
+    const csvDownloadOptions: CSVDownloadOption[] = [];
+
+    const nftBlockchains = {
+      ethereum: true,
+      polygon: true,
+      base: true,
+      zora: true
+    };
+
+    const snapshotBlockchains = {
+      ethereum: nftBlockchains.ethereum,
+      base: nftBlockchains.base,
+      zora: nftBlockchains.zora
+    };
+
+    if (!socialInfo.isApplicable) {
+      csvDownloadOptions.push({
+        label: 'POAPs',
+        key: CsvQueryType.PoapBalances,
+        fileName: `Poaps balances of [${address[0]}]`,
+        variables: {
+          identity: address[0],
+          orderBy: 'DESC'
+        }
+      });
+    }
 
     if (
       !showTokenDetails &&
@@ -289,7 +321,7 @@ function TokenBalancePage() {
         sortBy
       });
 
-      options.push({
+      getAPIOptions.push({
         label: 'POAPs',
         link: poapLink
       });
@@ -297,6 +329,9 @@ function TokenBalancePage() {
 
     let nftLink = '';
     let erc20Link = '';
+
+    let nftOption: null | CSVDownloadOption = null;
+    let erc20Option: null | CSVDownloadOption = null;
 
     if (snapshotInfo.isApplicable) {
       const queryFilters = getSnapshotQueryFilters(snapshotInfo);
@@ -312,11 +347,49 @@ function TokenBalancePage() {
         ...queryFilters
       });
 
+      const { name, value } = getCSVDownloadSnapshotVariables(snapshotInfo);
+      let postFix = 'as of block ' + value;
+
+      if (name === 'date' || name === 'timestamp') {
+        postFix = 'as of ' + formatDate(value as string);
+      }
+
+      nftOption = {
+        label: 'NFTs',
+        key: CsvQueryType.NftBalancesSnapshot,
+        fileName: `NFT balances of [${address[0]}] ${postFix}`,
+        variables: {
+          identity: address[0],
+          tokenType: ['ERC721', 'ERC1155'],
+          [name]: value
+        },
+        filters: {
+          ...nftBlockchains,
+          filterSpam: false,
+          snapshotFilter: name
+        }
+      };
+
       erc20Link = createAppUrlWithQuery(tokensQuery, {
         limit: 50,
         tokenType: ['ERC20'],
         ...queryFilters
       });
+
+      erc20Option = {
+        label: 'ERC20s',
+        key: CsvQueryType.Erc20BalancesSnapshot,
+        fileName: `ERC20 balances of [${address[0]}] ${postFix}`,
+        variables: {
+          identity: address[0],
+          [name]: value
+        },
+        filters: {
+          ...snapshotBlockchains,
+          filterSpam: false,
+          snapshotFilter: name
+        }
+      };
     } else {
       const tokensQuery = getNftWithCommonOwnersQuery({
         owners,
@@ -330,11 +403,42 @@ function TokenBalancePage() {
         tokenType: tokenFilters
       });
 
+      nftOption = {
+        label: 'NFTs',
+        key: CsvQueryType.NftBalances,
+        fileName: `NFT balances of [${address[0]}]`,
+        variables: {
+          identity: address[0],
+          tokenType: ['ERC721', 'ERC1155']
+        },
+        filters: {
+          ...nftBlockchains,
+          filterSpam: false
+        }
+      };
+
       erc20Link = createAppUrlWithQuery(tokensQuery, {
         limit: 50,
         sortBy: sortBy,
         tokenType: ['ERC20']
       });
+
+      erc20Option = {
+        label: 'ERC20s',
+        key: CsvQueryType.Erc20Balances,
+        fileName: `ERC20 balances of [${address[0]}]`,
+        variables: {
+          identity: address[0]
+        },
+        filters: {
+          ...nftBlockchains,
+          filterSpam: false
+        }
+      };
+    }
+
+    if (nftOption && !socialInfo.isApplicable) {
+      csvDownloadOptions.push(nftOption);
     }
 
     if (
@@ -342,24 +446,25 @@ function TokenBalancePage() {
       !socialInfo.isApplicable &&
       tokenType !== 'POAP'
     ) {
-      options.push({
+      getAPIOptions.push({
         label: 'Token Balances (NFT)',
         link: nftLink
       });
     }
 
     if (!showTokenDetails && !socialInfo.isApplicable) {
-      options.push({
+      getAPIOptions.push({
         label: 'Token Balances (ERC20)',
         link: erc20Link
       });
+      csvDownloadOptions.push(erc20Option);
 
       if (address.length === 1) {
         const socialLink = createAppUrlWithQuery(SocialQuery, {
           identity: address[0]
         });
 
-        options.push({
+        getAPIOptions.push({
           label: 'Socials, Domains & XMTP',
           link: socialLink
         });
@@ -371,15 +476,29 @@ function TokenBalancePage() {
           identity2: address[1]
         });
 
-        options.push({
+        getAPIOptions.push({
           label: 'Socials, Domains & XMTP',
           link: socialLink
         });
       }
 
-      options.push({
+      getAPIOptions.push({
         label: 'Spam Filters Guide',
         link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/xmtp/spam-filters'
+      });
+    }
+
+    if (!showTokenDetails) {
+      csvDownloadOptions.push({
+        label: 'Socials, Domains & XMTP',
+        key: CsvQueryType.Socials,
+        fileName: `Socials, domains, XMTP of [${address[0]}]`,
+        variables: {
+          identity: address[0],
+          tokenType: ['ERC721', 'ERC1155'],
+          blockchain: 'ethereum',
+          orderBy: 'DESC'
+        }
       });
     }
 
@@ -414,19 +533,19 @@ function TokenBalancePage() {
       );
 
       if (token?.eventId) {
-        options.push({
+        getAPIOptions.push({
           label: 'POAP Details',
           link: poapDetailsQueryLink
         });
       } else {
-        options.push({
+        getAPIOptions.push({
           label: 'Token Details',
           link: token?.tokenId ? tokenDetailsQueryLink : erc20DetailsQueryLink
         });
       }
 
       if (hasERC6551) {
-        options.push({
+        getAPIOptions.push({
           label: 'ERC6551 Accounts',
           link: erc6551AccountsQueryLink
         });
@@ -479,24 +598,144 @@ function TokenBalancePage() {
         dappName: socialInfo.dappName
       });
 
-      options.push({
+      getAPIOptions.push({
         label: `${formattedDappName} followers`,
         link: socialFollowersDetailsLink
       });
 
-      options.push({
+      const dappName = socialInfo.dappName as 'farcaster' | 'lens';
+      csvDownloadOptions.push({
+        label: `${formattedDappName} followers`,
+        key:
+          dappName === 'farcaster'
+            ? CsvQueryType.FarcasterFollowers
+            : CsvQueryType.LensFollowers,
+        fileName: `${dappName} followers of [${address[0]}]`,
+        variables: {
+          identity: address[0]
+        }
+      });
+
+      getAPIOptions.push({
         label: `${formattedDappName} following`,
         link: socialFollowingDetailsLink
       });
 
-      options.push({
+      csvDownloadOptions.push({
+        label: `${formattedDappName} following`,
+        key:
+          dappName === 'farcaster'
+            ? CsvQueryType.FarcasterFollowings
+            : CsvQueryType.LensFollowings,
+        fileName: `${formattedDappName} following of [${address[0]}]`,
+        variables: {
+          identity: address[0]
+        }
+      });
+
+      if (!socialInfo.followerTab && socialInfo.followingData?.mention) {
+        const { followingData } = socialInfo;
+        const nameFromMarkup = followingData.mentionRawText
+          ? getUsableValues(followingData.mentionRawText)?.displayValue?.trim()
+          : null;
+        const name =
+          nameFromMarkup ??
+          `${followingData?.mention?.token?.toLowerCase().replace('_', ' ')} (${
+            followingData?.mention?.address
+          })`;
+
+        const label = `${formattedDappName} following of [${address[0]}] x ${name} holders`;
+        const tokenType = followingData.mention?.token;
+        let key: null | CsvQueryType = null;
+
+        if (dappName === 'farcaster') {
+          key =
+            tokenType === MentionType.TOKEN
+              ? CsvQueryType.FarcasterErc20Followings
+              : tokenType === MentionType.POAP
+              ? CsvQueryType.FarcasterPoapFollowings
+              : CsvQueryType.FarcasterNftFollowings;
+        } else {
+          key =
+            tokenType === MentionType.TOKEN
+              ? CsvQueryType.LensErc20Followings
+              : tokenType === MentionType.POAP
+              ? CsvQueryType.LensPoapFollowings
+              : CsvQueryType.LensNftFollowings;
+        }
+        if (key) {
+          csvDownloadOptions.push({
+            label,
+            key,
+            fileName: `${label}`,
+            variables: {
+              identity: address[0],
+              ...(tokenType === MentionType.POAP
+                ? {
+                    eventId: followingData.mention?.eventId
+                  }
+                : { tokenAddress: followingData.mention?.address })
+            }
+          });
+        }
+      }
+
+      if (socialInfo.followerTab && socialInfo.followerData?.mention) {
+        const { followerData } = socialInfo;
+
+        const nameFromMarkup = followerData.mentionRawText
+          ? getUsableValues(followerData.mentionRawText)?.displayValue?.trim()
+          : null;
+        const name =
+          nameFromMarkup ??
+          `${followerData?.mention?.token?.toLowerCase().replace('_', ' ')} (${
+            followerData?.mention?.address
+          })`;
+        const label = `${formattedDappName} followers of [${address[0]}] x ${name} holders`;
+        const tokenType = followerData.mention?.token;
+        let key: null | CsvQueryType = null;
+
+        if (dappName === 'farcaster') {
+          key =
+            tokenType === MentionType.TOKEN
+              ? CsvQueryType.FarcasterErc20Followers
+              : tokenType === MentionType.POAP
+              ? CsvQueryType.FarcasterPoapFollowers
+              : CsvQueryType.FarcasterNftFollowers;
+        } else {
+          key =
+            tokenType === MentionType.TOKEN
+              ? CsvQueryType.LensErc20Followers
+              : tokenType === MentionType.POAP
+              ? CsvQueryType.LensPoapFollowers
+              : CsvQueryType.LensNftFollowers;
+        }
+        if (key) {
+          csvDownloadOptions.push({
+            label,
+            key,
+            fileName: `${label}`,
+            variables: {
+              identity: address[0],
+              ...(tokenType === MentionType.POAP
+                ? {
+                    eventId: followerData.mention?.eventId
+                  }
+                : { tokenAddress: followerData.mention?.address })
+            }
+          });
+        }
+      }
+
+      getAPIOptions.push({
         label: `${formattedDappName} profile details`,
         link: socialDetailsLink
       });
     }
 
-    return options;
+    return [getAPIOptions, csvDownloadOptions];
   }, [
+    socialInfo,
     address,
     hasERC6551,
     accountAddress,
@@ -506,13 +745,28 @@ function TokenBalancePage() {
     tokenType,
     showTokenDetails,
     snapshotInfo,
-    socialInfo.isApplicable,
-    socialInfo.dappName,
-    socialInfo.followerData,
-    socialInfo.profileTokenIds,
-    socialInfo.followingData,
-    socialInfo.profileNames,
     token
+  ]);
+
+  const setOptions = useCsvDownloadOptions(['options'])[1];
+  useEffect(() => {
+    let options = csvDownloadOptions;
+
+    if (socialInfo.isApplicable) {
+      options = csvDownloadOptions.filter(option =>
+        option.label.includes(
+          socialInfo.followerTab ? 'followers' : 'following'
+        )
+      );
+    }
+    options = [options[options.length - 1]];
+
+    setOptions({ options });
+  }, [
+    csvDownloadOptions,
+    setOptions,
+    socialInfo.followerTab,
+    socialInfo.isApplicable
   ]);
 
   const { tab1Header, tab2Header } = useMemo(() => {
@@ -582,10 +836,19 @@ function TokenBalancePage() {
   const isQueryExists = query && query.length > 0;
 
   const renderFilterContent = () => {
-    if (showTokenDetails || socialInfo.isApplicable) {
+    if (showTokenDetails) {
       return (
-        <div className="flex justify-center w-full z-[21]">
+        <div className="flex justify-center gap-3.5 w-full z-[21]">
           <GetAPIDropdown options={options} dropdownAlignment="center" />
+        </div>
+      );
+    }
+
+    if (socialInfo.isApplicable) {
+      return (
+        <div className="flex justify-center gap-3.5 w-full z-[21]">
+          <GetAPIDropdown options={options} dropdownAlignment="center" />
+          <CSVDownloadDropdown options={csvDownloadOptions} />
         </div>
       );
     }
@@ -610,7 +873,10 @@ function TokenBalancePage() {
             </>
           )}
         </div>
-        <GetAPIDropdown options={options} dropdownAlignment="right" />
+        <div className="flex items-center gap-3.5">
+          <GetAPIDropdown options={options} dropdownAlignment="right" />
+          <CSVDownloadDropdown options={csvDownloadOptions} />
+        </div>
       </div>
     );
   };
@@ -699,30 +965,25 @@ function TokenBalancePage() {
   };
 
   return (
-    <MainLayout>
-      <TokenDetailsReset>
-        <div
-          className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
-            'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
-              isHome
-          })}
-        >
-          <div
-            style={{ maxWidth: MAX_SEARCH_WIDTH }}
-            className="mx-auto w-full"
-          >
-            {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
-            <Search />
-            {isQueryExists && (
-              <div className="mt-3 mb-8 flex-row-center">
-                {renderFilterContent()}
-              </div>
-            )}
-          </div>
-          {isQueryExists && <>{renderViewContent()}</>}
+    <TokenDetailsReset>
+      <div
+        className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
+          'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
+            isHome
+        })}
+      >
+        <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
+          {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
+          <Search />
+          {isQueryExists && (
+            <div className="mt-3 mb-8 flex-row-center">
+              {renderFilterContent()}
+            </div>
+          )}
         </div>
-      </TokenDetailsReset>
-    </MainLayout>
+        {isQueryExists && <>{renderViewContent()}</>}
+      </div>
+    </TokenDetailsReset>
   );
 }
 

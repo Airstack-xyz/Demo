@@ -1,0 +1,50 @@
+name: UAT - Deploy
+
+on: workflow_dispatch
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1 # set this to your preferred AWS region, e.g. us-west-1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment: production
+    strategy:
+      matrix:
+        node-version: [16.13.2]
+    
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Generate build
+        run: |
+          npm install
+          npm run build-uat
+        env:
+          CI: false
+          NODE_OPTIONS: --max_old_space_size=4096
+          PRIVY_APP_ID: ${{ secrets.PRIVY_APP_ID }}
+          GOOGLE_TAG_MANAGER_ID: ''
+          API_KEY: ${{ secrets.UAT_API_KEY }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: arn:aws:iam::114810186946:role/githubactions
+          role-session-name: Github
+          aws-region: ${{ env.AWS_REGION }}
+
+      # publish to prod environment
+      - name: Deploy to S3
+        run: |
+          aws s3 sync dist s3://explorer.uat.airstack.xyz
+          aws cloudfront create-invalidation --distribution-id ER9G4JPNTNBTM --paths /

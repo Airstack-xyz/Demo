@@ -16,6 +16,7 @@ module.exports = {
         'button-secondary-disabled': '#efadaf',
         'toast-positive': '#387C44',
         'toast-negative': '#F30C0C',
+        'toast-warning': '#FFDE2E',
         'text-primary': '#FFFFFF',
         'text-secondary': '#97999c',
         'text-placeholder': '#b1b3b5',

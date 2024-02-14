@@ -58,3 +58,17 @@ export const getSnapshotQueryFilters = (snapshotInfo: SnapshotInfo) => {
 export const checkBlockchainSupportForSnapshot = (chain: string) => {
   return snapshotBlockchains.findIndex(_chain => _chain === chain) !== -1;
 };
+
+export function getCSVDownloadSnapshotVariables(snapshotInfo: SnapshotInfo) {
+  let snapshotVariableName = snapshotInfo.appliedFilter as string;
+  const snapshotVariableValue = snapshotInfo[
+    snapshotVariableName as keyof typeof snapshotInfo
+  ] as string | boolean;
+  if (snapshotVariableName === 'customDate') {
+    snapshotVariableName = 'date'; // this is the name of the variable in the query
+  }
+  return {
+    name: snapshotVariableName,
+    value: snapshotVariableValue
+  };
+}

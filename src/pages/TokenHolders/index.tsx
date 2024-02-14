@@ -7,7 +7,6 @@ import { defaultSortOrder } from '../../Components/Filters/SortBy';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Icon } from '../../Components/Icon';
 import { getAllWordsAndMentions } from '../../Components/Input/utils';
-import { MainLayout } from '../../layouts/MainLayout';
 import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { useSearchInput } from '../../hooks/useSearchInput';
@@ -48,6 +47,7 @@ import {
 import {
   checkBlockchainSupportForSnapshot,
   getActiveSnapshotInfo,
+  getCSVDownloadSnapshotVariables,
   getSnapshotQueryFilters
 } from '../../utils/activeSnapshotInfoString';
 import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
@@ -61,6 +61,11 @@ import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { getRequestFilters } from './OverviewDetails/Tokens/utils';
 import { Tokens } from './Tokens/Tokens';
 import { POAPSupplyQuery, TokenSupplyQuery } from '../../queries/supplyQuery';
+import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDropdown';
+import { CSVDownloadOption } from '../../types';
+import { CsvQueryType } from '../../../__generated__/types';
+import { formatDate } from '../../utils';
+import { useCsvDownloadOptions } from '../../store/csvDownload';
 
 export function TokenHolders() {
   const [
@@ -225,8 +230,155 @@ export function TokenHolders() {
     };
   }, [activeTokenInfo]);
 
-  const options = useMemo(() => {
-    if (addresses.length === 0) return [];
+  const [options, csvDownloadOptions] = useMemo(() => {
+    const csvDownloadOptions: CSVDownloadOption[] = [];
+    if (overviewTokens.length === 0) return [[], []];
+    let key: null | CSVDownloadOption['key'] = null;
+    let variables: CSVDownloadOption['filters'] = undefined;
+    let totalSupply = 0;
+    const erc20Tokens = overviewTokens?.filter(v => v.tokenType === 'ERC20');
+    const poaps = overviewTokens?.filter(v => !v.tokenAddress.startsWith('0x'));
+    const nfts = overviewTokens?.filter(
+      v => v.tokenAddress.startsWith('0x') && v.tokenType !== 'ERC20'
+    );
+    const socialFilters = {};
+    const hasMultipleTokens = tokenAddress.length > 1;
+    const hasERC20 = erc20Tokens?.length > 0;
+
+    // for now there is no support for multiple ERC20 tokens
+    if (hasMultipleTokens) {
+      if (hasERC20) {
+        totalSupply = erc20Tokens[0].holdersCount;
+        variables = {
+          erc20Address: erc20Tokens[0].tokenAddress,
+          blockchain: erc20Tokens[0].blockchain
+        };
+        if (poaps.length > 0) {
+          totalSupply = Math.max(poaps[0].holdersCount, totalSupply);
+          key = CsvQueryType.Erc20PoapHolders;
+          variables = {
+            ...variables,
+            eventId: poaps[0].tokenAddress
+          };
+        } else if (nfts.length > 0) {
+          totalSupply = Math.max(nfts[0].holdersCount, totalSupply);
+          key = CsvQueryType.NftErc20Holders;
+          variables = {
+            ...variables,
+            nftAddress: nfts[0].tokenAddress
+          };
+        }
+      } else if (poaps.length) {
+        if (poaps.length === 1) {
+          totalSupply = Math.max(poaps[0].holdersCount, nfts[0].holdersCount);
+          key = CsvQueryType.PoapNftHolders;
+          variables = {
+            eventId: poaps[0].tokenAddress,
+            tokenAddress: nfts[0].tokenAddress,
+            blockchain: nfts[0].blockchain
+          };
+        } else {
+          totalSupply = Math.max(poaps[0].holdersCount, poaps[1].holdersCount);
+          key = CsvQueryType.CommonPoapHolders;
+          variables = {
+            eventId1: poaps[0].tokenAddress,
+            eventId2: poaps[1].tokenAddress
+          };
+        }
+      } else {
+        totalSupply = Math.max(
+          overviewTokens[0].holdersCount,
+          overviewTokens[1].holdersCount
+        );
+        key = CsvQueryType.CommonNftHolders;
+        variables = {
+          tokenAddress1: overviewTokens[0].tokenAddress,
+          tokenAddress2: overviewTokens[1].tokenAddress,
+          blockchain: overviewTokens[0].blockchain || 'ethereum'
+        };
+      }
+
+      if (key && variables) {
+        const names: string[] = [];
+
+        overviewTokens.forEach(token => {
+          names.push(token.name);
+        });
+
+        const name = `Holders ${names.join(' & ')}`;
+        const combinationsCSVDownloadOption: CSVDownloadOption = {
+          label: name,
+          key,
+          fileName: `${name}`,
+          totalSupply,
+          variables,
+          filters: {
+            ...socialFilters
+          }
+        };
+        csvDownloadOptions.push(combinationsCSVDownloadOption);
+      }
+    } else {
+      const tokenName = overviewTokens?.[0]?.name;
+      if (poaps.length) {
+        csvDownloadOptions.push({
+          label: 'POAP Holders',
+          key: CsvQueryType.PoapHolders,
+          totalSupply: poaps[0].holdersCount,
+          fileName: `Holders of ${tokenName}`,
+          variables: {
+            eventId: poaps[0].tokenAddress // event id
+          },
+          filters: {
+            ...socialFilters
+          }
+        });
+      } else {
+        if (snapshotInfo?.isApplicable) {
+          const { name, value } = getCSVDownloadSnapshotVariables(snapshotInfo);
+          let postFix = 'as of block ' + value;
+
+          if (name === 'date' || name === 'timestamp') {
+            postFix = 'as of ' + formatDate(value as string);
+          }
+
+          if (poaps.length === 0) {
+            csvDownloadOptions.push({
+              label: 'Token holders',
+              totalSupply: overviewTokens[0].holdersCount,
+              key: hasERC20
+                ? CsvQueryType.Erc20HoldersSnapshot
+                : CsvQueryType.NftHoldersSnapshot,
+              fileName: `Holders of ${tokenName} ${postFix}`,
+              variables: {
+                tokenAddress: overviewTokens[0].tokenAddress,
+                blockchain: overviewTokens[0].blockchain, // TODO: fix this it should be dynamic
+                [name]: value
+              },
+              filters: {
+                snapshotFilter: name,
+                ...socialFilters
+              }
+            });
+          }
+        } else if (poaps.length === 0) {
+          csvDownloadOptions.push({
+            label: 'Token holders',
+            totalSupply: overviewTokens[0].holdersCount,
+            key: hasERC20 ? CsvQueryType.Erc20Holders : CsvQueryType.NftHolders,
+            fileName: `Holders of ${tokenName}`,
+            variables: {
+              tokenAddress: overviewTokens[0].tokenAddress,
+              blockchain: overviewTokens[0].blockchain // TODO: fix this it should be dynamic
+            },
+            filters: {
+              ...socialFilters
+            }
+          });
+        }
+      }
+    }
+
     if (activeView) {
       let combinationsQueryLink = '';
       if (hasPoap) {
@@ -253,11 +405,15 @@ export function TokenHolders() {
           });
         }
       }
+
       return [
-        {
-          label: 'Combinations',
-          link: combinationsQueryLink
-        }
+        [
+          {
+            label: 'Combinations',
+            link: combinationsQueryLink
+          }
+        ],
+        csvDownloadOptions
       ];
     }
 
@@ -405,26 +561,31 @@ export function TokenHolders() {
       }
     }
 
-    return options;
+    return [options, csvDownloadOptions];
   }, [
     addresses,
+    overviewTokens,
+    tokenAddress,
     activeView,
     activeTokenInfo,
     hasERC6551,
+    query,
     hasPoap,
     requestFilters,
     snapshotInfo,
     tokensQueryWithFilter,
-    query,
     tokenOwnersQuery,
     owner,
-    tokenAddress,
     token.tokenAddress,
     token.blockchain,
     token.tokenId,
     token.eventId,
     accountAddress
   ]);
+  const setOptions = useCsvDownloadOptions(['options'])[1];
+  useEffect(() => {
+    setOptions({ options: csvDownloadOptions });
+  }, [csvDownloadOptions, setOptions]);
 
   const { hasMultipleERC20, hasEveryERC20 } = useMemo(() => {
     const erc20Tokens = overviewTokens?.filter(v => v.tokenType === 'ERC20');
@@ -516,7 +677,7 @@ export function TokenHolders() {
   const renderFilterContent = () => {
     if (activeTokenInfo) {
       return (
-        <div className="flex justify-center w-full">
+        <div className="flex justify-center gap-3.5 w-full">
           <GetAPIDropdown options={options} />
         </div>
       );
@@ -532,61 +693,62 @@ export function TokenHolders() {
           />
           <AdvancedSettings />
         </div>
-        <GetAPIDropdown options={options} />
+        <div className="flex items-center gap-3.5">
+          <GetAPIDropdown options={options} />
+          {!isResolve6551Enabled && (
+            <CSVDownloadDropdown options={csvDownloadOptions} />
+          )}
+        </div>
       </div>
     );
   };
 
   return (
-    <MainLayout>
-      <div
-        className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
-          'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
-            isHome
-        })}
-      >
-        <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
-          {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
-          <Search />
-          {!hasMultipleERC20 && isQueryExists && (
-            <div className="m-3 flex-row-center">{renderFilterContent()}</div>
-          )}
-        </div>
-        {isQueryExists && (
-          <>
-            <div
-              className="flex flex-col justify-center mt-7 max-w-[950px] mx-auto"
-              key={query}
-            >
-              {/* 
+    <div
+      className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
+        'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
+          isHome
+      })}
+    >
+      <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
+        {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
+        <Search />
+        {!hasMultipleERC20 && isQueryExists && (
+          <div className="m-3 flex-row-center">{renderFilterContent()}</div>
+        )}
+      </div>
+      {isQueryExists && (
+        <>
+          <div
+            className="flex flex-col justify-center mt-7 max-w-[950px] mx-auto"
+            key={query}
+          >
+            {/* 
                 Overview token fetching happen inside HoldersOverview, that's 
                 why it is need to be mounted every time, even if we don't show ui 
                 TODO: Move overview fetching logic outside 
                */}
-              <HoldersOverview
-                hideOverview={hideOverview}
-                onAddress404={handleInvalidAddress}
-              />
-              {showTokens && (
-                <>
-                  {activeView && <OverviewDetails />}
-                  {!activeView && (
-                    <div key={tokensKey}>
-                      <div className="flex mb-4">
-                        <Icon name="token-holders" height={20} width={20} />{' '}
-                        <span className="font-bold ml-1.5 text-sm">
-                          Holders
-                        </span>
-                      </div>
-                      <Tokens />
+            <HoldersOverview
+              hideOverview={hideOverview}
+              onAddress404={handleInvalidAddress}
+            />
+            {showTokens && (
+              <>
+                {activeView && <OverviewDetails />}
+                {!activeView && (
+                  <div key={tokensKey}>
+                    <div className="flex mb-4">
+                      <Icon name="token-holders" height={20} width={20} />{' '}
+                      <span className="font-bold ml-1.5 text-sm">Holders</span>
                     </div>
-                  )}
-                </>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-    </MainLayout>
+                    <Tokens />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </>
+      )}
+    </div>
   );
 }

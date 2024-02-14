@@ -43,9 +43,6 @@ function Loader() {
   );
 }
 
-// Show some default total count instead of zero, so that in loader 'Scanning 0 records' is not shown
-const DEFAULT_TOTAL_COUNT = 1;
-
 export function TokensComponent() {
   const [{ tokens: _overviewTokens }] = useOverviewTokens(['tokens']);
   const [
@@ -193,13 +190,14 @@ export function TokensComponent() {
 
   const tokens = shouldFetchPoaps ? poapsData : tokensData;
 
-  const scannedTokensCount =
-    processedTokensCount + processedPoapsCount || DEFAULT_TOTAL_COUNT;
+  const scannedTokensCount = processedTokensCount + processedPoapsCount;
 
   const showStatusLoader = loading && (isCombination || isResolve6551Enabled);
 
   const statusLoaderLines: [string, number][] = [
-    [`Scanning %n records`, scannedTokensCount]
+    scannedTokensCount
+      ? [`Scanning next 30 records (total %n)`, scannedTokensCount]
+      : [`Scanning first 30 records`, 1]
   ];
   if (isCombination) {
     statusLoaderLines.push([`Found %n matching results`, tokens.length]);

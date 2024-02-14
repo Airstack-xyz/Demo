@@ -9,12 +9,6 @@ type LoaderData = {
   loading: boolean;
 };
 
-// Show some default total count instead of zero, so that in loader 'Scanning 0 records' is not shown
-const DEFAULT_TOTAL_COUNT = 10;
-const COMBINATION_DEFAULT_TOTAL_COUNT = 1;
-
-const LOADER_HIDE_DELAY = 1000;
-
 export function TokenBalancesLoaderWithInfo() {
   const [{ address }] = useSearchInput();
   const [tokensData, setTokensData] = useState<LoaderData>({
@@ -28,26 +22,9 @@ export function TokenBalancesLoaderWithInfo() {
     loading: false
   });
 
-  const [isLoaderVisible, setIsLoaderVisible] = useState(false);
-
   const noLoader = address.length < 2;
 
-  const isCombination = address.length > 1;
-
   const showLoader = tokensData.loading || ERC20Data.loading;
-
-  useEffect(() => {
-    let timerId: NodeJS.Timeout;
-    if (showLoader) {
-      setIsLoaderVisible(true);
-    } else {
-      // Need to hide loader after some delay, so that last count info be displayed
-      timerId = setTimeout(() => setIsLoaderVisible(false), LOADER_HIDE_DELAY);
-    }
-    return () => {
-      clearTimeout(timerId);
-    };
-  }, [showLoader]);
 
   useEffect(() => {
     if (noLoader) return;
@@ -70,17 +47,17 @@ export function TokenBalancesLoaderWithInfo() {
     };
   }, [address.length, noLoader]);
 
-  if (noLoader || !isLoaderVisible) return null;
+  if (noLoader || !showLoader) return null;
 
   const totalMatching = tokensData.matched + ERC20Data.matched;
-  const totalCount =
-    tokensData.total + ERC20Data.total ||
-    (isCombination ? COMBINATION_DEFAULT_TOTAL_COUNT : DEFAULT_TOTAL_COUNT);
+  const totalCount = tokensData.total + ERC20Data.total;
 
   return (
     <StatusLoader
       lines={[
-        [`Scanning %n records`, totalCount],
+        totalCount
+          ? [`Scanning next 30 records (total %n)`, totalCount]
+          : [`Scanning first 30 records`, 1],
         [`Found %n matching results`, totalMatching]
       ]}
     />
