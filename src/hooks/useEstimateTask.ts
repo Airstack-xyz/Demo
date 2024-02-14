@@ -34,7 +34,11 @@ export function useEstimateTask() {
         return;
       }
 
-      if (totalSupply && totalSupply > maxAllowedRows) {
+      if (
+        !key.toLocaleLowerCase().includes('erc20') &&
+        totalSupply &&
+        totalSupply > maxAllowedRows
+      ) {
         showToast(
           ' This file is rather large. Please contact csv@airstack.xyz for more help. ',
           'warning',
