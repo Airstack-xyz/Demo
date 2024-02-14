@@ -1,11 +1,13 @@
 import classNames from 'classnames';
-import classnames from 'classnames';
 import { useTokenBalancesLinks } from './useTokenBalancesLinks';
 import { useTokenHoldersLinks } from './useTokenHoldersLinks';
 import { useMatch } from 'react-router-dom';
 import { useCsvDownloadOptions } from '../../store/csvDownload';
 import { useEstimateTask } from '../../hooks/useEstimateTask';
 import { CSVDownloadOption } from '../../types';
+import { useCallback, useState } from 'react';
+import { isMobileDevice } from '../../utils/isMobileDevice';
+import { Modal } from '../Modal';
 
 function DownloadIcon() {
   return (
@@ -54,46 +56,80 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
     ? getTokenBalanceLink()
     : getTokenHoldersLink();
 
-  const { key, fileName, variables, filters, totalSupply } = (options[0] ||
-    {}) as CSVDownloadOption;
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const isMobile = isMobileDevice();
+
+  const handleModalOpen = useCallback(() => {
+    setIsModalVisible(true);
+  }, []);
+
+  const handleModalClose = useCallback(() => {
+    setIsModalVisible(false);
+  }, []);
+
+  const handleDownloadClick = () => {
+    const { key, fileName, variables, filters, totalSupply } = (options[0] ||
+      {}) as CSVDownloadOption;
+    estimateTask(key, fileName, variables, filters, totalSupply);
+  };
+
+  const showDesktopNudgeModal = isMobile;
 
   return (
-    <div
-      className={classnames(
-        'flex-col-center h-80 absolute w-full bottom-0 z-20 text-sm px-5 rounded-b-2xl bg-secondary',
-        className
-      )}
-    >
-      <div className={classNames('font-semibold mb-8 text-center text-lg')}>
-        Only the first 30 rows are displayed. Download CSV or Get API to view
-        the entire results
+    <>
+      <div
+        className={classNames(
+          'flex-col-center h-80 absolute w-full bottom-0 z-20 text-sm px-5 rounded-b-2xl bg-secondary',
+          className
+        )}
+      >
+        <div className={classNames('font-semibold mb-8 text-center text-lg')}>
+          Only the first 30 rows are displayed. Download CSV or Get API to view
+          the entire results
+        </div>
+        <div className="flex-row-center">
+          <button
+            id="download-csv"
+            className="bg-text-button hover:opacity-90 text-white rounded-18 font-medium px-5 py-1.5 mr-5 flex-row-center"
+            disabled={options.length === 0 || loading}
+            onClick={
+              showDesktopNudgeModal ? handleModalOpen : handleDownloadClick
+            }
+          >
+            <span className="mr-1.5">
+              <DownloadIcon />
+            </span>
+            Download entire table as CSV
+          </button>
+          <a
+            className="bg-text-button hover:opacity-90 text-white rounded-18 font-medium px-5 py-1.5 flex-row-center"
+            href={apiLink}
+            target="_blank"
+            id="get-api-csv-download"
+          >
+            <span className="mr-1.5">
+              <CodeIcon />
+            </span>
+            Get API
+          </a>
+        </div>
       </div>
-      <div className="flex-row-center">
-        <button
-          id="download-csv"
-          className="bg-text-button hover:opacity-90 text-white rounded-18 font-medium px-5 py-1.5 mr-5 flex-row-center"
-          disabled={options.length === 0 || loading}
-          onClick={() => {
-            estimateTask(key, fileName, variables, filters, totalSupply);
-          }}
-        >
-          <span className="mr-1.5">
-            <DownloadIcon />
-          </span>
-          Download entire table as CSV
-        </button>
-        <a
-          className="bg-text-button hover:opacity-90 text-white rounded-18 font-medium px-5 py-1.5 flex-row-center"
-          href={apiLink}
-          target="_blank"
-          id="get-api-csv-download"
-        >
-          <span className="mr-1.5">
-            <CodeIcon />
-          </span>
-          Get API
-        </a>
-      </div>
-    </div>
+      <Modal
+        isOpen={isModalVisible}
+        hideDefaultContainer
+        className="bg-transparent min-h-[400px] min-w-[400px] outline-none px-5"
+        overlayClassName="bg-white bg-opacity-10 backdrop-blur-[50px] flex flex-col justify-center items-center fixed inset-0 z-[100]"
+        onRequestClose={handleModalClose}
+      >
+        <div className="bg-primary backdrop-blur-[100px] p-5 border-solid-stroke rounded-xl text-center">
+          <div className="text-base font-bold">
+            Use desktop web to download CSV
+          </div>
+          <div className="text-sm text-text-secondary pt-1 pb-2">
+            There is more on desktop. Fork code, SDKs, AI Assistant, and more!
+          </div>
+        </div>
+      </Modal>
+    </>
   );
 }
