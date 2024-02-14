@@ -1,17 +1,17 @@
 import classNames from 'classnames';
 import { Fragment, memo, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Asset } from '../../Components/Asset';
-import { Icon } from '../../Components/Icon';
+import { Asset } from '../../../Components/Asset';
+import { Icon } from '../../../Components/Icon';
 import {
   resetCachedUserInputs,
   useSearchInput
-} from '../../hooks/useSearchInput';
-import { formatDate } from '../../utils';
-import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
-import { createTokenHolderUrl } from '../../utils/createTokenUrl';
-import { Nft } from './ERC20/types';
-import { PoapsType, TokenType } from './types';
+} from '../../../hooks/useSearchInput';
+import { formatDate } from '../../../utils';
+import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
+import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
+import { Nft } from '../ERC20/types';
+import { PoapsType, TokenType } from '../types';
 
 type Poap = PoapsType['Poaps']['Poap'][0];
 
@@ -106,7 +106,7 @@ export const TokenWithERC6551 = memo(function Token({
 
   return (
     <div
-      className="group h-[300px] w-[300px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token cursor-pointer"
+      className="group h-[300px] w-[300px] rounded-[16px] bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token cursor-pointer"
       data-loader-type="block"
       onClick={() => {
         setSearchData(

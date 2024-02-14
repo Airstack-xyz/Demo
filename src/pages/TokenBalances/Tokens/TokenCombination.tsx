@@ -1,17 +1,17 @@
 import classNames from 'classnames';
 import { memo, useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Asset } from '../../Components/Asset';
-import { Icon } from '../../Components/Icon';
+import { Asset } from '../../../Components/Asset';
+import { Icon } from '../../../Components/Icon';
 import {
   resetCachedUserInputs,
   useSearchInput
-} from '../../hooks/useSearchInput';
-import { formatDate } from '../../utils';
-import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
-import { createTokenHolderUrl } from '../../utils/createTokenUrl';
-import { isMobileDevice } from '../../utils/isMobileDevice';
-import { PoapType, TokenType } from './types';
+} from '../../../hooks/useSearchInput';
+import { formatDate } from '../../../utils';
+import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
+import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
+import { PoapType, TokenType } from '../types';
 
 type TokenProps = {
   token: null | TokenType | PoapType;
@@ -123,7 +123,7 @@ function Token({
 
   return (
     <div
-      className="group h-[300px] w-[300px] sm:h-[200px] sm:w-[200px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative token cursor-pointer"
+      className="group h-[300px] w-[300px] sm:h-[200px] sm:w-[200px] rounded-[16px] bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative token cursor-pointer"
       data-loader-type="block"
       onClick={handleClick}
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}

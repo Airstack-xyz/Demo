@@ -1,17 +1,17 @@
 import classNames from 'classnames';
 import { Fragment, memo, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Asset } from '../../Components/Asset';
-import { Icon } from '../../Components/Icon';
+import { Asset } from '../../../Components/Asset';
+import { Icon } from '../../../Components/Icon';
 import {
   resetCachedUserInputs,
   useSearchInput
-} from '../../hooks/useSearchInput';
-import { formatDate } from '../../utils';
-import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
-import { createTokenHolderUrl } from '../../utils/createTokenUrl';
-import { Nft } from './ERC20/types';
-import { PoapsType, TokenType } from './types';
+} from '../../../hooks/useSearchInput';
+import { formatDate } from '../../../utils';
+import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
+import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
+import { Nft } from '../ERC20/types';
+import { PoapsType, TokenType } from '../types';
 
 type Poap = PoapsType['Poaps']['Poap'][0];
 
@@ -36,6 +36,7 @@ type ERC20 = {
 type TokenProps = {
   token: null | TokenType | Poap | Nft | ERC20;
   hideHoldersButton?: boolean;
+  hideDetailsOverlay?: boolean;
   disabled?: boolean;
   isMobile?: boolean;
 };
@@ -43,6 +44,7 @@ type TokenProps = {
 export const Token = memo(function Token({
   token: tokenProp,
   hideHoldersButton,
+  hideDetailsOverlay,
   disabled,
   isMobile
 }: TokenProps) {
@@ -108,7 +110,7 @@ export const Token = memo(function Token({
   return (
     <div
       className={classNames(
-        'group h-[300px] w-[300px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative token',
+        'group h-[300px] w-[300px] rounded-[16px] bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative token',
         {
           'cursor-pointer': !disabled,
           'hover:border-transparent': disabled
@@ -163,34 +165,36 @@ export const Token = memo(function Token({
           </div>
         </div>
       </div>
-      {/* Temporarily hide token name overlay */}
-      {false && (
-        <div className="h-14 rounded-3xl flex flex-col px-3.5 py-2 text-sm bg-glass border-solid-light">
-          <div className="ellipsis text-xs mb-">{name || '--'}</div>
-          <div className="flex items-center justify-between font-bold ">
-            {type !== 'ERC20' && (
-              <div className="ellipsis flex flex-1 mr-2">
-                {ids.map((id, index) => (
-                  <Fragment key={id}>
-                    <span
-                      className={classNames('ellipsis', {
-                        'max-w-[50%]': ids.length > 1
-                      })}
-                    >
-                      {!isPoap && '#'}
-                      {id}
-                    </span>
-                    {index < ids.length - 1 && <span className="mr-1">,</span>}
-                  </Fragment>
-                ))}
-              </div>
-            )}
-            <div className="ellipsis text-right max-w-[50%]">
-              {symbol || ''}
+      <div
+        className={classNames(
+          'h-14 rounded-[14px] flex flex-col px-3.5 py-2 text-sm bg-glass border-solid-light invisible',
+          {
+            'group-hover:visible': !hideDetailsOverlay
+          }
+        )}
+      >
+        <div className="ellipsis text-xs mb-">{name || '--'}</div>
+        <div className="flex items-center justify-between font-bold ">
+          {type !== 'ERC20' && (
+            <div className="ellipsis flex flex-1 mr-2">
+              {ids.map((id, index) => (
+                <Fragment key={id}>
+                  <span
+                    className={classNames('ellipsis', {
+                      'max-w-[50%]': ids.length > 1
+                    })}
+                  >
+                    {!isPoap && '#'}
+                    {id}
+                  </span>
+                  {index < ids.length - 1 && <span className="mr-1">,</span>}
+                </Fragment>
+              ))}
             </div>
-          </div>
+          )}
+          <div className="ellipsis text-right max-w-[50%]">{symbol || ''}</div>
         </div>
-      )}
+      </div>
     </div>
   );
 });

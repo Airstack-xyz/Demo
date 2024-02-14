@@ -1,0 +1,1 @@
+export { ENSDetails } from './ENSDetails';

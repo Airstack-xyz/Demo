@@ -9,19 +9,19 @@ import { TableSection } from './TableSection';
 import { TabContainer, Tab } from '../../../Components/Tab';
 import { capitalizeFirstLetter } from '../../../utils';
 
-type SocialFollowsProps = {
+type SocialDetailsProps = {
   identities: string[];
   socialInfo: SocialInfo;
   activeSocialInfo: string;
   setQueryData: UpdateUserInputs;
 };
 
-export function SocialFollows({
+export function SocialDetails({
   identities,
   socialInfo,
   activeSocialInfo,
   setQueryData
-}: SocialFollowsProps) {
+}: SocialDetailsProps) {
   const handleTabChange = (follow: boolean) => {
     setQueryData(
       {

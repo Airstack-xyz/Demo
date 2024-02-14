@@ -26,7 +26,7 @@ import {
   Nft,
   TokenTransfer
 } from '../ERC20/types';
-import { Token } from '../Token';
+import { Token } from '../Tokens/Token';
 import { NFTInfo, TokenERC20Info } from './NFTInfo';
 import { NestedTokens } from './NestedTokens';
 import { PoapInfo } from './PoapInfo';
@@ -412,6 +412,7 @@ export function TokenDetails(props: {
             <Token
               token={(erc20Data?.Token || poap || nft) as Nft}
               hideHoldersButton
+              hideDetailsOverlay
               disabled
               key={tokenKey}
             />

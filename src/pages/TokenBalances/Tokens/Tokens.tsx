@@ -1,15 +1,15 @@
 import classNames from 'classnames';
 import { memo, useCallback, useEffect, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { useGetPoapsOfOwner } from '../../hooks/useGetPoapsOfOwner';
-import { useGetTokensOfOwner } from '../../hooks/useGetTokensOfOwner';
-import { UserInputs } from '../../hooks/useSearchInput';
-import { emit } from '../../utils/eventEmitter/eventEmitter';
+import { useGetPoapsOfOwner } from '../../../hooks/useGetPoapsOfOwner';
+import { useGetTokensOfOwner } from '../../../hooks/useGetTokensOfOwner';
+import { UserInputs } from '../../../hooks/useSearchInput';
+import { emit } from '../../../utils/eventEmitter/eventEmitter';
 import { Token } from './Token';
 import { TokenCombination } from './TokenCombination';
 import { TokenWithERC6551 } from './TokenWithERC6551';
-import { PoapType, TokenType } from './types';
-import { isMobileDevice } from '../../utils/isMobileDevice';
+import { PoapType, TokenType } from '../types';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
 
 const loaderData = Array(6).fill({ token: {}, tokenNfts: {} });
 

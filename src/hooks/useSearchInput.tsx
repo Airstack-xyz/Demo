@@ -24,6 +24,7 @@ export type CachedQuery = {
   activeTokenInfo: string;
   activeSnapshotInfo: string;
   activeSocialInfo: string;
+  activeENSInfo: string;
 };
 
 export type UserInputs = CachedQuery;
@@ -172,7 +173,8 @@ export function useSearchInput(
       spamFilter: getData('spamFilter'),
       mintFilter: getData('mintFilter'),
       resolve6551: searchParams.get('resolve6551') || '',
-      activeSocialInfo: searchParams.get('activeSocialInfo') || ''
+      activeSocialInfo: searchParams.get('activeSocialInfo') || '',
+      activeENSInfo: searchParams.get('activeENSInfo') || ''
     };
 
     setData(data);
