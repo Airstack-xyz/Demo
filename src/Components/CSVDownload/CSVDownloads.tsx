@@ -576,15 +576,17 @@ export function CSVDownloads() {
                     {status === Status.Completed && (
                       <div className="mt-2">
                         <div className="mb-2">
-                          {formatBytes(option.fileSize || 0, 2)} •{' '}
-                          {option.totalRows} rows •{' '}
-                          <span className="text-stroke-highlight-blue">
+                          <div className="mb-1.5 text-text-secondary">
+                            {formatBytes(option.fileSize || 0, 2)} •{' '}
+                            {option.totalRows} rows
+                          </div>
+                          <div className="text-stroke-highlight-blue">
                             {formatNumber(
                               !option.totalRows ? 0 : option.creditsUsed || 0,
                               2
                             )}{' '}
                             credits to download
-                          </span>
+                          </div>
                         </div>
                         <div>
                           {option.totalRows ? (
@@ -596,7 +598,7 @@ export function CSVDownloads() {
                               }}
                             >
                               Download CSV ($
-                              {formatNumber(option.creditPrice || 0, 4)})
+                              {formatNumber(option.creditPrice || 0)})
                             </button>
                           ) : null}
 
