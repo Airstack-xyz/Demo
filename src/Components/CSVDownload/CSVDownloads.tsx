@@ -598,7 +598,7 @@ export function CSVDownloads() {
                               }}
                             >
                               Download CSV ($
-                              {formatNumber(option.creditPrice || 0)})
+                              {formatNumber(option.creditPrice || 0, 4)})
                             </button>
                           ) : null}
 
