@@ -7,8 +7,24 @@ export type DomainType = {
   isPrimary: boolean;
   avatar: string;
   name: string;
-  owner: string;
-  manager: string;
+  ownerDetails: {
+    identity: string;
+    primaryDomain: {
+      name: string;
+    };
+    domains: {
+      name: string;
+    }[];
+  };
+  managerDetails: {
+    identity: string;
+    primaryDomain: {
+      name: string;
+    };
+    domains: {
+      name: string;
+    }[];
+  };
   texts: RecordType[];
   multiChainAddresses: {
     symbol: string;

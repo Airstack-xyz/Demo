@@ -347,7 +347,7 @@ function TokenBalancePage() {
   const isQueryExists = query && query.length > 0;
 
   const renderFilterContent = () => {
-    if (showTokenDetails) {
+    if (showTokenDetails || ensInfo.isApplicable) {
       return (
         <div className="flex justify-center gap-3.5 w-full z-[21]">
           <GetAPIDropdown options={getAPIOptions} dropdownAlignment="center" />

@@ -36,6 +36,7 @@ type ERC20 = {
 type TokenProps = {
   token: null | TokenType | Poap | Nft | ERC20;
   hideHoldersButton?: boolean;
+  hideDetailsOverlay?: boolean;
   disabled?: boolean;
   isMobile?: boolean;
 };
@@ -43,6 +44,7 @@ type TokenProps = {
 export const Token = memo(function Token({
   token: tokenProp,
   hideHoldersButton,
+  hideDetailsOverlay,
   disabled,
   isMobile
 }: TokenProps) {
@@ -108,7 +110,7 @@ export const Token = memo(function Token({
   return (
     <div
       className={classNames(
-        'group h-[300px] w-[300px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative token',
+        'group h-[300px] w-[300px] rounded-[16px] bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative token',
         {
           'cursor-pointer': !disabled,
           'hover:border-transparent': disabled
@@ -163,7 +165,14 @@ export const Token = memo(function Token({
           </div>
         </div>
       </div>
-      <div className="h-14 rounded-3xl flex flex-col px-3.5 py-2 text-sm bg-glass border-solid-light">
+      <div
+        className={classNames(
+          'h-14 rounded-[22px] flex flex-col px-3.5 py-2 text-sm bg-glass border-solid-light invisible',
+          {
+            'group-hover:visible': !hideDetailsOverlay
+          }
+        )}
+      >
         <div className="ellipsis text-xs mb-">{name || '--'}</div>
         <div className="flex items-center justify-between font-bold ">
           {type !== 'ERC20' && (

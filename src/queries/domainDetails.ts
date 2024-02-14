@@ -1,26 +1,42 @@
 export const domainDetailsQuery = `query DomainDetails($name: String!) {
-    Domain(input: {name: $name, blockchain: ethereum}) {
-      isPrimary
-      avatar
-      name
-      owner
-      manager
-      texts {
-        key
-        value
+  Domain(input: {name: $name, blockchain: ethereum}) {
+    isPrimary
+    avatar
+    name
+    ownerDetails {
+      identity
+      primaryDomain {
+        name
       }
-      multiChainAddresses {
-        symbol
-        address
+      domains(input: {filter: {isPrimary: {_eq: false}}}) {
+        name
       }
-      tokenNft {
-        contentValue {
-          image {
-            small
-          }
+    }
+    managerDetails {
+      identity
+      primaryDomain {
+        name
+      }
+      domains(input: {filter: {isPrimary: {_eq: false}}}) {
+        name
+      }
+    }
+    texts {
+      key
+      value
+    }
+    multiChainAddresses {
+      symbol
+      address
+    }
+    tokenNft {
+      contentValue {
+        image {
+          small
         }
       }
-      createdAtBlockTimestamp
-      expiryTimestamp
     }
-  }`;
+    createdAtBlockTimestamp
+    expiryTimestamp
+  }
+}`;

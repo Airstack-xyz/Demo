@@ -70,9 +70,7 @@ function Token({
       </div>
       <div className="flex-1 items-center min-w-0 text-sm pl-2.5">
         {amount !== null && (
-          <div className="text-sm font-medium">
-            {amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-          </div>
+          <div className="text-sm font-medium">{amount.toFixed(2)}</div>
         )}
         <div>
           <span className="text-sm font-medium">{symbol}</span>{' '}

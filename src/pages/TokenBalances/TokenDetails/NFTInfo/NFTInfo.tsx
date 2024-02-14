@@ -79,8 +79,11 @@ export function NFTInfo({
   return (
     <div className="overflow-hidden text-sm">
       <div>
+        <KeyValue name="Token name" value={nft?.token?.name} />
+        <KeyValue name="Symbol" value={nft?.token?.symbol} />
+        <KeyValue name="Token ID" value={nft?.tokenId} />
         <KeyValue
-          name="Token Address"
+          name="Token address"
           value={
             <span className="ellipsis">
               <>
@@ -90,7 +93,6 @@ export function NFTInfo({
             </span>
           }
         />
-
         <KeyValue
           name={`Holder${nft?.tokenBalances?.length > 1 ? 's' : ''}`}
           value={
@@ -112,6 +114,8 @@ export function NFTInfo({
             )
           }
         />
+        <KeyValue name="Token type" value={nft?.type} />
+        <KeyValue name="Blockchain" value={nft?.blockchain} />
         {holderData && holderData.hasParent && (
           <KeyValue
             name="Parent 6551"

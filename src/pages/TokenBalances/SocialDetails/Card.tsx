@@ -75,14 +75,14 @@ export function Card({
           width={180}
         />
       )}
-      <div className="w-full">
+      <div className="w-full mt-1">
         <div className="flex items-center max-sm:justify-center">
           {!!lensTokenImageUrl && (
             <img
               src={lensTokenImageUrl}
               height={24}
               width={24}
-              className="rounded-sm mr-2"
+              className="rounded-full mr-2"
             />
           )}
           <div className="mr-1 text-base">{item.profileHandle}</div>

@@ -141,4 +141,5 @@ export interface TokenTransfer {
   transactionHash: string;
   tokenAddress: string;
   tokenId: string;
+  tokenType: string;
 }

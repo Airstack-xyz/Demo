@@ -65,6 +65,16 @@ export function DetailsSection({ identity }: { identity: string }) {
   const tokenImageUrl =
     domain?.tokenNft?.contentValue?.image?.small || domain?.avatar;
 
+  const ownerENSName =
+    domain?.ownerDetails?.primaryDomain?.name ||
+    domain?.ownerDetails?.domains?.[0]?.name ||
+    domain?.ownerDetails?.identity;
+
+  const managerENSName =
+    domain?.managerDetails?.primaryDomain?.name ||
+    domain?.managerDetails?.domains?.[0]?.name ||
+    domain?.managerDetails?.identity;
+
   return (
     <section className="bg-glass border-solid-stroke rounded-18 p-5">
       <div className="flex max-sm:flex-col max-sm:items-center gap-6">
@@ -75,13 +85,13 @@ export function DetailsSection({ identity }: { identity: string }) {
           width={180}
           className="object-cover rounded-2xl h-[180px] w-[180px] shrink-0"
         />
-        <div className="flex-1">
+        <div className="flex-1 mt-1">
           <div className="flex items-center">
             <img
               src="/images/ens.svg"
               height={24}
               width={24}
-              className="rounded mr-2.5"
+              className="rounded-full mr-2.5"
             />
             <div className="font-bold">{domain?.name}</div>
             {!!domain?.isPrimary && (
@@ -105,7 +115,7 @@ export function DetailsSection({ identity }: { identity: string }) {
             ))}
             {!!domain?.multiChainAddresses?.length && (
               <>
-                <div className="font-semibold">Multi-chain addresses</div>
+                <div className="font-semibold">Addresses</div>
                 <div />
                 {domain?.multiChainAddresses.map(item => (
                   <Fragment key={item.address}>
@@ -127,16 +137,16 @@ export function DetailsSection({ identity }: { identity: string }) {
                 />
               </>
             )}
-            {!!domain?.manager && (
+            {!!managerENSName && (
               <>
                 <div>Manager</div>
-                <div className="ellipsis">{domain.manager}</div>
+                <div className="ellipsis">{managerENSName}</div>
               </>
             )}
-            {!!domain?.owner && (
+            {!!ownerENSName && (
               <>
                 <div>Owner</div>
-                <div className="ellipsis">{domain.owner}</div>
+                <div className="ellipsis">{ownerENSName}</div>
               </>
             )}
             {otherRecords.map(item => (

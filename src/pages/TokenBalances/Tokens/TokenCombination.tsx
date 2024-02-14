@@ -123,7 +123,7 @@ function Token({
 
   return (
     <div
-      className="group h-[300px] w-[300px] sm:h-[200px] sm:w-[200px] rounded-18 bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative token cursor-pointer"
+      className="group h-[300px] w-[300px] sm:h-[200px] sm:w-[200px] rounded-[16px] bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative token cursor-pointer"
       data-loader-type="block"
       onClick={handleClick}
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
