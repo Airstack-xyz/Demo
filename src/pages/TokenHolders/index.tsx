@@ -10,24 +10,6 @@ import { getAllWordsAndMentions } from '../../Components/Input/utils';
 import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { useSearchInput } from '../../hooks/useSearchInput';
-import {
-  getCommonNftOwnersSnapshotQuery,
-  getNftOwnersSnapshotQuery
-} from '../../queries/Snapshots/commonNftOwnersSnapshotQuery';
-import {
-  getCommonNftOwnersSnapshotQueryWithFilters,
-  getNftOwnersSnapshotQueryWithFilters
-} from '../../queries/Snapshots/commonNftOwnersSnapshotQueryWithFilters';
-import {
-  getCommonNftOwnersQuery,
-  getNftOwnersQuery
-} from '../../queries/commonNftOwnersQuery';
-import {
-  getCommonNftOwnersQueryWithFilters,
-  getNftOwnersQueryWithFilters
-} from '../../queries/commonNftOwnersQueryWithFilters';
-import { getCommonPoapAndNftOwnersQuery } from '../../queries/commonPoapAndNftOwnersQuery';
-import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../queries/commonPoapAndNftOwnersQueryWithFilters';
 import { useCsvDownloadOptions } from '../../store/csvDownload';
 import { useTokenDetails } from '../../store/tokenDetails';
 import {
@@ -41,10 +23,8 @@ import {
 import { getActiveTokenInfo } from '../../utils/activeTokenInfoString';
 import { sortByAddressByNonERC20First } from '../../utils/getNFTQueryForTokensHolder';
 import { showToast } from '../../utils/showToast';
-import { sortAddressByPoapFirst } from '../../utils/sortAddressByPoapFirst';
 import { HoldersOverview } from './Overview/Overview';
 import { OverviewDetails } from './OverviewDetails/OverviewDetails';
-import { getRequestFilters } from './OverviewDetails/Tokens/utils';
 import { Tokens } from './Tokens/Tokens';
 import { useDropdownOptions } from './hooks/useDropdownOptions';
 
@@ -118,90 +98,6 @@ export function TokenHolders() {
     return sortByAddressByNonERC20First(tokenAddress, overviewTokens, hasPoap);
   }, [hasPoap, tokenAddress, overviewTokens]);
 
-  const requestFilters = useMemo(() => {
-    return getRequestFilters(tokenFilters);
-  }, [tokenFilters]);
-
-  const tokenOwnersQuery = useMemo(() => {
-    if (addresses.length === 0) return '';
-    if (addresses.length === 1) {
-      if (snapshotInfo.isApplicable) {
-        return getNftOwnersSnapshotQuery({
-          tokenAddress: addresses[0],
-          snapshotFilter: snapshotInfo.appliedFilter
-        });
-      }
-      return getNftOwnersQuery({ tokenAddress: addresses[0] });
-    }
-    if (hasSomePoap) {
-      const tokenAddresses = sortAddressByPoapFirst(addresses);
-      return getCommonPoapAndNftOwnersQuery({
-        poapAddress: tokenAddresses[0],
-        tokenAddress: tokenAddresses[1]
-      });
-    }
-    if (snapshotInfo.isApplicable) {
-      return getCommonNftOwnersSnapshotQuery({
-        tokenAddress1: addresses[0],
-        tokenAddress2: addresses[1],
-        snapshotFilter: snapshotInfo.appliedFilter
-      });
-    }
-    return getCommonNftOwnersQuery({
-      tokenAddress1: addresses[0],
-      tokenAddress2: addresses[1]
-    });
-  }, [
-    addresses,
-    hasSomePoap,
-    snapshotInfo.isApplicable,
-    snapshotInfo.appliedFilter
-  ]);
-
-  const tokensQueryWithFilter = useMemo(() => {
-    if (addresses.length === 0) return '';
-    if (addresses.length === 1) {
-      if (snapshotInfo.isApplicable) {
-        return getNftOwnersSnapshotQueryWithFilters({
-          tokenAddress: addresses[0],
-          snapshotFilter: snapshotInfo.appliedFilter,
-          ...requestFilters
-        });
-      }
-      return getNftOwnersQueryWithFilters({
-        tokenAddress: addresses[0],
-        ...requestFilters
-      });
-    }
-    if (hasSomePoap) {
-      const tokenAddresses = sortAddressByPoapFirst(addresses);
-      return getCommonPoapAndNftOwnersQueryWithFilters({
-        poapAddress: tokenAddresses[0],
-        tokenAddress: tokenAddresses[1],
-        ...requestFilters
-      });
-    }
-    if (snapshotInfo.isApplicable) {
-      return getCommonNftOwnersSnapshotQueryWithFilters({
-        tokenAddress1: addresses[0],
-        tokenAddress2: addresses[1],
-        snapshotFilter: snapshotInfo.appliedFilter,
-        ...requestFilters
-      });
-    }
-    return getCommonNftOwnersQueryWithFilters({
-      tokenAddress1: addresses[0],
-      tokenAddress2: addresses[1],
-      ...requestFilters
-    });
-  }, [
-    addresses,
-    hasSomePoap,
-    snapshotInfo.isApplicable,
-    snapshotInfo.appliedFilter,
-    requestFilters
-  ]);
-
   const tokenInfo = useMemo(() => {
     const { tokenAddress, tokenId, blockchain, eventId } =
       getActiveTokenInfo(activeTokenInfo);
@@ -222,10 +118,9 @@ export function TokenHolders() {
     hasERC6551,
     query,
     hasPoap,
-    requestFilters,
+    hasSomePoap,
+    tokenFilters,
     snapshotInfo,
-    tokensQueryWithFilter,
-    tokenOwnersQuery,
     owner,
     tokenInfo,
     accountAddress

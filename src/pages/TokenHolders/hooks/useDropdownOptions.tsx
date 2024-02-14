@@ -1,9 +1,28 @@
 import { useMemo } from 'react';
 import { CsvQueryType } from '../../../../__generated__/types';
 import { defaultSortOrder } from '../../../Components/Filters/SortBy';
+import { Option } from '../../../Components/GetAPIDropdown';
 import { SocialQuery } from '../../../queries';
+import {
+  getCommonNftOwnersSnapshotQuery,
+  getNftOwnersSnapshotQuery
+} from '../../../queries/Snapshots/commonNftOwnersSnapshotQuery';
+import {
+  getCommonNftOwnersSnapshotQueryWithFilters,
+  getNftOwnersSnapshotQueryWithFilters
+} from '../../../queries/Snapshots/commonNftOwnersSnapshotQueryWithFilters';
 import { accountOwnerQuery } from '../../../queries/accountsQuery';
+import {
+  getCommonNftOwnersQuery,
+  getNftOwnersQuery
+} from '../../../queries/commonNftOwnersQuery';
+import {
+  getCommonNftOwnersQueryWithFilters,
+  getNftOwnersQueryWithFilters
+} from '../../../queries/commonNftOwnersQueryWithFilters';
 import { getCommonOwnersPOAPsQuery } from '../../../queries/commonOwnersPOAPsQuery';
+import { getCommonPoapAndNftOwnersQuery } from '../../../queries/commonPoapAndNftOwnersQuery';
+import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../../queries/commonPoapAndNftOwnersQueryWithFilters';
 import { getNftWithCommonOwnersQuery } from '../../../queries/nftWithCommonOwnersQuery';
 import { getFilterablePoapsQuery } from '../../../queries/overviewDetailsPoap';
 import {
@@ -11,11 +30,12 @@ import {
   TokenSupplyQuery
 } from '../../../queries/supplyQuery';
 import {
+  erc20TokenDetailsQuery,
   erc6551TokensQuery,
   poapDetailsQuery,
-  tokenDetailsQuery,
-  erc20TokenDetailsQuery
+  tokenDetailsQuery
 } from '../../../queries/tokenDetails';
+import { TokenHolder } from '../../../store/tokenHoldersOverview';
 import { CSVDownloadOption } from '../../../types';
 import { formatDate } from '../../../utils';
 import {
@@ -23,13 +43,12 @@ import {
   getCSVDownloadSnapshotVariables,
   getSnapshotQueryFilters
 } from '../../../utils/activeSnapshotInfoString';
-import { createAppUrlWithQuery } from '../../../utils/createAppUrlWithQuery';
-import { tokenTypes } from '../../TokenBalances/constants';
-import { TokenHolder } from '../../../store/tokenHoldersOverview';
-import { TokenAddress } from '../types';
-import { RequestFilters } from '../OverviewDetails/Tokens/utils';
 import { TokenInfo } from '../../../utils/activeTokenInfoString';
-import { Option } from '../../../Components/GetAPIDropdown';
+import { createAppUrlWithQuery } from '../../../utils/createAppUrlWithQuery';
+import { sortAddressByPoapFirst } from '../../../utils/sortAddressByPoapFirst';
+import { tokenTypes } from '../../TokenBalances/constants';
+import { getRequestFilters } from '../OverviewDetails/Tokens/utils';
+import { TokenAddress } from '../types';
 
 export function useDropdownOptions({
   addresses,
@@ -40,10 +59,9 @@ export function useDropdownOptions({
   hasERC6551,
   query,
   hasPoap,
-  requestFilters,
+  hasSomePoap,
+  tokenFilters,
   snapshotInfo,
-  tokensQueryWithFilter,
-  tokenOwnersQuery,
   owner,
   tokenInfo,
   accountAddress
@@ -56,14 +74,97 @@ export function useDropdownOptions({
   hasERC6551: boolean;
   query: string;
   hasPoap: boolean;
-  requestFilters: RequestFilters;
+  hasSomePoap: boolean;
+  tokenFilters: string[];
   snapshotInfo: SnapshotInfo;
-  tokensQueryWithFilter: string;
-  tokenOwnersQuery: string;
   owner: string;
   tokenInfo: TokenInfo;
   accountAddress: string;
 }) {
+  const requestFilters = useMemo(() => {
+    return getRequestFilters(tokenFilters);
+  }, [tokenFilters]);
+
+  const tokenOwnersQuery = useMemo(() => {
+    if (addresses.length === 0) return '';
+    if (addresses.length === 1) {
+      if (snapshotInfo.isApplicable) {
+        return getNftOwnersSnapshotQuery({
+          tokenAddress: addresses[0],
+          snapshotFilter: snapshotInfo.appliedFilter
+        });
+      }
+      return getNftOwnersQuery({ tokenAddress: addresses[0] });
+    }
+    if (hasSomePoap) {
+      const tokenAddresses = sortAddressByPoapFirst(addresses);
+      return getCommonPoapAndNftOwnersQuery({
+        poapAddress: tokenAddresses[0],
+        tokenAddress: tokenAddresses[1]
+      });
+    }
+    if (snapshotInfo.isApplicable) {
+      return getCommonNftOwnersSnapshotQuery({
+        tokenAddress1: addresses[0],
+        tokenAddress2: addresses[1],
+        snapshotFilter: snapshotInfo.appliedFilter
+      });
+    }
+    return getCommonNftOwnersQuery({
+      tokenAddress1: addresses[0],
+      tokenAddress2: addresses[1]
+    });
+  }, [
+    addresses,
+    hasSomePoap,
+    snapshotInfo.isApplicable,
+    snapshotInfo.appliedFilter
+  ]);
+
+  const tokensQueryWithFilter = useMemo(() => {
+    if (addresses.length === 0) return '';
+    if (addresses.length === 1) {
+      if (snapshotInfo.isApplicable) {
+        return getNftOwnersSnapshotQueryWithFilters({
+          tokenAddress: addresses[0],
+          snapshotFilter: snapshotInfo.appliedFilter,
+          ...requestFilters
+        });
+      }
+      return getNftOwnersQueryWithFilters({
+        tokenAddress: addresses[0],
+        ...requestFilters
+      });
+    }
+    if (hasSomePoap) {
+      const tokenAddresses = sortAddressByPoapFirst(addresses);
+      return getCommonPoapAndNftOwnersQueryWithFilters({
+        poapAddress: tokenAddresses[0],
+        tokenAddress: tokenAddresses[1],
+        ...requestFilters
+      });
+    }
+    if (snapshotInfo.isApplicable) {
+      return getCommonNftOwnersSnapshotQueryWithFilters({
+        tokenAddress1: addresses[0],
+        tokenAddress2: addresses[1],
+        snapshotFilter: snapshotInfo.appliedFilter,
+        ...requestFilters
+      });
+    }
+    return getCommonNftOwnersQueryWithFilters({
+      tokenAddress1: addresses[0],
+      tokenAddress2: addresses[1],
+      ...requestFilters
+    });
+  }, [
+    addresses,
+    hasSomePoap,
+    snapshotInfo.isApplicable,
+    snapshotInfo.appliedFilter,
+    requestFilters
+  ]);
+
   return useMemo(() => {
     if (overviewTokens.length === 0) return [[], []];
 

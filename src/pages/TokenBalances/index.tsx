@@ -214,8 +214,6 @@ function TokenBalancePage() {
     'accountAddress'
   ]);
 
-  const [, setCsvDownloadOptions] = useCsvDownloadOptions(['options']);
-
   const activeTokens = useMemo(() => {
     if (activeTokenInfo) {
       return getAllActiveTokenInfo(activeTokenInfo);
@@ -258,6 +256,8 @@ function TokenBalancePage() {
     ensInfo,
     snapshotInfo
   });
+
+  const [, setCsvDownloadOptions] = useCsvDownloadOptions(['options']);
 
   useEffect(() => {
     let options = csvDownloadOptions;
