@@ -163,6 +163,7 @@ export const Token = memo(function Token({
           </div>
         </div>
       </div>
+      {/* Temporarily hide token name overlay */}
       {false && (
         <div className="h-14 rounded-3xl flex flex-col px-3.5 py-2 text-sm bg-glass border-solid-light">
           <div className="ellipsis text-xs mb-">{name || '--'}</div>
