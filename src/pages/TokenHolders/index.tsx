@@ -139,10 +139,18 @@ export function TokenHolders() {
     );
     const hasEveryERC20Token =
       overviewTokens?.length > 0 &&
-      overviewTokens.every(v => v.tokenType === 'ERC20');
+      overviewTokens.every(
+        v =>
+          v.tokenType === 'ERC20' &&
+          v.tokenAddress !== '0x058d96baa6f9d16853970b333ed993acc0c35add'
+      );
     const hasEveryERC20Mention =
       mentions?.length > 0 &&
-      mentions.every(v => v?.token === 'ERC20' || v?.token === 'TOKEN');
+      mentions.every(
+        v =>
+          (v?.token === 'ERC20' || v?.token === 'TOKEN') &&
+          v.address !== '0x058d96baa6f9d16853970b333ed993acc0c35add'
+      );
     return {
       hasMultipleERC20: erc20Mentions?.length > 1 || erc20Tokens?.length > 1,
       hasEveryERC20: hasEveryERC20Mention || hasEveryERC20Token

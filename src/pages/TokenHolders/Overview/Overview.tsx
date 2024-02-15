@@ -53,13 +53,21 @@ function Overview({
   }, [account]);
 
   const shouldFetchHoldersCount = useMemo(() => {
-    return memoizedTokens.every(token => token.tokenType !== 'ERC20');
+    return memoizedTokens.every(
+      token =>
+        token.tokenType !== 'ERC20' ||
+        token.tokenAddress === '0x058d96baa6f9d16853970b333ed993acc0c35add'
+    );
   }, [memoizedTokens]);
 
   const hasEveryERC20 = useMemo(() => {
     return (
       memoizedTokens.length > 0 &&
-      memoizedTokens.every(token => token.tokenType === 'ERC20')
+      memoizedTokens.every(
+        token =>
+          token.tokenType === 'ERC20' &&
+          token.tokenAddress !== '0x058d96baa6f9d16853970b333ed993acc0c35add'
+      )
     );
   }, [memoizedTokens]);
 
@@ -281,6 +289,8 @@ function Overview({
         {memoizedTokens.map(({ name, tokenAddress, eventId }, index) => {
           const address = eventId ? eventId : tokenAddress;
           const supply = tokensSupply?.[address.toLocaleLowerCase()];
+          const showSupply =
+            tokenAddress !== '0x058d96baa6f9d16853970b333ed993acc0c35add';
           return (
             <span
               key={`${address}-${index}`}
@@ -289,8 +299,12 @@ function Overview({
               })}
             >
               <span className="ellipsis mr-1"> {name} </span>
-              <span className="mx-1">: </span>
-              <span className="w-[80px] ellipsis">{supply || '--'}</span>
+              {showSupply && (
+                <>
+                  <span className="mx-1">: </span>
+                  <span className="w-[80px] ellipsis">{supply || '--'}</span>
+                </>
+              )}
               {index < memoizedTokens.length - 1 ? (
                 <span className="mx-1">|</span>
               ) : null}
@@ -322,11 +336,19 @@ function Overview({
   // @ts-ignore
   window.totalOwners = overviewData?.owners || 0;
 
+  const showSupplyText = !(
+    memoizedTokens.length === 1 &&
+    memoizedTokens[0].tokenAddress ===
+      '0x058d96baa6f9d16853970b333ed993acc0c35add'
+  );
+
   return (
     <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px] mb-7">
       <div className="border-solid-stroke bg-glass rounded-18 px-5 py-2.5 m-2.5 flex-1 w-full overflow-hidden">
         <div className="mb-2 flex flex-col">
-          <div className="text-sm text-text-secondary">Total supply </div>
+          {showSupplyText && (
+            <div className="text-sm text-text-secondary">Total supply</div>
+          )}
           <div className="ellipsis text-lg">
             {loadingTokensSupply ? (
               <div className="h-7 flex items-center ml-2">
