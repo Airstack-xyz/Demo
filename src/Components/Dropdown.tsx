@@ -1,4 +1,11 @@
-import { ReactNode, useCallback, useState } from 'react';
+import {
+  MutableRefObject,
+  ReactNode,
+  useCallback,
+  useImperativeHandle,
+  useRef,
+  useState
+} from 'react';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 import classnames from 'classnames';
 
@@ -7,7 +14,14 @@ export type Option = {
   value: string;
 };
 
+export type DropdownHandle = {
+  isVisible: () => boolean;
+  show: () => void;
+  hide: () => void;
+};
+
 export function Dropdown<T extends Option = Option>({
+  dropdownRef,
   options,
   selected,
   closeOnSelect = false,
@@ -19,6 +33,7 @@ export function Dropdown<T extends Option = Option>({
   footerComponent,
   optionsContainerClassName
 }: {
+  dropdownRef?: MutableRefObject<DropdownHandle | null | undefined>;
   options: T[];
   selected?: T[];
   closeOnSelect?: boolean;
@@ -32,11 +47,25 @@ export function Dropdown<T extends Option = Option>({
   }) => ReactNode;
   onChange: (selected: T[]) => void;
   disabled?: boolean;
-  heading?: string;
+  heading?: ReactNode;
   footerComponent?: ReactNode;
 }) {
   const [_selected, setSelected] = useState<T[]>([]);
   const [show, setShow] = useState(false);
+
+  const isVisibleRef = useRef(show);
+
+  isVisibleRef.current = show;
+
+  useImperativeHandle(
+    dropdownRef,
+    () => ({
+      isVisible: () => isVisibleRef.current,
+      show: () => setShow(true),
+      hide: () => setShow(false)
+    }),
+    []
+  );
 
   const containerRef = useOutsideClick<HTMLDivElement>(() => setShow(false));
 

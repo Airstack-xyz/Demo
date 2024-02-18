@@ -41,11 +41,13 @@ export function useTokenHoldersLinks() {
       activeTokenInfo
     }
   ] = useSearchInput();
+
   const [{ hasERC6551 }] = useTokenDetails([
     'hasERC6551',
     'owner',
     'accountAddress'
   ]);
+
   const [{ tokens: overviewTokens }] = useOverviewTokens(['tokens']);
 
   const snapshotInfo = useMemo(
@@ -146,6 +148,7 @@ export function useTokenHoldersLinks() {
 
   const getLink = useCallback(() => {
     if (addresses.length === 0) return '';
+
     if (activeView) {
       let combinationsQueryLink = '';
       if (hasPoap) {

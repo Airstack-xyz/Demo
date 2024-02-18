@@ -139,7 +139,7 @@ export function filterTokens(filters: string[], tokens: TokenOrPoap[]) {
   return tokens;
 }
 
-type RequestFilters = {
+export type RequestFilters = {
   socialFilters?: string[];
   hasPrimaryDomain?: boolean;
 };

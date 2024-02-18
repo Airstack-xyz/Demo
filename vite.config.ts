@@ -11,7 +11,10 @@ export default defineConfig(({ mode }) => {
     TWITTER_PIXEL_ID: env.TWITTER_PIXEL_ID,
     API_KEY: env.API_KEY,
     MENTION_ENDPOINT: env.MENTION_ENDPOINT,
-    BASE_URL: env.BASE_URL
+    BFF_ENDPOINT: env.BFF_ENDPOINT,
+    PRIVY_APP_ID: env.PRIVY_APP_ID,
+    AIRSTACK_ENDPOINT: env.AIRSTACK_ENDPOINT,
+    APP_BASE_URL: env.APP_BASE_URL
   };
 
   return {

@@ -1,1 +1,1 @@
-export const MAX_SEARCH_WIDTH = 800;
+export const MAX_SEARCH_WIDTH = 922;

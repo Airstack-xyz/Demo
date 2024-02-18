@@ -154,6 +154,7 @@ export const poapDetailsQuery = `query PoapDetails($eventId: [String!], $tokenAd
       transactionHash
       tokenAddress
       tokenId
+      tokenType
     }
   }
 }`;

@@ -20,7 +20,6 @@ import {
 } from '../../../utils/activeSnapshotInfoString';
 import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
 import { emit } from '../../../utils/eventEmitter/eventEmitter';
-import { formatNumber } from '../../../utils/formatNumber';
 import { SectionHeader } from '../SectionHeader';
 import { CommonTokenType, TokenType } from '../types';
 
@@ -52,12 +51,14 @@ function Token({
   amount,
   symbol,
   type,
-  logo
+  logo,
+  blockchain
 }: {
   type: string;
   symbol: string;
   amount: null | number;
   logo: string;
+  blockchain: string;
 }) {
   return (
     <div className="flex mb-5 hover:bg-glass px-3 py-1.5 rounded-18 overflow-hidden">
@@ -67,30 +68,18 @@ function Token({
       >
         <Logo logo={logo} symbol={symbol} className="w-full min-w-full" />
       </div>
-      <div className="flex flex-1 items-center min-w-0 text-sm pl-2.5">
-        {amount !== null && <span>{formatNumber(amount)}</span>}
-        <span className="mx-1.5 ellipsis">{symbol}</span>
-        <span className="text-xs text-text-secondary ellipsis min-w-[30%] lowercase">
-          {type}
-        </span>
+      <div className="flex-1 items-center min-w-0 text-sm pl-2.5">
+        {amount !== null && (
+          <div className="text-sm font-medium">{amount.toFixed(2)}</div>
+        )}
+        <div>
+          <span className="text-sm font-medium">{symbol}</span>{' '}
+          <span className="text-xs text-text-secondary lowercase whitespace-nowrap">
+            {type} • {blockchain}
+          </span>
+        </div>
       </div>
     </div>
-  );
-}
-
-const loaderData = Array(3).fill({ poapEvent: {} });
-
-function Loader() {
-  return (
-    <>
-      {loaderData.map((_, index) => (
-        <div className="skeleton-loader [&>div>div]:mb-0 mb-5" key={index}>
-          <div data-loader-type="block" data-loader-bg="glass">
-            <Token key={''} amount={0} symbol={''} type={''} logo="" />
-          </div>
-        </div>
-      ))}
-    </>
   );
 }
 
@@ -345,10 +334,10 @@ export function ERC20Tokens() {
                   token?.token?.logo?.small ||
                   token?.token?.projectDetails?.imageUrl
                 }
+                blockchain={token?.blockchain}
               />
             </div>
           ))}
-          {loading && <Loader />}
         </InfiniteScroll>
       </div>
     </div>
