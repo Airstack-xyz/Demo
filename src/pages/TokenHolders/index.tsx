@@ -26,6 +26,7 @@ import { showToast } from '../../utils/showToast';
 import { HoldersOverview } from './Overview/Overview';
 import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { Tokens } from './Tokens/Tokens';
+import { ERC20_ADDRESS_WHITELIST } from './constants';
 import { useDropdownOptions } from './hooks/useDropdownOptions';
 
 export function TokenHolders() {
@@ -142,14 +143,14 @@ export function TokenHolders() {
       overviewTokens.every(
         v =>
           v.tokenType === 'ERC20' &&
-          v.tokenAddress !== '0x058d96baa6f9d16853970b333ed993acc0c35add'
+          !ERC20_ADDRESS_WHITELIST.includes(v.tokenAddress)
       );
     const hasEveryERC20Mention =
       mentions?.length > 0 &&
       mentions.every(
         v =>
           (v?.token === 'ERC20' || v?.token === 'TOKEN') &&
-          v.address !== '0x058d96baa6f9d16853970b333ed993acc0c35add'
+          !ERC20_ADDRESS_WHITELIST.includes(v.address)
       );
     return {
       hasMultipleERC20: erc20Mentions?.length > 1 || erc20Tokens?.length > 1,
