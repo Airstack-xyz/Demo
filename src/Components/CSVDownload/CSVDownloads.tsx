@@ -133,8 +133,7 @@ export function CSVDownloads() {
   const [fileDownloaded, setFileDownloaded] = useState(false);
   const [taskFailed, setTaskFailed] = useState(false);
   const [foundLargeDataset, setFoundLargeDataset] = useState(false);
-  const activeRef = useRef<number[]>([]);
-  const [inProgressDownloads, setInProgressDownloads] = useState<number[]>([]);
+  const activeTasksSet = useRef<Set<number>>(new Set());
 
   const abortController = useRef<AbortController | null>(null);
   const [tasks, setTasks] = useState<Option[]>([]);
@@ -153,7 +152,7 @@ export function CSVDownloads() {
 
   const pollStatus = useCallback(
     async (id: number) => {
-      if (activeRef.current.indexOf(id) === -1) {
+      if (!activeTasksSet.current.has(id)) {
         return;
       }
 
@@ -171,11 +170,8 @@ export function CSVDownloads() {
         return;
       }
 
-      if (status === Status.Completed) {
-        if (!dropdownRef.current?.isVisible()) {
-          setFileDownloaded(true);
-        }
-        getHistoryRef.current?.();
+      if (status === Status.Completed && !dropdownRef.current?.isVisible()) {
+        setFileDownloaded(true);
       }
 
       if (
@@ -187,12 +183,11 @@ export function CSVDownloads() {
         if (!dropdownRef.current?.isVisible()) {
           showFailedAlert();
         }
-        getHistoryRef.current?.();
       }
 
-      activeRef.current = activeRef.current.filter(item => item !== id);
+      getHistoryRef.current?.();
 
-      setInProgressDownloads(activeRef.current);
+      activeTasksSet.current.delete(id);
     },
     [getStatus, showFailedAlert]
   );
@@ -234,18 +229,16 @@ export function CSVDownloads() {
         }
 
         if (isActive(item)) {
-          pollStatus(item.id);
-          if (!activeRef.current.includes(item.id)) {
-            activeRef.current.push(item.id);
+          if (!activeTasksSet.current.has(item.id)) {
+            activeTasksSet.current.add(item.id);
           }
+          pollStatus(item.id);
         } else {
           removeFromActiveDownload(item.id);
           downloadFailed = downloadFailed || item.status === Status.Failed;
-          activeRef.current = activeRef.current.filter(id => id !== item.id);
+          activeTasksSet.current.delete(item.id);
         }
       });
-
-      setInProgressDownloads(activeRef.current);
 
       if (downloadCompleted && !dropdownRef.current?.isVisible()) {
         setFileDownloaded(true);
@@ -270,8 +263,6 @@ export function CSVDownloads() {
         return;
       }
 
-      setInProgressDownloads(activeRef.current);
-
       let _data = [...data.GetCSVDownloadTasks].filter(item => !item?.expired);
 
       if (!fetchAll) {
@@ -289,7 +280,7 @@ export function CSVDownloads() {
       }
 
       const active = _data?.filter(item => isActive(item));
-      activeRef.current = active.map(item => item!.id);
+      activeTasksSet.current = new Set(active.map(item => item!.id as number));
 
       const tasks = _data
         .map(item => ({
@@ -326,15 +317,15 @@ export function CSVDownloads() {
 
   useEffect(() => {
     return listenTaskAdded((id: number) => {
-      activeRef.current.push(id);
-      setInProgressDownloads(activeRef.current);
+      activeTasksSet.current.add(id);
       saveToActiveDownload(id);
       pollStatus(id);
       if (!dropdownRef.current?.isVisible()) {
         setNewTaskAdded(true);
       }
+      getHistory();
     });
-  }, [pollStatus]);
+  }, [getHistory, pollStatus]);
 
   useEffect(() => {
     getHistory(false);
@@ -392,6 +383,16 @@ export function CSVDownloads() {
   const closeFilterPreparation = useCallback(() => {
     setNewTaskAdded(false);
   }, []);
+
+  const handleCanelTask = useCallback(async () => {
+    setTaskToCancel(null);
+    if (taskToCancel) {
+      await cancelTask({
+        taskId: taskToCancel
+      });
+    }
+    getHistory();
+  }, [cancelTask, getHistory, taskToCancel]);
 
   // priority to display alert - green, red, blue, yellow
   const showTooltip =
@@ -453,14 +454,7 @@ export function CSVDownloads() {
           onRequestClose={() => {
             setTaskToCancel(null);
           }}
-          onConfirm={() => {
-            if (taskToCancel) {
-              cancelTask({
-                taskId: taskToCancel
-              });
-            }
-            setTaskToCancel(null);
-          }}
+          onConfirm={handleCanelTask}
         />
       )}
       <Tooltip
@@ -474,9 +468,9 @@ export function CSVDownloads() {
         content={alert}
       >
         <div className="relative">
-          {inProgressDownloads.length > 0 && (
+          {tasks.length > 0 && (
             <span className="absolute -right-2 -top-1.5 bg-stroke-highlight-blue w-5 h-5 flex-col-center rounded-full text-xs z-[2]">
-              {inProgressDownloads.length}
+              {tasks.length}
             </span>
           )}
           <Dropdown
@@ -518,7 +512,7 @@ export function CSVDownloads() {
                     {
                       'border-white text-text-button': isOpen,
                       'text-[#8B8EA0]': !isOpen,
-                      'text-text-button': inProgressDownloads.length > 0
+                      'text-text-button': tasks.length > 0
                       // 'cursor-not-allowed pointer-events-none opacity-80': disabled
                     }
                   )}
