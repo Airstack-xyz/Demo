@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { memo, useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useGetPoapsOfOwner } from '../../../hooks/useGetPoapsOfOwner';
 import { useGetTokensOfOwner } from '../../../hooks/useGetTokensOfOwner';
@@ -55,10 +55,6 @@ function TokensComponent(props: TokenProps) {
   } = props;
   const [tokens, setTokens] = useState<(TokenType | PoapType)[] | null>(null);
 
-  const handleTokens = useCallback((tokens: (TokenType | PoapType)[]) => {
-    setTokens(prevTokens => [...(prevTokens || []), ...tokens]);
-  }, []);
-
   const isMobile = isMobileDevice();
 
   const inputs = {
@@ -91,6 +87,73 @@ function TokensComponent(props: TokenProps) {
     (hasAllChainFilter || hasGnosisChainFilter) &&
     (hasAllTokenFilter || hasPoapTokenFilter);
 
+  const tokensRef = useRef<{
+    poaps: PoapType[] | null;
+    nfts: TokenType[] | null;
+  }>({
+    poaps: null,
+    nfts: null
+  });
+
+  const hasNextPages = useRef({
+    poaps: true,
+    nfts: true
+  });
+
+  const handleTokens = useCallback(
+    (tokens: (TokenType | PoapType)[], hasNextPage: boolean) => {
+      let { poaps, nfts } = tokensRef.current;
+      let { poaps: hasPoapsNextPage, nfts: hasNftsNextPage } =
+        hasNextPages.current;
+
+      if ((tokens[0] as PoapType)?.poapEvent) {
+        poaps = [...(poaps || []), ...(tokens as PoapType[])];
+        hasPoapsNextPage = hasNextPage;
+      } else {
+        nfts = [...(nfts || []), ...(tokens as TokenType[])];
+        hasNftsNextPage = hasNextPage;
+      }
+
+      tokensRef.current = {
+        poaps,
+        nfts
+      };
+
+      hasNextPages.current = {
+        poaps: hasPoapsNextPage,
+        nfts: hasNftsNextPage
+      };
+
+      if (
+        (!canFetchPoaps || !hasPoapsNextPage || poaps) &&
+        (!canFetchTokens || !hasNftsNextPage || nfts)
+      ) {
+        const tokens = [...(poaps || []), ...(nfts || [])].sort((a, b) => {
+          const timestampA = (a as PoapType).poapEvent
+            ? (a as PoapType).createdAtBlockTimestamp
+            : (a as TokenType).lastUpdatedTimestamp;
+
+          const timestampB = (b as PoapType).poapEvent
+            ? (b as PoapType).createdAtBlockTimestamp
+            : (b as TokenType).lastUpdatedTimestamp;
+
+          if (sortOrder === 'ASC') {
+            return (
+              new Date(timestampA).getTime() - new Date(timestampB).getTime()
+            );
+          }
+
+          return (
+            new Date(timestampB).getTime() - new Date(timestampA).getTime()
+          );
+        });
+
+        setTokens(_tokens => [...(_tokens || []), ...tokens]);
+      }
+    },
+    [canFetchPoaps, canFetchTokens, sortOrder]
+  );
+
   const {
     loading: loadingPoaps,
     getNext: getNextPoaps,
@@ -106,10 +169,17 @@ function TokensComponent(props: TokenProps) {
   } = useGetTokensOfOwner(inputs, handleTokens, !canFetchTokens);
 
   const handleNext = useCallback(() => {
-    if (canFetchTokens && !loadingTokens && hasNextPageTokens) {
+    if (loadingPoaps || loadingTokens) return;
+    tokensRef.current = {
+      poaps: null,
+      nfts: null
+    };
+
+    if (canFetchTokens && hasNextPageTokens) {
       getNextTokens();
     }
-    if (canFetchPoaps && !loadingPoaps && hasNextPagePoaps) {
+
+    if (canFetchPoaps && hasNextPagePoaps) {
       getNextPoaps();
     }
   }, [
