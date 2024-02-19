@@ -14,6 +14,7 @@ import {
   useOverviewTokens
 } from '../../../store/tokenHoldersOverview';
 import { ERC6551TokenHolder } from '../ERC6551TokenHolder';
+import { ERC20_ADDRESS_WHITELIST } from '../constants';
 import { Details } from './Details';
 import { HolderCount } from './HolderCount';
 import { imageAndSubTextMap } from './imageAndSubTextMap';
@@ -53,13 +54,21 @@ function Overview({
   }, [account]);
 
   const shouldFetchHoldersCount = useMemo(() => {
-    return memoizedTokens.every(token => token.tokenType !== 'ERC20');
+    return memoizedTokens.every(
+      v =>
+        v.tokenType !== 'ERC20' ||
+        ERC20_ADDRESS_WHITELIST.includes(v.tokenAddress)
+    );
   }, [memoizedTokens]);
 
   const hasEveryERC20 = useMemo(() => {
     return (
       memoizedTokens.length > 0 &&
-      memoizedTokens.every(token => token.tokenType === 'ERC20')
+      memoizedTokens.every(
+        v =>
+          v.tokenType === 'ERC20' &&
+          !ERC20_ADDRESS_WHITELIST.includes(v.tokenAddress)
+      )
     );
   }, [memoizedTokens]);
 
@@ -281,6 +290,17 @@ function Overview({
         {memoizedTokens.map(({ name, tokenAddress, eventId }, index) => {
           const address = eventId ? eventId : tokenAddress;
           const supply = tokensSupply?.[address.toLocaleLowerCase()];
+
+          const isERC20 = ERC20_ADDRESS_WHITELIST.includes(tokenAddress);
+
+          const supplyText =
+            supply && isERC20
+              ? BigInt(supply).toLocaleString(undefined, {
+                  notation: 'scientific',
+                  maximumFractionDigits: 2
+                })
+              : supply;
+
           return (
             <span
               key={`${address}-${index}`}
@@ -290,7 +310,7 @@ function Overview({
             >
               <span className="ellipsis mr-1"> {name} </span>
               <span className="mx-1">: </span>
-              <span className="w-[80px] ellipsis">{supply || '--'}</span>
+              <span className="w-[80px] ellipsis">{supplyText || '--'}</span>
               {index < memoizedTokens.length - 1 ? (
                 <span className="mx-1">|</span>
               ) : null}
@@ -326,7 +346,7 @@ function Overview({
     <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px] mb-7">
       <div className="border-solid-stroke bg-glass rounded-18 px-5 py-2.5 m-2.5 flex-1 w-full overflow-hidden">
         <div className="mb-2 flex flex-col">
-          <div className="text-sm text-text-secondary">Total supply </div>
+          <div className="text-sm text-text-secondary">Total supply</div>
           <div className="ellipsis text-lg">
             {loadingTokensSupply ? (
               <div className="h-7 flex items-center ml-2">

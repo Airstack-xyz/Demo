@@ -191,7 +191,7 @@ export function useDropdownOptions({
         totalSupply = erc20s[0].holdersCount;
         variables = {
           erc20Address: erc20s[0].tokenAddress,
-          blockchain: erc20s[0].blockchain
+          erc20Blockchain: erc20s[0].blockchain
         };
 
         if (poaps.length > 0) {
@@ -206,7 +206,8 @@ export function useDropdownOptions({
           key = CsvQueryType.NftErc20Holders;
           variables = {
             ...variables,
-            nftAddress: nfts[0].tokenAddress
+            nftAddress: nfts[0].tokenAddress,
+            nftBlockchain: nfts[0].blockchain
           };
         }
       } else if (poaps.length) {
@@ -235,7 +236,8 @@ export function useDropdownOptions({
         variables = {
           tokenAddress1: overviewTokens[0].tokenAddress,
           tokenAddress2: overviewTokens[1].tokenAddress,
-          blockchain: overviewTokens[0].blockchain || 'ethereum'
+          tokenAddress1Blockchain: overviewTokens[0].blockchain || 'ethereum',
+          tokenAddress2Blockchain: overviewTokens[1].blockchain || 'ethereum'
         };
       }
 
