@@ -4,6 +4,9 @@ module.exports = {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        'concert-one': ['Concert One', 'sans-serif']
+      },
       colors: {
         primary: '#0E0E12',
         secondary: '#16161D',

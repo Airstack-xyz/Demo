@@ -42,6 +42,7 @@ import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenDetails } from './TokenDetails/TokenDetails';
 import { Tokens, TokensLoader } from './Tokens/Tokens';
 import { useDropdownOptions } from './hooks/useDropdownOptions';
+import { TokenBalancesFrameModal } from '../../Components/FrameModal/TokenBalancesFrameModal';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -387,6 +388,7 @@ function TokenBalancePage() {
         <div className="flex items-center gap-3.5">
           <GetAPIDropdown options={getAPIOptions} dropdownAlignment="right" />
           <CSVDownloadDropdown options={csvDownloadOptions} />
+          <TokenBalancesFrameModal />
         </div>
       </div>
     );
