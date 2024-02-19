@@ -50,7 +50,7 @@ type Inputs = Pick<
 
 export function useGetTokensOfOwner(
   inputs: Inputs,
-  onDataReceived: (tokens: TokenType[]) => void,
+  onDataReceived: (tokens: TokenType[], hasNextPage: boolean) => void,
   tokenDisabled = false
 ) {
   const {
@@ -217,12 +217,12 @@ export function useGetTokensOfOwner(
     }
 
     tokensRef.current = [...tokensRef.current, ...tokens];
-    onDataReceived(tokens);
 
     if (hasNextPage && tokensRef.current.length < LIMIT) {
       setLoading(true);
       getNextPage();
     } else {
+      onDataReceived(tokensRef.current, hasNextPage);
       setLoading(false);
       tokensRef.current = [];
     }

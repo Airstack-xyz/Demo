@@ -90,11 +90,6 @@ export function SortBy({
           }}
         />
       )}
-      footerComponent={
-        <div className="text-white text-[10px] pt-1 pb-2 pl-[30px] pr-2">
-          *NFTs & POAPs will get sorted separately
-        </div>
-      }
     />
   );
 }

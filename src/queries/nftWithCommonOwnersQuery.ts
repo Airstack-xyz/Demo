@@ -25,10 +25,10 @@ function getFields({
   return `amount
   tokenType
   blockchain
-  tokenAddress
   formattedAmount
   tokenId
   tokenAddress
+  lastUpdatedTimestamp
   owner {
       addresses
   }
@@ -135,6 +135,7 @@ function getParentFields({
 
   return `blockchain
   tokenAddress
+  lastUpdatedTimestamp
   tokenType
   tokenNfts {
     tokenId

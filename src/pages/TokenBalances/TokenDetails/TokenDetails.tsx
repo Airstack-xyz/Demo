@@ -66,7 +66,7 @@ function formatNFTData(data: ERC20Response) {
   return {
     nft: {
       ...data?.nft,
-      tokenBalance: data?.nft.tokenBalances?.[0]
+      tokenBalance: data?.nft?.tokenBalances?.[0]
     },
     transferDetails: data?.transfers?.TokenTransfer[0]
   };
@@ -94,7 +94,7 @@ function formatAccountHolderData(data: AccountHolderResponse) {
       if (account?.nft?.tokenBalances?.length > 0) {
         for (let j = 0; j < account?.nft?.tokenBalances?.length; j++) {
           const token = account?.nft?.tokenBalances[j];
-          if (token?.owner?.accounts.length === 0) {
+          if (token?.owner?.accounts?.length === 0) {
             return token?.owner?.identity;
           } else {
             return getOwner(token?.owner?.accounts);
@@ -377,7 +377,7 @@ export function TokenDetails(props: {
                       <span className="ellipsis">
                         Details of{' '}
                         {isPoap
-                          ? poap?.poapEvent.eventName
+                          ? poap?.poapEvent?.eventName
                           : erc20Token?.name || nft?.token?.name}
                       </span>
                       {activeTokenId ? (
