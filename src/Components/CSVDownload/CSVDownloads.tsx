@@ -44,6 +44,7 @@ import {
 } from './Alerts';
 import { historyPage } from '../../constants';
 import { showToast } from '../../utils/showToast';
+import { Devider } from './Devider';
 
 type Task = NonNullable<
   NonNullable<GetTasksHistoryQuery['GetCSVDownloadTasks']>[0]
@@ -546,63 +547,110 @@ export function CSVDownloads() {
                 );
               }
               return (
-                <div className="py-2 px-5 rounded-full mb-2 cursor-pointer text-left whitespace-nowrap w-[340px]">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center overflow-hidden">
-                      <Icon
-                        name="file-arrow-down"
-                        className="mr-2"
-                        width={14}
-                      />
-                      <span className="ellipsis w-full flex-1">
-                        {option.label}
-                      </span>
-                    </div>
-                    {isInProgress && (
-                      <div className="flex items-center ml-2">
-                        <button>
-                          <Icon
-                            name="cancel-circle"
-                            onClick={e => {
-                              e.preventDefault();
-                              setTaskToCancel(option.id);
-                            }}
-                          />
-                        </button>
+                <>
+                  <div className="py-3 px-5 rounded-full cursor-pointer text-left whitespace-nowrap w-[340px]">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center overflow-hidden">
+                        <Icon
+                          name="file-arrow-down"
+                          className="mr-2"
+                          width={14}
+                        />
+                        <span className="ellipsis w-full flex-1">
+                          {option.label}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                  <div className="ml-5">
-                    {status === Status.Completed && (
-                      <div className="mt-2">
-                        <div className="mb-2">
-                          <div className="mb-1.5 text-text-secondary">
-                            {formatBytes(option.fileSize || 0, 2)} •{' '}
-                            {option.totalRows} rows
+                      {isInProgress && (
+                        <div className="flex items-center ml-2">
+                          <button>
+                            <Icon
+                              name="cancel-circle"
+                              onClick={e => {
+                                e.preventDefault();
+                                setTaskToCancel(option.id);
+                              }}
+                            />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                    <div className="ml-5">
+                      {status === Status.Completed && (
+                        <div className="mt-2">
+                          <div className="mb-2">
+                            <div className="mb-1.5 text-text-secondary">
+                              {formatBytes(option.fileSize || 0, 2)} •{' '}
+                              {option.totalRows} rows
+                            </div>
+                            <div className="text-stroke-highlight-blue">
+                              {formatNumber(
+                                !option.totalRows ? 0 : option.creditsUsed || 0,
+                                2
+                              )}{' '}
+                              credits to download
+                            </div>
                           </div>
-                          <div className="text-stroke-highlight-blue">
-                            {formatNumber(
-                              !option.totalRows ? 0 : option.creditsUsed || 0,
-                              2
-                            )}{' '}
-                            credits to download
+                          <div>
+                            {option.totalRows ? (
+                              <button
+                                disabled={!option.totalRows || downloading}
+                                className="py-1 px-3 rounded-full cursor-pointer text-left whitespace-nowrap bg-white text-tertiary mr-5 disabled:bg-opacity-75 disabled:cursor-not-allowed"
+                                onClick={() => {
+                                  handleDownload(option.id);
+                                }}
+                              >
+                                Download CSV ($
+                                {formatNumber(option.creditPrice || 0, 4)})
+                              </button>
+                            ) : null}
+
+                            {!option.downloadedAt && (
+                              <button
+                                className="ml-2.5 text-white font-medium py-2 px-3 hover:text-opacity-90"
+                                onClick={e => {
+                                  e.preventDefault();
+                                  setTaskToCancel(option.id);
+                                }}
+                              >
+                                Cancel
+                              </button>
+                            )}
                           </div>
                         </div>
-                        <div>
-                          {option.totalRows ? (
-                            <button
-                              disabled={!option.totalRows || downloading}
-                              className="py-1 px-3 rounded-full cursor-pointer text-left whitespace-nowrap bg-white text-tertiary mr-5 disabled:bg-opacity-75 disabled:cursor-not-allowed"
-                              onClick={() => {
-                                handleDownload(option.id);
-                              }}
-                            >
-                              Download CSV ($
-                              {formatNumber(option.creditPrice || 0, 4)})
-                            </button>
-                          ) : null}
+                      )}
 
-                          {!option.downloadedAt && (
+                      {isInProgress && (
+                        <div className="text-text-secondary">
+                          <div className="flex items-center">
+                            <img
+                              src="images/loader.svg"
+                              height={20}
+                              width={30}
+                              className="mr-2"
+                            />{' '}
+                            Preparing your file...
+                          </div>
+                          {!largeFile && (
+                            <div>We will notify you once it is ready.</div>
+                          )}
+                        </div>
+                      )}
+                      {!isInProgress && !largeFile && failed && (
+                        <div className="text-text-secondary mt-2">
+                          <div className="flex items-center">
+                            Failed to prepare the file. Please try again.
+                          </div>
+                          <div className="flex items-center mt-3">
+                            <button
+                              disabled={restartingTask}
+                              onClick={() => {
+                                handleRestart(option.id);
+                              }}
+                              className="bg-white text-primary hover:opacity-80 flex items-center rounded-18 pl-2 pr-3 py-1"
+                            >
+                              <Retry />
+                              Retry
+                            </button>
                             <button
                               className="ml-2.5 text-white font-medium py-2 px-3 hover:text-opacity-90"
                               onClick={e => {
@@ -612,79 +660,39 @@ export function CSVDownloads() {
                             >
                               Cancel
                             </button>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {isInProgress && (
-                      <div className="text-text-secondary">
-                        <div className="flex items-center">
-                          <img
-                            src="images/loader.svg"
-                            height={20}
-                            width={30}
-                            className="mr-2"
-                          />{' '}
-                          Preparing your file...
-                        </div>
-                        {!largeFile && (
-                          <div>We will notify you once it is ready.</div>
-                        )}
-                      </div>
-                    )}
-                    {!isInProgress && !largeFile && failed && (
-                      <div className="text-text-secondary mt-2">
-                        <div className="flex items-center">
-                          Failed to prepare the file. Please try again.
-                        </div>
-                        <div className="flex items-center mt-3">
-                          <button
-                            disabled={restartingTask}
-                            onClick={() => {
-                              handleRestart(option.id);
-                            }}
-                            className="bg-white text-primary hover:opacity-80 flex items-center rounded-18 pl-2 pr-3 py-1"
-                          >
-                            <Retry />
-                            Retry
-                          </button>
-                          <button
-                            className="ml-2.5 text-white font-medium py-2 px-3 hover:text-opacity-90"
-                            onClick={e => {
-                              e.preventDefault();
-                              setTaskToCancel(option.id);
-                            }}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      </div>
-                    )}
-                    {status === Status.Cancelled && (
-                      <div className="text-text-secondary mt-2">
-                        <div className="flex items-center">Cancelled</div>
-                      </div>
-                    )}
-                    {largeFile && (
-                      <div className="flex items-start text-text-secondary mt-2">
-                        <span className="mt-1 mr-1.5">
-                          <AlertYellow />
-                        </span>
-                        <div className="">
-                          This file is rather large. Please wait
-                          <div className="mt-1">
-                            or contact{' '}
-                            <span className="font-semibold text-text-button">
-                              csv@airstack.xyz
-                            </span>{' '}
-                            for more help.
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                      {status === Status.Cancelled && (
+                        <div className="text-text-secondary mt-2">
+                          <div className="flex items-center">Cancelled</div>
+                        </div>
+                      )}
+                      {largeFile && (
+                        <div className="flex items-start text-text-secondary mt-2">
+                          <span className="mt-1 mr-1.5">
+                            <AlertYellow />
+                          </span>
+                          <div className="">
+                            This file is rather large. Please wait
+                            <div className="mt-1">
+                              or contact{' '}
+                              <span className="font-semibold text-text-button">
+                                csv@airstack.xyz
+                              </span>{' '}
+                              for more help.
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
+                  {isInProgress && activeTasksSet.current.size > 1 && (
+                    <div className="flex items-center justify-center py-1">
+                      <Devider />
+                    </div>
+                  )}
+                </>
               );
             }}
           />
