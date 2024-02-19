@@ -105,6 +105,7 @@ export function ShareURLDropdown({
         ref={containerRef}
       >
         <button
+          title="Get short URL for this view"
           className={classNames(
             'py-1.5 px-3 text-text-button bg-glass-1 rounded-full flex-row-center border border-solid border-transparent',
             {

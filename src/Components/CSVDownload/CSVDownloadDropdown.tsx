@@ -1,11 +1,10 @@
 import classNames from 'classnames';
 import { useCallback, useState } from 'react';
+import { useEstimateTask } from '../../hooks/useEstimateTask';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { CSVDownloadOption } from '../../types';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Modal } from '../Modal';
-import { CSVDownloadOption } from '../../types';
-import { useEstimateTask } from '../../hooks/useEstimateTask';
-import { Tooltip } from '../Tooltip';
 
 function CodeIconBlue() {
   return (
@@ -84,28 +83,22 @@ export function CSVDownloadDropdown({
         className="text-xs font-medium relative flex flex-col items-end"
         ref={containerRef}
       >
-        <Tooltip
-          content="Download CSV"
-          contentClassName="mt-2 px-2 py-1.5 bg-secondary rounded-18 text-text-secondary"
-        >
-          <button
-            className={classNames(
-              'py-1.5 px-3 text-text-button bg-glass-1 rounded-full text-xs font-medium flex-row-center border border-solid border-transparent ',
-              {
-                'border-white': isDropdownVisible,
-                'cursor-not-allowed pointer-events-none opacity-80': disabled
-              }
-            )}
-            onClick={
-              showDesktopNudgeModal ? handleModalOpen : handleDropdownToggle
+        <button
+          title="Download CSV"
+          className={classNames(
+            'py-1.5 px-3 text-text-button bg-glass-1 rounded-full text-xs font-medium flex-row-center border border-solid border-transparent ',
+            {
+              'border-white': isDropdownVisible,
+              'cursor-not-allowed pointer-events-none opacity-80': disabled
             }
-            disabled={disabled}
-          >
-            <span>
-              <CodeIconBlue />
-            </span>
-          </button>
-        </Tooltip>
+          )}
+          onClick={
+            showDesktopNudgeModal ? handleModalOpen : handleDropdownToggle
+          }
+          disabled={disabled}
+        >
+          <CodeIconBlue />
+        </button>
         {isDropdownVisible && (
           <div
             className={classNames(
