@@ -485,7 +485,7 @@ export function CSVDownloads() {
               // console.log('do nothing');
             }}
             heading={
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between pt-1">
                 <span>CSV Downloads In Progress</span>
                 <a
                   href={historyPage}
