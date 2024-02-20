@@ -45,18 +45,17 @@ function CopyIconWhite() {
 function ShareIconBlue() {
   return (
     <svg
+      xmlns="http://www.w3.org/2000/svg"
       width="16"
       height="16"
-      viewBox="0 0 16 16"
       fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 16 16"
     >
       <path
-        d="M11 5L8 2M8 2L5 5M8 2V11M14.75 11V12.5C14.75 13.3284 14.0785 14 13.25 14H2.75C1.92157 14 1.25 13.3284 1.25 12.5V11"
-        stroke="#65AAD0"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
+        fill="#65AAD0"
+        fill-rule="evenodd"
+        d="M11.7692 13.9231c-.8922 0-1.6154-.7232-1.6154-1.6154s.7232-1.6154 1.6154-1.6154c.8923 0 1.6154.7232 1.6154 1.6154s-.7231 1.6154-1.6154 1.6154ZM4.2308 9.6154c-.8923 0-1.6154-.7232-1.6154-1.6154 0-.8917.7231-1.6154 1.6154-1.6154.8922 0 1.6153.7237 1.6153 1.6154 0 .8922-.7231 1.6154-1.6153 1.6154Zm7.5384-7.5385c.8923 0 1.6154.7232 1.6154 1.6154s-.7231 1.6154-1.6154 1.6154c-.8922 0-1.6154-.7232-1.6154-1.6154s.7232-1.6154 1.6154-1.6154Zm0 7.5385c-.9531 0-1.785.4981-2.2637 1.2449L6.6221 9.2126c.1863-.3661.301-.7743.301-1.2126 0-.2709-.0523-.5272-.1266-.7738l2.9998-1.7139c.4916.533 1.1905.8723 1.9729.8723 1.4873 0 2.6923-1.205 2.6923-2.6923C14.4615 2.2051 13.2565 1 11.7692 1 10.282 1 9.0769 2.205 9.0769 3.6923c0 .2709.0522.5272.1265.7743L6.2037 6.18c-.4916-.5325-1.1906-.8723-1.973-.8723-1.4872 0-2.6922 1.205-2.6922 2.6923 0 1.4872 1.205 2.6923 2.6923 2.6923.6138 0 1.1733-.2132 1.6261-.5589l-.0108.0204 3.2604 1.8631c-.0107.097-.0296.1906-.0296.2908C9.077 13.7949 10.282 15 11.7692 15c1.4873 0 2.6923-1.2051 2.6923-2.6923 0-1.4872-1.205-2.6923-2.6923-2.6923Z"
+        clip-rule="evenodd"
       />
     </svg>
   );
@@ -68,6 +67,7 @@ export function ShareURLDropdown({
   dropdownAlignment?: string;
 }) {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [shortUrl, setShortUrl] = useState<string | null>(null);
 
   const handleDropdownClose = useCallback(() => {
@@ -87,14 +87,19 @@ export function ShareURLDropdown({
   }, [shortUrl]);
 
   useEffect(() => {
-    if (isDropdownVisible && shortUrl === null) {
+    if (isDropdownVisible) {
       const longUrl = window.location.href;
-      shortenUrl(longUrl).then(({ data, error }) => {
-        if (error) {
-          showToast(`Couldn't shorten url`, 'negative');
-        }
-        setShortUrl(data?.shortenedUrl || '');
-      });
+      setLoading(true);
+      shortenUrl(longUrl)
+        .then(({ data, error }) => {
+          if (error) {
+            showToast(`Couldn't shorten url`, 'negative');
+          }
+          setShortUrl(data?.shortenedUrl || '');
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   }, [isDropdownVisible, shortUrl]);
 
@@ -131,7 +136,7 @@ export function ShareURLDropdown({
               Share this view with others
             </div>
             <div className="flex-row-center mt-2.5 gap-3 h-[35px]">
-              {shortUrl === null ? (
+              {loading ? (
                 <img src="images/loader.svg" height={20} width={30} />
               ) : (
                 <>

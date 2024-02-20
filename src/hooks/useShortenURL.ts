@@ -23,6 +23,7 @@ export async function shortenUrl(longUrl: string) {
   try {
     const res = await fetch(MENTION_ENDPOINT, {
       method: 'POST',
+      cache: 'no-cache',
       headers: {
         'Content-Type': 'application/json',
         Authorization: apiKey
