@@ -72,7 +72,7 @@ export function Header() {
             </svg>
           </a>
           <a
-            className="text-text-button font-bold bg-glass-1 hover:opacity-90 px-2.5 py-1 rounded-18"
+            className="font-bold text-[8px] bg-glass-1 hover:opacity-90 w-10 h-[30px] rounded-18 flex items-center justify-center"
             href="https://github.com/Airstack-xyz/Demo"
             target="_blank"
           >
