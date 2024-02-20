@@ -61,6 +61,8 @@ function ShareIconBlue() {
   );
 }
 
+const shareUrlCache = new Map<string, string>();
+
 export function ShareURLDropdown({
   dropdownAlignment = 'left'
 }: {
@@ -89,19 +91,28 @@ export function ShareURLDropdown({
   useEffect(() => {
     if (isDropdownVisible) {
       const longUrl = window.location.href;
+      if (shareUrlCache.has(longUrl)) {
+        const shortenedUrl = shareUrlCache.get(longUrl) || '';
+        setShortUrl(shortenedUrl);
+        return;
+      }
       setLoading(true);
       shortenUrl(longUrl)
         .then(({ data, error }) => {
           if (error) {
             showToast(`Couldn't shorten url`, 'negative');
+            setShortUrl('');
+            return;
           }
-          setShortUrl(data?.shortenedUrl || '');
+          const shortenedUrl = data?.shortenedUrl || '';
+          shareUrlCache.set(longUrl, shortenedUrl);
+          setShortUrl(shortenedUrl);
         })
         .finally(() => {
           setLoading(false);
         });
     }
-  }, [isDropdownVisible, shortUrl]);
+  }, [isDropdownVisible]);
 
   return (
     <>
