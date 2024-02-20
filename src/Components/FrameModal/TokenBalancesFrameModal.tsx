@@ -25,6 +25,12 @@ import {
   getFrameButtonsForTokenBalances,
   getResolvedOwner
 } from './utils';
+import {
+  DECODED_BLOCKCHAIN,
+  DECODED_TOKEN_TYPE,
+  ENCODED_BLOCKCHAIN,
+  ENCODED_TOKEN_TYPE
+} from './constants';
 
 function FrameIconBlue() {
   return (
@@ -57,23 +63,23 @@ function FrameIconBlue() {
 const ButtonOptions: FrameOption[] = [
   {
     label: 'POAPs',
-    value: 'poap'
+    value: `${ENCODED_TOKEN_TYPE.POAP}`
   },
   {
     label: 'NFTs on Ethereum',
-    value: 'nft-ethereum'
+    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.ETHEREUM}`
   },
   {
     label: 'NFTs on Polygon',
-    value: 'nft-polygon'
+    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.POLYGON}`
   },
   {
     label: 'NFTs on Zora',
-    value: 'nft-zora'
+    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.ZORA}`
   },
   {
     label: 'NFTs on Base',
-    value: 'nft-base'
+    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.BASE}`
   }
 ];
 
@@ -149,8 +155,13 @@ function ModalContent() {
           blockchain: null
         };
       }
-      const buttonValue = selectedButtonValues?.[0] || '';
-      const [tokenType, blockchain] = buttonValue.split('-');
+
+      const firstButtonValue = selectedButtonValues?.[0] || '';
+      const [encodeTokenType, encodedBlockchain] = firstButtonValue.split('-');
+
+      const tokenType = DECODED_TOKEN_TYPE[encodeTokenType];
+      const blockchain = DECODED_BLOCKCHAIN[encodedBlockchain];
+
       return {
         selectedButtonValues,
         isPOAP: tokenType === 'poap',
@@ -209,11 +220,10 @@ function ModalContent() {
     if (selectedButtonValues.length <= 2) {
       return '';
     }
-    const [b1, b2, b3] = selectedButtonValues;
     const frameData = encodeFrameData({
-      b1,
-      b2,
-      b3,
+      b1: selectedButtonValues[0],
+      b2: selectedButtonValues[1],
+      b3: selectedButtonValues[2],
       o: resolvedOwner.address,
       d: resolvedOwner.display
     });
