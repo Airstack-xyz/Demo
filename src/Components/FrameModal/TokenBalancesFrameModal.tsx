@@ -22,6 +22,7 @@ import {
 } from './types';
 import {
   encodeFrameData,
+  getDisplayName,
   getFrameButtonsForTokenBalances,
   getResolvedOwner
 } from './utils';
@@ -85,7 +86,7 @@ const ButtonOptions: FrameOption[] = [
 
 const FRAMES_ENDPOINT = process.env.FRAMES_ENDPOINT || '';
 
-const PLACEHOLDER_URL = 'images/placeholder.svg';
+const PLACEHOLDER_URL = 'images/placeholder-blue.svg';
 
 function Token({ item }: { item: Poap | TokenBalance }) {
   const tokenBalance = item as TokenBalance;
@@ -206,15 +207,7 @@ function ModalContent() {
 
   const wallet = data?.Wallet;
 
-  const resolvedOwner = useMemo(() => {
-    if (!wallet) {
-      return {
-        display: '',
-        address: ''
-      };
-    }
-    return getResolvedOwner(wallet);
-  }, [wallet]);
+  const resolvedOwner = useMemo(() => getResolvedOwner(wallet), [wallet]);
 
   const frameUrl = useMemo(() => {
     if (selectedButtonValues.length <= 2) {
@@ -224,11 +217,10 @@ function ModalContent() {
       b1: selectedButtonValues[0],
       b2: selectedButtonValues[1],
       b3: selectedButtonValues[2],
-      o: resolvedOwner.address,
-      d: resolvedOwner.display
+      o: resolvedOwner
     });
     return `${FRAMES_ENDPOINT}/tb/${frameData}`;
-  }, [resolvedOwner.address, resolvedOwner.display, selectedButtonValues]);
+  }, [resolvedOwner, selectedButtonValues]);
 
   const handleButtonSelect = (option: FrameOption, index: number) => {
     setSelectedButtons(prevButtons => {
@@ -278,12 +270,12 @@ function ModalContent() {
 
     const items = data?.Poaps?.Poap || data?.TokenBalances?.TokenBalance || [];
 
+    const displayName = getDisplayName(resolvedOwner);
+
     return (
       <div className="flex flex-col items-center h-full">
         <div className="font-concert-one text-xl text-center ellipsis max-w-[400px] mt-3.5 mb-6">
-          {isPOAP
-            ? `POAPs of ${resolvedOwner.display}`
-            : `Token balances of ${resolvedOwner.display}`}
+          {displayName}'s Onchain Collection
         </div>
         <div className="flex flex-wrap justify-center max-w-[580px] gap-6">
           {items.length ? (
@@ -306,7 +298,7 @@ function ModalContent() {
   return (
     <div className="py-1">
       <div className="text-white text-lg font-semibold">
-        Share Token Balances as Farcaster Frame
+        Showcase NFTs in a Frame
       </div>
       <div className="flex mt-4 gap-7">
         <FrameSelect
