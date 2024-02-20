@@ -509,6 +509,7 @@ export function CSVDownloads() {
               <Tooltip
                 content="CSV downloads in progress"
                 contentClassName={tooltipClass}
+                disabled={isOpen}
               >
                 <button
                   onClick={showDownload}

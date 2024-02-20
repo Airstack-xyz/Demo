@@ -124,6 +124,7 @@ export function ShareURLDropdown({
         <Tooltip
           content="Get short URL for this view"
           contentClassName={tooltipClass}
+          disabled={isDropdownVisible}
         >
           <button
             className={classNames(

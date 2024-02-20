@@ -87,6 +87,7 @@ export function CSVDownloadDropdown({
         <Tooltip
           content="Download the response in CSV format"
           contentClassName={tooltipClass}
+          disabled={isDropdownVisible}
         >
           <button
             className={classNames(

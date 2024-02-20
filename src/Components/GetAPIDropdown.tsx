@@ -73,6 +73,7 @@ export function GetAPIDropdown({
         <Tooltip
           content="Get API for the response"
           contentClassName={tooltipClass}
+          disabled={isDropdownVisible}
         >
           <button
             className={classNames(
