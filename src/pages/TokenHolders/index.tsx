@@ -134,28 +134,31 @@ export function TokenHolders() {
     setCsvDownloadOptions({ options: csvDownloadOptions });
   }, [csvDownloadOptions, setCsvDownloadOptions]);
 
-  const { hasMultipleERC20, hasEveryERC20 } = useMemo(() => {
+  const { hasMultipleERC20, hasEveryERC20, hasSomeNft } = useMemo(() => {
     const erc20Tokens = overviewTokens?.filter(v => v.tokenType === 'ERC20');
     const erc20Mentions = mentions?.filter(
       v => v?.token === 'ERC20' || v?.token === 'TOKEN'
     );
-    const hasEveryERC20Token =
-      overviewTokens?.length > 0 &&
+    const hasEveryERC20 =
+      mentions.every(
+        v =>
+          (v?.token === 'ERC20' || v?.token === 'TOKEN') &&
+          !ERC20_ADDRESS_WHITELIST.includes(v.address)
+      ) ||
       overviewTokens.every(
         v =>
           v.tokenType === 'ERC20' &&
           !ERC20_ADDRESS_WHITELIST.includes(v.tokenAddress)
       );
-    const hasEveryERC20Mention =
-      mentions?.length > 0 &&
-      mentions.every(
-        v =>
-          (v?.token === 'ERC20' || v?.token === 'TOKEN') &&
-          !ERC20_ADDRESS_WHITELIST.includes(v.address)
+    const hasSomeNft =
+      mentions?.some(v => v?.token === 'ERC721' || v?.token === 'ERC1155') ||
+      overviewTokens?.some(
+        v => v?.tokenType === 'ERC721' || v?.tokenType === 'ERC1155'
       );
     return {
       hasMultipleERC20: erc20Mentions?.length > 1 || erc20Tokens?.length > 1,
-      hasEveryERC20: hasEveryERC20Mention || hasEveryERC20Token
+      hasEveryERC20,
+      hasSomeNft
     };
   }, [overviewTokens, mentions]);
 
@@ -247,7 +250,7 @@ export function TokenHolders() {
             disabledTooltipText={snapshotFilterTooltip}
             disabledTooltipIconHidden={snapshotFilterTooltipIconHidden}
           />
-          <AdvancedSettings />
+          <AdvancedSettings disabled={!hasSomeNft} />
         </div>
         <div className="flex items-center gap-3.5">
           <GetAPIDropdown options={getAPIOptions} />

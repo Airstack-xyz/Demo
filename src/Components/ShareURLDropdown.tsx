@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 import { shortenUrl } from '../hooks/useShortenURL';
 import { showToast } from '../utils/showToast';
+import { Tooltip, tooltipClass } from './Tooltip';
 
 function CopyIconWhite() {
   return (
@@ -120,22 +121,26 @@ export function ShareURLDropdown({
         className="text-xs font-medium relative flex flex-col items-end"
         ref={containerRef}
       >
-        <button
-          title="Get short URL for this view"
-          className={classNames(
-            'py-1.5 px-3 text-text-button bg-glass-1 rounded-full flex-row-center border border-solid border-transparent',
-            {
-              'border-white': isDropdownVisible
-            }
-          )}
-          onClick={handleDropdownToggle}
+        <Tooltip
+          content="Get short URL for this view"
+          contentClassName={tooltipClass}
         >
-          <ShareIconBlue />
-        </button>
+          <button
+            className={classNames(
+              'py-1.5 px-3 text-text-button bg-glass-1 rounded-full flex-row-center border border-solid border-transparent',
+              {
+                'border-white': isDropdownVisible
+              }
+            )}
+            onClick={handleDropdownToggle}
+          >
+            <ShareIconBlue />
+          </button>
+        </Tooltip>
         {isDropdownVisible && (
           <div
             className={classNames(
-              'bg-glass border-solid-stroke rounded-18 p-3.5 mt-1 absolute w-[334px] top-9 z-20',
+              'bg-glass border-solid-stroke rounded-18 p-3.5 mt-1 absolute w-[360px] top-9 z-20',
               {
                 'left-0': dropdownAlignment === 'left',
                 'left-1/2 -translate-x-1/2': dropdownAlignment === 'center',

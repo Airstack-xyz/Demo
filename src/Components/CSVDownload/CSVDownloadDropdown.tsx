@@ -5,6 +5,7 @@ import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CSVDownloadOption } from '../../types';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Modal } from '../Modal';
+import { Tooltip, tooltipClass } from '../Tooltip';
 
 function CodeIconBlue() {
   return (
@@ -83,22 +84,26 @@ export function CSVDownloadDropdown({
         className="text-xs font-medium relative flex flex-col items-end"
         ref={containerRef}
       >
-        <button
-          title="Download CSV"
-          className={classNames(
-            'py-1.5 px-3 text-text-button bg-glass-1 rounded-full text-xs font-medium flex-row-center border border-solid border-transparent ',
-            {
-              'border-white': isDropdownVisible,
-              'cursor-not-allowed pointer-events-none opacity-80': disabled
-            }
-          )}
-          onClick={
-            showDesktopNudgeModal ? handleModalOpen : handleDropdownToggle
-          }
-          disabled={disabled}
+        <Tooltip
+          content="Download the response in CSV format"
+          contentClassName={tooltipClass}
         >
-          <CodeIconBlue />
-        </button>
+          <button
+            className={classNames(
+              'py-1.5 px-3 text-text-button bg-glass-1 rounded-full text-xs font-medium flex-row-center border border-solid border-transparent ',
+              {
+                'border-white': isDropdownVisible,
+                'cursor-not-allowed pointer-events-none opacity-80': disabled
+              }
+            )}
+            onClick={
+              showDesktopNudgeModal ? handleModalOpen : handleDropdownToggle
+            }
+            disabled={disabled}
+          >
+            <CodeIconBlue />
+          </button>
+        </Tooltip>
         {isDropdownVisible && (
           <div
             className={classNames(

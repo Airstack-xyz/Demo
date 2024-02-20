@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import { Dropdown, DropdownHandle } from '../Dropdown';
 import { Icon } from '../Icon';
-import { Tooltip } from '../Tooltip';
+import { Tooltip, tooltipClass } from '../Tooltip';
 import { useCSVQuery } from '../../hooks/useCSVQuery';
 import { historyQuery } from '../../queries/csv-download/history';
 import {
@@ -506,20 +506,25 @@ export function CSVDownloads() {
             }
             optionsContainerClassName="min-w-[214px] top-9 !bg-[#303030] max-h-[50vh] overflow-y-auto"
             renderPlaceholder={(_, isOpen) => (
-              <button
-                onClick={showDownload}
-                className={classNames(
-                  'w-10 h-[30px] bg-glass-1 rounded-full text-xs font-medium flex-row-center border border-solid border-transparent hover:opacity-90',
-                  {
-                    'border-white text-text-button': isOpen,
-                    'text-[#8B8EA0]': !isOpen,
-                    'text-text-button': inProgressDownloads.length > 0
-                    // 'cursor-not-allowed pointer-events-none opacity-80': disabled
-                  }
-                )}
+              <Tooltip
+                content="CSV downloads in progress"
+                contentClassName={tooltipClass}
               >
-                <Download />
-              </button>
+                <button
+                  onClick={showDownload}
+                  className={classNames(
+                    'w-10 h-[30px] bg-glass-1 rounded-full text-xs font-medium flex-row-center border border-solid border-transparent hover:opacity-90',
+                    {
+                      'border-white text-text-button': isOpen,
+                      'text-[#8B8EA0]': !isOpen,
+                      'text-text-button': inProgressDownloads.length > 0
+                      // 'cursor-not-allowed pointer-events-none opacity-80': disabled
+                    }
+                  )}
+                >
+                  <Download />
+                </button>
+              </Tooltip>
             )}
             renderOption={({ option }) => {
               const isInProgress = option.isActive;

@@ -1,4 +1,8 @@
+/* eslint-disable react-refresh/only-export-components */
 import classnames from 'classnames';
+
+export const tooltipClass =
+  'mt-2 px-2 py-1.5 bg-secondary rounded-18 text-xs text-text-secondary font-medium';
 
 export function Tooltip({
   children,

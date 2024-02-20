@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 import { isMobileDevice } from '../utils/isMobileDevice';
 import { Modal } from './Modal';
+import { Tooltip, tooltipClass } from './Tooltip';
 
 export type Option = {
   label: string;
@@ -69,24 +70,27 @@ export function GetAPIDropdown({
         className="text-xs font-medium relative flex flex-col items-end"
         ref={containerRef}
       >
-        <button
-          className={classNames(
-            'py-1.5 px-3 text-text-button bg-glass-1 rounded-full text-xs font-medium flex-row-center border border-solid border-transparent',
-            {
-              'border-white': isDropdownVisible,
-              'cursor-not-allowed pointer-events-none opacity-80': disabled
-            }
-          )}
-          onClick={
-            showDesktopNudgeModal ? handleModalOpen : handleDropdownToggle
-          }
-          disabled={disabled}
+        <Tooltip
+          content="Get API for the response"
+          contentClassName={tooltipClass}
         >
-          <span className="mr-1.5">
+          <button
+            className={classNames(
+              'py-1.5 px-3 text-text-button bg-glass-1 rounded-full text-xs font-medium flex-row-center gap-1.5 border border-solid border-transparent',
+              {
+                'border-white': isDropdownVisible,
+                'cursor-not-allowed pointer-events-none opacity-80': disabled
+              }
+            )}
+            onClick={
+              showDesktopNudgeModal ? handleModalOpen : handleDropdownToggle
+            }
+            disabled={disabled}
+          >
             <CodeIconBlue />
-          </span>
-          Get API
-        </button>
+            Get API
+          </button>
+        </Tooltip>
         {isDropdownVisible && (
           <div
             className={classNames(
