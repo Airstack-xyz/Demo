@@ -141,7 +141,7 @@ export function ShareURLDropdown({
         {isDropdownVisible && (
           <div
             className={classNames(
-              'bg-glass border-solid-stroke rounded-18 p-3.5 mt-1 absolute w-[360px] top-9 z-20',
+              'bg-glass border-solid-stroke rounded-18 p-3.5 mt-1 absolute max-sm:w-[288px] w-[360px] top-9 z-20',
               {
                 'left-0': dropdownAlignment === 'left',
                 'left-1/2 -translate-x-1/2': dropdownAlignment === 'center',
@@ -162,11 +162,13 @@ export function ShareURLDropdown({
                   </div>
                   <button
                     type="button"
-                    className="rounded-18 bg-button-primary hover:opacity-70 transition-opacity active:opacity-50 flex-row-center px-4 h-[35px]"
+                    className="rounded-18 bg-button-primary hover:opacity-70 transition-opacity active:opacity-50 flex-row-center gap-1 px-4 h-[35px]"
                     onClick={handleCopyClick}
                   >
-                    <CopyIconWhite />
-                    <span className="ml-1">Copy</span>
+                    <span className="max-sm:hidden">
+                      <CopyIconWhite />
+                    </span>
+                    Copy
                   </button>
                 </>
               )}
