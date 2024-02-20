@@ -236,7 +236,7 @@ export function TokenHolders() {
     if (activeTokenInfo) {
       return (
         <div className="flex justify-center gap-3.5 w-full">
-          <GetAPIDropdown options={getAPIOptions} />
+          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="center" />
           <ShareURLDropdown dropdownAlignment="center" />
         </div>
       );
@@ -253,8 +253,8 @@ export function TokenHolders() {
           <AdvancedSettings disabled={!hasSomeNft} />
         </div>
         <div className="flex items-center gap-3.5">
-          <GetAPIDropdown options={getAPIOptions} />
-          <ShareURLDropdown dropdownAlignment="center" />
+          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="right" />
+          <ShareURLDropdown dropdownAlignment="right" />
           {!isResolve6551Enabled && (
             <CSVDownloadDropdown options={csvDownloadOptions} />
           )}
@@ -274,7 +274,7 @@ export function TokenHolders() {
         {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
         <Search />
         {!hasMultipleERC20 && isQueryExists && (
-          <div className="m-3 flex-row-center">{renderFilterContent()}</div>
+          <div className="my-3 flex-row-center">{renderFilterContent()}</div>
         )}
       </div>
       {isQueryExists && (
