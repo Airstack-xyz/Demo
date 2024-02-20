@@ -7,6 +7,8 @@ import {
   GetTokensQuery
 } from '../../queries/frames/tokenBalancesQuery';
 import { RoundedCopyButton } from '../CopyButton';
+import { Icon, IconType } from '../Icon';
+import LazyImage from '../LazyImage';
 import { Modal } from '../Modal';
 import { FrameInput } from './FrameInput';
 import { FramePreview } from './FramePreview';
@@ -23,8 +25,6 @@ import {
   getFrameButtonsForTokenBalances,
   getResolvedOwner
 } from './utils';
-import LazyImage from '../LazyImage';
-import { Icon, IconType } from '../Icon';
 
 function FrameIconBlue() {
   return (
@@ -163,11 +163,7 @@ function ModalContent() {
 
   const owner = address[0];
 
-  const shouldResolveOwner = owner.startsWith('0x');
-
-  const query = isPOAP
-    ? GetPOAPsQuery({ includeWalletQuery: shouldResolveOwner })
-    : GetTokensQuery({ includeWalletQuery: shouldResolveOwner });
+  const query = isPOAP ? GetPOAPsQuery : GetTokensQuery;
 
   const [fetch, { loading, error, data }] = useLazyQuery<
     TokenBalanceFrameResponse,
@@ -199,21 +195,30 @@ function ModalContent() {
 
   const wallet = data?.Wallet;
 
-  const resolvedOwner =
-    shouldResolveOwner && wallet ? getResolvedOwner(wallet) : owner;
+  const resolvedOwner = useMemo(() => {
+    if (!wallet) {
+      return {
+        display: '',
+        address: ''
+      };
+    }
+    return getResolvedOwner(wallet);
+  }, [wallet]);
 
   const frameUrl = useMemo(() => {
     if (selectedButtonValues.length <= 2) {
       return '';
     }
     const [b1, b2, b3] = selectedButtonValues;
-    return `${FRAMES_ENDPOINT}/tb/${encodeFrameData({
+    const frameData = encodeFrameData({
       b1,
       b2,
       b3,
-      o: resolvedOwner || ''
-    })}`;
-  }, [selectedButtonValues, resolvedOwner]);
+      o: resolvedOwner.address,
+      d: resolvedOwner.display
+    });
+    return `${FRAMES_ENDPOINT}/tb/${frameData}`;
+  }, [resolvedOwner.address, resolvedOwner.display, selectedButtonValues]);
 
   const handleButtonSelect = (option: FrameOption, index: number) => {
     setSelectedButtons(prevButtons => {
@@ -267,8 +272,8 @@ function ModalContent() {
       <div className="flex flex-col items-center h-full">
         <div className="font-concert-one text-xl text-center ellipsis max-w-[400px] mt-3.5 mb-6">
           {isPOAP
-            ? `POAPs of ${resolvedOwner}`
-            : `Token balances of ${resolvedOwner}`}
+            ? `POAPs of ${resolvedOwner.display}`
+            : `Token balances of ${resolvedOwner.display}`}
         </div>
         <div className="flex flex-wrap justify-center max-w-[580px] gap-6">
           {items.length ? (

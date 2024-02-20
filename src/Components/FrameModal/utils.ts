@@ -9,26 +9,41 @@ export const encodeFrameData = (data: Record<string, string>) => {
 };
 
 export const getResolvedOwner = (wallet: Wallet) => {
-  const primaryEns = wallet?.primaryDomain?.name;
-  const ens = wallet?.domains?.[0]?.name;
-  const farcasterProfile = wallet?.farcasterSocials?.[0]?.profileName;
-  const lensProfile = wallet?.lensSocials?.[0]?.profileName;
-  const identity = wallet?.identity;
+  const farcaster = wallet.farcasterSocials?.[0]?.profileName;
+  const primaryEns = wallet.primaryDomain?.name;
+  const ens = wallet.domains?.[0]?.name;
+  const lens = wallet.lensSocials?.[0]?.profileName;
+  const identity = wallet.identity;
 
+  if (farcaster) {
+    return {
+      display: farcaster,
+      address: formatAddress(farcaster, 'farcaster')
+    };
+  }
   if (primaryEns) {
-    return formatAddress(primaryEns, 'ens');
+    return {
+      display: primaryEns,
+      address: formatAddress(primaryEns, 'ens')
+    };
   }
   if (ens) {
-    return formatAddress(ens, 'ens');
+    return {
+      display: ens,
+      address: formatAddress(ens, 'ens')
+    };
   }
-  if (farcasterProfile) {
-    return formatAddress(farcasterProfile, 'farcaster');
-  }
-  if (lensProfile) {
-    return formatAddress(lensProfile, 'lens');
+  if (lens) {
+    return {
+      display: lens,
+      address: formatAddress(lens, 'lens')
+    };
   }
 
-  return identity;
+  return {
+    display: identity,
+    address: identity
+  };
 };
 
 export const getFrameButtonsForTokenBalances = (buttonValues: string[]) => {
