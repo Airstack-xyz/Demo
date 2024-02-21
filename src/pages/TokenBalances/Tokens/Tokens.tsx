@@ -101,12 +101,16 @@ function TokensComponent(props: TokenProps) {
   });
 
   const handleTokens = useCallback(
-    (tokens: (TokenType | PoapType)[], hasNextPage: boolean) => {
+    (
+      tokenType: 'POAP' | 'NFT',
+      tokens: (TokenType | PoapType)[],
+      hasNextPage: boolean
+    ) => {
       let { poaps, nfts } = tokensRef.current;
       let { poaps: hasPoapsNextPage, nfts: hasNftsNextPage } =
         hasNextPages.current;
 
-      if ((tokens[0] as PoapType)?.poapEvent) {
+      if (tokenType === 'POAP') {
         poaps = [...(poaps || []), ...(tokens as PoapType[])];
         hasPoapsNextPage = hasNextPage;
       } else {
@@ -154,19 +158,33 @@ function TokensComponent(props: TokenProps) {
     [canFetchPoaps, canFetchTokens, sortOrder]
   );
 
+  const handlePoapData = useCallback(
+    (tokens: PoapType[], hasNextPage: boolean) => {
+      handleTokens('POAP', tokens, hasNextPage);
+    },
+    [handleTokens]
+  );
+
+  const handleNFTData = useCallback(
+    (tokens: TokenType[], hasNextPage: boolean) => {
+      handleTokens('NFT', tokens, hasNextPage);
+    },
+    [handleTokens]
+  );
+
   const {
     loading: loadingPoaps,
     getNext: getNextPoaps,
     processedPoapsCount,
     hasNextPage: hasNextPagePoaps
-  } = useGetPoapsOfOwner(inputs, handleTokens, !canFetchPoaps);
+  } = useGetPoapsOfOwner(inputs, handlePoapData, !canFetchPoaps);
 
   const {
     loading: loadingTokens,
     getNext: getNextTokens,
     processedTokensCount,
     hasNextPage: hasNextPageTokens
-  } = useGetTokensOfOwner(inputs, handleTokens, !canFetchTokens);
+  } = useGetTokensOfOwner(inputs, handleNFTData, !canFetchTokens);
 
   const handleNext = useCallback(() => {
     if (loadingPoaps || loadingTokens) return;
