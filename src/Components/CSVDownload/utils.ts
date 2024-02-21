@@ -63,6 +63,9 @@ export function getActiveDownload() {
 
 export function saveToActiveDownload(id: number) {
   const activeDownloads = getActiveDownload();
+  if (activeDownloads.includes(id.toString())) {
+    return;
+  }
   activeDownloads.push(id.toString());
   localStorage.setItem(localStorageKey, activeDownloads.join(','));
 }

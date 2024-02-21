@@ -204,10 +204,7 @@ export function CSVDownloads() {
 
         if (savedTasks.includes(item.id.toString())) {
           active.push(item);
-        } else if (
-          isActive(item) ||
-          (item.status === Status.Completed && !item.downloadedAt)
-        ) {
+        } else if (isActive(item)) {
           saveToActiveDownload(item.id);
           active.push(item);
         }
@@ -222,7 +219,6 @@ export function CSVDownloads() {
 
         if (item.status === Status.Completed && !item.downloadedAt) {
           downloadCompleted = true;
-          removeFromActiveDownload(item.id);
         }
 
         if (isLargeFile(item.createdAt, item.status!, item.totalRows || 0)) {
@@ -235,7 +231,9 @@ export function CSVDownloads() {
           }
           pollStatus(item.id);
         } else {
-          removeFromActiveDownload(item.id);
+          if (item.status !== Status.Completed) {
+            removeFromActiveDownload(item.id);
+          }
           downloadFailed = downloadFailed || item.status === Status.Failed;
           activeTasksSet.current.delete(item.id);
         }
@@ -373,13 +371,27 @@ export function CSVDownloads() {
     [downloadTask, removeTask, user?.credits]
   );
 
+  const removeCompletedFromActiveTasks = useCallback(() => {
+    const savedActiveTasks = getActiveDownload();
+
+    tasks.forEach(task => {
+      if (
+        task.status === Status.Completed &&
+        savedActiveTasks.includes(task.id.toString())
+      ) {
+        removeFromActiveDownload(task.id);
+      }
+    });
+  }, [tasks]);
+
   const showDownload = useCallback(() => {
     setNewTaskAdded(false);
     setFileDownloaded(false);
     setTaskFailed(false);
     setFoundLargeDataset(false);
+    removeCompletedFromActiveTasks();
     getHistory();
-  }, [getHistory]);
+  }, [getHistory, removeCompletedFromActiveTasks]);
 
   const closeFilterPreparation = useCallback(() => {
     setNewTaskAdded(false);
@@ -405,6 +417,7 @@ export function CSVDownloads() {
         <FileReadyToDownload
           onClose={() => {
             setFileDownloaded(false);
+            removeCompletedFromActiveTasks();
           }}
         />
       );
@@ -437,6 +450,7 @@ export function CSVDownloads() {
     fileDownloaded,
     foundLargeDataset,
     newTaskAdded,
+    removeCompletedFromActiveTasks,
     taskFailed
   ]);
 
