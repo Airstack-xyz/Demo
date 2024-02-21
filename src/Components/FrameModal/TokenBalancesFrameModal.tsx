@@ -210,7 +210,7 @@ function ModalContent() {
   const resolvedOwner = useMemo(() => getResolvedOwner(wallet), [wallet]);
 
   const frameUrl = useMemo(() => {
-    if (selectedButtonValues.length <= 2) {
+    if (selectedButtonValues.length <= 2 || !resolvedOwner) {
       return '';
     }
     const frameData = encodeFrameData({
@@ -317,7 +317,7 @@ function ModalContent() {
           labelIcon="chain"
           containerClass="w-full"
           placeholder="Please select token type and chain"
-          value={frameUrl}
+          value={loading ? 'Creating...' : frameUrl}
         />
         <RoundedCopyButton value={frameUrl} />
       </div>
