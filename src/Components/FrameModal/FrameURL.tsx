@@ -1,6 +1,6 @@
 import { usePrivy } from '@privy-io/react-auth';
 import classNames from 'classnames';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { shortenUrl } from '../../hooks/useShortenURL';
 import { RoundedCopyButton } from '../CopyButton';
 import { Icon } from '../Icon';
@@ -22,19 +22,22 @@ export function FrameURL({
   const [loading, setLoading] = useState(false);
   const [shortUrl, setShortUrl] = useState('');
 
-  useEffect(() => {
-    let cancelled = false;
+  const longUrlRef = useRef(longUrl);
 
+  longUrlRef.current = longUrl;
+
+  useEffect(() => {
     async function shortenUrlFunction() {
       if (longUrl) {
         if (frameUrlCache.has(longUrl)) {
           const shortenedUrl = frameUrlCache.get(longUrl) || '';
-          if (cancelled) return;
+
+          if (longUrlRef.current !== longUrl) return;
           setShortUrl(shortenedUrl);
           return;
         }
 
-        if (cancelled) return;
+        if (longUrlRef.current !== longUrl) return;
         setLoading(true);
 
         const token = await auth?.getAccessToken();
@@ -44,7 +47,7 @@ export function FrameURL({
         });
 
         if (error) {
-          if (cancelled) return;
+          if (longUrlRef.current !== longUrl) return;
           setShortUrl(longUrl);
           setLoading(false);
           return;
@@ -53,20 +56,16 @@ export function FrameURL({
         const shortenedUrl = data?.shortenedUrl || '';
         frameUrlCache.set(longUrl, shortenedUrl);
 
-        if (cancelled) return;
+        if (longUrlRef.current !== longUrl) return;
         setShortUrl(shortenedUrl);
         setLoading(false);
       } else {
-        if (cancelled) return;
+        if (longUrlRef.current !== longUrl) return;
         setShortUrl('');
       }
     }
 
     shortenUrlFunction();
-
-    return () => {
-      cancelled = true;
-    };
   }, [auth, longUrl]);
 
   const showLoader = loading || showLoading;

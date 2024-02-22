@@ -374,7 +374,7 @@ function ModalContent() {
       </div>
       <div className="flex mt-4 gap-7">
         <FrameSelect
-          label="Select any three"
+          label="Select up to three"
           labelIcon="token-balances"
           labelIconSize={16}
           options={buttonOptions}
@@ -415,7 +415,7 @@ export function TokenBalancesFrameModal() {
   return (
     <>
       <Tooltip
-        content="Create farcaster frame for token balances"
+        content="Share as Farcaster frame"
         contentClassName={tooltipClass}
         disabled={isModalVisible}
       >
