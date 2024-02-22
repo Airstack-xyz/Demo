@@ -31,7 +31,7 @@ body {
 
 .no-scrollbar {
   scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none;  /* IE 10+ */
+  -ms-overflow-style: none; /* IE 10+ */
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -74,6 +74,10 @@ body {
 .skeleton-loader [data-loader-type='invisible'],
 .skeleton-loader[data-loader-type='invisible'] {
   visibility: hidden !important;
+}
+
+.skeleton-loader [data-loader-type='block'] {
+  @apply bg-transparent;
 }
 
 .skeleton-loader [data-loader-type='block'],
@@ -146,6 +150,6 @@ body {
 /* scroll-shadow-r: adds shadow to the right-end of horizonal scrollable content */
 
 .scroll-shadow-r {
-    mask: linear-gradient(to right, white calc(100% - 50px), transparent);
-    -webkit-mask: linear-gradient(to right, white calc(100% - 50px), transparent);
+  mask: linear-gradient(to right, white calc(100% - 50px), transparent);
+  -webkit-mask: linear-gradient(to right, white calc(100% - 50px), transparent);
 }
