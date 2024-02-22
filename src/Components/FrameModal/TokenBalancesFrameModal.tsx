@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { tokenBalancesFrameQuery } from '../../queries/frames/tokenBalancesQuery';
 import { TokenBlockchain } from '../../types';
+import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Icon, IconType } from '../Icon';
 import LazyImage from '../LazyImage';
 import { Modal } from '../Modal';
@@ -404,12 +405,24 @@ function ModalContent() {
 export function TokenBalancesFrameModal() {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
+  const [isDesktopModalVisible, setIsDesktopModalVisible] = useState(false);
+
+  const isMobile = isMobileDevice();
+
   const handleModalClose = () => {
     setIsModalVisible(false);
   };
 
   const handleModalOpen = () => {
     setIsModalVisible(true);
+  };
+
+  const handleDesktopModalOpen = () => {
+    setIsDesktopModalVisible(true);
+  };
+
+  const handleDesktopModalClose = () => {
+    setIsDesktopModalVisible(false);
   };
 
   return (
@@ -427,7 +440,7 @@ export function TokenBalancesFrameModal() {
               'border-white': isModalVisible
             }
           )}
-          onClick={handleModalOpen}
+          onClick={isMobile ? handleDesktopModalOpen : handleModalOpen}
         >
           <FrameIconBlue />
         </button>
@@ -440,6 +453,24 @@ export function TokenBalancesFrameModal() {
           onRequestClose={handleModalClose}
         >
           <ModalContent />
+        </Modal>
+      )}
+      {isDesktopModalVisible && (
+        <Modal
+          isOpen={isDesktopModalVisible}
+          hideDefaultContainer
+          className="bg-transparent min-h-[400px] min-w-[400px] outline-none px-5"
+          overlayClassName="bg-white bg-opacity-10 backdrop-blur-[50px] flex flex-col justify-center items-center fixed inset-0 z-[100]"
+          onRequestClose={handleDesktopModalClose}
+        >
+          <div className="bg-primary backdrop-blur-[100px] p-5 border-solid-stroke rounded-xl text-center">
+            <div className="text-base font-bold">
+              Use desktop web to share as Farcaster frame
+            </div>
+            <div className="text-sm text-text-secondary pt-1 pb-2">
+              There is more on desktop. Fork code, SDKs, AI Assistant, and more!
+            </div>
+          </div>
         </Modal>
       )}
     </>
