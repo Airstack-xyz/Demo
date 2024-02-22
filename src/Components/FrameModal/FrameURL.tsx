@@ -2,7 +2,6 @@ import { usePrivy } from '@privy-io/react-auth';
 import classNames from 'classnames';
 import { useCallback, useEffect, useState } from 'react';
 import { shortenUrl } from '../../hooks/useShortenURL';
-import { showToast } from '../../utils/showToast';
 import { RoundedCopyButton } from '../CopyButton';
 import { Icon } from '../Icon';
 
@@ -34,8 +33,7 @@ export function FrameURL({
       });
 
       if (error) {
-        setShortUrl('');
-        showToast(`Couldn't shorten url`, 'negative');
+        setShortUrl(longUrl);
         setLoading(false);
         return;
       }
