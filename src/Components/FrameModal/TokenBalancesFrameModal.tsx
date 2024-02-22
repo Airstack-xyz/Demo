@@ -225,19 +225,19 @@ function ModalContent() {
   const handleOnComplete = useCallback((data: TokenBalanceFrameResponse) => {
     setButtonOptionsState(prevState => {
       const newState = [...prevState];
-      if (data?.ethereum?.TokenBalance?.length === 0) {
+      if (!data?.ethereum?.TokenBalance?.length) {
         newState[0] = 'disabled';
       }
-      if (data?.base?.TokenBalance?.length === 0) {
+      if (!data?.base?.TokenBalance?.length) {
         newState[1] = 'disabled';
       }
-      if (data?.zora?.TokenBalance?.length === 0) {
+      if (!data?.zora?.TokenBalance?.length) {
         newState[2] = 'disabled';
       }
-      if (data?.polygon?.TokenBalance?.length === 0) {
+      if (!data?.polygon?.TokenBalance?.length) {
         newState[3] = 'disabled';
       }
-      if (data?.poap?.Poap?.length === 0) {
+      if (!data?.poap?.Poap?.length) {
         newState[4] = 'disabled';
       }
       return newState;
