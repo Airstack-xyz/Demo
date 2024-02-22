@@ -1,6 +1,6 @@
 import { usePrivy } from '@privy-io/react-auth';
 import classNames from 'classnames';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { shortenUrl } from '../../hooks/useShortenURL';
 import { RoundedCopyButton } from '../CopyButton';
 import { Icon } from '../Icon';
@@ -22,40 +22,52 @@ export function FrameURL({
   const [loading, setLoading] = useState(false);
   const [shortUrl, setShortUrl] = useState('');
 
-  const shortenUrlFunction = useCallback(
-    async (longUrl: string) => {
-      setLoading(true);
-
-      const token = await auth?.getAccessToken();
-
-      const { data, error } = await shortenUrl(longUrl, {
-        Authorization: `Bearer ${token}`
-      });
-
-      if (error) {
-        setShortUrl(longUrl);
-        setLoading(false);
-        return;
-      }
-
-      const shortenedUrl = data?.shortenedUrl || '';
-      frameUrlCache.set(longUrl, shortenedUrl);
-      setShortUrl(shortenedUrl);
-      setLoading(false);
-    },
-    [auth]
-  );
-
   useEffect(() => {
-    if (longUrl) {
-      if (frameUrlCache.has(longUrl)) {
-        const shortenedUrl = frameUrlCache.get(longUrl) || '';
+    let cancelled = false;
+
+    async function shortenUrlFunction() {
+      if (longUrl) {
+        if (frameUrlCache.has(longUrl)) {
+          const shortenedUrl = frameUrlCache.get(longUrl) || '';
+          if (cancelled) return;
+          setShortUrl(shortenedUrl);
+          return;
+        }
+
+        if (cancelled) return;
+        setLoading(true);
+
+        const token = await auth?.getAccessToken();
+
+        const { data, error } = await shortenUrl(longUrl, {
+          Authorization: `Bearer ${token}`
+        });
+
+        if (error) {
+          if (cancelled) return;
+          setShortUrl(longUrl);
+          setLoading(false);
+          return;
+        }
+
+        const shortenedUrl = data?.shortenedUrl || '';
+        frameUrlCache.set(longUrl, shortenedUrl);
+
+        if (cancelled) return;
         setShortUrl(shortenedUrl);
-        return;
+        setLoading(false);
+      } else {
+        if (cancelled) return;
+        setShortUrl('');
       }
-      shortenUrlFunction(longUrl);
     }
-  }, [longUrl, shortenUrlFunction]);
+
+    shortenUrlFunction();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [auth, longUrl]);
 
   const showLoader = loading || showLoading;
 
