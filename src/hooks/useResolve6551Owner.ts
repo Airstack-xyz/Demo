@@ -130,22 +130,31 @@ export const resolve6551Owner = async ({
 };
 
 export function useResolve6551Owner() {
+  const [status, setStatus] = useState<string>('idle');
   const [data, setData] = useState<TraverseDataType | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<unknown>(null);
 
-  const fetchData = useCallback(async (params: Resolve6551OwnerParamsType) => {
-    setLoading(false);
-    const { data, error } = await resolve6551Owner(params);
-    if (error) {
-      setError(error);
-    }
-    if (data) {
-      setData(data);
-    }
-    setLoading(false);
-    return { data, error };
-  }, []);
+  const fetchResolvedOwner = useCallback(
+    async (params: Resolve6551OwnerParamsType) => {
+      setStatus('loading');
+      setData(null);
 
-  return { fetch: fetchData, data, loading, error };
+      const { data, error } = await resolve6551Owner(params);
+      if (error) {
+        setStatus('error');
+      }
+      if (data) {
+        setStatus('idle');
+        setData(data);
+      }
+      return { data, error };
+    },
+    []
+  );
+
+  return {
+    fetchResolvedOwner,
+    data,
+    loading: status === 'loading',
+    error: status === 'error'
+  };
 }

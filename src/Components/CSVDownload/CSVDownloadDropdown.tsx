@@ -1,11 +1,11 @@
 import classNames from 'classnames';
 import { useCallback, useState } from 'react';
+import { useEstimateTask } from '../../hooks/useEstimateTask';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { CSVDownloadOption } from '../../types';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Modal } from '../Modal';
-import { CSVDownloadOption } from '../../types';
-import { useEstimateTask } from '../../hooks/useEstimateTask';
-import { Tooltip } from '../Tooltip';
+import { Tooltip, tooltipClass } from '../Tooltip';
 
 function CodeIconBlue() {
   return (
@@ -85,8 +85,9 @@ export function CSVDownloadDropdown({
         ref={containerRef}
       >
         <Tooltip
-          content="Download CSV"
-          contentClassName="mt-2 px-2 py-1.5 bg-secondary rounded-18 text-text-secondary"
+          content="Download the response in CSV format"
+          contentClassName={tooltipClass}
+          disabled={isDropdownVisible}
         >
           <button
             className={classNames(
@@ -101,9 +102,7 @@ export function CSVDownloadDropdown({
             }
             disabled={disabled}
           >
-            <span>
-              <CodeIconBlue />
-            </span>
+            <CodeIconBlue />
           </button>
         </Tooltip>
         {isDropdownVisible && (

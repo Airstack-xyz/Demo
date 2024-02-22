@@ -9,6 +9,7 @@ import { Icon } from '../../Components/Icon';
 import { getAllWordsAndMentions } from '../../Components/Input/utils';
 import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
+import { ShareURLDropdown } from '../../Components/ShareURLDropdown';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { useCsvDownloadOptions } from '../../store/csvDownload';
 import { useTokenDetails } from '../../store/tokenDetails';
@@ -26,6 +27,7 @@ import { showToast } from '../../utils/showToast';
 import { HoldersOverview } from './Overview/Overview';
 import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { Tokens } from './Tokens/Tokens';
+import { ERC20_ADDRESS_WHITELIST } from './constants';
 import { useDropdownOptions } from './hooks/useDropdownOptions';
 
 export function TokenHolders() {
@@ -132,20 +134,31 @@ export function TokenHolders() {
     setCsvDownloadOptions({ options: csvDownloadOptions });
   }, [csvDownloadOptions, setCsvDownloadOptions]);
 
-  const { hasMultipleERC20, hasEveryERC20 } = useMemo(() => {
+  const { hasMultipleERC20, hasEveryERC20, hasSomeNft } = useMemo(() => {
     const erc20Tokens = overviewTokens?.filter(v => v.tokenType === 'ERC20');
     const erc20Mentions = mentions?.filter(
       v => v?.token === 'ERC20' || v?.token === 'TOKEN'
     );
-    const hasEveryERC20Token =
-      overviewTokens?.length > 0 &&
-      overviewTokens.every(v => v.tokenType === 'ERC20');
-    const hasEveryERC20Mention =
-      mentions?.length > 0 &&
-      mentions.every(v => v?.token === 'ERC20' || v?.token === 'TOKEN');
+    const hasEveryERC20 =
+      mentions.every(
+        v =>
+          (v?.token === 'ERC20' || v?.token === 'TOKEN') &&
+          !ERC20_ADDRESS_WHITELIST.includes(v.address)
+      ) ||
+      overviewTokens.every(
+        v =>
+          v.tokenType === 'ERC20' &&
+          !ERC20_ADDRESS_WHITELIST.includes(v.tokenAddress)
+      );
+    const hasSomeNft =
+      mentions?.some(v => v?.token === 'ERC721' || v?.token === 'ERC1155') ||
+      overviewTokens?.some(
+        v => v?.tokenType === 'ERC721' || v?.tokenType === 'ERC1155'
+      );
     return {
       hasMultipleERC20: erc20Mentions?.length > 1 || erc20Tokens?.length > 1,
-      hasEveryERC20: hasEveryERC20Mention || hasEveryERC20Token
+      hasEveryERC20,
+      hasSomeNft
     };
   }, [overviewTokens, mentions]);
 
@@ -223,7 +236,8 @@ export function TokenHolders() {
     if (activeTokenInfo) {
       return (
         <div className="flex justify-center gap-3.5 w-full">
-          <GetAPIDropdown options={getAPIOptions} />
+          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="center" />
+          <ShareURLDropdown dropdownAlignment="center" />
         </div>
       );
     }
@@ -236,10 +250,11 @@ export function TokenHolders() {
             disabledTooltipText={snapshotFilterTooltip}
             disabledTooltipIconHidden={snapshotFilterTooltipIconHidden}
           />
-          <AdvancedSettings />
+          <AdvancedSettings disabled={!hasSomeNft} />
         </div>
         <div className="flex items-center gap-3.5">
-          <GetAPIDropdown options={getAPIOptions} />
+          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="right" />
+          <ShareURLDropdown dropdownAlignment="right" />
           {!isResolve6551Enabled && (
             <CSVDownloadDropdown options={csvDownloadOptions} />
           )}
@@ -259,7 +274,7 @@ export function TokenHolders() {
         {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
         <Search />
         {!hasMultipleERC20 && isQueryExists && (
-          <div className="m-3 flex-row-center">{renderFilterContent()}</div>
+          <div className="my-3 flex-row-center">{renderFilterContent()}</div>
         )}
       </div>
       {isQueryExists && (

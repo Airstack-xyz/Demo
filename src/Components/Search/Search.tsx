@@ -20,7 +20,7 @@ export const tokenBalancesPlaceholder =
   'Search profiles by name OR Enter 0x, name.eth, fc_fname:name, lens/@name';
 
 export const ALLOWED_ADDRESS_REGEX =
-  /0x[a-fA-F0-9]+|.*\.(eth|lens|cb\.id)|(fc_fname:|lens\/@).*/;
+  /0x[a-fA-F0-9]+|.*\.(eth|lens|cb\.id)|(fc_fname:|fc_fid:|lens\/@).*/;
 
 export const PADDING = '  ';
 
