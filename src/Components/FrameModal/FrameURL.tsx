@@ -1,9 +1,10 @@
+import { usePrivy } from '@privy-io/react-auth';
 import classNames from 'classnames';
 import { useCallback, useEffect, useState } from 'react';
 import { shortenUrl } from '../../hooks/useShortenURL';
+import { showToast } from '../../utils/showToast';
 import { RoundedCopyButton } from '../CopyButton';
 import { Icon } from '../Icon';
-import { usePrivy } from '@privy-io/react-auth';
 
 const frameUrlCache = new Map<string, string>();
 
@@ -34,6 +35,7 @@ export function FrameURL({
 
       if (error) {
         setShortUrl('');
+        showToast(`Couldn't shorten url`, 'negative');
         setLoading(false);
         return;
       }
@@ -83,7 +85,7 @@ export function FrameURL({
           {showLoader ? (
             <img src="images/loader.svg" height={20} width={30} />
           ) : (
-            <span> {shortUrl || longUrl || placeholder}</span>
+            <span> {shortUrl || placeholder}</span>
           )}
         </div>
         <RoundedCopyButton value={showLoader ? '' : shortUrl} />

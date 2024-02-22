@@ -223,23 +223,25 @@ function ModalContent() {
   const owner = address[0];
 
   const handleOnComplete = useCallback((data: TokenBalanceFrameResponse) => {
-    const newOptionsState: FrameSelectOptionState[] = [];
-    if (!data?.ethereum?.TokenBalance?.length) {
-      newOptionsState[0] = 'disabled';
-    }
-    if (!data?.base?.TokenBalance?.length) {
-      newOptionsState[1] = 'disabled';
-    }
-    if (!data?.zora?.TokenBalance?.length) {
-      newOptionsState[2] = 'disabled';
-    }
-    if (!data?.polygon?.TokenBalance?.length) {
-      newOptionsState[3] = 'disabled';
-    }
-    if (!data?.poap?.Poap?.length) {
-      newOptionsState[4] = 'disabled';
-    }
-    setButtonOptionsState(newOptionsState);
+    setButtonOptionsState(prevState => {
+      const newState = [...prevState];
+      if (data?.ethereum?.TokenBalance?.length === 0) {
+        newState[0] = 'disabled';
+      }
+      if (data?.base?.TokenBalance?.length === 0) {
+        newState[1] = 'disabled';
+      }
+      if (data?.zora?.TokenBalance?.length === 0) {
+        newState[2] = 'disabled';
+      }
+      if (data?.polygon?.TokenBalance?.length === 0) {
+        newState[3] = 'disabled';
+      }
+      if (data?.poap?.Poap?.length === 0) {
+        newState[4] = 'disabled';
+      }
+      return newState;
+    });
   }, []);
 
   const [fetch, { loading, error, data }] = useLazyQuery<

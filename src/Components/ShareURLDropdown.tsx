@@ -1,11 +1,11 @@
+import { usePrivy } from '@privy-io/react-auth';
 import classNames from 'classnames';
 import { useCallback, useEffect, useState } from 'react';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 import { shortenUrl } from '../hooks/useShortenURL';
 import { showToast } from '../utils/showToast';
-import { Tooltip, tooltipClass } from './Tooltip';
 import { Icon } from './Icon';
-import { usePrivy } from '@privy-io/react-auth';
+import { Tooltip, tooltipClass } from './Tooltip';
 
 function ShareIconBlue() {
   return (
