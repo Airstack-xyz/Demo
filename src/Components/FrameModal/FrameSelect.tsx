@@ -1,6 +1,14 @@
+import { showToast } from '../../utils/showToast';
 import { Icon, IconType } from '../Icon';
 import classNames from 'classnames';
-import { FrameOption } from './types';
+
+export type FrameSelectOption = {
+  label: string;
+  value: string;
+  disabledTooltip?: string;
+};
+
+export type FrameSelectOptionState = 'selected' | 'disabled' | null | undefined;
 
 export function FrameSelect({
   label,
@@ -8,16 +16,16 @@ export function FrameSelect({
   labelIconSize = 16,
   containerClass,
   options,
-  selectedOptions,
+  optionsState,
   onSelect
 }: {
   label: string;
   labelIcon: IconType;
   labelIconSize?: number;
   containerClass?: string;
-  options: FrameOption[];
-  selectedOptions?: (FrameOption | null)[];
-  onSelect: (option: FrameOption, index: number) => void;
+  options: FrameSelectOption[];
+  optionsState: FrameSelectOptionState[];
+  onSelect: (option: FrameSelectOption, index: number) => void;
 }) {
   return (
     <div
@@ -32,18 +40,26 @@ export function FrameSelect({
       </div>
       <div className="flex items-center gap-3">
         {options.map((option, index) => {
-          const isSelected = Boolean(
-            selectedOptions?.find(o => o?.value === option.value)
-          );
+          const isDisabled = optionsState?.[index] === 'disabled';
+          const isSelected = optionsState?.[index] === 'selected';
           return (
             <button
               key={option.value}
               type="button"
               className={classNames(
-                'bg-glass-2 flex items-center rounded-full border border-solid border-transparent px-4 py-2.5 text-xs font-semibold text-white',
-                isSelected ? '!border-white' : ''
+                'bg-glass-2 flex items-center rounded-full border border-solid px-4 py-2.5 text-xs font-semibold text-white',
+                isSelected ? 'border-white' : 'border-transparent',
+                isDisabled ? 'opacity-50' : ''
               )}
-              onClick={() => onSelect(option, index)}
+              onClick={() => {
+                if (isDisabled) {
+                  if (option.disabledTooltip) {
+                    showToast(option.disabledTooltip);
+                  }
+                  return;
+                }
+                onSelect(option, index);
+              }}
             >
               {option?.label}
             </button>

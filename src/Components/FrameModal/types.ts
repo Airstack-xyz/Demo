@@ -1,3 +1,5 @@
+import { TokenBlockchain } from '../../types';
+
 export type FrameOption = {
   label: string;
   value: string;
@@ -71,23 +73,18 @@ export type Wallet = {
 };
 
 export type TokenBalanceFrameResponse = {
-  TokenBalances?: {
+  [Key in TokenBlockchain]: {
     TokenBalance: TokenBalance[];
   };
-  Poaps?: {
+} & {
+  poap: {
     Poap: Poap[];
   };
-  Wallet?: Wallet;
+  wallet: Wallet;
 };
 
-export type TokenBalanceFrameVariables =
-  | {
-      owner: string;
-      limit: number;
-    }
-  | {
-      owner: string;
-      limit: number;
-      tokenType: string[];
-      blockchain: string;
-    };
+export type TokenBalanceFrameVariables = {
+  owner: string;
+  limit: number;
+  tokenType: string[];
+};

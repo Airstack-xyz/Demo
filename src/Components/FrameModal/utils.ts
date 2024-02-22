@@ -54,6 +54,9 @@ export const getFrameButtonsForTokenBalances = (buttonValues: string[]) => {
   const buttons: FrameButton[] = [];
 
   buttonValues.forEach(value => {
+    if (!value) {
+      return;
+    }
     const { tokenType, blockchain } = getDecodedButtonValue(value);
     if (tokenType === 'poap') {
       buttons.push({

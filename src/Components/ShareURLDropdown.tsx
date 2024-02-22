@@ -4,44 +4,7 @@ import { useOutsideClick } from '../hooks/useOutsideClick';
 import { shortenUrl } from '../hooks/useShortenURL';
 import { showToast } from '../utils/showToast';
 import { Tooltip, tooltipClass } from './Tooltip';
-
-function CopyIconWhite() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 14 14"
-      fill="none"
-    >
-      <g clipPath="url(#clip0_3274_11194)">
-        <mask
-          id="mask0_3274_11194"
-          maskUnits="userSpaceOnUse"
-          x="0"
-          y="0"
-          width="14"
-          height="14"
-        >
-          <path d="M14 0H0V14H14V0Z" fill="white" />
-        </mask>
-        <g mask="url(#mask0_3274_11194)">
-          <path
-            fillRule="evenodd"
-            clipRule="evenodd"
-            d="M12.25 7.875V2.625C12.25 2.14375 11.8562 1.75 11.375 1.75H6.125C5.64375 1.75 5.25 2.14375 5.25 2.625V7.875C5.25 8.35625 5.64375 8.75 6.125 8.75H11.375C11.8562 8.75 12.25 8.35625 12.25 7.875ZM11.375 7.875H6.125V2.625H11.375V7.875ZM5.6875 9.625C4.97 9.625 4.375 9.03875 4.375 8.3125V5.25H2.625C2.14375 5.25 1.75 5.64375 1.75 6.125V11.375C1.75 11.8562 2.14375 12.25 2.625 12.25H7.875C8.35625 12.25 8.75 11.8562 8.75 11.375V9.625H5.6875Z"
-            fill="white"
-          />
-        </g>
-      </g>
-      <defs>
-        <clipPath id="clip0_3274_11194">
-          <rect width="14" height="14" fill="white" />
-        </clipPath>
-      </defs>
-    </svg>
-  );
-}
+import { Icon } from './Icon';
 
 function ShareIconBlue() {
   return (
@@ -166,7 +129,12 @@ export function ShareURLDropdown({
                     onClick={handleCopyClick}
                   >
                     <span className="max-sm:hidden">
-                      <CopyIconWhite />
+                      <Icon
+                        name="copy-white"
+                        className="max-w-[16px]"
+                        height="16"
+                        width="16"
+                      />
                     </span>
                     Copy
                   </button>

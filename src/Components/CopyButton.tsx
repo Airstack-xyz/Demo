@@ -29,7 +29,7 @@ export function RoundedCopyButton({
     <button
       type="button"
       className={classNames(
-        'rounded-18 bg-button-primary hover:opacity-70 transition-opacity active:opacity-50 flex-row-center px-4 h-[35px] text-xs font-semibold',
+        'rounded-18 bg-button-primary hover:opacity-70 transition-opacity active:opacity-50 flex-row-center px-4 h-[35px] text-xs text-white font-semibold',
         className
       )}
       onClick={async e => {

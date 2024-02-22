@@ -82,7 +82,7 @@ export function FramePreview({
               <button
                 key={item.label}
                 type="button"
-                className="flex-row-center h-[36px] w-full gap-1 rounded-lg border border-solid border-[#473B4B] bg-[#3F3A46] px-3 text-sm font-semibold"
+                className="flex-row-center h-[36px] w-full gap-1 rounded-lg border border-solid border-[#473B4B] bg-[#3F3A46] px-3 text-sm font-semibold cursor-default"
               >
                 <span className="ellipsis max-w-[120px]">{item.label}</span>
                 {item.type === 'link' && <LinkIcon />}
