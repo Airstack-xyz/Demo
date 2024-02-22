@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
-import { apiKey } from '../constants';
 import { UrlShortenMutation } from '../queries';
+import { usePrivy } from '@privy-io/react-auth';
 
 type ShortenedUrlResponse = {
   ShortenUrl: ShortenedUrlData;
@@ -17,7 +17,10 @@ type ShortenedUrlData = {
 
 const MENTION_ENDPOINT = process.env.MENTION_ENDPOINT as string;
 
-export async function shortenUrl(longUrl: string) {
+export async function shortenUrl(
+  longUrl: string,
+  headers?: { Authorization: string }
+) {
   const variables: ShortenedUrlVariables = { longUrl };
 
   try {
@@ -25,8 +28,8 @@ export async function shortenUrl(longUrl: string) {
       method: 'POST',
       cache: 'no-cache',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: apiKey
+        ...headers,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         query: UrlShortenMutation,
@@ -51,25 +54,33 @@ export async function shortenUrl(longUrl: string) {
 }
 
 export function useShortenURL() {
+  const auth = usePrivy();
   const [status, setStatus] = useState('idle');
   const [data, setData] = useState<ShortenedUrlData | null>(null);
 
-  const fetchShortenedUrl = useCallback(async (longUrl: string) => {
-    setStatus('loading');
-    setData(null);
+  const fetchShortenedUrl = useCallback(
+    async (longUrl: string) => {
+      setStatus('loading');
+      setData(null);
 
-    const { data, error } = await shortenUrl(longUrl);
+      const token = await auth?.getAccessToken();
 
-    if (error) {
-      setStatus('error');
-    }
-    if (data) {
-      setStatus('idle');
-      setData(data);
-    }
+      const { data, error } = await shortenUrl(longUrl, {
+        Authorization: `Bearer ${token}`
+      });
 
-    return { data, error };
-  }, []);
+      if (error) {
+        setStatus('error');
+      }
+      if (data) {
+        setStatus('idle');
+        setData(data);
+      }
+
+      return { data, error };
+    },
+    [auth]
+  );
 
   return {
     fetchShortenedUrl,

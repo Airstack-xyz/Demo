@@ -5,6 +5,7 @@ import { shortenUrl } from '../hooks/useShortenURL';
 import { showToast } from '../utils/showToast';
 import { Tooltip, tooltipClass } from './Tooltip';
 import { Icon } from './Icon';
+import { usePrivy } from '@privy-io/react-auth';
 
 function ShareIconBlue() {
   return (
@@ -32,6 +33,7 @@ export function ShareURLDropdown({
 }: {
   dropdownAlignment?: string;
 }) {
+  const auth = usePrivy();
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shortUrl, setShortUrl] = useState<string | null>(null);
@@ -52,6 +54,31 @@ export function ShareURLDropdown({
     showToast('Copied to clipboard');
   }, [shortUrl]);
 
+  const shortenUrlFunction = useCallback(
+    async (longUrl: string) => {
+      setLoading(true);
+
+      const token = await auth?.getAccessToken();
+
+      const { data, error } = await shortenUrl(longUrl, {
+        Authorization: `Bearer ${token}`
+      });
+
+      if (error) {
+        showToast(`Couldn't shorten url`, 'negative');
+        setShortUrl('');
+        setLoading(false);
+        return;
+      }
+
+      const shortenedUrl = data?.shortenedUrl || '';
+      shareUrlCache.set(longUrl, shortenedUrl);
+      setShortUrl(shortenedUrl);
+      setLoading(false);
+    },
+    [auth]
+  );
+
   useEffect(() => {
     if (isDropdownVisible) {
       const longUrl = window.location.href;
@@ -60,23 +87,9 @@ export function ShareURLDropdown({
         setShortUrl(shortenedUrl);
         return;
       }
-      setLoading(true);
-      shortenUrl(longUrl)
-        .then(({ data, error }) => {
-          if (error) {
-            showToast(`Couldn't shorten url`, 'negative');
-            setShortUrl('');
-            return;
-          }
-          const shortenedUrl = data?.shortenedUrl || '';
-          shareUrlCache.set(longUrl, shortenedUrl);
-          setShortUrl(shortenedUrl);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+      shortenUrlFunction(longUrl);
     }
-  }, [isDropdownVisible]);
+  }, [isDropdownVisible, shortenUrlFunction]);
 
   return (
     <>
