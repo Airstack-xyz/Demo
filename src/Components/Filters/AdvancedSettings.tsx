@@ -4,7 +4,7 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 import { ToggleSwitch } from '../ToggleSwitch';
 import { FilterPlaceholder } from './FilterPlaceholder';
 
-export function AdvancedSettings() {
+export function AdvancedSettings({ disabled }: { disabled?: boolean }) {
   const [{ resolve6551 }, setData] = useSearchInput();
 
   const isResolve6551SwitchChecked = resolve6551 === '1';
@@ -44,6 +44,7 @@ export function AdvancedSettings() {
       >
         <FilterPlaceholder
           isOpen={isDropdownVisible}
+          isDisabled={disabled}
           icon="settings-gray"
           iconSize={15}
           onClick={handleDropdownToggle}

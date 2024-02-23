@@ -2,6 +2,7 @@ const fields = `id
 blockchain
 tokenId
 tokenAddress
+createdAtBlockTimestamp
 poapEvent {
   city
   eventName
@@ -19,6 +20,7 @@ const parentFields = `id
 blockchain
 tokenId
 tokenAddress
+createdAtBlockTimestamp
 poapEvent {
   city
   eventName

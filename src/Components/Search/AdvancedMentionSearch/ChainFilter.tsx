@@ -25,7 +25,7 @@ export type ChainSelectOption = {
   value: string | null;
 };
 
-type BlockchainFilterProps = {
+type ChainFilterProps = {
   isDisabled?: boolean;
   selectedOption: ChainSelectOption;
   onSelect: (option: ChainSelectOption) => void;
@@ -35,7 +35,7 @@ export default function ChainFilter({
   isDisabled,
   selectedOption,
   onSelect
-}: BlockchainFilterProps) {
+}: ChainFilterProps) {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const containerRef = useOutsideClick<HTMLDivElement>(() =>
     setDropdownVisible(false)

@@ -15,7 +15,7 @@ type Inputs = Pick<
 
 export function useGetPoapsOfOwner(
   inputs: Inputs,
-  onDataReceived: (tokens: PoapType[]) => void,
+  onDataReceived: (tokens: PoapType[], hasNextPage: boolean) => void,
   poapDisabled = false
 ) {
   const { address: owners, tokenType = '', blockchainType, sortOrder } = inputs;
@@ -82,12 +82,12 @@ export function useGetPoapsOfOwner(
 
     tokensRef.current = [...tokensRef.current, ...poaps];
     setProcessedPoapsCount(count => count + processedPoapsCount);
-    onDataReceived(poaps);
 
     if (hasNextPage && tokensRef.current.length < LIMIT) {
       setLoading(true);
       getNextPage();
     } else {
+      onDataReceived(tokensRef.current, hasNextPage);
       setLoading(false);
       tokensRef.current = [];
     }

@@ -7,6 +7,7 @@ export interface TokenType {
   tokenType: string;
   blockchain: 'ethereum' | 'polygon';
   tokenAddress: string;
+  lastUpdatedTimestamp: string;
   formattedAmount: number;
   tokenNfts: TokenNfts;
   tokenTransfers?: TransferType[];
@@ -67,6 +68,7 @@ export type PoapsType = {
       blockchain: string;
       tokenId: string;
       tokenAddress: string;
+      createdAtBlockTimestamp: string;
       poapEvent: {
         city: string;
         eventName: string;

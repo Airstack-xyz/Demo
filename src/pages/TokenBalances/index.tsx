@@ -11,6 +11,7 @@ import { TokenBalanceAllFilters } from '../../Components/Filters/TokenBalanceAll
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { Search } from '../../Components/Search';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
+import { ShareURLDropdown } from '../../Components/ShareURLDropdown';
 import { Tab, TabContainer } from '../../Components/Tab';
 import {
   AccountOwnerData,
@@ -42,6 +43,7 @@ import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenDetails } from './TokenDetails/TokenDetails';
 import { Tokens, TokensLoader } from './Tokens/Tokens';
 import { useDropdownOptions } from './hooks/useDropdownOptions';
+import { TokenBalancesFrameModal } from '../../Components/FrameModal/TokenBalancesFrameModal';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -351,6 +353,7 @@ function TokenBalancePage() {
       return (
         <div className="flex justify-center gap-3.5 w-full z-[21]">
           <GetAPIDropdown options={getAPIOptions} dropdownAlignment="center" />
+          <ShareURLDropdown dropdownAlignment="center" />
         </div>
       );
     }
@@ -359,6 +362,7 @@ function TokenBalancePage() {
       return (
         <div className="flex justify-center gap-3.5 w-full z-[21]">
           <GetAPIDropdown options={getAPIOptions} dropdownAlignment="center" />
+          <ShareURLDropdown dropdownAlignment="center" />
           <CSVDownloadDropdown options={csvDownloadOptions} />
         </div>
       );
@@ -386,7 +390,9 @@ function TokenBalancePage() {
         </div>
         <div className="flex items-center gap-3.5">
           <GetAPIDropdown options={getAPIOptions} dropdownAlignment="right" />
+          <ShareURLDropdown dropdownAlignment="right" />
           <CSVDownloadDropdown options={csvDownloadOptions} />
+          <TokenBalancesFrameModal />
         </div>
       </div>
     );
