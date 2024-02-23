@@ -30,6 +30,7 @@ export type IconType =
   | 'table-view'
   | 'filter'
   | 'copy'
+  | 'copy-white'
   | 'sort'
   | 'blockchain-filter'
   | 'check-mark'
@@ -68,7 +69,9 @@ export type IconType =
   | 'settings-gray'
   | 'pause-circle'
   | 'cancel-circle'
-  | 'file-arrow-down';
+  | 'file-arrow-down'
+  | 'chain'
+  | 'frame';
 
 export type IconProps = {
   name: IconType;

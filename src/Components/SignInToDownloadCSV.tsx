@@ -3,6 +3,7 @@ import { Modal } from './Modal';
 import { useAuth } from '../hooks/useAuth';
 
 const heading = 'Sign in to Airstack to download CSV';
+
 export function SignInToDownloadCSV() {
   const { login } = useAuth();
   return (
