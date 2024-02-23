@@ -439,7 +439,7 @@ export function TokenBalancesFrameModal() {
       {isModalVisible && (
         <Modal
           isOpen
-          className="w-full max-sm:min-w-full max-w-[648px] px-2.5 overflow-y-auto"
+          className="w-full max-sm:min-w-full max-w-[686px] px-2.5 overflow-y-auto"
           containerClassName="!border-white max-sm:p-4"
           onRequestClose={handleModalClose}
         >
