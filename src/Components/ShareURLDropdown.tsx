@@ -1,11 +1,12 @@
 import { usePrivy } from '@privy-io/react-auth';
 import classNames from 'classnames';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 import { shortenUrl } from '../hooks/useShortenURL';
 import { showToast } from '../utils/showToast';
 import { Icon } from './Icon';
 import { Tooltip, tooltipClass } from './Tooltip';
+import { isMobileDevice } from '../utils/isMobileDevice';
 
 function ShareIconBlue() {
   return (
@@ -38,11 +39,15 @@ export function ShareURLDropdown({
   const [loading, setLoading] = useState(false);
   const [shortUrl, setShortUrl] = useState<string | null>(null);
 
+  const isMobile = isMobileDevice();
+
   const handleDropdownClose = useCallback(() => {
     setIsDropdownVisible(false);
   }, []);
 
   const containerRef = useOutsideClick<HTMLDivElement>(handleDropdownClose);
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleDropdownToggle = useCallback(() => {
     setIsDropdownVisible(prevValue => !prevValue);
@@ -91,6 +96,29 @@ export function ShareURLDropdown({
     }
   }, [isDropdownVisible, shortenUrlFunction]);
 
+  // Prevent aligned mobile dropdown from going offscreen
+  useEffect(() => {
+    if (!dropdownRef.current || !isMobile) {
+      return;
+    }
+    const rect = dropdownRef.current.getBoundingClientRect();
+    const rightEndOverflow = rect.right - window.outerWidth;
+    const leftEndOverflow = -rect.left;
+    if (dropdownAlignment === 'left' && rightEndOverflow > 0) {
+      const left = -rightEndOverflow - 15;
+      dropdownRef.current.style.left = `${left}px`;
+    } else if (dropdownAlignment === 'right' && leftEndOverflow > 0) {
+      const right = -leftEndOverflow - 8;
+      dropdownRef.current.style.right = `${right}px`;
+    } else if (dropdownAlignment === 'center' && rightEndOverflow > 0) {
+      const left = -rightEndOverflow + 15;
+      dropdownRef.current.style.left = `${left}px`;
+    } else if (dropdownAlignment === 'center' && leftEndOverflow > 0) {
+      const left = leftEndOverflow + 8;
+      dropdownRef.current.style.left = `calc(50% + ${left}px)`;
+    }
+  }, [dropdownAlignment, isMobile]);
+
   return (
     <>
       <div
@@ -116,6 +144,7 @@ export function ShareURLDropdown({
         </Tooltip>
         {isDropdownVisible && (
           <div
+            ref={dropdownRef}
             className={classNames(
               'bg-glass border-solid-stroke rounded-18 p-3.5 mt-1 absolute max-sm:w-[288px] w-[360px] top-9 z-20',
               {
