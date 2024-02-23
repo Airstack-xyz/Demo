@@ -62,14 +62,22 @@ function isActive(item: Task | null) {
   );
 }
 
-function isLargeFile(createdAt: number, status: Status, totalRows = 0) {
+function isLargeFile(
+  createdAt: number,
+  status: Status,
+  totalRows = 0,
+  isActive: boolean
+) {
   const createdAtDate = new Date(createdAt);
   const time = new Date(Date.now() - largeFileAlertDiffTime);
-  return (
-    createdAtDate.getTime() < time.getTime() &&
-    !inactiveStatus.includes(status) &&
-    totalRows > maxRowsAllowed
-  );
+
+  const rowExceeds = totalRows > maxRowsAllowed;
+
+  if (status === Status.Failed && rowExceeds) {
+    return true;
+  }
+
+  return isActive && createdAtDate.getTime() < time.getTime();
 }
 
 type Option = {
@@ -221,11 +229,14 @@ export function CSVDownloads() {
           downloadCompleted = true;
         }
 
-        if (isLargeFile(item.createdAt, item.status!, item.totalRows || 0)) {
+        const active = isActive(item);
+        if (
+          isLargeFile(item.createdAt, item.status!, item.totalRows || 0, active)
+        ) {
           hasLargeFile = true;
         }
 
-        if (isActive(item)) {
+        if (active) {
           if (!activeTasksSet.current.has(item.id)) {
             activeTasksSet.current.add(item.id);
           }
@@ -545,7 +556,8 @@ export function CSVDownloads() {
               const largeFile = isLargeFile(
                 option.createdAt,
                 status,
-                option.totalRows || 0
+                option.totalRows || 0,
+                isInProgress
               );
 
               if (option.id === -1) {

@@ -64,7 +64,8 @@ export function useDropdownOptions({
   snapshotInfo,
   owner,
   tokenInfo,
-  accountAddress
+  accountAddress,
+  isResolve6551Enabled
 }: {
   addresses: TokenAddress[];
   overviewTokens: TokenHolder[];
@@ -80,6 +81,7 @@ export function useDropdownOptions({
   owner: string;
   tokenInfo: TokenInfo;
   accountAddress: string;
+  isResolve6551Enabled: boolean;
 }) {
   const requestFilters = useMemo(() => {
     return getRequestFilters(tokenFilters);
@@ -309,7 +311,11 @@ export function useDropdownOptions({
           csvDownloadOptions.push({
             label: 'Token holders',
             totalSupply: overviewTokens[0].holdersCount,
-            key: hasERC20 ? CsvQueryType.Erc20Holders : CsvQueryType.NftHolders,
+            key: hasERC20
+              ? CsvQueryType.Erc20Holders
+              : isResolve6551Enabled
+              ? CsvQueryType.Nft6551Holders
+              : CsvQueryType.NftHolders,
             fileName: `Holders of ${tokenName}`,
             variables: {
               tokenAddress: overviewTokens[0].tokenAddress,
@@ -504,23 +510,24 @@ export function useDropdownOptions({
 
     return [getAPIOptions, csvDownloadOptions] as const;
   }, [
-    addresses,
     overviewTokens,
     tokenAddress,
     activeView,
     activeTokenInfo,
     hasERC6551,
-    query,
-    hasPoap,
-    requestFilters,
     snapshotInfo,
+    isResolve6551Enabled,
+    hasPoap,
+    addresses,
+    requestFilters,
     tokensQueryWithFilter,
-    tokenOwnersQuery,
-    owner,
     tokenInfo.tokenAddress,
     tokenInfo.blockchain,
     tokenInfo.tokenId,
     tokenInfo.eventId,
-    accountAddress
+    accountAddress,
+    owner,
+    query,
+    tokenOwnersQuery
   ]);
 }
