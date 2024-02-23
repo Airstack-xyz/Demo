@@ -66,7 +66,9 @@ export function ShareURLDropdown({
       const token = await auth?.getAccessToken();
 
       const { data, error } = await shortenUrl(longUrl, {
-        Authorization: `Bearer ${token}`
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
 
       if (error) {

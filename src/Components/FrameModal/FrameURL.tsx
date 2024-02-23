@@ -43,7 +43,9 @@ export function FrameURL({
         const token = await auth?.getAccessToken();
 
         const { data, error } = await shortenUrl(longUrl, {
-          Authorization: `Bearer ${token}`
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         });
 
         if (error) {
@@ -81,7 +83,7 @@ export function FrameURL({
         <Icon name="chain" height={16} width={16} />
         <span className="font-semibold">Frame URL</span>
       </div>
-      <div className="flex items-center justify-between gap-2">
+      <div className="flex items-center justify-between gap-4">
         <div
           className={classNames(
             'w-full flex items-center px-5 h-9 bg-glass-2 rounded-full overflow-auto no-scrollbar max-w-[512px]',

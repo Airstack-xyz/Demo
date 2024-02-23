@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { tokenBalancesFrameQuery } from '../../queries/frames/tokenBalancesQuery';
 import { TokenBlockchain } from '../../types';
-import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Icon, IconType } from '../Icon';
 import LazyImage from '../LazyImage';
 import { Modal } from '../Modal';
@@ -158,23 +157,25 @@ function Token({ item }: { item: Poap | TokenBalance }) {
   const name = isPoap ? poapEvent.eventName : tokenBalance?.token?.name;
 
   return (
-    <div className="w-[235px] h-[235px] aspect-square rounded-[18px] bg-secondary flex flex-col text-left justify-end overflow-hidden relative border border-solid border-white">
+    <div className="w-[calc(50%-16px)] aspect-square rounded-[18px] bg-secondary flex flex-col text-left justify-end overflow-hidden relative border border-solid border-white">
       <div className="absolute inset-0 flex-col-center">
         <LazyImage alt="asset-image" src={image} className="w-full" />
       </div>
-      <div className="z-10 h-[70px] p-2.5 flex flex-col justify-end bg-gradient-to-b from-[#00000000] to-[#1B121C]">
-        <div className="flex items-center gap-1">
-          <span className="ellipsis max-w-[100px]">{id}</span>
+      <div className="z-10 max-sm:h-[50px] h-[70px] max-sm:p-1.5 p-2.5 flex flex-col justify-end bg-gradient-to-b from-[#00000000] to-[#1B121C]">
+        <div className="flex items-center gap-1 max-sm:text-[10px]">
+          <span className="ellipsis max-sm:max-w-[40px] max-w-[100px]">
+            {id}
+          </span>
           <Icon
             name={blockchain as IconType}
-            height={18}
-            width={18}
-            className="border border-solid border-white rounded-full"
+            className="aspect-square max-sm:h-[13px] max-sm:w-[13px] h-[18px] w-[18px] border border-solid border-white rounded-full"
           />
           <span>{type}</span>
         </div>
-        <div className="flex items-center justify-between text-[13px] font-bold">
-          <span className="ellipsis max-w-[160px]">{name}</span>
+        <div className="flex items-center justify-between max-sm:text-[10px] text-[13px] font-bold">
+          <span className="ellipsis max-sm:max-w-[60px] max-w-[160px]">
+            {name}
+          </span>
           {!!symbol && <span>{symbol}</span>}
         </div>
       </div>
@@ -305,7 +306,7 @@ function ModalContent() {
   const renderFrameContent = () => {
     if (!shouldFetchData) {
       return (
-        <div className="max-w-[400px] my-auto font-concert-one text-xl text-center">
+        <div className="max-w-[400px] my-auto font-concert-one max-sm:text-base text-xl text-center">
           Please select token type and chain from above to generate frame
         </div>
       );
@@ -313,7 +314,7 @@ function ModalContent() {
 
     if (loading) {
       return (
-        <div className="my-auto flex-col-center gap-1 font-concert-one text-xl text-center">
+        <div className="my-auto flex-col-center gap-1 font-concert-one max-sm:text-base text-xl text-center">
           <img alt="Logo" src="/logo-white.svg" height={32} width={32} />
           Generating preview...
         </div>
@@ -322,7 +323,7 @@ function ModalContent() {
 
     if (error) {
       return (
-        <div className="my-auto flex-col-center gap-1 font-concert-one text-xl text-center">
+        <div className="my-auto flex-col-center gap-1 font-concert-one max-sm:text-base text-xl text-center">
           Something went wrong!
           <button
             type="button"
@@ -343,12 +344,14 @@ function ModalContent() {
     const displayName = getDisplayName(resolvedOwner);
 
     return (
-      <div className="flex flex-col items-center h-full">
-        <div className="font-concert-one text-xl text-center mt-3.5 mb-6 flex">
-          <span className="ellipsis max-w-[250px]">{displayName}</span>'s
-          Onchain Collection
+      <div className="flex flex-col items-center w-full h-full">
+        <div className="font-concert-one max-sm:text-sm text-xl text-center max-sm:mt-2 mt-3.5 flex">
+          <span className="ellipsis max-sm:max-w-[90px] max-w-[250px]">
+            {displayName}
+          </span>
+          's Onchain Collection
         </div>
-        <div className="flex flex-wrap justify-center max-w-[580px] gap-6 h-full">
+        <div className="flex flex-wrap justify-center max-sm:gap-[14px] gap-[25px] h-full w-full max-sm:py-3 max-sm:px-4 py-4 px-6">
           {items.length ? (
             items.map((item, index) => <Token key={index} item={item} />)
           ) : (
@@ -383,14 +386,14 @@ function ModalContent() {
           onSelect={handleButtonSelect}
         />
       </div>
-      <div className="flex items-end mt-4 gap-6">
+      <div className="flex items-end max-sm:mt-8 mt-4 gap-6">
         <FrameURL
           containerClass="w-full"
           placeholder="Please select token type and chain"
           longUrl={frameUrl}
         />
       </div>
-      <div className="mt-4">
+      <div className="max-sm:mt-8 mt-4">
         <FramePreview
           frameClass="bg-gradient-to-b from-[#122230] to-[#051523] text-white"
           buttons={frameButtons}
@@ -405,24 +408,12 @@ function ModalContent() {
 export function TokenBalancesFrameModal() {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const [isDesktopModalVisible, setIsDesktopModalVisible] = useState(false);
-
-  const isMobile = isMobileDevice();
-
   const handleModalClose = () => {
     setIsModalVisible(false);
   };
 
   const handleModalOpen = () => {
     setIsModalVisible(true);
-  };
-
-  const handleDesktopModalOpen = () => {
-    setIsDesktopModalVisible(true);
-  };
-
-  const handleDesktopModalClose = () => {
-    setIsDesktopModalVisible(false);
   };
 
   return (
@@ -440,7 +431,7 @@ export function TokenBalancesFrameModal() {
               'border-white': isModalVisible
             }
           )}
-          onClick={isMobile ? handleDesktopModalOpen : handleModalOpen}
+          onClick={handleModalOpen}
         >
           <FrameIconBlue />
         </button>
@@ -448,29 +439,11 @@ export function TokenBalancesFrameModal() {
       {isModalVisible && (
         <Modal
           isOpen
-          className="min-w-[648px] overflow-y-auto"
-          containerClassName="!border-white"
+          className="w-full max-sm:min-w-full max-w-[648px] px-2.5 overflow-y-auto"
+          containerClassName="!border-white max-sm:p-4"
           onRequestClose={handleModalClose}
         >
           <ModalContent />
-        </Modal>
-      )}
-      {isDesktopModalVisible && (
-        <Modal
-          isOpen={isDesktopModalVisible}
-          hideDefaultContainer
-          className="bg-transparent min-h-[400px] min-w-[400px] outline-none px-5"
-          overlayClassName="bg-white bg-opacity-10 backdrop-blur-[50px] flex flex-col justify-center items-center fixed inset-0 z-[100]"
-          onRequestClose={handleDesktopModalClose}
-        >
-          <div className="bg-primary backdrop-blur-[100px] p-5 border-solid-stroke rounded-xl text-center">
-            <div className="text-base font-bold">
-              Use desktop web to share as Farcaster frame
-            </div>
-            <div className="text-sm text-text-secondary pt-1 pb-2">
-              There is more on desktop. Fork code, SDKs, AI Assistant, and more!
-            </div>
-          </div>
         </Modal>
       )}
     </>
