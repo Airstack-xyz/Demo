@@ -64,7 +64,8 @@ export function useDropdownOptions({
   snapshotInfo,
   owner,
   tokenInfo,
-  accountAddress
+  accountAddress,
+  isResolve6551Enabled
 }: {
   addresses: TokenAddress[];
   overviewTokens: TokenHolder[];
@@ -80,6 +81,7 @@ export function useDropdownOptions({
   owner: string;
   tokenInfo: TokenInfo;
   accountAddress: string;
+  isResolve6551Enabled: boolean;
 }) {
   const requestFilters = useMemo(() => {
     return getRequestFilters(tokenFilters);
@@ -248,7 +250,7 @@ export function useDropdownOptions({
           names.push(token.name);
         });
 
-        const name = `Holders ${names.join(' & ')}`;
+        const name = `Holders of ${names.join(' & ')}`;
         const combinationsCSVDownloadOption: CSVDownloadOption = {
           label: name,
           key,
@@ -307,10 +309,18 @@ export function useDropdownOptions({
           }
         } else if (poaps.length === 0) {
           csvDownloadOptions.push({
-            label: 'Token holders',
+            label: `Token holders${
+              isResolve6551Enabled ? ' (6551 resolved)' : ''
+            }`,
             totalSupply: overviewTokens[0].holdersCount,
-            key: hasERC20 ? CsvQueryType.Erc20Holders : CsvQueryType.NftHolders,
-            fileName: `Holders of ${tokenName}`,
+            key: hasERC20
+              ? CsvQueryType.Erc20Holders
+              : isResolve6551Enabled
+              ? CsvQueryType.Nft6551Holders
+              : CsvQueryType.NftHolders,
+            fileName: `Holders of ${tokenName}${
+              isResolve6551Enabled ? ' (6551 resolved)' : ''
+            }`,
             variables: {
               tokenAddress: overviewTokens[0].tokenAddress,
               blockchain: overviewTokens[0].blockchain // TODO: fix this it should be dynamic
@@ -504,23 +514,24 @@ export function useDropdownOptions({
 
     return [getAPIOptions, csvDownloadOptions] as const;
   }, [
-    addresses,
     overviewTokens,
     tokenAddress,
     activeView,
     activeTokenInfo,
     hasERC6551,
-    query,
-    hasPoap,
-    requestFilters,
     snapshotInfo,
+    isResolve6551Enabled,
+    hasPoap,
+    addresses,
+    requestFilters,
     tokensQueryWithFilter,
-    tokenOwnersQuery,
-    owner,
     tokenInfo.tokenAddress,
     tokenInfo.blockchain,
     tokenInfo.tokenId,
     tokenInfo.eventId,
-    accountAddress
+    accountAddress,
+    owner,
+    query,
+    tokenOwnersQuery
   ]);
 }

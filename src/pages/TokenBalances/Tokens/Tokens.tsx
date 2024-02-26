@@ -100,12 +100,22 @@ function TokensComponent(props: TokenProps) {
     nfts: true
   });
 
+  const shouldBatchResponse = useRef(true);
+  // batch only if fetching all tokens(tokenType is empty/null)
+  // TODO: discuss if we should betch for multiple owners/addresses ?
+  shouldBatchResponse.current = !tokenType;
+
   const handleTokens = useCallback(
     (
       tokenType: 'POAP' | 'NFT',
       tokens: (TokenType | PoapType)[],
       hasNextPage: boolean
     ) => {
+      if (!shouldBatchResponse.current) {
+        setTokens(_tokens => [...(_tokens || []), ...tokens]);
+        return;
+      }
+
       let { poaps, nfts } = tokensRef.current;
       let { poaps: hasPoapsNextPage, nfts: hasNftsNextPage } =
         hasNextPages.current;
@@ -177,14 +187,24 @@ function TokensComponent(props: TokenProps) {
     getNext: getNextPoaps,
     processedPoapsCount,
     hasNextPage: hasNextPagePoaps
-  } = useGetPoapsOfOwner(inputs, handlePoapData, !canFetchPoaps);
+  } = useGetPoapsOfOwner(
+    inputs,
+    handlePoapData,
+    !canFetchPoaps,
+    shouldBatchResponse.current
+  );
 
   const {
     loading: loadingTokens,
     getNext: getNextTokens,
     processedTokensCount,
     hasNextPage: hasNextPageTokens
-  } = useGetTokensOfOwner(inputs, handleNFTData, !canFetchTokens);
+  } = useGetTokensOfOwner(
+    inputs,
+    handleNFTData,
+    !canFetchTokens,
+    shouldBatchResponse.current
+  );
 
   const handleNext = useCallback(() => {
     if (loadingPoaps || loadingTokens) return;

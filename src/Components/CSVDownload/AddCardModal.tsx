@@ -8,6 +8,7 @@ import {
 } from '../../../__generated__/types';
 import { useCSVQuery } from '../../hooks/useCSVQuery';
 import { GeneratePaymentUrlQuery } from '../../queries/auth/generatePaymentUrl';
+import { encode } from '../../utils/encode';
 
 export function AddCardModal({
   type = 'subscription',
@@ -21,15 +22,18 @@ export function AddCardModal({
     GenerateUrlQueryVariables
   >(GeneratePaymentUrlQuery);
   const getGenerateUrl = async () => {
+    const origin = encode(window.location.href);
+    const successUrl = `${window?.location?.origin}/payment-success?_origin=${origin}`;
     const { data } = await generateUrl({
       input: {
         urlType: UrlType.Subscription,
-        successUrl: window.location.href,
+        successUrl: successUrl,
         cancelUrl: window.location.href
       }
     });
     if (data?.GenerateUrl?.url) {
       window.location.href = data.GenerateUrl.url;
+      localStorage.setItem('subscriptionId', data?.GenerateUrl?.id);
     }
   };
 
