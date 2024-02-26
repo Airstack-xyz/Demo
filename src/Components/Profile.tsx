@@ -72,7 +72,7 @@ export function Profile() {
         />
       }
     >
-      <div className="flex flex-col w-36 mt-2 text-xs font-medium">
+      <div className="flex flex-col w-36 mt-2 text-xs font-medium bg-[#303030] rounded-md">
         {options.map(option => (
           <a
             target="_blank"
