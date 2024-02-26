@@ -19,7 +19,10 @@ const MENTION_ENDPOINT = process.env.MENTION_ENDPOINT as string;
 
 export async function shortenUrl(
   longUrl: string,
-  headers?: { Authorization: string }
+  options: {
+    headers?: HeadersInit;
+    signal?: AbortSignal;
+  }
 ) {
   const variables: ShortenedUrlVariables = { longUrl };
 
@@ -27,8 +30,9 @@ export async function shortenUrl(
     const res = await fetch(MENTION_ENDPOINT, {
       method: 'POST',
       cache: 'no-cache',
+      signal: options.signal,
       headers: {
-        ...headers,
+        ...options.headers,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -66,7 +70,9 @@ export function useShortenURL() {
       const token = await auth?.getAccessToken();
 
       const { data, error } = await shortenUrl(longUrl, {
-        Authorization: `Bearer ${token}`
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
 
       if (error) {

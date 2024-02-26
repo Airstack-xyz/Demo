@@ -38,7 +38,7 @@ export function FrameSelect({
         <Icon name={labelIcon} height={labelIconSize} width={labelIconSize} />
         <span className="font-semibold">{label}</span>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {options.map((option, index) => {
           const isDisabled = optionsState?.[index] === 'disabled';
           const isSelected = optionsState?.[index] === 'selected';
@@ -54,7 +54,7 @@ export function FrameSelect({
               onClick={() => {
                 if (isDisabled) {
                   if (option.disabledTooltip) {
-                    showToast(option.disabledTooltip);
+                    showToast(option.disabledTooltip, 'warning');
                   }
                   return;
                 }

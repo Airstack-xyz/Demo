@@ -71,7 +71,7 @@ export const tokenBalancesFrameQuery = `query GetFrameTokens($owner: Identity!, 
     ) {
       profileName
     }
-    lensSocials: socials(input: {filter: {dappName: {_eq: farcaster}}, limit: 1}) {
+    lensSocials: socials(input: {filter: {dappName: {_eq: lens}}, limit: 1}) {
       profileName
     }
   }
