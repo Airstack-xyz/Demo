@@ -1,6 +1,6 @@
 import classNames from 'classnames';
-import { Icon } from '../Icon';
 import { ReactNode } from 'react';
+import { FrameLabel } from './FrameLabel';
 
 export type FrameButton = {
   label: string;
@@ -48,11 +48,13 @@ function LinkIcon() {
 export function FramePreview({
   buttons,
   containerClass,
+  frameContainerClass,
   frameClass,
   children
 }: {
   buttons?: FrameButton[];
   containerClass?: string;
+  frameContainerClass?: string;
   frameClass?: string;
   children: ReactNode;
 }) {
@@ -63,11 +65,13 @@ export function FramePreview({
         containerClass
       )}
     >
-      <div className="flex items-center gap-1 mb-2">
-        <Icon name="frame" height={16} width={16} />
-        <span className="font-semibold">Preview</span>
-      </div>
-      <div className="flex flex-col overflow-hidden rounded-2xl border border-solid border-[#3D3041]">
+      <FrameLabel label="Preview" labelIcon="frame" labelIconSize={16} />
+      <div
+        className={classNames(
+          'flex flex-col overflow-hidden rounded-2xl border border-solid border-[#3D3041]',
+          frameContainerClass
+        )}
+      >
         <div
           className={classNames(
             'flex-1 flex flex-col items-center aspect-square',
@@ -76,20 +80,22 @@ export function FramePreview({
         >
           {children}
         </div>
-        {!!buttons && (
-          <div className="py-2 px-4 bg-[#292431] flex justify-center items-stretch gap-2.5 text-white">
-            {buttons.map(item => (
-              <button
-                key={item.label}
-                type="button"
-                className="flex-row-center h-[36px] w-full gap-1 rounded-lg border border-solid border-[#473B4B] bg-[#3F3A46] px-3 text-sm font-semibold cursor-default"
-              >
-                <span className="ellipsis max-w-[120px]">{item.label}</span>
-                {item.type === 'link' && <LinkIcon />}
-              </button>
-            ))}
-          </div>
-        )}
+        <div className="min-h-[52px]">
+          {buttons?.length ? (
+            <div className="py-2 px-4 bg-[#292431] flex justify-center items-stretch gap-2.5 text-white min-h-[52px]">
+              {buttons.map(item => (
+                <button
+                  key={item.label}
+                  type="button"
+                  className="flex-row-center max-sm:h-[28px] h-[36px] w-full gap-1 rounded-lg border border-solid border-[#473B4B] bg-[#3F3A46] max-sm:px-2 px-3 max-sm:text-[10px] text-sm font-semibold cursor-default"
+                >
+                  <span className="ellipsis max-w-[120px]">{item.label}</span>
+                  {item.type === 'link' && <LinkIcon />}
+                </button>
+              ))}
+            </div>
+          ) : undefined}
+        </div>
       </div>
     </div>
   );

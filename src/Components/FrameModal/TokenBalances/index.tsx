@@ -1,70 +1,38 @@
 import { useLazyQuery } from '@airstack/airstack-react';
 import classNames from 'classnames';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSearchInput } from '../../hooks/useSearchInput';
-import { tokenBalancesFrameQuery } from '../../queries/frames/tokenBalancesQuery';
-import { TokenBlockchain } from '../../types';
-import { isMobileDevice } from '../../utils/isMobileDevice';
-import { Icon, IconType } from '../Icon';
-import LazyImage from '../LazyImage';
-import { Modal } from '../Modal';
-import { Tooltip, tooltipClass } from '../Tooltip';
-import { FramePreview } from './FramePreview';
+import { useSearchInput } from '../../../hooks/useSearchInput';
+import { tokenBalancesFrameQuery } from '../../../queries/frames/tokenBalancesQuery';
+import { TokenBlockchain } from '../../../types';
+import { Icon, IconType } from '../../Icon';
+import LazyImage from '../../LazyImage';
+import { Modal } from '../../Modal';
+import { Tooltip, tooltipClass } from '../../Tooltip';
+import { FramePreview } from '../FramePreview';
 import {
-  FrameSelect,
   FrameSelectOption,
-  FrameSelectOptionState
-} from './FrameSelect';
-import { FrameURL } from './FrameURL';
-import { FrameIconBlue } from './Icons';
+  FrameSelectOptionState,
+  FrameSelect
+} from '../FrameSelect';
+import { FrameURL } from '../FrameURL';
+import { EmptyIcon, FrameIconBlue } from '../Icons';
 import {
-  DECODED_BLOCKCHAIN,
-  DECODED_TOKEN_TYPE,
-  ENCODED_BLOCKCHAIN,
-  ENCODED_TOKEN_TYPE
-} from './constants';
-import {
-  FrameOption,
   Poap,
   TokenBalance,
   TokenBalanceFrameResponse,
   TokenBalanceFrameVariables
 } from './types';
+import { FrameOption } from '../types';
+import { getFrameButtons, getResolvedOwner } from './utils';
+import { encodeFrameData, getDisplayName } from '../utils';
 import {
-  encodeFrameData,
-  getDisplayName,
-  getFrameButtonsForTokenBalances,
-  getResolvedOwner
-} from './utils';
-
-function EmptyIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="78"
-      height="54"
-      fill="none"
-      viewBox="0 0 78 54"
-    >
-      <path
-        fill="#fff"
-        d="M27.1253 26.1961 5.7798 21.927v19.4918l26.2138 6.9842V16.7217l-3.8197 8.9127c-.1873.4119-.6179.6366-1.0486.5617Z"
-      />
-      <path
-        fill="#fff"
-        d="M31.5629 12.9384 7.6896 9.9425 29.391 1.91l24.36 3.239-19.5854 7.546 4.8683 11.3468 24.3226-10.4293-6.4598-9.6617L29.1662 0 3.6077 9.437.4434 18.9488l4.5686.9175h.0188l21.72 4.344 4.8121-11.2719Z"
-      />
-      <path
-        fill="#fff"
-        d="M63.1695 25.9152c-1.0673 0-2.0971.1124-3.0895.3558v-9.2123l-21.177 9.0625c-.1123.0562-.2434.0749-.3557.0749-.3745 0-.7116-.206-.8614-.5617l-3.8197-8.9127v31.6625l15.8968-4.2316c1.7788 5.7108 7.1152 9.8489 13.4065 9.8489 7.7518 0 14.0431-6.2913 14.0431-14.0431 0-7.7518-6.2913-14.0432-14.0431-14.0432Zm0 26.2139c-5.4113 0-10.0174-3.5576-11.5902-8.4634-.3745-1.1609-.5805-2.4154-.5805-3.7073 0-5.636 3.8572-10.392 9.0812-11.7588.9924-.2809 2.0222-.4119 3.0895-.4119 6.7033 0 12.1707 5.4674 12.1707 12.1707 0 6.7032-5.4674 12.1707-12.1707 12.1707Z"
-      />
-      <path
-        fill="#fff"
-        d="m70.4527 35.3323-2.6401-2.6401c-.3744-.3745-.9549-.3745-1.3294 0l-3.3141 3.2954-3.3142-3.3142c-.3745-.3744-.955-.3744-1.3294 0l-2.6401 2.6401c-.2809.2809-.3371.6554-.206.9737.0562.1311.1123.2434.206.337l3.3141 3.3142-3.3141 3.3142c-.3745.3745-.3745.9549 0 1.3294l2.6401 2.6401c.3744.3745.9549.3745 1.3294 0l3.3142-3.2767 3.3141 3.3142c.3745.3744.955.3744 1.3294 0l2.6401-2.6401c.3745-.3745.3745-.955 0-1.3295l-3.3141-3.3141 3.3141-3.3142c.3745-.3745.3745-.9549 0-1.3294Z"
-      />
-    </svg>
-  );
-}
+  DECODED_BLOCKCHAIN,
+  DECODED_TOKEN_TYPE,
+  ENCODED_BLOCKCHAIN,
+  ENCODED_TOKEN_TYPE,
+  FRAMES_ENDPOINT,
+  PLACEHOLDER_URL
+} from '../constants';
 
 const buttonOptions: FrameSelectOption[] = [
   {
@@ -103,10 +71,6 @@ const defaultButtonOptionsState: FrameSelectOptionState[] = [
   null
 ];
 
-const FRAMES_ENDPOINT = process.env.FRAMES_ENDPOINT || '';
-
-const PLACEHOLDER_URL = 'images/placeholder-blue.svg';
-
 function Token({ item }: { item: Poap | TokenBalance }) {
   const tokenBalance = item as TokenBalance;
   const poap = item as Poap;
@@ -133,23 +97,30 @@ function Token({ item }: { item: Poap | TokenBalance }) {
   const name = isPoap ? poapEvent.eventName : tokenBalance?.token?.name;
 
   return (
-    <div className="w-[235px] h-[235px] aspect-square rounded-[18px] bg-secondary flex flex-col text-left justify-end overflow-hidden relative border border-solid border-white">
+    <div className="w-[calc(50%-16px)] aspect-square rounded-[18px] bg-secondary flex flex-col text-left justify-end overflow-hidden relative border border-solid border-white">
       <div className="absolute inset-0 flex-col-center">
-        <LazyImage alt="asset-image" src={image} className="w-full" />
+        <LazyImage
+          alt="TokenImage"
+          src={image}
+          fallbackSrc={PLACEHOLDER_URL}
+          className="w-full"
+        />
       </div>
-      <div className="z-10 h-[70px] p-2.5 flex flex-col justify-end bg-gradient-to-b from-[#00000000] to-[#1B121C]">
-        <div className="flex items-center gap-1">
-          <span className="ellipsis max-w-[100px]">{id}</span>
+      <div className="z-10 max-sm:h-[50px] h-[70px] max-sm:p-1.5 p-2.5 flex flex-col justify-end bg-gradient-to-b from-[#00000000] to-[#1B121C]">
+        <div className="flex items-center gap-1 max-sm:text-[10px]">
+          <span className="ellipsis max-sm:max-w-[40px] max-w-[100px]">
+            {id}
+          </span>
           <Icon
             name={blockchain as IconType}
-            height={18}
-            width={18}
-            className="border border-solid border-white rounded-full"
+            className="aspect-square max-sm:h-[13px] max-sm:w-[13px] h-[18px] w-[18px] border border-solid border-white rounded-full"
           />
           <span>{type}</span>
         </div>
-        <div className="flex items-center justify-between text-[13px] font-bold">
-          <span className="ellipsis max-w-[160px]">{name}</span>
+        <div className="flex items-center justify-between max-sm:text-[10px] text-[13px] font-bold">
+          <span className="ellipsis max-sm:max-w-[60px] max-w-[160px]">
+            {name}
+          </span>
           {!!symbol && <span>{symbol}</span>}
         </div>
       </div>
@@ -239,6 +210,10 @@ function ModalContent() {
     fetchData();
   }, [fetchData]);
 
+  const items = isPOAP
+    ? data?.poap?.Poap
+    : data?.[blockchain as TokenBlockchain]?.TokenBalance;
+
   const wallet = data?.wallet;
 
   const resolvedOwner = useMemo(() => getResolvedOwner(wallet), [wallet]);
@@ -280,7 +255,7 @@ function ModalContent() {
   const renderFrameContent = () => {
     if (!shouldFetchData) {
       return (
-        <div className="max-w-[400px] my-auto font-concert-one text-xl text-center">
+        <div className="max-w-[400px] my-auto font-concert-one max-sm:text-base text-xl text-center">
           Please select token type and chain from above to generate frame
         </div>
       );
@@ -288,7 +263,7 @@ function ModalContent() {
 
     if (loading) {
       return (
-        <div className="my-auto flex-col-center gap-1 font-concert-one text-xl text-center">
+        <div className="my-auto flex-col-center gap-1 font-concert-one max-sm:text-base text-xl text-center">
           <img alt="Logo" src="/logo-white.svg" height={32} width={32} />
           Generating preview...
         </div>
@@ -297,7 +272,7 @@ function ModalContent() {
 
     if (error) {
       return (
-        <div className="my-auto flex-col-center gap-1 font-concert-one text-xl text-center">
+        <div className="my-auto flex-col-center gap-1 font-concert-one max-sm:text-base text-xl text-center">
           Something went wrong!
           <button
             type="button"
@@ -310,21 +285,18 @@ function ModalContent() {
       );
     }
 
-    const items =
-      (isPOAP
-        ? data?.poap.Poap
-        : data?.[blockchain as TokenBlockchain]?.TokenBalance) || [];
-
     const displayName = getDisplayName(resolvedOwner);
 
     return (
-      <div className="flex flex-col items-center h-full">
-        <div className="font-concert-one text-xl text-center mt-3.5 mb-6 flex">
-          <span className="ellipsis max-w-[250px]">{displayName}</span>'s
-          Onchain Collection
+      <div className="flex flex-col items-center w-full h-full">
+        <div className="font-concert-one max-sm:text-sm text-xl text-center max-sm:mt-2 mt-3.5 flex">
+          <span className="ellipsis max-sm:max-w-[90px] max-w-[250px]">
+            {displayName}
+          </span>
+          's Onchain Collection
         </div>
-        <div className="flex flex-wrap justify-center max-w-[580px] gap-6 h-full">
-          {items.length ? (
+        <div className="flex flex-wrap justify-center max-sm:gap-[14px] gap-[25px] h-full w-full max-sm:py-3 max-sm:px-4 py-4 px-6">
+          {items?.length ? (
             items.map((item, index) => <Token key={index} item={item} />)
           ) : (
             <div className="flex-col-center font-concert-one text-xl text-center">
@@ -340,7 +312,7 @@ function ModalContent() {
   };
 
   const frameButtons = shouldFetchData
-    ? getFrameButtonsForTokenBalances(selectedButtonValues)
+    ? getFrameButtons(selectedButtonValues)
     : undefined;
 
   return (
@@ -358,16 +330,16 @@ function ModalContent() {
           onSelect={handleButtonSelect}
         />
       </div>
-      <div className="flex items-end mt-4 gap-6">
+      <div className="flex items-end max-sm:mt-8 mt-4 gap-6">
         <FrameURL
           containerClass="w-full"
           placeholder="Please select token type and chain"
           longUrl={frameUrl}
         />
       </div>
-      <div className="mt-4">
+      <div className="max-sm:mt-8 mt-4">
         <FramePreview
-          frameClass="bg-gradient-to-b from-[#122230] to-[#051523] text-white"
+          frameContainerClass="bg-gradient-to-b from-[#122230] to-[#051523] text-white"
           buttons={frameButtons}
         >
           {renderFrameContent()}
@@ -380,24 +352,12 @@ function ModalContent() {
 export function TokenBalancesFrameModal() {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const [isDesktopModalVisible, setIsDesktopModalVisible] = useState(false);
-
-  const isMobile = isMobileDevice();
-
   const handleModalClose = () => {
     setIsModalVisible(false);
   };
 
   const handleModalOpen = () => {
     setIsModalVisible(true);
-  };
-
-  const handleDesktopModalOpen = () => {
-    setIsDesktopModalVisible(true);
-  };
-
-  const handleDesktopModalClose = () => {
-    setIsDesktopModalVisible(false);
   };
 
   return (
@@ -408,14 +368,13 @@ export function TokenBalancesFrameModal() {
         disabled={isModalVisible}
       >
         <button
-          title="Share Frame"
           className={classNames(
             'py-1.5 px-3 text-text-button bg-glass-1 rounded-full flex-row-center border border-solid border-transparent',
             {
               'border-white': isModalVisible
             }
           )}
-          onClick={isMobile ? handleDesktopModalOpen : handleModalOpen}
+          onClick={handleModalOpen}
         >
           <FrameIconBlue />
         </button>
@@ -423,29 +382,11 @@ export function TokenBalancesFrameModal() {
       {isModalVisible && (
         <Modal
           isOpen
-          className="min-w-[648px] overflow-y-auto"
-          containerClassName="!border-white"
+          className="w-full max-sm:min-w-full max-w-[686px] px-2.5 overflow-y-auto"
+          containerClassName="!border-white max-sm:p-4"
           onRequestClose={handleModalClose}
         >
           <ModalContent />
-        </Modal>
-      )}
-      {isDesktopModalVisible && (
-        <Modal
-          isOpen={isDesktopModalVisible}
-          hideDefaultContainer
-          className="bg-transparent min-h-[400px] min-w-[400px] outline-none px-5"
-          overlayClassName="bg-white bg-opacity-10 backdrop-blur-[50px] flex flex-col justify-center items-center fixed inset-0 z-[100]"
-          onRequestClose={handleDesktopModalClose}
-        >
-          <div className="bg-primary backdrop-blur-[100px] p-5 border-solid-stroke rounded-xl text-center">
-            <div className="text-base font-bold">
-              Use desktop web to share as Farcaster frame
-            </div>
-            <div className="text-sm text-text-secondary pt-1 pb-2">
-              There is more on desktop. Fork code, SDKs, AI Assistant, and more!
-            </div>
-          </div>
         </Modal>
       )}
     </>

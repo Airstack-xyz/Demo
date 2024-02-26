@@ -1,3 +1,7 @@
+export const FRAMES_ENDPOINT = process.env.FRAMES_ENDPOINT || '';
+
+export const PLACEHOLDER_URL = 'images/placeholder-blue.svg';
+
 export const ENCODED_TOKEN_TYPE = {
   POAP: '1',
   NFT: '2',
