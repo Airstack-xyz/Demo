@@ -250,7 +250,7 @@ export function useDropdownOptions({
           names.push(token.name);
         });
 
-        const name = `Holders ${names.join(' & ')}`;
+        const name = `Holders of ${names.join(' & ')}`;
         const combinationsCSVDownloadOption: CSVDownloadOption = {
           label: name,
           key,
