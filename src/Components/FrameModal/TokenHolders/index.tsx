@@ -43,10 +43,10 @@ const iconMap: Record<string, string> = {
 
 function Token({
   item,
-  isTokenPrimaryImage
+  isTokenImagePrimary
 }: {
   item: Poap | TokenBalance;
-  isTokenPrimaryImage: boolean;
+  isTokenImagePrimary: boolean;
 }) {
   const tokenBalance = item as TokenBalance;
   const poap = item as Poap;
@@ -66,15 +66,15 @@ function Token({
 
   const profileImage = getResolvedHolderImage(item.owner) || PLACEHOLDER_URL;
 
-  const assetImage = isTokenPrimaryImage ? tokenImage : profileImage;
+  const assetImage = isTokenImagePrimary ? tokenImage : profileImage;
 
-  const assetIcon1 = isTokenPrimaryImage
+  const assetIcon1 = isTokenImagePrimary
     ? profileImage
     : tokenHolder?.type
     ? iconMap[tokenHolder.type]
     : PLACEHOLDER_URL;
 
-  const assetIcon2 = isTokenPrimaryImage ? undefined : tokenImage;
+  const assetIcon2 = isTokenImagePrimary ? undefined : tokenImage;
 
   const assetId = isPoap ? `#${poapEvent.eventId}` : `#${tokenBalance.tokenId}`;
 
@@ -122,7 +122,7 @@ function Token({
 function ModalContent() {
   const [{ tokens: _overviewTokens }] = useOverviewTokens(['tokens']);
 
-  const [isTokenPrimaryImage, setIsTokenPrimaryImage] = useState(false);
+  const [isTokenImagePrimary, setIsTokenPrimaryImage] = useState(false);
 
   const isOverviewTokensLoading = _overviewTokens?.length === 0;
 
@@ -171,10 +171,10 @@ function ModalContent() {
       ],
       a: overviewToken.tokenAddress,
       b: overviewToken.blockchain,
-      p: isTokenPrimaryImage ? '1' : '0'
+      p: isTokenImagePrimary ? '1' : '0'
     });
     return `${FRAMES_ENDPOINT}/th/${frameData}`;
-  }, [isTokenPrimaryImage, overviewToken]);
+  }, [isTokenImagePrimary, overviewToken]);
 
   const frameButtons = useMemo(() => {
     if (!overviewToken) {
@@ -231,7 +231,7 @@ function ModalContent() {
               <Token
                 key={index}
                 item={item}
-                isTokenPrimaryImage={isTokenPrimaryImage}
+                isTokenImagePrimary={isTokenImagePrimary}
               />
             ))
           ) : (
@@ -260,7 +260,7 @@ function ModalContent() {
           label="Use token held as the primary image"
           labelClassName="text-text-secondary"
           onClick={handleTokenPrimaryImageToggle}
-          checked={isTokenPrimaryImage}
+          checked={isTokenImagePrimary}
         />
       </div>
       <div className="flex items-end max-sm:mt-8 mt-4 gap-6">
