@@ -51,8 +51,11 @@ type Inputs = Pick<
 export function useGetTokensOfOwner(
   inputs: Inputs,
   onDataReceived: (tokens: TokenType[], hasNextPage: boolean) => void,
-  tokenDisabled = false
+  tokenDisabled = false,
+  shouldBatchResults = false
 ) {
+  const shouldBatch = useRef(shouldBatchResults);
+  shouldBatch.current = shouldBatchResults;
   const {
     address: owners,
     tokenType = '',
@@ -217,12 +220,17 @@ export function useGetTokensOfOwner(
     }
 
     tokensRef.current = [...tokensRef.current, ...tokens];
+    if (!shouldBatch.current) {
+      onDataReceived(tokens, hasNextPage);
+    }
 
     if (hasNextPage && tokensRef.current.length < LIMIT) {
       setLoading(true);
       getNextPage();
     } else {
-      onDataReceived(tokensRef.current, hasNextPage);
+      if (shouldBatch.current) {
+        onDataReceived(tokensRef.current, hasNextPage);
+      }
       setLoading(false);
       tokensRef.current = [];
     }

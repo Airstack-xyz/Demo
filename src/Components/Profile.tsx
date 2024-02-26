@@ -72,20 +72,20 @@ export function Profile() {
         />
       }
     >
-      <div className="flex flex-col w-32 py-2">
+      <div className="flex flex-col w-36 mt-2 text-xs font-medium bg-[#303030] rounded-md">
         {options.map(option => (
           <a
             target="_blank"
             key={option.href}
             href={option.href}
-            className=" py-1.5 hover:bg-secondary px-2"
+            className="p-3.5 hover:bg-secondary"
           >
             {option.label}
           </a>
         ))}
-        <hr className="my-2" />
+        <hr className="mx-3.5 border-[#303241] border-t border-solid" />
         <a
-          className=" py-1.5 hover:bg-secondary px-2"
+          className="p-3.5 hover:bg-secondary"
           href={APP_BASE_URL + ROUTES.pricing}
           target="_blank"
         >
@@ -93,7 +93,7 @@ export function Profile() {
         </a>
         <button
           onClick={handleLogout}
-          className="text-text-error text-left py-1.5 hover:bg-secondary px-2"
+          className="text-text-error text-left p-3.5 hover:bg-secondary"
         >
           Sign Out
         </button>
