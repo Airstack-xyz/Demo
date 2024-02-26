@@ -309,14 +309,18 @@ export function useDropdownOptions({
           }
         } else if (poaps.length === 0) {
           csvDownloadOptions.push({
-            label: 'Token holders',
+            label: `Token holders${
+              isResolve6551Enabled ? ' (6551 resolved)' : ''
+            }`,
             totalSupply: overviewTokens[0].holdersCount,
             key: hasERC20
               ? CsvQueryType.Erc20Holders
               : isResolve6551Enabled
               ? CsvQueryType.Nft6551Holders
               : CsvQueryType.NftHolders,
-            fileName: `Holders of ${tokenName}`,
+            fileName: `Holders of ${tokenName}${
+              isResolve6551Enabled ? ' (6551 resolved)' : ''
+            }`,
             variables: {
               tokenAddress: overviewTokens[0].tokenAddress,
               blockchain: overviewTokens[0].blockchain // TODO: fix this it should be dynamic
