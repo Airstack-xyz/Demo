@@ -14,6 +14,13 @@ const maxAllowedRows = 1000000; // 1 million
 
 const fileType = '.zip';
 
+function formatFileName(name: string) {
+  // Remove non-ascii letter from filename, s3 throws this error due this https://stackoverflow.com/questions/18389560/how-to-use-unicode-characters-in-s3s-response-content-disposition-header
+  // See: https://www.geeksforgeeks.org/how-to-remove-all-non-ascii-characters-from-the-string-using-javascript/
+  // eslint-disable-next-line no-control-regex
+  return name.replace(/[^\x00-\x7F]/g, '');
+}
+
 export function useEstimateTask() {
   const { user, login } = useAuth();
   const [estimateTask, data] = useCSVQuery<
@@ -47,9 +54,11 @@ export function useEstimateTask() {
         return;
       }
 
-      const name = fileName.endsWith(fileType)
-        ? fileName
-        : `${fileName}${fileType}`;
+      const formattedFilename = formatFileName(fileName);
+
+      const name = formattedFilename.endsWith(fileType)
+        ? formattedFilename
+        : `${formattedFilename}${fileType}`;
 
       const payload: Pick<CSVDownloadOption, 'variables' | 'filters'> & {
         query: string;
