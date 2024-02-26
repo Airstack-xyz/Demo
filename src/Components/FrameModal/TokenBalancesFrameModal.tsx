@@ -16,6 +16,7 @@ import {
   FrameSelectOptionState
 } from './FrameSelect';
 import { FrameURL } from './FrameURL';
+import { FrameIconBlue } from './Icons';
 import {
   DECODED_BLOCKCHAIN,
   DECODED_TOKEN_TYPE,
@@ -35,32 +36,6 @@ import {
   getFrameButtonsForTokenBalances,
   getResolvedOwner
 } from './utils';
-
-function FrameIconBlue() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
-      fill="none"
-      viewBox="0 0 16 16"
-    >
-      <g fill="#65AAD0" clip-path="url(#a)">
-        <path d="M0 14.8571C0 15.4883.5117 16 1.1428 16h13.7143C15.4883 16 16 15.4883 16 14.8571V1.1428C16 .5117 15.4883 0 14.8571 0H1.1428C.5117 0 0 .5117 0 1.1428v13.7143ZM13.8572 1.1429c.6312 0 1.1428.5116 1.1428 1.1428v11.4286c0 .6312-.5116 1.1428-1.1428 1.1428H2.1429C1.5117 14.8571 1 14.3455 1 13.7143V2.2857c0-.6312.5117-1.1428 1.1429-1.1428h11.7143Z" />
-        <path d="M11.8532 11.5041v-.0723c0-.1859-.1085-.346-.2583-.4338h.0155V6.3235l.3564-1.0382h-1.3894V4.247h-5.16v1.0382H4.0278l.3564 1.0382v4.6745h.0155c-.155.0878-.2583.2427-.2583.4338v.0723c-.16.0672-.2737.2273-.2737.4184V12h3.0991v-.0775c0-.1859-.1136-.346-.2737-.4184v-.0723c0-.1859-.1085-.346-.2583-.4338h.0206V8.6581c0-.8316.6715-1.5082 1.498-1.5082h.093c.8263 0 1.4978.6766 1.4978 1.5082v2.3399h.0207c-.155.0878-.2583.2427-.2583.4338v.0723c-.16.0672-.2737.2273-.2737.4184V12h3.0991v-.0775c0-.1859-.1137-.346-.2738-.4184h-.0051Z" />
-      </g>
-      <defs>
-        <clipPath id="a">
-          <path
-            fill="#fff"
-            d="M0 0h16v16H0z"
-            transform="matrix(1 0 0 -1 0 16)"
-          />
-        </clipPath>
-      </defs>
-    </svg>
-  );
-}
 
 function EmptyIcon() {
   return (
