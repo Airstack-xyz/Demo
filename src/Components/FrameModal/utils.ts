@@ -29,7 +29,7 @@ export const getResolvedOwner = (wallet: Wallet | undefined) => {
 export const getDisplayName = (address: string | undefined) => {
   if (!address) return address;
 
-  if (address.startsWith('lens/')) return address.replace('lens/', '');
+  if (address.startsWith('lens/@')) return address.replace('lens/@', '');
   if (address.startsWith('fc_fname:')) return address.replace('fc_fname:', '');
 
   return address;
