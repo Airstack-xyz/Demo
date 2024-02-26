@@ -165,6 +165,7 @@ function ModalContent() {
       return '';
     }
     const frameData = encodeFrameData({
+      n: overviewToken.name,
       t: ENCODED_TOKEN_TYPE[
         overviewToken.tokenType as keyof typeof ENCODED_TOKEN_TYPE
       ],
