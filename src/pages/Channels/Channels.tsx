@@ -2,9 +2,39 @@ import classNames from 'classnames';
 import { useMatch } from 'react-router-dom';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { Search } from '../../Components/Search';
+import { SortBy } from '../../Components/Filters/SortBy';
+import { useLazyQuery } from '@airstack/airstack-react';
+import { farcasterChannelQuery } from '../../queries/channels';
+import {
+  FarcasterChannelDetailsQuery,
+  FarcasterChannelDetailsQueryVariables
+} from '../../../__generated__/airstack-types';
+import { useSearchInput } from '../../hooks/useSearchInput';
+import { useEffect } from 'react';
+import { Overview } from './Overview';
+import { Icon } from '../../Components/Icon';
+import { ParticipentsList } from './Participents/Participents';
 
 export function Channels() {
   const isHome = useMatch('/');
+  const [inputs] = useSearchInput();
+  const [fetchChannelDetails, { data, loading }] = useLazyQuery<
+    FarcasterChannelDetailsQuery,
+    FarcasterChannelDetailsQueryVariables
+  >(farcasterChannelQuery);
+
+  const channelId = inputs.address[0] || '';
+
+  useEffect(() => {
+    if (channelId) {
+      fetchChannelDetails({
+        channelId
+      });
+    }
+  }, [channelId, fetchChannelDetails]);
+
+  const channelDetails = data?.FarcasterChannels?.FarcasterChannel?.[0];
+
   return (
     <div
       className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
@@ -15,7 +45,28 @@ export function Channels() {
       <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
         {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
         <Search />
-        <h1> Channels </h1>
+        {channelId && (
+          <div>
+            <div>
+              <SortBy />
+            </div>
+            <section className="max-w-full overflow-hidden">
+              <Overview
+                channelDetails={channelDetails}
+                loading={loading || !data}
+              />
+            </section>
+            <section>
+              <div className="flex mb-4">
+                <Icon name="token-holders" height={20} width={20} />{' '}
+                <span className="font-bold ml-1.5 text-sm text-text-secondary">
+                  Participants
+                </span>
+              </div>
+              <ParticipentsList channelId={channelId} />
+            </section>
+          </div>
+        )}
       </div>
     </div>
   );

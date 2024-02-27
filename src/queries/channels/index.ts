@@ -40,7 +40,11 @@ export const farcasterChannelQuery = /* GraphQL */ `
 `;
 
 export const farcasterParticipentsQuery = /* GraphQL */ `
-  query MyQuery($channelId: String, $limit: Int) {
+  query FarcasterChannelParticipants(
+    $channelId: String
+    $limit: Int
+    $orderBy: OrderBy
+  ) {
     FarcasterChannelParticipants(
       input: {
         filter: {
@@ -49,10 +53,11 @@ export const farcasterParticipentsQuery = /* GraphQL */ `
         }
         blockchain: ALL
         limit: $limit
+        order: { lastActionTimestamp: $orderBy }
       }
     ) {
       FarcasterChannelParticipant {
-        lastCastedTimestamp
+        lastActionTimestamp
         participant {
           fnames
           identity
@@ -82,9 +87,6 @@ export const farcasterParticipentsQuery = /* GraphQL */ `
             }
             primaryDomain {
               name
-            }
-            xmtp {
-              isXMTPEnabled
             }
           }
         }
