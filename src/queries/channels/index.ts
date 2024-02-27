@@ -1,0 +1,94 @@
+export const farcasterChannelsSearchQuery = /* GraphQL */ `
+  query FarcasterChannels($searchRegex: [String!], $limit: Int) {
+    FarcasterChannels(
+      input: {
+        blockchain: ALL
+        filter: { name: { _regex_in: $searchRegex } }
+        limit: $limit
+      }
+    ) {
+      FarcasterChannel {
+        channelId
+        name
+        imageUrl
+        leadProfiles {
+          profileName
+        }
+      }
+    }
+  }
+`;
+
+export const farcasterChannelQuery = /* GraphQL */ `
+  query FarcasterChannelDetails($channelId: String) {
+    FarcasterChannels(
+      input: { blockchain: ALL, filter: { channelId: { _eq: $channelId } } }
+    ) {
+      FarcasterChannel {
+        channelId
+        createdAtTimestamp
+        description
+        name
+        url
+        imageUrl
+        leadProfiles {
+          profileName
+        }
+      }
+    }
+  }
+`;
+
+export const farcasterParticipentsQuery = /* GraphQL */ `
+  query MyQuery($channelId: String, $limit: Int) {
+    FarcasterChannelParticipants(
+      input: {
+        filter: {
+          channelActions: { _eq: cast }
+          channelId: { _eq: $channelId }
+        }
+        blockchain: ALL
+        limit: $limit
+      }
+    ) {
+      FarcasterChannelParticipant {
+        lastCastedTimestamp
+        participant {
+          fnames
+          identity
+          userAddress
+          profileName
+          fid: userId
+          coverImageURI
+          coverImageContentValue {
+            image {
+              small
+            }
+            video {
+              original
+            }
+            animation_url {
+              original
+            }
+          }
+          userAddressDetails {
+            socials {
+              dappName
+              profileName
+            }
+            domains {
+              isPrimary
+              name
+            }
+            primaryDomain {
+              name
+            }
+            xmtp {
+              isXMTPEnabled
+            }
+          }
+        }
+      }
+    }
+  }
+`;

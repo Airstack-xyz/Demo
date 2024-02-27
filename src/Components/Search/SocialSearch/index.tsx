@@ -23,6 +23,11 @@ import {
   getSearchItemMention,
   getUpdatedMentionValue
 } from './utils';
+import { farcasterChannelsSearchQuery } from '../../../queries/channels';
+import {
+  FarcasterChannelsQuery,
+  FarcasterChannelsQueryVariables
+} from '../../../../__generated__/airstack-types';
 
 const LOADING_ITEM_COUNT = 8;
 
@@ -49,6 +54,7 @@ const defaultSearchData: SearchDataType = {
 };
 
 type SocialSearchProps = {
+  searchType: 'social' | 'channel';
   // reference to mention-input element
   mentionInputRef: MutableRefObject<HTMLTextAreaElement | null>;
   // mention-input's value containing markup for mentions
@@ -66,6 +72,7 @@ type SocialSearchProps = {
 };
 
 export default function SocialSearch({
+  searchType,
   mentionInputRef,
   mentionValue,
   query,
@@ -115,7 +122,18 @@ export default function SocialSearch({
     onError: handleError
   });
 
-  const { hasNextPage, getNextPage } = pagination;
+  const [
+    fetchChannels,
+    { pagination: channelPagination, cancelRequest: cancelChannelsRequest }
+  ] = useLazyQueryWithPagination<
+    FarcasterChannelsQuery,
+    FarcasterChannelsQueryVariables
+  >(farcasterChannelsSearchQuery);
+
+  const isSocialSearch = searchType === 'social';
+  const { hasNextPage, getNextPage } = isSocialSearch
+    ? pagination
+    : channelPagination;
 
   const focusListItem = useCallback((delta: number) => {
     const containerEl = containerRef.current;
@@ -220,14 +238,28 @@ export default function SocialSearch({
       items: [],
       focusIndex: null
     }));
-    fetchData({
+
+    const fetcher = isSocialSearch ? fetchData : fetchChannels;
+    const cancelReq = isSocialSearch ? cancelRequest : cancelChannelsRequest;
+
+    fetcher({
       limit: LIMIT,
-      searchRegex: [`^${query}`, `^lens/@${query}`]
+      searchRegex: isSocialSearch
+        ? [`^${query}`, `^lens/@${query}`]
+        : [`^${query}`]
     });
     return () => {
-      cancelRequest();
+      cancelReq();
     };
-  }, [cancelRequest, fetchData, query]);
+  }, [
+    cancelChannelsRequest,
+    cancelRequest,
+    fetchChannels,
+    fetchData,
+    isSocialSearch,
+    query,
+    searchType
+  ]);
 
   const handleFetchMore = useCallback(() => {
     if (!isLoading && hasNextPage && getNextPage) {

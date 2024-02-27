@@ -31,6 +31,7 @@ const defaultSearchData: SearchData = {
 export function SearchInputSection({
   value,
   placeholder,
+  searchType,
   enabledSearchType,
   showPrefixSearchIcon,
   onValueChange,
@@ -42,6 +43,7 @@ export function SearchInputSection({
   showPrefixSearchIcon?: boolean;
   onValueChange: (value: string) => void;
   onValueSubmit: (value: string) => void;
+  searchType?: 'social' | 'channel';
 }) {
   const mentionInputRef = useRef<HTMLTextAreaElement>(null);
   const inputSectionRef = useRef<HTMLDivElement>(null);
@@ -263,6 +265,7 @@ export function SearchInputSection({
           <>
             <SocialSearch
               {...socialSearchData}
+              searchType={searchType || 'social'}
               mentionInputRef={mentionInputRef}
               mentionValue={value}
               onChange={handleSubmitAfterDelay}

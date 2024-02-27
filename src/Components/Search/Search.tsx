@@ -1,6 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { useMatch, useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  useLocation,
+  useMatch,
+  useNavigate,
+  useSearchParams
+} from 'react-router-dom';
 import {
   CachedQuery,
   UserInputs,
@@ -11,7 +16,7 @@ import { useOverviewTokens } from '../../store/tokenHoldersOverview';
 import { showToast } from '../../utils/showToast';
 import { getAllMentionDetails, getAllWordsAndMentions } from '../Input/utils';
 import { SearchInputSection } from './SearchInputSection';
-import { SearchTabSection } from './SearchTabSection';
+import { SearchTabSection, TabUrl } from './SearchTabSection';
 import { addAndRemoveCombinationPlaceholder } from './utils';
 
 export const tokenHoldersPlaceholder =
@@ -19,21 +24,30 @@ export const tokenHoldersPlaceholder =
 export const tokenBalancesPlaceholder =
   'Search profiles by name OR Enter 0x, name.eth, fc_fname:name, lens/@name';
 
+const channelsPlaceholder = 'Search for channels by name';
+
+const placeholderMap: Record<TabUrl, string> = {
+  'token-balances': tokenBalancesPlaceholder,
+  'token-holders': tokenHoldersPlaceholder,
+  channels: channelsPlaceholder
+};
+
 export const ALLOWED_ADDRESS_REGEX =
   /0x[a-fA-F0-9]+|.*\.(eth|lens|cb\.id)|(fc_fname:|fc_fid:|lens\/@).*/;
 
 export const PADDING = '  ';
 
 export const Search = memo(function Search() {
-  const [isTokenBalanceActive, setIsTokenBalanceActive] = useState(true);
+  const [activeTab, setCurrentTab] = useState<TabUrl>('token-balances');
+  const activePath = useLocation().pathname.replace('/', '') as TabUrl;
   const isHome = !!useMatch('/');
-  const isTokenBalancesPage = !!useMatch('/token-balances');
   const [searchParams] = useSearchParams();
   const [, setOverviewTokens] = useOverviewTokens(['tokens']);
 
-  const isTokenBalances = isHome ? isTokenBalanceActive : isTokenBalancesPage;
+  const isTokenBalances =
+    (isHome ? activeTab : activePath) === 'token-balances';
 
-  const [{ rawInput }, setData] = useSearchInput(isTokenBalances);
+  const [{ rawInput }, setData] = useSearchInput(isHome ? activeTab : null);
   const navigate = useNavigate();
 
   const [value, setValue] = useState(rawInput ? rawInput.trim() + PADDING : '');
@@ -63,7 +77,7 @@ export const Search = memo(function Search() {
         setData(data, {
           updateQueryParams: true,
           reset: isTokenBalances,
-          redirectTo: isTokenBalances ? '/token-balances' : '/token-holders'
+          redirectTo: activeTab
         });
         return;
       }
@@ -72,7 +86,7 @@ export const Search = memo(function Search() {
         reset: isTokenBalances
       });
     },
-    [isHome, isTokenBalances, setData, setOverviewTokens]
+    [activeTab, isHome, isTokenBalances, setData, setOverviewTokens]
   );
 
   const handleTokenBalancesSearch = useCallback(
@@ -230,22 +244,20 @@ export const Search = memo(function Search() {
   );
 
   const handleTabChange = useCallback(
-    (isTokenBalance: boolean) => {
+    (pathname: TabUrl) => {
       if (!isHome) {
         setValue('');
         navigate({
-          pathname: isTokenBalance ? '/token-balances' : '/token-holders'
+          pathname
         });
       } else {
-        setIsTokenBalanceActive(prev => !prev);
+        setCurrentTab(pathname);
       }
     },
     [isHome, navigate]
   );
 
-  const placeholder = isTokenBalances
-    ? tokenBalancesPlaceholder
-    : tokenHoldersPlaceholder;
+  const placeholder = placeholderMap[isHome ? activeTab : activePath] || '';
 
   const enabledSearchType = isTokenBalances
     ? 'SOCIAL_SEARCH'
@@ -256,7 +268,7 @@ export const Search = memo(function Search() {
       <div className="my-6 flex-col-center">
         <SearchTabSection
           isHome={isHome}
-          isTokenBalances={isTokenBalances}
+          activeTab={activeTab}
           onTabChange={handleTabChange}
         />
       </div>

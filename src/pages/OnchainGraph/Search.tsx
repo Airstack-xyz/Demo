@@ -13,7 +13,10 @@ import {
   tokenHoldersPlaceholder
 } from '../../Components/Search/Search';
 import { SearchInputSection } from '../../Components/Search/SearchInputSection';
-import { SearchTabSection } from '../../Components/Search/SearchTabSection';
+import {
+  SearchTabSection,
+  TabUrl
+} from '../../Components/Search/SearchTabSection';
 import { addAndRemoveCombinationPlaceholder } from '../../Components/Search/utils';
 import { userInputCache } from '../../hooks/useSearchInput';
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
@@ -28,6 +31,7 @@ export const Search = memo(function Search() {
   const identity = useIdentity();
 
   const isHome = !!useMatch('/');
+  const isChannels = !!useMatch('/channels');
   const [, setTokens] = useOverviewTokens(['tokens']);
 
   const isTokenBalances = true;
@@ -131,9 +135,9 @@ export const Search = memo(function Search() {
   );
 
   const handleTabChange = useCallback(
-    (tokenBalance: boolean) => {
+    (pathname: TabUrl) => {
       navigate({
-        pathname: tokenBalance ? '/token-balances' : '/token-holders'
+        pathname
       });
     },
     [navigate]
@@ -152,13 +156,14 @@ export const Search = memo(function Search() {
       <div className="my-6 flex-col-center">
         <SearchTabSection
           isHome={isHome}
-          isTokenBalances={isTokenBalances}
+          activeTab="token-balances"
           onTabChange={handleTabChange}
         />
       </div>
       <SearchInputSection
         value={value}
         placeholder={placeholder}
+        searchType={isChannels ? 'channel' : 'social'}
         enabledSearchType={enabledSearchType}
         showPrefixSearchIcon={isHome}
         onValueChange={setValue}
