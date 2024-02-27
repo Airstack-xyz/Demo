@@ -67,8 +67,8 @@ const mentionValidationFn = ({ mentions }: MentionOutput) => {
   return true;
 };
 
-const FETCH_LIMIT = 34;
-const ITEM_LIMIT = 34;
+const FETCH_LIMIT = 30;
+const ITEM_LIMIT = 30;
 
 export function TableSection({
   identities,
@@ -311,7 +311,6 @@ export function TableSection({
         onApply={handleFiltersApply}
       />
       {isMobile && <div className="mb-4 mx-1">{mentionInputComponent}</div>}
-      {showDownCSVOverlay && <DownloadCSVOverlay className="h-[307px]" />}
       <div className="border-solid-light rounded-2xl sm:overflow-hidden overflow-y-auto">
         <table className="sf-table select-none">
           <thead>
@@ -350,6 +349,7 @@ export function TableSection({
           </div>
         )}
         {loading && <TableLoader />}
+        {showDownCSVOverlay && <DownloadCSVOverlay className="h-[307px]" />}
       </div>
       {modalData.isOpen && (
         <LazyAddressesModal

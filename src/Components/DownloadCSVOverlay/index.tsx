@@ -79,7 +79,7 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
     <>
       <div
         className={classNames(
-          'flex-col-center h-80 absolute w-full bottom-0 z-20 text-sm px-5 rounded-b-2xl bg-secondary',
+          'flex-col-center h-80 w-full z-40 text-sm px-5 rounded-b-2xl bg-secondary',
           className
         )}
       >
