@@ -21,10 +21,10 @@ export const getResolvedOwner = (wallet: Wallet | undefined) => {
 };
 
 export const getDecodedButtonValue = (buttonValue: string) => {
-  const [tokenTypePart, blockchainPart] = buttonValue.split('-') || '';
+  const splittedValues = buttonValue.split('-') || '';
 
-  const encodedTokenType = tokenTypePart || '';
-  const encodedBlockchain = blockchainPart || '';
+  const encodedTokenType = splittedValues[0] || '';
+  const encodedBlockchain = splittedValues[1] || '';
 
   const tokenType = DECODED_TOKEN_TYPE[encodedTokenType] || '';
   const blockchain = DECODED_BLOCKCHAIN[encodedBlockchain] || '';

@@ -16,6 +16,7 @@ import {
 } from './types';
 import { useLazyQuery } from '@airstack/airstack-react';
 import {
+  ENCODED_BLOCKCHAIN,
   ENCODED_TOKEN_TYPE,
   FRAMES_ENDPOINT,
   PLACEHOLDER_URL
@@ -170,7 +171,9 @@ function ModalContent() {
         overviewToken.tokenType as keyof typeof ENCODED_TOKEN_TYPE
       ],
       a: overviewToken.tokenAddress,
-      b: overviewToken.blockchain,
+      b: ENCODED_BLOCKCHAIN[
+        overviewToken.blockchain as keyof typeof ENCODED_BLOCKCHAIN
+      ],
       p: isTokenImagePrimary ? '1' : '0'
     });
     return `${FRAMES_ENDPOINT}/th/${frameData}`;
@@ -273,7 +276,7 @@ function ModalContent() {
       <div className="max-sm:mt-8 mt-4">
         <FramePreview
           frameContainerClass="bg-gradient-to-b from-[#122230] to-[#051523] text-white"
-          frameClass="aspect-[1.91/1]"
+          frameClass="!aspect-[1.91/1]"
           buttons={frameButtons}
         >
           {renderFrameContent()}
