@@ -1,6 +1,8 @@
 export const FRAMES_ENDPOINT = process.env.FRAMES_ENDPOINT || '';
 
-export const PLACEHOLDER_URL = 'images/placeholder-blue.svg';
+export const TOKEN_PLACEHOLDER_URL = 'images/placeholder-blue.svg';
+
+export const PROFILE_PLACEHOLDER_URL = 'images/profile-placeholder.svg';
 
 export const ENCODED_TOKEN_TYPE = {
   POAP: '1',

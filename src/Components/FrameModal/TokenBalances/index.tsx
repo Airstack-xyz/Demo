@@ -31,7 +31,7 @@ import {
   ENCODED_BLOCKCHAIN,
   ENCODED_TOKEN_TYPE,
   FRAMES_ENDPOINT,
-  PLACEHOLDER_URL
+  TOKEN_PLACEHOLDER_URL
 } from '../constants';
 
 const buttonOptions: FrameSelectOption[] = [
@@ -90,7 +90,7 @@ function Token({ item }: { item: Poap | TokenBalance }) {
       ? poapEvent?.contentValue?.image?.small
       : tokenBalance?.tokenNfts?.contentValue?.image?.small ||
         tokenBalance?.token?.logo?.small ||
-        tokenBalance?.token?.projectDetails?.imageUrl) || PLACEHOLDER_URL;
+        tokenBalance?.token?.projectDetails?.imageUrl) || TOKEN_PLACEHOLDER_URL;
 
   const id = isPoap ? `#${poapEvent.eventId}` : `#${tokenBalance?.tokenId}`;
 
@@ -102,7 +102,7 @@ function Token({ item }: { item: Poap | TokenBalance }) {
         <LazyImage
           alt="TokenImage"
           src={image}
-          fallbackSrc={PLACEHOLDER_URL}
+          fallbackSrc={TOKEN_PLACEHOLDER_URL}
           className="w-full"
         />
       </div>

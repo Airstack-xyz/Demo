@@ -13,7 +13,6 @@ export type Owner = {
   farcasterSocials:
     | {
         profileName: string;
-        profileImage: string;
         profileImageContentValue: {
           image: {
             small: string;
@@ -24,7 +23,6 @@ export type Owner = {
   lensSocials:
     | {
         profileName: string;
-        profileImage: string;
         profileImageContentValue: {
           image: {
             small: string;

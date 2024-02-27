@@ -40,7 +40,6 @@ export const GetTokenHoldersQuery = `query GetTokenHolders($address: Address!, $
             input: {filter: {dappName: {_eq: farcaster}}, limit: 1}
           ) {
             profileName
-            profileImage
             profileImageContentValue {
               image {
                 small
@@ -49,7 +48,6 @@ export const GetTokenHoldersQuery = `query GetTokenHolders($address: Address!, $
           }
           lensSocials: socials(input: {filter: {dappName: {_eq: lens}}, limit: 1}) {
             profileName
-            profileImage
             profileImageContentValue {
               image {
                 small
@@ -94,7 +92,6 @@ export const GetPoapHoldersQuery = `query GetPoapHolders($address: String!, $lim
             input: {filter: {dappName: {_eq: farcaster}}, limit: 1}
           ) {
             profileName
-            profileImage
             profileImageContentValue {
               image {
                 small
@@ -103,7 +100,6 @@ export const GetPoapHoldersQuery = `query GetPoapHolders($address: String!, $lim
           }
           lensSocials: socials(input: {filter: {dappName: {_eq: lens}}, limit: 1}) {
             profileName
-            profileImage
             profileImageContentValue {
               image {
                 small

@@ -16,7 +16,7 @@ function LinkIcon() {
       fill="none"
       viewBox="0 0 13 12"
     >
-      <g clip-path="url(#a)">
+      <g clipPath="url(#a)">
         <mask
           id="b"
           width="13"
@@ -30,8 +30,8 @@ function LinkIcon() {
         <g mask="url(#b)">
           <path
             stroke="#8B8EA0"
-            stroke-linecap="round"
-            stroke-linejoin="round"
+            strokeLinecap="round"
+            strokeLinejoin="round"
             d="M10.8398 4.5v-3m0 0h-3m3 0-4.5 4.5m-1-4.5h-1.1c-.84 0-1.26 0-1.581.1635a1.5 1.5 0 0 0-.6555.6555c-.1635.3209-.1635.741-.1635 1.581v4.2c0 .8401 0 1.2601.1635 1.581.1438.2823.3733.5117.6556.6555.3208.1635.7409.1635 1.581.1635h4.2c.84 0 1.26 0 1.5809-.1635a1.4995 1.4995 0 0 0 .6555-.6555c.1635-.3209.1635-.7409.1635-1.581V7"
           />
         </g>
@@ -89,7 +89,7 @@ export function FramePreview({
                   type="button"
                   className="flex-row-center max-sm:h-[28px] h-[36px] w-full gap-1 rounded-lg border border-solid border-[#473B4B] bg-[#3F3A46] max-sm:px-2 px-3 max-sm:text-[10px] text-sm font-semibold cursor-default"
                 >
-                  <span className="ellipsis max-sm:max-w-[90px] max-w-[100px]">
+                  <span className="ellipsis max-sm:max-w-[90px] max-w-[120px]">
                     {item.label}
                   </span>
                   {item.type === 'link' && <LinkIcon />}

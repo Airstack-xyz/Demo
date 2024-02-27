@@ -19,7 +19,8 @@ import {
   ENCODED_BLOCKCHAIN,
   ENCODED_TOKEN_TYPE,
   FRAMES_ENDPOINT,
-  PLACEHOLDER_URL
+  PROFILE_PLACEHOLDER_URL,
+  TOKEN_PLACEHOLDER_URL
 } from '../constants';
 import { encodeFrameData } from '../utils';
 import { EmptyIcon, FrameIconBlue } from '../Icons';
@@ -39,7 +40,8 @@ import LazyImage from '../../LazyImage';
 const iconMap: Record<string, string> = {
   lens: '/images/lens.svg',
   farcaster: '/images/farcaster.svg',
-  ens: '/images/ens.svg'
+  ens: '/images/ens.svg',
+  wallet: '/images/wallet.svg'
 };
 
 function Token({
@@ -61,19 +63,20 @@ function Token({
       ? poapEvent?.contentValue?.image?.small
       : tokenBalance?.tokenNfts?.contentValue?.image?.small ||
         tokenBalance?.token?.logo?.small ||
-        tokenBalance?.token?.projectDetails?.imageUrl) || PLACEHOLDER_URL;
+        tokenBalance?.token?.projectDetails?.imageUrl) || TOKEN_PLACEHOLDER_URL;
 
   const tokenHolder = getResolvedHolderData(item.owner);
 
-  const profileImage = getResolvedHolderImage(item.owner) || PLACEHOLDER_URL;
+  const profileImage =
+    getResolvedHolderImage(item.owner) || PROFILE_PLACEHOLDER_URL;
 
   const assetImage = isTokenImagePrimary ? tokenImage : profileImage;
 
   const assetIcon1 = isTokenImagePrimary
     ? profileImage
     : tokenHolder?.type
-    ? iconMap[tokenHolder.type]
-    : PLACEHOLDER_URL;
+    ? iconMap[tokenHolder.type] || iconMap['wallet']
+    : iconMap['wallet'];
 
   const assetIcon2 = isTokenImagePrimary ? undefined : tokenImage;
 
@@ -85,11 +88,15 @@ function Token({
         <LazyImage
           alt="AssetImage"
           src={assetImage}
-          fallbackSrc={PLACEHOLDER_URL}
-          className="w-full h-full"
+          fallbackSrc={
+            isTokenImagePrimary
+              ? TOKEN_PLACEHOLDER_URL
+              : PROFILE_PLACEHOLDER_URL
+          }
+          className="aspect-square h-full"
         />
       </div>
-      <div className="z-10 max-sm:h-[50px] h-[70px] max-sm:p-1.5 p-2.5 flex flex-col justify-end bg-gradient-to-b from-[#00000000] to-[#1B121C]">
+      <div className="z-10 max-sm:h-[50px] h-[70px] max-sm:p-1.5 p-2.5 flex flex-col justify-end bg-gradient-to-b from-[#00000000] to-[#1B121C] max-sm:gap-0 gap-1">
         <div className="flex items-center max-sm:gap-0.5 gap-1 max-sm:text-[11px] max-sm:leading-4 text-sm font-bold">
           {!!assetIcon1 && (
             <img
@@ -107,7 +114,7 @@ function Token({
             <img
               alt="AssetIcon2"
               src={assetIcon2}
-              className="max-sm:h-3 h-6 rounded-full"
+              className="max-sm:h-3 h-6 rounded"
             />
           )}
           <span className="ellipsis max-sm:max-w-[90px] max-w-[250px]">
@@ -166,7 +173,9 @@ function ModalContent() {
       return '';
     }
     const frameData = encodeFrameData({
-      n: overviewToken.name,
+      // Remove non-ascii letters, window.btoa throws error due this
+      // eslint-disable-next-line no-control-regex
+      n: overviewToken.name.replace(/[^\x00-\x7F]/g, ''),
       t: ENCODED_TOKEN_TYPE[
         overviewToken.tokenType as keyof typeof ENCODED_TOKEN_TYPE
       ],
@@ -223,7 +232,7 @@ function ModalContent() {
     return (
       <div className="flex flex-col items-center w-full h-full">
         <div className="font-concert-one max-sm:text-sm text-xl text-center max-sm:mt-2 mt-3.5 flex gap-2">
-          All holders of
+          Browse holders of
           <span className="ellipsis max-sm:max-w-[90px] max-w-[250px]">
             {tokenName}
           </span>
@@ -260,8 +269,8 @@ function ModalContent() {
           labelIconSize={16}
         />
         <ToggleSwitch
-          label="Use token held as the primary image"
-          labelClassName="text-text-secondary max-sm:text-sm"
+          label="Make primary image the NFT"
+          labelClassName="text-sm"
           onClick={handleTokenPrimaryImageToggle}
           checked={isTokenImagePrimary}
         />
