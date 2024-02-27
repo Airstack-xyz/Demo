@@ -43,14 +43,14 @@ export const getFrameButtons = (buttonValues: string[]) => {
       return;
     }
     const { tokenType, blockchain } = getDecodedButtonValue(value);
-    if (tokenType === 'poap') {
+    if (tokenType === 'POAP') {
       buttons.push({
         type: 'post',
         label: '+ POAPs'
       });
       return;
     }
-    if (tokenType === 'nft') {
+    if (tokenType === 'NFT') {
       buttons.push({
         type: 'post',
         label: `+ ${capitalizeFirstLetter(blockchain)}`

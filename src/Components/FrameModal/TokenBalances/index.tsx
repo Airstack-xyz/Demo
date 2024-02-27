@@ -37,22 +37,22 @@ import {
 const buttonOptions: FrameSelectOption[] = [
   {
     label: 'NFTs on Ethereum',
-    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.ETHEREUM}`,
+    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.ethereum}`,
     disabledTooltip: "This wallet doesn't have NFTs on Ethereum"
   },
   {
     label: 'NFTs on Base',
-    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.BASE}`,
+    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.base}`,
     disabledTooltip: "This wallet doesn't have NFTs on Base"
   },
   {
     label: 'NFTs on Zora',
-    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.ZORA}`,
+    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.zora}`,
     disabledTooltip: "This wallet doesn't have NFTs on Zora"
   },
   {
     label: 'NFTs on Polygon',
-    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.POLYGON}`,
+    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.polygon}`,
     disabledTooltip: "This wallet doesn't have NFTs on Polygon"
   },
   {
@@ -159,7 +159,7 @@ function ModalContent() {
 
     return {
       selectedButtonValues,
-      isPOAP: tokenType === 'poap',
+      isPOAP: tokenType === 'POAP',
       tokenType,
       blockchain
     };
