@@ -21,6 +21,7 @@ import { ParticipentsList } from './Participents/Participents';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
 import { useCsvDownloadOptions } from '../../store/csvDownload';
+import { ShareURLDropdown } from '../../Components/ShareURLDropdown';
 
 export function Channels() {
   const isHome = useMatch('/');
@@ -87,8 +88,11 @@ export function Channels() {
                 descLabel="Newest action first"
                 ascLabel="Olderst action first"
               />
-              <div>
+              <div className="flex items-center">
                 <GetAPIDropdown options={getAPIOptions} />
+                <div className="ml-3.5">
+                  <ShareURLDropdown />
+                </div>
               </div>
             </div>
             <section className="max-w-full overflow-hidden">
