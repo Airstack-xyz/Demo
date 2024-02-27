@@ -86,28 +86,28 @@ function Token({
           alt="AssetImage"
           src={assetImage}
           fallbackSrc={PLACEHOLDER_URL}
-          className="w-full"
+          className="w-full h-full"
         />
       </div>
       <div className="z-10 max-sm:h-[50px] h-[70px] max-sm:p-1.5 p-2.5 flex flex-col justify-end bg-gradient-to-b from-[#00000000] to-[#1B121C]">
-        <div className="flex items-center gap-1 text-sm font-bold">
+        <div className="flex items-center max-sm:gap-0.5 gap-1 max-sm:text-[11px] max-sm:leading-4 text-sm font-bold">
           {!!assetIcon1 && (
             <img
               alt="AssetIcon1"
               src={assetIcon1}
-              className="h-6 w-6 rounded-full"
+              className="max-sm:h-3 h-6 rounded-full"
             />
           )}
-          <span className="ellipsis max-sm:max-w-[90px] max-w-[250px]">
+          <span className="ellipsis max-sm:max-w-[120px] max-w-[250px]">
             {tokenHolder?.name}
           </span>
         </div>
-        <div className="flex items-center gap-1 mt-1 text-sm min-h-[24px]">
+        <div className="flex items-center max-sm:gap-0.5 gap-1 max-sm:text-[10px] max-sm:leading-4 text-sm max-sm:min-h-[20px] min-h-[24px]">
           {!!assetIcon2 && (
             <img
               alt="AssetIcon2"
               src={assetIcon2}
-              className="h-6 w-6 rounded-full"
+              className="max-sm:h-3 h-6 rounded-full"
             />
           )}
           <span className="ellipsis max-sm:max-w-[90px] max-w-[250px]">
@@ -228,7 +228,7 @@ function ModalContent() {
             {tokenName}
           </span>
         </div>
-        <div className="flex flex-wrap justify-center max-sm:gap-[25px] gap-[50px] h-full w-full max-sm:py-4 max-sm:px-8 py-6 px-16">
+        <div className="flex flex-wrap justify-center max-sm:gap-[25px] gap-[50px] h-full w-full max-sm:py-4 max-sm:px-4 py-6 px-16">
           {items?.length ? (
             items.map((item, index) => (
               <Token
@@ -261,7 +261,7 @@ function ModalContent() {
         />
         <ToggleSwitch
           label="Use token held as the primary image"
-          labelClassName="text-text-secondary"
+          labelClassName="text-text-secondary max-sm:text-sm"
           onClick={handleTokenPrimaryImageToggle}
           checked={isTokenImagePrimary}
         />
