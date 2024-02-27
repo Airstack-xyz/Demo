@@ -278,8 +278,8 @@ function ModalContent() {
       <div className="flex items-end max-sm:mt-8 mt-4 gap-6">
         <FrameURL
           containerClass="w-full"
-          placeholder="Please select token type and chain"
           longUrl={frameUrl}
+          showLoading={loading}
         />
       </div>
       <div className="max-sm:mt-8 mt-4">
