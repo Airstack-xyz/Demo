@@ -117,9 +117,7 @@ function Token({
               className="max-sm:h-3 h-6 rounded"
             />
           )}
-          <span className="ellipsis max-sm:max-w-[90px] max-w-[250px]">
-            {assetId}
-          </span>
+          <span className="ellipsis max-w-[80px]">{assetId}</span>
           <span className="text-text-secondary">(token held)</span>
         </div>
       </div>
