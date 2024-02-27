@@ -4,17 +4,23 @@ import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { Search } from '../../Components/Search';
 import { SortBy } from '../../Components/Filters/SortBy';
 import { useLazyQuery } from '@airstack/airstack-react';
-import { farcasterChannelQuery } from '../../queries/channels';
+import {
+  farcasterChannelQuery,
+  farcasterParticipentsQuery
+} from '../../queries/channels';
 import {
   FarcasterChannelDetailsQuery,
   FarcasterChannelDetailsQueryVariables,
   OrderBy
 } from '../../../__generated__/airstack-types';
 import { useSearchInput } from '../../hooks/useSearchInput';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Overview } from './Overview';
 import { Icon } from '../../Components/Icon';
 import { ParticipentsList } from './Participents/Participents';
+import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
+import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
+import { useCsvDownloadOptions } from '../../store/csvDownload';
 
 export function Channels() {
   const isHome = useMatch('/');
@@ -26,6 +32,32 @@ export function Channels() {
 
   const channelId = inputs.address[0] || '';
   const orderBy = inputs.sortOrder === 'ASC' ? OrderBy.Asc : OrderBy.Desc;
+
+  const [, setCsvDownloadOptions] = useCsvDownloadOptions(['options']);
+
+  const getAPIOptions = useMemo(() => {
+    return [
+      {
+        label: 'Farcaster Channel Details',
+        link: createAppUrlWithQuery(farcasterChannelQuery, {
+          channelId
+        })
+      },
+      {
+        label: 'Farcaster Channel Participants',
+        link: createAppUrlWithQuery(farcasterParticipentsQuery, {
+          channelId,
+          orderBy,
+          limit: 20
+        })
+      }
+    ];
+  }, [channelId, orderBy]);
+
+  useEffect(() => {
+    // todo add csv download options
+    setCsvDownloadOptions({ options: [] });
+  }, [getAPIOptions, setCsvDownloadOptions]);
 
   useEffect(() => {
     if (channelId) {
@@ -49,12 +81,15 @@ export function Channels() {
         <Search />
         {channelId && (
           <div>
-            <div className="mt-3">
+            <div className="mt-3 flex items-center justify-between">
               <SortBy
                 disabled={loading}
                 descLabel="Newest action first"
                 ascLabel="Olderst action first"
               />
+              <div>
+                <GetAPIDropdown options={getAPIOptions} />
+              </div>
             </div>
             <section className="max-w-full overflow-hidden">
               <Overview
