@@ -31,7 +31,6 @@ export const Search = memo(function Search() {
   const identity = useIdentity();
 
   const isHome = !!useMatch('/');
-  const isChannels = !!useMatch('/channels');
   const [, setTokens] = useOverviewTokens(['tokens']);
 
   const isTokenBalances = true;
@@ -147,10 +146,6 @@ export const Search = memo(function Search() {
     ? tokenBalancesPlaceholder
     : tokenHoldersPlaceholder;
 
-  const enabledSearchType = isTokenBalances
-    ? 'SOCIAL_SEARCH'
-    : 'ADVANCED_MENTION_SEARCH';
-
   return (
     <div className="relative z-10">
       <div className="my-6 flex-col-center">
@@ -163,8 +158,7 @@ export const Search = memo(function Search() {
       <SearchInputSection
         value={value}
         placeholder={placeholder}
-        searchType={isChannels ? 'channel' : 'social'}
-        enabledSearchType={enabledSearchType}
+        enabledSearchType={'SOCIAL_SEARCH'}
         showPrefixSearchIcon={isHome}
         onValueChange={setValue}
         onValueSubmit={handleSubmit}

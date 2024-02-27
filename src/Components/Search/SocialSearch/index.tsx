@@ -20,6 +20,7 @@ import {
 } from './types';
 import {
   INFINITE_SCROLL_CONTAINER_ID,
+  getChannelSearchItemMention,
   getSearchItemMention,
   getUpdatedMentionValue
 } from './utils';
@@ -28,6 +29,8 @@ import {
   FarcasterChannelsQuery,
   FarcasterChannelsQueryVariables
 } from '../../../../__generated__/airstack-types';
+import { EnabledSearchType } from '../SearchInputSection';
+import ChannelListItem, { Channel } from './ChannelListItem';
 
 const LOADING_ITEM_COUNT = 8;
 
@@ -47,14 +50,23 @@ const LIMIT = 30;
 
 const DISABLED_KEYS = ['ArrowUp', 'ArrowDown', 'Enter'];
 
-const defaultSearchData: SearchDataType = {
+const defaultSearchData: SearchDataType<SocialSearchItem> = {
   isLoading: false,
   items: null,
   focusIndex: null
 };
 
+const defaultSearchDataChannels: SearchDataType<Channel> = {
+  isLoading: false,
+  items: null,
+  focusIndex: null
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SearchDataState = any;
+
 type SocialSearchProps = {
-  searchType: 'social' | 'channel';
+  searchType: EnabledSearchType;
   // reference to mention-input element
   mentionInputRef: MutableRefObject<HTMLTextAreaElement | null>;
   // mention-input's value containing markup for mentions
@@ -81,12 +93,19 @@ export default function SocialSearch({
   onChange,
   onClose
 }: SocialSearchProps) {
-  const [searchData, setSearchData] =
-    useState<SearchDataType>(defaultSearchData);
+  const [searchData, setSocialSearchData] =
+    useState<SearchDataType<SocialSearchItem>>(defaultSearchData);
+
+  const [channelsData, setChannelsData] = useState<SearchDataType<Channel>>(
+    defaultSearchDataChannels
+  );
 
   const isMobile = isMobileDevice();
 
-  const { isLoading, isError, items, focusIndex } = searchData;
+  const isSocialSearch = searchType === 'SOCIAL_SEARCH';
+  const { isLoading, isError, items, focusIndex } = isSocialSearch
+    ? searchData
+    : channelsData;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const itemsRef = useRef(items);
@@ -96,9 +115,22 @@ export default function SocialSearch({
   itemsRef.current = items;
   focusIndexRef.current = focusIndex;
 
+  const setSearchData = isSocialSearch ? setSocialSearchData : setChannelsData;
+
   const handleData = useCallback((data: SocialSearchResponse) => {
     const nextItems = data?.Socials?.Social || [];
-    setSearchData(prev => ({
+    setSocialSearchData(prev => ({
+      ...prev,
+      isLoading: false,
+      isError: false,
+      items: [...(prev.items || []), ...nextItems]
+    }));
+  }, []);
+
+  const handleChannelsData = useCallback((data: FarcasterChannelsQuery) => {
+    const nextItems: Channel[] =
+      data?.FarcasterChannels?.FarcasterChannel || [];
+    setChannelsData(prev => ({
       ...prev,
       isLoading: false,
       isError: false,
@@ -107,12 +139,12 @@ export default function SocialSearch({
   }, []);
 
   const handleError = useCallback(() => {
-    setSearchData(prev => ({
+    setSearchData((prev: SearchDataState) => ({
       ...prev,
       isLoading: false,
       isError: true
     }));
-  }, []);
+  }, [setSearchData]);
 
   const [fetchData, { pagination, cancelRequest }] = useLazyQueryWithPagination<
     SocialSearchResponse,
@@ -128,43 +160,48 @@ export default function SocialSearch({
   ] = useLazyQueryWithPagination<
     FarcasterChannelsQuery,
     FarcasterChannelsQueryVariables
-  >(farcasterChannelsSearchQuery);
+  >(farcasterChannelsSearchQuery, undefined, {
+    onCompleted: handleChannelsData,
+    onError: handleError
+  });
 
-  const isSocialSearch = searchType === 'social';
   const { hasNextPage, getNextPage } = isSocialSearch
     ? pagination
     : channelPagination;
 
-  const focusListItem = useCallback((delta: number) => {
-    const containerEl = containerRef.current;
-    if (!containerEl) return;
+  const focusListItem = useCallback(
+    (delta: number) => {
+      const containerEl = containerRef.current;
+      if (!containerEl) return;
 
-    const nextIndex =
-      focusIndexRef.current == null ? 0 : focusIndexRef.current + delta;
-    const lastIndex =
-      itemsRef.current == null ? 0 : itemsRef.current.length - 1;
+      const nextIndex =
+        focusIndexRef.current == null ? 0 : focusIndexRef.current + delta;
+      const lastIndex =
+        itemsRef.current == null ? 0 : itemsRef.current.length - 1;
 
-    const itemIndex = Math.max(0, Math.min(nextIndex, lastIndex));
+      const itemIndex = Math.max(0, Math.min(nextIndex, lastIndex));
 
-    const activeEl = containerEl.querySelector<HTMLButtonElement>(
-      `.infinite-scroll-component button:nth-of-type(${itemIndex + 1})`
-    );
-    const parentEl = containerEl.querySelector<HTMLDivElement>(
-      `#${INFINITE_SCROLL_CONTAINER_ID}`
-    );
+      const activeEl = containerEl.querySelector<HTMLButtonElement>(
+        `.infinite-scroll-component button:nth-of-type(${itemIndex + 1})`
+      );
+      const parentEl = containerEl.querySelector<HTMLDivElement>(
+        `#${INFINITE_SCROLL_CONTAINER_ID}`
+      );
 
-    if (activeEl && parentEl) {
-      const targetScrollTop =
-        activeEl.offsetTop -
-        parentEl.clientHeight * 0.5 +
-        activeEl.offsetHeight * 0.5;
-      parentEl.scroll({ behavior: 'smooth', top: targetScrollTop });
-      setSearchData(prev => ({
-        ...prev,
-        focusIndex: itemIndex
-      }));
-    }
-  }, []);
+      if (activeEl && parentEl) {
+        const targetScrollTop =
+          activeEl.offsetTop -
+          parentEl.clientHeight * 0.5 +
+          activeEl.offsetHeight * 0.5;
+        parentEl.scroll({ behavior: 'smooth', top: targetScrollTop });
+        setSearchData((prev: SearchDataState) => ({
+          ...prev,
+          focusIndex: itemIndex
+        }));
+      }
+    },
+    [setSearchData]
+  );
 
   const selectListItem = useCallback(() => {
     const containerEl = containerRef.current;
@@ -231,7 +268,7 @@ export default function SocialSearch({
   ]);
 
   useEffect(() => {
-    setSearchData(prev => ({
+    setSearchData((prev: SearchDataState) => ({
       ...prev,
       isLoading: true,
       isError: false,
@@ -258,25 +295,29 @@ export default function SocialSearch({
     fetchData,
     isSocialSearch,
     query,
-    searchType
+    searchType,
+    setSearchData
   ]);
 
   const handleFetchMore = useCallback(() => {
     if (!isLoading && hasNextPage && getNextPage) {
-      setSearchData(prev => ({
+      setSearchData((prev: SearchDataState) => ({
         ...prev,
         isLoading: true
       }));
       getNextPage();
     }
-  }, [getNextPage, hasNextPage, isLoading]);
+  }, [getNextPage, hasNextPage, isLoading, setSearchData]);
 
-  const handleItemHover = useCallback((index: number) => {
-    setSearchData(prev => ({
-      ...prev,
-      focusIndex: index
-    }));
-  }, []);
+  const handleItemHover = useCallback(
+    (index: number) => {
+      setSearchData((prev: SearchDataState) => ({
+        ...prev,
+        focusIndex: index
+      }));
+    },
+    [setSearchData]
+  );
 
   const handleMentionChange = (mention: string) => {
     const value = getUpdatedMentionValue(
@@ -296,6 +337,17 @@ export default function SocialSearch({
     // @mention label should be truncated in mobile for first mention
     const truncateLabel = isMobile && getMentionCount(mentionValue) === 0;
     const mention = getSearchItemMention(item, truncateLabel);
+    handleMentionChange(mention);
+  };
+
+  const handleChannelItemSelect = (item: Channel) => {
+    // @mention label should be truncated in mobile for first mention
+    const truncateLabel = isMobile && getMentionCount(mentionValue) === 0;
+    const mention = getChannelSearchItemMention(
+      item.name,
+      item.channelId,
+      truncateLabel
+    );
     handleMentionChange(mention);
   };
 
@@ -331,15 +383,30 @@ export default function SocialSearch({
               Error while fetching data!
             </div>
           )}
-          {items?.map((item, index) => (
-            <ListItem
-              key={`${item.id}_${index}`}
-              item={item}
-              isFocused={focusIndex === index}
-              onClick={() => handleItemSelect(item)}
-              onMouseEnter={() => handleItemHover(index)}
-            />
-          ))}
+          {items?.map((_item, index) => {
+            if (isSocialSearch) {
+              const item = _item as SocialSearchItem;
+              return (
+                <ListItem
+                  key={`${item.id}_${index}`}
+                  item={item}
+                  isFocused={focusIndex === index}
+                  onClick={() => handleItemSelect(item)}
+                  onMouseEnter={() => handleItemHover(index)}
+                />
+              );
+            }
+            const item = _item as Channel;
+            return (
+              <ChannelListItem
+                key={`${item.channelId}_${index}`}
+                item={item}
+                isFocused={focusIndex === index}
+                onClick={() => handleChannelItemSelect(item)}
+                onMouseEnter={() => handleItemHover(index)}
+              />
+            );
+          })}
           {isLoading && <ListLoader />}
         </InfiniteScroll>
       </div>

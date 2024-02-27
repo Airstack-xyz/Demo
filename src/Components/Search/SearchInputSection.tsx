@@ -8,8 +8,9 @@ import AdvancedMentionSearch from './AdvancedMentionSearch';
 import SocialSearch from './SocialSearch';
 import { getSocialSearchQueryData } from './SocialSearch/utils';
 
-type EnabledSearchType =
+export type EnabledSearchType =
   | 'SOCIAL_SEARCH' // social type-ahead infinite dropdown list search
+  | 'CHANNEL_SEARCH' // channel type-ahead infinite dropdown list search
   | 'ADVANCED_MENTION_SEARCH' // advanced @mention infinite grid search with filters
   | 'MENTION_SEARCH' // default @mention dropdown list search
   | null;
@@ -31,7 +32,6 @@ const defaultSearchData: SearchData = {
 export function SearchInputSection({
   value,
   placeholder,
-  searchType,
   enabledSearchType,
   showPrefixSearchIcon,
   onValueChange,
@@ -43,7 +43,6 @@ export function SearchInputSection({
   showPrefixSearchIcon?: boolean;
   onValueChange: (value: string) => void;
   onValueSubmit: (value: string) => void;
-  searchType?: 'social' | 'channel';
 }) {
   const mentionInputRef = useRef<HTMLTextAreaElement>(null);
   const inputSectionRef = useRef<HTMLDivElement>(null);
@@ -58,7 +57,9 @@ export function SearchInputSection({
 
   const isMobile = isMobileDevice();
 
-  const isSocialSearchEnabled = enabledSearchType === 'SOCIAL_SEARCH';
+  const isSocialSearchEnabled =
+    enabledSearchType === 'SOCIAL_SEARCH' ||
+    enabledSearchType === 'CHANNEL_SEARCH';
   const isAdvancedMentionSearchEnabled =
     enabledSearchType === 'ADVANCED_MENTION_SEARCH';
 
@@ -265,7 +266,7 @@ export function SearchInputSection({
           <>
             <SocialSearch
               {...socialSearchData}
-              searchType={searchType || 'social'}
+              searchType={enabledSearchType}
               mentionInputRef={mentionInputRef}
               mentionValue={value}
               onChange={handleSubmitAfterDelay}

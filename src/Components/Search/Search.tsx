@@ -15,7 +15,7 @@ import {
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
 import { showToast } from '../../utils/showToast';
 import { getAllMentionDetails, getAllWordsAndMentions } from '../Input/utils';
-import { SearchInputSection } from './SearchInputSection';
+import { EnabledSearchType, SearchInputSection } from './SearchInputSection';
 import { SearchTabSection, TabUrl } from './SearchTabSection';
 import { addAndRemoveCombinationPlaceholder } from './utils';
 
@@ -32,6 +32,12 @@ const placeholderMap: Record<TabUrl, string> = {
   channels: channelsPlaceholder
 };
 
+const enabledSearchMap: Record<TabUrl, EnabledSearchType> = {
+  'token-balances': 'SOCIAL_SEARCH',
+  'token-holders': 'ADVANCED_MENTION_SEARCH',
+  channels: 'CHANNEL_SEARCH'
+};
+
 export const ALLOWED_ADDRESS_REGEX =
   /0x[a-fA-F0-9]+|.*\.(eth|lens|cb\.id)|(fc_fname:|fc_fid:|lens\/@).*/;
 
@@ -44,8 +50,8 @@ export const Search = memo(function Search() {
   const [searchParams] = useSearchParams();
   const [, setOverviewTokens] = useOverviewTokens(['tokens']);
 
-  const isTokenBalances =
-    (isHome ? activeTab : activePath) === 'token-balances';
+  const actualActiveTab = isHome ? activeTab : activePath;
+  const isTokenBalances = actualActiveTab === 'token-balances';
 
   const [{ rawInput }, setData] = useSearchInput(isHome ? activeTab : null);
   const navigate = useNavigate();
@@ -257,11 +263,10 @@ export const Search = memo(function Search() {
     [isHome, navigate]
   );
 
-  const placeholder = placeholderMap[isHome ? activeTab : activePath] || '';
+  const placeholder = placeholderMap[actualActiveTab] || '';
 
-  const enabledSearchType = isTokenBalances
-    ? 'SOCIAL_SEARCH'
-    : 'ADVANCED_MENTION_SEARCH';
+  const enabledSearchType =
+    enabledSearchMap[actualActiveTab] || 'SOCIAL_SEARCH';
 
   return (
     <div className="relative">
