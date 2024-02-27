@@ -83,7 +83,7 @@ function Token({
   const assetId = isPoap ? `#${poapEvent.eventId}` : `#${tokenBalance.tokenId}`;
 
   return (
-    <div className="w-[calc(50%-26px)] aspect-square rounded-[18px] bg-secondary flex flex-col text-left justify-end overflow-hidden relative border border-solid border-white">
+    <div className="aspect-square rounded-[18px] bg-secondary flex flex-col text-left justify-end overflow-hidden relative border border-solid border-white flex-1">
       <div className="absolute inset-0 flex-col-center">
         <LazyImage
           alt="AssetImage"
@@ -93,7 +93,7 @@ function Token({
               ? TOKEN_PLACEHOLDER_URL
               : PROFILE_PLACEHOLDER_URL
           }
-          className="aspect-square h-full"
+          className="object-cover h-full"
         />
       </div>
       <div className="z-10 max-sm:h-[50px] h-[70px] max-sm:p-1.5 p-2.5 flex flex-col justify-end bg-gradient-to-b from-[#00000000] to-[#1B121C] max-sm:gap-0 gap-1">
@@ -237,7 +237,7 @@ function ModalContent() {
             {tokenName}
           </span>
         </div>
-        <div className="flex flex-wrap justify-center max-sm:gap-[25px] gap-[50px] h-full w-full max-sm:py-4 max-sm:px-4 py-6 px-16">
+        <div className="flex justify-center max-sm:gap-[25px] gap-[50px] h-full w-full max-sm:y-4 max-sm:px-4 py-6 px-16">
           {items?.length ? (
             items.map((item, index) => (
               <Token
