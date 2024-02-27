@@ -29,12 +29,28 @@ export const sortOptions: SortOption[] = [
 
 export function SortBy({
   disabled,
-  disabledTooltipText
+  disabledTooltipText,
+  descLabel = 'Newest transfer first',
+  ascLabel = 'Oldest transfer first'
 }: {
   disabled?: boolean;
   disabledTooltipText?: string;
+  descLabel?: string;
+  ascLabel?: string;
 }) {
   const [searchInputs, setData] = useSearchInput();
+  const options: SortOption[] = useMemo(() => {
+    return [
+      {
+        label: descLabel,
+        value: 'DESC'
+      },
+      {
+        label: ascLabel,
+        value: 'ASC'
+      }
+    ];
+  }, [ascLabel, descLabel]);
 
   const sortOrder = searchInputs.sortOrder as SortOrderType;
 
@@ -55,8 +71,8 @@ export function SortBy({
   );
 
   const selected = useMemo(() => {
-    return sortOrder === 'ASC' ? [sortOptions[1]] : [sortOptions[0]];
-  }, [sortOrder]);
+    return sortOrder === 'ASC' ? [options[1]] : [options[0]];
+  }, [options, sortOrder]);
 
   return (
     <Dropdown
@@ -64,7 +80,7 @@ export function SortBy({
       disabled={isFilterDisabled}
       selected={selected}
       onChange={handleChange}
-      options={sortOptions}
+      options={options}
       renderPlaceholder={(selected, isOpen) => (
         <TooltipWrapper
           tooltipEnabled={enableTooltip}

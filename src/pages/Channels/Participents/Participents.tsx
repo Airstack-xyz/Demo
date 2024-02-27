@@ -38,7 +38,13 @@ function Loader() {
   );
 }
 
-export function Participents({ channelId }: { channelId: string }) {
+export function Participents({
+  channelId,
+  orderBy
+}: {
+  channelId: string;
+  orderBy: OrderBy;
+}) {
   const [
     fetchParticipents,
     {
@@ -103,10 +109,10 @@ export function Participents({ channelId }: { channelId: string }) {
       fetchParticipents({
         channelId,
         limit: LIMIT,
-        orderBy: OrderBy.Desc
+        orderBy: orderBy
       });
     }
-  }, [channelId, fetchParticipents]);
+  }, [channelId, fetchParticipents, orderBy]);
 
   const participents =
     data?.FarcasterChannelParticipants?.FarcasterChannelParticipant || [];

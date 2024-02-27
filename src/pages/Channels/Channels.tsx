@@ -7,7 +7,8 @@ import { useLazyQuery } from '@airstack/airstack-react';
 import { farcasterChannelQuery } from '../../queries/channels';
 import {
   FarcasterChannelDetailsQuery,
-  FarcasterChannelDetailsQueryVariables
+  FarcasterChannelDetailsQueryVariables,
+  OrderBy
 } from '../../../__generated__/airstack-types';
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { useEffect } from 'react';
@@ -24,6 +25,7 @@ export function Channels() {
   >(farcasterChannelQuery);
 
   const channelId = inputs.address[0] || '';
+  const orderBy = inputs.sortOrder === 'ASC' ? OrderBy.Asc : OrderBy.Desc;
 
   useEffect(() => {
     if (channelId) {
@@ -47,8 +49,12 @@ export function Channels() {
         <Search />
         {channelId && (
           <div>
-            <div>
-              <SortBy />
+            <div className="mt-3">
+              <SortBy
+                disabled={loading}
+                descLabel="Newest action first"
+                ascLabel="Olderst action first"
+              />
             </div>
             <section className="max-w-full overflow-hidden">
               <Overview
@@ -63,7 +69,7 @@ export function Channels() {
                   Participants
                 </span>
               </div>
-              <ParticipentsList channelId={channelId} />
+              <ParticipentsList channelId={channelId} orderBy={orderBy} />
             </section>
           </div>
         )}
