@@ -78,7 +78,7 @@ export function Channels() {
                 <div className="ml-3.5">
                   <CSVDownloadDropdown
                     options={[]}
-                    toolTipContent="coming coon"
+                    toolTipContent="Coming soon"
                     disabled
                   />
                 </div>

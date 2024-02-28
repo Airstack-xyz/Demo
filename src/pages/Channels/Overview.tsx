@@ -83,7 +83,7 @@ export function Overview({
           <KeyValue
             label="Description"
             value={channelDetails?.description}
-            className="xs:items-start sm:!items-center xs:[&>div:last-child]:whitespace-normal sm:whitespace-nowrap"
+            className="xs:items-start sm:!items-center xs:[&>div:last-child]:whitespace-normal xs:[&>div:last-child]:sm:whitespace-nowrap"
           />
           <KeyValue
             label="Host"
@@ -94,7 +94,7 @@ export function Overview({
             value={
               channelDetails?.url ? (
                 <span className="flex items-center ellipsis">
-                  <span className="mr-2 flex-1 ellipsis">
+                  <span className="mr-2 ellipsis w-[90%]">
                     {' '}
                     {channelDetails?.url}
                   </span>
