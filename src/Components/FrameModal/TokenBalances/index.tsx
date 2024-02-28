@@ -95,7 +95,7 @@ function Token({ item }: { item: Poap | TokenBalance }) {
   const id = isPoap
     ? `#${poapEvent.eventId}`
     : type === 'ERC20'
-    ? tokenBalance.formattedAmount
+    ? tokenBalance?.formattedAmount?.toFixed(2)
     : `#${tokenBalance.tokenId}`;
 
   const name = isPoap ? poapEvent.eventName : tokenBalance?.token?.name;
