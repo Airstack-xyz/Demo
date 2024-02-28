@@ -5,6 +5,17 @@ import { WalletAddress } from '../../../Components/WalletAddress';
 import { farcasterImage } from '../constants';
 import { ParticipentType } from './types';
 
+function getUserDetails(participent: ParticipentType | null) {
+  const userAddress = participent?.participant?.userAddress;
+  const userAddressDetails =
+    participent?.participant?.userAssociatedAddressDetails;
+
+  const details = userAddressDetails?.filter(
+    details => details.identity !== userAddress
+  );
+  return details?.length ? details[0] : userAddressDetails?.[0];
+}
+
 export function Participent({
   participent,
   onShowMoreClick,
@@ -13,15 +24,13 @@ export function Participent({
   participent: ParticipentType | null;
   onShowMoreClick?: (addresses: string[], dataType?: string) => void;
   onAddressClick?: (address: string, type?: string) => void;
-  // onAssetClick?: (asset: AssetType) => void;
 }) {
-  const userAddressDetails = participent?.participant?.userAddressDetails;
+  const userAddressDetails = getUserDetails(participent);
   const ensNames = useMemo(
     () => userAddressDetails?.domains?.map(domain => domain?.name || '') || [],
     [userAddressDetails?.domains]
   );
-  const walletAddress = participent?.participant?.userAddressDetails
-    ?.addresses as string[];
+  const walletAddress = userAddressDetails?.identity;
 
   return (
     <>
@@ -50,14 +59,11 @@ export function Participent({
         />
       </td>
       <td className="ellipsis max-w-[120px]">
-        {walletAddress?.map((address, index) => (
-          <WalletAddress
-            key={index}
-            address={address}
-            className="mb-1"
-            onClick={onAddressClick}
-          />
-        ))}
+        <WalletAddress
+          address={walletAddress}
+          className="mb-1"
+          onClick={onAddressClick}
+        />
       </td>
       <td>
         <span>{participent?.lastActionTimestamp || '--'}</span>

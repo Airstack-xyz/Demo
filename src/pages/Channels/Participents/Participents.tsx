@@ -15,7 +15,6 @@ import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { Header } from './Header';
 import { Participent } from './Participent';
 import { DownloadCSVOverlay } from '../../../Components/DownloadCSVOverlay';
-import { useResolveUserDetails } from './resolveUserDetails';
 
 const loaderData = Array(6).fill({});
 const LIMIT = 30;
@@ -46,25 +45,17 @@ export function Participents({
   channelId: string;
   orderBy: OrderBy;
 }) {
-  const { resolve, resolved, loading: resolving } = useResolveUserDetails();
   const [
     fetchParticipents,
     {
-      loading: loadingParticipents,
+      data,
+      loading,
       pagination: { hasNextPage }
     }
   ] = useLazyQueryWithPagination<
     FarcasterChannelParticipantsQuery,
     FarcasterChannelParticipantsQueryVariables
-  >(farcasterParticipentsQuery, undefined, {
-    onCompleted(data) {
-      if (data) {
-        resolve(
-          data.FarcasterChannelParticipants?.FarcasterChannelParticipant || []
-        );
-      }
-    }
-  });
+  >(farcasterParticipentsQuery);
 
   const [modalData, setModalData] = useState<{
     isOpen: boolean;
@@ -123,9 +114,9 @@ export function Participents({
     }
   }, [channelId, fetchParticipents, orderBy]);
 
-  const participents = resolved || [];
+  const participents =
+    data?.FarcasterChannelParticipants?.FarcasterChannelParticipant || [];
 
-  const loading = loadingParticipents || resolving;
   const showDownCSVOverlay = hasNextPage && !loading;
 
   return (

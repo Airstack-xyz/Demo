@@ -62,7 +62,6 @@ export const farcasterParticipentsQuery = /* GraphQL */ `
           profileName
           fid: userId
           coverImageURI
-          userAssociatedAddresses
           coverImageContentValue {
             image {
               small
@@ -74,8 +73,7 @@ export const farcasterParticipentsQuery = /* GraphQL */ `
               original
             }
           }
-          userAddressDetails {
-            addresses
+          userAssociatedAddressDetails {
             identity
             domains {
               name
@@ -87,35 +85,6 @@ export const farcasterParticipentsQuery = /* GraphQL */ `
               dappName
               profileName
             }
-          }
-        }
-      }
-    }
-  }
-`;
-
-export const participantsSocialsQuery = /* GraphQL */ `
-  query ParticipantsSocials($identities: [Identity!]) {
-    Socials(
-      input: {
-        filter: { identity: { _in: $identities } }
-        blockchain: ethereum
-        limit: 200
-      }
-    ) {
-      Social {
-        userAddressDetails {
-          addresses
-          identity
-          domains {
-            name
-          }
-          primaryDomain {
-            name
-          }
-          socials {
-            dappName
-            profileName
           }
         }
       }
