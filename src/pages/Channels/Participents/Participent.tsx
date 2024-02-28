@@ -1,15 +1,10 @@
 import { useMemo } from 'react';
-import { FarcasterChannelParticipantsQuery } from '../../../../__generated__/airstack-types';
 import ImageWithFallback from '../../../Components/ImageWithFallback';
 import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
 import { WalletAddress } from '../../../Components/WalletAddress';
 import { farcasterImage } from '../constants';
+import { ParticipentType } from './types';
 
-type ParticipentType = NonNullable<
-  NonNullable<
-    FarcasterChannelParticipantsQuery['FarcasterChannelParticipants']
-  >['FarcasterChannelParticipant']
->[0];
 export function Participent({
   participent,
   onShowMoreClick,
@@ -25,6 +20,8 @@ export function Participent({
     () => userAddressDetails?.domains?.map(domain => domain?.name || '') || [],
     [userAddressDetails?.domains]
   );
+  const walletAddress = participent?.participant?.userAddressDetails
+    ?.addresses as string[];
 
   return (
     <>
@@ -53,10 +50,14 @@ export function Participent({
         />
       </td>
       <td className="ellipsis max-w-[120px]">
-        <WalletAddress
-          address={participent?.participant?.userAddress}
-          onClick={onAddressClick}
-        />
+        {walletAddress?.map((address, index) => (
+          <WalletAddress
+            key={index}
+            address={address}
+            className="mb-1"
+            onClick={onAddressClick}
+          />
+        ))}
       </td>
       <td>
         <span>{participent?.lastActionTimestamp || '--'}</span>
