@@ -1,9 +1,8 @@
 import { useMemo } from 'react';
-import ImageWithFallback from '../../../Components/ImageWithFallback';
 import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
 import { WalletAddress } from '../../../Components/WalletAddress';
-import { farcasterPlaceholderImage } from '../constants';
 import { ParticipentType } from './types';
+import LazyImage from '../../../Components/LazyImage';
 
 function getUserDetails(participent: ParticipentType | null) {
   const userAddress = participent?.participant?.userAddress;
@@ -53,10 +52,11 @@ export function Participent({
     <>
       <td>
         <span className="flex justify-center">
-          <ImageWithFallback
-            src={participent?.participant?.coverImageURI}
-            fallback={farcasterPlaceholderImage}
-            className="rounded-sm overflow-hidden h-[50px] w-[50px]"
+          <LazyImage
+            src={
+              participent?.participant?.profileImageContentValue?.image?.small
+            }
+            className="rounded overflow-hidden h-[50px] w-[50px] object-cover"
           />
         </span>
       </td>

@@ -61,8 +61,8 @@ export const farcasterParticipentsQuery = /* GraphQL */ `
           userAddress
           profileName
           fid: userId
-          coverImageURI
-          coverImageContentValue {
+          profileImage
+          profileImageContentValue {
             image {
               small
             }
