@@ -6,6 +6,7 @@ export type TokenHolder = {
   holdersCount: number;
   tokenType: string;
   blockchain: string;
+  image?: string;
 };
 
 const store: {
