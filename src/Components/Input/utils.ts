@@ -357,3 +357,7 @@ export function getMentionCount(mentionValue?: string | null) {
   const mentions = getMentions(mentionValue, MENTION_CONFIG);
   return mentions.length;
 }
+
+export function isSolanaAddress(address: string) {
+  return !address.includes(' ') && address.length > 30;
+}

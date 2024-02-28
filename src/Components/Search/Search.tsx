@@ -14,7 +14,11 @@ import {
 } from '../../hooks/useSearchInput';
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
 import { showToast } from '../../utils/showToast';
-import { getAllMentionDetails, getAllWordsAndMentions } from '../Input/utils';
+import {
+  getAllMentionDetails,
+  getAllWordsAndMentions,
+  isSolanaAddress
+} from '../Input/utils';
 import { EnabledSearchType, SearchInputSection } from './SearchInputSection';
 import { SearchTabSection, TabUrl } from './SearchTabSection';
 import { addAndRemoveCombinationPlaceholder } from './utils';
@@ -108,7 +112,9 @@ export const Search = memo(function Search() {
         }
 
         // check if it is a valid address
-        const isValid = ALLOWED_ADDRESS_REGEX.test(word);
+        const isValid =
+          ALLOWED_ADDRESS_REGEX.test(word) || isSolanaAddress(word);
+
         if (!isValid) return;
 
         address.push(word);

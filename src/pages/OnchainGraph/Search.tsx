@@ -5,7 +5,10 @@ import {
   useNavigate,
   useSearchParams
 } from 'react-router-dom';
-import { getAllWordsAndMentions } from '../../Components/Input/utils';
+import {
+  getAllWordsAndMentions,
+  isSolanaAddress
+} from '../../Components/Input/utils';
 import {
   ALLOWED_ADDRESS_REGEX,
   PADDING,
@@ -79,7 +82,9 @@ export const Search = memo(function Search() {
         }
 
         // check if it is a valid address
-        const isValid = ALLOWED_ADDRESS_REGEX.test(word);
+        const isValid =
+          ALLOWED_ADDRESS_REGEX.test(word) || isSolanaAddress(word);
+
         if (!isValid) return;
 
         address.push(word);
