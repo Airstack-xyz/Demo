@@ -392,7 +392,7 @@ function TokenBalancePage() {
           <GetAPIDropdown options={getAPIOptions} dropdownAlignment="right" />
           <ShareURLDropdown dropdownAlignment="right" />
           <CSVDownloadDropdown options={csvDownloadOptions} />
-          <TokenBalancesFrameModal />
+          <TokenBalancesFrameModal disabled={isCombination} />
         </div>
       </div>
     );

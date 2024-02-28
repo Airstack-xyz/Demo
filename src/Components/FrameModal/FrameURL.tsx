@@ -83,7 +83,7 @@ export function FrameURL({
       <div className="flex items-center justify-between gap-4">
         <div
           className={classNames(
-            'w-full flex items-center px-5 h-9 bg-glass-2 rounded-full overflow-auto no-scrollbar max-w-[512px]',
+            'w-full flex items-center px-5 h-9 bg-glass-2 rounded-full overflow-x-scroll no-scrollbar whitespace-nowrap max-w-[512px]',
             {
               'text-white': shortUrl,
               'justify-center': showLoader

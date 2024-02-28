@@ -259,7 +259,7 @@ export function TokenHolders() {
           {!isResolve6551Enabled && (
             <CSVDownloadDropdown options={csvDownloadOptions} />
           )}
-          <TokenHoldersFrameModal />
+          <TokenHoldersFrameModal disabled={isCombination} />
         </div>
       </div>
     );

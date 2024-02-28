@@ -92,7 +92,11 @@ function Token({ item }: { item: Poap | TokenBalance }) {
         tokenBalance?.token?.logo?.small ||
         tokenBalance?.token?.projectDetails?.imageUrl) || TOKEN_PLACEHOLDER_URL;
 
-  const id = isPoap ? `#${poapEvent.eventId}` : `#${tokenBalance?.tokenId}`;
+  const id = isPoap
+    ? `#${poapEvent.eventId}`
+    : type === 'ERC20'
+    ? tokenBalance.formattedAmount
+    : `#${tokenBalance.tokenId}`;
 
   const name = isPoap ? poapEvent.eventName : tokenBalance?.token?.name;
 
@@ -349,7 +353,7 @@ function ModalContent() {
   );
 }
 
-export function TokenBalancesFrameModal() {
+export function TokenBalancesFrameModal({ disabled }: { disabled?: boolean }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleModalClose = () => {
@@ -365,11 +369,12 @@ export function TokenBalancesFrameModal() {
       <Tooltip
         content="Share as Farcaster frame"
         contentClassName={tooltipClass}
-        disabled={isModalVisible}
+        disabled={isModalVisible || disabled}
       >
         <button
+          disabled={disabled}
           className={classNames(
-            'py-1.5 px-3 text-text-button bg-glass-1 rounded-full flex-row-center border border-solid border-transparent',
+            'py-1.5 px-3 text-text-button bg-glass-1 rounded-full flex-row-center border border-solid border-transparent disabled:opacity-50 disabled:cursor-not-allowed',
             {
               'border-white': isModalVisible
             }

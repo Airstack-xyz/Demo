@@ -58,6 +58,8 @@ function Token({
 
   const poapEvent = poap?.poapEvent || {};
 
+  const type = isPoap ? 'POAP' : tokenBalance?.tokenType;
+
   const tokenImage =
     (isPoap
       ? poapEvent?.contentValue?.image?.small
@@ -72,15 +74,19 @@ function Token({
 
   const assetImage = isTokenImagePrimary ? tokenImage : profileImage;
 
-  const assetIcon1 = isTokenImagePrimary
+  const assetIcon1 = isTokenImagePrimary ? undefined : tokenImage;
+
+  const assetIcon2 = isTokenImagePrimary
     ? profileImage
     : tokenHolder?.type
     ? iconMap[tokenHolder.type] || iconMap['wallet']
     : iconMap['wallet'];
 
-  const assetIcon2 = isTokenImagePrimary ? undefined : tokenImage;
-
-  const assetId = isPoap ? `#${poapEvent.eventId}` : `#${tokenBalance.tokenId}`;
+  const assetId = isPoap
+    ? `#${poapEvent.eventId}`
+    : type === 'ERC20'
+    ? tokenBalance.formattedAmount
+    : `#${tokenBalance.tokenId}`;
 
   return (
     <div className="flex-1 aspect-square max-sm:rounded-[10px] rounded-[18px] bg-secondary flex flex-col text-left justify-end overflow-hidden relative border border-solid border-white">
@@ -96,29 +102,28 @@ function Token({
           className="object-cover h-full"
         />
       </div>
-      <div className="z-10 max-sm:h-[50px] h-[70px] max-sm:p-1.5 p-2.5 flex flex-col justify-end bg-gradient-to-b from-[#00000000] to-[#1B121C] max-sm:gap-0 gap-1">
-        <div className="flex items-center max-sm:gap-0.5 gap-1 max-sm:text-[11px] max-sm:leading-4 text-sm font-bold">
+      <div className="z-10 max-sm:h-[50px] h-[70px] max-sm:p-1.5 p-2.5 flex flex-col justify-end bg-gradient-to-b from-[#00000000] to-[#1B121C] max-sm:gap-0 gap-2">
+        <div className="flex items-center max-sm:gap-0.5 gap-1 max-sm:text-[10px] max-sm:leading-4 text-sm max-sm:min-h-[20px] min-h-[24px]">
           {!!assetIcon1 && (
             <img
               alt="AssetIcon1"
               src={assetIcon1}
-              className="max-sm:h-3 h-6 rounded-full"
+              className="max-sm:h-4 h-6 max-sm:rounded-sm rounded"
+            />
+          )}
+          <span className="ellipsis max-w-[120px]">{assetId}</span>
+        </div>
+        <div className="flex items-center max-sm:gap-0.5 gap-1 max-sm:text-[11px] max-sm:leading-4 text-sm font-bold">
+          {!!assetIcon2 && (
+            <img
+              alt="AssetIcon2"
+              src={assetIcon2}
+              className="max-sm:h-4 h-6 rounded-full"
             />
           )}
           <span className="ellipsis max-sm:max-w-[120px] max-w-[250px]">
             {tokenHolder?.name}
           </span>
-        </div>
-        <div className="flex items-center max-sm:gap-0.5 gap-1 max-sm:text-[10px] max-sm:leading-4 text-sm max-sm:min-h-[20px] min-h-[24px]">
-          {!!assetIcon2 && (
-            <img
-              alt="AssetIcon2"
-              src={assetIcon2}
-              className="max-sm:h-3 h-6 rounded"
-            />
-          )}
-          <span className="ellipsis max-w-[80px]">{assetId}</span>
-          <span className="text-text-secondary">(token held)</span>
         </div>
       </div>
     </div>
@@ -293,7 +298,7 @@ function ModalContent() {
   );
 }
 
-export function TokenHoldersFrameModal() {
+export function TokenHoldersFrameModal({ disabled }: { disabled?: boolean }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleModalClose = () => {
@@ -309,11 +314,12 @@ export function TokenHoldersFrameModal() {
       <Tooltip
         content="Share as Farcaster frame"
         contentClassName={tooltipClass}
-        disabled={isModalVisible}
+        disabled={isModalVisible || disabled}
       >
         <button
+          disabled={disabled}
           className={classNames(
-            'py-1.5 px-3 text-text-button bg-glass-1 rounded-full flex-row-center border border-solid border-transparent',
+            'py-1.5 px-3 text-text-button bg-glass-1 rounded-full flex-row-center border border-solid border-transparent disabled:opacity-50 disabled:cursor-not-allowed',
             {
               'border-white': isModalVisible
             }

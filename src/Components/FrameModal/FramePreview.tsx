@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { ReactNode } from 'react';
+import { ReactNode, SVGProps } from 'react';
 import { FrameLabel } from './FrameLabel';
 
 export type FrameButton = {
@@ -7,7 +7,7 @@ export type FrameButton = {
   type: 'post' | 'link';
 };
 
-function LinkIcon() {
+function LinkIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -15,6 +15,7 @@ function LinkIcon() {
       height="12"
       fill="none"
       viewBox="0 0 13 12"
+      {...props}
     >
       <g clipPath="url(#a)">
         <mask
@@ -80,23 +81,24 @@ export function FramePreview({
         >
           {children}
         </div>
-        <div className="max-sm:min-h-[44px] min-h-[52px]">
-          {buttons?.length ? (
-            <div className="py-2 px-4 bg-[#292431] flex justify-center items-stretch gap-2.5 text-white max-sm:min-h-[44px] min-h-[52px]">
-              {buttons.map(item => (
-                <button
-                  key={item.label}
-                  type="button"
-                  className="flex-row-center max-sm:h-[28px] h-[36px] w-full gap-1 rounded-lg border border-solid border-[#473B4B] bg-[#3F3A46] max-sm:px-2 px-3 max-sm:text-[10px] text-sm font-semibold cursor-default"
-                >
-                  <span className="ellipsis max-sm:max-w-[65px] max-w-[120px]">
-                    {item.label}
-                  </span>
-                  {item.type === 'link' && <LinkIcon />}
-                </button>
-              ))}
-            </div>
-          ) : undefined}
+        <div
+          className={classNames(
+            'flex justify-center items-stretch gap-2.5 text-white max-sm:min-h-[44px] min-h-[52px] py-2 px-4',
+            buttons?.length ? 'bg-[#292431]' : ''
+          )}
+        >
+          {buttons?.map(item => (
+            <button
+              key={item.label}
+              type="button"
+              className="inline ellipsis h-[36px] w-full flex-1 cursor-default gap-1 rounded-lg border border-solid border-[#473B4B] bg-[#3F3A46] px-3 text-sm font-semibold max-sm:h-[28px] max-sm:px-2 max-sm:text-[10px]"
+            >
+              {item.label}
+              {item.type === 'link' && (
+                <LinkIcon className="inline ml-1 mb-[1px]" />
+              )}
+            </button>
+          ))}
         </div>
       </div>
     </div>
