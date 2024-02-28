@@ -42,6 +42,7 @@ export function Overview({
         className="w-48 h-48 mr-6 rounded-md overflow-hidden"
       >
         <ImageWithFallback
+          key={channelDetails?.imageUrl}
           src={channelDetails?.imageUrl}
           fallback={farcasterImage}
           className="w-full h-full"

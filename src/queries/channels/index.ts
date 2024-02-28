@@ -47,10 +47,7 @@ export const farcasterParticipentsQuery = /* GraphQL */ `
   ) {
     FarcasterChannelParticipants(
       input: {
-        filter: {
-          channelActions: { _eq: cast }
-          channelId: { _eq: $channelId }
-        }
+        filter: { channelId: { _eq: $channelId } }
         blockchain: ALL
         limit: $limit
         order: { lastActionTimestamp: $orderBy }
