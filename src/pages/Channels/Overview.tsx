@@ -94,7 +94,7 @@ export function Overview({
             value={
               channelDetails?.url ? (
                 <span className="flex items-center ellipsis">
-                  <span className="mr-2 ellipsis w-[90%]">
+                  <span className="mr-2 ellipsis max-w-[85%]">
                     {' '}
                     {channelDetails?.url}
                   </span>
