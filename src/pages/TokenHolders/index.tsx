@@ -29,6 +29,7 @@ import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { Tokens } from './Tokens/Tokens';
 import { ERC20_ADDRESS_WHITELIST } from './constants';
 import { useDropdownOptions } from './hooks/useDropdownOptions';
+import { TokenHoldersFrameModal } from '../../Components/FrameModal/TokenHolders';
 
 export function TokenHolders() {
   const [
@@ -257,6 +258,7 @@ export function TokenHolders() {
           <GetAPIDropdown options={getAPIOptions} dropdownAlignment="right" />
           <ShareURLDropdown dropdownAlignment="right" />
           <CSVDownloadDropdown options={csvDownloadOptions} />
+          <TokenHoldersFrameModal disabled={isCombination} />
         </div>
       </div>
     );

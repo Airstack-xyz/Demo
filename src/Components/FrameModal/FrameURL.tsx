@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useEffect, useRef, useState } from 'react';
 import { shortenUrl } from '../../hooks/useShortenURL';
 import { RoundedCopyButton } from '../CopyButton';
-import { Icon } from '../Icon';
+import { FrameLabel } from './FrameLabel';
 
 const frameUrlCache = new Map<string, string>();
 
@@ -79,14 +79,11 @@ export function FrameURL({
         containerClass
       )}
     >
-      <div className="flex items-center gap-1 mb-2">
-        <Icon name="chain" height={16} width={16} />
-        <span className="font-semibold">Frame URL</span>
-      </div>
+      <FrameLabel label="Frame URL" labelIcon="chain" labelIconSize={16} />
       <div className="flex items-center justify-between gap-4">
         <div
           className={classNames(
-            'w-full flex items-center px-5 h-9 bg-glass-2 rounded-full overflow-auto no-scrollbar max-w-[512px]',
+            'w-full flex items-center px-5 h-9 bg-glass-2 rounded-full overflow-x-scroll no-scrollbar whitespace-nowrap max-w-[512px]',
             {
               'text-white': shortUrl,
               'justify-center': showLoader

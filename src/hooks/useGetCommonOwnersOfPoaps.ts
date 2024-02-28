@@ -22,7 +22,7 @@ type CommonOwner = {
   };
 };
 
-const LIMIT = 34;
+const LIMIT = 30;
 
 export function useGetCommonOwnersOfPoaps(poapAddresses: TokenAddress[]) {
   const ownersSetRef = useRef<Set<string>>(new Set());

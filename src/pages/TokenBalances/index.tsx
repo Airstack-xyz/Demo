@@ -43,7 +43,7 @@ import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenDetails } from './TokenDetails/TokenDetails';
 import { Tokens, TokensLoader } from './Tokens/Tokens';
 import { useDropdownOptions } from './hooks/useDropdownOptions';
-import { TokenBalancesFrameModal } from '../../Components/FrameModal/TokenBalancesFrameModal';
+import { TokenBalancesFrameModal } from '../../Components/FrameModal/TokenBalances';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -392,7 +392,7 @@ function TokenBalancePage() {
           <GetAPIDropdown options={getAPIOptions} dropdownAlignment="right" />
           <ShareURLDropdown dropdownAlignment="right" />
           <CSVDownloadDropdown options={csvDownloadOptions} />
-          <TokenBalancesFrameModal />
+          <TokenBalancesFrameModal disabled={isCombination} />
         </div>
       </div>
     );

@@ -34,7 +34,9 @@ function DetailsLoader() {
 }
 
 type DomainDetailsResponse = {
-  Domain: DomainType;
+  Domains: {
+    Domain: DomainType[];
+  };
 };
 
 type DomainDetailsVariables = {
@@ -47,7 +49,7 @@ export function DetailsSection({ identity }: { identity: string }) {
     DomainDetailsVariables
   >(domainDetailsQuery, { name: identity });
 
-  const domain = data?.Domain;
+  const domain = data?.Domains?.Domain?.[0];
 
   const { primaryRecords, otherRecords } = useMemo(
     () => processRecords(domain?.texts || []),
