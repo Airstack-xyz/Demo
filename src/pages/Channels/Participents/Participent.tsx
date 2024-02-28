@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import ImageWithFallback from '../../../Components/ImageWithFallback';
 import { ListWithMoreOptions } from '../../../Components/ListWithMoreOptions';
 import { WalletAddress } from '../../../Components/WalletAddress';
-import { farcasterImage } from '../constants';
+import { farcasterPlaceholderImage } from '../constants';
 import { ParticipentType } from './types';
 
 function getUserDetails(participent: ParticipentType | null) {
@@ -38,8 +38,8 @@ export function Participent({
         <span className="flex justify-center">
           <ImageWithFallback
             src={participent?.participant?.coverImageURI}
-            fallback={farcasterImage}
-            className="rounded-sm overflow-hidden"
+            fallback={farcasterPlaceholderImage}
+            className="rounded-sm overflow-hidden h-[50px] w-[50px]"
           />
         </span>
       </td>

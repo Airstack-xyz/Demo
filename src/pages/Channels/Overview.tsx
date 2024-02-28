@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { FarcasterChannelDetailsQuery } from '../../../__generated__/airstack-types';
 import { CopyButton } from '../../Components/CopyButton';
 import ImageWithFallback from '../../Components/ImageWithFallback';
-import { farcasterImage } from './constants';
+import { farcasterPlaceholderImage } from './constants';
 import classNames from 'classnames';
 
 function KeyValue({ label, value }: { label: string; value?: ReactNode }) {
@@ -44,7 +44,7 @@ export function Overview({
         <ImageWithFallback
           key={channelDetails?.imageUrl}
           src={channelDetails?.imageUrl}
-          fallback={farcasterImage}
+          fallback={farcasterPlaceholderImage}
           className="h-full rounded-md overflow-hidden"
         />
       </div>

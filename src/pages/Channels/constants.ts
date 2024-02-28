@@ -1,1 +1,1 @@
-export const farcasterImage = '/images/farcaster.svg';
+export const farcasterPlaceholderImage = '/images/placeholder.svg';
