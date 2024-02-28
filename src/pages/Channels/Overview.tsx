@@ -58,7 +58,7 @@ export function Overview({
           key={channelDetails?.imageUrl}
           src={channelDetails?.imageUrl}
           fallback={farcasterPlaceholderImage}
-          className="h-full rounded-md overflow-hidden"
+          className="h-48 rounded-md overflow-hidden"
         />
       </div>
       <div className="overflow-hidden w-full">
