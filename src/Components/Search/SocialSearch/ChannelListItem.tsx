@@ -57,7 +57,7 @@ export default function ChannelListItem({
           {formattedProfileName}
         </span>
         <span className="text-[10px] text-text-secondary pb-[1px] whitespace-nowrap">
-          {hostedBy}
+          Hosted by {hostedBy}
         </span>
       </span>
     </button>
