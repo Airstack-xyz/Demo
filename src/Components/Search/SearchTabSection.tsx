@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Icon, IconType } from '../Icon';
 
 const tabClass =
-  'px-2.5 h-[30px] rounded-full mr-5 flex-row-center text-xs text-text-secondary border border-solid border-transparent';
+  'px-2.5 h-[30px] rounded-full mr-3 flex-row-center text-xs text-text-secondary border border-solid border-transparent';
 
 const activeTabClass =
   'bg-glass !border-stroke-color font-bold !text-text-primary';

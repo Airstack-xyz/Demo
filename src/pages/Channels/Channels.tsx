@@ -91,7 +91,7 @@ export function Channels() {
               <div className="flex items-center">
                 <GetAPIDropdown options={getAPIOptions} />
                 <div className="ml-3.5">
-                  <ShareURLDropdown />
+                  <ShareURLDropdown dropdownAlignment="right" />
                 </div>
               </div>
             </div>
