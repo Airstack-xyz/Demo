@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { FarcasterChannelsQuery } from '../../../../__generated__/airstack-types';
+import ImageWithFallback from '../../ImageWithFallback';
 
 export type Channel = NonNullable<
   NonNullable<
@@ -28,7 +29,7 @@ export default function ChannelListItem({
   onClick,
   onMouseEnter
 }: ListItemProps) {
-  const image = item.imageUrl || '/images/farcaster.svg';
+  const image = item.imageUrl;
   const name = item?.name;
   const hostedBy = item?.leadProfiles?.[0]?.profileName;
 
@@ -46,7 +47,11 @@ export default function ChannelListItem({
       onClick={onClick}
       onMouseEnter={onMouseEnter}
     >
-      <img src={image} className="h-4 w-4 rounded-full mr-1" />
+      <ImageWithFallback
+        src={image}
+        fallback="/images/farcaster.svg"
+        className="h-4 w-4 rounded-full mr-1"
+      />
       <span className="flex items-end overflow-hidden">
         <span className="text-sm text-white ellipsis pr-2">
           {formattedProfileName}
