@@ -24,7 +24,7 @@ export const tokenHoldersPlaceholder =
 export const tokenBalancesPlaceholder =
   'Search profiles by name OR Enter 0x, name.eth, fc_fname:name, lens/@name';
 
-const channelsPlaceholder = 'Search for channels by name';
+const channelsPlaceholder = 'Search Farcaster channels by name';
 
 const placeholderMap: Record<TabUrl, string> = {
   'token-balances': tokenBalancesPlaceholder,
@@ -220,11 +220,14 @@ export const Search = memo(function Search() {
   }, [rawInput, value]);
 
   useEffect(() => {
+    if (actualActiveTab === 'channels') {
+      return;
+    }
     return addAndRemoveCombinationPlaceholder(
       shouldShowCombinationPlaceholder,
       isTokenBalances
     );
-  }, [isTokenBalances, shouldShowCombinationPlaceholder]);
+  }, [actualActiveTab, isTokenBalances, shouldShowCombinationPlaceholder]);
 
   const handleSubmit = useCallback(
     (mentionValue: string) => {

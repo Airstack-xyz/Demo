@@ -89,7 +89,10 @@ export function Channels() {
                 ascLabel="Olderst action first"
               />
               <div className="flex items-center">
-                <GetAPIDropdown options={getAPIOptions} />
+                <GetAPIDropdown
+                  options={getAPIOptions}
+                  dropdownAlignment="right"
+                />
                 <div className="ml-3.5">
                   <ShareURLDropdown dropdownAlignment="right" />
                 </div>
@@ -108,7 +111,10 @@ export function Channels() {
                   Participants
                 </span>
               </div>
-              <ParticipentsList channelId={channelId} orderBy={orderBy} />
+              <ParticipentsList
+                channelId={loading ? '' : channelId}
+                orderBy={orderBy}
+              />
             </section>
           </div>
         )}

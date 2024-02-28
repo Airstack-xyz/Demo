@@ -22,12 +22,14 @@ type Channel = NonNullable<
   >['FarcasterChannel']
 >[0];
 export function Overview({
-  channelDetails,
+  channelDetails: details,
   loading
 }: {
   channelDetails?: Channel | null;
   loading: boolean;
 }) {
+  const channelDetails = loading ? null : details;
+
   return (
     <div
       className={classNames(
@@ -39,7 +41,7 @@ export function Overview({
     >
       <div
         data-loader-type="block"
-        className="w-48 h-48 mr-6 rounded-md overflow-hidden"
+        className="w-48 max-h-[12rem] min-w-[12rem] mr-6 rounded-md overflow-hidden"
       >
         <ImageWithFallback
           key={channelDetails?.imageUrl}
@@ -49,16 +51,16 @@ export function Overview({
         />
       </div>
       <div className="overflow-hidden">
-        <h2 className="flex items-center">
+        <h2
+          className={classNames('flex items-center', {
+            'inline-block w-[100px] h-[20px]': loading
+          })}
+          data-loader-type="block"
+        >
           <span className="text-base font-medium">{channelDetails?.name}</span>{' '}
           <span className="text-xs text-[#8B8EA0] flex items-center ml-1">
             /{' '}
-            <span
-              data-loader-type="block"
-              className={classNames('text-[#8B8EA0]', {
-                'inline-block w-[50px] h-[15px]': loading
-              })}
-            >
+            <span data-loader-type="block" className="text-[#8B8EA0]">
               {channelDetails?.channelId}
             </span>
           </span>

@@ -136,7 +136,6 @@ export function Participents({
                   participent={token}
                   onShowMoreClick={handleShowMoreClick}
                   onAddressClick={handleAddressClick}
-                  // onAssetClick={handleAssetClick}
                 />
               </tr>
             ))}

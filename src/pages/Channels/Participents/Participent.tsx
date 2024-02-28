@@ -16,6 +16,23 @@ function getUserDetails(participent: ParticipentType | null) {
   return details?.length ? details[0] : userAddressDetails?.[0];
 }
 
+function Clickable({
+  value,
+  onClick
+}: {
+  value: string | null | undefined;
+  onClick: () => void;
+}) {
+  return (
+    <div
+      className="px-1 py-1 -ml-1 rounded-18 ellipsis max-w-[200px] sm:max-w-none hover:bg-glass-1 cursor-pointer"
+      onClick={onClick}
+    >
+      {value || '--'}
+    </div>
+  );
+}
+
 export function Participent({
   participent,
   onShowMoreClick,
@@ -44,12 +61,25 @@ export function Participent({
         </span>
       </td>
       <td>
-        <div className="ellipsis">
-          {participent?.participant?.profileName || '--'}
-        </div>
+        <Clickable
+          value={participent?.participant?.profileName}
+          onClick={() =>
+            onAddressClick?.(
+              participent?.participant?.profileName || '',
+              'farcaster'
+            )
+          }
+        />
       </td>
       <td>{participent?.participant?.fid || '--'}</td>
-      <td>{userAddressDetails?.primaryDomain?.name || '--'}</td>
+      <td>
+        <Clickable
+          value={userAddressDetails?.primaryDomain?.name}
+          onClick={() =>
+            onAddressClick?.(userAddressDetails?.primaryDomain?.name || '')
+          }
+        />
+      </td>
       <td>
         <ListWithMoreOptions
           list={ensNames}
