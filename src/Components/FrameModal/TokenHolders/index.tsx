@@ -182,6 +182,7 @@ function ModalContent() {
       // Remove non-ascii letters, window.btoa throws error due this
       // eslint-disable-next-line no-control-regex
       n: overviewToken.name.replace(/[^\x00-\x7F]/g, ''),
+      i: overviewToken?.image ? encodeURIComponent(overviewToken.image) : '',
       t: ENCODED_TOKEN_TYPE[
         overviewToken.tokenType as keyof typeof ENCODED_TOKEN_TYPE
       ],
