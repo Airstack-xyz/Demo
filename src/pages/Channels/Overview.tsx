@@ -31,7 +31,7 @@ export function Overview({
   return (
     <div
       className={classNames(
-        'bg-glass p-3.5 flex items-center border border-solid border-[#0F0F0F] my-9 rounded-18',
+        'bg-glass p-3.5 flex items-center border border-solid border-stroke-color my-9 rounded-18',
         {
           'skeleton-loader': loading
         }
