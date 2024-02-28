@@ -51,7 +51,7 @@ export function ProfileAvatar({
         className="rounded-full mr-2"
         src={defaultAvatar}
       />
-      <span className="text-sm flex flex-col items-start">
+      <span className="text-xs flex flex-col items-start">
         <span>{userName}</span>
         <PlanBadge
           className="!text-[8px]"

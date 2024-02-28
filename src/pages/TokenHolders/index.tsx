@@ -126,7 +126,8 @@ export function TokenHolders() {
     snapshotInfo,
     owner,
     tokenInfo,
-    accountAddress
+    accountAddress,
+    isResolve6551Enabled
   });
 
   const [, setCsvDownloadOptions] = useCsvDownloadOptions(['options']);
@@ -256,9 +257,7 @@ export function TokenHolders() {
         <div className="flex items-center gap-3.5">
           <GetAPIDropdown options={getAPIOptions} dropdownAlignment="right" />
           <ShareURLDropdown dropdownAlignment="right" />
-          {!isResolve6551Enabled && (
-            <CSVDownloadDropdown options={csvDownloadOptions} />
-          )}
+          <CSVDownloadDropdown options={csvDownloadOptions} />
           <TokenHoldersFrameModal disabled={isCombination} />
         </div>
       </div>

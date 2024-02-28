@@ -1,6 +1,7 @@
 import { Layout } from '../Components/Layout';
 import { Home } from '../pages/home';
 import { OnChainGraphPage } from '../pages/OnchainGraph';
+import PaymentSuccess from '../pages/PaymentSuccess';
 import { TokenBalance } from '../pages/TokenBalances';
 import { TokenHolders } from '../pages/TokenHolders';
 
@@ -27,6 +28,10 @@ const router = createBrowserRouter([
         element: <OnChainGraphPage />
       }
     ]
+  },
+  {
+    path: '/payment-success',
+    element: <PaymentSuccess />
   }
 ]);
 

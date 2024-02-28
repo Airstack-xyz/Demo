@@ -37,7 +37,9 @@ export function listenTaskAdded(callback: (id: number) => void | (() => void)) {
 }
 
 export function formatNumber(number: number, fixed = 2) {
-  return number % 1 ? number.toFixed(fixed) : number;
+  return Intl.NumberFormat().format(
+    (number % 1 ? number.toFixed(fixed) : number) as number
+  );
 }
 
 export function formatBytes(bytes: number, decimals = 3) {
@@ -61,6 +63,9 @@ export function getActiveDownload() {
 
 export function saveToActiveDownload(id: number) {
   const activeDownloads = getActiveDownload();
+  if (activeDownloads.includes(id.toString())) {
+    return;
+  }
   activeDownloads.push(id.toString());
   localStorage.setItem(localStorageKey, activeDownloads.join(','));
 }
