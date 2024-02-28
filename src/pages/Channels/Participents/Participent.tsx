@@ -39,7 +39,7 @@ export function Participent({
       </td>
       <td>
         <div className="ellipsis">
-          {participent?.participant?.fnames || '--'}
+          {participent?.participant?.profileName || '--'}
         </div>
       </td>
       <td>{participent?.participant?.fid || '--'}</td>
