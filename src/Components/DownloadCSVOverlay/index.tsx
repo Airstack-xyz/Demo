@@ -8,6 +8,7 @@ import { CSVDownloadOption } from '../../types';
 import { useCallback, useState } from 'react';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Modal } from '../Modal';
+import { useChannelApiOptions } from '../../pages/Channels/useChannelApiOptions';
 
 function DownloadIcon() {
   return (
@@ -50,9 +51,14 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
   const { options } = useCsvDownloadOptions(['options'])[0];
   const [estimateTask, { loading }] = useEstimateTask();
   const isTokenBalancesPage = !!useMatch('/token-balances');
+  const isChannels = !!useMatch('/channels');
   const getTokenBalanceLink = useTokenBalancesLinks();
   const getTokenHoldersLink = useTokenHoldersLinks();
-  const apiLink = isTokenBalancesPage
+  const getChannelLinks = useChannelApiOptions();
+
+  const apiLink = isChannels
+    ? getChannelLinks()[1]?.link
+    : isTokenBalancesPage
     ? getTokenBalanceLink()
     : getTokenHoldersLink();
 

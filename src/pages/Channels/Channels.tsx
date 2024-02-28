@@ -4,10 +4,7 @@ import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { Search } from '../../Components/Search';
 import { SortBy } from '../../Components/Filters/SortBy';
 import { useLazyQuery } from '@airstack/airstack-react';
-import {
-  farcasterChannelQuery,
-  farcasterParticipentsQuery
-} from '../../queries/channels';
+import { farcasterChannelQuery } from '../../queries/channels';
 import {
   FarcasterChannelDetailsQuery,
   FarcasterChannelDetailsQueryVariables,
@@ -19,9 +16,9 @@ import { Overview } from './Overview';
 import { Icon } from '../../Components/Icon';
 import { ParticipentsList } from './Participents/Participents';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
-import { createAppUrlWithQuery } from '../../utils/createAppUrlWithQuery';
 import { useCsvDownloadOptions } from '../../store/csvDownload';
 import { ShareURLDropdown } from '../../Components/ShareURLDropdown';
+import { useChannelApiOptions } from './useChannelApiOptions';
 
 export function Channels() {
   const isHome = useMatch('/');
@@ -36,29 +33,13 @@ export function Channels() {
 
   const [, setCsvDownloadOptions] = useCsvDownloadOptions(['options']);
 
-  const getAPIOptions = useMemo(() => {
-    return [
-      {
-        label: 'Farcaster Channel Details',
-        link: createAppUrlWithQuery(farcasterChannelQuery, {
-          channelId
-        })
-      },
-      {
-        label: 'Farcaster Channel Participants',
-        link: createAppUrlWithQuery(farcasterParticipentsQuery, {
-          channelId,
-          orderBy,
-          limit: 20
-        })
-      }
-    ];
-  }, [channelId, orderBy]);
+  const getOptions = useChannelApiOptions();
+  const optionsGetAPI = useMemo(() => getOptions(), [getOptions]);
 
   useEffect(() => {
     // todo add csv download options
     setCsvDownloadOptions({ options: [] });
-  }, [getAPIOptions, setCsvDownloadOptions]);
+  }, [optionsGetAPI, setCsvDownloadOptions]);
 
   useEffect(() => {
     if (channelId) {
@@ -90,7 +71,7 @@ export function Channels() {
               />
               <div className="flex items-center">
                 <GetAPIDropdown
-                  options={getAPIOptions}
+                  options={optionsGetAPI}
                   dropdownAlignment="right"
                 />
                 <div className="ml-3.5">
