@@ -1,114 +1,58 @@
 import { useLazyQuery } from '@airstack/airstack-react';
 import classNames from 'classnames';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useSearchInput } from '../../hooks/useSearchInput';
-import { tokenBalancesFrameQuery } from '../../queries/frames/tokenBalancesQuery';
-import { TokenBlockchain } from '../../types';
-import { Icon, IconType } from '../Icon';
-import LazyImage from '../LazyImage';
-import { Modal } from '../Modal';
-import { Tooltip, tooltipClass } from '../Tooltip';
-import { FramePreview } from './FramePreview';
+import { useSearchInput } from '../../../hooks/useSearchInput';
+import { tokenBalancesFrameQuery } from '../../../queries/frames/tokenBalancesQuery';
+import { TokenBlockchain } from '../../../types';
+import { Icon, IconType } from '../../Icon';
+import LazyImage from '../../LazyImage';
+import { Modal } from '../../Modal';
+import { Tooltip, tooltipClass } from '../../Tooltip';
+import { FramePreview } from '../FramePreview';
 import {
-  FrameSelect,
   FrameSelectOption,
-  FrameSelectOptionState
-} from './FrameSelect';
-import { FrameURL } from './FrameURL';
+  FrameSelectOptionState,
+  FrameSelect
+} from '../FrameSelect';
+import { FrameURL } from '../FrameURL';
+import { EmptyIcon, FrameIconBlue } from '../Icons';
 import {
-  DECODED_BLOCKCHAIN,
-  DECODED_TOKEN_TYPE,
-  ENCODED_BLOCKCHAIN,
-  ENCODED_TOKEN_TYPE
-} from './constants';
-import {
-  FrameOption,
   Poap,
   TokenBalance,
   TokenBalanceFrameResponse,
   TokenBalanceFrameVariables
 } from './types';
+import { FrameOption } from '../types';
+import { getFrameButtons, getResolvedOwner } from './utils';
+import { encodeFrameData, getDisplayName } from '../utils';
 import {
-  encodeFrameData,
-  getDisplayName,
-  getFrameButtonsForTokenBalances,
-  getResolvedOwner
-} from './utils';
-
-function FrameIconBlue() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="16"
-      height="16"
-      fill="none"
-      viewBox="0 0 16 16"
-    >
-      <g fill="#65AAD0" clip-path="url(#a)">
-        <path d="M0 14.8571C0 15.4883.5117 16 1.1428 16h13.7143C15.4883 16 16 15.4883 16 14.8571V1.1428C16 .5117 15.4883 0 14.8571 0H1.1428C.5117 0 0 .5117 0 1.1428v13.7143ZM13.8572 1.1429c.6312 0 1.1428.5116 1.1428 1.1428v11.4286c0 .6312-.5116 1.1428-1.1428 1.1428H2.1429C1.5117 14.8571 1 14.3455 1 13.7143V2.2857c0-.6312.5117-1.1428 1.1429-1.1428h11.7143Z" />
-        <path d="M11.8532 11.5041v-.0723c0-.1859-.1085-.346-.2583-.4338h.0155V6.3235l.3564-1.0382h-1.3894V4.247h-5.16v1.0382H4.0278l.3564 1.0382v4.6745h.0155c-.155.0878-.2583.2427-.2583.4338v.0723c-.16.0672-.2737.2273-.2737.4184V12h3.0991v-.0775c0-.1859-.1136-.346-.2737-.4184v-.0723c0-.1859-.1085-.346-.2583-.4338h.0206V8.6581c0-.8316.6715-1.5082 1.498-1.5082h.093c.8263 0 1.4978.6766 1.4978 1.5082v2.3399h.0207c-.155.0878-.2583.2427-.2583.4338v.0723c-.16.0672-.2737.2273-.2737.4184V12h3.0991v-.0775c0-.1859-.1137-.346-.2738-.4184h-.0051Z" />
-      </g>
-      <defs>
-        <clipPath id="a">
-          <path
-            fill="#fff"
-            d="M0 0h16v16H0z"
-            transform="matrix(1 0 0 -1 0 16)"
-          />
-        </clipPath>
-      </defs>
-    </svg>
-  );
-}
-
-function EmptyIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="78"
-      height="54"
-      fill="none"
-      viewBox="0 0 78 54"
-    >
-      <path
-        fill="#fff"
-        d="M27.1253 26.1961 5.7798 21.927v19.4918l26.2138 6.9842V16.7217l-3.8197 8.9127c-.1873.4119-.6179.6366-1.0486.5617Z"
-      />
-      <path
-        fill="#fff"
-        d="M31.5629 12.9384 7.6896 9.9425 29.391 1.91l24.36 3.239-19.5854 7.546 4.8683 11.3468 24.3226-10.4293-6.4598-9.6617L29.1662 0 3.6077 9.437.4434 18.9488l4.5686.9175h.0188l21.72 4.344 4.8121-11.2719Z"
-      />
-      <path
-        fill="#fff"
-        d="M63.1695 25.9152c-1.0673 0-2.0971.1124-3.0895.3558v-9.2123l-21.177 9.0625c-.1123.0562-.2434.0749-.3557.0749-.3745 0-.7116-.206-.8614-.5617l-3.8197-8.9127v31.6625l15.8968-4.2316c1.7788 5.7108 7.1152 9.8489 13.4065 9.8489 7.7518 0 14.0431-6.2913 14.0431-14.0431 0-7.7518-6.2913-14.0432-14.0431-14.0432Zm0 26.2139c-5.4113 0-10.0174-3.5576-11.5902-8.4634-.3745-1.1609-.5805-2.4154-.5805-3.7073 0-5.636 3.8572-10.392 9.0812-11.7588.9924-.2809 2.0222-.4119 3.0895-.4119 6.7033 0 12.1707 5.4674 12.1707 12.1707 0 6.7032-5.4674 12.1707-12.1707 12.1707Z"
-      />
-      <path
-        fill="#fff"
-        d="m70.4527 35.3323-2.6401-2.6401c-.3744-.3745-.9549-.3745-1.3294 0l-3.3141 3.2954-3.3142-3.3142c-.3745-.3744-.955-.3744-1.3294 0l-2.6401 2.6401c-.2809.2809-.3371.6554-.206.9737.0562.1311.1123.2434.206.337l3.3141 3.3142-3.3141 3.3142c-.3745.3745-.3745.9549 0 1.3294l2.6401 2.6401c.3744.3745.9549.3745 1.3294 0l3.3142-3.2767 3.3141 3.3142c.3745.3744.955.3744 1.3294 0l2.6401-2.6401c.3745-.3745.3745-.955 0-1.3295l-3.3141-3.3141 3.3141-3.3142c.3745-.3745.3745-.9549 0-1.3294Z"
-      />
-    </svg>
-  );
-}
+  DECODED_BLOCKCHAIN,
+  DECODED_TOKEN_TYPE,
+  ENCODED_BLOCKCHAIN,
+  ENCODED_TOKEN_TYPE,
+  FRAMES_ENDPOINT,
+  TOKEN_PLACEHOLDER_URL
+} from '../constants';
 
 const buttonOptions: FrameSelectOption[] = [
   {
     label: 'NFTs on Ethereum',
-    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.ETHEREUM}`,
+    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.ethereum}`,
     disabledTooltip: "This wallet doesn't have NFTs on Ethereum"
   },
   {
     label: 'NFTs on Base',
-    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.BASE}`,
+    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.base}`,
     disabledTooltip: "This wallet doesn't have NFTs on Base"
   },
   {
     label: 'NFTs on Zora',
-    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.ZORA}`,
+    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.zora}`,
     disabledTooltip: "This wallet doesn't have NFTs on Zora"
   },
   {
     label: 'NFTs on Polygon',
-    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.POLYGON}`,
+    value: `${ENCODED_TOKEN_TYPE.NFT}-${ENCODED_BLOCKCHAIN.polygon}`,
     disabledTooltip: "This wallet doesn't have NFTs on Polygon"
   },
   {
@@ -126,10 +70,6 @@ const defaultButtonOptionsState: FrameSelectOptionState[] = [
   null,
   null
 ];
-
-const FRAMES_ENDPOINT = process.env.FRAMES_ENDPOINT || '';
-
-const PLACEHOLDER_URL = 'images/placeholder-blue.svg';
 
 function Token({ item }: { item: Poap | TokenBalance }) {
   const tokenBalance = item as TokenBalance;
@@ -150,16 +90,25 @@ function Token({ item }: { item: Poap | TokenBalance }) {
       ? poapEvent?.contentValue?.image?.small
       : tokenBalance?.tokenNfts?.contentValue?.image?.small ||
         tokenBalance?.token?.logo?.small ||
-        tokenBalance?.token?.projectDetails?.imageUrl) || PLACEHOLDER_URL;
+        tokenBalance?.token?.projectDetails?.imageUrl) || TOKEN_PLACEHOLDER_URL;
 
-  const id = isPoap ? `#${poapEvent.eventId}` : `#${tokenBalance?.tokenId}`;
+  const id = isPoap
+    ? `#${poapEvent.eventId}`
+    : type === 'ERC20'
+    ? tokenBalance?.formattedAmount?.toFixed(2)
+    : `#${tokenBalance.tokenId}`;
 
   const name = isPoap ? poapEvent.eventName : tokenBalance?.token?.name;
 
   return (
-    <div className="w-[calc(50%-16px)] aspect-square rounded-[18px] bg-secondary flex flex-col text-left justify-end overflow-hidden relative border border-solid border-white">
+    <div className="w-[calc(50%-16px)] aspect-square max-sm:rounded-[10px] rounded-[18px] bg-secondary flex flex-col text-left justify-end overflow-hidden relative border border-solid border-white">
       <div className="absolute inset-0 flex-col-center">
-        <LazyImage alt="asset-image" src={image} className="w-full" />
+        <LazyImage
+          alt="TokenImage"
+          src={image}
+          fallbackSrc={TOKEN_PLACEHOLDER_URL}
+          className="w-full"
+        />
       </div>
       <div className="z-10 max-sm:h-[50px] h-[70px] max-sm:p-1.5 p-2.5 flex flex-col justify-end bg-gradient-to-b from-[#00000000] to-[#1B121C]">
         <div className="flex items-center gap-1 max-sm:text-[10px]">
@@ -214,7 +163,7 @@ function ModalContent() {
 
     return {
       selectedButtonValues,
-      isPOAP: tokenType === 'poap',
+      isPOAP: tokenType === 'POAP',
       tokenType,
       blockchain
     };
@@ -264,6 +213,10 @@ function ModalContent() {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  const items = isPOAP
+    ? data?.poap?.Poap
+    : data?.[blockchain as TokenBlockchain]?.TokenBalance;
 
   const wallet = data?.wallet;
 
@@ -336,11 +289,6 @@ function ModalContent() {
       );
     }
 
-    const items =
-      (isPOAP
-        ? data?.poap.Poap
-        : data?.[blockchain as TokenBlockchain]?.TokenBalance) || [];
-
     const displayName = getDisplayName(resolvedOwner);
 
     return (
@@ -352,7 +300,7 @@ function ModalContent() {
           's Onchain Collection
         </div>
         <div className="flex flex-wrap justify-center max-sm:gap-[14px] gap-[25px] h-full w-full max-sm:py-3 max-sm:px-4 py-4 px-6">
-          {items.length ? (
+          {items?.length ? (
             items.map((item, index) => <Token key={index} item={item} />)
           ) : (
             <div className="flex-col-center font-concert-one text-xl text-center">
@@ -368,7 +316,7 @@ function ModalContent() {
   };
 
   const frameButtons = shouldFetchData
-    ? getFrameButtonsForTokenBalances(selectedButtonValues)
+    ? getFrameButtons(selectedButtonValues)
     : undefined;
 
   return (
@@ -395,7 +343,7 @@ function ModalContent() {
       </div>
       <div className="max-sm:mt-8 mt-4">
         <FramePreview
-          frameClass="bg-gradient-to-b from-[#122230] to-[#051523] text-white"
+          frameContainerClass="bg-gradient-to-b from-[#122230] to-[#051523] text-white"
           buttons={frameButtons}
         >
           {renderFrameContent()}
@@ -405,7 +353,7 @@ function ModalContent() {
   );
 }
 
-export function TokenBalancesFrameModal() {
+export function TokenBalancesFrameModal({ disabled }: { disabled?: boolean }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleModalClose = () => {
@@ -421,12 +369,12 @@ export function TokenBalancesFrameModal() {
       <Tooltip
         content="Share as Farcaster frame"
         contentClassName={tooltipClass}
-        disabled={isModalVisible}
+        disabled={isModalVisible || disabled}
       >
         <button
-          title="Share Frame"
+          disabled={disabled}
           className={classNames(
-            'py-1.5 px-3 text-text-button bg-glass-1 rounded-full flex-row-center border border-solid border-transparent',
+            'py-1.5 px-3 text-text-button bg-glass-1 rounded-full flex-row-center border border-solid border-transparent disabled:opacity-50 disabled:cursor-not-allowed',
             {
               'border-white': isModalVisible
             }

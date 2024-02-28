@@ -3,6 +3,7 @@ import { Icon, IconType } from '../Icon';
 import { useCallback, useState } from 'react';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { FrameOption } from './types';
+import { FrameLabel } from './FrameLabel';
 
 export function FrameDropdown({
   label,
@@ -32,10 +33,11 @@ export function FrameDropdown({
 
   return (
     <div ref={containerRef} className="text-text-secondary text-xs relative">
-      <div className="flex items-center gap-1 mb-2">
-        <Icon name={labelIcon} height={labelIconSize} width={labelIconSize} />
-        <span className="font-semibold">{label}</span>
-      </div>
+      <FrameLabel
+        label={label}
+        labelIcon={labelIcon}
+        labelIconSize={labelIconSize}
+      />
       <button
         className={classNames(
           'bg-glass-2 flex min-w-[160px] items-center justify-between gap-2 rounded-full border border-solid border-transparent py-2.5 pl-5 pr-4',

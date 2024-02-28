@@ -71,7 +71,8 @@ export type IconType =
   | 'cancel-circle'
   | 'file-arrow-down'
   | 'chain'
-  | 'frame';
+  | 'frame'
+  | 'customize';
 
 export type IconProps = {
   name: IconType;

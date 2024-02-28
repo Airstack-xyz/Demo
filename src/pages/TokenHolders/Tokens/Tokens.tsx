@@ -222,8 +222,7 @@ export function TokensComponent() {
 
   return (
     <div className="relative mb-5">
-      {showDownCSVOverlay && <DownloadCSVOverlay />}
-      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
+      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden overflow-y-auto">
         <table className="w-auto text-xs table-fixed sm:w-full select-none">
           <Header isERC20={isERC20} isCombination={isCombination} />
           <tbody>
@@ -251,6 +250,7 @@ export function TokensComponent() {
           </div>
         )}
         {loading && <Loader />}
+        {showDownCSVOverlay && <DownloadCSVOverlay />}
       </div>
       {modalData.isOpen && (
         <LazyAddressesModal

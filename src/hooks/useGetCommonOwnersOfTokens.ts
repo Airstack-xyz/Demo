@@ -45,7 +45,7 @@ type NestedToken = Pick<
     blockchain?: string;
   };
 
-const LIMIT = 34;
+const LIMIT = 30;
 
 export function useGetCommonOwnersOfTokens(tokenAddresses: TokenAddress[]) {
   const ownersSetRef = useRef<Set<string>>(new Set());

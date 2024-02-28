@@ -1,6 +1,7 @@
-import { showToast } from '../../utils/showToast';
-import { Icon, IconType } from '../Icon';
 import classNames from 'classnames';
+import { showToast } from '../../utils/showToast';
+import { IconType } from '../Icon';
+import { FrameLabel } from './FrameLabel';
 
 export type FrameSelectOption = {
   label: string;
@@ -34,10 +35,11 @@ export function FrameSelect({
         containerClass
       )}
     >
-      <div className="flex items-center gap-1 mb-2">
-        <Icon name={labelIcon} height={labelIconSize} width={labelIconSize} />
-        <span className="font-semibold">{label}</span>
-      </div>
+      <FrameLabel
+        label={label}
+        labelIcon={labelIcon}
+        labelIconSize={labelIconSize}
+      />
       <div className="flex flex-wrap items-center gap-3">
         {options.map((option, index) => {
           const isDisabled = optionsState?.[index] === 'disabled';
