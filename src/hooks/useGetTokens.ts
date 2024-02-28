@@ -38,7 +38,7 @@ export function useGetTokens() {
           name: poap?.poapEvent?.eventName || '',
           tokenId: poap?.tokenId || '',
           tokenAddress: poap?.tokenAddress || '',
-          image: poap?.poapEvent?.logo?.image?.medium || '',
+          image: poap?.poapEvent?.logo?.image?.small || '',
           tokenType: 'POAP',
           blockchain: 'ethereum',
           eventId: poap?.eventId
@@ -62,8 +62,8 @@ export function useGetTokens() {
         tokenId: tokenBalance?.tokenId || '',
         tokenAddress: tokenBalance?.tokenAddress || '',
         image:
-          tokenBalance?.token?.logo?.medium ||
-          tokenBalance?.tokenNfts?.contentValue?.image?.medium ||
+          tokenBalance?.token?.logo?.small ||
+          tokenBalance?.tokenNfts?.contentValue?.image?.small ||
           tokenBalance?.token?.projectDetails?.imageUrl ||
           '',
         tokenType: tokenBalance?.tokenType,

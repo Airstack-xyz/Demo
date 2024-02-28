@@ -137,14 +137,15 @@ function Overview({
     if (memoizedTokens.length > 0) {
       setTokens({
         tokens: memoizedTokens.map(
-          ({ name, tokenAddress, eventId, tokenType, blockchain }) => {
+          ({ name, tokenAddress, eventId, tokenType, blockchain, image }) => {
             const address = eventId ? eventId : tokenAddress;
             const tokenHolderItem: TokenHolder = {
               name,
               tokenAddress: address,
               holdersCount: tokensSupply?.[address.toLocaleLowerCase()] || 0,
               tokenType,
-              blockchain
+              blockchain,
+              image
             };
             return tokenHolderItem;
           }
