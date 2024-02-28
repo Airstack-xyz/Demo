@@ -31,6 +31,7 @@ import {
 } from '../../../../__generated__/airstack-types';
 import { EnabledSearchType } from '../SearchInputSection';
 import ChannelListItem, { Channel } from './ChannelListItem';
+import { capitalizeFirstLetter } from '../../../utils';
 
 const LOADING_ITEM_COUNT = 8;
 
@@ -283,7 +284,7 @@ export default function SocialSearch({
       limit: LIMIT,
       searchRegex: isSocialSearch
         ? [`^${query}`, `^lens/@${query}`]
-        : [`^${query}`]
+        : [`^${query}`, `^${capitalizeFirstLetter(query)}`]
     });
     return () => {
       cancelReq();
