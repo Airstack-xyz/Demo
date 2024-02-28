@@ -9,7 +9,7 @@ function KeyValue({ label, value }: { label: string; value?: ReactNode }) {
   return (
     <div className="mt-3.5 flex items-center" data-loader-type="block">
       <div className="text-text-primary w-40 mr-2">{label}</div>
-      <div className="text-text-secondary max-w-full ellipsis">
+      <div className="text-text-secondary max-w-full ellipsis flex-1">
         {value || '--'}
       </div>
     </div>
@@ -50,12 +50,12 @@ export function Overview({
       </div>
       <div className="overflow-hidden">
         <h2 className="flex items-center">
-          <span className="text-base font-medium">Farcaster</span>{' '}
-          <span className="text-xs text-[#8B8EA0 flex items-center ml-1">
+          <span className="text-base font-medium">{channelDetails?.name}</span>{' '}
+          <span className="text-xs text-[#8B8EA0] flex items-center ml-1">
             /{' '}
             <span
               data-loader-type="block"
-              className={classNames('ml-1', {
+              className={classNames('text-[#8B8EA0]', {
                 'inline-block w-[50px] h-[15px]': loading
               })}
             >
