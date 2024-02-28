@@ -96,7 +96,7 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
         <div className="flex-row-center">
           <button
             id="download-csv"
-            className="bg-text-button hover:opacity-90 text-white rounded-18 font-medium px-5 py-1.5 mr-5 flex-row-center"
+            className="bg-text-button hover:opacity-90 text-white rounded-18 font-medium px-5 py-1.5 mr-5 flex-row-center disabled:cursor-not-allowed disabled:opacity-80"
             disabled={options.length === 0 || loading}
             onClick={
               showDesktopNudgeModal ? handleModalOpen : handleDownloadClick

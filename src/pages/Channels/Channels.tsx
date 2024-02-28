@@ -19,6 +19,7 @@ import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { useCsvDownloadOptions } from '../../store/csvDownload';
 import { ShareURLDropdown } from '../../Components/ShareURLDropdown';
 import { useChannelApiOptions } from './useChannelApiOptions';
+import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDropdown';
 
 export function Channels() {
   const isHome = useMatch('/');
@@ -74,6 +75,13 @@ export function Channels() {
                   options={optionsGetAPI}
                   dropdownAlignment="right"
                 />
+                <div className="ml-3.5">
+                  <CSVDownloadDropdown
+                    options={[]}
+                    toolTipContent="coming coon"
+                    disabled
+                  />
+                </div>
                 <div className="ml-3.5">
                   <ShareURLDropdown dropdownAlignment="right" />
                 </div>
