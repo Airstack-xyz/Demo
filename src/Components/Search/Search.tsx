@@ -189,7 +189,12 @@ export const Search = memo(function Search() {
       });
 
       if (address.length === 0) {
-        showToast("Couldn't find any contract", 'negative');
+        showToast(
+          actualActiveTab === 'channels'
+            ? "Couldn't find any channel"
+            : "Couldn't find any contract",
+          'negative'
+        );
         return;
       }
 
@@ -210,7 +215,7 @@ export const Search = memo(function Search() {
       setValue(rawTextWithMentions + PADDING);
       handleDataChange(filterValues);
     },
-    [handleDataChange]
+    [actualActiveTab, handleDataChange]
   );
 
   const shouldShowCombinationPlaceholder = useMemo(() => {

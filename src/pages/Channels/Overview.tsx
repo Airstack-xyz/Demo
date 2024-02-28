@@ -5,10 +5,21 @@ import ImageWithFallback from '../../Components/ImageWithFallback';
 import { farcasterPlaceholderImage } from './constants';
 import classNames from 'classnames';
 
-function KeyValue({ label, value }: { label: string; value?: ReactNode }) {
+function KeyValue({
+  label,
+  value,
+  className
+}: {
+  label: string;
+  value?: ReactNode;
+  className?: string;
+}) {
   return (
-    <div className="mt-3.5 flex items-center" data-loader-type="block">
-      <div className="text-text-primary w-40 mr-2">{label}</div>
+    <div
+      className={classNames('mt-3.5 flex items-center', className)}
+      data-loader-type="block"
+    >
+      <div className="text-text-primary w-40 min-w-[10rem] mr-2">{label}</div>
       <div className="text-text-secondary max-w-full ellipsis flex-1">
         {value || '--'}
       </div>
@@ -33,7 +44,7 @@ export function Overview({
   return (
     <div
       className={classNames(
-        'bg-glass p-3.5 flex items-center border border-solid border-stroke-color my-9 rounded-18',
+        'bg-transparent sm:bg-glass p-3.5 flex flex-col sm:flex-row items-center sm:border border-solid border-stroke-color my-9 rounded-18 overflow-hidden',
         {
           'skeleton-loader': loading
         }
@@ -50,11 +61,14 @@ export function Overview({
           className="h-full rounded-md overflow-hidden"
         />
       </div>
-      <div className="overflow-hidden">
+      <div className="overflow-hidden w-full">
         <h2
-          className={classNames('flex items-center', {
-            'inline-block w-[100px] h-[20px]': loading
-          })}
+          className={classNames(
+            'flex items-center justify-center sm:justify-start my-5 sm:my-0',
+            {
+              'inline-block w-[100px] h-[20px]': loading
+            }
+          )}
           data-loader-type="block"
         >
           <span className="text-base font-medium">{channelDetails?.name}</span>{' '}
@@ -66,7 +80,11 @@ export function Overview({
           </span>
         </h2>
         <div className="text-sm">
-          <KeyValue label="Description" value={channelDetails?.description} />
+          <KeyValue
+            label="Description"
+            value={channelDetails?.description}
+            className="xs:items-start sm:!items-center xs:[&>div:last-child]:whitespace-normal sm:whitespace-nowrap"
+          />
           <KeyValue
             label="Host"
             value={channelDetails?.leadProfiles?.[0]?.profileName}
@@ -76,7 +94,10 @@ export function Overview({
             value={
               channelDetails?.url ? (
                 <span className="flex items-center ellipsis">
-                  <span className="mr-2"> {channelDetails?.url}</span>
+                  <span className="mr-2 flex-1 ellipsis">
+                    {' '}
+                    {channelDetails?.url}
+                  </span>
                   <CopyButton value={channelDetails?.url} />
                 </span>
               ) : null

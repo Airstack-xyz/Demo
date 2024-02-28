@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import { Link, useLocation } from 'react-router-dom';
 import { Icon, IconType } from '../Icon';
+import { isMobileDevice } from '../../utils/isMobileDevice';
 
 const tabClass =
   'px-2.5 h-[30px] rounded-full mr-3 flex-row-center text-xs text-text-secondary border border-solid border-transparent';
@@ -12,19 +13,22 @@ export type TabUrl = 'token-balances' | 'token-holders' | 'channels';
 
 const options: {
   label: string;
+  mobileLabel: string;
   value: TabUrl;
   extraMatch?: string[];
 }[] = [
   {
     label: 'Token balances',
+    mobileLabel: 'Balances',
     value: 'token-balances',
     extraMatch: ['onchain-graph']
   },
-  { label: 'Token holders', value: 'token-holders' },
-  { label: 'Channels', value: 'channels' }
+  { label: 'Token holders', mobileLabel: 'Holders', value: 'token-holders' },
+  { label: 'Channels', mobileLabel: 'Channels', value: 'channels' }
 ];
 
 function TabLinks() {
+  const isMobile = isMobileDevice();
   const activePath = useLocation().pathname;
   return (
     <>
@@ -41,7 +45,7 @@ function TabLinks() {
             })}
           >
             <Icon name={option.value as IconType} className="w-4 mr-1" />{' '}
-            {option.label}
+            {isMobile ? option.mobileLabel : option.label}
           </Link>
         );
       })}
@@ -56,6 +60,7 @@ function TabButtons({
   activeTab: string;
   onTabChange: (activeTab: TabUrl) => void;
 }) {
+  const isMobile = isMobileDevice();
   return (
     <>
       {options.map((option, index) => {
@@ -68,7 +73,7 @@ function TabButtons({
             })}
           >
             <Icon name={option.value as IconType} className="w-4 mr-1" />{' '}
-            {option.label}
+            {isMobile ? option.mobileLabel : option.label}
           </button>
         );
       })}
