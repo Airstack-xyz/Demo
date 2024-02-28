@@ -36,6 +36,7 @@ import {
   getResolvedHolderData
 } from './utils';
 import LazyImage from '../../LazyImage';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
 
 const iconMap: Record<string, string> = {
   lens: '/images/lens.svg',
@@ -134,6 +135,8 @@ function ModalContent() {
   const [{ tokens: _overviewTokens }] = useOverviewTokens(['tokens']);
 
   const [isTokenImagePrimary, setIsTokenPrimaryImage] = useState(false);
+
+  const isMobile = isMobileDevice();
 
   const isOverviewTokensLoading = _overviewTokens?.length === 0;
 
@@ -288,7 +291,7 @@ function ModalContent() {
       <div className="max-sm:mt-8 mt-4">
         <FramePreview
           frameContainerClass="bg-gradient-to-b from-[#122230] to-[#051523] text-white"
-          frameClass="max-sm:aspect-auto aspect-[1.91/1]"
+          frameClass={isMobile ? '!aspect-auto' : '!aspect-[1.91/1]'}
           buttons={frameButtons}
         >
           {renderFrameContent()}
