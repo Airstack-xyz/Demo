@@ -291,7 +291,9 @@ function ModalContent() {
       <div className="max-sm:mt-8 mt-4">
         <FramePreview
           frameContainerClass="bg-gradient-to-b from-[#122230] to-[#051523] text-white"
-          frameClass={isMobile ? '!aspect-auto min-h-full' : '!aspect-[1.91/1]'}
+          frameClass={
+            isMobile ? '!aspect-auto min-h-[200px]' : '!aspect-[1.91/1]'
+          }
           buttons={frameButtons}
         >
           {renderFrameContent()}
