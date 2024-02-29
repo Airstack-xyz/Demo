@@ -588,7 +588,7 @@ export function CSVDownloads() {
                       </div>
                       {isInProgress ||
                         (largeFile && (
-                          <div className="flex items-center ml-2">
+                          <div className="flex items-center ml-2 min-w-[20px]">
                             <button>
                               <Icon
                                 name="cancel-circle"
