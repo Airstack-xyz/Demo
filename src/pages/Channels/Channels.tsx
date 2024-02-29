@@ -20,6 +20,8 @@ import { useCsvDownloadOptions } from '../../store/csvDownload';
 import { ShareURLDropdown } from '../../Components/ShareURLDropdown';
 import { useChannelApiOptions } from './useChannelApiOptions';
 import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDropdown';
+import { CSVDownloadOption } from '../../types';
+import { CsvQueryType } from '../../../__generated__/types';
 
 export function Channels() {
   const isHome = useMatch('/');
@@ -31,16 +33,32 @@ export function Channels() {
 
   const channelId = inputs.address[0] || '';
   const orderBy = inputs.sortOrder === 'ASC' ? OrderBy.Asc : OrderBy.Desc;
+  const channelDetails = data?.FarcasterChannels?.FarcasterChannel?.[0];
+  const channelName = channelDetails?.name || channelId;
 
   const [, setCsvDownloadOptions] = useCsvDownloadOptions(['options']);
 
   const getOptions = useChannelApiOptions();
   const optionsGetAPI = useMemo(() => getOptions(), [getOptions]);
 
+  const csvOptions: CSVDownloadOption[] = useMemo(() => {
+    const name = `Participants of ${channelName} Channel`;
+    return [
+      {
+        label: name,
+        key: CsvQueryType.FarcasterChannelParticipants,
+        fileName: name,
+        variables: {
+          channelId
+        }
+      }
+    ];
+  }, [channelId, channelName]);
+
   useEffect(() => {
     // todo add csv download options
-    setCsvDownloadOptions({ options: [] });
-  }, [optionsGetAPI, setCsvDownloadOptions]);
+    setCsvDownloadOptions({ options: csvOptions });
+  }, [csvOptions, optionsGetAPI, setCsvDownloadOptions]);
 
   useEffect(() => {
     if (channelId) {
@@ -49,8 +67,6 @@ export function Channels() {
       });
     }
   }, [channelId, fetchChannelDetails]);
-
-  const channelDetails = data?.FarcasterChannels?.FarcasterChannel?.[0];
 
   return (
     <div
@@ -72,14 +88,14 @@ export function Channels() {
               />
               <div className="flex items-center">
                 <GetAPIDropdown
+                  disabled={loading}
                   options={optionsGetAPI}
                   dropdownAlignment="right"
                 />
                 <div className="ml-3.5">
                   <CSVDownloadDropdown
-                    options={[]}
-                    toolTipContent="Coming soon"
-                    disabled
+                    options={csvOptions}
+                    disabled={loading}
                   />
                 </div>
                 <div className="ml-3.5">
