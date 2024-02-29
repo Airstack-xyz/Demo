@@ -42,7 +42,7 @@ export function Channels() {
   const optionsGetAPI = useMemo(() => getOptions(), [getOptions]);
 
   const csvOptions: CSVDownloadOption[] = useMemo(() => {
-    const name = `Participants of ${channelName} Channel`;
+    const name = `Participants of ${channelName || 'Channel'}`;
     return [
       {
         label: name,
