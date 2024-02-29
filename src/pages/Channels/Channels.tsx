@@ -49,11 +49,12 @@ export function Channels() {
         key: CsvQueryType.FarcasterChannelParticipants,
         fileName: name,
         variables: {
-          channelId
+          channelId,
+          orderBy
         }
       }
     ];
-  }, [channelId, channelName]);
+  }, [channelId, channelName, orderBy]);
 
   useEffect(() => {
     // todo add csv download options
