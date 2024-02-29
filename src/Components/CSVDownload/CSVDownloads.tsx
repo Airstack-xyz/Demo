@@ -599,20 +599,19 @@ export function CSVDownloads() {
                           {option.label}
                         </span>
                       </div>
-                      {isInProgress ||
-                        (largeFile && (
-                          <div className="flex items-center ml-2 min-w-[20px]">
-                            <button>
-                              <Icon
-                                name="cancel-circle"
-                                onClick={e => {
-                                  e.preventDefault();
-                                  setTaskToCancel(option.id);
-                                }}
-                              />
-                            </button>
-                          </div>
-                        ))}
+                      {(isInProgress || largeFile) && (
+                        <div className="flex items-center ml-2 min-w-[20px]">
+                          <button>
+                            <Icon
+                              name="cancel-circle"
+                              onClick={e => {
+                                e.preventDefault();
+                                setTaskToCancel(option.id);
+                              }}
+                            />
+                          </button>
+                        </div>
+                      )}
                     </div>
                     <div className="ml-5">
                       {status === Status.Completed && (
