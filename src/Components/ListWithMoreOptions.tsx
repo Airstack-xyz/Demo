@@ -5,7 +5,7 @@ const maxItemCount = 7;
 const minItemCount = 1;
 
 export function ListWithMoreOptions({
-  list,
+  list = [],
   listFor,
   onShowMore,
   onItemClick

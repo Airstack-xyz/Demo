@@ -20,7 +20,18 @@ export const getSearchItemMention = (
   return `#⎱${displayLabel}⎱(${address}  ethereum null)`;
 };
 
-const SEARCH_TERM_REGEX = /\b([a-zA-Z0-9_.:/@]{3,})$/;
+export const getChannelSearchItemMention = (
+  channelName: string,
+  channelId: string,
+  truncateLabel?: boolean
+) => {
+  const displayLabel = truncateLabel
+    ? truncateMentionLabel(channelName)
+    : channelName;
+  return `#⎱${displayLabel}⎱(${channelId}  null null)`;
+};
+
+const SEARCH_TERM_REGEX = /\b([a-zA-Z0-9_.:/@-]{3,})$/;
 
 // regex to stop searching if query matches it
 const SEARCH_STOP_REGEX = /^((fc_fname:|lens\/@).*|.*(.lens))$/;

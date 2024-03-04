@@ -1,7 +1,7 @@
-export type SearchDataType = {
+export type SearchDataType<T> = {
   isLoading: boolean;
   isError?: boolean;
-  items: SocialSearchItem[] | null;
+  items: T[] | null;
   focusIndex: number | null;
 };
 

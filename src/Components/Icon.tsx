@@ -72,7 +72,8 @@ export type IconType =
   | 'file-arrow-down'
   | 'chain'
   | 'frame'
-  | 'customize';
+  | 'customize'
+  | 'channels';
 
 export type IconProps = {
   name: IconType;

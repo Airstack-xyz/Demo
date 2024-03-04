@@ -1,6 +1,11 @@
 /* eslint-disable react-refresh/only-export-components */
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { useMatch, useNavigate, useSearchParams } from 'react-router-dom';
+import {
+  useLocation,
+  useMatch,
+  useNavigate,
+  useSearchParams
+} from 'react-router-dom';
 import {
   CachedQuery,
   UserInputs,
@@ -9,9 +14,13 @@ import {
 } from '../../hooks/useSearchInput';
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
 import { showToast } from '../../utils/showToast';
-import { getAllMentionDetails, getAllWordsAndMentions } from '../Input/utils';
-import { SearchInputSection } from './SearchInputSection';
-import { SearchTabSection } from './SearchTabSection';
+import {
+  getAllMentionDetails,
+  getAllWordsAndMentions,
+  isSolanaAddress
+} from '../Input/utils';
+import { EnabledSearchType, SearchInputSection } from './SearchInputSection';
+import { SearchTabSection, TabUrl } from './SearchTabSection';
 import { addAndRemoveCombinationPlaceholder } from './utils';
 
 export const tokenHoldersPlaceholder =
@@ -19,21 +28,36 @@ export const tokenHoldersPlaceholder =
 export const tokenBalancesPlaceholder =
   'Search profiles by name OR Enter 0x, name.eth, fc_fname:name, lens/@name';
 
+const channelsPlaceholder = 'Search Farcaster channels by name';
+
+const placeholderMap: Record<TabUrl, string> = {
+  'token-balances': tokenBalancesPlaceholder,
+  'token-holders': tokenHoldersPlaceholder,
+  channels: channelsPlaceholder
+};
+
+const enabledSearchMap: Record<TabUrl, EnabledSearchType> = {
+  'token-balances': 'SOCIAL_SEARCH',
+  'token-holders': 'ADVANCED_MENTION_SEARCH',
+  channels: 'CHANNEL_SEARCH'
+};
+
 export const ALLOWED_ADDRESS_REGEX =
   /0x[a-fA-F0-9]+|.*\.(eth|lens|cb\.id)|(fc_fname:|fc_fid:|lens\/@).*/;
 
 export const PADDING = '  ';
 
 export const Search = memo(function Search() {
-  const [isTokenBalanceActive, setIsTokenBalanceActive] = useState(true);
+  const [activeTab, setCurrentTab] = useState<TabUrl>('token-balances');
+  const activePath = useLocation().pathname.replace('/', '') as TabUrl;
   const isHome = !!useMatch('/');
-  const isTokenBalancesPage = !!useMatch('/token-balances');
   const [searchParams] = useSearchParams();
   const [, setOverviewTokens] = useOverviewTokens(['tokens']);
 
-  const isTokenBalances = isHome ? isTokenBalanceActive : isTokenBalancesPage;
+  const actualActiveTab = isHome ? activeTab : activePath;
+  const isTokenBalances = actualActiveTab === 'token-balances';
 
-  const [{ rawInput }, setData] = useSearchInput(isTokenBalances);
+  const [{ rawInput }, setData] = useSearchInput(isHome ? activeTab : null);
   const navigate = useNavigate();
 
   const [value, setValue] = useState(rawInput ? rawInput.trim() + PADDING : '');
@@ -63,7 +87,7 @@ export const Search = memo(function Search() {
         setData(data, {
           updateQueryParams: true,
           reset: isTokenBalances,
-          redirectTo: isTokenBalances ? '/token-balances' : '/token-holders'
+          redirectTo: activeTab
         });
         return;
       }
@@ -72,7 +96,7 @@ export const Search = memo(function Search() {
         reset: isTokenBalances
       });
     },
-    [isHome, isTokenBalances, setData, setOverviewTokens]
+    [activeTab, isHome, isTokenBalances, setData, setOverviewTokens]
   );
 
   const handleTokenBalancesSearch = useCallback(
@@ -88,7 +112,9 @@ export const Search = memo(function Search() {
         }
 
         // check if it is a valid address
-        const isValid = ALLOWED_ADDRESS_REGEX.test(word);
+        const isValid =
+          ALLOWED_ADDRESS_REGEX.test(word) || isSolanaAddress(word);
+
         if (!isValid) return;
 
         address.push(word);
@@ -169,7 +195,12 @@ export const Search = memo(function Search() {
       });
 
       if (address.length === 0) {
-        showToast("Couldn't find any contract", 'negative');
+        showToast(
+          actualActiveTab === 'channels'
+            ? "Couldn't find any channel"
+            : "Couldn't find any contract",
+          'negative'
+        );
         return;
       }
 
@@ -190,7 +221,7 @@ export const Search = memo(function Search() {
       setValue(rawTextWithMentions + PADDING);
       handleDataChange(filterValues);
     },
-    [handleDataChange]
+    [actualActiveTab, handleDataChange]
   );
 
   const shouldShowCombinationPlaceholder = useMemo(() => {
@@ -200,11 +231,14 @@ export const Search = memo(function Search() {
   }, [rawInput, value]);
 
   useEffect(() => {
+    if (actualActiveTab === 'channels') {
+      return;
+    }
     return addAndRemoveCombinationPlaceholder(
       shouldShowCombinationPlaceholder,
       isTokenBalances
     );
-  }, [isTokenBalances, shouldShowCombinationPlaceholder]);
+  }, [actualActiveTab, isTokenBalances, shouldShowCombinationPlaceholder]);
 
   const handleSubmit = useCallback(
     (mentionValue: string) => {
@@ -230,33 +264,30 @@ export const Search = memo(function Search() {
   );
 
   const handleTabChange = useCallback(
-    (isTokenBalance: boolean) => {
+    (pathname: TabUrl) => {
       if (!isHome) {
         setValue('');
         navigate({
-          pathname: isTokenBalance ? '/token-balances' : '/token-holders'
+          pathname
         });
       } else {
-        setIsTokenBalanceActive(prev => !prev);
+        setCurrentTab(pathname);
       }
     },
     [isHome, navigate]
   );
 
-  const placeholder = isTokenBalances
-    ? tokenBalancesPlaceholder
-    : tokenHoldersPlaceholder;
+  const placeholder = placeholderMap[actualActiveTab] || '';
 
-  const enabledSearchType = isTokenBalances
-    ? 'SOCIAL_SEARCH'
-    : 'ADVANCED_MENTION_SEARCH';
+  const enabledSearchType =
+    enabledSearchMap[actualActiveTab] || 'SOCIAL_SEARCH';
 
   return (
     <div className="relative">
       <div className="my-6 flex-col-center">
         <SearchTabSection
           isHome={isHome}
-          isTokenBalances={isTokenBalances}
+          activeTab={activeTab}
           onTabChange={handleTabChange}
         />
       </div>

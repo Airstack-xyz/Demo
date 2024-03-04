@@ -5,7 +5,10 @@ import {
   useNavigate,
   useSearchParams
 } from 'react-router-dom';
-import { getAllWordsAndMentions } from '../../Components/Input/utils';
+import {
+  getAllWordsAndMentions,
+  isSolanaAddress
+} from '../../Components/Input/utils';
 import {
   ALLOWED_ADDRESS_REGEX,
   PADDING,
@@ -13,7 +16,10 @@ import {
   tokenHoldersPlaceholder
 } from '../../Components/Search/Search';
 import { SearchInputSection } from '../../Components/Search/SearchInputSection';
-import { SearchTabSection } from '../../Components/Search/SearchTabSection';
+import {
+  SearchTabSection,
+  TabUrl
+} from '../../Components/Search/SearchTabSection';
 import { addAndRemoveCombinationPlaceholder } from '../../Components/Search/utils';
 import { userInputCache } from '../../hooks/useSearchInput';
 import { useOverviewTokens } from '../../store/tokenHoldersOverview';
@@ -76,7 +82,9 @@ export const Search = memo(function Search() {
         }
 
         // check if it is a valid address
-        const isValid = ALLOWED_ADDRESS_REGEX.test(word);
+        const isValid =
+          ALLOWED_ADDRESS_REGEX.test(word) || isSolanaAddress(word);
+
         if (!isValid) return;
 
         address.push(word);
@@ -131,9 +139,9 @@ export const Search = memo(function Search() {
   );
 
   const handleTabChange = useCallback(
-    (tokenBalance: boolean) => {
+    (pathname: TabUrl) => {
       navigate({
-        pathname: tokenBalance ? '/token-balances' : '/token-holders'
+        pathname
       });
     },
     [navigate]
@@ -143,23 +151,19 @@ export const Search = memo(function Search() {
     ? tokenBalancesPlaceholder
     : tokenHoldersPlaceholder;
 
-  const enabledSearchType = isTokenBalances
-    ? 'SOCIAL_SEARCH'
-    : 'ADVANCED_MENTION_SEARCH';
-
   return (
     <div className="relative z-10">
       <div className="my-6 flex-col-center">
         <SearchTabSection
           isHome={isHome}
-          isTokenBalances={isTokenBalances}
+          activeTab="token-balances"
           onTabChange={handleTabChange}
         />
       </div>
       <SearchInputSection
         value={value}
         placeholder={placeholder}
-        enabledSearchType={enabledSearchType}
+        enabledSearchType={'SOCIAL_SEARCH'}
         showPrefixSearchIcon={isHome}
         onValueChange={setValue}
         onValueSubmit={handleSubmit}

@@ -395,14 +395,25 @@ export function CSVDownloads() {
     });
   }, [tasks]);
 
+  const removeFailedFromActiveTasks = useCallback(() => {
+    const savedActiveTasks = getActiveDownload();
+
+    tasks.forEach(task => {
+      if (!task.isActive && savedActiveTasks.includes(task.id.toString())) {
+        removeFromActiveDownload(task.id);
+      }
+    });
+  }, [tasks]);
+
   const showDownload = useCallback(() => {
     setNewTaskAdded(false);
     setFileDownloaded(false);
     setTaskFailed(false);
     setFoundLargeDataset(false);
     removeCompletedFromActiveTasks();
+    removeFailedFromActiveTasks();
     getHistory();
-  }, [getHistory, removeCompletedFromActiveTasks]);
+  }, [getHistory, removeCompletedFromActiveTasks, removeFailedFromActiveTasks]);
 
   const closeFilterPreparation = useCallback(() => {
     setNewTaskAdded(false);
@@ -442,6 +453,7 @@ export function CSVDownloads() {
         <Failed
           onClose={() => {
             setTaskFailed(false);
+            removeFailedFromActiveTasks();
           }}
         />
       );
@@ -462,6 +474,7 @@ export function CSVDownloads() {
     foundLargeDataset,
     newTaskAdded,
     removeCompletedFromActiveTasks,
+    removeFailedFromActiveTasks,
     taskFailed
   ]);
 
@@ -586,8 +599,8 @@ export function CSVDownloads() {
                           {option.label}
                         </span>
                       </div>
-                      {isInProgress && (
-                        <div className="flex items-center ml-2">
+                      {(isInProgress || largeFile) && (
+                        <div className="flex items-center ml-2 min-w-[20px]">
                           <button>
                             <Icon
                               name="cancel-circle"

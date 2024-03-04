@@ -8,6 +8,7 @@ import { CSVDownloadOption } from '../../types';
 import { useCallback, useState } from 'react';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Modal } from '../Modal';
+import { useChannelApiOptions } from '../../pages/Channels/useChannelApiOptions';
 
 function DownloadIcon() {
   return (
@@ -50,9 +51,14 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
   const { options } = useCsvDownloadOptions(['options'])[0];
   const [estimateTask, { loading }] = useEstimateTask();
   const isTokenBalancesPage = !!useMatch('/token-balances');
+  const isChannels = !!useMatch('/channels');
   const getTokenBalanceLink = useTokenBalancesLinks();
   const getTokenHoldersLink = useTokenHoldersLinks();
-  const apiLink = isTokenBalancesPage
+  const getChannelLinks = useChannelApiOptions();
+
+  const apiLink = isChannels
+    ? getChannelLinks()[1]?.link
+    : isTokenBalancesPage
     ? getTokenBalanceLink()
     : getTokenHoldersLink();
 
@@ -90,7 +96,7 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
         <div className="flex-row-center">
           <button
             id="download-csv"
-            className="bg-text-button hover:opacity-90 text-white rounded-18 font-medium px-5 py-1.5 mr-5 flex-row-center"
+            className="bg-text-button hover:opacity-90 text-white rounded-18 font-medium px-5 py-1.5 mr-5 flex-row-center disabled:cursor-not-allowed disabled:opacity-80"
             disabled={options.length === 0 || loading}
             onClick={
               showDesktopNudgeModal ? handleModalOpen : handleDownloadClick

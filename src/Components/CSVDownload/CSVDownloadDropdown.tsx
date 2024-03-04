@@ -32,13 +32,15 @@ export function CSVDownloadDropdown({
   disabled,
   dropdownAlignment = 'right',
   hideFooter,
-  hideDesktopNudge
+  hideDesktopNudge,
+  toolTipContent
 }: {
   options: CSVDownloadOption[];
   disabled?: boolean;
   dropdownAlignment?: 'left' | 'center' | 'right';
   hideFooter?: boolean;
   hideDesktopNudge?: boolean;
+  toolTipContent?: string;
 }) {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -85,7 +87,10 @@ export function CSVDownloadDropdown({
         ref={containerRef}
       >
         <Tooltip
-          content="Download the response in CSV format"
+          content={toolTipContent || 'Download the response in CSV format'}
+          className={classNames({
+            'cursor-not-allowed opacity-80': disabled
+          })}
           contentClassName={tooltipClass}
           disabled={isDropdownVisible}
         >

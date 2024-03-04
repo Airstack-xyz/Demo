@@ -1,11 +1,12 @@
 import {
   SetURLSearchParams,
   createSearchParams,
-  useMatch,
+  useLocation,
   useNavigate,
   useSearchParams
 } from 'react-router-dom';
 import { useCallback, useMemo } from 'react';
+import { TabUrl } from '../Components/Search/SearchTabSection';
 
 export type CachedQuery = {
   address: string[];
@@ -31,7 +32,14 @@ export type UserInputs = CachedQuery;
 
 export const userInputCache = {
   tokenBalance: {} as UserInputs,
-  tokenHolder: {} as UserInputs
+  tokenHolder: {} as UserInputs,
+  channels: {} as UserInputs
+};
+
+const urlToPathMap: Record<TabUrl, keyof typeof userInputCache> = {
+  'token-balances': 'tokenBalance',
+  'token-holders': 'tokenHolder',
+  channels: 'channels'
 };
 
 export type UpdateUserInputs = (
@@ -58,16 +66,13 @@ export function resetCachedUserInputs(
 }
 
 export function useSearchInput(
-  isTokenBalancesPage?: boolean
+  activeStoreName?: TabUrl | null
 ): [UserInputs, UpdateUserInputs, SetURLSearchParams] {
-  let isTokenBalances = !!useMatch('/token-balances');
-  const isHome = useMatch('/');
   const navigate = useNavigate();
-
-  if (isHome) {
-    isTokenBalances =
-      isTokenBalancesPage !== undefined ? isTokenBalancesPage : true;
-  }
+  const activePath = useLocation().pathname.replace('/', '') as TabUrl;
+  const activeStore =
+    urlToPathMap[activeStoreName || activePath] || 'tokenBalance';
+  const isTokenBalances = activeStoreName === 'token-balances';
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -79,18 +84,12 @@ export function useSearchInput(
         (data?.tokenFilters &&
           userInputCache.tokenHolder?.tokenFilters?.length > 0);
 
-      if (isTokenBalances) {
+      if (activeStore in userInputCache) {
         inputs = {
-          ...(config?.reset ? {} : userInputCache.tokenBalance),
+          ...(config?.reset ? {} : userInputCache[activeStore]),
           ...data
         };
-        userInputCache.tokenBalance = inputs as UserInputs;
-      } else {
-        inputs = {
-          ...(config?.reset ? {} : userInputCache.tokenHolder),
-          ...data
-        };
-        userInputCache.tokenHolder = inputs as UserInputs;
+        userInputCache[activeStore] = inputs as UserInputs;
       }
 
       if (config?.updateQueryParams) {
@@ -119,7 +118,7 @@ export function useSearchInput(
         });
       }
     },
-    [isTokenBalances, navigate, setSearchParams]
+    [activeStore, navigate, setSearchParams]
   );
 
   const getData = useCallback(
@@ -127,12 +126,10 @@ export function useSearchInput(
       key: keyof CachedQuery,
       isArray?: T
     ): T extends true ? string[] : string => {
-      const { tokenBalance, tokenHolder } = userInputCache;
+      const store = userInputCache[activeStore];
       const valueString = searchParams.get(key) || '';
 
-      const savedValue =
-        (isTokenBalances ? tokenBalance[key] : tokenHolder[key]) ||
-        (isArray ? [] : '');
+      const savedValue = store[key] || (isArray ? [] : '');
 
       let value = isArray
         ? valueString
@@ -151,7 +148,7 @@ export function useSearchInput(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return value as any;
     },
-    [isTokenBalances, searchParams]
+    [activeStore, searchParams]
   );
 
   return useMemo(() => {

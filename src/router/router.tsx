@@ -1,4 +1,5 @@
 import { Layout } from '../Components/Layout';
+import { Channels } from '../pages/Channels';
 import { Home } from '../pages/home';
 import { OnChainGraphPage } from '../pages/OnchainGraph';
 import PaymentSuccess from '../pages/PaymentSuccess';
@@ -26,6 +27,10 @@ const router = createBrowserRouter([
       {
         path: '/onchain-graph', // identity: string, ref: string
         element: <OnChainGraphPage />
+      },
+      {
+        path: '/channels',
+        element: <Channels />
       }
     ]
   },

@@ -8,8 +8,9 @@ import AdvancedMentionSearch from './AdvancedMentionSearch';
 import SocialSearch from './SocialSearch';
 import { getSocialSearchQueryData } from './SocialSearch/utils';
 
-type EnabledSearchType =
+export type EnabledSearchType =
   | 'SOCIAL_SEARCH' // social type-ahead infinite dropdown list search
+  | 'CHANNEL_SEARCH' // channel type-ahead infinite dropdown list search
   | 'ADVANCED_MENTION_SEARCH' // advanced @mention infinite grid search with filters
   | 'MENTION_SEARCH' // default @mention dropdown list search
   | null;
@@ -56,7 +57,9 @@ export function SearchInputSection({
 
   const isMobile = isMobileDevice();
 
-  const isSocialSearchEnabled = enabledSearchType === 'SOCIAL_SEARCH';
+  const isSocialSearchEnabled =
+    enabledSearchType === 'SOCIAL_SEARCH' ||
+    enabledSearchType === 'CHANNEL_SEARCH';
   const isAdvancedMentionSearchEnabled =
     enabledSearchType === 'ADVANCED_MENTION_SEARCH';
 
@@ -263,6 +266,7 @@ export function SearchInputSection({
           <>
             <SocialSearch
               {...socialSearchData}
+              searchType={enabledSearchType}
               mentionInputRef={mentionInputRef}
               mentionValue={value}
               onChange={handleSubmitAfterDelay}

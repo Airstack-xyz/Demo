@@ -1,83 +1,101 @@
 import classNames from 'classnames';
-import { Link } from 'react-router-dom';
-import { Icon } from '../Icon';
+import { Link, useLocation } from 'react-router-dom';
+import { Icon, IconType } from '../Icon';
+import { isMobileDevice } from '../../utils/isMobileDevice';
 
 const tabClass =
-  'px-2.5 h-[30px] rounded-full mr-5 flex-row-center text-xs text-text-secondary border border-solid border-transparent';
+  'px-2.5 h-[30px] rounded-full mr-3 flex-row-center text-xs text-text-secondary border border-solid border-transparent';
 
 const activeTabClass =
   'bg-glass !border-stroke-color font-bold !text-text-primary';
 
-function TabLinks({ isTokenBalances }: { isTokenBalances: boolean }) {
+export type TabUrl = 'token-balances' | 'token-holders' | 'channels';
+
+const options: {
+  label: string;
+  mobileLabel: string;
+  value: TabUrl;
+  extraMatch?: string[];
+}[] = [
+  {
+    label: 'Token balances',
+    mobileLabel: 'Balances',
+    value: 'token-balances',
+    extraMatch: ['onchain-graph']
+  },
+  { label: 'Token holders', mobileLabel: 'Holders', value: 'token-holders' },
+  { label: 'Channels', mobileLabel: 'Channels', value: 'channels' }
+];
+
+function TabLinks() {
+  const isMobile = isMobileDevice();
+  const activePath = useLocation().pathname;
   return (
     <>
-      <Link
-        to="/token-balances"
-        className={classNames(tabClass, {
-          [activeTabClass]: isTokenBalances
-        })}
-      >
-        <Icon name="token-balances" className="w-4 mr-1" /> Token balances
-      </Link>
-      <Link
-        to="/token-holders"
-        className={classNames(tabClass, {
-          [activeTabClass]: !isTokenBalances
-        })}
-      >
-        <Icon name="token-holders" className="w-4 mr-1" /> Token holders
-      </Link>
+      {options.map((option, index) => {
+        const isActive =
+          activePath.includes(option.value) ||
+          (option.extraMatch || []).some(match => activePath.includes(match));
+        return (
+          <Link
+            key={index}
+            to={`/${option.value}`}
+            className={classNames(tabClass, {
+              [activeTabClass]: isActive
+            })}
+          >
+            <Icon name={option.value as IconType} className="w-4 mr-1" />{' '}
+            {isMobile ? option.mobileLabel : option.label}
+          </Link>
+        );
+      })}
     </>
   );
 }
 
 function TabButtons({
-  isTokenBalances,
+  activeTab,
   onTabChange
 }: {
-  isTokenBalances: boolean;
-  onTabChange: (isTokenBalances: boolean) => void;
+  activeTab: string;
+  onTabChange: (activeTab: TabUrl) => void;
 }) {
+  const isMobile = isMobileDevice();
   return (
     <>
-      <button
-        onClick={() => onTabChange(true)}
-        className={classNames(tabClass, {
-          [activeTabClass]: isTokenBalances
-        })}
-      >
-        <Icon name="token-balances" className="w-4 mr-1" /> Token balances
-      </button>
-      <button
-        onClick={() => onTabChange(false)}
-        className={classNames(tabClass, {
-          [activeTabClass]: !isTokenBalances
-        })}
-      >
-        <Icon name="token-holders" className="w-4 mr-1" /> Token holders
-      </button>
+      {options.map((option, index) => {
+        return (
+          <button
+            key={index}
+            onClick={() => onTabChange(option.value)}
+            className={classNames(tabClass, {
+              [activeTabClass]: activeTab === option.value
+            })}
+          >
+            <Icon name={option.value as IconType} className="w-4 mr-1" />{' '}
+            {isMobile ? option.mobileLabel : option.label}
+          </button>
+        );
+      })}
     </>
   );
 }
 
 export function SearchTabSection({
   isHome,
-  isTokenBalances,
+  activeTab,
   onTabChange
 }: {
   isHome: boolean;
-  isTokenBalances: boolean;
-  onTabChange: (isTokenBalances: boolean) => void;
+  activeTab: TabUrl;
+  onTabChange: (activeTab: TabUrl) => void;
 }) {
   return (
     <div className="bg-glass bg-secondary border flex p-1 rounded-full">
       {isHome ? (
-        <TabButtons
-          isTokenBalances={isTokenBalances}
-          onTabChange={onTabChange}
-        />
+        <TabButtons activeTab={activeTab} onTabChange={onTabChange} />
       ) : (
-        <TabLinks isTokenBalances={isTokenBalances} />
+        <TabLinks />
       )}
     </div>
   );
