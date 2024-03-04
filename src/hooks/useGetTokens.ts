@@ -62,8 +62,8 @@ export function useGetTokens() {
         tokenId: tokenBalance?.tokenId || '',
         tokenAddress: tokenBalance?.tokenAddress || '',
         image:
-          tokenBalance?.token?.logo?.small ||
           tokenBalance?.tokenNfts?.contentValue?.image?.small ||
+          tokenBalance?.token?.logo?.small ||
           tokenBalance?.token?.projectDetails?.imageUrl ||
           '',
         tokenType: tokenBalance?.tokenType,
