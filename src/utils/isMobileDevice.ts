@@ -2,5 +2,7 @@
 const SMALL_SCREEN_WIDTH = 858;
 
 export function isMobileDevice() {
-  return window && window.innerWidth <= SMALL_SCREEN_WIDTH;
+  return (
+    typeof window !== 'undefined' && window.innerWidth <= SMALL_SCREEN_WIDTH
+  );
 }

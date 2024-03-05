@@ -163,23 +163,23 @@ export function OnchainGraphContextProvider({
       const updatedRecommendations = cb(recommendationsRef.current);
       recommendationsRef.current = updatedRecommendations;
       const score = getDefaultScoreMap();
-      const sortedData = await worker.sortFilterAndRankData(
+      const sortedData = await worker?.sortFilterAndRankData(
         updatedRecommendations,
         score,
         userIdentitiesRef.current
       );
-      _setData(sortedData);
+      _setData(sortedData || []);
     },
     []
   );
 
   const sortDataUsingScore = useCallback(async (score: ScoreMap) => {
-    const sortedData = await worker.sortFilterAndRankData(
+    const sortedData = await worker?.sortFilterAndRankData(
       recommendationsRef.current,
       score,
       userIdentitiesRef.current
     );
-    _setData(sortedData);
+    _setData(sortedData || []);
   }, []);
 
   const reset = useCallback(() => {

@@ -181,14 +181,18 @@ export function isBurnedAddress(address?: string) {
   );
 }
 
-const _worker = new Worker(new URL('./worker/worker', import.meta.url), {
-  type: 'module'
-});
+export function getWorker() {
+  if (typeof window === 'undefined') return null;
+  const _worker = new Worker(new URL('./worker/worker', import.meta.url), {
+    type: 'module'
+  });
+  return Comlink.wrap<{
+    sortFilterAndRankData: (
+      recommendations: RecommendedUser[],
+      scoreMap: ScoreMap,
+      identities: string[]
+    ) => RecommendedUser[];
+  }>(_worker);
+}
 
-export const worker = Comlink.wrap<{
-  sortFilterAndRankData: (
-    recommendations: RecommendedUser[],
-    scoreMap: ScoreMap,
-    identities: string[]
-  ) => RecommendedUser[];
-}>(_worker);
+export const worker = getWorker();

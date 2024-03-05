@@ -10,8 +10,24 @@ const nextConfig = {
     PRIVY_APP_ID: process.env.PRIVY_APP_ID,
     AIRSTACK_ENDPOINT: process.env.AIRSTACK_ENDPOINT,
     FRAMES_ENDPOINT: process.env.FRAMES_ENDPOINT,
-    APP_BASE_URL: process.env.APP_BASE_URL,
+    APP_BASE_URL: process.env.APP_BASE_URL
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'assets.airstack.xyz'
+      },
+      {
+        protocol: 'https',
+        hostname: 'assets.uat.airstack.xyz'
+      },
+      {
+        protocol: 'https',
+        hostname: 'i.imgur.com'
+      }
+    ]
+  }
 };
 
 export default nextConfig;
