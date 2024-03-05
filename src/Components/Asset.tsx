@@ -1,12 +1,14 @@
 import { Asset as AirstackAsset } from '@airstack/airstack-react';
 import { ComponentProps, useState } from 'react';
 import { checkBlockchainSupportForToken } from '../utils/activeTokenInfoString';
+import { Image as Img } from '@/Components/Image';
 
 export function Image(props: ComponentProps<'img'>) {
   const [error, setError] = useState(false);
   if (error || !props.src) {
     return (
-      <Image
+      // @ts-ignore
+      <Img
         data-type="image-error-placeholder"
         {...props}
         src="images/placeholder.svg"
