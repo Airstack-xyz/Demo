@@ -1,6 +1,5 @@
 import { Icon } from '../../../Components/Icon';
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function XMTP() {
   return (
     <span className="flex items-center">

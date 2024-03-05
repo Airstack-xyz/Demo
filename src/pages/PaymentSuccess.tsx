@@ -10,6 +10,7 @@ import { showToast } from '../utils/showToast';
 import { GetCheckoutSessionStatusQueryVariables } from '../../__generated__/types';
 import { decode } from '../utils/encode';
 import { useAppQuery } from '../hooks/useAppQuery';
+import { Image } from '@/Components/Image';
 
 const successToastMessage =
   'credit card successfully added. You are on builder plan now!';
@@ -95,7 +96,6 @@ export default function PaymentSuccess() {
     [getStatus, handlePaymentComplete, redirectToOrigin]
   );
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const timeoutRef = useRef<any>(null);
   useEffect(() => {
     if (id && loggedIn) {
@@ -134,7 +134,7 @@ export default function PaymentSuccess() {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen w-screen">
-      <img
+      <Image
         alt="loader"
         src="/images/loaders/airstack-logo-loader.gif"
         width={50}

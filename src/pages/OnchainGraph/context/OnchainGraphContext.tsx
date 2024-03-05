@@ -61,7 +61,6 @@ export interface SocialData {
   };
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const onChainGraphContext =
   createContext<OnchainGraphContextType | null>(null);
 

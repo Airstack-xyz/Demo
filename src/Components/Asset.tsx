@@ -6,7 +6,7 @@ export function Image(props: ComponentProps<'img'>) {
   const [error, setError] = useState(false);
   if (error || !props.src) {
     return (
-      <img
+      <Image
         data-type="image-error-placeholder"
         {...props}
         src="images/placeholder.svg"
@@ -14,7 +14,7 @@ export function Image(props: ComponentProps<'img'>) {
     );
   }
   return (
-    <img data-type="placeholder" onError={() => setError(true)} {...props} />
+    <Image data-type="placeholder" onError={() => setError(true)} {...props} />
   );
 }
 
@@ -44,7 +44,7 @@ export function Asset({
         useImageOnError && image ? (
           <Image {...props.imgProps} src={image} />
         ) : (
-          <img
+          <Image
             {...props.imgProps}
             src="images/placeholder.svg"
             data-type="error-placeholder"
@@ -53,7 +53,7 @@ export function Asset({
         )
       }
       loading={
-        <img
+        <Image
           {...props.imgProps}
           src="images/placeholder.svg"
           data-type="loading-placeholder"

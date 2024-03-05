@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useMatch } from 'react-router-dom';
+import { useMatch } from '@/hooks/useMatch';
 import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDropdown';
 import { AdvancedSettings } from '../../Components/Filters/AdvancedSettings';
 import { SnapshotFilter } from '../../Components/Filters/SnapshotFilter';
@@ -98,8 +98,8 @@ export function TokenHolders() {
   }, [rawInput]);
 
   const addresses = useMemo(() => {
-    return sortByAddressByNonERC20First(tokenAddress, overviewTokens, hasPoap);
-  }, [hasPoap, tokenAddress, overviewTokens]);
+    return sortByAddressByNonERC20First(tokenAddress, overviewTokens);
+  }, [tokenAddress, overviewTokens]);
 
   const tokenInfo = useMemo(() => {
     const { tokenAddress, tokenId, blockchain, eventId } =

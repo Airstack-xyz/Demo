@@ -1,5 +1,6 @@
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { useOnchainGraphContext } from './hooks/useOnchainGraphContext';
+import { Image } from '@/Components/Image';
 
 type LoaderProps = {
   total: number;
@@ -12,13 +13,13 @@ type LoaderProps = {
 };
 function Loading() {
   return (
-    <img src="images/loader.svg" height={20} width={30} className="mr-2" />
+    <Image src="images/loader.svg" height={20} width={30} className="mr-2" />
   );
 }
 
 function LoadingCompleted() {
   return (
-    <img
+    <Image
       src="images/loader-completed.svg"
       height={18}
       width={18}

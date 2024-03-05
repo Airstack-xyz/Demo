@@ -41,7 +41,6 @@ const defaultState = {
   getUser: noop
 } as AuthContext;
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const authContext = createContext<AuthContext>(defaultState);
 
 const newLocal = '/images/icons/logo-login.svg';

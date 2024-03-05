@@ -4,6 +4,7 @@ import { Icon } from '../../../Components/Icon';
 import { SCORE_KEY, ScoreMap, MAX_SCORE, scoreOptions } from '../constants';
 import { getDefaultScoreMap } from '../utils';
 import { useOutsideClick } from '../../../hooks/useOutsideClick';
+import { Image } from '@/Components/Image';
 
 export function ScoreOptions({
   disabled,
@@ -54,6 +55,7 @@ export function ScoreOptions({
           </div>
           {scoreOptions.map(option => (
             <div
+              key={option.value}
               className="min-w-[313px] flex items-center justify-between p-4"
               onClick={e => e.stopPropagation()}
             >
@@ -89,7 +91,7 @@ export function ScoreOptions({
               }}
             >
               {sorting ? (
-                <img src="images/spinner.gif" width="15px" />
+                <Image src="images/spinner.gif" width={15} />
               ) : (
                 <>Apply</>
               )}

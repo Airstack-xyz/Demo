@@ -22,6 +22,7 @@ import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
 import { emit } from '../../../utils/eventEmitter/eventEmitter';
 import { SectionHeader } from '../SectionHeader';
 import { CommonTokenType, TokenType } from '../types';
+import { Image } from '@/Components/Image';
 
 import './styles.css';
 
@@ -42,9 +43,11 @@ function Logo({ logo, symbol, ...props }: LogoProps) {
         </div>
       );
     }
-    return <img src="images/placeholder.svg" {...props} />;
+    // @ts-ignore
+    return <Image src="images/placeholder.svg" {...props} />;
   }
-  return <img src={logo} onError={() => setError(true)} {...props} />;
+  // @ts-ignore
+  return <Image src={logo} onError={() => setError(true)} {...props} />;
 }
 
 function Token({
@@ -91,7 +94,6 @@ function filterByIsSpam(tokens: TokenType[]) {
   return tokens?.filter(item => item?.token?.isSpam !== true);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function processTokens(tokens: any) {
   if (tokens.length > 0 && tokens[0]?.token?.tokenBalances) {
     tokens = tokens
@@ -162,7 +164,6 @@ export function ERC20Tokens() {
   ]);
 
   const handleData = useCallback(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (data: any) => {
       const appropriateBlockchains = snapshotInfo.isApplicable
         ? snapshotBlockchains

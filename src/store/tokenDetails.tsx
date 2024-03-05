@@ -13,7 +13,6 @@ const store: Store = {
   accountAddress: ''
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const useTokenDetails = createStore(store);
 
 export const TokenDetailsReset = memo(
@@ -36,3 +35,5 @@ export const TokenDetailsReset = memo(
     return <>{children}</>;
   }
 );
+
+TokenDetailsReset.displayName = 'TokenDetailsReset';

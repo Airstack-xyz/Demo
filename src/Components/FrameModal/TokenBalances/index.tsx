@@ -33,6 +33,7 @@ import {
   FRAMES_ENDPOINT,
   TOKEN_PLACEHOLDER_URL
 } from '../constants';
+import { Image } from '@/Components/Image';
 
 const buttonOptions: FrameSelectOption[] = [
   {
@@ -268,7 +269,7 @@ function ModalContent() {
     if (loading) {
       return (
         <div className="my-auto flex-col-center gap-1 font-concert-one max-sm:text-base text-xl text-center">
-          <img alt="Logo" src="/logo-white.svg" height={32} width={32} />
+          <Image alt="Logo" src="/logo-white.svg" height={32} width={32} />
           Generating preview...
         </div>
       );
@@ -297,7 +298,7 @@ function ModalContent() {
           <span className="ellipsis max-sm:max-w-[90px] max-w-[250px]">
             {displayName}
           </span>
-          's Onchain Collection
+          {"'"}s Onchain Collection
         </div>
         <div className="flex flex-wrap justify-center max-sm:gap-[14px] gap-[25px] h-full w-full max-sm:py-3 max-sm:px-4 py-4 px-6">
           {items?.length ? (

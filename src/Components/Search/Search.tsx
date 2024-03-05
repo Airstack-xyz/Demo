@@ -1,11 +1,6 @@
-/* eslint-disable react-refresh/only-export-components */
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  useLocation,
-  useMatch,
-  useNavigate,
-  useSearchParams
-} from 'react-router-dom';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useMatch } from '@/hooks/useMatch';
 import {
   CachedQuery,
   UserInputs,
@@ -22,6 +17,7 @@ import {
 import { EnabledSearchType, SearchInputSection } from './SearchInputSection';
 import { SearchTabSection, TabUrl } from './SearchTabSection';
 import { addAndRemoveCombinationPlaceholder } from './utils';
+import { useNavigate } from '@/hooks/useNavigate';
 
 export const tokenHoldersPlaceholder =
   'Type "@" to search by name, or enter any contract address, or any POAP event ID';
@@ -49,9 +45,9 @@ export const PADDING = '  ';
 
 export const Search = memo(function Search() {
   const [activeTab, setCurrentTab] = useState<TabUrl>('token-balances');
-  const activePath = useLocation().pathname.replace('/', '') as TabUrl;
+  const activePath = usePathname()?.replace('/', '') as TabUrl;
   const isHome = !!useMatch('/');
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const [, setOverviewTokens] = useOverviewTokens(['tokens']);
 
   const actualActiveTab = isHome ? activeTab : activePath;
@@ -244,7 +240,7 @@ export const Search = memo(function Search() {
     (mentionValue: string) => {
       const trimmedValue = mentionValue.trim();
 
-      if (searchParams.get('rawInput') === trimmedValue) {
+      if (searchParams?.get('rawInput') === trimmedValue) {
         window.location.reload(); // reload page if same search
         return;
       }

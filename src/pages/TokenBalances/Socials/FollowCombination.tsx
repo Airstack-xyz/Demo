@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { IconType } from '../../../Components/Icon';
+import { Image } from '@/Components/Image';
 
 export type FollowCombinationParams = {
   dappName: string;
@@ -122,7 +123,7 @@ export function FollowCombination({
     <div className="text-sm mb-7 last:mb-0">
       <div className="flex items-center">
         <div className="rounded-full h-[25px] w-[25px] border mr-2 overflow-hidden flex-row-center">
-          <img src={image} className="w-full" />
+          <Image src={image} className="w-full" />
         </div>
         <span className="first-letter:uppercase">{name}</span>
       </div>

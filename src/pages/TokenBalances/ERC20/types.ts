@@ -72,7 +72,7 @@ export interface TokenTransfer {
 export interface Token {
   name: string;
   symbol: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   tokenTraits: any;
   totalSupply: string;
   owner: Owner;

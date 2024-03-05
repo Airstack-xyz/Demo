@@ -2,7 +2,6 @@ import findPositionOfCapturingGroup from './findPositionOfCapturingGroup';
 import combineRegExps from './combineRegExps';
 import countPlaceholders from './countPlaceholders';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
 const emptyFn = () => {};
 
 // Finds all occurrences of the markup in the value and calls the `markupIteratee` callback for each of them.

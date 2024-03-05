@@ -252,11 +252,11 @@ function SocialsOverlapComponent() {
       xmtpSections.push(
         {
           name: address[0],
-          values: [<XMTP />]
+          values: [<XMTP key={address[0]} />]
         },
         {
           name: address[1],
-          values: [<XMTP />]
+          values: [<XMTP key={address[1]} />]
         }
       );
     }

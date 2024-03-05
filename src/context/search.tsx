@@ -30,7 +30,7 @@ const defaultValue: SearchContext = {
   setTokenBalanceData: noop,
   setTokenHolderData: noop
 };
-// eslint-disable-next-line react-refresh/only-export-components
+
 export const searchContext = createContext<SearchContext>(defaultValue);
 
 export function SearchProvider({ children }: { children: React.ReactNode }) {

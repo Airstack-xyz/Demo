@@ -1,12 +1,12 @@
-import Calendar, { CalendarProps } from 'react-calendar';
-import './styles.css';
+import Calendar, { CalendarProps } from "react-calendar";
+import "./styles.css";
 
 // For shortening month name -> Helps in decreasing DatePicker's width
 const monthYearFormatter = (locale: string | undefined, date: Date) =>
-  date.toLocaleString(locale, { month: 'short', year: 'numeric' });
+  date.toLocaleString(locale, { month: "short", year: "numeric" });
 
 const monthFormatter = (locale: string | undefined, date: Date) =>
-  date.toLocaleString(locale, { month: 'short' });
+  date.toLocaleString(locale, { month: "short" });
 
 type DateInput = Date | null;
 

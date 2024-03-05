@@ -8,7 +8,6 @@ if (!API) {
   console.error('BFF_ENDPOINT is not defined');
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useAppQuery<Response = any, Variables = any>(query: string) {
   const auth = usePrivy();
   const [loading, setLoading] = useState(false);

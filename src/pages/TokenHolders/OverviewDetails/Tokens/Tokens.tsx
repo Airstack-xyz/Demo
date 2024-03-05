@@ -9,7 +9,7 @@ import {
   useRef,
   useState
 } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/hooks/useNavigate';
 import { LazyAddressesModal } from '../../../../Components/LazyAddressesModal';
 import { StatusLoader } from '../../../../Components/StatusLoader';
 import { useLoaderContext } from '../../../../hooks/useLoader';
@@ -135,8 +135,8 @@ export function TokensComponent() {
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
   const addresses = useMemo(() => {
-    return sortByAddressByNonERC20First(tokenAddress, overviewTokens, hasPoap);
-  }, [hasPoap, tokenAddress, overviewTokens]);
+    return sortByAddressByNonERC20First(tokenAddress, overviewTokens);
+  }, [tokenAddress, overviewTokens]);
 
   const tokensQuery = useMemo(() => {
     if (addresses.length === 1) {

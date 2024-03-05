@@ -62,7 +62,6 @@ const defaultSearchDataChannels: SearchDataType<Channel> = {
   focusIndex: null
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SearchDataState = any;
 
 type SocialSearchProps = {

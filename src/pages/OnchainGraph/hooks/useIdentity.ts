@@ -1,9 +1,9 @@
+import useSearchParams from '@/hooks/useSearchParams';
 import { useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
 
 export function useIdentity() {
   const [searchParams] = useSearchParams();
   return useMemo(() => {
-    return searchParams.get('identity') || '';
+    return searchParams?.get('identity') || '';
   }, [searchParams]);
 }

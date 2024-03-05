@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { ReactNode, useMemo, useState } from 'react';
+import { Image } from '@/Components/Image';
 
 const maxItemCount = 7;
 const minItemCount = 2;
@@ -36,7 +37,7 @@ export function Social({
         <div className="flex flex-1 items-start">
           <div className="flex items-center">
             <div className="rounded-full h-[25px] w-[25px] border mr-2 overflow-hidden flex-row-center">
-              <img src={image} className="w-full" />
+              <Image src={image} className="w-full" />
             </div>
             <span className="first-letter:uppercase">{name}</span>
           </div>

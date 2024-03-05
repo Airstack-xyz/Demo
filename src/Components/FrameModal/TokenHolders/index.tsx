@@ -37,6 +37,7 @@ import {
 } from './utils';
 import LazyImage from '../../LazyImage';
 import { isMobileDevice } from '../../../utils/isMobileDevice';
+import { Image } from '@/Components/Image';
 
 const iconMap: Record<string, string> = {
   lens: '/images/lens.svg',
@@ -106,7 +107,7 @@ function Token({
       <div className="z-10 max-sm:h-[50px] h-[70px] max-sm:p-1.5 p-2.5 flex flex-col justify-end bg-gradient-to-b from-[#00000000] to-[#1B121C] max-sm:gap-0 gap-2">
         <div className="flex items-center max-sm:gap-0.5 gap-1 max-sm:text-[10px] max-sm:leading-4 text-sm max-sm:min-h-[20px] min-h-[24px]">
           {!!assetIcon1 && (
-            <img
+            <Image
               alt="AssetIcon1"
               src={assetIcon1}
               className="max-sm:h-4 h-6 max-sm:rounded-sm rounded"
@@ -116,7 +117,7 @@ function Token({
         </div>
         <div className="flex items-center max-sm:gap-0.5 gap-1 max-sm:text-[11px] max-sm:leading-4 text-sm font-bold">
           {!!assetIcon2 && (
-            <img
+            <Image
               alt="AssetIcon2"
               src={assetIcon2}
               className="max-sm:h-4 h-6 rounded-full"
@@ -210,7 +211,7 @@ function ModalContent() {
     if (loading || isOverviewTokensLoading) {
       return (
         <div className="my-auto flex-col-center gap-1 font-concert-one max-sm:text-base text-xl text-center">
-          <img alt="Logo" src="/logo-white.svg" height={32} width={32} />
+          <Image alt="Logo" src="/logo-white.svg" height={32} width={32} />
           Generating preview...
         </div>
       );

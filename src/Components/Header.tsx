@@ -1,8 +1,9 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/Components/Link';
 import { useAuth } from '../hooks/useAuth';
 import { CSVDownloads } from './CSVDownload/CSVDownloads';
 import { Profile } from './Profile';
 import { Tooltip, tooltipClass } from './Tooltip';
+import { Image } from '@/Components/Image';
 
 export function Header() {
   const { user, login } = useAuth();
@@ -12,7 +13,7 @@ export function Header() {
       <div className="max-w-[1440px] mx-auto w-full flex items-center justify-center sm:justify-between px-8">
         <div className="text-xl flex-row-center">
           <Link to="https://app.airstack.xyz" className="" target="_blank">
-            <img src="/logo.svg" className="h-[33px] mr-5" />
+            <Image src="/logo.svg" className="h-[33px] mr-5" />
           </Link>
           <Link to="/">
             <h1 className="pl-5 py-1 border-l-[3px] border-solid border-stroke-color-light">

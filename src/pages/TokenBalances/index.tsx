@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { useMatch } from 'react-router-dom';
+import { useMatch } from '@/hooks/useMatch';
 import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDropdown';
 import { BlockchainFilter } from '../../Components/Filters/BlockchainFilter';
 import { MintFilter } from '../../Components/Filters/MintFilter';

@@ -1,3 +1,4 @@
+import { Image } from '@/Components/Image';
 import { usePrivy } from '@privy-io/react-auth';
 import classNames from 'classnames';
 import { useEffect, useRef, useState } from 'react';
@@ -91,7 +92,7 @@ export function FrameURL({
           )}
         >
           {showLoader ? (
-            <img src="images/loader.svg" height={20} width={30} />
+            <Image alt="" src="images/loader.svg" height={20} width={30} />
           ) : (
             <span> {shortUrl || placeholder}</span>
           )}

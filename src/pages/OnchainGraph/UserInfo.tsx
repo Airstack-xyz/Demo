@@ -317,4 +317,6 @@ const MemoizedUserInfo = memo((props: UserInfoProps) => {
   );
 });
 
+MemoizedUserInfo.displayName = 'UserInfo';
+
 export { MemoizedUserInfo as UserInfo };

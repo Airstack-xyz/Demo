@@ -1,3 +1,4 @@
+import { Image } from '@/Components/Image';
 import { Chain } from '@airstack/airstack-react/constants';
 import classNames from 'classnames';
 import { memo, useCallback, useEffect, useMemo } from 'react';
@@ -204,6 +205,7 @@ function Overview({
         );
       return (
         <Asset
+          key={tokenId}
           address={tokenAddress}
           tokenId={tokenId}
           preset="medium"
@@ -269,7 +271,7 @@ function Overview({
           images={
             !image
               ? tokenImages || []
-              : [<img src={image} alt="" className="w-full" />]
+              : [<Image key="" src={image} alt="" className="w-full" />]
           }
         />
       );

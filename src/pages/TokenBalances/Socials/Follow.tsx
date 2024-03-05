@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { useMemo, useState } from 'react';
+import { Image } from '@/Components/Image';
 
 export type FollowParams = {
   dappName: string;
@@ -62,7 +63,7 @@ function FollowSection({
           {isFirstSection && (
             <div className="flex items-center">
               <div className="rounded-full h-[25px] w-[25px] border mr-2 overflow-hidden flex-row-center">
-                <img src={image} className="w-full" />
+                <Image src={image || ''} className="w-full" />
               </div>
               <span className="first-letter:uppercase">{dappName}</span>
             </div>

@@ -4,6 +4,7 @@ import LazyImage from '../../../Components/LazyImage';
 import { formatDate } from '../../../utils';
 import { Social } from './types';
 import { checkBlockchainSupportForToken } from '../../../utils/activeTokenInfoString';
+import { Image } from '@/Components/Image';
 
 export function CardLoader({ isLensDapp }: { isLensDapp: boolean }) {
   return (
@@ -78,7 +79,7 @@ export function Card({
       <div className="w-full mt-1">
         <div className="flex items-center max-sm:justify-center">
           {!!lensTokenImageUrl && (
-            <img
+            <Image
               src={lensTokenImageUrl}
               height={24}
               width={24}

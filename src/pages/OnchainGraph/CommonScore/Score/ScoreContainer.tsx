@@ -1,5 +1,5 @@
 import { isMobileDevice } from '../../../../utils/isMobileDevice';
-
+import { Image } from '@/Components/Image';
 const mobileGraphics = (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -322,7 +322,7 @@ export function ScoreContainer({
         {showScore ? (
           score
         ) : (
-          <img src="images/loader.svg" height={20} width={30} />
+          <Image src="images/loader.svg" height={20} width={30} />
         )}
       </span>
       {isMobile ? mobileGraphics : desktopGraphics}

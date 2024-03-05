@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import classNames from 'classnames';
 import { useCallback, useMemo } from 'react';
 import { snapshotBlockchains, tokenBlockchains } from '../../constants';
@@ -49,7 +48,6 @@ export const getBlockchainOptions = (isSnapshotApplicable?: boolean) => {
   if (isSnapshotApplicable) {
     // Find blockchains which are in snapshotBlockchains but not in tokenBlockchains
     const filteredBlockchains = snapshotBlockchains.filter(
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       blockchain => tokenBlockchains.indexOf(blockchain) === -1
     );

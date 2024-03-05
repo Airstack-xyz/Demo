@@ -1,15 +1,16 @@
-import classNames from 'classnames';
-import { Link, useLocation } from 'react-router-dom';
-import { Icon, IconType } from '../Icon';
-import { isMobileDevice } from '../../utils/isMobileDevice';
+import classNames from "classnames";
+import { Icon, IconType } from "../Icon";
+import { isMobileDevice } from "../../utils/isMobileDevice";
+import { usePathname } from "next/navigation";
+import { Link } from "@/Components/Link";
 
 const tabClass =
-  'px-2.5 h-[30px] rounded-full mr-3 flex-row-center text-xs text-text-secondary border border-solid border-transparent';
+  "px-2.5 h-[30px] rounded-full mr-3 flex-row-center text-xs text-text-secondary border border-solid border-transparent";
 
 const activeTabClass =
-  'bg-glass !border-stroke-color font-bold !text-text-primary';
+  "bg-glass !border-stroke-color font-bold !text-text-primary";
 
-export type TabUrl = 'token-balances' | 'token-holders' | 'channels';
+export type TabUrl = "token-balances" | "token-holders" | "channels";
 
 const options: {
   label: string;
@@ -18,33 +19,33 @@ const options: {
   extraMatch?: string[];
 }[] = [
   {
-    label: 'Token balances',
-    mobileLabel: 'Balances',
-    value: 'token-balances',
-    extraMatch: ['onchain-graph']
+    label: "Token balances",
+    mobileLabel: "Balances",
+    value: "token-balances",
+    extraMatch: ["onchain-graph"],
   },
-  { label: 'Token holders', mobileLabel: 'Holders', value: 'token-holders' },
-  { label: 'Channels', mobileLabel: 'Channels', value: 'channels' }
+  { label: "Token holders", mobileLabel: "Holders", value: "token-holders" },
+  { label: "Channels", mobileLabel: "Channels", value: "channels" },
 ];
 
 function TabLinks() {
   const isMobile = isMobileDevice();
-  const activePath = useLocation().pathname;
+  const activePath = usePathname() || "";
   return (
     <>
       {options.map((option, index) => {
         const isActive =
           activePath.includes(option.value) ||
-          (option.extraMatch || []).some(match => activePath.includes(match));
+          (option.extraMatch || []).some((match) => activePath.includes(match));
         return (
           <Link
             key={index}
             to={`/${option.value}`}
             className={classNames(tabClass, {
-              [activeTabClass]: isActive
+              [activeTabClass]: isActive,
             })}
           >
-            <Icon name={option.value as IconType} className="w-4 mr-1" />{' '}
+            <Icon name={option.value as IconType} className="w-4 mr-1" />{" "}
             {isMobile ? option.mobileLabel : option.label}
           </Link>
         );
@@ -55,7 +56,7 @@ function TabLinks() {
 
 function TabButtons({
   activeTab,
-  onTabChange
+  onTabChange,
 }: {
   activeTab: string;
   onTabChange: (activeTab: TabUrl) => void;
@@ -69,10 +70,10 @@ function TabButtons({
             key={index}
             onClick={() => onTabChange(option.value)}
             className={classNames(tabClass, {
-              [activeTabClass]: activeTab === option.value
+              [activeTabClass]: activeTab === option.value,
             })}
           >
-            <Icon name={option.value as IconType} className="w-4 mr-1" />{' '}
+            <Icon name={option.value as IconType} className="w-4 mr-1" />{" "}
             {isMobile ? option.mobileLabel : option.label}
           </button>
         );
@@ -84,7 +85,7 @@ function TabButtons({
 export function SearchTabSection({
   isHome,
   activeTab,
-  onTabChange
+  onTabChange,
 }: {
   isHome: boolean;
   activeTab: TabUrl;

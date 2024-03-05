@@ -1,4 +1,5 @@
 import classNames from 'classnames';
+import { Image } from '@/Components/Image';
 
 type LoaderProps = {
   lines: [string, number][];
@@ -13,7 +14,12 @@ export function StatusLoader({ lines }: LoaderProps) {
           'text-text-secondary': !count
         })}
       >
-        <img src="images/loader.svg" height={20} width={30} className="mr-2" />
+        <Image
+          src="images/loader.svg"
+          height={20}
+          width={30}
+          className="mr-2"
+        />
         <span className="ellipsis">{line.replace('%n', count.toString())}</span>
       </div>
     );

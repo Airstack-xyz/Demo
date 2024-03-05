@@ -1,14 +1,11 @@
 import { memo, useCallback, useEffect, useState } from 'react';
 import {
-  createSearchParams,
-  useMatch,
-  useNavigate,
-  useSearchParams
-} from 'react-router-dom';
-import {
   getAllWordsAndMentions,
   isSolanaAddress
 } from '../../Components/Input/utils';
+import { createSearchParams, useNavigate } from 'react-router-dom';
+import { useMatch } from '@/hooks/useMatch';
+import useSearchParams from '@/hooks/useSearchParams';
 import {
   ALLOWED_ADDRESS_REGEX,
   PADDING,
@@ -128,7 +125,7 @@ export const Search = memo(function Search() {
     (val: string) => {
       const trimmedValue = val.trim();
 
-      if (searchParams.get('identity') === trimmedValue) {
+      if (searchParams?.get('identity') === trimmedValue) {
         window.location.reload(); // reload page if same search
         return;
       }

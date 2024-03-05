@@ -1,3 +1,4 @@
+import { Image } from '@/Components/Image';
 import { usePrivy } from '@privy-io/react-auth';
 import classNames from 'classnames';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -161,7 +162,7 @@ export function ShareURLDropdown({
             </div>
             <div className="flex-row-center mt-2.5 gap-3 h-[35px]">
               {loading ? (
-                <img src="images/loader.svg" height={20} width={30} />
+                <Image src="images/loader.svg" height={20} width={30} />
               ) : (
                 <>
                   <div className="rounded-18 bg-glass-2 text-xs text-text-secondary h-[35px] px-3 flex items-center overflow-auto no-scrollbar w-full">

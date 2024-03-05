@@ -1,1 +1,1 @@
-export * from './NFTInfo';
+export { NFTInfo, TokenERC20Info } from './NFTInfo';

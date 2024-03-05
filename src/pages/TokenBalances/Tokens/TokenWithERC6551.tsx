@@ -1,19 +1,19 @@
-import classNames from 'classnames';
-import { Fragment, memo, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Asset } from '../../../Components/Asset';
-import { Icon } from '../../../Components/Icon';
+import classNames from "classnames";
+import { Fragment, memo, useMemo } from "react";
+import { Link } from "@/Components/Link";
+import { Asset } from "../../../Components/Asset";
+import { Icon } from "../../../Components/Icon";
 import {
   resetCachedUserInputs,
-  useSearchInput
-} from '../../../hooks/useSearchInput';
-import { formatDate } from '../../../utils';
-import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
-import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
-import { Nft } from '../ERC20/types';
-import { PoapsType, TokenType } from '../types';
+  useSearchInput,
+} from "../../../hooks/useSearchInput";
+import { formatDate } from "../../../utils";
+import { addToActiveTokenInfo } from "../../../utils/activeTokenInfoString";
+import { createTokenHolderUrl } from "../../../utils/createTokenUrl";
+import { Nft } from "../ERC20/types";
+import { PoapsType, TokenType } from "../types";
 
-type Poap = PoapsType['Poaps']['Poap'][0];
+type Poap = PoapsType["Poaps"]["Poap"][0];
 
 type TokenProps = {
   token: null | TokenType | Poap | Nft;
@@ -22,14 +22,14 @@ type TokenProps = {
 
 export const TokenWithERC6551 = memo(function Token({
   token: tokenProp,
-  isMobile
+  isMobile,
 }: TokenProps) {
   const [{ activeTokenInfo }, setSearchData] = useSearchInput();
   const token = (tokenProp || {}) as TokenType;
   const poap = (tokenProp || {}) as Poap;
   const isPoap = Boolean(poap.poapEvent);
   const poapEvent = poap.poapEvent || {};
-  const city = poapEvent.city || '';
+  const city = poapEvent.city || "";
 
   const address = token.tokenAddress || poap.tokenAddress;
   const tokenId =
@@ -39,15 +39,15 @@ export const TokenWithERC6551 = memo(function Token({
     return [tokenId, token?._tokenId].filter(Boolean);
   }, [isPoap, poapEvent?.eventName, token?._tokenId, tokenId]);
 
-  const symbol = token?.token?.symbol || '';
-  const type = token?.tokenType || 'POAP';
-  const blockchain = token.blockchain || 'ethereum';
+  const symbol = token?.token?.symbol || "";
+  const type = token?.tokenType || "POAP";
+  const blockchain = token.blockchain || "ethereum";
   const name = isPoap
-    ? `${formatDate(poapEvent.startDate)}${city ? ` (${city})` : ''}`
+    ? `${formatDate(poapEvent.startDate)}${city ? ` (${city})` : ""}`
     : token?.token?.name;
 
-  const image = isPoap ? poapEvent?.logo?.image?.medium : '';
-  const eventId = poapEvent?.eventId || '';
+  const image = isPoap ? poapEvent?.logo?.image?.medium : "";
+  const eventId = poapEvent?.eventId || "";
   const tokenName = isPoap ? poapEvent?.eventName : token?.token?.name;
 
   const erc6551Accounts = token.tokenNfts?.erc6551Accounts;
@@ -72,17 +72,17 @@ export const TokenWithERC6551 = memo(function Token({
         image,
         address: address,
         tokenId: tokenId,
-        chain: blockchain
-      }
+        chain: blockchain,
+      },
     ];
 
-    nestedTokens.forEach(token => {
+    nestedTokens.forEach((token) => {
       if (assets.length < 3) {
         assets.push({
-          image: '',
+          image: "",
           address: token.tokenAddress,
-          tokenId: token?.tokenId || '',
-          chain: blockchain
+          tokenId: token?.tokenId || "",
+          chain: blockchain,
         });
       }
     });
@@ -114,12 +114,12 @@ export const TokenWithERC6551 = memo(function Token({
             activeTokenInfo: addToActiveTokenInfo(
               { tokenAddress: address, tokenId, blockchain, eventId },
               activeTokenInfo
-            )
+            ),
           },
           { updateQueryParams: true }
         );
       }}
-      style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
+      style={{ textShadow: "0px 0px 2px rgba(0, 0, 0, 0.30)" }}
     >
       {address && tokenId && (
         <div className="absolute blur-md inset-0">
@@ -141,15 +141,15 @@ export const TokenWithERC6551 = memo(function Token({
           className="text-sm bg-white rounded-18 text-primary flex py-2 px-3 items-center sm:invisible group-hover:visible border border-solid border-transparent hover:border-text-secondary"
           to={createTokenHolderUrl({
             address: isPoap && eventId ? eventId : address,
-            inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
+            inputType: type === "POAP" ? "POAP" : "ADDRESS",
             type,
             blockchain,
-            label: tokenName || '--',
-            truncateLabel: isMobile
+            label: tokenName || "--",
+            truncateLabel: isMobile,
           })}
-          onClick={event => {
+          onClick={(event) => {
             event.stopPropagation();
-            resetCachedUserInputs('tokenHolder');
+            resetCachedUserInputs("tokenHolder");
           }}
         >
           <Icon width={16} name="token-holders" />
@@ -174,18 +174,18 @@ export const TokenWithERC6551 = memo(function Token({
             </span>
           </div>
           <div className="ellipsis text-xs font-semibold my-1.5">
-            {name || '--'}
+            {name || "--"}
           </div>
           <div className="flex items-center justify-between">
             <div className="ellipsis flex flex-1 mr-2 font-normal">
               {ids.map((id, index) => (
                 <Fragment key={id}>
                   <span
-                    className={classNames('ellipsis', {
-                      'max-w-[50%]': ids.length > 1
+                    className={classNames("ellipsis", {
+                      "max-w-[50%]": ids.length > 1,
                     })}
                   >
-                    {!isPoap && '#'}
+                    {!isPoap && "#"}
                     {id}
                   </span>
                   {index < ids.length - 1 && <span className="mr-1">,</span>}
@@ -193,7 +193,7 @@ export const TokenWithERC6551 = memo(function Token({
               ))}
             </div>
             <div className="ellipsis text-right max-w-[50%]">
-              {symbol || ''}
+              {symbol || ""}
             </div>
           </div>
         </div>

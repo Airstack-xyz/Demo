@@ -1,17 +1,17 @@
-import classNames from 'classnames';
-import { memo, useCallback, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Asset } from '../../../Components/Asset';
-import { Icon } from '../../../Components/Icon';
+import classNames from "classnames";
+import { memo, useCallback, useMemo, useState } from "react";
+import { Link } from "@/Components/Link";
+import { Asset } from "../../../Components/Asset";
+import { Icon } from "../../../Components/Icon";
 import {
   resetCachedUserInputs,
-  useSearchInput
-} from '../../../hooks/useSearchInput';
-import { formatDate } from '../../../utils';
-import { addToActiveTokenInfo } from '../../../utils/activeTokenInfoString';
-import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
-import { isMobileDevice } from '../../../utils/isMobileDevice';
-import { PoapType, TokenType } from '../types';
+  useSearchInput,
+} from "../../../hooks/useSearchInput";
+import { formatDate } from "../../../utils";
+import { addToActiveTokenInfo } from "../../../utils/activeTokenInfoString";
+import { createTokenHolderUrl } from "../../../utils/createTokenUrl";
+import { isMobileDevice } from "../../../utils/isMobileDevice";
+import { PoapType, TokenType } from "../types";
 
 type TokenProps = {
   token: null | TokenType | PoapType;
@@ -21,7 +21,7 @@ type TokenProps = {
 function Token({
   token: tokenProp,
   ownerName,
-  isMobile
+  isMobile,
 }: {
   token: TokenType | PoapType;
   ownerName: string;
@@ -32,14 +32,14 @@ function Token({
   const poap = (tokenProp || {}) as PoapType;
   const isPoap = Boolean(poap.poapEvent);
   const poapEvent = poap.poapEvent || {};
-  const eventId = poapEvent?.eventId || '';
-  const type = token?.tokenType || 'POAP';
-  const blockchain = token.blockchain || 'ethereum';
+  const eventId = poapEvent?.eventId || "";
+  const type = token?.tokenType || "POAP";
+  const blockchain = token.blockchain || "ethereum";
   const tokenName = isPoap ? poapEvent?.eventName : token?.token?.name;
-  const image = isPoap ? poapEvent?.logo?.image?.medium : '';
+  const image = isPoap ? poapEvent?.logo?.image?.medium : "";
   const address = token.tokenAddress || poap.tokenAddress;
   const tokenId = token?.tokenNfts?.tokenId || poap.tokenId;
-  const id = token?.tokenNfts?.tokenId || poap.tokenId || '';
+  const id = token?.tokenNfts?.tokenId || poap.tokenId || "";
   const hasERC6551 = token.tokenNfts?.erc6551Accounts?.length > 0;
   const erc6551Accounts = token.tokenNfts?.erc6551Accounts;
 
@@ -62,7 +62,7 @@ function Token({
         activeTokenInfo: addToActiveTokenInfo(
           { tokenAddress: address, tokenId, blockchain, eventId },
           activeTokenInfo
-        )
+        ),
       },
       { updateQueryParams: true }
     );
@@ -89,17 +89,17 @@ function Token({
         image,
         address: address,
         tokenId: tokenId,
-        chain: blockchain
-      }
+        chain: blockchain,
+      },
     ];
 
-    nestedTokens.forEach(token => {
+    nestedTokens.forEach((token) => {
       if (assets.length < 3) {
         assets.push({
-          image: '',
+          image: "",
           address: token.tokenAddress,
-          tokenId: token?.tokenId || '',
-          chain: blockchain
+          tokenId: token?.tokenId || "",
+          chain: blockchain,
         });
       }
     });
@@ -126,7 +126,7 @@ function Token({
       className="group h-[300px] w-[300px] sm:h-[200px] sm:w-[200px] rounded-[16px] bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative token cursor-pointer"
       data-loader-type="block"
       onClick={handleClick}
-      style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
+      style={{ textShadow: "0px 0px 2px rgba(0, 0, 0, 0.30)" }}
     >
       {address && tokenId && (
         <div className="absolute blur-md inset-0">
@@ -146,15 +146,15 @@ function Token({
           className="left-0 top-1 text-sm bg-white rounded-18 text-primary flex py-2 px-3 items-center visible sm:invisible group-hover:visible border border-solid border-transparent hover:border-text-secondary"
           to={createTokenHolderUrl({
             address: isPoap && eventId ? eventId : address,
-            inputType: type === 'POAP' ? 'POAP' : 'ADDRESS',
+            inputType: type === "POAP" ? "POAP" : "ADDRESS",
             type,
             blockchain,
-            label: tokenName || '--',
-            truncateLabel: isMobile
+            label: tokenName || "--",
+            truncateLabel: isMobile,
           })}
-          onClick={event => {
+          onClick={(event) => {
             event.stopPropagation();
-            resetCachedUserInputs('tokenHolder');
+            resetCachedUserInputs("tokenHolder");
           }}
         >
           <Icon width={16} name="token-holders" />
@@ -197,7 +197,7 @@ const MAX_TOKENS = 2;
 
 export const TokenCombination = memo(function TokenCombination({
   token: tokenProp,
-  isMobile
+  isMobile,
 }: TokenProps) {
   const [showAllTokens, setShowAllTokens] = useState(false);
   const [{ address: owners }] = useSearchInput();
@@ -205,12 +205,12 @@ export const TokenCombination = memo(function TokenCombination({
   const poap = tokenProp as PoapType;
   const isPoap = Boolean(poap.poapEvent);
   const poapEvent = poap.poapEvent || {};
-  const city = poapEvent.city || '';
-  const symbol = token?.token?.symbol || '';
-  const type = token?.tokenType || 'POAP';
-  const blockchain = token.blockchain || 'ethereum';
+  const city = poapEvent.city || "";
+  const symbol = token?.token?.symbol || "";
+  const type = token?.tokenType || "POAP";
+  const blockchain = token.blockchain || "ethereum";
   const name = isPoap
-    ? `${poapEvent.eventName} (${formatDate(poapEvent.startDate)}${city || ''})`
+    ? `${poapEvent.eventName} (${formatDate(poapEvent.startDate)}${city || ""})`
     : token?.token?.name;
 
   const [tokens, allTokens]: [TokenType[], TokenType[]] = useMemo(() => {
@@ -221,16 +221,16 @@ export const TokenCombination = memo(function TokenCombination({
   }, [showAllTokens, token]);
 
   const headingWidth = isMobileDevice()
-    ? 'auto'
+    ? "auto"
     : Math.min(4, tokens.length) * 150;
   const hasMoreTokens = allTokens.length > MAX_TOKENS;
 
   return (
     <div
       className={classNames(
-        'border-solid-stroke rounded-18 bg-glass-grad flex-1',
+        "border-solid-stroke rounded-18 bg-glass-grad flex-1",
         {
-          'w-[80%] sm:max-w-full lg:max-w-[49%] ': !showAllTokens
+          "w-[80%] sm:max-w-full lg:max-w-[49%] ": !showAllTokens,
         }
       )}
     >
@@ -240,7 +240,7 @@ export const TokenCombination = memo(function TokenCombination({
           style={{ width: headingWidth }}
         >
           <span className="ellipsis">
-            {name} {symbol ? `(${symbol})` : ''}
+            {name} {symbol ? `(${symbol})` : ""}
           </span>
         </div>
         <div className="flex justify-end">
@@ -254,10 +254,10 @@ export const TokenCombination = memo(function TokenCombination({
       </div>
       <div
         className={classNames(
-          'flex flex-col sm:flex-row flex-wrap gap-x-[20px] gap-y-[20px] items-center justify-center p-5',
+          "flex flex-col sm:flex-row flex-wrap gap-x-[20px] gap-y-[20px] items-center justify-center p-5",
           {
-            'gap-x-[8px] px-1.5': !showAllTokens && hasMoreTokens,
-            '!justify-center': showAllTokens
+            "gap-x-[8px] px-1.5": !showAllTokens && hasMoreTokens,
+            "!justify-center": showAllTokens,
           }
         )}
       >
@@ -274,7 +274,7 @@ export const TokenCombination = memo(function TokenCombination({
         {!showAllTokens && hasMoreTokens && (
           <button
             className="bg-glass border-solid-stroke rounded-18 pl-1 pr-1.5 text-text-button font-semibold w-[300px] sm:w-auto h-10 sm:h-[200px] hover:border-solid-light"
-            onClick={() => setShowAllTokens(show => !show)}
+            onClick={() => setShowAllTokens((show) => !show)}
           >
             +{allTokens.length - MAX_TOKENS}
           </button>

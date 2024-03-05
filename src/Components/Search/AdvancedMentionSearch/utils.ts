@@ -1,7 +1,6 @@
 import {
   mapPlainTextIndex,
   getPlainText
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
 } from '../../Input/react-mentions/utils';
 import { MENTION_CONFIG, truncateMentionLabel } from '../../Input/utils';

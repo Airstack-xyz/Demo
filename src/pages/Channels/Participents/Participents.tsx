@@ -1,20 +1,20 @@
-import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { useLazyQueryWithPagination } from "@airstack/airstack-react";
 import {
   FarcasterChannelParticipantsQuery,
   FarcasterChannelParticipantsQueryVariables,
-  OrderBy
-} from '../../../../__generated__/airstack-types';
-import { farcasterParticipentsQuery } from '../../../queries/channels';
-import { memo, useCallback, useEffect, useState } from 'react';
-import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
-import { formatAddress } from '../../../utils';
-import { resetCachedUserInputs } from '../../../hooks/useSearchInput';
-import { useNavigate } from 'react-router-dom';
-import { isMobileDevice } from '../../../utils/isMobileDevice';
-import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
-import { Header } from './Header';
-import { Participent } from './Participent';
-import { DownloadCSVOverlay } from '../../../Components/DownloadCSVOverlay';
+  OrderBy,
+} from "../../../../__generated__/airstack-types";
+import { farcasterParticipentsQuery } from "../../../queries/channels";
+import { memo, useCallback, useEffect, useState } from "react";
+import { createTokenBalancesUrl } from "../../../utils/createTokenUrl";
+import { formatAddress } from "../../../utils";
+import { resetCachedUserInputs } from "../../../hooks/useSearchInput";
+import { isMobileDevice } from "../../../utils/isMobileDevice";
+import { LazyAddressesModal } from "../../../Components/LazyAddressesModal";
+import { Header } from "./Header";
+import { Participent } from "./Participent";
+import { DownloadCSVOverlay } from "../../../Components/DownloadCSVOverlay";
+import { useNavigate } from "@/hooks/useNavigate";
 
 const loaderData = Array(6).fill({});
 const LIMIT = 30;
@@ -40,7 +40,7 @@ function Loader() {
 
 export function Participents({
   channelId,
-  orderBy
+  orderBy,
 }: {
   channelId: string;
   orderBy: OrderBy;
@@ -50,8 +50,8 @@ export function Participents({
     {
       data,
       loading,
-      pagination: { hasNextPage }
-    }
+      pagination: { hasNextPage },
+    },
   ] = useLazyQueryWithPagination<
     FarcasterChannelParticipantsQuery,
     FarcasterChannelParticipantsQueryVariables
@@ -63,8 +63,8 @@ export function Participents({
     addresses: string[];
   }>({
     isOpen: false,
-    dataType: '',
-    addresses: []
+    dataType: "",
+    addresses: [],
   });
 
   const isMobile = isMobileDevice();
@@ -74,8 +74,8 @@ export function Participents({
     (addresses: string[], type?: string) => {
       setModalData({
         isOpen: true,
-        dataType: type || 'ens',
-        addresses
+        dataType: type || "ens",
+        addresses,
       });
     },
     []
@@ -84,8 +84,8 @@ export function Participents({
   const handleModalClose = () => {
     setModalData({
       isOpen: false,
-      dataType: '',
-      addresses: []
+      dataType: "",
+      addresses: [],
     });
   };
 
@@ -93,12 +93,12 @@ export function Participents({
     (address: string, type?: string) => {
       const url = createTokenBalancesUrl({
         address: formatAddress(address, type),
-        blockchain: 'ethereum',
-        inputType: 'ADDRESS',
-        truncateLabel: isMobile
+        blockchain: "ethereum",
+        inputType: "ADDRESS",
+        truncateLabel: isMobile,
       });
       document.documentElement.scrollTo(0, 0);
-      resetCachedUserInputs('tokenBalance');
+      resetCachedUserInputs("tokenBalance");
       navigate(url);
     },
     [isMobile, navigate]
@@ -109,7 +109,7 @@ export function Participents({
       fetchParticipents({
         channelId,
         limit: LIMIT,
-        orderBy: orderBy
+        orderBy: orderBy,
       });
     }
   }, [channelId, fetchParticipents, orderBy]);

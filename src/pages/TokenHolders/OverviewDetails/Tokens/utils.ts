@@ -67,7 +67,6 @@ export function getTokenList({
   let tokenBalances: Token[] = [];
 
   if (hasSomePoap) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tokenBalances = tokensData?.Poaps?.Poap as any;
   } else {
     const appropriateBlockchains = isSnapshotApplicable

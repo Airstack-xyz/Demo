@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import './styles.css';
+import "./styles.css";
 
 type AddressInputProps = {
   top: string;
@@ -15,10 +15,10 @@ export function AddressInput({
   left,
   right,
   placeholder,
-  onRequestClose
+  onRequestClose,
 }: AddressInputProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [address, setAddress] = useState('');
+  const [address, setAddress] = useState("");
   const addressRef = useRef(address);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export function AddressInput({
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       // Remove all spaces before saving the address
-      const _address = (e.target.value || '').replace(/\s+/, '');
+      const _address = (e.target.value || "").replace(/\s+/, "");
       setAddress(_address);
       addressRef.current = _address;
     },
@@ -46,23 +46,23 @@ export function AddressInput({
 
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
-      if (e.key === 'Enter') {
+      if (e.key === "Enter") {
         e.preventDefault();
         e.stopPropagation();
         handleClick();
       }
-      if (e.key === 'Escape') {
-        onRequestClose('');
+      if (e.key === "Escape") {
+        onRequestClose("");
       }
     };
     // use setTimeout to avoid the handler being called immediately when the user clicked the option using mouse
     setTimeout(() => {
-      window.addEventListener('click', handleClick);
-      window.addEventListener('keydown', handleKeydown);
+      window.addEventListener("click", handleClick);
+      window.addEventListener("keydown", handleKeydown);
     }, 0);
     return () => {
-      window.removeEventListener('click', handleClick);
-      window.removeEventListener('keydown', handleKeydown);
+      window.removeEventListener("click", handleClick);
+      window.removeEventListener("keydown", handleKeydown);
     };
   }, [handleClick, onRequestClose]);
 
@@ -70,7 +70,7 @@ export function AddressInput({
     <span
       className="addressInput"
       style={{ top, left, right }}
-      onClick={e => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
     >
       <input
         autoFocus

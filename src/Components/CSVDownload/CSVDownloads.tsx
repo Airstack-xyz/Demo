@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import classNames from 'classnames';
 import { useRef, useState, useCallback, useEffect, useMemo } from 'react';
 import { Dropdown, DropdownHandle } from '../Dropdown';
@@ -45,6 +44,7 @@ import {
 import { historyPage } from '../../constants';
 import { showToast } from '../../utils/showToast';
 import { Devider } from './Devider';
+import { Image } from '../Image';
 
 type Task = NonNullable<
   NonNullable<GetTasksHistoryQuery['GetCSVDownloadTasks']>[0]
@@ -661,11 +661,12 @@ export function CSVDownloads() {
                       {isInProgress && (
                         <div className="text-text-secondary">
                           <div className="flex items-center">
-                            <img
+                            <Image
                               src="images/loader.svg"
                               height={20}
                               width={30}
                               className="mr-2"
+                              alt="loader"
                             />{' '}
                             Preparing your file...
                           </div>

@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import { memo } from 'react';
-import { createSearchParams, useNavigate } from 'react-router-dom';
+import { createSearchParams } from 'react-router-dom';
+import { useNavigate } from '@/hooks/useNavigate';
 import { Icon } from '../../../Components/Icon';
 import { Tooltip } from '../../../Components/Tooltip';
 import { createFormattedRawInput } from '../../../utils/createQueryParamsWithMention';

@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import { useTokenBalancesLinks } from './useTokenBalancesLinks';
 import { useTokenHoldersLinks } from './useTokenHoldersLinks';
-import { useMatch } from 'react-router-dom';
 import { useCsvDownloadOptions } from '../../store/csvDownload';
 import { useEstimateTask } from '../../hooks/useEstimateTask';
 import { CSVDownloadOption } from '../../types';
@@ -9,6 +8,7 @@ import { useCallback, useState } from 'react';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Modal } from '../Modal';
 import { useChannelApiOptions } from '../../pages/Channels/useChannelApiOptions';
+import { useMatch } from '@/hooks/useMatch';
 
 function DownloadIcon() {
   return (

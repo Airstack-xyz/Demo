@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import { ReactNode, useMemo, useState } from 'react';
 import { SocialSectionType } from './types';
+import { Image } from '@/Components/Image';
 
 const maxItemCount = 7;
 const minItemCount = 1;
@@ -96,7 +97,7 @@ export function SocialCombination({
     <div className="text-sm mb-7 last:mb-0">
       <div className="flex items-center">
         <div className="rounded-full h-[25px] w-[25px] border mr-2 overflow-hidden flex-row-center">
-          <img src={image} className="w-full" />
+          <Image src={image} className="w-full" />
         </div>
         <span className="first-letter:uppercase">{name}</span>
       </div>

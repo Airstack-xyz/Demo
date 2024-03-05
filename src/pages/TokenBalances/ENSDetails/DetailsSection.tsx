@@ -7,6 +7,7 @@ import { domainDetailsQuery } from '../../../queries/domainDetails';
 import { formatDate } from '../../../utils';
 import { DomainType } from './types';
 import { processRecords } from './utils';
+import { Image } from '@/Components/Image';
 
 const LOADING_ROW_COUNT = 10;
 
@@ -89,7 +90,7 @@ export function DetailsSection({ identity }: { identity: string }) {
         />
         <div className="flex-1 mt-1">
           <div className="flex items-center">
-            <img
+            <Image
               src="/images/ens.svg"
               height={24}
               width={24}

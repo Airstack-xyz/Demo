@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/hooks/useNavigate';
 import { resetCachedUserInputs } from '../../../../hooks/useSearchInput';
 import { createTokenBalancesUrl } from '../../../../utils/createTokenUrl';
 import { isMobileDevice } from '../../../../utils/isMobileDevice';

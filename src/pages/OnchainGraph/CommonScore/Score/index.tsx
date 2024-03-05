@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/Components/Link';
 import { createTokenBalancesUrl } from '../../../../utils/createTokenUrl';
 import { isMobileDevice } from '../../../../utils/isMobileDevice';
 import { Domain, Social } from '../../../TokenBalances/types';

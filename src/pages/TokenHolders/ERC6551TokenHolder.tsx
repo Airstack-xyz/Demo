@@ -8,6 +8,7 @@ import { useSearchInput } from '../../hooks/useSearchInput';
 import classNames from 'classnames';
 import { addToActiveTokenInfo } from '../../utils/activeTokenInfoString';
 import { useTokenDetails } from '../../store/tokenDetails';
+import { Image } from '@/Components/Image';
 
 function IconAndText({
   icon,
@@ -24,7 +25,7 @@ function IconAndText({
         'skeleton-loader': loading
       })}
     >
-      <img
+      <Image
         src={`/images/${icon}.svg`}
         alt=""
         height={35}
@@ -164,7 +165,6 @@ export function ERC6551TokenHolder({
           onClick={() => {
             setSearchInput(
               {
-                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 activeTokenInfo: addToActiveTokenInfo(token!, activeTokenInfo)
               },
               {

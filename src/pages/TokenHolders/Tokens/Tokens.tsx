@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@/hooks/useNavigate';
 import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
 import { StatusLoader } from '../../../Components/StatusLoader';
 import { useGetCommonOwnersOfPoaps } from '../../../hooks/useGetCommonOwnersOfPoaps';
@@ -69,12 +69,8 @@ export function TokensComponent() {
   }, [overviewTokens]);
 
   const tokenAddresses = useMemo(() => {
-    return sortByAddressByNonERC20First(
-      address,
-      overviewTokens,
-      shouldFetchPoaps
-    );
-  }, [shouldFetchPoaps, address, overviewTokens]);
+    return sortByAddressByNonERC20First(address, overviewTokens);
+  }, [address, overviewTokens]);
 
   const {
     fetch: fetchTokens,
