@@ -7,7 +7,10 @@ import { RecommendedUser } from './types';
 import * as Comlink from 'comlink';
 
 export function getDefaultScoreMap(): ScoreMap {
-  const savedScoreMap = localStorage.getItem(SCORE_KEY);
+  const savedScoreMap =
+    typeof localStorage === 'undefined'
+      ? null
+      : localStorage.getItem(SCORE_KEY);
   if (!savedScoreMap) {
     return defaultScoreMap;
   }

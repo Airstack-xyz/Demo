@@ -3,7 +3,7 @@ import {
   getAllWordsAndMentions,
   isSolanaAddress
 } from '../../Components/Input/utils';
-import { createSearchParams, useNavigate } from 'react-router-dom';
+import { createSearchParams } from 'react-router-dom';
 import { useMatch } from '@/hooks/useMatch';
 import useSearchParams from '@/hooks/useSearchParams';
 import {
@@ -24,6 +24,7 @@ import { createFormattedRawInput } from '../../utils/createQueryParamsWithMentio
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { showToast } from '../../utils/showToast';
 import { useIdentity } from './hooks/useIdentity';
+import { useNavigate } from '@/hooks/useNavigate';
 
 export const Search = memo(function Search() {
   const [searchParams] = useSearchParams();

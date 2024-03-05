@@ -16,6 +16,10 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'fonts.googleapis.com'
+      },
+      {
+        protocol: 'https',
         hostname: 'assets.airstack.xyz'
       },
       {
