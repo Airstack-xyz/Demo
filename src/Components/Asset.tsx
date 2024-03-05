@@ -16,7 +16,8 @@ export function Image(props: ComponentProps<'img'>) {
     );
   }
   return (
-    <Image data-type="placeholder" onError={() => setError(true)} {...props} />
+    // @ts-ignore
+    <Img data-type="placeholder" onError={() => setError(true)} {...props} />
   );
 }
 
