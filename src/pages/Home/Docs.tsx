@@ -9,7 +9,7 @@ type Info = {
 const items: Info[] = [
   {
     title: 'Airstack Frames SDK',
-    icon: 'sdk',
+    icon: 'frames-sdk',
     description:
       'Empowers developers to seamlessly integrate everything Airstack offers into  Frames using just a few lines of code.',
     link: ''
@@ -85,14 +85,15 @@ export function Docs() {
           href="/docs"
           className="card font-semibold text-xl ml-7 px-7 flex items-center rounded-3xl h-16 w-[363px]"
         >
-          Frames Validator
+          <Icon name="frames-validator" />
+          <span className="ml-1.5">Frames Validator</span>
         </a>
-        <a
+        {/* <a
           href="/docs"
           className="card font-semibold text-xl ml-7 px-7 flex items-center rounded-3xl h-16 w-[363px]"
         >
           Frames Captcha SDK
-        </a>
+        </a> */}
       </div>
     </div>
   );

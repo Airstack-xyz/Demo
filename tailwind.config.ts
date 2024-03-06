@@ -113,6 +113,18 @@ const config: Config = {
         },
         '.card-light': {
           '@apply bg-[#0F273F] border border-solid border-[#10365E]': {}
+        },
+        '.flex-row-h-center': {
+          '@apply flex items-center': {}
+        },
+        '.flex-row-v-center': {
+          '@apply flex justify-center': {}
+        },
+        '.flex-col-v-center': {
+          '@apply flex items-center': {}
+        },
+        '.flex-col-h-center': {
+          '@apply flex justify-center': {}
         }
       });
     }

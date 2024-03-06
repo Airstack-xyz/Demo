@@ -89,7 +89,7 @@ const modules: {
 
 export function Abstractions() {
   return (
-    <div className="card p-7 rounded-18">
+    <div className="card p-7 rounded-18 w-full">
       <h3 className="text-left font-bold mb-5 flex items-center">
         <Icon name="abstraction-modules" />
         <span className="ml-1.5">Abstraction Modules</span>
