@@ -1,10 +1,9 @@
-"use client";
-import React from "react";
-import "./globals.css";
-import { Header } from "@/Components/Header";
+import React from 'react';
+import './globals.css';
+import { Header } from '@/Components/Header';
 
 export default function RootLayout({
-  children,
+  children
 }: {
   children: React.ReactNode;
 }) {

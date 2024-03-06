@@ -1,3 +1,4 @@
+'use client';
 import { Link } from '@/Components/Link';
 import { useAuth } from '../hooks/useAuth';
 import { CSVDownloads } from './CSVDownload/CSVDownloads';
