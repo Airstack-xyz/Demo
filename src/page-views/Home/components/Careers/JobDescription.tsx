@@ -46,7 +46,7 @@ export function JobDescription({
       <div className="text-base">
         <span className="text-white">Send in your resume to</span> <br />
         <a
-          href="malto:careers@airstack.xyz"
+          href="mailto:careers@airstack.xyz"
           className="text-text-button font-semibold"
         >
           careers@airstack.xyz
@@ -65,7 +65,7 @@ export function JobDescription({
       <div className="text-base">
         <span className="text-white">Send in your resume to</span> <br />
         <a
-          href="malto:careers@airstack.xyz"
+          href="mailto:careers@airstack.xyz"
           className="text-text-button font-semibold"
         >
           careers@airstack.xyz

@@ -9,7 +9,7 @@ export function Careers() {
 
   return (
     <div>
-      <h2 className="text-center text-[22px] sm:text-3xl mb-16">
+      <h2 className="text-center text-[22px] sm:text-3xl mb-16 font-semibold">
         {' '}
         We are hiring{' '}
       </h2>

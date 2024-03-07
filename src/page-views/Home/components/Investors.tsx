@@ -29,7 +29,7 @@ const investorsImages = Array.from(
 export function Investors() {
   return (
     <div className="w-full">
-      <h2 className="text-center text-3xl mb-16">Backed By</h2>
+      <h2 className="text-center text-3xl mb-16 font-semibold">Backed By</h2>
       <div>
         <ul className="flex items-center gap-x-3 sm:gap-x-[105px] gap-y-10 justify-between flex-wrap">
           {investorsImages.map(index => (

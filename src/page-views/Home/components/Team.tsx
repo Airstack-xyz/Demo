@@ -1,4 +1,5 @@
 import { Image } from '@/Components/Image';
+import { Link } from './Link';
 
 type Social = {
   name: string;
@@ -152,7 +153,7 @@ const imageBasePath = 'images/team/';
 export function Team() {
   return (
     <div>
-      <h2 className="text-center text-[22px] sm:text-3xl mb-16">
+      <h2 className="text-center text-[22px] sm:text-3xl mb-16 font-semibold">
         Meet Our Team
       </h2>
       <ul className="flex items-center justify-center gap-12 flex-wrap text-left">
@@ -175,14 +176,14 @@ export function Team() {
                   {member.socials?.map((social, index) => {
                     return (
                       <li key={index} className="mr-1">
-                        <a href={social.link}>
+                        <Link to={social.link}>
                           <Image
                             src={`images/team/socials/${social.name}.svg`}
                             height={11}
                             width={11}
                             loading="lazy"
                           />
-                        </a>
+                        </Link>
                       </li>
                     );
                   })}

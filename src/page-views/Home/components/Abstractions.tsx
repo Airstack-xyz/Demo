@@ -1,4 +1,5 @@
 import { Icon, IconType } from './Icon';
+import { Link } from './Link';
 
 const modules: {
   name: string;
@@ -100,10 +101,10 @@ export function Abstractions() {
             key={name}
             className="card-light h-12 py-3 px-2.5 rounded-xl w-auto sm:w-64"
           >
-            <a href={link} className="flex items-center font-semibold text-sm">
+            <Link to={link} className="flex items-center font-semibold text-sm">
               <Icon name={icon} />
               <span className="ml-1.5 ellipsis">{name}</span>
-            </a>
+            </Link>
           </li>
         ))}
       </ul>
