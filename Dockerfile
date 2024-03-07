@@ -6,18 +6,19 @@ COPY . /app
 
 WORKDIR /app
 
-ARG NODE_ENV
-ARG ENV
+# ARG NODE_ENV
+# ARG ENV
 
-ENV NODE_ENV=$NODE_ENV
-ENV ENV=$ENV
+# ENV NODE_ENV=$NODE_ENV
+# ENV ENV=$ENV
 
-RUN echo 'node_env:' $NODE_ENV
+# RUN echo 'node_env:' $NODE_ENV
 
 RUN npm install --legacy-peer-deps
 RUN ls ./node_modules/.bin
 #RUN npm i next
-RUN export ENV=${ENV} && npm run build-sh
+# RUN export ENV=${ENV} && npm run build-sh
+RUN npm run build
 
 EXPOSE 3000
 
