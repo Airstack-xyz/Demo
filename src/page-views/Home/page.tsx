@@ -11,7 +11,7 @@ import { Socials } from './components/Socials';
 import { Chains } from './components/Chains';
 import { Partners } from './components/Partners';
 import { LiveIntegrations } from './components/LiveIntegrations';
-import { Hiring } from './components/Hiring';
+import { Careers } from './components/Careers/Careers';
 import { Team } from './components/Team';
 import { Investors } from './components/Investors';
 import { Footer } from './components/Footer';
@@ -93,7 +93,7 @@ export function HomePage() {
           </div>
         </div>
         <div className="my-20">
-          <Hiring />
+          <Careers />
         </div>
         <div className="my-20">
           <Team />
