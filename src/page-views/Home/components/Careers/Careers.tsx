@@ -17,7 +17,7 @@ export function Careers() {
         {jobs.map((job, index) => (
           <li
             key={index}
-            className="card rounded-full px-7 h-14 flex items-center"
+            className="card rounded-full px-7 h-14 flex items-center cursor-pointer"
             onClick={() => {
               setActiveJob(job);
             }}

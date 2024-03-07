@@ -87,7 +87,7 @@ export function Partners() {
         Innovators build with Airstack
       </h2>
       <div className="border border-dashed border-[#7e7e7e] px-12 pb-12 flex-col-center relative">
-        <div className="flex-row-h-center gap-11 bg-primary relative -top-7 flex-wrap sm:flex-nowrap">
+        <div className="flex-row-h-center gap-11 bg-primary relative -top-7 flex-wrap sm:flex-nowrap px-0 sm:px-20">
           {firstRowItems.map((item, index) => (
             <Link to={item.link} key={index}>
               <IconWithBorder

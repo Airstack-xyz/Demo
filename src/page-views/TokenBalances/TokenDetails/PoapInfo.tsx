@@ -13,7 +13,7 @@ export function PoapInfo({
   const poapEvent = poap?.poapEvent || {};
 
   return (
-    <div className="overflow-hidden text-sm">
+    <div className="overflow-hidden text-sm flex-1">
       <KeyValue name="Event name" value={poapEvent.eventName} />
       <KeyValue name="Token type" value="POAP" />
       <KeyValue name="Event ID" value={poap.eventId} />

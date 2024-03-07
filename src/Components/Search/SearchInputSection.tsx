@@ -211,7 +211,7 @@ export function SearchInputSection({
       <div
         ref={inputSectionRef}
         className={classNames(
-          'before-bg-glass before:rounded-full before:border-solid-stroke before:!border-[#ffffff1a] transition-all absolute top-0',
+          'before-bg-glass before:rounded-3xl before:border-solid-stroke before:!border-[#ffffff1a] transition-all absolute top-0',
           isAdvancedMentionSearchVisible && !isMobile
             ? 'w-[min(70vw,900px)]'
             : 'w-full'

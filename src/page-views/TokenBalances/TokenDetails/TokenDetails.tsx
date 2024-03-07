@@ -1,38 +1,38 @@
-import { useLazyQuery } from "@airstack/airstack-react";
-import classNames from "classnames";
-import { useCallback, useEffect, useRef } from "react";
-import { createSearchParams } from "react-router-dom";
-import { Icon } from "../../../Components/Icon";
+import { useLazyQuery } from '@airstack/airstack-react';
+import classNames from 'classnames';
+import { useCallback, useEffect, useRef } from 'react';
+import { createSearchParams } from 'react-router-dom';
+import { Icon } from '../../../Components/Icon';
 import {
   resetCachedUserInputs,
-  useSearchInput,
-} from "../../../hooks/useSearchInput";
+  useSearchInput
+} from '../../../hooks/useSearchInput';
 import {
   accountHolderQuery,
   erc20TokenDetailsQuery,
   poapDetailsQuery,
-  tokenDetailsQuery,
-} from "../../../queries/tokenDetails";
-import { useTokenDetails } from "../../../store/tokenDetails";
-import { capitalizeFirstLetter } from "../../../utils";
-import { SocialInfo } from "../../../utils/activeSocialInfoString";
-import { getActiveTokensInfoFromArray } from "../../../utils/activeTokenInfoString";
-import { createTokenHolderUrl } from "../../../utils/createTokenUrl";
-import { isMobileDevice } from "../../../utils/isMobileDevice";
+  tokenDetailsQuery
+} from '../../../queries/tokenDetails';
+import { useTokenDetails } from '../../../store/tokenDetails';
+import { capitalizeFirstLetter } from '../../../utils';
+import { SocialInfo } from '../../../utils/activeSocialInfoString';
+import { getActiveTokensInfoFromArray } from '../../../utils/activeTokenInfoString';
+import { createTokenHolderUrl } from '../../../utils/createTokenUrl';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
 import {
   Account,
   AccountHolderResponse,
   ERC20Response,
   Nft,
-  TokenTransfer,
-} from "../ERC20/types";
-import { Token } from "../Tokens/Token";
-import { NFTInfo, TokenERC20Info } from "./NFTInfo";
-import { NestedTokens } from "./NestedTokens";
-import { PoapInfo } from "./PoapInfo";
-import { PoapData } from "./types";
-import { useNavigate } from "@/hooks/useNavigate";
-import { useMatch } from "@/hooks/useMatch";
+  TokenTransfer
+} from '../ERC20/types';
+import { Token } from '../Tokens/Token';
+import { NFTInfo, TokenERC20Info } from './NFTInfo';
+import { NestedTokens } from './NestedTokens';
+import { PoapInfo } from './PoapInfo';
+import { PoapData } from './types';
+import { useNavigate } from '@/hooks/useNavigate';
+import { useMatch } from '@/hooks/useMatch';
 
 function LoaderItem() {
   return (
@@ -68,9 +68,9 @@ function formatNFTData(data: ERC20Response) {
   return {
     nft: {
       ...data?.nft,
-      tokenBalance: data?.nft?.tokenBalances?.[0],
+      tokenBalance: data?.nft?.tokenBalances?.[0]
     },
-    transferDetails: data?.transfers?.TokenTransfer[0],
+    transferDetails: data?.transfers?.TokenTransfer[0]
   };
 }
 
@@ -78,7 +78,7 @@ function formatPoapData(data: PoapData) {
   if (!data) return {};
   return {
     poap: data?.poap?.Poap?.[0] || null,
-    transferDetails: data?.tokenTransfer?.TokenTransfer?.[0],
+    transferDetails: data?.tokenTransfer?.TokenTransfer?.[0]
   };
 }
 
@@ -104,13 +104,13 @@ function formatAccountHolderData(data: AccountHolderResponse) {
         }
       }
     }
-    return "";
+    return '';
   }
   const ownerAddress = getOwner(accounts);
 
   return {
     ownerAddress,
-    hasParent: depth > 0,
+    hasParent: depth > 0
   };
 }
 
@@ -140,17 +140,17 @@ export function TokenDetails(props: {
 
   const isMobile = isMobileDevice();
 
-  const isTokenBalances = !!useMatch("/token-balances");
-  const [, setDetails] = useTokenDetails(["hasERC6551"]);
+  const isTokenBalances = !!useMatch('/token-balances');
+  const [, setDetails] = useTokenDetails(['hasERC6551']);
 
-  const addressRef = useRef(address.join(","));
+  const addressRef = useRef(address.join(','));
 
   const [fetchToken, { data, loading: loadingToken }] = useLazyQuery(
     tokenDetailsQuery,
     {
       tokenId,
       blockchain,
-      tokenAddress,
+      tokenAddress
     },
     { dataFormatter: formatNFTData }
   );
@@ -158,17 +158,17 @@ export function TokenDetails(props: {
   const [fetchERC20Token, { data: erc20Data, loading: loadingERC20 }] =
     useLazyQuery(erc20TokenDetailsQuery, {
       blockchain,
-      tokenAddress,
+      tokenAddress
     });
 
   const [
     fetchAccountHolders,
-    { data: _accountHoldersData, loading: loadingAccountHolder },
+    { data: _accountHoldersData, loading: loadingAccountHolder }
   ] = useLazyQuery(
     accountHolderQuery,
     {},
     {
-      dataFormatter: formatAccountHolderData,
+      dataFormatter: formatAccountHolderData
     }
   );
 
@@ -180,14 +180,14 @@ export function TokenDetails(props: {
     poapDetailsQuery,
     {
       tokenAddress,
-      eventId,
+      eventId
     },
     { dataFormatter: formatPoapData }
   );
 
   useEffect(() => {
     // close if address changes
-    if (addressRef.current && addressRef.current !== address.join(",")) {
+    if (addressRef.current && addressRef.current !== address.join(',')) {
       onClose?.();
     }
   }, [address, onClose]);
@@ -212,14 +212,14 @@ export function TokenDetails(props: {
 
   const handleClose = useCallback(() => {
     const searchData = {
-      address: address.join(","),
+      address: address.join(','),
       rawInput,
-      inputType: inputType || "",
+      inputType: inputType || ''
     };
     onClose?.();
     navigate({
-      pathname: isTokenBalances ? "/token-balances" : "/token-holders",
-      search: createSearchParams(searchData).toString(),
+      pathname: isTokenBalances ? '/token-balances' : '/token-holders',
+      search: createSearchParams(searchData).toString()
     });
   }, [address, inputType, isTokenBalances, navigate, onClose, rawInput]);
 
@@ -234,24 +234,24 @@ export function TokenDetails(props: {
     if (ownerId) {
       fetchAccountHolders({
         blockchain,
-        address: ownerId,
+        address: ownerId
       });
     }
   }, [blockchain, fetchAccountHolders, nft]);
 
   useEffect(() => {
     setDetails({
-      hasERC6551: !isPoap && nft?.erc6551Accounts?.length > 0,
+      hasERC6551: !isPoap && nft?.erc6551Accounts?.length > 0
     });
   }, [isPoap, nft?.erc6551Accounts?.length, setDetails]);
 
   const handleFollowBreadcrumbClick = useCallback(() => {
     setSearchData(
       {
-        activeTokenInfo: "",
+        activeTokenInfo: ''
       },
       {
-        updateQueryParams: true,
+        updateQueryParams: true
       }
     );
   }, [setSearchData]);
@@ -261,10 +261,10 @@ export function TokenDetails(props: {
       const updatedTokens = activeTokens.slice(0, index + 1);
       setSearchData(
         {
-          activeTokenInfo: getActiveTokensInfoFromArray(updatedTokens),
+          activeTokenInfo: getActiveTokensInfoFromArray(updatedTokens)
         },
         {
-          updateQueryParams: true,
+          updateQueryParams: true
         }
       );
     },
@@ -276,17 +276,17 @@ export function TokenDetails(props: {
       address: (isPoap
         ? poap?.eventId
         : erc20Token?.address || nft.address) as string,
-      inputType: isPoap ? "POAP" : "ADDRESS",
-      type: isPoap ? "POAP" : erc20Token?.type || nft.type,
+      inputType: isPoap ? 'POAP' : 'ADDRESS',
+      type: isPoap ? 'POAP' : erc20Token?.type || nft.type,
       blockchain,
       label:
         (isPoap
           ? poap?.poapEvent?.eventName
-          : erc20Token?.name || nft?.token?.name) || "--",
-      truncateLabel: isMobile,
+          : erc20Token?.name || nft?.token?.name) || '--',
+      truncateLabel: isMobile
     });
     // reset cached filters for tokenHolder
-    resetCachedUserInputs("tokenHolder");
+    resetCachedUserInputs('tokenHolder');
     // reset hasERC6551 status for tokenHolder
     setDetails({ hasERC6551: false });
     navigate(url);
@@ -302,9 +302,9 @@ export function TokenDetails(props: {
   return (
     <div
       className={classNames(
-        "max-w-[950px] mx-auto w-full text-sm pt-10 sm:pt-0",
+        'max-w-[950px] overflow-hidden mx-auto w-full text-sm pt-10 sm:pt-0',
         {
-          "pb-10": !hasChildren,
+          'pb-10': !hasChildren
         }
       )}
     >
@@ -316,13 +316,13 @@ export function TokenDetails(props: {
               onClick={handleClose}
             >
               <Icon
-                name={isTokenBalances ? "token-balances" : "token-holders"}
+                name={isTokenBalances ? 'token-balances' : 'token-holders'}
                 height={20}
                 width={20}
               />
               <span className="ml-1 text-text-secondary break-all cursor-pointer ellipsis">
-                Token {isTokenBalances ? "balances" : "holders"} of{" "}
-                {address.join(", ")}
+                Token {isTokenBalances ? 'balances' : 'holders'} of{' '}
+                {address.join(', ')}
               </span>
             </div>
             <span className="text-text-secondary">/</span>
@@ -348,14 +348,14 @@ export function TokenDetails(props: {
           return (
             <div
               key={_tokenId}
-              className={classNames("flex items-center overflow-hidden", {
-                "skeleton-loader": loading,
+              className={classNames('flex items-center overflow-hidden', {
+                'skeleton-loader': loading
               })}
             >
               <button
-                className={classNames("flex cursor-auto px-1 py-0.5", {
-                  "hover:bg-glass-1-light rounded-18 !cursor-pointer":
-                    !isActiveToken,
+                className={classNames('flex cursor-auto px-1 py-0.5', {
+                  'hover:bg-glass-1-light rounded-18 !cursor-pointer':
+                    !isActiveToken
                 })}
                 onClick={() => {
                   if (!isActiveToken) {
@@ -368,7 +368,7 @@ export function TokenDetails(props: {
                   height={20}
                   width={20}
                   className="mr-1"
-                />{" "}
+                />{' '}
                 <span
                   data-loader-type="block"
                   data-loader-width="50"
@@ -377,7 +377,7 @@ export function TokenDetails(props: {
                   {!loading && isActiveToken ? (
                     <>
                       <span className="ellipsis">
-                        Details of{" "}
+                        Details of{' '}
                         {isPoap
                           ? poap?.poapEvent?.eventName
                           : erc20Token?.name || nft?.token?.name}
@@ -408,7 +408,7 @@ export function TokenDetails(props: {
         <div className="flex flex-col items-center mr-0 sm:mr-7">
           <div
             className={classNames({
-              "skeleton-loader": loading,
+              'skeleton-loader': loading
             })}
           >
             <Token
@@ -421,9 +421,9 @@ export function TokenDetails(props: {
           </div>
           <div className="flex justify-center">
             <button
-              className={classNames("flex py-2 px-10 mt-7 rounded-18", {
-                "bg-button-primary": !loading,
-                "skeleton-loader": loading,
+              className={classNames('flex py-2 px-10 mt-7 rounded-18', {
+                'bg-button-primary': !loading,
+                'skeleton-loader': loading
               })}
               data-loader-type="block"
               onClick={handleViewHoldersClick}

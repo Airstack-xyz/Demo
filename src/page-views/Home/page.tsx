@@ -102,7 +102,7 @@ export function HomePage() {
           <Investors />
         </div>
       </div>
-      <div className="py-10">
+      <div className="pt-10">
         <Footer />
       </div>
     </>

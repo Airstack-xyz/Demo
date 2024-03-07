@@ -77,7 +77,7 @@ export function NFTInfo({
   }, [attributes]);
 
   return (
-    <div className="overflow-hidden text-sm">
+    <div className="overflow-hidden text-sm  flex-1">
       <div>
         <KeyValue name="Token name" value={nft?.token?.name} />
         <KeyValue name="Symbol" value={nft?.token?.symbol || '--'} />
@@ -154,7 +154,7 @@ export function NFTInfo({
           name="Last transfer hash"
           value={
             <>
-              <span className="ellipsis">{nft?.lastTransferHash}</span>
+              <span className="ellipsis flex-1">{nft?.lastTransferHash}</span>
               <CopyButton value={nft?.lastTransferHash || ''} />
             </>
           }
@@ -163,7 +163,7 @@ export function NFTInfo({
           name="Token URI"
           value={
             <>
-              <span className="ellipsis">{nft?.tokenURI}</span>
+              <span className="ellipsis flex-1">{nft?.tokenURI}</span>
               <CopyButton value={nft?.tokenURI || ''} />
             </>
           }
@@ -228,7 +228,7 @@ export function TokenERC20Info({
   token?: ERC20TokenDetailsResponse['Token'];
 }) {
   return (
-    <div className="overflow-hidden text-sm">
+    <div className="overflow-hidden text-sm flex-1">
       <KeyValue name="Token Address" value={token?.address} />
       <KeyValue name="Total supply" value={token?.totalSupply} />
       <KeyValue
