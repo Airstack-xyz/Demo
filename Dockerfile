@@ -14,7 +14,6 @@ ENV ENV=$ENV
 
 RUN echo 'node_env:' $NODE_ENV
 
-RUN ls ./node_modules/.bin
 RUN npm install --legacy-peer-deps
 RUN ls ./node_modules/.bin
 #RUN npm i next
