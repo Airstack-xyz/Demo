@@ -169,8 +169,8 @@ export function Team() {
                 width={148}
                 className="rounded-18 mb-2"
               />
-              <h3 className="text-xs font-bold">{member.name}</h3>
-              <p className="text-[10px] text-[#868D94]">{member.title}</p>
+              <h3 className="text-sm font-bold">{member.name}</h3>
+              <p className="text-xs text-[#868D94]">{member.title}</p>
               {member.socials && (
                 <ul className="mt-0.5 flex-row-h-center">
                   {member.socials?.map((social, index) => {

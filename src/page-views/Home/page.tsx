@@ -31,7 +31,9 @@ export function HomePage() {
         )}
       >
         <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
-          <h1 className="text-[44px]">Explore Onchain</h1>
+          <h1 className="text-[30px] sm:text-[44px] mt-12 sm:mt-0">
+            Explore Onchain
+          </h1>
           <div className="flex justify-center">
             <div className="w-[850px] max-w-[850px]">
               <Suspense>

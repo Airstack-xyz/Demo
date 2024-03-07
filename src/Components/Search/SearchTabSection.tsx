@@ -6,7 +6,7 @@ import { Link } from '@/Components/Link';
 import { Dropdown } from '../Dropdown';
 
 const tabClass =
-  'px-2 sm:px-6 h-[30px] rounded-full mr-1 flex-row-center text-xs text-white border border-solid border-transparent';
+  'px-2 sm:px-6 h-[30px] rounded-full mr-1 flex-row-center text-sm text-white border border-solid border-transparent';
 
 const activeTabClass = 'bg-white font-bold !text-[#10212E]';
 

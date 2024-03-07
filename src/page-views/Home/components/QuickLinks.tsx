@@ -21,12 +21,12 @@ const links = [
 
 export function QuickLinks() {
   return (
-    <ul className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-center flex-wrap gap-3 sm:gap-9 mt-8">
+    <ul className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-center flex-wrap gap-3 sm:gap-3.5 mt-8">
       {links.map(({ label, link }) => (
         <li key={label} className="text-text-button bg-[#ffffff0d] rounded-18">
           <Link
             to={link}
-            className="inline-block h-full w-full py-1 px-3 text-sm"
+            className="inline-block h-full w-full py-1 px-3 text-base"
           >
             {label} {'->'}
           </Link>

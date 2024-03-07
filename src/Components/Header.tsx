@@ -19,8 +19,8 @@ const links: { name: IconType; link: string; description: string }[] = [
     description: ''
   },
   {
-    name: 'github',
-    link: 'https://github.com/Airstack-xyz/Demo',
+    name: 'docs',
+    link: 'https://app.airstack.xyz/docs',
     description: ''
   }
 ];
@@ -56,7 +56,12 @@ export function Header() {
                 to={link.link}
                 className="flex items-center gap-2"
               >
-                <Icon name={link.name} height={30} width={40} />
+                <Icon
+                  name={link.name}
+                  height={30}
+                  width={40}
+                  className="w-auto"
+                />
               </Link>
             </Tooltip>
           ))}
