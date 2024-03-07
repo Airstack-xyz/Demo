@@ -14,9 +14,8 @@ ENV ENV=$ENV
 
 RUN echo 'node_env:' $NODE_ENV
 
-RUN npm i patch-package
 RUN ls ./node_modules/.bin
-RUN npm install
+RUN npm install --legacy-peer-deps
 RUN ls ./node_modules/.bin
 #RUN npm i next
 RUN export ENV=${ENV} && npm run build-sh
