@@ -5,7 +5,7 @@ on: workflow_dispatch
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: explorer-web
-  EVENT_NAME: prod-explorer-web
+  EVENT_NAME: uat-explorer-web
   VALUES_FILE: core/common-values/explorer-web-values.yaml
 
 permissions:
@@ -25,7 +25,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::679464682883:role/githubactions
+          role-to-assume: arn:aws:iam::114810186946:role/githubactions
           role-session-name: Github
           aws-region: ${{ env.AWS_REGION }}
 
@@ -59,4 +59,4 @@ jobs:
           -H "Authorization: token ${{ secrets.ACCESS_TOKEN_PWD }}" \
           --request POST \
           --data '{"event_type": "'"$EVENT_NAME"'", "client_payload": {"name": "'"$EVENT_NAME"'", "file_path": "'"$VALUES_FILE"'", "tag": "'"$IMAGE_TAG"'"}}' \
-          https://api.github.com/repos/Airstack-xyz/infra-development-deployment/dispatches
+          https://api.github.com/repos/Airstack-xyz/infra-uat-deployment/dispatches
