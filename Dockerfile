@@ -9,7 +9,6 @@ WORKDIR /app
 ARG NODE_ENV
 ARG ENV
 
-ENV NODE_ENV=$NODE_ENV
 ENV ENV=$ENV
 
 RUN echo 'node_env:' $NODE_ENV
