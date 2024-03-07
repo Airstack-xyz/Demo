@@ -8,7 +8,7 @@ type ItemType = {
   textColor: string;
   link: string;
 };
-const firstRowITems: ItemType[] = [
+const firstRowItems: ItemType[] = [
   {
     icon: 'farcaster',
     label: 'Farcaster',
@@ -83,12 +83,12 @@ const secondRowItems: ItemType[] = [
 export function Partners() {
   return (
     <div>
-      <h2 className="text-3xl font-semibold pb-20">
+      <h2 className="text-[22px] sm:text-4xl font-semibold pb-20">
         Innovators build with Airstack
       </h2>
       <div className="border border-dashed border-[#7e7e7e] px-12 pb-12 flex-col-center relative">
-        <div className="flex-col-h-center gap-11 bg-primary relative -top-7">
-          {firstRowITems.map((item, index) => (
+        <div className="flex-row-h-center gap-11 bg-primary relative -top-7 flex-wrap sm:flex-nowrap">
+          {firstRowItems.map((item, index) => (
             <Link to={item.link} key={index}>
               <IconWithBorder
                 key={index}
@@ -102,7 +102,7 @@ export function Partners() {
             </Link>
           ))}
         </div>
-        <div className="flex-col-h-center gap-11 mt-5">
+        <div className="flex-row-h-center gap-11 mt-5 flex-wrap sm:flex-nowrap">
           {secondRowItems.map((item, index) => (
             <Link to={item.link} key={index}>
               <IconWithBorder

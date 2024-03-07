@@ -6,7 +6,7 @@ import { IconWithBranches } from './IconWithBranches';
 export function Tokens() {
   return (
     <Card icon="events" title="Tokens">
-      <ul className="flex-row-h-center gap-10 [&>li]:h-[104px] [&>li]:flex-col-v-center">
+      <ul className="flex-row-h-center gap-x-3 sm:gap-x-10 gap-y-10 [&>li]:h-[90px] sm:[&>li]:h-[104px] [&>li]:flex-col-v-center flex-wrap sm:flex-nowrap">
         <li className="ml-2 relative">
           <Link to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/erc20">
             <IconWithBorder name="abstraction-modules" label="Tokens" />

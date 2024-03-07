@@ -41,8 +41,8 @@ export function HomePage() {
           </div>
           <QuickLinks />
         </div>
-        <div className="mt-52">
-          <h2 className="text-[44px] leading-relaxed flex flex-col">
+        <div className="mt-32 sm:mt-52">
+          <h2 className="text-[22px] sm:text-[44px] leading-relaxed flex flex-col">
             <span>Airstack is the easiest</span>
             <span className="flex items-center">
               <span>way to build on</span>
@@ -55,7 +55,7 @@ export function HomePage() {
               <span>Farcaster</span>
             </span>
           </h2>
-          <div className="text-[#868D94] text-2xl mt-4">
+          <div className="text-[#868D94] text-base sm:text-2xl mt-4">
             Powerful for developers. Easy for Everyone!
           </div>
         </div>
@@ -63,21 +63,21 @@ export function HomePage() {
           <Docs />
         </div>
         <div className="mb-14">
-          <h2 className="text-4xl font-semibold leading-relaxed">
-            Discover why 1,720 builders rely on Airstack <br /> for billions of
-            API responses monthly
+          <h2 className="text-[22px] sm:text-4xl font-semibold !leading-relaxed max-w-[830px]">
+            Discover why 1,720 builders rely on Airstack for billions of API
+            responses monthly
           </h2>
         </div>
         <Abstractions />
-        <div className="w-full mt-5 flex-row-h-center">
+        <div className="w-full mt-5 flex flex-col sm:flex-row sm:items-center">
           <Tokens />
-          <div className="ml-5">
+          <div className="ml-0 sm:ml-5 mt-5 sm:mt-0">
             <Events />
           </div>
         </div>
-        <div className="w-full mt-5 flex-row-h-center">
+        <div className="w-full mt-5 flex flex-col sm:flex-row sm:items-center">
           <Socials />
-          <div className="ml-5">
+          <div className="ml-0 sm:ml-5 mt-5 sm:mt-0">
             <Chains />
           </div>
         </div>

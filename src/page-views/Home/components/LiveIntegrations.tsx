@@ -158,7 +158,7 @@ const items: ItemType[] = [
 export function LiveIntegrations() {
   return (
     <div className="border border-dashed border-[#7e7e7e] px-12 pb-2 flex-col-center relative">
-      <div className="grid grid-cols-6 gap-11 bg-primary relative -top-7">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-11 bg-primary relative -top-7">
         {items.map((item, index) => (
           <IconWithBorder
             key={index}

@@ -152,14 +152,16 @@ const imageBasePath = 'images/team/';
 export function Team() {
   return (
     <div>
-      <h2 className="text-center text-3xl mb-16">Meet Our Team</h2>
+      <h2 className="text-center text-[22px] sm:text-3xl mb-16">
+        Meet Our Team
+      </h2>
       <ul className="flex items-center justify-center gap-12 flex-wrap text-left">
         {teamMembers.map((member, index) => {
           const img = member.image
             ? `${imageBasePath}${member.image}`
             : `${imageBasePath}${member.name.split(' ')[0].toLowerCase()}.png`;
           return (
-            <li key={index} className="w-[148px] leading-4">
+            <li key={index} className="w-[148px] h-[200px] leading-4">
               <Image
                 src={img}
                 height={148}

@@ -4,7 +4,7 @@ const link = 'https://app.airstack.xyz';
 
 export function QueryAndAiLinks() {
   return (
-    <div className="w-full flex-col-h-center">
+    <div className="w-full flex flex-col sm:flex-row">
       <Link
         to={link}
         className="card p-6 rounded-xl flex-row-center flex-1 text-center font-semibold"
@@ -13,7 +13,7 @@ export function QueryAndAiLinks() {
       </Link>
       <Link
         to={link}
-        className="card p-6 rounded-xl flex-row-center flex-1 ml-5 text-center font-semibold"
+        className="card p-6 rounded-xl flex-row-center flex-1 ml-0 sm:ml-5 mt-5 sm:mt-0 text-center font-semibold"
       >
         <Icon name="ai-api" width={16} height={16} /> AI APIs (in dev)
       </Link>

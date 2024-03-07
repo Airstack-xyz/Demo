@@ -94,15 +94,15 @@ export function Abstractions() {
         <Icon name="abstraction-modules" />
         <span className="ml-1.5">Abstraction Modules</span>
       </h3>
-      <ul className="grid grid-cols-4 gap-3.5">
+      <ul className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3.5">
         {modules.map(({ name, icon, link }) => (
           <li
             key={name}
-            className="card-light h-12 py-3 px-2.5 rounded-xl w-64"
+            className="card-light h-12 py-3 px-2.5 rounded-xl w-auto sm:w-64"
           >
             <a href={link} className="flex items-center font-semibold text-sm">
               <Icon name={icon} />
-              <span className="ml-1.5">{name}</span>
+              <span className="ml-1.5 ellipsis">{name}</span>
             </a>
           </li>
         ))}

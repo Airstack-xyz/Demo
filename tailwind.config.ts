@@ -121,10 +121,10 @@ const config: Config = {
           '@apply flex justify-center': {}
         },
         '.flex-col-v-center': {
-          '@apply flex items-center': {}
+          '@apply flex flex-col items-center': {}
         },
         '.flex-col-h-center': {
-          '@apply flex justify-center': {}
+          '@apply flex flex-col justify-center': {}
         }
       });
     }

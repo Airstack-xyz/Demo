@@ -6,28 +6,28 @@ import { Link } from './Link';
 export function Socials() {
   return (
     <Card icon="socials" title="Socials, Domains & Messaging">
-      <div className="h-[104px] flex-row-h-center gap-10 flex-row-center">
+      <div className="[&>a]:h-[90px] sm:[&>a]:h-[104px] flex items-start sm:items-center gap-10 flex-wrap sm:flex-nowrap">
         <Link to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster">
-          <IconWithBorder name="allow-list" label="Farcaster" />
+          <IconWithBorder name="farcaster" label="Farcaster" />
         </Link>
         <Link to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/lens">
-          <IconWithBorder name="allow-list" label="Lens" />
+          <IconWithBorder name="lens" label="Lens" />
+        </Link>
+        <Link to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/xmtp">
+          <IconWithBorder name="xmtp" label="XMTP" />
         </Link>
         <Link
           to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/ens-domains"
           className="relative"
         >
           <IconWithBranches
-            name="allow-list"
-            label="Lens"
+            name="ens"
+            label="ENS"
             branches={['On-chain', 'Off-chain']}
           />
-          <span className="text-[10px] opacity-50 absolute -bottom-6 right-0">
+          <span className="text-[10px] opacity-50 absolute -bottom-2 sm:-bottom-6 right-0">
             cb.id, Namestone, & others
           </span>
-        </Link>
-        <Link to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/xmtp">
-          <IconWithBorder name="allow-list" label="XMTP" />
         </Link>
       </div>
     </Card>

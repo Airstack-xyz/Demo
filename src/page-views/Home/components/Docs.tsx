@@ -54,7 +54,7 @@ const items: Info[] = [
 
 function Item({ title, icon, description, link }: Info) {
   return (
-    <li className="card w-[336px] h-[376px] px-5 pt-10 pb-6 rounded-2xl text-left flex flex-col justify-between">
+    <li className="card w-full sm:w-[336px] h-[376px] px-5 pt-10 pb-6 rounded-2xl text-left flex flex-col justify-between">
       <div>
         <div className="flex">
           <span className="bg-white bg-opacity-5 p-3 rounded-lg">
@@ -76,7 +76,7 @@ function Item({ title, icon, description, link }: Info) {
 export function Docs() {
   return (
     <div>
-      <ul className="grid grid-cols-3 gap-7">
+      <ul className="grid grid-cols-1 sm:grid-cols-3 gap-7 justify-items-center sm:justify-items-start">
         {items.map(item => (
           <Item key={item.title} {...item} />
         ))}
@@ -84,7 +84,7 @@ export function Docs() {
       <div className="flex items-center justify-center mt-7">
         <Link
           to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster/airstack-onchain-kit-for-farcaster-frames#validate-frames-signature-packet"
-          className="card font-semibold text-xl ml-7 px-7 flex items-center rounded-3xl h-16 w-[363px]"
+          className="card font-semibold text-xl px-7 flex items-center rounded-3xl h-16 w-full sm:w-[363px]"
         >
           <Icon name="frames-validator" loading="eager" />
           <span className="ml-1.5">Frames Validator</span>
