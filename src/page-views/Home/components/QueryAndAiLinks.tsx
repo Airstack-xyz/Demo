@@ -9,13 +9,15 @@ export function QueryAndAiLinks() {
         to={link}
         className="card p-6 rounded-xl flex-row-center flex-1 text-center font-semibold"
       >
-        <Icon name="ai-query" width={33} height={18} /> AI Query Engine
+        <Icon name="ai-query" width={33} height={18} className="mr-1.5" /> AI
+        Query Engine
       </Link>
       <Link
         to={link}
         className="card p-6 rounded-xl flex-row-center flex-1 ml-0 sm:ml-5 mt-5 sm:mt-0 text-center font-semibold"
       >
-        <Icon name="ai-api" width={16} height={16} /> AI APIs (in dev)
+        <Icon name="ai-api" width={16} height={16} className="mr-1.5" /> AI APIs
+        (in dev)
       </Link>
     </div>
   );

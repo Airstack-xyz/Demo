@@ -42,7 +42,7 @@ export function HomePage() {
           <QuickLinks />
         </div>
         <div className="mt-32 sm:mt-52">
-          <h2 className="text-[22px] sm:text-[44px] leading-relaxed flex flex-col">
+          <h2 className="text-[22px] sm:text-[44px] leading-relaxed flex flex-col font-semibold">
             <span>Airstack is the easiest</span>
             <span className="flex items-center">
               <span>way to build on</span>

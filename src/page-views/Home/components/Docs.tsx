@@ -54,7 +54,7 @@ const items: Info[] = [
 
 function Item({ title, icon, description, link }: Info) {
   return (
-    <li className="card w-full sm:w-[336px] h-[376px] px-5 pt-10 pb-6 rounded-2xl text-left flex flex-col justify-between">
+    <li className="card w-full sm:w-[355px] h-[376px] px-5 pt-10 pb-6 rounded-2xl text-left flex flex-col justify-between">
       <div>
         <div className="flex">
           <span className="bg-white bg-opacity-5 p-3 rounded-lg">
@@ -65,9 +65,9 @@ function Item({ title, icon, description, link }: Info) {
         <div className="text-base text-[#868D94] mb-6">{description}</div>
       </div>
       <div>
-        <a href={link} className="font-semibold text-text-button">
+        <Link to={link} className="font-semibold text-text-button">
           Read more <span>{'->'}</span>
-        </a>
+        </Link>
       </div>
     </li>
   );
@@ -81,7 +81,7 @@ export function Docs() {
           <Item key={item.title} {...item} />
         ))}
       </ul>
-      <div className="flex items-center justify-center mt-7">
+      <div className="flex flex-col sm:flex-row items-center justify-center mt-7">
         <Link
           to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster/airstack-onchain-kit-for-farcaster-frames#validate-frames-signature-packet"
           className="card font-semibold text-xl px-7 flex items-center rounded-3xl h-16 w-full sm:w-[363px]"
@@ -89,12 +89,13 @@ export function Docs() {
           <Icon name="frames-validator" loading="eager" />
           <span className="ml-1.5">Frames Validator</span>
         </Link>
-        {/* <a
-          href="/docs"
-          className="card font-semibold text-xl ml-7 px-7 flex items-center rounded-3xl h-16 w-[363px]"
+        <Link
+          to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster-frames"
+          className="card font-semibold text-xl px-7 flex items-center rounded-3xl h-16 w-full sm:w-[363px] ml-0 sm:ml-7 mt-5 sm:mt-0"
         >
-          Frames Captcha SDK
-        </a> */}
+          <Icon name="frames-sdk" loading="eager" />
+          <span className="ml-1.5">Frames Captcha SDKr</span>
+        </Link>
       </div>
     </div>
   );

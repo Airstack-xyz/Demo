@@ -6,7 +6,7 @@ import { IconWithBranches } from './IconWithBranches';
 export function Tokens() {
   return (
     <Card icon="events" title="Tokens">
-      <ul className="flex-row-h-center gap-x-3 sm:gap-x-10 gap-y-10 [&>li]:h-[90px] sm:[&>li]:h-[104px] [&>li]:flex-col-v-center flex-wrap sm:flex-nowrap">
+      <ul className="flex-row-h-center gap-x-3 sm:gap-x-10 gap-y-10 [&>li]:h-[90px] [&>li]:flex-col-v-center [&>li]:justify-start flex-wrap sm:flex-nowrap">
         <li className="ml-2 relative">
           <Link to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/erc20">
             <IconWithBorder name="abstraction-modules" label="Tokens" />
@@ -20,10 +20,12 @@ export function Tokens() {
             <IconWithBranches
               name="abstraction-modules"
               label="NFTs"
-              subText="ERC721, 1155"
               labelClass="bg-[#EC4442]"
               branches={['Metadata', 'Resized Images']}
             />
+            <div className="text-[10px] opacity-50 w-16 mt-2 ml-2 absolute">
+              ERC721, 1155
+            </div>
           </Link>
         </li>
         <li className="relative">

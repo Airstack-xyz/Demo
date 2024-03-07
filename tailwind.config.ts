@@ -128,6 +128,10 @@ const config: Config = {
         },
         '.bg-token': {
           '@apply bg-[#081E32]': {}
+        },
+        '.bg-glass-new': {
+          background: `rgba(255, 255, 255, 0.05)`,
+          'backdrop-filter': 'blur(50px)'
         }
       });
     }

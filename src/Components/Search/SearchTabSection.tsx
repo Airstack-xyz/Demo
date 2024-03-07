@@ -151,7 +151,7 @@ export function SearchTabSection({
   onTabChange: (activeTab: TabUrl) => void;
 }) {
   return (
-    <div className="bg-glass bg-secondary border flex p-1 rounded-full text-left">
+    <div className="bg-glass-new border flex p-1 rounded-full text-left">
       {isHome ? (
         <TabButtons activeTab={activeTab} onTabChange={onTabChange} />
       ) : (
