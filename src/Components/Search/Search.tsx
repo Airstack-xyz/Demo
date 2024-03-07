@@ -281,7 +281,7 @@ export const Search = memo(function Search() {
 
   return (
     <div className="relative">
-      <div className="my-6 flex-col-center">
+      <div className="my-6 flex-col-center relative z-[41]">
         <SearchTabSection
           isHome={isHome}
           activeTab={activeTab}

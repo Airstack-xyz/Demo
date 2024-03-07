@@ -72,20 +72,20 @@ export function Profile() {
         />
       }
     >
-      <div className="flex flex-col w-36 mt-2 text-xs font-medium bg-[#303030] rounded-md">
+      <div className="flex flex-col w-36 mt-2 text-xs font-medium card rounded-md">
         {options.map(option => (
           <a
             target="_blank"
             key={option.href}
             href={option.href}
-            className="p-3.5 hover:bg-secondary"
+            className="p-3.5 hover:bg-black hover:bg-opacity-15"
           >
             {option.label}
           </a>
         ))}
         <hr className="mx-3.5 border-[#303241] border-t border-solid" />
         <a
-          className="p-3.5 hover:bg-secondary"
+          className="p-3.5 hover:bg-black hover:bg-5"
           href={APP_BASE_URL + ROUTES.pricing}
           target="_blank"
         >
@@ -93,7 +93,7 @@ export function Profile() {
         </a>
         <button
           onClick={handleLogout}
-          className="text-text-error text-left p-3.5 hover:bg-secondary"
+          className="text-text-error text-left p-3.5 hover:bg-black hover:bg-opacity-15"
         >
           Sign Out
         </button>

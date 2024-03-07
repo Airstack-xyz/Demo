@@ -31,7 +31,7 @@ import {
   removeFromActiveDownload,
   saveToActiveDownload
 } from './utils';
-import { AlertYellow, Download, HistoryIcon, NoItems, Retry } from './Icons';
+import { AlertYellow, HistoryIcon, NoItems, Retry } from './Icons';
 import { restartTaskMutation } from '../../queries/csv-download/restart';
 import { AddCardModal } from './AddCardModal';
 import { useAuth } from '../../hooks/useAuth';
@@ -537,7 +537,7 @@ export function CSVDownloads() {
                 </a>
               </div>
             }
-            optionsContainerClassName="min-w-[214px] top-9 !bg-[#303030] max-h-[50vh] overflow-y-auto"
+            optionsContainerClassName="min-w-[214px] top-9 card max-h-[50vh] overflow-y-auto"
             renderPlaceholder={(_, isOpen) => (
               <Tooltip
                 content="CSV downloads in progress"
@@ -547,7 +547,7 @@ export function CSVDownloads() {
                 <button
                   onClick={showDownload}
                   className={classNames(
-                    'w-10 h-[30px] bg-glass-1 rounded-full text-xs font-medium flex-row-center border border-solid border-transparent hover:opacity-90',
+                    'rounded-full border border-solid border-transparent hover:opacity-90',
                     {
                       'border-white text-text-button': isOpen,
                       'text-[#8B8EA0]': !isOpen,
@@ -556,7 +556,7 @@ export function CSVDownloads() {
                     }
                   )}
                 >
-                  <Download />
+                  <Icon name="csv" height={30} width={40} />
                 </button>
               </Tooltip>
             )}
