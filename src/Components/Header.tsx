@@ -9,11 +9,6 @@ import { Icon, IconType } from './Icon';
 
 const links: { name: IconType; link: string; description: string }[] = [
   {
-    name: 'csv',
-    link: '',
-    description: ''
-  },
-  {
     name: 'api',
     link: 'https://app.airstack.xyz/api-studio',
     description: ''
@@ -25,7 +20,7 @@ const links: { name: IconType; link: string; description: string }[] = [
   },
   {
     name: 'github',
-    link: '',
+    link: 'https://github.com/Airstack-xyz/Demo',
     description: ''
   }
 ];
@@ -42,6 +37,12 @@ export function Header() {
           </Link>
         </div>
         <div className="hidden sm:flex-row-center text-sm gap-[30px]">
+          <Link
+            to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster-frames"
+            className="flex items-center gap-2"
+          >
+            <Icon name="frames" height={30} width={40} />
+          </Link>
           {user && <CSVDownloads />}
           {links.map((link, index) => (
             <Tooltip

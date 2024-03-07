@@ -1,4 +1,5 @@
 import { Icon, IconType } from './Icon';
+import { Link } from './Link';
 
 type Info = {
   title: string;
@@ -12,42 +13,42 @@ const items: Info[] = [
     icon: 'frames-sdk',
     description:
       'Empowers developers to seamlessly integrate everything Airstack offers into  Frames using just a few lines of code.',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/'
   },
   {
     title: 'Onchain Kit for Farcaster Frames',
     icon: 'on-chain',
     description:
       'Enables you to build Farcaster Frames with onchain data, including channels, token balances, token mints, Farcaster follows, POAPs, Base, Zora & more.',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster/airstack-onchain-kit-for-farcaster-frames'
   },
   {
     title: 'Activate Kit for Farcaster',
     icon: 'farcaster-kit',
     description:
       'Enables you to execute a series of API calls to activate Farcaster users after they connect with Farcaster Auth Kit.',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster/activate-kit-for-farcaster-auth-kit'
   },
   {
     title: 'Allow Lists for Frames',
     icon: 'allow-list',
     description:
       'Create dynamic allow lists that check in real-time if a user qualifies to use your Frame based on your preferred criteria.',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster/proof-of-personhood-for-farcaster-frames'
   },
   {
     title: 'No-Code Frames',
     icon: 'no-code-frame',
     description:
       'Create Frames using Airstack No-Code Frames Builder in just a few clicks. Currently available for fetching Token balances & Token holders.',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/no-code-frames'
   },
   {
     title: 'Farcaster App APIs',
     icon: 'farcaser-api',
     description:
       'Easily Integrate Farcaster into your app. Fetch FIDs, usernames, profiles, photos, connected addresses, followers, following, social graph, onchain graphs, channels, channel leads, channel details, NFTs, tokens, POAPs.',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster'
   }
 ];
 
@@ -64,7 +65,7 @@ function Item({ title, icon, description, link }: Info) {
         <div className="text-base text-[#868D94] mb-6">{description}</div>
       </div>
       <div>
-        <a href="/docs/frames-sdk" className="font-semibold text-text-button">
+        <a href={link} className="font-semibold text-text-button">
           Read more <span>{'->'}</span>
         </a>
       </div>
@@ -81,13 +82,13 @@ export function Docs() {
         ))}
       </ul>
       <div className="flex items-center justify-center mt-7">
-        <a
-          href="/docs"
+        <Link
+          to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster/airstack-onchain-kit-for-farcaster-frames#validate-frames-signature-packet"
           className="card font-semibold text-xl ml-7 px-7 flex items-center rounded-3xl h-16 w-[363px]"
         >
           <Icon name="frames-validator" loading="eager" />
           <span className="ml-1.5">Frames Validator</span>
-        </a>
+        </Link>
         {/* <a
           href="/docs"
           className="card font-semibold text-xl ml-7 px-7 flex items-center rounded-3xl h-16 w-[363px]"

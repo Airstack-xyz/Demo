@@ -9,7 +9,6 @@ import { Tokens } from './components/Tokens';
 import { Events } from './components/Events';
 import { Socials } from './components/Socials';
 import { Chains } from './components/Chains';
-import { Icon } from './components/Icon';
 import { Partners } from './components/Partners';
 import { LiveIntegrations } from './components/LiveIntegrations';
 import { Hiring } from './components/Hiring';
@@ -18,6 +17,7 @@ import { Investors } from './components/Investors';
 import { Footer } from './components/Footer';
 import { Suspense } from 'react';
 import { SdkInit } from './components/SdkInit';
+import { QueryAndAiLinks } from './components/QueryAndAiLinks';
 
 export function HomePage() {
   return (
@@ -81,15 +81,8 @@ export function HomePage() {
             <Chains />
           </div>
         </div>
-        <div className="w-full mt-5 flex-col-h-center">
-          <div className="card p-6 rounded-xl flex-row-h-center flex-1">
-            {' '}
-            <Icon name="ai-query" width={33} height={18} /> AI Query Engine
-          </div>
-          <div className="card p-6 rounded-xl flex-row-h-center flex-1 ml-5">
-            {' '}
-            <Icon name="ai-api" width={16} height={16} /> AI APIs (in dev)
-          </div>
+        <div className="w-full mt-5">
+          <QueryAndAiLinks />
         </div>
         <div className="max-w-[700px]">
           <div className="mt-40">

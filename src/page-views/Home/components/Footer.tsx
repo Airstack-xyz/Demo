@@ -1,35 +1,35 @@
 import { Icon, IconType } from '@/Components/Icon';
 import { Image } from '@/Components/Image';
-import { Link } from '@/Components/Link';
+import { Link } from './Link';
 
-const links: { name: IconType; link: string }[] = [
+const links: { icon: IconType; link: string }[] = [
   {
-    name: 'docs',
+    icon: 'docs',
     link: 'https://app.airstack.xyz/docs'
   },
   {
-    name: 'api',
+    icon: 'api',
     link: 'https://app.airstack.xyz/api-studio'
   },
   {
-    name: 'sdk',
+    icon: 'sdk',
     link: 'https://app.airstack.xyz/sdks'
   },
   {
-    name: 'github',
-    link: ''
+    icon: 'github',
+    link: 'https://app.airstack.xyz/sdks'
   },
   {
-    name: 'warpcast',
-    link: ''
+    icon: 'warpcast',
+    link: 'https://warpcast.com/~/channel/airstack'
   },
   {
-    name: 'x',
-    link: ''
+    icon: 'x',
+    link: 'https://twitter.com/airstack_xyz'
   },
   {
-    name: 'linkedin',
-    link: ''
+    icon: 'linkedin',
+    link: 'https://www.linkedin.com/company/airstack-xyz'
   }
 ];
 
@@ -47,7 +47,7 @@ export function Footer() {
               to={link.link}
               className="flex items-center gap-2"
             >
-              <Icon name={link.name} height={30} className="w-auto h-[30px]" />
+              <Icon name={link.icon} height={30} className="w-auto h-[30px]" />
             </Link>
           );
         })}

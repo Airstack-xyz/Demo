@@ -1,11 +1,11 @@
 const links = [
   {
     label: 'Onchain Kit for Farcaster Frames',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster/airstack-onchain-kit-for-farcaster-frames'
   },
   {
     label: 'Farcaster APIs',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster'
   },
   {
     label: 'No-code Frames',
@@ -13,7 +13,7 @@ const links = [
   },
   {
     label: 'Onchain Composability APIs',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/'
   }
 ];
 

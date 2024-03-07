@@ -1,16 +1,15 @@
 import NextLink from 'next/link';
 import { ComponentProps } from 'react';
+export type LinkProps = Omit<ComponentProps<typeof NextLink>, 'href'> & {
+  to:
+    | string
+    | {
+        pathname: string;
+        search: string;
+      };
+};
 
-export function Link(
-  props: Omit<ComponentProps<typeof NextLink>, 'href'> & {
-    to:
-      | string
-      | {
-          pathname: string;
-          search: string;
-        };
-  }
-) {
+export function Link(props: LinkProps) {
   const href =
     typeof props.to === 'string'
       ? props.to

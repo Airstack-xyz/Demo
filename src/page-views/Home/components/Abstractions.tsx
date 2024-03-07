@@ -8,82 +8,82 @@ const modules: {
   {
     name: 'Farcaster Frames',
     icon: 'facaster-frames',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster/airstack-onchain-kit-for-farcaster-frames'
   },
   {
     name: 'Allow List',
     icon: 'allow-list',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster/proof-of-personhood-for-farcaster-frames'
   },
   {
     name: 'Recommended Mints',
     icon: 'recommended-mints',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/trending-mints'
   },
   {
     name: 'Recommended Users',
     icon: 'recommended-users',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/recommend-users'
   },
   {
     name: 'Recommended Tokens',
     icon: 'recommended-tokens',
-    link: ''
+    link: 'https://app.airstack.xyz'
   },
   {
     name: 'Recommended Dapps (in dev)',
     icon: 'recommeded-daps',
-    link: ''
+    link: 'https://app.airstack.xyz'
   },
   {
     name: 'Recommended Swaps (in dev)',
     icon: 'recommended-swaps',
-    link: ''
+    link: 'https://app.airstack.xyz'
   },
   {
     name: 'Onchain Graph',
     icon: 'on-chain-graph',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/onchain-graph'
   },
   {
     name: 'Universal Contacts',
     icon: 'universal-contacts',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/onchain-contacts'
   },
   {
     name: 'Combinations',
     icon: 'combinations',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/combinations'
   },
   {
     name: 'Tokens in Common',
     icon: 'tokens-common',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/tokens-in-common'
   },
   {
     name: 'Lookalikes',
     icon: 'lookalikes',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/onchain-graph'
   },
   {
     name: 'Social Follows',
     icon: 'social-follows',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/social-follows'
   },
   {
     name: 'Historical Snapshots',
     icon: 'historical-snapshot',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/balance-snapshots'
   },
   {
     name: 'Spam Filters',
     icon: 'spam-filter',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/xmtp/spam-filters'
   },
   {
     name: 'EVM & Solana Resolvers',
     icon: 'resolvers',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/solana'
   }
 ];
 

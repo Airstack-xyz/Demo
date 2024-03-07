@@ -77,7 +77,8 @@ export type IconType =
   | 'x'
   | 'github'
   | 'linkedin'
-  | 'warpcast';
+  | 'warpcast'
+  | 'frames';
 
 export type IconProps = {
   name: IconType;

@@ -13,13 +13,13 @@ const items: ItemType[] = [
     icon: 'coinbase',
     label: 'Coinbase',
     textColor: '#0352FD',
-    link: ''
+    link: 'https://www.coinbase.com/'
   },
   {
     icon: 'karama',
     label: 'Karma3Labs',
     textColor: '#F3FF7A',
-    link: ''
+    link: 'https://karma3labs.com/'
   },
   {
     icon: 'xmtp',
@@ -31,128 +31,127 @@ const items: ItemType[] = [
     icon: 'icebreaker',
     label: 'Icebreaker',
     textColor: '',
-    link: ''
+    link: 'https://www.icebreaker.xyz/'
   },
   {
     icon: 'gold',
     label: 'Gold L3',
     textColor: '#81A9FE',
-    link: ''
+    link: 'https://www.gold.dev/'
   },
   {
     icon: 'buttrfly',
     label: 'Buttrfly',
     textColor: '#3DBDF5',
-    link: ''
+    link: 'https://buttrfly.app/explore'
   },
   {
     icon: 'converse',
     label: 'Converse',
     textColor: '#FA594A',
-    link: ''
+    link: 'https://getconverse.app/'
   },
   {
     icon: 'holder',
     label: 'Holder',
     textColor: '#808285',
-    link: ''
+    link: 'https://www.holder.xyz/'
   },
   {
     icon: 'orb',
     label: 'Orb',
     textColor: '#4D4D4F',
-    link: ''
+    link: 'https://orb.ac/'
   },
   {
     icon: 'union-finance',
     label: 'Union Finance',
     textColor: '',
-    link: ''
+    link: 'https://union.finance/'
   },
   {
     icon: 'unlonely',
     label: 'Unlonely',
     textColor: '#37FF8B',
-    link: ''
+    link: 'https://www.unlonely.app/'
   },
   {
     icon: 'lenspost',
     label: 'Lenspost',
     textColor: '',
-    link: ''
+    link: 'https://www.lenspost.xyz/'
   },
   {
     icon: 'phala-network',
     label: 'Phala Network',
-    textColor: '',
+    textColor: 'https://phala.network/',
     link: ''
   },
   {
     icon: 'payflow',
     label: 'Payflow',
     textColor: '',
-    link: ''
+    link: 'https://payflow.me/'
   },
   {
     icon: 'tokenbound',
     label: 'Tokenbound',
     textColor: '#808285',
-    link: ''
+    link: 'https://tokenbound.org/'
   },
   {
     icon: 'builder-fi',
     label: 'Builder.fi',
     textColor: '#1767DD',
-    link: ''
+    link: 'https://www.builder.fi/'
   },
   {
     icon: 'bonfire',
     label: 'Bonfire',
     textColor: '#7361C6',
-    link: ''
+    link: 'https://www.bonfire.xyz/'
   },
   {
     icon: 'minglee',
     label: 'Minglee',
     textColor: '#4468B1',
-    link: ''
+    link: 'https://minglee.io/'
   },
   {
     icon: 'unstoppable-domains',
     label: 'Unstoppable Domains',
     textColor: '#4C47F7',
-    link: ''
+    link: 'https://unstoppabledomains.com/'
   },
   {
-    // @ts-ignore
-    icon: '', // TODO: Add icon
-    label: 'Jam',
-    textColor: '#BD38AB',
-    link: ''
+    icon: 'hypeshot',
+    label: 'Hypeshot',
+    textColor: '',
+    link: 'https://www.hypeshot.io/'
   },
   {
     icon: 'neura-name',
     label: 'NeuraName',
     textColor: '#0482D9',
-    link: ''
+    link: 'https://www.neuraname.com/'
   },
   {
     icon: 'receipts',
     label: 'Receipts',
     textColor: '#CFFD34',
-    link: ''
+    link: 'https://www.receipts.xyz/'
   },
   {
     icon: 'firefly',
     label: 'Firefly',
     textColor: '#4D44C0',
-    link: ''
+    link: 'https://firefly.land/'
   },
   {
     icon: 'gandalf',
     label: 'Gandalf',
     textColor: '#6610F2',
-    link: ''
+    link: 'https://gandalf.network/'
   }
 ];
 
