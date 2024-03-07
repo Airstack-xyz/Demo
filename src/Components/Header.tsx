@@ -38,10 +38,11 @@ export function Header() {
         </div>
         <div className="hidden sm:flex-row-center text-sm gap-[30px]">
           <Link
+            target="_blank"
             to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster-frames"
             className="flex items-center gap-2"
           >
-            <Icon name="frames" height={30} width={40} />
+            <Icon name="frames" height={30} width={95} />
           </Link>
           {user && <CSVDownloads />}
           {links.map((link, index) => (
@@ -50,7 +51,11 @@ export function Header() {
               key={index}
               contentClassName={tooltipClass}
             >
-              <Link to={link.link} className="flex items-center gap-2">
+              <Link
+                target="_blank"
+                to={link.link}
+                className="flex items-center gap-2"
+              >
                 <Icon name={link.name} height={30} width={40} />
               </Link>
             </Tooltip>
