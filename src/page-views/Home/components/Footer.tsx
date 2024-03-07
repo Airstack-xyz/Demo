@@ -3,10 +3,10 @@ import { Image } from '@/Components/Image';
 import { Link } from './Link';
 
 const links: { icon: IconType; link: string }[] = [
-  // {
-  //   icon: 'docs',
-  //   link: 'https://app.airstack.xyz/docs'
-  // },
+  {
+    icon: 'docs',
+    link: 'https://app.airstack.xyz/docs'
+  },
   {
     icon: 'api',
     link: 'https://app.airstack.xyz/api-studio'
@@ -40,7 +40,7 @@ export function Footer() {
         <Link to="https://app.airstack.xyz" className="" target="_blank">
           <Image src="/logo.svg" className=" h-[50px] sm:h-[33px] mr-5" />
         </Link>
-        <div className="flex gap-8 flex-wrap items-center sm:mt-0 mt-10 [&>*]:ml-10">
+        <div className="flex gap-8 sm:gap-1 flex-wrap items-center sm:mt-0 mt-10 [&>*]:ml-10">
           {links.map((link, index) => {
             return (
               <Link

@@ -1,5 +1,6 @@
 import { IconWithBorder } from './IconWithBorder';
 import { IconType } from './Icon';
+import { Link } from './Link';
 
 type ItemType = {
   icon: IconType;
@@ -160,15 +161,17 @@ export function LiveIntegrations() {
     <div className="border border-dashed border-[#7e7e7e] px-12 pb-2 flex-col-center relative">
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-11 bg-primary relative -top-7">
         {items.map((item, index) => (
-          <IconWithBorder
-            key={index}
-            name={item.icon}
-            label={item.label}
-            labelClass="text-xs bg-transparent mt-0.5"
-            labelStyles={{
-              color: item.textColor
-            }}
-          />
+          <Link to={item.link} key={index}>
+            <IconWithBorder
+              key={index}
+              name={item.icon}
+              label={item.label}
+              labelClass="text-xs bg-transparent mt-0.5"
+              labelStyles={{
+                color: item.textColor
+              }}
+            />
+          </Link>
         ))}
       </div>
       <div className="absolute -bottom-2 bg-primary px-3 m-auto">

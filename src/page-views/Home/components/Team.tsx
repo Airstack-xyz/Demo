@@ -175,7 +175,7 @@ export function Team() {
                 <ul className="mt-0.5 flex-row-h-center">
                   {member.socials?.map((social, index) => {
                     return (
-                      <li key={index} className="mr-1">
+                      <li key={index} className="mr-2.5">
                         <Link to={social.link}>
                           <Image
                             src={`images/team/socials/${social.name}.svg`}
