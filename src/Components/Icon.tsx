@@ -79,7 +79,8 @@ export type IconType =
   | 'linkedin'
   | 'warpcast'
   | 'frames'
-  | 'ai-robot';
+  | 'ai-robot'
+  | 'hamburger';
 
 export type IconProps = {
   name: IconType;
