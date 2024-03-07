@@ -1,37 +1,26 @@
-name: Dev - Deploy
+name: Dev Deploy to Amazon EKS
 
 on: workflow_dispatch
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: explorer-web
+  EVENT_NAME: dev-explorer-web
+  VALUES_FILE: core/common-values/explorer-web-values.yaml
 
 permissions:
   id-token: write
   contents: read
 
-env:
-  AWS_REGION: us-east-1 # set this to your preferred AWS region, e.g. us-west-1
-
 jobs:
-  build:
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     environment: development
-    strategy:
-      matrix:
-        node-version: [16.13.2]
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Generate build
-        run: |
-          npm install
-          npm run build-dev
-        env:
-          CI: false
-          NODE_OPTIONS: --max_old_space_size=4096
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -40,8 +29,34 @@ jobs:
           role-session-name: Github
           aws-region: ${{ env.AWS_REGION }}
 
-      # publish to prod environment
-      - name: Deploy to S3
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          aws s3 sync dist s3://demo.dev.airstack.xyz
-          aws cloudfront create-invalidation --distribution-id E2IEVGCJELSKSC --paths /
+          # Build a docker container and
+          # push it to ECR so that it can
+          # be deployed to ECS.
+          export NODE_ENV=development
+          export ENV=development
+          docker buildx build --platform=linux/amd64 -t  $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG  --build-arg ACCESS_TOKEN_USR=${{ secrets.ACCESS_TOKEN_USR }} --build-arg ACCESS_TOKEN_PWD=${{ secrets.ACCESS_TOKEN_PWD }} --build-arg NODE_ENV=development  --build-arg ENV=development  .
+          #docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Repository Dispatch
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          EVENT_NAME: ${{ env.EVENT_NAME }}
+          VALUES_FILE: ${{ env.VALUES_FILE }}
+        run: |
+          curl -H "Accept: application/vnd.github.everest-preview+json" \
+          -H "Authorization: token ${{ secrets.ACCESS_TOKEN_PWD }}" \
+          --request POST \
+          --data '{"event_type": "'"$EVENT_NAME"'", "client_payload": {"name": "'"$EVENT_NAME"'", "file_path": "'"$VALUES_FILE"'", "tag": "'"$IMAGE_TAG"'"}}' \
+          https://api.github.com/repos/Airstack-xyz/infra-development-deployment/dispatches
