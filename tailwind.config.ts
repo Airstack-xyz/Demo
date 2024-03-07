@@ -125,6 +125,9 @@ const config: Config = {
         },
         '.flex-col-h-center': {
           '@apply flex flex-col justify-center': {}
+        },
+        '.bg-token': {
+          '@apply bg-[#081E32]': {}
         }
       });
     }

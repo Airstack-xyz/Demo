@@ -102,7 +102,7 @@ function Token({ item }: { item: Poap | TokenBalance }) {
   const name = isPoap ? poapEvent.eventName : tokenBalance?.token?.name;
 
   return (
-    <div className="w-[calc(50%-16px)] aspect-square max-sm:rounded-[10px] rounded-[18px] bg-secondary flex flex-col text-left justify-end overflow-hidden relative border border-solid border-white">
+    <div className="w-[calc(50%-16px)] aspect-square max-sm:rounded-[10px] rounded-[18px] bg-token flex flex-col text-left justify-end overflow-hidden relative border border-solid border-white">
       <div className="absolute inset-0 flex-col-center">
         <LazyImage
           alt="TokenImage"
