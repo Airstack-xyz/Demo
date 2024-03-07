@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
 import { apiKey } from '../constants';
-import { TokenHolders } from '../pages/TokenHolders/types';
+import { TokenHolders } from '../page-views/TokenHolders/types';
 import { getOverviewQuery } from '../queries/overviewQuery';
 import { TokenBlockchain } from '../types';
 

@@ -2,8 +2,8 @@ import { fetchQuery } from '@airstack/airstack-react';
 import { FetchQueryReturnType } from '@airstack/airstack-react/types';
 import { useCallback, useState } from 'react';
 import { tokenBlockchains } from '../constants';
-import { TokenBalance } from '../pages/TokenBalances/types';
-import { PoapsData, TokensData } from '../pages/TokenHolders/types';
+import { TokenBalance } from '../page-views/TokenBalances/types';
+import { PoapsData, TokensData } from '../page-views/TokenHolders/types';
 import { PoapOwnerQuery, TokenOwnerQuery } from '../queries';
 import { useOverviewTokens } from '../store/tokenHoldersOverview';
 

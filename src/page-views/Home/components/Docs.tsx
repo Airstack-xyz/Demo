@@ -57,7 +57,7 @@ function Item({ title, icon, description, link }: Info) {
       <div>
         <div className="flex">
           <span className="bg-white bg-opacity-5 p-3 rounded-lg">
-            <Icon name={icon} height={36} width={36} />
+            <Icon name={icon} height={36} width={36} loading="eager" />
           </span>
         </div>
         <h3 className="text-xl mb-3 mt-5">{title}</h3>
@@ -85,7 +85,7 @@ export function Docs() {
           href="/docs"
           className="card font-semibold text-xl ml-7 px-7 flex items-center rounded-3xl h-16 w-[363px]"
         >
-          <Icon name="frames-validator" />
+          <Icon name="frames-validator" loading="eager" />
           <span className="ml-1.5">Frames Validator</span>
         </a>
         {/* <a

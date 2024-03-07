@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { Icon, IconType } from './Icon';
+import { Icon, IconProps, IconType } from './Icon';
 import { CSSProperties } from 'react';
 
 export type IconWithBorderProps = {
@@ -7,7 +7,7 @@ export type IconWithBorderProps = {
   label?: string;
   labelClass?: string;
   labelStyles?: CSSProperties;
-};
+} & IconProps;
 
 export function IconWithBorder({
   name,

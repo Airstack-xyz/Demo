@@ -1,5 +1,5 @@
 import { tokenBlockchains } from '../../constants';
-import { QUERY_LIMIT } from '../../pages/OnchainGraph/constants';
+import { QUERY_LIMIT } from '../../page-views/OnchainGraph/constants';
 
 const getTokenSentSubQuery = (blockchain: string) => {
   return `

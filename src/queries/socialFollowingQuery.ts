@@ -2,7 +2,7 @@ import { tokenBlockchains } from '../constants';
 import {
   SocialFollowLogicalFilters,
   SocialFollowQueryFilters
-} from '../pages/TokenBalances/SocialDetails/types';
+} from '../page-views/TokenBalances/SocialDetails/types';
 
 export const getSocialFollowingsQuery = ({
   queryFilters,

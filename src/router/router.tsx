@@ -1,43 +1,43 @@
-import { Layout } from "../Components/Layout";
-import { Channels } from "../pages/Channels";
-import { Home } from "../pages/home";
-import { OnChainGraphPage } from "../pages/OnchainGraph";
-import PaymentSuccess from "../pages/PaymentSuccess";
-import { TokenBalance } from "../pages/TokenBalances";
-import { TokenHolders } from "../pages/TokenHolders";
+import { Layout } from '../Components/Layout';
+import { Channels } from '../page-views/Channels';
+import { Home } from '../page-views/home';
+import { OnChainGraphPage } from '../page-views/OnchainGraph';
+import PaymentSuccess from '../page-views/PaymentSuccess';
+import { TokenBalance } from '../page-views/TokenBalances';
+import { TokenHolders } from '../page-views/TokenHolders';
 
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 const router = createBrowserRouter([
   {
     element: <Layout />,
     children: [
       {
-        path: "/",
-        element: <Home />,
+        path: '/',
+        element: <Home />
       },
       {
-        path: "/token-balances",
-        element: <TokenBalance />,
+        path: '/token-balances',
+        element: <TokenBalance />
       },
       {
-        path: "/token-holders",
-        element: <TokenHolders />,
+        path: '/token-holders',
+        element: <TokenHolders />
       },
       {
-        path: "/onchain-graph", // identity: string, ref: string
-        element: <OnChainGraphPage />,
+        path: '/onchain-graph', // identity: string, ref: string
+        element: <OnChainGraphPage />
       },
       {
-        path: "/channels",
-        element: <Channels />,
-      },
-    ],
+        path: '/channels',
+        element: <Channels />
+      }
+    ]
   },
   {
-    path: "/payment-success",
-    element: <PaymentSuccess />,
-  },
+    path: '/payment-success',
+    element: <PaymentSuccess />
+  }
 ]);
 
 export function Router() {

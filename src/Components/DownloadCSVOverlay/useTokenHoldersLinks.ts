@@ -29,7 +29,7 @@ import {
   getNftOwnersQueryWithFilters
 } from '../../queries/commonNftOwnersQueryWithFilters';
 import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../queries/commonPoapAndNftOwnersQueryWithFilters';
-import { getRequestFilters } from '../../pages/TokenHolders/OverviewDetails/Tokens/utils';
+import { getRequestFilters } from '../../page-views/TokenHolders/OverviewDetails/Tokens/utils';
 
 export function useTokenHoldersLinks() {
   const [

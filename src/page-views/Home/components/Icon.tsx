@@ -95,6 +95,7 @@ export function Icon({ name, ...props }: IconProps) {
       alt={name}
       height={20}
       width={20}
+      loading={props.loading || 'lazy'}
       {...props}
     />
   );

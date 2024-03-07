@@ -7,7 +7,7 @@ import { CSVDownloadOption } from '../../types';
 import { useCallback, useState } from 'react';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Modal } from '../Modal';
-import { useChannelApiOptions } from '../../pages/Channels/useChannelApiOptions';
+import { useChannelApiOptions } from '../../page-views/Channels/useChannelApiOptions';
 import { useMatch } from '@/hooks/useMatch';
 
 function DownloadIcon() {

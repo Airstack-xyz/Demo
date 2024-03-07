@@ -136,4 +136,6 @@ function sortFilterAndRankData(
   return sortByScore(filterAndRankData(recommendations, scoreMap, identities));
 }
 
-Comlink.expose({ sortFilterAndRankData });
+if (typeof self !== 'undefined') {
+  Comlink.expose({ sortFilterAndRankData });
+}

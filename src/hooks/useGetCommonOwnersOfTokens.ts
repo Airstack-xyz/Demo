@@ -8,7 +8,7 @@ import {
   Poap as PoapType,
   TokenAddress,
   Token as TokenType
-} from '../pages/TokenHolders/types';
+} from '../page-views/TokenHolders/types';
 import {
   getCommonNftOwnersSnapshotQuery,
   getNftOwnersSnapshotQuery

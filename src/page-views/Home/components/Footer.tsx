@@ -1,13 +1,14 @@
+import { Icon, IconType } from '@/Components/Icon';
 import { Image } from '@/Components/Image';
 import { Link } from '@/Components/Link';
 
-const links: { name: string; link: string }[] = [
+const links: { name: IconType; link: string }[] = [
   {
     name: 'docs',
     link: 'https://app.airstack.xyz/docs'
   },
   {
-    name: 'aPI',
+    name: 'api',
     link: 'https://app.airstack.xyz/api-studio'
   },
   {
@@ -46,7 +47,7 @@ export function Footer() {
               to={link.link}
               className="flex items-center gap-2"
             >
-              <Image src={`images/home/${link.name}.svg`} height={30} />
+              <Icon name={link.name} height={30} className="w-auto h-[30px]" />
             </Link>
           );
         })}

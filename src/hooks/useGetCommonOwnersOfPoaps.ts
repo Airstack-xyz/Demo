@@ -1,6 +1,6 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Poap, TokenAddress } from '../pages/TokenHolders/types';
+import { Poap, TokenAddress } from '../page-views/TokenHolders/types';
 import { getCommonOwnersPOAPsQuery } from '../queries/commonOwnersPOAPsQuery';
 
 type Token = Poap;

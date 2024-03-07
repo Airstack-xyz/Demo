@@ -1,4 +1,4 @@
-import { QUERY_LIMIT } from '../../pages/OnchainGraph/constants';
+import { QUERY_LIMIT } from '../../page-views/OnchainGraph/constants';
 
 export const userPoapsEventIdsQuery = `query UserPoapsEventIds($user: Identity!) {
     Poaps(input: {filter: {owner: {_eq: $user}}, blockchain: ALL, limit: 200, order: {createdAtBlockNumber: DESC }}) {

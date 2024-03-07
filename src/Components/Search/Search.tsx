@@ -1,3 +1,4 @@
+'use client';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useMatch } from '@/hooks/useMatch';

@@ -1,25 +1,30 @@
 import { Search } from '@/Components/Search';
 import { MAX_SEARCH_WIDTH } from '@/Components/Search/constants';
 import classNames from 'classnames';
-import { QuickLinks } from './QuickLinks';
+import { QuickLinks } from './components/QuickLinks';
 import { Icon as MainIcon } from '@/Components/Icon';
-import { Docs } from './Docs';
-import { Abstractions } from './Abstractions';
-import { Tokens } from './Tokens';
-import { Events } from './Events';
-import { Socials } from './Socials';
-import { Chains } from './Chains';
-import { Icon } from './Icon';
-import { Partners } from './Partners';
-import { LiveIntegrations } from './LiveIntegrations';
-import { Hiring } from './Hiring';
-import { Team } from './Team';
-import { Investors } from './Investors';
-import { Footer } from './Footer';
+import { Docs } from './components/Docs';
+import { Abstractions } from './components/Abstractions';
+import { Tokens } from './components/Tokens';
+import { Events } from './components/Events';
+import { Socials } from './components/Socials';
+import { Chains } from './components/Chains';
+import { Icon } from './components/Icon';
+import { Partners } from './components/Partners';
+import { LiveIntegrations } from './components/LiveIntegrations';
+import { Hiring } from './components/Hiring';
+import { Team } from './components/Team';
+import { Investors } from './components/Investors';
+import { Footer } from './components/Footer';
+import { Suspense } from 'react';
+import { SdkInit } from './components/SdkInit';
 
 export function HomePage() {
   return (
     <>
+      <Suspense>
+        <SdkInit />
+      </Suspense>
       <div
         className={classNames(
           'px-2 pt-5 max-w-[1146px] mx-auto sm:pt-[20vh] flex-1 h-full w-full flex flex-col items-center text-center'
@@ -29,7 +34,9 @@ export function HomePage() {
           <h1 className="text-[44px]">Explore Onchain</h1>
           <div className="flex justify-center">
             <div className="w-[850px] max-w-[850px]">
-              <Search />
+              <Suspense>
+                <Search />
+              </Suspense>
             </div>
           </div>
           <QuickLinks />

@@ -178,6 +178,7 @@ export function Team() {
                             src={`images/team/socials/${social.name}.svg`}
                             height={11}
                             width={11}
+                            loading="lazy"
                           />
                         </a>
                       </li>

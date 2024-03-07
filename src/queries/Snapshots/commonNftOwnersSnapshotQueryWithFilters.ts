@@ -1,6 +1,6 @@
 import { SnapshotFilterType } from '../../Components/Filters/SnapshotFilter';
 import { snapshotBlockchains } from '../../constants';
-import { TokenAddress } from '../../pages/TokenHolders/types';
+import { TokenAddress } from '../../page-views/TokenHolders/types';
 
 const socialInput = '(input: {filter: {dappName: {_in: $socialFilters}}})';
 const primaryDomainInput =

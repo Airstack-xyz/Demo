@@ -69,7 +69,15 @@ export type IconType =
   | 'chain'
   | 'frame'
   | 'customize'
-  | 'channels';
+  | 'channels'
+  | 'docs'
+  | 'sdk'
+  | 'api'
+  | 'csv'
+  | 'x'
+  | 'github'
+  | 'linkedin'
+  | 'warpcast';
 
 export type IconProps = {
   name: IconType;
