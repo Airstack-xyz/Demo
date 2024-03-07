@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "npm run codegen-watch & next dev",
     "build": "next build",
+    "build-sh": "sh ./build.sh",
     "start": "next start",
     "lint": "next lint --max-warnings 0",
     "dev-server": "vite",
