@@ -34,8 +34,10 @@ export function useGetTokensSupply() {
       }
 
       tokenBlockchains.forEach(blockchain => {
-        if (tokensData?.[blockchain]?.totalSupply) {
-          supplyCount += parseInt(tokensData?.[blockchain]?.totalSupply);
+        if (tokensData?.[blockchain]?.Token?.[0]?.totalSupply) {
+          supplyCount += parseInt(
+            tokensData?.[blockchain]?.Token?.[0]?.totalSupply
+          );
         }
       });
 

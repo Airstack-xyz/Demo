@@ -67,8 +67,8 @@ function formatNFTData(data: ERC20Response) {
   if (!data) return {};
   return {
     nft: {
-      ...data?.nft,
-      tokenBalance: data?.nft?.tokenBalances?.[0]
+      ...data?.nfts?.TokenNft?.[0],
+      tokenBalance: data?.nfts?.TokenNft?.[0]?.tokenBalances?.[0]
     },
     transferDetails: data?.transfers?.TokenTransfer[0]
   };
@@ -192,7 +192,7 @@ export function TokenDetails(props: {
     }
   }, [address, onClose]);
 
-  const erc20Token = erc20Data?.Token;
+  const erc20Token = erc20Data?.Tokens?.Token?.[0];
   const nftData: null | ReturnType<typeof formatNFTData> = data;
   const poapData: null | ReturnType<typeof formatPoapData> = _poapData;
 
@@ -412,7 +412,7 @@ export function TokenDetails(props: {
             })}
           >
             <Token
-              token={(erc20Data?.Token || poap || nft) as Nft}
+              token={(erc20Token || poap || nft) as Nft}
               hideHoldersButton
               hideDetailsOverlay
               disabled

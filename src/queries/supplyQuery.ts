@@ -9,9 +9,11 @@ export const POAPSupplyQuery = `query PoapTotalSupply($eventId: String!) {
   }`;
 
 const getTokenTotalSupplySubQuery = (blockchain: string) => {
-  return `${blockchain}: Token(input: {address: $tokenAddress, blockchain: ${blockchain}}) {
-        totalSupply
-      }`;
+  return `${blockchain}: Tokens(input: {filter: {address: {_eq: $tokenAddress}}, blockchain: ${blockchain}}) {
+    Token {
+      totalSupply
+    }
+  }`;
 };
 
 export const TokenSupplyQuery = `query TokenTotalSupply($tokenAddress: Address!) {
