@@ -1,45 +1,47 @@
 export const tokenDetailsQuery = `query TokenDetails($tokenAddress: Address!, $tokenId: String!, $blockchain: TokenBlockchain!) {
-  nft: TokenNft(
-    input: {address: $tokenAddress, tokenId: $tokenId, blockchain: $blockchain}
+  nfts: TokenNfts(
+    input: {filter: {address: {_eq: $tokenAddress}, tokenId: {_eq: $tokenId}}, blockchain: $blockchain}
   ) {
-    totalSupply 
-    tokenURI
-    tokenId
-    address
-    type
-    blockchain
-    lastTransferHash
-    lastTransferBlock
-    lastTransferTimestamp
-    contentValue {
-      image {
-        medium
-      }
-    }
-    metaData {
-      description
-      attributes {
-        trait_type
-        value
-      }
-    }
-    erc6551Accounts {
-      address {
-        tokenBalances {
-          tokenAddress
-          tokenId
+    TokenNft {
+      totalSupply
+      tokenURI
+      tokenId
+      address
+      type
+      blockchain
+      lastTransferHash
+      lastTransferBlock
+      lastTransferTimestamp
+      contentValue {
+        image {
+          medium
         }
       }
-    }
-    tokenBalances{
-      owner{
-        identity
+      metaData {
+        description
+        attributes {
+          trait_type
+          value
+        }
       }
-    }
-    token {
-      name
-      symbol
-      totalSupply
+      erc6551Accounts {
+        address {
+          tokenBalances {
+            tokenAddress
+            tokenId
+          }
+        }
+      }
+      tokenBalances {
+        owner {
+          identity
+        }
+      }
+      token {
+        name
+        symbol
+        totalSupply
+      }
     }
   }
   transfers: TokenTransfers(
@@ -160,23 +162,25 @@ export const poapDetailsQuery = `query PoapDetails($eventId: [String!], $tokenAd
 }`;
 
 export const erc20TokenDetailsQuery = `query ERC20Details($tokenAddress: Address!, $blockchain: TokenBlockchain!) {
-  Token(input: {address: $tokenAddress, blockchain: $blockchain}) {
-    name
-    type
-    symbol
-    address
-    blockchain
-    totalSupply
-    lastTransferHash
-    lastTransferBlock
-    lastTransferTimestamp
-    logo{
-      medium
+  Tokens(input: {filter: {address: {_eq: $tokenAddress}}, blockchain: $blockchain}) {
+    Token {
+      name
+      type
+      symbol
+      address
+      blockchain
+      totalSupply
+      lastTransferHash
+      lastTransferBlock
+      lastTransferTimestamp
+      logo {
+        medium
+      }
+      projectDetails {
+        imageUrl
+      }
     }
-    projectDetails{
-      imageUrl
-    }
-  } 
+  }
 }`;
 
 export const accountHolderQuery = `query AccountHolderAddress($address: Identity, $blockchain: TokenBlockchain!) {

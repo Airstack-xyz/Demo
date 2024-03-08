@@ -1,6 +1,10 @@
 export interface ERC20Response {
-  nft: Nft;
+  nfts: Nfts;
   transfers: Transfers;
+}
+
+export interface Nfts {
+  TokenNft: Nft[];
 }
 
 export interface Nft {
