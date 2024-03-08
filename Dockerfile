@@ -9,6 +9,9 @@ WORKDIR /app
 ARG ENV
 ENV ENV=$ENV
 
+ARG PRIVY_APP_ID
+ENV PRIVY_APP_ID=$PRIVY_APP_ID
+
 RUN npm install --legacy-peer-deps
 RUN ls ./node_modules/.bin
 
