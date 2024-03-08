@@ -13,7 +13,7 @@ const items: Info[] = [
     icon: 'frames-sdk',
     description:
       'Empowers developers to seamlessly integrate everything Airstack offers into  Frames using just a few lines of code.',
-    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/'
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster-frames'
   },
   {
     title: 'Onchain Kit for Farcaster Frames',

@@ -9,7 +9,7 @@ export function Tokens() {
       <ul className="flex-row-h-center gap-x-3 sm:gap-x-10 gap-y-10 [&>li]:h-[90px] [&>li]:flex-col-v-center [&>li]:justify-start flex-wrap sm:flex-nowrap">
         <li className="ml-2 relative">
           <Link to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/erc20">
-            <IconWithBorder name="abstraction-modules" label="Tokens" />
+            <IconWithBorder name="tokens" label="Tokens" />
             <div className="text-[10px] opacity-50 absolute mt-1 w-full bottom-0">
               ERC20
             </div>
@@ -18,7 +18,7 @@ export function Tokens() {
         <li className="ml-2">
           <Link to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/nft">
             <IconWithBranches
-              name="abstraction-modules"
+              name="nfts"
               label="NFTs"
               labelClass="bg-[#EC4442]"
               branches={['Metadata', 'Resized Images']}

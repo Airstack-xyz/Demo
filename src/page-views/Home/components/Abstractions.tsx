@@ -17,7 +17,7 @@ const modules: {
     link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster/proof-of-personhood-for-farcaster-frames'
   },
   {
-    name: 'Recommended Mints',
+    name: 'Trending Mints',
     icon: 'recommended-mints',
     link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/trending-mints'
   },
