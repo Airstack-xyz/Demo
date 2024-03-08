@@ -8,6 +8,7 @@ import { showToast } from '../utils/showToast';
 import { Icon } from './Icon';
 import { Tooltip, tooltipClass } from './Tooltip';
 import { isMobileDevice } from '../utils/isMobileDevice';
+import { AuthProvider } from '@/context/auth';
 
 function ShareIconBlue() {
   return (
@@ -30,11 +31,11 @@ function ShareIconBlue() {
 
 const shareUrlCache = new Map<string, string>();
 
-export function ShareURLDropdown({
-  dropdownAlignment = 'left'
-}: {
+type DropdownProps = {
   dropdownAlignment?: string;
-}) {
+};
+
+function Dropdown({ dropdownAlignment = 'left' }: DropdownProps) {
   const auth = usePrivy();
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -190,5 +191,13 @@ export function ShareURLDropdown({
         )}
       </div>
     </>
+  );
+}
+
+export function ShareURLDropdown(props: DropdownProps) {
+  return (
+    <AuthProvider>
+      <Dropdown {...props} />
+    </AuthProvider>
   );
 }
