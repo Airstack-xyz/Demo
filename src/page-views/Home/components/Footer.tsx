@@ -5,7 +5,7 @@ import { Link } from './Link';
 const links: { icon: IconType; link: string }[] = [
   {
     icon: 'docs',
-    link: 'https://app.airstack.xyz/docs'
+    link: 'https://docs.airstack.xyz'
   },
   {
     icon: 'api',

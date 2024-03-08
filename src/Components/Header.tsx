@@ -31,7 +31,7 @@ const links: {
   {
     icon: 'docs',
     name: 'Docs',
-    link: 'https://app.airstack.xyz/docs',
+    link: 'https://docs.airstack.xyz',
     description: ''
   }
 ];

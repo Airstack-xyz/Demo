@@ -8,7 +8,7 @@ const GTM_ID = process.env.GOOGLE_TAG_MANAGER_ID;
 const TWITTER_PIXEL_ID = process.env.TWITTER_PIXEL_ID;
 
 const uatUrl = 'https://explorer.uat.airstack.xyz';
-const prodUrl = 'https://explorer.airstack.xyz';
+const prodUrl = 'https://airstack.xyz';
 const devUrl = 'https://explorer.dev.airstack.xyz';
 
 const url =
