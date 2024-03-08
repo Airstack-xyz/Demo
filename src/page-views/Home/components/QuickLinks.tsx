@@ -11,7 +11,7 @@ const links = [
   },
   {
     label: 'No-code Frames',
-    link: ''
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/no-code-frames'
   },
   {
     label: 'Onchain Composability APIs',
