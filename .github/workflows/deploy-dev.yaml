@@ -39,13 +39,8 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
-          # export NODE_ENV=production
-          # export ENV=production
-          docker buildx build --platform=linux/amd64 -t  $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG  --build-arg ACCESS_TOKEN_USR=${{ secrets.ACCESS_TOKEN_USR }} --build-arg ACCESS_TOKEN_PWD=${{ secrets.ACCESS_TOKEN_PWD }} --build-arg NODE_ENV=development  --build-arg ENV=development  .
-          #docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker buildx build --platform=linux/amd64 -t  $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG  --build-arg ENV=development .
+
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
 
