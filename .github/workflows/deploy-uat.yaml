@@ -39,8 +39,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          export ENV=production
-          docker buildx build --platform=linux/amd64 -t  $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG  --build-arg ACCESS_TOKEN_USR=${{ secrets.ACCESS_TOKEN_USR }} --build-arg ACCESS_TOKEN_PWD=${{ secrets.ACCESS_TOKEN_PWD }} --build-arg NODE_ENV=production --build-arg ENV=uat .
+          docker buildx build --platform=linux/amd64 -t  $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG  --build-arg ENV=uat .
 
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
