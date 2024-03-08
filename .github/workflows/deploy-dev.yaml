@@ -36,11 +36,12 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         env:
+          API_KEY: ${{ secrets.API_KEY }}
           PRIVY_APP_ID: ${{ secrets.DEV_PRIVY_APP_ID }}
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker buildx build --platform=linux/amd64 -t  $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG  --build-arg ENV=development --build-arg PRIVY_APP_ID=$PRIVY_APP_ID  .
+          docker buildx build --platform=linux/amd64 -t  $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG  --build-arg ENV=development --build-arg PRIVY_APP_ID=$PRIVY_APP_ID --build-arg API_KEY=$API_KEY .
 
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
