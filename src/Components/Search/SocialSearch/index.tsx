@@ -374,7 +374,7 @@ export default function SocialSearch({
           {isDataNotFound && (
             <div className="p-2 text-center text-sm text-white w-full">
               {isSocialSearch
-                ? "Couldn't find any Farcaster or Lens profile. Click enter to search ENS."
+                ? 'Click enter to search the address.'
                 : "Couldn't find any Farcaster channel."}
             </div>
           )}

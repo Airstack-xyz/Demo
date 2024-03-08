@@ -30,7 +30,7 @@ export const getChannelSearchItemMention = (
   return `#⎱${displayLabel}⎱(${channelId}  null null)`;
 };
 
-const SEARCH_TERM_REGEX = /\b([a-zA-Z0-9_.:/@-]{3,})$/;
+const SEARCH_TERM_REGEX = /([a-zA-Z0-9_.:/@+-]{3,})$/;
 
 // regex to stop searching if query matches it
 const SEARCH_STOP_REGEX = /^((fc_fname:|lens\/@).*|.*(.lens))$/;
