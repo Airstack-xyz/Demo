@@ -410,7 +410,7 @@ export function TokenDetails(props: {
             })}
           >
             <Token
-              token={(erc20Data?.Token || poap || nft) as Nft}
+              token={(erc20Token || poap || nft) as Nft}
               hideHoldersButton
               hideDetailsOverlay
               disabled
