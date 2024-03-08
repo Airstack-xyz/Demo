@@ -15,15 +15,15 @@ type Member = {
 const jasonSocials: Social[] = [
   {
     name: 'farcaster',
-    link: ''
+    link: 'https://warpcast.com/betashop.eth'
   },
   {
     name: 'linkedin',
-    link: ''
+    link: 'https://www.linkedin.com/in/jasonsethgoldberg/'
   },
   {
     name: 'twitter',
-    link: ''
+    link: 'https://twitter.com/betashop'
   }
 ];
 
@@ -51,32 +51,32 @@ const teamMembers: Member[] = [
     title: 'Senior Product Designer'
   },
   {
+    name: 'Gopi Bathala',
+    title: 'Lead Backend & Blockchain Developer'
+  },
+  {
     name: 'Litsa Vintzileou',
     title: 'Senior Designer'
   },
   {
-    name: 'David Wu Finkelstein',
-    title: 'Head of Growth'
+    name: 'Sharath V',
+    title: 'Full Stack Blockchain Developer'
   },
   {
-    name: 'Alex Comeau',
-    title: 'Business Development Lead'
+    name: 'Rahul Gupta',
+    title: 'Full Stack Blockchain Developer'
   },
   {
-    name: 'Gopi Bathala',
-    title: 'Lead Backend & Blockchain Developer'
+    name: 'Hrishikesh Thakkar',
+    title: 'Senior Full Stack Blockchain Developer'
   },
   {
     name: 'Manjeet Thadani',
     title: 'Lead DevOps Engineer'
   },
   {
-    name: 'Prashant Garg',
-    title: 'Lead Backend & AI/ML Developer'
-  },
-  {
-    name: 'Aadil Hasan',
-    title: 'Lead Frontend Developer'
+    name: 'Vigneshwaran',
+    title: 'Senior Full Stack Blockchain Developer'
   },
   {
     name: 'Sarvesh Singh',
@@ -84,31 +84,35 @@ const teamMembers: Member[] = [
     image: 'sarvesh-singh.png'
   },
   {
-    name: 'Vigneshwaran',
-    title: 'Senior Full Stack Blockchain Developer'
-  },
-  {
-    name: 'Hrishikesh Thakkar',
-    title: 'Senior Full Stack Blockchain Developer'
-  },
-  {
-    name: 'Yoseph Soenggoro',
-    title: 'Senior Developer Success Engineer'
-  },
-  {
-    name: 'Deepak Kumar',
-    title: 'Talent Acquisition Manager'
+    name: 'Aadil Hasan',
+    title: 'Lead Frontend Developer'
   },
   {
     name: 'Himanshu Bisht',
     title: 'Senior DevOps Engineer'
   },
   {
-    name: 'Tim Mustafin',
-    title: 'Senior DevOps Engineer'
+    name: 'Deepak Kumar',
+    title: 'Talent Acquisition Manager'
   },
   {
     name: 'Felipe Estrella',
+    title: 'Senior DevOps Engineer'
+  },
+  {
+    name: 'Alex Comeau',
+    title: 'Business Development Lead'
+  },
+  {
+    name: 'Prashant Garg',
+    title: 'Lead Backend & AI/ML Developer'
+  },
+  {
+    name: 'Yoseph Soenggoro',
+    title: 'Senior Developer Success Engineer'
+  },
+  {
+    name: 'Tim Mustafin',
     title: 'Senior DevOps Engineer'
   },
   {
@@ -124,20 +128,8 @@ const teamMembers: Member[] = [
     title: 'Senior Software Development Engineer'
   },
   {
-    name: 'Harshit Ajmani',
-    title: 'Senior ML/AI developer'
-  },
-  {
-    name: 'Bhasker Jha',
-    title: 'Senior SDET'
-  },
-  {
-    name: 'Sharath V',
-    title: 'Full Stack Blockchain Developer'
-  },
-  {
-    name: 'Rahul Gupta',
-    title: 'Full Stack Blockchain Developer'
+    name: 'David Wu Finkelstein',
+    title: 'Head of Growth'
   },
   {
     name: 'Arjun Dhar',
@@ -146,6 +138,14 @@ const teamMembers: Member[] = [
   {
     name: 'Akash Yadav',
     title: 'Software Development Engineer'
+  },
+  {
+    name: 'Bhasker Jha',
+    title: 'Senior SDET'
+  },
+  {
+    name: 'Harshit Ajmani',
+    title: 'Senior ML/AI developer'
   }
 ];
 
@@ -172,16 +172,17 @@ export function Team() {
               <h3 className="text-sm font-bold">{member.name}</h3>
               <p className="text-xs text-[#868D94]">{member.title}</p>
               {member.socials && (
-                <ul className="mt-0.5 flex-row-h-center">
+                <ul className="mt-1 flex-row-h-center">
                   {member.socials?.map((social, index) => {
                     return (
                       <li key={index} className="mr-2.5">
                         <Link to={social.link}>
                           <Image
                             src={`images/team/socials/${social.name}.svg`}
-                            height={11}
-                            width={11}
+                            height={16}
+                            width={16}
                             loading="lazy"
+                            className="h-auto"
                           />
                         </Link>
                       </li>
