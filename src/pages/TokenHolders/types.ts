@@ -89,7 +89,11 @@ export type TotalTokensSupply = {
 };
 
 export interface Supply {
-  totalSupply: string;
+  Token: [
+    {
+      totalSupply: string;
+    }
+  ];
 }
 
 export type OverviewData = {
