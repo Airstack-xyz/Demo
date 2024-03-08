@@ -21,7 +21,7 @@ const url =
 const BASE_URL = process.env.BASE_URL || url;
 const title = 'Airstack Explorer';
 const description =
-  'Multi-chain visual blockchain explorer. Search using ENS, Farcaster, Lens, NFTs, tokens. Fetch historical balances. Download CSV or get APIs';
+  'Airstack - the easiest way to build on Farcaster. Frames SDK. Frames API. No-code Frames. Onchain Composability APIs for Ethereum, Base, Zora, Optimism, Polygon, XMTP, ENS, Farcaster, Lens and more. Trending Mints. Trending Tokens.';
 
 export const metadata: Metadata = {
   title,
