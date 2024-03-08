@@ -94,7 +94,7 @@ export function Docs() {
           className="card font-semibold text-xl px-7 flex items-center rounded-3xl h-16 w-full sm:w-[363px] ml-0 sm:ml-7 mt-5 sm:mt-0"
         >
           <Icon name="frames-sdk" loading="eager" />
-          <span className="ml-1.5">Frames Captcha SDKr</span>
+          <span className="ml-1.5">Frames Captcha SDK</span>
         </Link>
       </div>
     </div>

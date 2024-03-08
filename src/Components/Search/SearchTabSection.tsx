@@ -6,7 +6,7 @@ import { Link } from '@/Components/Link';
 import { Dropdown } from '../Dropdown';
 
 const tabClass =
-  'px-2 sm:px-6 h-[30px] rounded-full mr-1 flex-row-center text-sm text-white border border-solid border-transparent';
+  'px-2 sm:px-6 h-[30px] rounded-full flex-row-center text-xs sm:text-sm text-white border border-solid border-transparent';
 
 const activeTabClass = 'bg-white font-bold !text-[#10212E]';
 
@@ -151,7 +151,7 @@ export function SearchTabSection({
   onTabChange: (activeTab: TabUrl) => void;
 }) {
   return (
-    <div className="bg-glass-new border flex p-1 rounded-full text-left">
+    <div className="bg-glass-new border flex p-0 sm:p-1 gap-1 rounded-full text-left">
       {isHome ? (
         <TabButtons activeTab={activeTab} onTabChange={onTabChange} />
       ) : (
