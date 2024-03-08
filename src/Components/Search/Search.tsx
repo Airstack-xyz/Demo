@@ -23,7 +23,7 @@ import { useNavigate } from '@/hooks/useNavigate';
 export const tokenHoldersPlaceholder =
   'Type "@" to search by name, or enter any contract address, or any POAP event ID';
 export const tokenBalancesPlaceholder =
-  'Search Farcaster and Lens users by name, or enter 0x address, ENS.eth or cb.id';
+  'Search Farcaster profiles by name, or enter 0x address, Solana address, ENS.eth, cb.id, or Lens';
 
 const channelsPlaceholder = 'Search Farcaster channels by name';
 
