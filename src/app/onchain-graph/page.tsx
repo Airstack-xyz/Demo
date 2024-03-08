@@ -1,5 +1,5 @@
 'use client';
-import React, { Suspense } from 'react';
+import React from 'react';
 import { resetCachedUserInputs } from '../../hooks/useSearchInput';
 import { init } from '@airstack/airstack-react';
 import { apiKey } from '@/constants';
@@ -11,9 +11,5 @@ init(apiKey, {
 
 export default function Home() {
   resetCachedUserInputs();
-  return (
-    <Suspense>
-      <OnChainGraphPage />
-    </Suspense>
-  );
+  return <OnChainGraphPage />;
 }

@@ -8,6 +8,7 @@ import { Image } from '@/Components/Image';
 import { Icon, IconType } from './Icon';
 import { useEffect, useState } from 'react';
 import classNames from 'classnames';
+import { AuthProvider } from '@/context/auth';
 
 const links: {
   icon: IconType;
@@ -35,7 +36,7 @@ const links: {
   }
 ];
 
-export function Header() {
+function HeaderComponent() {
   const [showNavbar, setShowNavbar] = useState(false);
   const { user, login } = useAuth();
 
@@ -170,5 +171,13 @@ export function Header() {
         </div>
       </nav>
     </>
+  );
+}
+
+export function Header() {
+  return (
+    <AuthProvider>
+      <HeaderComponent />
+    </AuthProvider>
   );
 }

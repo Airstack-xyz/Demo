@@ -9,6 +9,7 @@ import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Modal } from '../Modal';
 import { useChannelApiOptions } from '../../page-views/Channels/useChannelApiOptions';
 import { useMatch } from '@/hooks/useMatch';
+import { AuthProvider } from '@/context/auth';
 
 function DownloadIcon() {
   return (
@@ -47,7 +48,11 @@ function CodeIcon() {
   );
 }
 
-export function DownloadCSVOverlay({ className }: { className?: string }) {
+type OverlayProps = {
+  className?: string;
+};
+
+function Overlay({ className }: OverlayProps) {
   const { options } = useCsvDownloadOptions(['options'])[0];
   const [estimateTask, { loading }] = useEstimateTask();
   const isTokenBalancesPage = !!useMatch('/token-balances');
@@ -137,5 +142,13 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
         </div>
       </Modal>
     </>
+  );
+}
+
+export function DownloadCSVOverlay(props: OverlayProps) {
+  return (
+    <AuthProvider>
+      <Overlay {...props} />
+    </AuthProvider>
   );
 }
