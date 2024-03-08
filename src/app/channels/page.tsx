@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { Suspense } from 'react';
 import { init } from '@airstack/airstack-react';
 import { apiKey } from '@/constants';
 import { Channels } from '@/page-views/Channels';
@@ -9,5 +9,9 @@ init(apiKey, {
 });
 
 export default function ChannelsPage() {
-  return <Channels />;
+  return (
+    <Suspense>
+      <Channels />
+    </Suspense>
+  );
 }

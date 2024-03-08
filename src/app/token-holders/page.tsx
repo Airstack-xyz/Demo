@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { Suspense } from 'react';
 import { init } from '@airstack/airstack-react';
 import { apiKey } from '@/constants';
 import { TokenHolders } from '@/page-views/TokenHolders';
@@ -9,5 +9,9 @@ init(apiKey, {
 });
 
 export default function TokenHoldersPage() {
-  return <TokenHolders />;
+  return (
+    <Suspense>
+      <TokenHolders />
+    </Suspense>
+  );
 }
