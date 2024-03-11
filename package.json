@@ -24,7 +24,7 @@
     "@airstack/airstack-react": "0.6.2",
     "@graphql-codegen/cli": "^5.0.0",
     "@graphql-codegen/typescript-operations": "^4.0.1",
-    "@privy-io/react-auth": "1.57.2",
+    "@privy-io/react-auth": "^1.59.3-beta-20240308185032",
     "classnames": "^2.3.2",
     "comlink": "^4.4.1",
     "next": "14.1.1",
