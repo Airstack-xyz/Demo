@@ -107,9 +107,14 @@ export function useGetCommonOwnersOfTokens(tokenAddresses: TokenAddress[]) {
   const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
 
   const { hasNextPage, getNextPage } = pagination;
-  // eslint-disable-next-line
-  // @ts-ignore
-  const totalOwners = window?.totalOwners || 0;
+
+  let totalOwners = 0;
+
+  if (typeof window !== 'undefined') {
+    // eslint-disable-next-line
+    // @ts-ignore
+    totalOwners = window.totalOwners;
+  }
   const hasMorePages = !totalOwners
     ? hasNextPage
     : hasNextPage === false
