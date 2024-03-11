@@ -1,11 +1,7 @@
-/* eslint-disable react-refresh/only-export-components */
+'use client';
 import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  useLocation,
-  useMatch,
-  useNavigate,
-  useSearchParams
-} from 'react-router-dom';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useMatch } from '@/hooks/useMatch';
 import {
   CachedQuery,
   UserInputs,
@@ -22,11 +18,12 @@ import {
 import { EnabledSearchType, SearchInputSection } from './SearchInputSection';
 import { SearchTabSection, TabUrl } from './SearchTabSection';
 import { addAndRemoveCombinationPlaceholder } from './utils';
+import { useNavigate } from '@/hooks/useNavigate';
 
 export const tokenHoldersPlaceholder =
   'Type "@" to search by name, or enter any contract address, or any POAP event ID';
 export const tokenBalancesPlaceholder =
-  'Search Farcaster and Lens users by name, or enter 0x address, ENS.eth or cb.id';
+  'Search Farcaster profiles by name, or enter 0x address, Solana address, ENS.eth, cb.id, or Lens';
 
 const channelsPlaceholder = 'Search Farcaster channels by name';
 
@@ -49,9 +46,9 @@ export const PADDING = '  ';
 
 export const Search = memo(function Search() {
   const [activeTab, setCurrentTab] = useState<TabUrl>('token-balances');
-  const activePath = useLocation().pathname.replace('/', '') as TabUrl;
+  const activePath = usePathname()?.replace('/', '') as TabUrl;
   const isHome = !!useMatch('/');
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const [, setOverviewTokens] = useOverviewTokens(['tokens']);
 
   const actualActiveTab = isHome ? activeTab : activePath;
@@ -215,7 +212,10 @@ export const Search = memo(function Search() {
         rawInput: rawTextWithMentions,
         inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType'],
         activeSnapshotInfo: undefined, // For every new search reset snapshot filter
-        resolve6551: undefined // For every new search reset resolve6551 filter
+        resolve6551: undefined, // For every new search reset resolve6551 filter
+        activeView: undefined,
+        activeViewToken: undefined,
+        activeTokenInfo: undefined
       };
 
       setValue(rawTextWithMentions + PADDING);
@@ -244,7 +244,7 @@ export const Search = memo(function Search() {
     (mentionValue: string) => {
       const trimmedValue = mentionValue.trim();
 
-      if (searchParams.get('rawInput') === trimmedValue) {
+      if (searchParams?.get('rawInput') === trimmedValue) {
         window.location.reload(); // reload page if same search
         return;
       }
@@ -284,7 +284,7 @@ export const Search = memo(function Search() {
 
   return (
     <div className="relative">
-      <div className="my-6 flex-col-center">
+      <div className="my-6 flex-col-center relative z-[41]">
         <SearchTabSection
           isHome={isHome}
           activeTab={activeTab}

@@ -5,7 +5,7 @@ import { tokenBlockchains } from '../constants';
 import {
   TotalPoapsSupply,
   TotalTokensSupply
-} from '../pages/TokenHolders/types';
+} from '../page-views/TokenHolders/types';
 import { POAPSupplyQuery, TokenSupplyQuery } from '../queries/supplyQuery';
 
 type TokensSupplyResponse = TotalTokensSupply & TotalPoapsSupply;

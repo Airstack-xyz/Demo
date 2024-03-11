@@ -1,10 +1,6 @@
-type ImageProps = Omit<
-  React.DetailedHTMLProps<
-    React.ImgHTMLAttributes<HTMLImageElement>,
-    HTMLImageElement
-  >,
-  'src' | 'alt'
->;
+import { Image, ImageProps } from '@/Components/Image';
+
+type ImgProps = Omit<ImageProps, 'src' | 'alt'>;
 
 export type IconType =
   | 'nft'
@@ -73,16 +69,27 @@ export type IconType =
   | 'chain'
   | 'frame'
   | 'customize'
-  | 'channels';
+  | 'channels'
+  | 'docs'
+  | 'sdk'
+  | 'api'
+  | 'csv'
+  | 'x'
+  | 'github'
+  | 'linkedin'
+  | 'warpcast'
+  | 'frames'
+  | 'ai-robot'
+  | 'hamburger';
 
 export type IconProps = {
   name: IconType;
   alt?: string;
-} & ImageProps;
+} & ImgProps;
 
 export function Icon({ name, ...props }: IconProps) {
   return (
-    <img
+    <Image
       src={`images/icons/${name}.svg`}
       alt={name}
       height={20}

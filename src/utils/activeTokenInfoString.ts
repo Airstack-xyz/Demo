@@ -49,7 +49,6 @@ export function getAllActiveTokenInfo(info: string) {
 
 export type TokenInfo = ReturnType<typeof getActiveTokenInfo>;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getActiveTokensInfoFromArray(tokens: any[]) {
   return tokens
     .map(token => {

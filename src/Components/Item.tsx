@@ -1,4 +1,5 @@
 import { Asset } from '@airstack/airstack-react';
+import { Image } from '@/Components/Image';
 
 type ItemProps = {
   tokenId: string;
@@ -7,12 +8,12 @@ type ItemProps = {
   tokenAddress: string;
   amount: string;
   tokenSymbol: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   blockchain: any;
 };
 
 function Placeholder() {
-  return <img src="/images/placeholder.svg" />;
+  return <Image src="/images/placeholder.svg" />;
 }
 
 export function Item({

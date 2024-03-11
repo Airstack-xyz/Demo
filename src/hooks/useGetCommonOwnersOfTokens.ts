@@ -8,7 +8,7 @@ import {
   Poap as PoapType,
   TokenAddress,
   Token as TokenType
-} from '../pages/TokenHolders/types';
+} from '../page-views/TokenHolders/types';
 import {
   getCommonNftOwnersSnapshotQuery,
   getNftOwnersSnapshotQuery
@@ -109,7 +109,7 @@ export function useGetCommonOwnersOfTokens(tokenAddresses: TokenAddress[]) {
   const { hasNextPage, getNextPage } = pagination;
   // eslint-disable-next-line
   // @ts-ignore
-  const totalOwners = window.totalOwners || 0;
+  const totalOwners = window?.totalOwners || 0;
   const hasMorePages = !totalOwners
     ? hasNextPage
     : hasNextPage === false

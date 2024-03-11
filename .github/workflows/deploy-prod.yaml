@@ -2,43 +2,25 @@ name: Prod - Deploy
 
 on: workflow_dispatch
 
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: explorer-web
+  EVENT_NAME: prod-explorer-web
+  VALUES_FILE: core/common-values/explorer-web-values.yaml
+
 permissions:
   id-token: write
   contents: read
 
-env:
-  AWS_REGION: us-east-1 # set this to your preferred AWS region, e.g. us-west-1
-
 jobs:
-  build:
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     environment: production
-    strategy:
-      matrix:
-        node-version: [16.13.2]
-    
+
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
-        with:
-          node-version: ${{ matrix.node-version }}
-
-      - name: Generate build
-        run: |
-          npm install
-          npm run build
-        env:
-          CI: false
-          NODE_OPTIONS: --max_old_space_size=4096
-          PRIVY_APP_ID: ${{ secrets.PRIVY_APP_ID }}
-          API_KEY: ${{ secrets.API_KEY }}
-          GOOGLE_TAG_MANAGER_ID: ${{ secrets.GOOGLE_TAG_MANAGER_ID }}
-          MENTION_ENDPOINT: 'https://bff-prod.airstack.xyz/graphql'
-          AIRSTACK_ENDPOINT: 'https://api.airstack.xyz/gql'
-          APP_BASE_URL: 'https://app.airstack.xyz'
-          BFF_ENDPOINT: 'https://bff-prod.airstack.xyz/graphql'
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -47,8 +29,32 @@ jobs:
           role-session-name: Github
           aws-region: ${{ env.AWS_REGION }}
 
-      # publish to prod environment
-      - name: Deploy to S3
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-image
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
+          PRIVY_APP_ID: ${{ secrets.PRIVY_APP_ID }}
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          aws s3 sync dist s3://demo.airstack.xyz
-          aws cloudfront create-invalidation --distribution-id E27H9IOTBNLXWU --paths /
+          export ENV=production
+          docker buildx build --platform=linux/amd64 -t  $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --build-arg ENV=production --build-arg PRIVY_APP_ID=$PRIVY_APP_ID --build-arg API_KEY=$API_KEY .
+
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Repository Dispatch
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          EVENT_NAME: ${{ env.EVENT_NAME }}
+          VALUES_FILE: ${{ env.VALUES_FILE }}
+        run: |
+          curl -H "Accept: application/vnd.github.everest-preview+json" \
+          -H "Authorization: token ${{ secrets.ACCESS_TOKEN_PWD }}" \
+          --request POST \
+          --data '{"event_type": "'"$EVENT_NAME"'", "client_payload": {"name": "'"$EVENT_NAME"'", "file_path": "'"$VALUES_FILE"'", "tag": "'"$IMAGE_TAG"'"}}' \
+          https://api.github.com/repos/Airstack-xyz/infra-production-deployment/dispatches

@@ -13,7 +13,6 @@ const defaultValue: LoaderContext = {
   setIsLoading: noop
 };
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const loaderContext = createContext<LoaderContext>(defaultValue);
 
 export function LoaderProvider({ children }: { children: React.ReactNode }) {

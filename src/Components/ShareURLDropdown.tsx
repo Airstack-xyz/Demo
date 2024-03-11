@@ -1,3 +1,4 @@
+import { Image } from '@/Components/Image';
 import { usePrivy } from '@privy-io/react-auth';
 import classNames from 'classnames';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -7,6 +8,7 @@ import { showToast } from '../utils/showToast';
 import { Icon } from './Icon';
 import { Tooltip, tooltipClass } from './Tooltip';
 import { isMobileDevice } from '../utils/isMobileDevice';
+import { AuthProvider } from '@/context/auth';
 
 function ShareIconBlue() {
   return (
@@ -29,11 +31,11 @@ function ShareIconBlue() {
 
 const shareUrlCache = new Map<string, string>();
 
-export function ShareURLDropdown({
-  dropdownAlignment = 'left'
-}: {
+type DropdownProps = {
   dropdownAlignment?: string;
-}) {
+};
+
+function Dropdown({ dropdownAlignment = 'left' }: DropdownProps) {
   const auth = usePrivy();
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -161,7 +163,7 @@ export function ShareURLDropdown({
             </div>
             <div className="flex-row-center mt-2.5 gap-3 h-[35px]">
               {loading ? (
-                <img src="images/loader.svg" height={20} width={30} />
+                <Image src="images/loader.svg" height={20} width={30} />
               ) : (
                 <>
                   <div className="rounded-18 bg-glass-2 text-xs text-text-secondary h-[35px] px-3 flex items-center overflow-auto no-scrollbar w-full">
@@ -189,5 +191,13 @@ export function ShareURLDropdown({
         )}
       </div>
     </>
+  );
+}
+
+export function ShareURLDropdown(props: DropdownProps) {
+  return (
+    <AuthProvider>
+      <Dropdown {...props} />
+    </AuthProvider>
   );
 }

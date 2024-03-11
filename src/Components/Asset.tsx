@@ -1,12 +1,14 @@
 import { Asset as AirstackAsset } from '@airstack/airstack-react';
 import { ComponentProps, useState } from 'react';
 import { checkBlockchainSupportForToken } from '../utils/activeTokenInfoString';
+import { Image as Img } from '@/Components/Image';
 
 export function Image(props: ComponentProps<'img'>) {
   const [error, setError] = useState(false);
   if (error || !props.src) {
     return (
-      <img
+      // @ts-ignore
+      <Img
         data-type="image-error-placeholder"
         {...props}
         src="images/placeholder.svg"
@@ -14,7 +16,8 @@ export function Image(props: ComponentProps<'img'>) {
     );
   }
   return (
-    <img data-type="placeholder" onError={() => setError(true)} {...props} />
+    // @ts-ignore
+    <Img data-type="placeholder" onError={() => setError(true)} {...props} />
   );
 }
 
@@ -44,7 +47,7 @@ export function Asset({
         useImageOnError && image ? (
           <Image {...props.imgProps} src={image} />
         ) : (
-          <img
+          <Image
             {...props.imgProps}
             src="images/placeholder.svg"
             data-type="error-placeholder"
@@ -53,7 +56,7 @@ export function Asset({
         )
       }
       loading={
-        <img
+        <Image
           {...props.imgProps}
           src="images/placeholder.svg"
           data-type="loading-placeholder"

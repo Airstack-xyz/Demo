@@ -1,5 +1,6 @@
 import classNames from 'classnames';
 import { ComponentProps, useState } from 'react';
+import { Image } from '@/Components/Image';
 
 type LazyImageStatusType = 'loading' | 'loaded' | 'error';
 
@@ -21,7 +22,9 @@ const LazyImage = ({
   return (
     <>
       {status === 'error' && (
-        <img
+        // @ts-ignore
+        <Image
+          alt="error"
           {...rest}
           className={classNames(rest.className, fallbackClassName)}
           src={fallbackSrc}
@@ -37,7 +40,9 @@ const LazyImage = ({
           style={{ height: rest.height, width: rest.width }}
         />
       )}
-      <img
+      {/* @ts-ignore */}
+      <Image
+        alt=""
         {...rest}
         src={src || fallbackSrc}
         style={status !== 'loaded' ? { display: 'none' } : undefined}

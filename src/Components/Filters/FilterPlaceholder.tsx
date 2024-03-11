@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import classNames from 'classnames';
 import { Icon, IconType } from '../Icon';
 

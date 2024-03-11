@@ -13,7 +13,7 @@ const placeholders = [
 
 export function useAnimateInputPlaceholder(input: HTMLTextAreaElement | null) {
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const timeoutIdRef = useRef<any>(0);
 
   const onPlaceholderAnimationComplete = useCallback(() => {

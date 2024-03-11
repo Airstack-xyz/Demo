@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   getMentions
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
 } from './react-mentions/utils';
 import { SearchAIMentionsQuery } from '../../queries';

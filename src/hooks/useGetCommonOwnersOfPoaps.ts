@@ -1,6 +1,6 @@
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Poap, TokenAddress } from '../pages/TokenHolders/types';
+import { Poap, TokenAddress } from '../page-views/TokenHolders/types';
 import { getCommonOwnersPOAPsQuery } from '../queries/commonOwnersPOAPsQuery';
 
 type Token = Poap;
@@ -39,9 +39,13 @@ export function useGetCommonOwnersOfPoaps(poapAddresses: TokenAddress[]) {
   const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
 
   const { hasNextPage, getNextPage } = pagination;
-  // eslint-disable-next-line
-  // @ts-ignore
-  const totalOwners = window.totalOwners;
+  let totalOwners = 0;
+
+  if (typeof window !== 'undefined') {
+    // eslint-disable-next-line
+    // @ts-ignore
+    totalOwners = window.totalOwners;
+  }
   const hasMorePages = !totalOwners ? hasNextPage : poaps.length < totalOwners;
   const fetchSingleToken = poapAddresses.length === 1;
 

@@ -1,4 +1,4 @@
-import { TokenAddress } from '../pages/TokenHolders/types';
+import { TokenAddress } from '../page-views/TokenHolders/types';
 
 export function getCommonPoapAndNftOwnersQuery({
   poapAddress,

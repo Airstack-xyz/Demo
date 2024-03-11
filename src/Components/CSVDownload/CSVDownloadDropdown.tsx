@@ -6,6 +6,7 @@ import { CSVDownloadOption } from '../../types';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Modal } from '../Modal';
 import { Tooltip, tooltipClass } from '../Tooltip';
+import { AuthProvider } from '@/context/auth';
 
 function CodeIconBlue() {
   return (
@@ -27,21 +28,23 @@ function CodeIconBlue() {
   );
 }
 
-export function CSVDownloadDropdown({
-  options,
-  disabled,
-  dropdownAlignment = 'right',
-  hideFooter,
-  hideDesktopNudge,
-  toolTipContent
-}: {
+type DropdownProps = {
   options: CSVDownloadOption[];
   disabled?: boolean;
   dropdownAlignment?: 'left' | 'center' | 'right';
   hideFooter?: boolean;
   hideDesktopNudge?: boolean;
   toolTipContent?: string;
-}) {
+};
+
+function Dropdown({
+  options,
+  disabled,
+  dropdownAlignment = 'right',
+  hideFooter,
+  hideDesktopNudge,
+  toolTipContent
+}: DropdownProps) {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const isMobile = isMobileDevice();
@@ -161,5 +164,13 @@ export function CSVDownloadDropdown({
         </div>
       </Modal>
     </>
+  );
+}
+
+export function CSVDownloadDropdown(props: DropdownProps) {
+  return (
+    <AuthProvider>
+      <Dropdown {...props} />
+    </AuthProvider>
   );
 }

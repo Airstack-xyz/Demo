@@ -1,4 +1,4 @@
-import { QUERY_LIMIT } from '../../pages/OnchainGraph/constants';
+import { QUERY_LIMIT } from '../../page-views/OnchainGraph/constants';
 
 export const socialFollowingsQuery = `query Followings($user: Identity!, $dappName: SocialDappName) {
     SocialFollowings(

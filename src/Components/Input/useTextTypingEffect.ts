@@ -16,7 +16,7 @@ export function useTextTypingEffect({
   loop
 }: HookProps) {
   const currentIndexRef = useRef(1);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const intervalRef = useRef<any>(0);
   const [text, setText] = useState('');
   const textRef = useRef(completeText);

@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { useSearchInput } from '../../hooks/useSearchInput';
 import { ToggleSwitch } from '../ToggleSwitch';
 

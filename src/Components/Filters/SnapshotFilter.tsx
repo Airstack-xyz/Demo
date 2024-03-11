@@ -1,7 +1,5 @@
-/* eslint-disable react-refresh/only-export-components */
 import classNames from 'classnames';
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
-import { useMatch } from 'react-router-dom';
 import { snapshotBlockchains } from '../../constants';
 import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { CachedQuery, useSearchInput } from '../../hooks/useSearchInput';
@@ -19,6 +17,7 @@ import { FilterPlaceholder } from './FilterPlaceholder';
 import { defaultMintFilter } from './MintFilter';
 import { defaultSortOrder } from './SortBy';
 import { TooltipWrapper } from './TooltipWrapper';
+import { useMatch } from '@/hooks/useMatch';
 
 export type SnapshotFilterType =
   | 'today'

@@ -1,14 +1,15 @@
 import classNames from 'classnames';
 import { useTokenBalancesLinks } from './useTokenBalancesLinks';
 import { useTokenHoldersLinks } from './useTokenHoldersLinks';
-import { useMatch } from 'react-router-dom';
 import { useCsvDownloadOptions } from '../../store/csvDownload';
 import { useEstimateTask } from '../../hooks/useEstimateTask';
 import { CSVDownloadOption } from '../../types';
 import { useCallback, useState } from 'react';
 import { isMobileDevice } from '../../utils/isMobileDevice';
 import { Modal } from '../Modal';
-import { useChannelApiOptions } from '../../pages/Channels/useChannelApiOptions';
+import { useChannelApiOptions } from '../../page-views/Channels/useChannelApiOptions';
+import { useMatch } from '@/hooks/useMatch';
+import { AuthProvider } from '@/context/auth';
 
 function DownloadIcon() {
   return (
@@ -47,7 +48,11 @@ function CodeIcon() {
   );
 }
 
-export function DownloadCSVOverlay({ className }: { className?: string }) {
+type OverlayProps = {
+  className?: string;
+};
+
+function Overlay({ className }: OverlayProps) {
   const { options } = useCsvDownloadOptions(['options'])[0];
   const [estimateTask, { loading }] = useEstimateTask();
   const isTokenBalancesPage = !!useMatch('/token-balances');
@@ -85,7 +90,7 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
     <>
       <div
         className={classNames(
-          'flex-col-center h-80 w-full z-40 text-sm px-5 rounded-b-2xl bg-secondary',
+          'flex-col-center h-80 w-full z-40 text-sm px-5 rounded-b-2xl bg-token',
           className
         )}
       >
@@ -137,5 +142,13 @@ export function DownloadCSVOverlay({ className }: { className?: string }) {
         </div>
       </Modal>
     </>
+  );
+}
+
+export function DownloadCSVOverlay(props: OverlayProps) {
+  return (
+    <AuthProvider>
+      <Overlay {...props} />
+    </AuthProvider>
   );
 }

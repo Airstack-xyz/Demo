@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type callback = (data?: any) => void;
 const eventsStore: Record<string, callback[]> = {};
 

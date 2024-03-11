@@ -1,23 +1,27 @@
+import { Image } from '@/Components/Image';
 import { usePrivy } from '@privy-io/react-auth';
 import classNames from 'classnames';
 import { useEffect, useRef, useState } from 'react';
 import { shortenUrl } from '../../hooks/useShortenURL';
 import { RoundedCopyButton } from '../CopyButton';
 import { FrameLabel } from './FrameLabel';
+import { AuthProvider } from '@/context/auth';
 
 const frameUrlCache = new Map<string, string>();
 
-export function FrameURL({
-  longUrl,
-  placeholder,
-  showLoading,
-  containerClass
-}: {
+type FrameURLInputProps = {
   longUrl: string;
   placeholder?: string;
   showLoading?: boolean;
   containerClass?: string;
-}) {
+};
+
+function FrameURLInput({
+  longUrl,
+  placeholder,
+  showLoading,
+  containerClass
+}: FrameURLInputProps) {
   const auth = usePrivy();
   const [loading, setLoading] = useState(false);
   const [shortUrl, setShortUrl] = useState('');
@@ -91,7 +95,7 @@ export function FrameURL({
           )}
         >
           {showLoader ? (
-            <img src="images/loader.svg" height={20} width={30} />
+            <Image alt="" src="images/loader.svg" height={20} width={30} />
           ) : (
             <span> {shortUrl || placeholder}</span>
           )}
@@ -99,5 +103,13 @@ export function FrameURL({
         <RoundedCopyButton value={showLoader ? '' : shortUrl} />
       </div>
     </div>
+  );
+}
+
+export function FrameURL(props: FrameURLInputProps) {
+  return (
+    <AuthProvider>
+      <FrameURLInput {...props} />
+    </AuthProvider>
   );
 }

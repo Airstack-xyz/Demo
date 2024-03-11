@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import classNames from 'classnames';
 import { useCallback, useMemo } from 'react';
 import { useSearchInput } from '../../hooks/useSearchInput';

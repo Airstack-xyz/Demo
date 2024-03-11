@@ -1,4 +1,4 @@
-import { TokenAddress } from '../pages/TokenHolders/types';
+import { TokenAddress } from '../page-views/TokenHolders/types';
 
 export function sortAddressByPoapFirst(array: TokenAddress[]) {
   const notStartsWith0x: TokenAddress[] = [];

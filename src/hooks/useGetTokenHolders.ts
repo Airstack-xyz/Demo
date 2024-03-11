@@ -55,7 +55,6 @@ export function useGetTokenHolders(
       limit
     },
     {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore-next-line
       dataFormatter: (data: TokenHoldersResponse) => {
         return onFormatData

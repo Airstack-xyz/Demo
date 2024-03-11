@@ -2,10 +2,7 @@ import { TokenHolder } from '../store/tokenHoldersOverview';
 
 export function sortByAddressByNonERC20First(
   address: string[],
-  overviewTokens: TokenHolder[],
-  // remove this later as this is not being used
-  /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-  _shouldFetchPoaps: boolean
+  overviewTokens: TokenHolder[]
 ) {
   if (overviewTokens.length > 0) {
     if (overviewTokens.length === 0) return [];

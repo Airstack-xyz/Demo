@@ -29,7 +29,7 @@ import {
   getNftOwnersQueryWithFilters
 } from '../../queries/commonNftOwnersQueryWithFilters';
 import { getCommonPoapAndNftOwnersQueryWithFilters } from '../../queries/commonPoapAndNftOwnersQueryWithFilters';
-import { getRequestFilters } from '../../pages/TokenHolders/OverviewDetails/Tokens/utils';
+import { getRequestFilters } from '../../page-views/TokenHolders/OverviewDetails/Tokens/utils';
 
 export function useTokenHoldersLinks() {
   const [
@@ -59,8 +59,8 @@ export function useTokenHoldersLinks() {
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));
 
   const addresses = useMemo(() => {
-    return sortByAddressByNonERC20First(tokenAddress, overviewTokens, hasPoap);
-  }, [hasPoap, tokenAddress, overviewTokens]);
+    return sortByAddressByNonERC20First(tokenAddress, overviewTokens);
+  }, [tokenAddress, overviewTokens]);
 
   const requestFilters = useMemo(() => {
     return getRequestFilters(tokenFilters);

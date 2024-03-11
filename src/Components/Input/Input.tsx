@@ -19,7 +19,6 @@ import {
   MENTION_REGEX,
   POAP_OPTION_ID
 } from './constants';
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 import { Mention, MentionsInput } from './react-mentions';
 import {
@@ -48,7 +47,6 @@ type Option = SearchAIMentionsResults & {
   display: string;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
 const noop = () => {};
 
 export function InputWithMention({
@@ -329,7 +327,6 @@ export function InputWithMention({
         return;
       }
       const data = await debouncedFetch(query);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dataWithExtraOptions: any[] = data || [];
       dataWithExtraOptions.push(
         { id: ADDRESS_OPTION_ID },
@@ -396,7 +393,6 @@ export function InputWithMention({
 
   return (
     <div className="wrapper w-full sm:w-auto sm:p-auto h-full">
-      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
       {/* @ts-ignore-next-line */}
       <MentionsInput
         id="mention-input"
@@ -427,6 +423,7 @@ export function InputWithMention({
       >
         <Mention
           markup={MENTION_MARKUP}
+          // @ts-ignore
           regex={MENTION_REGEX}
           displayTransform={displayTransform}
           trigger="@"

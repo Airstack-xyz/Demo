@@ -1,12 +1,9 @@
-import {
-  SetURLSearchParams,
-  createSearchParams,
-  useLocation,
-  useNavigate,
-  useSearchParams
-} from 'react-router-dom';
 import { useCallback, useMemo } from 'react';
 import { TabUrl } from '../Components/Search/SearchTabSection';
+import { createSearchParams } from 'react-router-dom';
+import useSearchParams from '@/hooks/useSearchParams';
+import { useNavigate } from '@/hooks/useNavigate';
+import { usePathname } from 'next/navigation';
 
 export type CachedQuery = {
   address: string[];
@@ -67,9 +64,9 @@ export function resetCachedUserInputs(
 
 export function useSearchInput(
   activeStoreName?: TabUrl | null
-): [UserInputs, UpdateUserInputs, SetURLSearchParams] {
+): [UserInputs, UpdateUserInputs, ReturnType<typeof useSearchParams>[1]] {
   const navigate = useNavigate();
-  const activePath = useLocation().pathname.replace('/', '') as TabUrl;
+  const activePath = usePathname()?.replace('/', '') as TabUrl;
   const activeStore =
     urlToPathMap[activeStoreName || activePath] || 'tokenBalance';
   const isTokenBalances = activeStoreName === 'token-balances';
@@ -93,27 +90,26 @@ export function useSearchInput(
       }
 
       if (config?.updateQueryParams) {
-        const searchParams = { ...inputs };
+        const searchParamsInput = { ...inputs };
         for (const key in inputs) {
-          if (!searchParams[key as keyof typeof searchParams]) {
+          if (!searchParamsInput[key as keyof typeof searchParamsInput]) {
             // eslint-disable-next-line
             // @ts-ignore
-            searchParams[key] = '';
+            searchParamsInput[key] = '';
           } else if (arrayTypes.includes(key)) {
             // eslint-disable-next-line
             // @ts-ignore
-            searchParams[key] = (inputs[key] as string[]).join(',');
+            searchParamsInput[key] = (inputs[key] as string[]).join(',');
           }
         }
         if (config.redirectTo) {
           navigate({
             pathname: config.redirectTo,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            search: createSearchParams(searchParams as any).toString()
+            search: createSearchParams(searchParamsInput as any).toString()
           });
           return;
         }
-        setSearchParams(searchParams as Record<string, string>, {
+        setSearchParams(searchParamsInput as Record<string, string>, {
           replace: shouldReplaceFilters
         });
       }
@@ -127,7 +123,7 @@ export function useSearchInput(
       isArray?: T
     ): T extends true ? string[] : string => {
       const store = userInputCache[activeStore];
-      const valueString = searchParams.get(key) || '';
+      const valueString = searchParams?.get(key) || '';
 
       const savedValue = store[key] || (isArray ? [] : '');
 
@@ -145,7 +141,6 @@ export function useSearchInput(
         // if filters are same as saved filters, use reference of saved filters so the component doesn't re-render unnecessarily
         value = savedValue;
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return value as any;
     },
     [activeStore, searchParams]
