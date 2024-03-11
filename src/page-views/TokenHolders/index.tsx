@@ -1,5 +1,5 @@
 import classNames from 'classnames';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useMatch } from '@/hooks/useMatch';
 import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDropdown';
 import { AdvancedSettings } from '../../Components/Filters/AdvancedSettings';
@@ -42,7 +42,7 @@ export function TokenHolders() {
       activeSnapshotInfo,
       activeTokenInfo
     },
-    setData
+    // setData
   ] = useSearchInput();
 
   const [{ hasERC6551, owner, accountAddress }] = useTokenDetails([
@@ -56,7 +56,7 @@ export function TokenHolders() {
 
   const overviewTokens = _overviewTokens as TokenHolder[];
 
-  const addressRef = useRef<null | string[]>(null);
+  // const addressRef = useRef<null | string[]>(null);
   const isHome = !!useMatch('/');
 
   const query = tokenAddress?.length > 0 ? tokenAddress[0] : '';
@@ -70,21 +70,21 @@ export function TokenHolders() {
     [activeSnapshotInfo]
   );
 
-  useEffect(() => {
-    // go to token-holders page if user input address has changed
-    if (addressRef.current && addressRef.current !== tokenAddress) {
-      setData(
-        {
-          activeView: '',
-          activeTokenInfo: ''
-        },
-        {
-          updateQueryParams: true
-        }
-      );
-    }
-    addressRef.current = tokenAddress;
-  }, [tokenAddress, setData]);
+  // useEffect(() => {
+  //   // go to token-holders page if user input address has changed
+  //   if (addressRef.current && addressRef.current !== tokenAddress) {
+  //     setData(
+  //       {
+  //         activeView: '',
+  //         activeTokenInfo: ''
+  //       },
+  //       {
+  //         updateQueryParams: true
+  //       }
+  //     );
+  //   }
+  //   addressRef.current = tokenAddress;
+  // }, [tokenAddress, setData]);
 
   const hasSomePoap = tokenAddress.some(token => !token.startsWith('0x'));
   const hasPoap = tokenAddress.every(token => !token.startsWith('0x'));

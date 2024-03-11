@@ -343,7 +343,7 @@ function Overview({
 
   // eslint-disable-next-line
   // @ts-ignore
-  window.totalOwners = overviewData?.owners || 0;
+  // window.totalOwners = overviewData?.owners || 0;
 
   return (
     <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px] mb-7">

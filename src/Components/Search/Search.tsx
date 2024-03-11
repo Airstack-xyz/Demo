@@ -212,7 +212,10 @@ export const Search = memo(function Search() {
         rawInput: rawTextWithMentions,
         inputType: (token || inputType || 'ADDRESS') as UserInputs['inputType'],
         activeSnapshotInfo: undefined, // For every new search reset snapshot filter
-        resolve6551: undefined // For every new search reset resolve6551 filter
+        resolve6551: undefined, // For every new search reset resolve6551 filter
+        activeView: undefined,
+        activeViewToken: undefined,
+        activeTokenInfo: undefined
       };
 
       setValue(rawTextWithMentions + PADDING);

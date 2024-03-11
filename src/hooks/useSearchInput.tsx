@@ -90,26 +90,27 @@ export function useSearchInput(
       }
 
       if (config?.updateQueryParams) {
-        const searchParams = { ...inputs };
+        const searchParamsInput = { ...inputs };
         for (const key in inputs) {
-          if (!searchParams[key as keyof typeof searchParams]) {
+          if (!searchParamsInput[key as keyof typeof searchParamsInput]) {
             // eslint-disable-next-line
             // @ts-ignore
-            searchParams[key] = "";
+            searchParamsInput[key] = "";
           } else if (arrayTypes.includes(key)) {
             // eslint-disable-next-line
             // @ts-ignore
-            searchParams[key] = (inputs[key] as string[]).join(",");
+            searchParamsInput[key] = (inputs[key] as string[]).join(",");
           }
         }
         if (config.redirectTo) {
           navigate({
             pathname: config.redirectTo,
-            search: createSearchParams(searchParams as any).toString(),
+            search: createSearchParams(searchParamsInput as any).toString(),
           });
           return;
         }
-        setSearchParams(searchParams as Record<string, string>, {
+        console.log("sear====", searchParamsInput);
+        setSearchParams(searchParamsInput as Record<string, string>, {
           replace: shouldReplaceFilters,
         });
       }
