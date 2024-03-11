@@ -1,6 +1,6 @@
 import React from 'react';
 import './globals.css';
-import { Header } from '@/Components/Header';
+import { Header } from '@/Components/Header/Header';
 import { Metadata } from 'next';
 import Script from 'next/script';
 
