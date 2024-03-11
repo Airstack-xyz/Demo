@@ -1,7 +1,7 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
 
 const bffQueryFolders = ["auth", "csv-download"];
-const prodQueryFolders = ["channels"];
+const prodQueryFolders = ["channels", "trendingMints"];
 
 const getDocumentPaths = (fathNames: string[]) => {
   return fathNames.reduce(

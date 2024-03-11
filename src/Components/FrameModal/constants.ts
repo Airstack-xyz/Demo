@@ -1,6 +1,6 @@
 export const FRAMES_ENDPOINT = process.env.FRAMES_ENDPOINT || '';
 
-export const TOKEN_PLACEHOLDER_URL = 'images/placeholder-blue.svg';
+export const TOKEN_PLACEHOLDER_URL = 'images/token-placeholder.svg';
 
 export const PROFILE_PLACEHOLDER_URL = 'images/profile-placeholder.svg';
 

@@ -8,7 +8,7 @@
     "build-sh": "sh ./build.sh",
     "start": "next start",
     "lint": "next lint --max-warnings 0",
-    "dev-server": "vite",
+    "dev-server": "next dev",
     "prebuild": "npm run codegen && npm run lint && npm run ts-lint",
     "build-uat": "npm run codegen && tsc && vite build --mode uat",
     "build-dev": "npm run codegen && tsc && vite build --mode development",

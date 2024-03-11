@@ -10,13 +10,18 @@ const tabClass =
 
 const activeTabClass = 'bg-white font-bold !text-[#10212E]';
 
-export type TabUrl = 'token-balances' | 'token-holders' | 'channels';
+export type TabUrl =
+  | 'token-balances'
+  | 'token-holders'
+  | 'trending-mints'
+  | 'channels';
 
 const options: {
   label: string;
   mobileLabel: string;
   value: TabUrl;
   extraMatch?: string[];
+  renderAsLink?: boolean;
 }[] = [
   {
     label: 'Users',
@@ -25,6 +30,12 @@ const options: {
     extraMatch: ['onchain-graph']
   },
   { label: 'Tokens', mobileLabel: 'Holders', value: 'token-holders' },
+  {
+    label: 'Mints',
+    mobileLabel: 'Mints',
+    value: 'trending-mints',
+    renderAsLink: true
+  },
   { label: 'Channels', mobileLabel: 'Channels', value: 'channels' }
 ];
 
@@ -67,9 +78,32 @@ function TabButtons({
   onTabChange: (activeTab: TabUrl) => void;
 }) {
   const isMobile = isMobileDevice();
+  const activePath = usePathname() || '';
   return (
     <>
       {options.map((option, index) => {
+        if (option.renderAsLink) {
+          const isActive =
+          activePath.includes(option.value) ||
+          (option.extraMatch || []).some(match => activePath.includes(match));
+        return (
+          <Link
+            key={index}
+            to={`/${option.value}`}
+            className={classNames(tabClass, {
+              [activeTabClass]: isActive
+            })}
+          >
+            <Icon
+              name={option.value as IconType}
+              className={classNames('w-4 mr-1', {
+                invert: isActive
+              })}
+            />{' '}
+            {isMobile ? option.mobileLabel : option.label}
+          </Link>
+        );
+        }
         return (
           <button
             key={index}

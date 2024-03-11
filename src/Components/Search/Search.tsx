@@ -30,13 +30,15 @@ const channelsPlaceholder = 'Search Farcaster channels by name';
 const placeholderMap: Record<TabUrl, string> = {
   'token-balances': tokenBalancesPlaceholder,
   'token-holders': tokenHoldersPlaceholder,
-  channels: channelsPlaceholder
+  channels: channelsPlaceholder,
+  'trending-mints': ''
 };
 
 const enabledSearchMap: Record<TabUrl, EnabledSearchType> = {
   'token-balances': 'SOCIAL_SEARCH',
   'token-holders': 'ADVANCED_MENTION_SEARCH',
-  channels: 'CHANNEL_SEARCH'
+  channels: 'CHANNEL_SEARCH',
+  'trending-mints': null
 };
 
 export const ALLOWED_ADDRESS_REGEX =

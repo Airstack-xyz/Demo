@@ -23,6 +23,10 @@ export type CachedQuery = {
   activeSnapshotInfo: string;
   activeSocialInfo: string;
   activeENSInfo: string;
+  timeFrame: string;
+  blockchain: string;
+  audience: string;
+  criteria: string;
 };
 
 export type UserInputs = CachedQuery;
@@ -31,12 +35,14 @@ export const userInputCache = {
   tokenBalance: {} as UserInputs,
   tokenHolder: {} as UserInputs,
   channels: {} as UserInputs,
+  trendingMints: {} as UserInputs,
 };
 
 const urlToPathMap: Record<TabUrl, keyof typeof userInputCache> = {
   "token-balances": "tokenBalance",
   "token-holders": "tokenHolder",
   channels: "channels",
+  "trending-mints": "trendingMints"
 };
 
 export type UpdateUserInputs = (
@@ -167,6 +173,10 @@ export function useSearchInput(
       resolve6551: searchParams.get("resolve6551") || "",
       activeSocialInfo: searchParams.get("activeSocialInfo") || "",
       activeENSInfo: searchParams.get("activeENSInfo") || "",
+      timeFrame: searchParams.get("timeFrame") || "",
+      blockchain: searchParams.get("blockchain") || "",
+      audience: searchParams.get("audience") || "",
+      criteria: searchParams.get("criteria") || ""
     };
 
     setData(data);
