@@ -6,8 +6,6 @@ import { SearchProvider } from './context/search';
 import { apiKey } from './constants';
 import { AuthProvider } from './context/auth';
 
-console.log('API_KEY: ', { apiKey, APIKEY: process.env.API_KEY });
-
 init(apiKey, {
   cancelHookRequestsOnUnmount: true
 });
