@@ -8,18 +8,18 @@ import { getAPIDropdownOptions } from './constants';
 
 export function OnChainGraphPage() {
   return (
-    <div className={classNames('px-2 pt-5 max-w-screen-lg  mx-auto sm:pt-8')}>
-      <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
+    <div className={classNames('px-2 pt-5 max-w-screen-lg sm:pt-8')}>
+      <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="w-full">
         <Search />
         <div className="my-3 flex-row-center">
-          <div className="flex justify-center w-full z-[21]">
+          <div className="flex justify-start gap-3.5 w-full z-[21]">
             <GetAPIDropdown
               options={getAPIDropdownOptions}
-              dropdownAlignment="center"
+              dropdownAlignment="left"
               hideFooter
               hideDesktopNudge
             />
-            <ShareURLDropdown dropdownAlignment="center" />
+            <ShareURLDropdown dropdownAlignment="left" />
           </div>
         </div>
       </div>

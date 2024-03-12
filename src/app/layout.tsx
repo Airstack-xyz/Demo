@@ -60,7 +60,7 @@ export default function RootLayout({
         <div id="root">
           <div className="pt-[70px] pb-8 max-sm:min-h-[140vh]">
             <Header />
-            <main className="">{children}</main>
+            <main className="px-0 sm:px-6">{children}</main>
           </div>
         </div>
         {GTM_ID && (

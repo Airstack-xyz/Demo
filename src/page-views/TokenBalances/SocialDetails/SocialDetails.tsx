@@ -44,7 +44,7 @@ export function SocialDetails({
   };
 
   return (
-    <div className="max-w-[950px] mx-auto w-full text-sm pt-10 sm:pt-0">
+    <div className="max-w-[950px] w-full text-sm pt-10 sm:pt-0">
       <div className="flex items-center">
         <div className="flex items-center max-w-[60%] sm:w-auto overflow-hidden mr-2">
           <div

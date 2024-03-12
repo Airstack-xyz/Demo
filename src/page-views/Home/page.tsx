@@ -27,10 +27,10 @@ export function HomePage() {
       </Suspense>
       <div
         className={classNames(
-          'px-2 pt-5 max-w-[1146px] mx-auto sm:pt-[20vh] flex-1 h-full w-full flex flex-col items-center text-center'
+          'px-2 pt-5 max-w-screen-lg mx-auto sm:pt-[20vh] flex-1 h-full w-full flex flex-col items-center text-center'
         )}
       >
-        <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
+        <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="w-full">
           <h1 className="text-[30px] sm:text-[44px] mt-12 sm:mt-0 font-semibold">
             Explore Onchain
           </h1>

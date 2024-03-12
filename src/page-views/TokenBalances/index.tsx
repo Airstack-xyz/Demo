@@ -351,19 +351,22 @@ function TokenBalancePage() {
   const renderFilterContent = () => {
     if (showTokenDetails || ensInfo.isApplicable) {
       return (
-        <div className="flex justify-center gap-3.5 w-full z-[21]">
-          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="center" />
-          <ShareURLDropdown dropdownAlignment="center" />
+        <div className="flex justify-start gap-3.5 w-full z-[21]">
+          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="left" />
+          <ShareURLDropdown dropdownAlignment="left" />
         </div>
       );
     }
 
     if (socialInfo.isApplicable) {
       return (
-        <div className="flex justify-center gap-3.5 w-full z-[21]">
-          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="center" />
-          <ShareURLDropdown dropdownAlignment="center" />
-          <CSVDownloadDropdown options={csvDownloadOptions} />
+        <div className="flex justify-start gap-3.5 w-full z-[21]">
+          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="left" />
+          <ShareURLDropdown dropdownAlignment="left" />
+          <CSVDownloadDropdown
+            options={csvDownloadOptions}
+            dropdownAlignment="left"
+          />
         </div>
       );
     }
@@ -433,7 +436,7 @@ function TokenBalancePage() {
     }
 
     return (
-      <div key={query} className="flex justify-between sm:px-5">
+      <div key={query} className="flex justify-between">
         <div className="w-full h-full">
           {address.length > 1 && (
             <div className="mb-12 relative z-20">
@@ -494,12 +497,12 @@ function TokenBalancePage() {
   return (
     <TokenDetailsReset>
       <div
-        className={classNames('px-2 pt-5 max-w-screen-lg  mx-auto sm:pt-8', {
+        className={classNames('px-2 pt-5 max-w-screen-lg sm:pt-8', {
           'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
             isHome
         })}
       >
-        <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
+        <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="w-full">
           {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
           <Search />
           {isQueryExists && (

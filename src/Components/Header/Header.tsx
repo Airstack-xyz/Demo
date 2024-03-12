@@ -11,7 +11,7 @@ export function Header() {
   return (
     <>
       <header className="fixed bg-glass-1 py-4 z-[100] top-0 left-0 right-0 max-sm:absolute">
-        <div className="max-w-screen-lg  mx-auto w-full flex items-center justify-center sm:justify-between px-8">
+        <div className="w-full flex items-center justify-center sm:justify-between px-8">
           <div className="text-xl flex-row-center">
             <Link to="/" className="">
               <Image src="/logo.svg" className="h-[33px] mr-5" />

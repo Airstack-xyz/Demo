@@ -19,6 +19,7 @@ import { EnabledSearchType, SearchInputSection } from './SearchInputSection';
 import { SearchTabSection, TabUrl } from './SearchTabSection';
 import { addAndRemoveCombinationPlaceholder } from './utils';
 import { useNavigate } from '@/hooks/useNavigate';
+import classNames from 'classnames';
 
 export const tokenHoldersPlaceholder =
   'Type "@" to search by name, or enter any contract address, or any POAP event ID';
@@ -284,7 +285,15 @@ export const Search = memo(function Search() {
 
   return (
     <div className="relative">
-      <div className="my-6 flex-col-center relative z-[41]">
+      <div
+        className={classNames(
+          'my-6 flex flex-col justify-center  relative z-[41]',
+          {
+            'items-center': isHome,
+            'items-start ': !isHome
+          }
+        )}
+      >
         <SearchTabSection
           isHome={isHome}
           activeTab={activeTab}
