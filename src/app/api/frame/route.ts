@@ -19,7 +19,9 @@ export async function POST(req: NextRequest) {
         hash: '0x0000000000000000000000000000000000000001'
       }
     },
-    trustedData: {}
+    trustedData: {
+      messageBytes: '123456'
+    }
   };
 
   try {

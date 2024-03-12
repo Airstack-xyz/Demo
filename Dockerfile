@@ -21,6 +21,6 @@ ENV FRAMES_VALIDATION_BYPASS_SECRET=$FRAMES_VALIDATION_BYPASS_SECRET
 RUN npm install --legacy-peer-deps
 RUN ls ./node_modules/.bin
 
-RUN export ENV=${ENV} && npm run build-sh
+RUN export ENV=${ENV} FRAMES_VALIDATION_BYPASS_SECRET=${FRAMES_VALIDATION_BYPASS_SECRET} && npm run build-sh
 
 EXPOSE 3000
