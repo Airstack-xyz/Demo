@@ -44,6 +44,7 @@ import { TokenDetails } from './TokenDetails/TokenDetails';
 import { Tokens, TokensLoader } from './Tokens/Tokens';
 import { useDropdownOptions } from './hooks/useDropdownOptions';
 import { TokenBalancesFrameModal } from '../../Components/FrameModal/TokenBalances';
+import { RecentChannels } from './RecentChannels/RecentChannels';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -80,6 +81,7 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
   // !Gnosis: Don't show ERC20 tokens when gnosis blockchain is selected
   const hasGnosisChainFilter =
     blockchainType?.length === 1 && blockchainType[0] === 'gnosis';
+  const identity = address[0];
 
   return (
     <aside className="w-full min-w-full sm:w-[305px] sm:min-w-[305px] sm:ml-16">
@@ -92,7 +94,13 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
       {address.length == 2 && !hideSocials && (
         <>
           <SocialsOverlap />
-          <div className="mt-11"></div>
+          <div className="mt-5"></div>
+        </>
+      )}
+      {identity && (
+        <>
+          <RecentChannels key={identity} identity={identity} />
+          <div className="mt-10"></div>
         </>
       )}
       {!hasGnosisChainFilter && <ERC20Tokens key={erc20Key} />}
