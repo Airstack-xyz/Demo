@@ -217,7 +217,7 @@ function SocialsComponent() {
   return (
     <div className="w-full sm:w-auto">
       <div className="hidden sm:block">
-        <SectionHeader iconName="socials-flat" heading="Socials" />
+        <SectionHeader iconName="socials-flat" heading="Quick Links" />
       </div>
       <Link
         className="rounded-18 border-solid-stroke mt-3.5 bg-glass hover:bg-glass-1 p-5 mb-5 flex items-center"

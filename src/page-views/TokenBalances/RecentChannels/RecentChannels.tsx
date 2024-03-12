@@ -1,30 +1,14 @@
-import { useQuery } from '@airstack/airstack-react';
 import { SectionHeader } from '../SectionHeader';
-import { farcasterParticipentsQuery } from '@/queries/channels/participents';
-import {
-  FcChannelParticipantsQuery,
-  FcChannelParticipantsQueryVariables
-} from '../../../../__generated__/airstack-types';
 import ImageWithFallback from '@/Components/ImageWithFallback';
 import { farcasterPlaceholderImage } from '@/page-views/Channels/constants';
 import { Link } from '@/Components/Link';
 import classNames from 'classnames';
+import { useGetChannels } from '@/hooks/useGetChannels';
 
 const loaderData = Array(3).fill({});
 
 export function RecentChannels({ identity }: { identity: string }) {
-  const { data, loading: loadingQuery } = useQuery<
-    FcChannelParticipantsQuery,
-    FcChannelParticipantsQueryVariables
-  >(farcasterParticipentsQuery, {
-    identity,
-    limit: 3
-  });
-
-  const loading = loadingQuery || !data;
-  const participants = loading
-    ? loaderData
-    : data?.FarcasterChannelParticipants?.FarcasterChannelParticipant;
+  const { participants, loading } = useGetChannels({ identity, limit: 3 });
 
   return (
     <div className="w-full sm:w-auto">
@@ -36,7 +20,7 @@ export function RecentChannels({ identity }: { identity: string }) {
           'skeleton-loader': loading
         })}
       >
-        {participants?.map(participant => {
+        {(loading ? loaderData : participants)?.map(participant => {
           const { channel } = participant;
           const host = channel?.leadProfiles?.[0]?.profileName || '--';
           return (
