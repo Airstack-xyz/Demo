@@ -1,20 +1,22 @@
-import classNames from 'classnames';
+import { Image } from '@/Components/Image';
+import { useLazyQuery } from '@airstack/airstack-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  TokenHolder,
-  useOverviewTokens
-} from '../../../store/tokenHoldersOverview';
 import {
   GetPoapHoldersQuery,
   GetTokenHoldersQuery
 } from '../../../queries/frames/tokenHoldersQuery';
 import {
-  Poap,
-  TokenBalance,
-  TokenHoldersFrameResponse,
-  TokenHoldersFrameVariables
-} from './types';
-import { useLazyQuery } from '@airstack/airstack-react';
+  TokenHolder,
+  useOverviewTokens
+} from '../../../store/tokenHoldersOverview';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
+import LazyImage from '../../LazyImage';
+import { ToggleSwitch } from '../../ToggleSwitch';
+import { FrameLabel } from '../FrameLabel';
+import { FrameModal } from '../FrameModal';
+import { FramePreview } from '../FramePreview';
+import { FrameURL } from '../FrameURL';
+import { EmptyIcon } from '../Icons';
 import {
   ENCODED_BLOCKCHAIN,
   ENCODED_TOKEN_TYPE,
@@ -23,21 +25,17 @@ import {
   TOKEN_PLACEHOLDER_URL
 } from '../constants';
 import { encodeFrameData } from '../utils';
-import { EmptyIcon, FrameIconBlue } from '../Icons';
-import { Tooltip, tooltipClass } from '../../Tooltip';
-import { Modal } from '../../Modal';
-import { FramePreview } from '../FramePreview';
-import { FrameURL } from '../FrameURL';
-import { FrameLabel } from '../FrameLabel';
-import { ToggleSwitch } from '../../ToggleSwitch';
+import {
+  Poap,
+  TokenBalance,
+  TokenHoldersFrameResponse,
+  TokenHoldersFrameVariables
+} from './types';
 import {
   getFrameButtons,
-  getResolvedHolderImage,
-  getResolvedHolderData
+  getResolvedHolderData,
+  getResolvedHolderImage
 } from './utils';
-import LazyImage from '../../LazyImage';
-import { isMobileDevice } from '../../../utils/isMobileDevice';
-import { Image } from '@/Components/Image';
 
 const iconMap: Record<string, string> = {
   lens: '/images/lens.svg',
@@ -306,46 +304,9 @@ function ModalContent() {
 }
 
 export function TokenHoldersFrameModal({ disabled }: { disabled?: boolean }) {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const handleModalClose = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleModalOpen = () => {
-    setIsModalVisible(true);
-  };
-
   return (
-    <>
-      <Tooltip
-        content="Share as Farcaster frame"
-        contentClassName={tooltipClass}
-        disabled={isModalVisible || disabled}
-      >
-        <button
-          disabled={disabled}
-          className={classNames(
-            'py-1.5 px-3 text-text-button bg-glass-1 rounded-full flex-row-center border border-solid border-transparent disabled:opacity-50 disabled:cursor-not-allowed',
-            {
-              'border-white': isModalVisible
-            }
-          )}
-          onClick={handleModalOpen}
-        >
-          <FrameIconBlue />
-        </button>
-      </Tooltip>
-      {isModalVisible && (
-        <Modal
-          isOpen
-          className="w-full max-sm:min-w-full max-w-[686px] px-2.5 overflow-y-auto"
-          containerClassName="!border-white max-sm:p-4"
-          onRequestClose={handleModalClose}
-        >
-          <ModalContent />
-        </Modal>
-      )}
-    </>
+    <FrameModal disabled={disabled}>
+      <ModalContent />
+    </FrameModal>
   );
 }

@@ -1,4 +1,3 @@
-import { FlameIcon } from './Icons';
 import {
   TimeFrameFilter,
   defaultTimeFrameFilter
@@ -21,6 +20,9 @@ import { useDropdownOptions } from './hooks/useDropdownOptions';
 import { Mints } from './Mints/Mints';
 import { isMobileDevice } from '@/utils/isMobileDevice';
 import { AllFilters } from './Filters/AllFilters';
+import { ShareURLDropdown } from '@/Components/ShareURLDropdown';
+import { TrendingMintsFrameModal } from '@/Components/Frames/TrendingMints';
+import { Icon } from '@/Components/Icon';
 
 export function TrendingMints() {
   const [searchInputs] = useSearchInput();
@@ -41,11 +43,11 @@ export function TrendingMints() {
 
   return (
     <div className="max-w-[944px] mx-auto">
-      <div className="flex items-center gap-1 font-bold text-[#868D94]">
-        <FlameIcon />
+      <div className="flex items-center gap-1 font-bold text-white">
+        <Icon name='trending-mints' />
         Trending Mints on <span className="capitalize">{blockchain}</span>
       </div>
-      <div className="flex items-center justify-between mt-5 mb-8">
+      <div className="flex items-center justify-between gap-3.5 mt-5 mb-8">
         <div className="flex items-center gap-3.5">
           {isMobile ? (
             <AllFilters />
@@ -59,12 +61,9 @@ export function TrendingMints() {
           )}
         </div>
         <div className="flex items-center gap-3.5">
-          <GetAPIDropdown
-            options={options}
-            dropdownAlignment="center"
-            hideFooter
-            hideDesktopNudge
-          />
+          <GetAPIDropdown options={options} dropdownAlignment="right" />
+          <ShareURLDropdown dropdownAlignment="right" />
+          <TrendingMintsFrameModal />
         </div>
       </div>
       <Mints />

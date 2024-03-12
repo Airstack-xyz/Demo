@@ -21,7 +21,7 @@ const options: {
   mobileLabel: string;
   value: TabUrl;
   extraMatch?: string[];
-  renderAsLink?: boolean;
+  shouldNavigate?: boolean;
 }[] = [
   {
     label: 'Users',
@@ -29,12 +29,12 @@ const options: {
     value: 'token-balances',
     extraMatch: ['onchain-graph']
   },
-  { label: 'Tokens', mobileLabel: 'Holders', value: 'token-holders' },
+  { label: 'Tokens', mobileLabel: 'Tokens', value: 'token-holders' },
   {
     label: 'Mints',
     mobileLabel: 'Mints',
     value: 'trending-mints',
-    renderAsLink: true
+    shouldNavigate: true
   },
   { label: 'Channels', mobileLabel: 'Channels', value: 'channels' }
 ];
@@ -75,39 +75,16 @@ function TabButtons({
   onTabChange
 }: {
   activeTab: string;
-  onTabChange: (activeTab: TabUrl) => void;
+  onTabChange: (activeTab: TabUrl, shouldNavigate?: boolean) => void;
 }) {
   const isMobile = isMobileDevice();
-  const activePath = usePathname() || '';
   return (
     <>
       {options.map((option, index) => {
-        if (option.renderAsLink) {
-          const isActive =
-          activePath.includes(option.value) ||
-          (option.extraMatch || []).some(match => activePath.includes(match));
-        return (
-          <Link
-            key={index}
-            to={`/${option.value}`}
-            className={classNames(tabClass, {
-              [activeTabClass]: isActive
-            })}
-          >
-            <Icon
-              name={option.value as IconType}
-              className={classNames('w-4 mr-1', {
-                invert: isActive
-              })}
-            />{' '}
-            {isMobile ? option.mobileLabel : option.label}
-          </Link>
-        );
-        }
         return (
           <button
             key={index}
-            onClick={() => onTabChange(option.value)}
+            onClick={() => onTabChange(option.value, option.shouldNavigate)}
             className={classNames(tabClass, {
               [activeTabClass]: activeTab === option.value
             })}

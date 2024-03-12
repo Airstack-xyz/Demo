@@ -18,6 +18,7 @@ export type IconType =
   | 'zora'
   | 'token-balances'
   | 'token-holders'
+  | 'trending-mints'
   | 'erc20'
   | 'arrow-right-round'
   | 'count-loader'
@@ -82,7 +83,8 @@ export type IconType =
   | 'ai-robot'
   | 'hamburger'
   | 'user' 
-  | 'wallet' ;
+  | 'wallet'
+  | 'funnel' ;
 
 export type IconProps = {
   name: IconType;

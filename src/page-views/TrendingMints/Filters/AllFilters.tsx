@@ -5,38 +5,11 @@ import { Icon } from '@/Components/Icon';
 import { useOutsideClick } from '@/hooks/useOutsideClick';
 import { CachedQuery, useSearchInput } from '@/hooks/useSearchInput';
 import classNames from 'classnames';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { audienceOptions, defaultAudienceFilter } from './AudienceFilter';
 import { blockchainOptions, defaultBlockchainFilter } from './BlockchainFilter';
 import { criteriaOptions, defaultCriteriaFilter } from './CriteriaFilter';
 import { defaultTimeFrameFilter, timeFrameOptions } from './TimeFrameFilter';
-
-const getAppliedFilterCount = ({
-  appliedTimeFrame,
-  appliedBlockchain,
-  appliedAudience,
-  appliedCriteria
-}: {
-  appliedTimeFrame: string;
-  appliedBlockchain: string;
-  appliedAudience: string;
-  appliedCriteria: string;
-}) => {
-  let count = 0;
-  if (appliedTimeFrame != defaultTimeFrameFilter) {
-    count += 1;
-  }
-  if (appliedBlockchain != defaultBlockchainFilter) {
-    count += 1;
-  }
-  if (appliedAudience != defaultAudienceFilter) {
-    count += 1;
-  }
-  if (appliedCriteria != defaultCriteriaFilter) {
-    count += 1;
-  }
-  return count;
-};
 
 const sectionHeaderClass =
   'font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap';
@@ -74,17 +47,6 @@ export function AllFilters() {
     setCurrentAudience(audience);
     setCurrentCriteria(criteria);
   }, [audience, blockchain, criteria, timeFrame]);
-
-  const appliedFilterCount = useMemo(
-    () =>
-      getAppliedFilterCount({
-        appliedTimeFrame: timeFrame,
-        appliedBlockchain: blockchain,
-        appliedAudience: audience,
-        appliedCriteria: criteria
-      }),
-    [timeFrame, blockchain, audience, criteria]
-  );
 
   const handleDropdownToggle = useCallback(() => {
     setIsDropdownVisible(prevValue => !prevValue);
@@ -141,7 +103,7 @@ export function AllFilters() {
           })}
           onClick={handleDropdownToggle}
         >
-          Filters {appliedFilterCount > 0 ? `(${appliedFilterCount})` : ''}
+          Filters
           <Icon name="arrow-down" height={16} width={16} className="ml-1" />
         </button>
         {isDropdownVisible && (

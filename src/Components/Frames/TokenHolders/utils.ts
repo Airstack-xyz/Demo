@@ -1,5 +1,5 @@
 import { FrameButton } from '../FramePreview';
-import { getDisplayName } from '../utils';
+import { getProfileDisplayName } from '../utils';
 import { Owner, Poap, TokenBalance } from './types';
 
 export const getResolvedHolderData = (owner: Owner | undefined) => {
@@ -13,25 +13,25 @@ export const getResolvedHolderData = (owner: Owner | undefined) => {
 
   if (farcaster) {
     return {
-      name: getDisplayName(farcaster),
+      name: getProfileDisplayName(farcaster),
       type: 'farcaster'
     };
   }
   if (primaryEns) {
     return {
-      name: getDisplayName(primaryEns),
+      name: getProfileDisplayName(primaryEns),
       type: 'ens'
     };
   }
   if (ens) {
     return {
-      name: getDisplayName(ens),
+      name: getProfileDisplayName(ens),
       type: 'ens'
     };
   }
   if (lens) {
     return {
-      name: getDisplayName(lens),
+      name: getProfileDisplayName(lens),
       type: 'lens'
     };
   }

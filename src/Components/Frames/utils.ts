@@ -5,7 +5,7 @@ export const encodeFrameData = (data: Record<string, string>) => {
   return encode(stringifiedData);
 };
 
-export const getDisplayName = (address: string | undefined) => {
+export const getProfileDisplayName = (address: string | undefined) => {
   if (!address) return address;
 
   if (address.startsWith('lens/@')) return address.replace('lens/@', '');

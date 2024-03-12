@@ -263,8 +263,8 @@ export const Search = memo(function Search() {
   );
 
   const handleTabChange = useCallback(
-    (pathname: TabUrl) => {
-      if (!isHome) {
+    (pathname: TabUrl, shouldNavigate?: boolean) => {
+      if (!isHome || shouldNavigate) {
         setValue('');
         navigate({
           pathname

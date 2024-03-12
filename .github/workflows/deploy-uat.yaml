@@ -41,7 +41,7 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker buildx build --platform=linux/amd64 -t  $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG  --build-arg ENV=uat --build-arg PRIVY_APP_ID=$PRIVY_APP_ID --build-arg API_KEY=$API_KEY .
+          docker buildx build --platform=linux/amd64 -t  $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG  --build-arg ENV=uat --build-arg PRIVY_APP_ID=$PRIVY_APP_ID --build-arg API_KEY=$API_KEY --build-arg FRAMES_VALIDATION_BYPASS_SECRET=$FRAMES_VALIDATION_BYPASS_SECRET .
 
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"

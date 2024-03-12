@@ -1,50 +1,12 @@
 import classNames from 'classnames';
-import { ReactNode, SVGProps } from 'react';
+import { ReactNode } from 'react';
 import { FrameLabel } from './FrameLabel';
+import { LinkIcon } from './Icons';
 
 export type FrameButton = {
   label: string;
   type: 'post' | 'link';
 };
-
-function LinkIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="13"
-      height="12"
-      fill="none"
-      viewBox="0 0 13 12"
-      {...props}
-    >
-      <g clipPath="url(#a)">
-        <mask
-          id="b"
-          width="13"
-          height="12"
-          x="0"
-          y="0"
-          maskUnits="userSpaceOnUse"
-        >
-          <path fill="#fff" d="M12.3398 0h-12v12h12V0Z" />
-        </mask>
-        <g mask="url(#b)">
-          <path
-            stroke="#8B8EA0"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M10.8398 4.5v-3m0 0h-3m3 0-4.5 4.5m-1-4.5h-1.1c-.84 0-1.26 0-1.581.1635a1.5 1.5 0 0 0-.6555.6555c-.1635.3209-.1635.741-.1635 1.581v4.2c0 .8401 0 1.2601.1635 1.581.1438.2823.3733.5117.6556.6555.3208.1635.7409.1635 1.581.1635h4.2c.84 0 1.26 0 1.5809-.1635a1.4995 1.4995 0 0 0 .6555-.6555c.1635-.3209.1635-.7409.1635-1.581V7"
-          />
-        </g>
-      </g>
-      <defs>
-        <clipPath id="a">
-          <path fill="#fff" d="M0 0h12v12H0z" transform="translate(.3398)" />
-        </clipPath>
-      </defs>
-    </svg>
-  );
-}
 
 export function FramePreview({
   buttons,
