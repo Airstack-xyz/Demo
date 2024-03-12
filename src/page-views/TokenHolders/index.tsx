@@ -41,7 +41,7 @@ export function TokenHolders() {
       tokenFilters,
       activeSnapshotInfo,
       activeTokenInfo
-    },
+    }
     // setData
   ] = useSearchInput();
 
@@ -266,7 +266,7 @@ export function TokenHolders() {
 
   return (
     <div
-      className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
+      className={classNames('px-2 pt-5 max-w-screen-lg  mx-auto sm:pt-8', {
         'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
           isHome
       })}
