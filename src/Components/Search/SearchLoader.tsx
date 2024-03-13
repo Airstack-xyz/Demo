@@ -39,12 +39,20 @@ export function SearchLoader() {
     return () => clearInterval(intervalId.current);
   }, []);
 
+  const onModuleLoaded = useCallback(() => {
+    setTimeout(() => {
+      setTempCount(count => count + 1);
+      console.log(' updating temp count to re-render the component');
+    }, 300);
+  }, []);
+
   const Search = useMemo(
     () =>
       dynamic(
         () =>
           import('../Search/Search').then(module => {
             console.log('search component fetched ', module);
+            onModuleLoaded();
             return module;
           }),
         {
@@ -52,7 +60,7 @@ export function SearchLoader() {
           loading: () => <Loader />
         }
       ),
-    []
+    [onModuleLoaded]
   );
 
   const onSearchLoaded = useCallback(() => {
