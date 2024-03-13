@@ -341,9 +341,11 @@ function Overview({
 
   if (hasEveryERC20 || activeView || hideOverview) return null;
 
-  // eslint-disable-next-line
-  // @ts-ignore
-  window.totalOwners = overviewData?.owners || 0;
+  if (typeof window !== 'undefined') {
+    // eslint-disable-next-line
+    // @ts-ignore
+    window.totalOwners = overviewData?.owners || 0;
+  }
 
   return (
     <div className="flex w-full bg-glass rounded-18 overflow-hidden h-auto sm:h-[421px] mb-7">
