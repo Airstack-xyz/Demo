@@ -56,7 +56,7 @@ export function RecentChannels({ identity }: { identity: string }) {
 
   return (
     <div className="w-full sm:w-auto">
-      <div className="hidden mb-5 sm:flex items-center justify-between ">
+      <div className="mb-5 flex items-center justify-between ">
         <SectionHeader iconName="farcaster-flat" heading="Recent Channels" />
         {participants && participants?.length > 0 && (
           <li className="flex items-center justify-center">

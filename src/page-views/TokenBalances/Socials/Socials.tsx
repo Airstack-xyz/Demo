@@ -216,7 +216,7 @@ function SocialsComponent() {
 
   return (
     <div className="w-full sm:w-auto">
-      <div className="hidden sm:block">
+      <div className="pb-2 sm:pb-0">
         <SectionHeader iconName="socials-flat" heading="Quick Links" />
       </div>
       <Link
@@ -230,7 +230,7 @@ function SocialsComponent() {
           </span>
         </>
       </Link>
-      <div className="hidden sm:block">
+      <div className="pt-5 sm:pt-0">
         <SectionHeader
           iconName="socials-flat"
           heading="Socials, Domains & XMTP"

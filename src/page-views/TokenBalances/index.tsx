@@ -290,7 +290,7 @@ function TokenBalancePage() {
 
   const { tab1Header, tab2Header } = useMemo(() => {
     let tab1Header = 'NFTs & POAPs';
-    let tab2Header = 'Socials & ERC20';
+    let tab2Header = 'Socials & Others';
     // !Gnosis: Don't show ERC20 header in tab2 when gnosis blockchain is selected
     if (blockchainType?.length === 1 && blockchainType[0] === 'gnosis') {
       tab2Header = 'Socials';
@@ -443,7 +443,7 @@ function TokenBalancePage() {
 
     return (
       <div key={query} className="flex justify-between">
-        <div className="h-full">
+        <div className="h-full w-full">
           {address.length > 1 && (
             <div className="mb-12 relative z-20">
               <div className="mb-4">
@@ -458,14 +458,14 @@ function TokenBalancePage() {
           {isMobile && (
             <TabContainer className="sm:hidden">
               <Tab
-                icon="nft-flat"
+                icon="token-holders"
                 header={tab1Header}
                 active={!showSocials}
                 className="max-w-[50%] overflow-hidden"
                 onClick={() => setShowSocials(false)}
               />
               <Tab
-                icon="erc20"
+                icon="farcaster-flat"
                 header={tab2Header}
                 active={showSocials}
                 className="max-w-[50%] overflow-hidden"
@@ -503,7 +503,7 @@ function TokenBalancePage() {
   return (
     <TokenDetailsReset>
       <div
-        className={classNames('max-w-[1400px] sm:pt-8', {
+        className={classNames('max-w-[1400px]', {
           'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
             isHome
         })}

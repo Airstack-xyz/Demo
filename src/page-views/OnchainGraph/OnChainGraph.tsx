@@ -116,7 +116,7 @@ export function OnChainGraphComponent() {
   );
 
   return (
-    <div className="max-w-[958px] px-2 w-full text-sm">
+    <div className="max-w-[1300px] pt-5 px-2 w-full text-sm">
       <Header
         loading={scanning}
         identities={[identity]}
@@ -129,7 +129,7 @@ export function OnChainGraphComponent() {
           next={getNextPage}
           dataLength={recommendations.length}
           hasMore={!isLastPage}
-          className={classNames('grid sm:grid-cols-3 gap-12 my-5 sm:my-10', {
+          className={classNames('grid sm:grid-cols-4 gap-12 my-5', {
             '!grid-cols-1 [&>div]:w-[600px] [&>div]:max-w-[100%] justify-items-center':
               !showGridView
           })}

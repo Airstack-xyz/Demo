@@ -71,14 +71,16 @@ export function Channels() {
 
   return (
     <div
-      className={classNames('max-w-screen-lg sm:pt-8', {
+      className={classNames('max-w-screen-lg', {
         'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
           isHome
       })}
     >
-      <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="w-full">
+      <div className="w-full max-w-[1050px]">
         {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
-        <Search />
+        <div style={{ maxWidth: MAX_SEARCH_WIDTH }}>
+          <Search />
+        </div>
         {channelId && (
           <div>
             <div className="mt-3 flex items-center justify-between">

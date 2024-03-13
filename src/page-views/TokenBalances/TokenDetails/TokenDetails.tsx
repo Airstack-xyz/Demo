@@ -302,7 +302,7 @@ export function TokenDetails(props: {
   return (
     <div
       className={classNames(
-        'max-w-[1050px] overflow-hidden w-full text-sm pt-10 sm:pt-0',
+        'max-w-[1050px] overflow-hidden w-full text-sm pt-4 sm:pt-0',
         {
           'pb-10': !hasChildren
         }
