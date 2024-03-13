@@ -1,7 +1,8 @@
 'use client';
-import { memo, useCallback, useEffect, useMemo, useState } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
 import { useMatch } from '@/hooks/useMatch';
+import { useNavigate } from '@/hooks/useNavigate';
+import { usePathname, useSearchParams } from 'next/navigation';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   CachedQuery,
   UserInputs,
@@ -18,8 +19,6 @@ import {
 import { EnabledSearchType, SearchInputSection } from './SearchInputSection';
 import { SearchTabSection, TabUrl } from './SearchTabSection';
 import { addAndRemoveCombinationPlaceholder } from './utils';
-import { useNavigate } from '@/hooks/useNavigate';
-import classNames from 'classnames';
 
 export const tokenHoldersPlaceholder =
   'Type "@" to search by name, or enter any contract address, or any POAP event ID';
@@ -31,13 +30,15 @@ const channelsPlaceholder = 'Search Farcaster channels by name';
 const placeholderMap: Record<TabUrl, string> = {
   'token-balances': tokenBalancesPlaceholder,
   'token-holders': tokenHoldersPlaceholder,
-  channels: channelsPlaceholder
+  channels: channelsPlaceholder,
+  'trending-mints': ''
 };
 
 const enabledSearchMap: Record<TabUrl, EnabledSearchType> = {
   'token-balances': 'SOCIAL_SEARCH',
   'token-holders': 'ADVANCED_MENTION_SEARCH',
-  channels: 'CHANNEL_SEARCH'
+  channels: 'CHANNEL_SEARCH',
+  'trending-mints': null
 };
 
 export const ALLOWED_ADDRESS_REGEX =
@@ -272,8 +273,8 @@ export const Search = memo(function Search() {
   );
 
   const handleTabChange = useCallback(
-    (pathname: TabUrl) => {
-      if (!isHome) {
+    (pathname: TabUrl, shouldNavigate?: boolean) => {
+      if (!isHome || shouldNavigate) {
         setValue('');
         navigate({
           pathname
@@ -292,21 +293,11 @@ export const Search = memo(function Search() {
 
   return (
     <div className="relative">
-      <div
-        className={classNames(
-          'my-6 flex flex-col justify-center  relative z-[41]',
-          {
-            'items-center': isHome,
-            'items-start ': !isHome
-          }
-        )}
-      >
-        <SearchTabSection
-          isHome={isHome}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-        />
-      </div>
+      <SearchTabSection
+        isHome={isHome}
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
+      />
       <SearchInputSection
         value={value}
         placeholder={placeholder}

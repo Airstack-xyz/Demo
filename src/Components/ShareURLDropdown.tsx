@@ -1,16 +1,15 @@
 import { Image } from '@/Components/Image';
-import { usePrivy } from '@privy-io/react-auth';
+import { getAccessToken } from '@privy-io/react-auth';
 import classNames from 'classnames';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useOutsideClick } from '../hooks/useOutsideClick';
 import { shortenUrl } from '../hooks/useShortenURL';
+import { isMobileDevice } from '../utils/isMobileDevice';
 import { showToast } from '../utils/showToast';
 import { Icon } from './Icon';
 import { Tooltip, tooltipClass } from './Tooltip';
-import { isMobileDevice } from '../utils/isMobileDevice';
-import { AuthProvider } from '@/context/auth';
 
-function ShareIconBlue() {
+function ShareIcon() {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -31,12 +30,11 @@ function ShareIconBlue() {
 
 const shareUrlCache = new Map<string, string>();
 
-type DropdownProps = {
+type ShareURLDropdownProps = {
   dropdownAlignment?: string;
 };
 
-function Dropdown({ dropdownAlignment = 'left' }: DropdownProps) {
-  const auth = usePrivy();
+export function ShareURLDropdown({ dropdownAlignment = 'left' }: ShareURLDropdownProps) {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shortUrl, setShortUrl] = useState<string | null>(null);
@@ -61,13 +59,19 @@ function Dropdown({ dropdownAlignment = 'left' }: DropdownProps) {
     showToast('Copied to clipboard');
   }, [shortUrl]);
 
-  const shortenUrlFunction = useCallback(
-    async (longUrl: string) => {
+  const shortenUrlFn = useCallback(
+    async (url: string) => {
+      if (shareUrlCache.has(url)) {
+        const shortenedUrl = shareUrlCache.get(url) || '';
+        setShortUrl(shortenedUrl);
+        return;
+      }
+      
       setLoading(true);
 
-      const token = await auth?.getAccessToken();
+      const token = await getAccessToken();
 
-      const { data, error } = await shortenUrl(longUrl, {
+      const { data, error } = await shortenUrl(url, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -81,24 +85,19 @@ function Dropdown({ dropdownAlignment = 'left' }: DropdownProps) {
       }
 
       const shortenedUrl = data?.shortenedUrl || '';
-      shareUrlCache.set(longUrl, shortenedUrl);
+      shareUrlCache.set(url, shortenedUrl);
       setShortUrl(shortenedUrl);
       setLoading(false);
     },
-    [auth]
+    []
   );
 
   useEffect(() => {
     if (isDropdownVisible) {
       const longUrl = window.location.href;
-      if (shareUrlCache.has(longUrl)) {
-        const shortenedUrl = shareUrlCache.get(longUrl) || '';
-        setShortUrl(shortenedUrl);
-        return;
-      }
-      shortenUrlFunction(longUrl);
+      shortenUrlFn(longUrl);
     }
-  }, [isDropdownVisible, shortenUrlFunction]);
+  }, [isDropdownVisible, shortenUrlFn]);
 
   // Prevent aligned mobile dropdown from going offscreen
   useEffect(() => {
@@ -143,7 +142,7 @@ function Dropdown({ dropdownAlignment = 'left' }: DropdownProps) {
             )}
             onClick={handleDropdownToggle}
           >
-            <ShareIconBlue />
+            <ShareIcon />
           </button>
         </Tooltip>
         {isDropdownVisible && (
@@ -191,13 +190,5 @@ function Dropdown({ dropdownAlignment = 'left' }: DropdownProps) {
         )}
       </div>
     </>
-  );
-}
-
-export function ShareURLDropdown(props: DropdownProps) {
-  return (
-    <AuthProvider>
-      <Dropdown {...props} />
-    </AuthProvider>
   );
 }

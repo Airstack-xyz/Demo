@@ -62,7 +62,7 @@ export function Modal({
       ) : (
         <div
           className={classnames(
-            'bg-glass p-5 border-solid-stroke rounded-xl',
+            'bg-[#081C2E] p-5 border-solid-stroke rounded-xl',
             containerClassName
           )}
         >

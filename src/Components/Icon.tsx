@@ -18,6 +18,7 @@ export type IconType =
   | 'zora'
   | 'token-balances'
   | 'token-holders'
+  | 'trending-mints'
   | 'erc20'
   | 'arrow-right-round'
   | 'count-loader'
@@ -81,6 +82,9 @@ export type IconType =
   | 'frames'
   | 'ai-robot'
   | 'hamburger'
+  | 'user' 
+  | 'wallet'
+  | 'funnel'
   | 'farcaster-flat'
   | 'farcaster-flat-gray';
 

@@ -23,6 +23,10 @@ export type CachedQuery = {
   activeSnapshotInfo: string;
   activeSocialInfo: string;
   activeENSInfo: string;
+  timeFrame: string;
+  blockchain: string;
+  audience: string;
+  criteria: string;
 };
 
 export type UserInputs = CachedQuery;
@@ -30,13 +34,15 @@ export type UserInputs = CachedQuery;
 export const userInputCache = {
   tokenBalance: {} as UserInputs,
   tokenHolder: {} as UserInputs,
-  channels: {} as UserInputs
+  channels: {} as UserInputs,
+  trendingMints: {} as UserInputs,
 };
 
 const urlToPathMap: Record<TabUrl, keyof typeof userInputCache> = {
-  'token-balances': 'tokenBalance',
-  'token-holders': 'tokenHolder',
-  channels: 'channels'
+  "token-balances": "tokenBalance",
+  "token-holders": "tokenHolder",
+  channels: "channels",
+  "trending-mints": "trendingMints"
 };
 
 export type UpdateUserInputs = (
@@ -154,19 +160,23 @@ export function useSearchInput(
       inputType: !isTokenBalances
         ? (getData('inputType') as CachedQuery['inputType'])
         : null,
-      activeView: isTokenBalances ? '' : searchParams.get('activeView') || '',
-      activeTokenInfo: searchParams.get('activeTokenInfo') || '',
-      activeSnapshotInfo: getData('activeSnapshotInfo'),
-      tokenFilters: !isTokenBalances ? getData('tokenFilters', true) : [],
-      activeViewToken: isTokenBalances ? '' : getData('activeViewToken'),
-      activeViewCount: isTokenBalances ? '' : getData('activeViewCount'),
-      blockchainType: getData('blockchainType', true),
-      sortOrder: getData('sortOrder'),
-      spamFilter: getData('spamFilter'),
-      mintFilter: getData('mintFilter'),
-      resolve6551: searchParams.get('resolve6551') || '',
-      activeSocialInfo: searchParams.get('activeSocialInfo') || '',
-      activeENSInfo: searchParams.get('activeENSInfo') || ''
+      activeView: isTokenBalances ? "" : searchParams.get("activeView") || "",
+      activeTokenInfo: searchParams.get("activeTokenInfo") || "",
+      activeSnapshotInfo: getData("activeSnapshotInfo"),
+      tokenFilters: !isTokenBalances ? getData("tokenFilters", true) : [],
+      activeViewToken: isTokenBalances ? "" : getData("activeViewToken"),
+      activeViewCount: isTokenBalances ? "" : getData("activeViewCount"),
+      blockchainType: getData("blockchainType", true),
+      sortOrder: getData("sortOrder"),
+      spamFilter: getData("spamFilter"),
+      mintFilter: getData("mintFilter"),
+      resolve6551: searchParams.get("resolve6551") || "",
+      activeSocialInfo: searchParams.get("activeSocialInfo") || "",
+      activeENSInfo: searchParams.get("activeENSInfo") || "",
+      timeFrame: getData("timeFrame"),
+      blockchain: getData("blockchain"),
+      audience: getData("audience"),
+      criteria: getData("criteria")
     };
 
     setData(data);

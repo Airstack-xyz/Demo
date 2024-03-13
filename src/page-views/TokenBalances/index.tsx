@@ -43,7 +43,7 @@ import { TokenBalancesLoaderWithInfo } from './TokenBalancesLoaderWithInfo';
 import { TokenDetails } from './TokenDetails/TokenDetails';
 import { Tokens, TokensLoader } from './Tokens/Tokens';
 import { useDropdownOptions } from './hooks/useDropdownOptions';
-import { TokenBalancesFrameModal } from '../../Components/FrameModal/TokenBalances';
+import { TokenBalancesFrameModal } from '../../Components/Frames/TokenBalances';
 import { RecentChannels } from './RecentChannels/RecentChannels';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({

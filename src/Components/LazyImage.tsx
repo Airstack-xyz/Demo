@@ -13,7 +13,7 @@ type LazyImageProps = Omit<ComponentProps<'img'>, 'src'> & {
 
 const LazyImage = ({
   src,
-  fallbackSrc = 'images/placeholder.svg',
+  fallbackSrc = 'images/token-placeholder.svg',
   fallbackClassName,
   loadingClassName,
   ...rest

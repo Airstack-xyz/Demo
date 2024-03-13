@@ -151,13 +151,11 @@ export const Search = memo(function Search() {
 
   return (
     <div className="relative z-10">
-      <div className="my-6 flex flex-col justify-center items-start">
-        <SearchTabSection
-          isHome={isHome}
-          activeTab="token-balances"
-          onTabChange={handleTabChange}
-        />
-      </div>
+      <SearchTabSection
+        isHome={isHome}
+        activeTab="token-balances"
+        onTabChange={handleTabChange}
+      />
       <SearchInputSection
         value={value}
         placeholder={placeholder}

@@ -1,4 +1,6 @@
-export function FrameIconBlue() {
+import { SVGProps } from "react";
+
+export function FrameIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -6,6 +8,7 @@ export function FrameIconBlue() {
       height="16"
       fill="none"
       viewBox="0 0 16 16"
+      {...props}
     >
       <g fill="#65AAD0" clipPath="url(#a)">
         <path d="M0 14.8571C0 15.4883.5117 16 1.1428 16h13.7143C15.4883 16 16 15.4883 16 14.8571V1.1428C16 .5117 15.4883 0 14.8571 0H1.1428C.5117 0 0 .5117 0 1.1428v13.7143ZM13.8572 1.1429c.6312 0 1.1428.5116 1.1428 1.1428v11.4286c0 .6312-.5116 1.1428-1.1428 1.1428H2.1429C1.5117 14.8571 1 14.3455 1 13.7143V2.2857c0-.6312.5117-1.1428 1.1429-1.1428h11.7143Z" />
@@ -24,7 +27,7 @@ export function FrameIconBlue() {
   );
 }
 
-export function EmptyIcon() {
+export function EmptyIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -32,6 +35,7 @@ export function EmptyIcon() {
       height="54"
       fill="none"
       viewBox="0 0 78 54"
+      {...props}
     >
       <path
         fill="#fff"
@@ -49,6 +53,45 @@ export function EmptyIcon() {
         fill="#fff"
         d="m70.4527 35.3323-2.6401-2.6401c-.3744-.3745-.9549-.3745-1.3294 0l-3.3141 3.2954-3.3142-3.3142c-.3745-.3744-.955-.3744-1.3294 0l-2.6401 2.6401c-.2809.2809-.3371.6554-.206.9737.0562.1311.1123.2434.206.337l3.3141 3.3142-3.3141 3.3142c-.3745.3745-.3745.9549 0 1.3294l2.6401 2.6401c.3744.3745.9549.3745 1.3294 0l3.3142-3.2767 3.3141 3.3142c.3745.3744.955.3744 1.3294 0l2.6401-2.6401c.3745-.3745.3745-.955 0-1.3295l-3.3141-3.3141 3.3141-3.3142c.3745-.3745.3745-.9549 0-1.3294Z"
       />
+    </svg>
+  );
+}
+
+export function LinkIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="13"
+      height="12"
+      fill="none"
+      viewBox="0 0 13 12"
+      {...props}
+    >
+      <g clipPath="url(#a)">
+        <mask
+          id="b"
+          width="13"
+          height="12"
+          x="0"
+          y="0"
+          maskUnits="userSpaceOnUse"
+        >
+          <path fill="#fff" d="M12.3398 0h-12v12h12V0Z" />
+        </mask>
+        <g mask="url(#b)">
+          <path
+            stroke="#8B8EA0"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M10.8398 4.5v-3m0 0h-3m3 0-4.5 4.5m-1-4.5h-1.1c-.84 0-1.26 0-1.581.1635a1.5 1.5 0 0 0-.6555.6555c-.1635.3209-.1635.741-.1635 1.581v4.2c0 .8401 0 1.2601.1635 1.581.1438.2823.3733.5117.6556.6555.3208.1635.7409.1635 1.581.1635h4.2c.84 0 1.26 0 1.5809-.1635a1.4995 1.4995 0 0 0 .6555-.6555c.1635-.3209.1635-.7409.1635-1.581V7"
+          />
+        </g>
+      </g>
+      <defs>
+        <clipPath id="a">
+          <path fill="#fff" d="M0 0h12v12H0z" transform="translate(.3398)" />
+        </clipPath>
+      </defs>
     </svg>
   );
 }

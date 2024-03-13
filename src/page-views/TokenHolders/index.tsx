@@ -29,7 +29,7 @@ import { OverviewDetails } from './OverviewDetails/OverviewDetails';
 import { Tokens } from './Tokens/Tokens';
 import { ERC20_ADDRESS_WHITELIST } from './constants';
 import { useDropdownOptions } from './hooks/useDropdownOptions';
-import { TokenHoldersFrameModal } from '../../Components/FrameModal/TokenHolders';
+import { TokenHoldersFrameModal } from '../../Components/Frames/TokenHolders';
 
 export function TokenHolders() {
   const [

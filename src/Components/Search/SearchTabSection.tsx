@@ -1,22 +1,28 @@
-import classNames from 'classnames';
-import { Icon, IconType } from '../Icon';
-import { isMobileDevice } from '../../utils/isMobileDevice';
-import { usePathname } from 'next/navigation';
 import { Link } from '@/Components/Link';
-import { Dropdown } from '../Dropdown';
+import { useOutsideClick } from '@/hooks/useOutsideClick';
+import classNames from 'classnames';
+import { usePathname } from 'next/navigation';
+import { RefObject, useState } from 'react';
+import { isMobileDevice } from '../../utils/isMobileDevice';
+import { Icon, IconType } from '../Icon';
 
 const tabClass =
-  'px-2 sm:px-6 h-[30px] rounded-full flex-row-center text-xs sm:text-sm text-white border border-solid border-transparent';
+  'px-2 sm:px-6 h-[30px] rounded-full flex-row-center text-xs sm:text-sm text-white whitespace-nowrap border border-solid border-transparent';
 
 const activeTabClass = 'bg-white font-bold !text-[#10212E]';
 
-export type TabUrl = 'token-balances' | 'token-holders' | 'channels';
+export type TabUrl =
+  | 'token-balances'
+  | 'token-holders'
+  | 'trending-mints'
+  | 'channels';
 
 const options: {
   label: string;
   mobileLabel: string;
   value: TabUrl;
   extraMatch?: string[];
+  shouldNavigate?: boolean;
 }[] = [
   {
     label: 'Users',
@@ -24,7 +30,13 @@ const options: {
     value: 'token-balances',
     extraMatch: ['onchain-graph']
   },
-  { label: 'Tokens', mobileLabel: 'Holders', value: 'token-holders' },
+  { label: 'Tokens', mobileLabel: 'Tokens', value: 'token-holders' },
+  {
+    label: 'Mints',
+    mobileLabel: 'Mints',
+    value: 'trending-mints',
+    shouldNavigate: true
+  },
   { label: 'Channels', mobileLabel: 'Channels', value: 'channels' }
 ];
 
@@ -64,7 +76,7 @@ function TabButtons({
   onTabChange
 }: {
   activeTab: string;
-  onTabChange: (activeTab: TabUrl) => void;
+  onTabChange: (activeTab: TabUrl, shouldNavigate?: boolean) => void;
 }) {
   const isMobile = isMobileDevice();
   return (
@@ -73,7 +85,7 @@ function TabButtons({
         return (
           <button
             key={index}
-            onClick={() => onTabChange(option.value)}
+            onClick={() => onTabChange(option.value, option.shouldNavigate)}
             className={classNames(tabClass, {
               [activeTabClass]: activeTab === option.value
             })}
@@ -92,52 +104,61 @@ function TabButtons({
   );
 }
 
-function AskAI() {
-  const isMobile = isMobileDevice();
+function AskAIButton({
+  isOpen,
+  onClick
+}: {
+  isOpen: boolean;
+  onClick: () => void;
+}) {
   return (
-    <Dropdown
-      optionsContainerClassName={classNames('w-80 p-6 card', {
-        '!right-0 !left-auto': isMobile
+    <button
+      className={classNames(tabClass, 'px-2 sm:px-5', {
+        'border border-solid border-white': isOpen
       })}
-      renderPlaceholder={(_, isOpen: boolean) => (
-        <button
-          className={classNames(tabClass, 'px-2 sm:px-5', {
-            'border border-solid border-white': isOpen
-          })}
+      onClick={onClick}
+    >
+      <Icon name="ai-robot" />
+      <span className="ml-1">Ask AI</span>
+    </button>
+  );
+}
+
+function AskAIDropdown({
+  dropdownRef,
+  isHome,
+  onClose
+}: {
+  dropdownRef: RefObject<HTMLDivElement>;
+  isHome: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      ref={dropdownRef}
+      className={classNames(
+        'bg-glass rounded-18 mt-1 flex flex-col absolute max-sm:right-0 top-full w-80 p-6 card z-[100]',
+        isHome ? 'right-[120px]' : 'right-[320px]'
+      )}
+    >
+      <div
+        className="text-white text-left text-sm mb-5 leading-relaxed"
+        onClick={e => e.stopPropagation()}
+      >
+        Query onchain with Airstack AI! <br /> Farcaster, ENS, Ethereum, Base,
+        Zora, Lens, XMTP, NFTs, Tokens, POAPs and more.
+      </div>
+      <div className="text-xs font-medium">
+        <Link
+          to="https://app.airstack.xyz/api-studio"
+          target="_blank"
+          className="bg-white py-2 px-5 rounded-full text-black mr-5"
         >
-          <Icon name="ai-robot" />
-          <span className="ml-1">Ask AI</span>
-        </button>
-      )}
-      options={[
-        {
-          label: '--',
-          value: '--'
-        }
-      ]}
-      renderOption={() => (
-        <div>
-          <div
-            className="text-white text-sm mb-5 leading-relaxed"
-            onClick={e => e.stopPropagation()}
-          >
-            Query onchain with Airstack AI! <br /> Farcaster, ENS, Ethereum,
-            Base, Zora, Lens, XMTP, NFTs, Tokens, POAPs and more.
-          </div>
-          <div>
-            <Link
-              to="https://app.airstack.xyz/api-studio"
-              target="_blank"
-              className="bg-white py-2 px-5 rounded-full text-black mr-5"
-            >
-              Go to AI Studio {'->'}
-            </Link>
-            <button>Close</button>
-          </div>
-        </div>
-      )}
-      onChange={() => {}}
-    />
+          Go to AI Studio {'->'}
+        </Link>
+        <button onClick={onClose}>Close</button>
+      </div>
+    </div>
   );
 }
 
@@ -150,14 +171,45 @@ export function SearchTabSection({
   activeTab: TabUrl;
   onTabChange: (activeTab: TabUrl) => void;
 }) {
+  const [isAIDropdownVisible, setIsAIDropdownVisible] = useState(false);
+
+  const handleAIDropdownClose = () => {
+    setIsAIDropdownVisible(false);
+  };
+
+  const containerRef = useOutsideClick<HTMLDivElement>(handleAIDropdownClose);
+
+  const handleAIDropdownToggle = () => {
+    setIsAIDropdownVisible(prev => !prev);
+  };
+
   return (
-    <div className="bg-glass-new border flex p-0 sm:p-1 gap-1 rounded-full text-left">
-      {isHome ? (
-        <TabButtons activeTab={activeTab} onTabChange={onTabChange} />
-      ) : (
-        <TabLinks />
+    <div className="relative z-[42]">
+      <div
+        className={classNames(
+          'no-scrollbar scroll-shadow-r max-sm:mx-[-8px] my-6 flex items-start overflow-x-auto',
+          isHome ? 'sm:justify-center' : ''
+        )}
+      >
+        <div className="bg-glass-new flex min-w-max gap-1 rounded-full border p-0 text-left max-sm:ml-3 max-sm:mr-8 sm:p-1">
+          {isHome ? (
+            <TabButtons activeTab={activeTab} onTabChange={onTabChange} />
+          ) : (
+            <TabLinks />
+          )}
+          <AskAIButton
+            isOpen={isAIDropdownVisible}
+            onClick={handleAIDropdownToggle}
+          />
+        </div>
+      </div>
+      {isAIDropdownVisible && (
+        <AskAIDropdown
+          dropdownRef={containerRef}
+          isHome={isHome}
+          onClose={handleAIDropdownClose}
+        />
       )}
-      <AskAI />
     </div>
   );
 }

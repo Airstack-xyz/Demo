@@ -95,7 +95,7 @@ export function Dropdown<T extends Option = Option>({
       {show && (
         <div
           className={classnames(
-            'bg-glass rounded-18 p-1 mt-1 flex flex-col absolute z-20 min-w-[110%] left-0 top-full',
+            'bg-glass rounded-18 p-1 mt-1 flex flex-col absolute z-20 min-w-[120%] left-0 top-full',
             optionsContainerClassName
           )}
           onClick={() => setShow(false)}

@@ -1,30 +1,20 @@
+import { Image } from '@/Components/Image';
 import { useLazyQuery } from '@airstack/airstack-react';
-import classNames from 'classnames';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSearchInput } from '../../../hooks/useSearchInput';
 import { tokenBalancesFrameQuery } from '../../../queries/frames/tokenBalancesQuery';
 import { TokenBlockchain } from '../../../types';
 import { Icon, IconType } from '../../Icon';
 import LazyImage from '../../LazyImage';
-import { Modal } from '../../Modal';
-import { Tooltip, tooltipClass } from '../../Tooltip';
+import { FrameModal } from '../FrameModal';
 import { FramePreview } from '../FramePreview';
 import {
+  FrameSelect,
   FrameSelectOption,
-  FrameSelectOptionState,
-  FrameSelect
+  FrameSelectOptionState
 } from '../FrameSelect';
 import { FrameURL } from '../FrameURL';
-import { EmptyIcon, FrameIconBlue } from '../Icons';
-import {
-  Poap,
-  TokenBalance,
-  TokenBalanceFrameResponse,
-  TokenBalanceFrameVariables
-} from './types';
-import { FrameOption } from '../types';
-import { getFrameButtons, getResolvedOwner } from './utils';
-import { encodeFrameData, getDisplayName } from '../utils';
+import { EmptyIcon } from '../Icons';
 import {
   DECODED_BLOCKCHAIN,
   DECODED_TOKEN_TYPE,
@@ -33,7 +23,15 @@ import {
   FRAMES_ENDPOINT,
   TOKEN_PLACEHOLDER_URL
 } from '../constants';
-import { Image } from '@/Components/Image';
+import { FrameOption } from '../types';
+import { encodeFrameData, getProfileDisplayName } from '../utils';
+import {
+  Poap,
+  TokenBalance,
+  TokenBalanceFrameResponse,
+  TokenBalanceFrameVariables
+} from './types';
+import { getFrameButtons, getResolvedOwner } from './utils';
 
 const buttonOptions: FrameSelectOption[] = [
   {
@@ -290,7 +288,7 @@ function ModalContent() {
       );
     }
 
-    const displayName = getDisplayName(resolvedOwner);
+    const displayName = getProfileDisplayName(resolvedOwner);
 
     return (
       <div className="flex flex-col items-center w-full h-full">
@@ -355,46 +353,9 @@ function ModalContent() {
 }
 
 export function TokenBalancesFrameModal({ disabled }: { disabled?: boolean }) {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const handleModalClose = () => {
-    setIsModalVisible(false);
-  };
-
-  const handleModalOpen = () => {
-    setIsModalVisible(true);
-  };
-
   return (
-    <>
-      <Tooltip
-        content="Share as Farcaster frame"
-        contentClassName={tooltipClass}
-        disabled={isModalVisible || disabled}
-      >
-        <button
-          disabled={disabled}
-          className={classNames(
-            'py-1.5 px-3 text-text-button bg-glass-1 rounded-full flex-row-center border border-solid border-transparent disabled:opacity-50 disabled:cursor-not-allowed',
-            {
-              'border-white': isModalVisible
-            }
-          )}
-          onClick={handleModalOpen}
-        >
-          <FrameIconBlue />
-        </button>
-      </Tooltip>
-      {isModalVisible && (
-        <Modal
-          isOpen
-          className="w-full max-sm:min-w-full max-w-[686px] px-2.5 overflow-y-auto"
-          containerClassName="!border-white max-sm:p-4"
-          onRequestClose={handleModalClose}
-        >
-          <ModalContent />
-        </Modal>
-      )}
-    </>
+    <FrameModal disabled={disabled}>
+      <ModalContent />
+    </FrameModal>
   );
 }
