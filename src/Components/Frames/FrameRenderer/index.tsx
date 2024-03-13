@@ -42,6 +42,7 @@ export function FrameRenderer({
 
   const fetchFrameDataFn = useCallback(async (url?: string, signal?: AbortSignal) => {
     if (!url) {
+      setLoading(false);
       return;
     }
 
