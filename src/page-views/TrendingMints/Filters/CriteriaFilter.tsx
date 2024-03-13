@@ -16,11 +16,11 @@ type CriteriaFilterOption = {
 
 export const criteriaOptions: CriteriaFilterOption[] = [
   {
-    label: 'Unique Wallets',
+    label: 'Unique users',
     value: 'unique_wallets'
   },
   {
-    label: 'Total Mints',
+    label: 'Total mints',
     value: 'total_mints'
   },
 ];

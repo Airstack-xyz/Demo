@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 
 const filterCheckboxClass =
-  'flex items-center py-1 px-2 rounded-full mb-1 text-left whitespace-nowrap';
+  'mb-1 flex items-center whitespace-nowrap rounded-full px-2 py-1 text-left';
 
 type FilterOptionProps = {
   onChange: () => void;

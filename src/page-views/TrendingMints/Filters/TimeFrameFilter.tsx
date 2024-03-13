@@ -12,7 +12,7 @@ export type TimeFrameFilterType =
   | 'two_days'
   | 'seven_days';
 
-export const defaultTimeFrameFilter: TimeFrameFilterType = 'two_hours';
+export const defaultTimeFrameFilter: TimeFrameFilterType = 'one_hour';
 
 type TimeFrameFilterOption = {
   label: string;
@@ -21,27 +21,27 @@ type TimeFrameFilterOption = {
 
 export const timeFrameOptions: TimeFrameFilterOption[] = [
   {
-    label: 'One Hour',
+    label: '1 Hour',
     value: 'one_hour'
   },
   {
-    label: 'Two Hours',
+    label: '2 Hours',
     value: 'two_hours'
   },
   {
-    label: 'Eight Hours',
+    label: '8 Hours',
     value: 'eight_hours'
   },
   {
-    label: 'One Day',
+    label: '1 Day',
     value: 'one_day'
   },
   {
-    label: 'Two Days',
+    label: '2 Days',
     value: 'two_days'
   },
   {
-    label: 'Seven Days',
+    label: '7 Days',
     value: 'seven_days'
   }
 ];
@@ -70,7 +70,7 @@ export function TimeFrameFilter({ disabled }: { disabled?: boolean }) {
     if (option) {
       return [option];
     }
-    return [timeFrameOptions[1]];
+    return [timeFrameOptions[0]];
   }, [timeFrame]);
 
   return (

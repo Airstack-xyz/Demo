@@ -173,10 +173,10 @@ export function useSearchInput(
       resolve6551: searchParams.get("resolve6551") || "",
       activeSocialInfo: searchParams.get("activeSocialInfo") || "",
       activeENSInfo: searchParams.get("activeENSInfo") || "",
-      timeFrame: searchParams.get("timeFrame") || "",
-      blockchain: searchParams.get("blockchain") || "",
-      audience: searchParams.get("audience") || "",
-      criteria: searchParams.get("criteria") || ""
+      timeFrame: getData("timeFrame"),
+      blockchain: getData("blockchain"),
+      audience: getData("audience"),
+      criteria: getData("criteria")
     };
 
     setData(data);

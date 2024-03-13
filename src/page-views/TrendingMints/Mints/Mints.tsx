@@ -1,11 +1,9 @@
 import { useSearchInput } from '@/hooks/useSearchInput';
 import { trendingMintsQuery } from '@/queries/trendingMints';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import {
-  GetTrendingMintsQuery
-} from '../../../../__generated__/airstack-types';
+import { GetTrendingMintsQuery } from '../../../../__generated__/airstack-types';
 import { defaultAudienceFilter } from '../Filters/AudienceFilter';
 import { defaultBlockchainFilter } from '../Filters/BlockchainFilter';
 import { defaultCriteriaFilter } from '../Filters/CriteriaFilter';
@@ -29,6 +27,7 @@ const LIMIT = 30;
 
 export function Mints() {
   const [items, setItems] = useState<TrendingMint[] | null>(null);
+  const itemIdsSetRef = useRef<Set<string>>(new Set());
 
   const [searchInputs] = useSearchInput();
 
@@ -39,17 +38,31 @@ export function Mints() {
 
   const handleOnComplete = useCallback((data: GetTrendingMintsQuery) => {
     const items = data?.TrendingMints?.TrendingMint || [];
-    setItems(prev => [...(prev || []), ...items]);
+    const filteredItems = items.filter(item => {
+      const id = `${item.address}`;
+      if (itemIdsSetRef.current.has(id)) {
+        return false;
+      }
+      itemIdsSetRef.current.add(id);
+      return true;
+    });
+    setItems(prev => [...(prev || []), ...filteredItems]);
   }, []);
 
-  const [fetchData, { loading, error, pagination: { hasNextPage, getNextPage} }] =
-    useLazyQueryWithPagination<GetTrendingMintsQuery>(
-      trendingMintsQuery,
-      undefined,
-      {
-        onCompleted: handleOnComplete
-      }
-    );
+  const [
+    fetchData,
+    {
+      loading,
+      error,
+      pagination: { hasNextPage, getNextPage }
+    }
+  ] = useLazyQueryWithPagination<GetTrendingMintsQuery>(
+    trendingMintsQuery,
+    undefined,
+    {
+      onCompleted: handleOnComplete
+    }
+  );
 
   const handleFetchMore = useCallback(() => {
     if (!loading && hasNextPage && getNextPage) {
@@ -58,6 +71,7 @@ export function Mints() {
   }, [getNextPage, hasNextPage, loading]);
 
   useEffect(() => {
+    itemIdsSetRef.current = new Set();
     setItems(null);
     fetchData({
       timeFrame,
@@ -100,9 +114,7 @@ export function Mints() {
           </div>
         )}
         {items?.map((item, index) => {
-          return (
-            <Mint key={`${item.id}_${index}`} item={item} />
-          );
+          return <Mint key={`${item.id}_${index}`} item={item} />;
         })}
         {loading && <MintsLoader />}
       </InfiniteScroll>

@@ -16,7 +16,7 @@ type AudienceFilterOption = {
 
 export const audienceOptions: AudienceFilterOption[] = [
   {
-    label: 'Farcaster only',
+    label: 'Farcasters only',
     value: 'farcaster'
   },
   {

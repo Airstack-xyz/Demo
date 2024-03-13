@@ -32,9 +32,9 @@ export function Mint({ item }: { item: TrendingMint }) {
         src={image}
         className="absolute aspect-square overflow-hidden object-cover rounded-18"
       />
-      <div className="flex justify-between m-2 z-10">
+      <div className="flex justify-between m-2 z-[5]">
         <Link
-          className="text-sm bg-white rounded-18 text-primary flex gap-1 py-2 px-3 items-center visible sm:invisible group-hover:visible border border-solid border-transparent hover:border-text-secondary"
+          className="rounded-18 text-primary hover:border-text-secondary visible flex items-center gap-1 border border-solid border-transparent bg-white px-3 py-2 text-sm group-hover:visible sm:invisible"
           to={createTokenHolderUrl({
             address: item.address || '',
             inputType: 'ADDRESS',
@@ -60,7 +60,7 @@ export function Mint({ item }: { item: TrendingMint }) {
       </div>
       <div className="p-3 bg-glass rounded-b-18 visible sm:invisible group-hover:visible">
         <div className="text-sm">{symbol || '--'}</div>
-        <div className="font-bold mt-1">{name || '--'}</div>
+        <div className="font-bold mt-2">{name || '--'}</div>
       </div>
     </div>
   );
