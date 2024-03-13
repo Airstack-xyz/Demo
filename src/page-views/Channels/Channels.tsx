@@ -83,7 +83,10 @@ export function Channels() {
         </div>
         {channelId && (
           <div>
-            <div className="mt-3 flex items-center justify-between">
+            <div
+              className="mt-3 flex items-center justify-between"
+              style={{ maxWidth: MAX_SEARCH_WIDTH }}
+            >
               <SortBy
                 disabled={loading}
                 descLabel="Newest action first"

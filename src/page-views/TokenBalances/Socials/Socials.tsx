@@ -230,7 +230,7 @@ function SocialsComponent() {
           </span>
         </>
       </Link>
-      <div className="pt-5 sm:pt-0">
+      <div className="pt-5">
         <SectionHeader
           iconName="socials-flat"
           heading="Socials, Domains & XMTP"
