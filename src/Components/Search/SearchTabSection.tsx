@@ -134,7 +134,7 @@ function AskAIDropdown({
   return (
     <div
       ref={dropdownRef}
-      className="bg-glass rounded-18 mt-1 flex flex-col absolute left-auto right-0 top-full w-80 p-6 card z-[100]"
+      className="bg-glass rounded-18 mt-1 flex flex-col absolute max-sm:right-0 right-[160px] top-full w-80 p-6 card z-[100]"
     >
       <div
         className="text-white text-sm mb-5 leading-relaxed"
