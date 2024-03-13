@@ -3,15 +3,19 @@ import { Tooltip, tooltipClass } from '../Tooltip';
 import { Image } from '@/Components/Image';
 import { Icon } from '../Icon';
 import { links } from './constants';
-import { MobileDrawer } from './MobileDrawer';
 import { Suspense } from 'react';
 import { CsvAndLogin } from './CsvAndLogin';
+import dynamic from 'next/dynamic';
+
+const MobileDrawer = dynamic(() => import('./MobileDrawer'), {
+  ssr: false
+});
 
 export function Header() {
   return (
     <>
       <header className="fixed bg-glass-1 py-4 z-[100] top-0 left-0 right-0 max-sm:absolute">
-        <div className="max-w-[1440px] mx-auto w-full flex items-center justify-center sm:justify-between px-8">
+        <div className="w-full flex items-center justify-center sm:justify-between pl-16 pr-8">
           <div className="text-xl flex-row-center">
             <Link to="/" className="">
               <Image src="/logo.svg" className="h-[33px] mr-5" />

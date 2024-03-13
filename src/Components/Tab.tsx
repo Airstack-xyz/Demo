@@ -40,12 +40,16 @@ export function Tab({
       className={classNames(
         'pb-3 px-3 flex max-sm:flex-1 justify-center border-b-4 border-solid border-transparent -mb-1 cursor-pointer',
         {
-          '!border-text-secondary font-bold': active
+          '!border-white font-bold': active
         },
         className
       )}
     >
-      <div className="flex items-center overflow-hidden">
+      <div
+        className={classNames('flex items-center overflow-hidden', {
+          'invert-[0.3]': !active
+        })}
+      >
         <Icon name={icon} className="h-5 mr-1.5" />
         <span className="ellipsis">{header}</span>
       </div>

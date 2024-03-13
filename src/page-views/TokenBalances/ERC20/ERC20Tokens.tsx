@@ -277,7 +277,7 @@ export function ERC20Tokens() {
 
   return (
     <div>
-      <div className="hidden sm:block">
+      <div className="pb-2 sm:pb-0">
         <SectionHeader
           iconName="erc20"
           heading={`ERC20 tokens${isCombination ? ' in common' : ''}`}

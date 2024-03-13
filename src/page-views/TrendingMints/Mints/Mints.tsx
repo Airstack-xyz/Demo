@@ -11,7 +11,7 @@ import { defaultTimeFrameFilter } from '../Filters/TimeFrameFilter';
 import { Mint, MintItemLoader } from './Mint';
 import { TrendingMint } from './types';
 
-const loaderData = Array(6).fill({});
+const loaderData = Array(12).fill({});
 
 function MintsLoader() {
   return (

@@ -126,15 +126,20 @@ function AskAIButton({
 
 function AskAIDropdown({
   dropdownRef,
+  isHome,
   onClose
 }: {
   dropdownRef: RefObject<HTMLDivElement>;
+  isHome: boolean;
   onClose: () => void;
 }) {
   return (
     <div
       ref={dropdownRef}
-      className="bg-glass rounded-18 mt-1 flex flex-col absolute left-auto right-0 top-full w-80 p-6 card z-[100]"
+      className={classNames(
+        'bg-glass rounded-18 mt-1 flex flex-col absolute max-sm:right-0 top-full w-80 p-6 card z-[100]',
+        isHome ? 'right-[120px]' : 'right-[320px]'
+      )}
     >
       <div
         className="text-white text-sm mb-5 leading-relaxed"
@@ -179,8 +184,13 @@ export function SearchTabSection({
   };
 
   return (
-    <div className="relative">
-      <div className="no-scrollbar scroll-shadow-r z-[42] -mx-2 my-6 flex items-start overflow-x-auto sm:justify-center">
+    <div className="relative z-[42]">
+      <div
+        className={classNames(
+          'no-scrollbar scroll-shadow-r max-sm:mx-[-8px] my-6 flex items-start overflow-x-auto',
+          isHome ? 'sm:justify-center' : ''
+        )}
+      >
         <div className="bg-glass-new flex min-w-max gap-1 rounded-full border p-0 text-left max-sm:ml-3 max-sm:mr-8 sm:p-1">
           {isHome ? (
             <TabButtons activeTab={activeTab} onTabChange={onTabChange} />
@@ -196,6 +206,7 @@ export function SearchTabSection({
       {isAIDropdownVisible && (
         <AskAIDropdown
           dropdownRef={containerRef}
+          isHome={isHome}
           onClose={handleAIDropdownClose}
         />
       )}

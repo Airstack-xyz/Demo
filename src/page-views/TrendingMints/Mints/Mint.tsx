@@ -26,30 +26,36 @@ export function Mint({ item }: { item: TrendingMint }) {
 
   const symbol = item?.token?.symbol || item?.token?.type;
 
+  const tokenHolderUrl = createTokenHolderUrl({
+    address: item.address || '',
+    inputType: 'ADDRESS',
+    type: item.token?.type || '',
+    blockchain: item.blockchain || '',
+    label: name || '--'
+  });
+
+  const handleClick = (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+  ) => {
+    event.stopPropagation();
+    resetCachedUserInputs('tokenHolder');
+  };
+
   return (
-    <div className="group aspect-square flex flex-col justify-between max-w-[288px] w-full relative rounded-18 bg-token token cursor-pointer">
+    <Link
+      className="group aspect-square flex flex-col justify-between max-w-[288px] w-full relative rounded-18 bg-token token cursor-pointer"
+      to={tokenHolderUrl}
+      onClick={handleClick}
+    >
       <LazyImage
         src={image}
         className="absolute aspect-square overflow-hidden object-cover rounded-18"
       />
       <div className="flex justify-between m-2 z-[5]">
-        <Link
-          className="rounded-18 text-primary hover:border-text-secondary visible flex items-center gap-1 border border-solid border-transparent bg-white px-3 py-2 text-sm group-hover:visible sm:invisible"
-          to={createTokenHolderUrl({
-            address: item.address || '',
-            inputType: 'ADDRESS',
-            type: item.token?.type || '',
-            blockchain: item.blockchain || '',
-            label: name || '--'
-          })}
-          onClick={event => {
-            event.stopPropagation();
-            resetCachedUserInputs('tokenHolder');
-          }}
-        >
+        <button className="rounded-18 text-primary hover:border-text-secondary visible flex items-center gap-1 border border-solid border-transparent bg-white px-3 py-2 text-sm group-hover:visible sm:invisible">
           <UsersIcon />
           Holders
-        </Link>
+        </button>
         <div
           className="flex items-center gap-1 px-2 py-1 bg-glass text-sm rounded-18"
           style={{ textShadow: 'rgba(0, 0, 0, 0.4) 0px 0px 2px' }}
@@ -62,6 +68,6 @@ export function Mint({ item }: { item: TrendingMint }) {
         <div className="text-sm">{symbol || '--'}</div>
         <div className="font-bold mt-2">{name || '--'}</div>
       </div>
-    </div>
+    </Link>
   );
 }
