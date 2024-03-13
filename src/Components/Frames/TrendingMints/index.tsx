@@ -14,27 +14,27 @@ import { FrameRenderer } from '../FrameRenderer';
 
 const timeFrameOptions: FrameDropdownOption[] = [
   {
-    label: 'One Hour',
+    label: '1 Hour',
     value: ENCODED_TIME_FRAME.ONE_HOUR
   },
   {
-    label: 'Two Hours',
+    label: '2 Hours',
     value: ENCODED_TIME_FRAME.TWO_HOURS
   },
   {
-    label: 'Eight Hours',
+    label: '8 Hours',
     value: ENCODED_TIME_FRAME.EIGHT_HOURS
   },
   {
-    label: 'One Day',
+    label: '1 Day',
     value: ENCODED_TIME_FRAME.ONE_DAY
   },
   {
-    label: 'Two Days',
+    label: '2 Days',
     value: ENCODED_TIME_FRAME.TWO_DAYS
   },
   {
-    label: 'Seven Days',
+    label: '7 Days',
     value: ENCODED_TIME_FRAME.SEVEN_DAYS
   }
 ];
@@ -48,7 +48,7 @@ const blockchainOptions: FrameDropdownOption[] = [
 
 const audienceOptions: FrameDropdownOption[] = [
   {
-    label: 'Farcaster only',
+    label: 'Farcasters only',
     value: ENCODED_AUDIENCE.FARCASTER
   },
   {
@@ -59,18 +59,18 @@ const audienceOptions: FrameDropdownOption[] = [
 
 const criteriaOptions: FrameDropdownOption[] = [
   {
-    label: 'Unique Wallets',
+    label: 'Unique users',
     value: ENCODED_CRITERIA.UNIQUE_WALLETS
   },
   {
-    label: 'Total Mints',
+    label: 'Total mints',
     value: ENCODED_CRITERIA.TOTAL_MINTS
   }
 ];
 
 function ModalContent() {
   const [selectedTimeFrame, setSelectedTimeFrame] =
-    useState<FrameDropdownOption>(timeFrameOptions[1]);
+    useState<FrameDropdownOption>(timeFrameOptions[0]);
   const [selectedBlockchain, setSelectedBlockchain] =
     useState<FrameDropdownOption>(blockchainOptions[0]);
   const [selectedAudience, setSelectedAudience] = useState<FrameDropdownOption>(

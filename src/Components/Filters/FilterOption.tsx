@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { Icon } from '../Icon';
 
 const filterOptionClass =
-  'flex items-center py-1 px-2 rounded-full mb-1 text-left whitespace-nowrap disabled:hover:cursor-not-allowed disabled:opacity-50';
+  'mb-1 flex w-full items-center whitespace-nowrap rounded-full px-2 py-1 text-left disabled:opacity-50 disabled:hover:cursor-not-allowed';
 
 type FilterOptionProps = {
   onClick?: () => void;

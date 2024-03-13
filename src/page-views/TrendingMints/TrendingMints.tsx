@@ -45,7 +45,7 @@ export function TrendingMints() {
     <div className="max-w-[944px] mx-auto">
       <div className="flex items-center gap-1 font-bold text-white">
         <Icon name='trending-mints' />
-        Trending Mints on <span className="capitalize">{blockchain}</span>
+        Trending Mints
       </div>
       <div className="flex items-center justify-between gap-3.5 mt-5 mb-8">
         <div className="flex items-center gap-3.5">

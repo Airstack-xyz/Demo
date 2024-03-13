@@ -102,7 +102,7 @@ function TokensComponent(props: TokenProps) {
 
   const shouldBatchResponse = useRef(true);
   // batch only if fetching all tokens(tokenType is empty/null)
-  // TODO: discuss if we should betch for multiple owners/addresses ?
+  // TODO: discuss if we should batch for multiple owners/addresses ?
   shouldBatchResponse.current = !tokenType;
 
   const handleTokens = useCallback(

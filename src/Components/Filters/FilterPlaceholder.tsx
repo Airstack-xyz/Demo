@@ -2,7 +2,7 @@ import classNames from 'classnames';
 import { Icon, IconType } from '../Icon';
 
 export const filterPlaceholderClass =
-  'py-1.5 px-3 min-h-[30px] rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs enabled:hover:bg-glass-1-light disabled:hover:bg-glass-1 disabled:opacity-50 disabled:cursor-not-allowed flex-row-center';
+  'bg-glass-1 text-text-secondary enabled:hover:bg-glass-1-light disabled:hover:bg-glass-1 flex-row-center min-h-[30px] rounded-full border border-solid border-transparent px-3 py-1.5 text-xs disabled:cursor-not-allowed disabled:opacity-50';
 
 type FilterPlaceholderProps = {
   isOpen?: boolean;

@@ -100,7 +100,7 @@ export function FrameRenderer({
             <button
               type="button"
               className="hover:opacity-60"
-              onClick={() => debouncedFetchDataFn(postUrl)}
+              onClick={() => fetchFrameDataFn(postUrl)}
             >
               Retry
             </button>
