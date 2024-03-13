@@ -44,6 +44,7 @@ import { TokenDetails } from './TokenDetails/TokenDetails';
 import { Tokens, TokensLoader } from './Tokens/Tokens';
 import { useDropdownOptions } from './hooks/useDropdownOptions';
 import { TokenBalancesFrameModal } from '../../Components/FrameModal/TokenBalances';
+import { RecentChannels } from './RecentChannels/RecentChannels';
 
 const SocialsAndERC20 = memo(function SocialsAndERC20({
   hideSocials
@@ -80,9 +81,10 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
   // !Gnosis: Don't show ERC20 tokens when gnosis blockchain is selected
   const hasGnosisChainFilter =
     blockchainType?.length === 1 && blockchainType[0] === 'gnosis';
+  const identity = address[0];
 
   return (
-    <aside className="w-full min-w-full sm:w-[305px] sm:min-w-[305px] sm:ml-16">
+    <aside className="w-full min-w-full sm:w-[305px] sm:min-w-[305px]">
       {address.length == 1 && !hideSocials && (
         <>
           <Socials />
@@ -92,7 +94,13 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
       {address.length == 2 && !hideSocials && (
         <>
           <SocialsOverlap />
-          <div className="mt-11"></div>
+          <div className="mt-5"></div>
+        </>
+      )}
+      {identity && address.length === 1 && (
+        <>
+          <RecentChannels key={identity} identity={identity} />
+          <div className="mt-10"></div>
         </>
       )}
       {!hasGnosisChainFilter && <ERC20Tokens key={erc20Key} />}
@@ -266,9 +274,7 @@ function TokenBalancePage() {
 
     if (socialInfo.isApplicable) {
       options = csvDownloadOptions.filter(option =>
-        option.label.includes(
-          socialInfo.followerTab ? 'followers' : 'following'
-        )
+        option.label.includes(socialInfo.activeTab)
       );
     }
 
@@ -278,13 +284,13 @@ function TokenBalancePage() {
   }, [
     csvDownloadOptions,
     setCsvDownloadOptions,
-    socialInfo.followerTab,
+    socialInfo.activeTab,
     socialInfo.isApplicable
   ]);
 
   const { tab1Header, tab2Header } = useMemo(() => {
     let tab1Header = 'NFTs & POAPs';
-    let tab2Header = 'Socials & ERC20';
+    let tab2Header = 'Socials & Others';
     // !Gnosis: Don't show ERC20 header in tab2 when gnosis blockchain is selected
     if (blockchainType?.length === 1 && blockchainType[0] === 'gnosis') {
       tab2Header = 'Socials';
@@ -351,19 +357,22 @@ function TokenBalancePage() {
   const renderFilterContent = () => {
     if (showTokenDetails || ensInfo.isApplicable) {
       return (
-        <div className="flex justify-center gap-3.5 w-full z-[21]">
-          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="center" />
-          <ShareURLDropdown dropdownAlignment="center" />
+        <div className="flex justify-start gap-3.5 w-full z-[21]">
+          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="left" />
+          <ShareURLDropdown dropdownAlignment="left" />
         </div>
       );
     }
 
     if (socialInfo.isApplicable) {
       return (
-        <div className="flex justify-center gap-3.5 w-full z-[21]">
-          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="center" />
-          <ShareURLDropdown dropdownAlignment="center" />
-          <CSVDownloadDropdown options={csvDownloadOptions} />
+        <div className="flex justify-start gap-3.5 w-full z-[21]">
+          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="left" />
+          <ShareURLDropdown dropdownAlignment="left" />
+          <CSVDownloadDropdown
+            options={csvDownloadOptions}
+            dropdownAlignment="left"
+          />
         </div>
       );
     }
@@ -433,8 +442,8 @@ function TokenBalancePage() {
     }
 
     return (
-      <div key={query} className="flex justify-between sm:px-5">
-        <div className="w-full h-full">
+      <div key={query} className="flex justify-between">
+        <div className="h-full w-full">
           {address.length > 1 && (
             <div className="mb-12 relative z-20">
               <div className="mb-4">
@@ -449,14 +458,14 @@ function TokenBalancePage() {
           {isMobile && (
             <TabContainer className="sm:hidden">
               <Tab
-                icon="nft-flat"
+                icon="token-holders"
                 header={tab1Header}
                 active={!showSocials}
                 className="max-w-[50%] overflow-hidden"
                 onClick={() => setShowSocials(false)}
               />
               <Tab
-                icon="erc20"
+                icon="farcaster-flat"
                 header={tab2Header}
                 active={showSocials}
                 className="max-w-[50%] overflow-hidden"
@@ -494,12 +503,12 @@ function TokenBalancePage() {
   return (
     <TokenDetailsReset>
       <div
-        className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
+        className={classNames('max-w-[1400px]', {
           'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
             isHome
         })}
       >
-        <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
+        <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="w-full">
           {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
           <Search />
           {isQueryExists && (

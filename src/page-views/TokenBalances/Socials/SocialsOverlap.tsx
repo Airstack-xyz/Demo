@@ -60,7 +60,8 @@ const getSocialFollowInfo = (
         followerCount: item.followerCount,
         followingCount: item.followingCount,
         profileName2: farcasterSocials2[0].profileName,
-        profileTokenId2: farcasterSocials2[0].profileTokenId
+        profileTokenId2: farcasterSocials2[0].profileTokenId,
+        socialsFor: address1
       }))
     });
     // for farcaster socials for identity2
@@ -74,7 +75,8 @@ const getSocialFollowInfo = (
         followerCount: item.followerCount,
         followingCount: item.followingCount,
         profileName2: farcasterSocials1[0].profileName,
-        profileTokenId2: farcasterSocials1[0].profileTokenId
+        profileTokenId2: farcasterSocials1[0].profileTokenId,
+        socialsFor: address2
       }))
     });
   }
@@ -98,7 +100,8 @@ const getSocialFollowInfo = (
         followerCount: item.followerCount,
         followingCount: item.followingCount,
         profileName2: lensSocials2[0].profileName,
-        profileTokenId2: lensSocials2[0].profileTokenId
+        profileTokenId2: lensSocials2[0].profileTokenId,
+        socialsFor: address1
       }))
     });
     // for farcaster socials for identity2
@@ -112,7 +115,8 @@ const getSocialFollowInfo = (
         followerCount: item.followerCount,
         followingCount: item.followingCount,
         profileName2: lensSocials1[0].profileName,
-        profileTokenId2: lensSocials1[0].profileTokenId
+        profileTokenId2: lensSocials1[0].profileTokenId,
+        socialsFor: address2
       }))
     });
   }
@@ -196,7 +200,8 @@ function SocialsOverlapComponent() {
       profileTokenId1,
       followerCount,
       followingCount,
-      followerTab
+      activeTab,
+      socialsFor
     }: FollowCombinationParams) => {
       setData(
         {
@@ -206,7 +211,8 @@ function SocialsOverlapComponent() {
             dappName,
             followerCount,
             followingCount,
-            followerTab
+            activeTab,
+            socialsFor
           })
         },
         { updateQueryParams: true }

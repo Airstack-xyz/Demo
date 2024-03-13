@@ -80,7 +80,9 @@ export type IconType =
   | 'warpcast'
   | 'frames'
   | 'ai-robot'
-  | 'hamburger';
+  | 'hamburger'
+  | 'farcaster-flat'
+  | 'farcaster-flat-gray';
 
 export type IconProps = {
   name: IconType;

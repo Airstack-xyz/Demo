@@ -41,7 +41,7 @@ export function TokenHolders() {
       tokenFilters,
       activeSnapshotInfo,
       activeTokenInfo
-    },
+    }
     // setData
   ] = useSearchInput();
 
@@ -188,11 +188,14 @@ export function TokenHolders() {
 
   const isQueryExists = query && query.length > 0;
 
+  const addressesString = overviewTokens
+    .map(token => token.tokenAddress)
+    .join('-');
+
   // force the component to re-render when any of the search input change, so that the tokens are reset and refetch
-  const tokensKey = useMemo(
-    () => `${addresses}-${resolve6551}-${activeSnapshotInfo}`,
-    [addresses, resolve6551, activeSnapshotInfo]
-  );
+  const tokensKey = useMemo(() => {
+    return `${addressesString}-${resolve6551}-${activeSnapshotInfo}`;
+  }, [addressesString, resolve6551, activeSnapshotInfo]);
 
   const {
     snapshotFilterTooltip,
@@ -237,9 +240,9 @@ export function TokenHolders() {
   const renderFilterContent = () => {
     if (activeTokenInfo) {
       return (
-        <div className="flex justify-center gap-3.5 w-full">
-          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="center" />
-          <ShareURLDropdown dropdownAlignment="center" />
+        <div className="flex justify-start gap-3.5 w-full">
+          <GetAPIDropdown options={getAPIOptions} dropdownAlignment="left" />
+          <ShareURLDropdown dropdownAlignment="left" />
         </div>
       );
     }
@@ -266,12 +269,12 @@ export function TokenHolders() {
 
   return (
     <div
-      className={classNames('px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8', {
+      className={classNames('max-w-screen-lg', {
         'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
           isHome
       })}
     >
-      <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
+      <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="w-full">
         {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
         <Search />
         {!hasMultipleERC20 && isQueryExists && (
@@ -281,7 +284,7 @@ export function TokenHolders() {
       {isQueryExists && (
         <>
           <div
-            className="flex flex-col justify-center mt-7 max-w-[950px] mx-auto"
+            className="flex flex-col justify-center mt-7 max-w-[1050px]"
             key={query}
           >
             {/* 

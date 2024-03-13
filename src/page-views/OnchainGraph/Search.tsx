@@ -151,7 +151,7 @@ export const Search = memo(function Search() {
 
   return (
     <div className="relative z-10">
-      <div className="my-6 flex-col-center">
+      <div className="my-6 flex flex-col justify-center items-start">
         <SearchTabSection
           isHome={isHome}
           activeTab="token-balances"

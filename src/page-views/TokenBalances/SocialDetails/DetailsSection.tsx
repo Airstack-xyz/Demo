@@ -1,20 +1,12 @@
 import { useQuery } from '@airstack/airstack-react';
 import { memo } from 'react';
-import { socialDetailsQuery } from '../../../queries/socialDetails';
+import { socialDetailsQuery } from '../../../queries/socials/socialDetails';
 import { Card, CardLoader } from './Card';
-import { Social } from './types';
-
-type SocialDetailsResponse = {
-  Socials: {
-    Social: Social[];
-  };
-};
-
-type SocialDetailsVariables = {
-  identities: string[];
-  profileNames: string[];
-  dappName: string;
-};
+import {
+  SocialDappName,
+  SocialDetailsQuery,
+  SocialDetailsQueryVariables
+} from '../../../../__generated__/airstack-types';
 
 type DetailsSectionProps = {
   identities: string[];
@@ -28,12 +20,12 @@ function DetailsSectionComponent({
   dappName
 }: DetailsSectionProps) {
   const { data, loading } = useQuery<
-    SocialDetailsResponse,
-    SocialDetailsVariables
+    SocialDetailsQuery,
+    SocialDetailsQueryVariables
   >(socialDetailsQuery, {
     identities,
     profileNames,
-    dappName
+    dappName: dappName as SocialDappName
   });
 
   const socialItems = data?.Socials?.Social;

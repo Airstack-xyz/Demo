@@ -1,6 +1,7 @@
 import { Icon } from '../../../Components/Icon';
 import { UpdateUserInputs } from '../../../hooks/useSearchInput';
 import {
+  ActiveTab,
   SocialInfo,
   getActiveSocialInfoString
 } from '../../../utils/activeSocialInfoString';
@@ -8,6 +9,8 @@ import { DetailsSection } from './DetailsSection';
 import { TableSection } from './TableSection';
 import { TabContainer, Tab } from '../../../Components/Tab';
 import { capitalizeFirstLetter } from '../../../utils';
+import { ChannelsSection } from './ChannelsSection';
+import { isMobileDevice } from '@/utils/isMobileDevice';
 
 type SocialDetailsProps = {
   identities: string[];
@@ -22,12 +25,12 @@ export function SocialDetails({
   activeSocialInfo,
   setQueryData
 }: SocialDetailsProps) {
-  const handleTabChange = (follow: boolean) => {
+  const handleTabChange = (activeTab: ActiveTab) => {
     setQueryData(
       {
         activeSocialInfo: getActiveSocialInfoString({
           ...socialInfo,
-          followerTab: follow
+          activeTab
         })
       },
       { updateQueryParams: true }
@@ -43,8 +46,14 @@ export function SocialDetails({
     );
   };
 
+  const isMobile = isMobileDevice();
+  const canShowChannels = socialInfo.dappName.toLowerCase() === 'farcaster';
+
+  const channelsTabActive =
+    socialInfo.activeTab === 'channels' && canShowChannels;
+
   return (
-    <div className="max-w-[950px] mx-auto w-full text-sm pt-10 sm:pt-0">
+    <div className="max-w-[1050px] w-full text-sm pt-4 sm:pt-0">
       <div className="flex items-center">
         <div className="flex items-center max-w-[60%] sm:w-auto overflow-hidden mr-2">
           <div
@@ -78,23 +87,39 @@ export function SocialDetails({
       <TabContainer className="my-0">
         <Tab
           icon="follower-gray"
-          header={`${socialInfo.followerCount} followers`}
-          active={socialInfo.followerTab}
-          onClick={() => handleTabChange(true)}
+          header={
+            isMobile ? 'Followers' : `${socialInfo.followerCount} Followers`
+          }
+          active={socialInfo.activeTab === 'followers'}
+          onClick={() => handleTabChange('followers')}
         />
         <Tab
           icon="following-gray"
-          header={`${socialInfo.followingCount} following`}
-          active={!socialInfo.followerTab}
-          onClick={() => handleTabChange(false)}
+          header={
+            isMobile ? 'Following' : `${socialInfo.followingCount} Following`
+          }
+          active={socialInfo.activeTab === 'followings'}
+          onClick={() => handleTabChange('followings')}
         />
+        {canShowChannels && (
+          <Tab
+            icon="farcaster-flat-gray"
+            header={'Channels'}
+            active={socialInfo.activeTab === 'channels'}
+            onClick={() => handleTabChange('channels')}
+          />
+        )}
       </TabContainer>
-      <TableSection
-        key={activeSocialInfo}
-        identities={identities}
-        socialInfo={socialInfo}
-        setQueryData={setQueryData}
-      />
+      {channelsTabActive ? (
+        <ChannelsSection identity={socialInfo.socialsFor || identities[0]} />
+      ) : (
+        <TableSection
+          key={activeSocialInfo}
+          identities={identities}
+          socialInfo={socialInfo}
+          setQueryData={setQueryData}
+        />
+      )}
     </div>
   );
 }

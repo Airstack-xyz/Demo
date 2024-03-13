@@ -90,3 +90,5 @@ export function MobileDrawer({}) {
     </>
   );
 }
+
+export default MobileDrawer;

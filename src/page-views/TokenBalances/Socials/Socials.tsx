@@ -1,74 +1,74 @@
-import { useLazyQuery } from "@airstack/airstack-react";
-import classNames from "classnames";
+import { useLazyQuery } from '@airstack/airstack-react';
+import classNames from 'classnames';
 import {
   ReactNode,
   memo,
   useCallback,
   useEffect,
   useMemo,
-  useState,
-} from "react";
-import { Icon } from "../../../Components/Icon";
-import { LazyAddressesModal } from "../../../Components/LazyAddressesModal";
-import { useSearchInput } from "../../../hooks/useSearchInput";
-import { SocialQuery } from "../../../queries";
-import { getActiveENSInfoString } from "../../../utils/activeENSInfoString";
-import { getActiveSocialInfoString } from "../../../utils/activeSocialInfoString";
-import { SectionHeader } from "../SectionHeader";
-import { Follow, FollowParams, FollowType } from "./Follow";
-import { Social } from "./Social";
-import { XMTP } from "./XMTP";
-import { WalletType } from "./types";
-import { Link } from "@/Components/Link";
+  useState
+} from 'react';
+import { Icon } from '../../../Components/Icon';
+import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
+import { useSearchInput } from '../../../hooks/useSearchInput';
+import { SocialQuery } from '../../../queries';
+import { getActiveENSInfoString } from '../../../utils/activeENSInfoString';
+import { getActiveSocialInfoString } from '../../../utils/activeSocialInfoString';
+import { SectionHeader } from '../SectionHeader';
+import { Follow, FollowParams, FollowType } from './Follow';
+import { Social } from './Social';
+import { XMTP } from './XMTP';
+import { WalletType } from './types';
+import { Link } from '@/Components/Link';
 
 const getSocialFollowInfo = (wallet?: WalletType) => {
-  const followData: Record<"farcaster" | "lens", FollowType> = {
+  const followData: Record<'farcaster' | 'lens', FollowType> = {
     farcaster: {
-      dappName: "farcaster",
-      sections: [],
+      dappName: 'farcaster',
+      sections: []
     },
     lens: {
-      dappName: "lens",
-      sections: [],
-    },
+      dappName: 'lens',
+      sections: []
+    }
   };
 
   // For Farcaster profile - we need to ignore if results for an address does not have 'profileName'
   const farcasterSocials =
-    wallet?.farcasterSocials?.filter((item) => item.profileName) || [];
+    wallet?.farcasterSocials?.filter(item => item.profileName) || [];
   const lensSocials = wallet?.lensSocials || [];
 
   // For farcaster:
   if (farcasterSocials.length > 0) {
-    followData.farcaster.sections = farcasterSocials.map((item) => ({
+    followData.farcaster.sections = farcasterSocials.map(item => ({
       profileName: item.profileName,
       profileHandle: item.profileHandle,
       profileTokenId: item.profileTokenId,
       followerCount: item.followerCount,
-      followingCount: item.followingCount,
+      followingCount: item.followingCount
     }));
   } else {
     followData.farcaster.sections = [
       {
-        profileHandle: "--",
-      },
+        profileHandle: '--'
+      }
     ];
   }
 
   // For lens:
   if (lensSocials.length > 0) {
-    followData.lens.sections = lensSocials.map((item) => ({
+    followData.lens.sections = lensSocials.map(item => ({
       profileName: item.profileName,
       profileHandle: item.profileHandle,
       profileTokenId: item.profileTokenId,
       followerCount: item.followerCount,
-      followingCount: item.followingCount,
+      followingCount: item.followingCount
     }));
   } else {
     followData.lens.sections = [
       {
-        profileHandle: "--",
-      },
+        profileHandle: '--'
+      }
     ];
   }
 
@@ -76,10 +76,10 @@ const getSocialFollowInfo = (wallet?: WalletType) => {
 };
 
 const iconMap: Record<string, string> = {
-  lens: "/images/lens.svg",
-  farcaster: "/images/farcaster.svg",
-  xmtp: "/images/xmtp.svg",
-  ens: "/images/ens.svg",
+  lens: '/images/lens.svg',
+  farcaster: '/images/farcaster.svg',
+  xmtp: '/images/xmtp.svg',
+  ens: '/images/ens.svg'
 };
 
 type SocialResponse = {
@@ -97,8 +97,8 @@ function SocialsComponent() {
     addresses: string[];
   }>({
     isOpen: false,
-    dataType: "",
-    addresses: [],
+    dataType: '',
+    addresses: []
   });
 
   const [{ address }, setData] = useSearchInput();
@@ -112,7 +112,7 @@ function SocialsComponent() {
   useEffect(() => {
     if (address.length > 0) {
       fetchData({
-        identity: address[0],
+        identity: address[0]
       });
     }
   }, [fetchData, address]);
@@ -121,15 +121,15 @@ function SocialsComponent() {
     setModalData({
       isOpen: true,
       dataType: type,
-      addresses: values,
+      addresses: values
     });
   }, []);
 
   const handleModalClose = useCallback(() => {
     setModalData({
       isOpen: false,
-      dataType: "",
-      addresses: [],
+      dataType: '',
+      addresses: []
     });
   }, []);
 
@@ -140,7 +140,7 @@ function SocialsComponent() {
       dappName,
       followerCount,
       followingCount,
-      followerTab,
+      activeTab
     }: FollowParams) => {
       if (!profileName || !profileTokenId) {
         return;
@@ -153,8 +153,8 @@ function SocialsComponent() {
             dappName,
             followerCount,
             followingCount,
-            followerTab,
-          }),
+            activeTab
+          })
         },
         { updateQueryParams: true }
       );
@@ -164,11 +164,11 @@ function SocialsComponent() {
 
   const handleAddressValue = useCallback(
     (value: unknown) => {
-      if (typeof value !== "string" || value == "--") return;
+      if (typeof value !== 'string' || value == '--') return;
 
       setData(
         {
-          activeENSInfo: getActiveENSInfoString({ identity: value }),
+          activeENSInfo: getActiveENSInfoString({ identity: value })
         },
         { updateQueryParams: true }
       );
@@ -192,23 +192,23 @@ function SocialsComponent() {
     if (wallet?.primaryDomain?.name) {
       primaryEnsValues.push(wallet.primaryDomain.name);
     } else {
-      primaryEnsValues.push("--");
+      primaryEnsValues.push('--');
     }
     if (wallet && wallet?.domains?.length > 0) {
       ensValues.push(...wallet.domains.map(({ name }) => name));
     } else {
-      ensValues.push("--");
+      ensValues.push('--');
     }
     if (wallet?.xmtp?.find(({ isXMTPEnabled }) => isXMTPEnabled)) {
       xmtpValues.push(<XMTP />);
     } else {
-      xmtpValues.push("--");
+      xmtpValues.push('--');
     }
 
     return {
       primaryEnsValues,
       ensValues,
-      xmtpValues,
+      xmtpValues
     };
   }, [wallet]);
 
@@ -216,8 +216,8 @@ function SocialsComponent() {
 
   return (
     <div className="w-full sm:w-auto">
-      <div className="hidden sm:block">
-        <SectionHeader iconName="socials-flat" heading="Socials" />
+      <div className="pb-2 sm:pb-0">
+        <SectionHeader iconName="socials-flat" heading="Quick Links" />
       </div>
       <Link
         className="rounded-18 border-solid-stroke mt-3.5 bg-glass hover:bg-glass-1 p-5 mb-5 flex items-center"
@@ -226,15 +226,21 @@ function SocialsComponent() {
         <>
           <Icon name="community" height={30} width={30} />
           <span className="text-text-button text-sm font-medium ml-2">
-            View Onchain Graph {"->"}{" "}
+            View Onchain Graph {'->'}{' '}
           </span>
         </>
       </Link>
+      <div className="pt-5">
+        <SectionHeader
+          iconName="socials-flat"
+          heading="Socials, Domains & XMTP"
+        />
+      </div>
       <div
         className={classNames(
-          "rounded-18 border-solid-stroke mt-3.5 min-h-[250px] flex flex-col bg-glass",
+          'rounded-18 border-solid-stroke mt-3.5 min-h-[250px] flex flex-col bg-glass',
           {
-            "skeleton-loader": loading,
+            'skeleton-loader': loading
           }
         )}
       >
@@ -247,14 +253,14 @@ function SocialsComponent() {
             name="Primary ENS"
             type="ens"
             values={primaryEnsValues}
-            image={iconMap["ens"]}
+            image={iconMap['ens']}
             onAddressClick={handleAddressValue}
           />
           <Social
             name="ENS names"
             type="ens"
             values={ensValues}
-            image={iconMap["ens"]}
+            image={iconMap['ens']}
             onAddressClick={handleAddressValue}
             onShowMoreClick={handleShowMoreClick}
           />
@@ -266,7 +272,7 @@ function SocialsComponent() {
               onFollowClick={handleFollowValue}
             />
           ))}
-          <Social name="XMTP" values={xmtpValues} image={iconMap["xmtp"]} />
+          <Social name="XMTP" values={xmtpValues} image={iconMap['xmtp']} />
         </div>
       </div>
       {modalData.isOpen && (

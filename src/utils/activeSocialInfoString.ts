@@ -1,19 +1,24 @@
 import { getAllWordsAndMentions } from '../Components/Input/utils';
 
+const activeTabs = ['followers', 'followings', 'channels'];
+export type ActiveTab = 'followers' | 'followings' | 'channels';
+type DappName = 'lens' | 'farcaster';
+
 export const getActiveSocialInfoString = ({
   dappName,
   profileNames,
   profileTokenIds,
-  followerTab,
   followerCount,
   followerData = {},
   followingCount,
-  followingData = {}
+  followingData = {},
+  activeTab = 'followers',
+  socialsFor
 }: {
-  dappName: string;
+  dappName: DappName;
   profileNames: string[];
   profileTokenIds: string[];
-  followerTab?: boolean;
+  activeTab?: ActiveTab;
   followerCount?: string | number;
   followerData?: {
     filters?: string[];
@@ -24,6 +29,7 @@ export const getActiveSocialInfoString = ({
     filters?: string[];
     mentionRawText?: string;
   };
+  socialsFor?: string;
 }) => {
   const socialInfo: (string | number)[] = [
     dappName,
@@ -31,7 +37,9 @@ export const getActiveSocialInfoString = ({
     profileTokenIds?.join(',')
   ];
 
-  socialInfo.push(followerTab === false ? '0' : '1');
+  const tabIndex = activeTabs.indexOf(activeTab as string);
+  const tab = tabIndex === -1 ? 'followers' : activeTab;
+  socialInfo.push(tab);
 
   socialInfo.push(followerCount != null ? followerCount : '');
   socialInfo.push(followerData.filters ? followerData.filters.join(',') : '');
@@ -40,6 +48,7 @@ export const getActiveSocialInfoString = ({
   socialInfo.push(followingCount != null ? followingCount : '');
   socialInfo.push(followingData.filters ? followingData.filters.join(',') : '');
   socialInfo.push(followingData.mentionRawText || '');
+  socialInfo.push(socialsFor || '');
 
   return socialInfo.join('│');
 };
@@ -49,13 +58,14 @@ export const getActiveSocialInfo = (activeSocialInfo?: string) => {
     dappName,
     profileNamesString,
     profileTokenIdsString,
-    followerTab,
+    activeTab,
     followerCount = '',
     followerFiltersString,
     followerMentionRawText,
     followingCount = '',
     followingFiltersString,
-    followingMentionRawText
+    followingMentionRawText,
+    socialsFor
   ] = activeSocialInfo?.split('│') ?? [];
 
   let followerMention = null;
@@ -70,14 +80,15 @@ export const getActiveSocialInfo = (activeSocialInfo?: string) => {
     followingMention = mentionData[0].mention;
   }
 
+  const activeTabIndex = activeTabs.indexOf(activeTab);
   return {
     isApplicable: Boolean(dappName),
-    dappName,
+    dappName: dappName as DappName,
     profileNames: profileNamesString ? profileNamesString.split(',') : [],
     profileTokenIds: profileTokenIdsString
       ? profileTokenIdsString.split(',')
       : [],
-    followerTab: followerTab === '0' ? false : true,
+    activeTab: activeTabIndex === -1 ? 'followers' : (activeTab as ActiveTab),
     followerCount,
     followerData: {
       filters: followerFiltersString ? followerFiltersString.split(',') : [],
@@ -89,7 +100,8 @@ export const getActiveSocialInfo = (activeSocialInfo?: string) => {
       filters: followingFiltersString ? followingFiltersString.split(',') : [],
       mentionRawText: followingMentionRawText,
       mention: followingMention
-    }
+    },
+    socialsFor
   };
 };
 
