@@ -31,12 +31,14 @@ export function FrameURL({
     async (url: string) => {
       if (!url) {
         setShortUrl('');
+        setLoading(false);
         return;
       }
 
       if (frameUrlCache.has(url)) {
         const shortenedUrl = frameUrlCache.get(url) || '';
         setShortUrl(shortenedUrl);
+        setLoading(false);
         return;
       }
 
