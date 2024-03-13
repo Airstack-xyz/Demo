@@ -84,7 +84,7 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
   const identity = address[0];
 
   return (
-    <aside className="w-full min-w-full sm:w-[305px] sm:min-w-[305px] sm:ml-16">
+    <aside className="w-full min-w-full sm:w-[305px] sm:min-w-[305px]">
       {address.length == 1 && !hideSocials && (
         <>
           <Socials />
@@ -443,7 +443,7 @@ function TokenBalancePage() {
 
     return (
       <div key={query} className="flex justify-between">
-        <div className="w-full h-full">
+        <div className="h-full">
           {address.length > 1 && (
             <div className="mb-12 relative z-20">
               <div className="mb-4">
@@ -503,7 +503,7 @@ function TokenBalancePage() {
   return (
     <TokenDetailsReset>
       <div
-        className={classNames('px-2 pt-5 max-w-screen-lg sm:pt-8', {
+        className={classNames('max-w-screen-lg sm:pt-8', {
           'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
             isHome
         })}

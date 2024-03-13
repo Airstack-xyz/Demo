@@ -8,7 +8,7 @@ import { getAPIDropdownOptions } from './constants';
 
 export function OnChainGraphPage() {
   return (
-    <div className={classNames('px-2 pt-5 max-w-screen-lg sm:pt-8')}>
+    <div className={classNames('max-w-screen-lg sm:pt-8')}>
       <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="w-full">
         <Search />
         <div className="my-3 flex-row-center">

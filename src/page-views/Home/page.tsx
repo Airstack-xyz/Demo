@@ -27,7 +27,7 @@ export function HomePage() {
       </Suspense>
       <div
         className={classNames(
-          'px-2 pt-5 max-w-screen-lg mx-auto sm:pt-[20vh] flex-1 h-full w-full flex flex-col items-center text-center'
+          'max-w-screen-lg mx-auto sm:pt-[20vh] flex-1 h-full w-full flex flex-col items-center text-center'
         )}
       >
         <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="w-full">
