@@ -35,7 +35,7 @@ const links: { icon: IconType; link: string }[] = [
 
 export function Footer() {
   return (
-    <footer className="flex flex-col sm:flex-row justify-between items-center max-w-[1440px] mx-auto w-full px-8">
+    <footer className="flex flex-col sm:flex-row justify-between items-center max-w-screen-lg w-full px-8">
       <Link to="https://app.airstack.xyz" className="" target="_blank">
         <Image src="/logo.svg" className=" h-[50px] sm:h-[33px] mr-5" />
       </Link>

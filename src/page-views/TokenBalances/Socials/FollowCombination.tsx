@@ -1,16 +1,19 @@
 import { useMemo, useState } from 'react';
 import { IconType } from '../../../Components/Icon';
 import { Image } from '@/Components/Image';
+import { ActiveTab } from '@/utils/activeSocialInfoString';
+import { DappName } from '../types';
 
 export type FollowCombinationParams = {
-  dappName: string;
+  dappName: DappName;
   profileName1: string;
   profileTokenId1: string;
   profileName2: string;
   profileTokenId2: string;
   followerCount?: number;
   followingCount?: number;
-  followerTab?: boolean;
+  activeTab?: ActiveTab;
+  socialsFor?: string;
 };
 
 export type FollowCombinationSectionType = {
@@ -29,7 +32,7 @@ export type FollowCombinationSectionType = {
 export type FollowCombinationType = {
   name: string;
   image: string;
-  dappName: string;
+  dappName: DappName;
   followInfo?: {
     icon: IconType;
     text: string;
@@ -41,7 +44,7 @@ const maxItemCount = 7;
 const minItemCount = 1;
 
 type FollowCombinationSectionProps = {
-  dappName: string;
+  dappName: DappName;
   onFollowClick?: (params: FollowCombinationParams) => void;
   onShowMoreClick?: (values: string[], type?: string) => void;
 } & FollowCombinationSectionType;

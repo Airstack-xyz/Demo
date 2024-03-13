@@ -7,7 +7,7 @@ import { getNftWithCommonOwnersSnapshotQuery } from '../../../queries/Snapshots/
 import { domainDetailsQuery } from '../../../queries/domainDetails';
 import { getNftWithCommonOwnersQuery } from '../../../queries/nftWithCommonOwnersQuery';
 import { poapsOfCommonOwnersQuery } from '../../../queries/poapsOfCommonOwnersQuery';
-import { socialDetailsQuery } from '../../../queries/socialDetails';
+import { socialDetailsQuery } from '../../../queries/socials/socialDetails';
 import { getSocialFollowersQuery } from '../../../queries/socialFollowersQuery';
 import { getSocialFollowingsQuery } from '../../../queries/socialFollowingQuery';
 import {
@@ -222,8 +222,10 @@ export function useDropdownOptions({
           identity: address[0]
         }
       });
+      const followersTab = socialInfo.activeTab === 'followers';
+      const followingTab = socialInfo.activeTab === 'followings';
 
-      if (!socialInfo.followerTab && socialInfo.followingData?.mention) {
+      if (followingTab && socialInfo.followingData?.mention) {
         const { followingData } = socialInfo;
 
         const nameFromMarkup = followingData.mentionRawText
@@ -272,7 +274,7 @@ export function useDropdownOptions({
         }
       }
 
-      if (socialInfo.followerTab && socialInfo.followerData?.mention) {
+      if (followersTab && socialInfo.followerData?.mention) {
         const { followerData } = socialInfo;
 
         const nameFromMarkup = followerData.mentionRawText

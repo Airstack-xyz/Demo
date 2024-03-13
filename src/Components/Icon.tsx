@@ -84,7 +84,9 @@ export type IconType =
   | 'hamburger'
   | 'user' 
   | 'wallet'
-  | 'funnel' ;
+  | 'funnel'
+  | 'farcaster-flat'
+  | 'farcaster-flat-gray';
 
 export type IconProps = {
   name: IconType;

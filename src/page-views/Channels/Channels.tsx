@@ -1,48 +1,48 @@
-import classNames from "classnames";
-import { MAX_SEARCH_WIDTH } from "../../Components/Search/constants";
-import { Search } from "../../Components/Search";
-import { SortBy } from "../../Components/Filters/SortBy";
-import { useLazyQuery } from "@airstack/airstack-react";
-import { farcasterChannelQuery } from "../../queries/channels";
+import classNames from 'classnames';
+import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
+import { Search } from '../../Components/Search';
+import { SortBy } from '../../Components/Filters/SortBy';
+import { useLazyQuery } from '@airstack/airstack-react';
+import { farcasterChannelQuery } from '../../queries/channels';
 import {
   FarcasterChannelDetailsQuery,
   FarcasterChannelDetailsQueryVariables,
-  OrderBy,
-} from "../../../__generated__/airstack-types";
-import { useSearchInput } from "../../hooks/useSearchInput";
-import { useEffect, useMemo } from "react";
-import { Overview } from "./Overview";
-import { Icon } from "../../Components/Icon";
-import { ParticipentsList } from "./Participents/Participents";
-import { GetAPIDropdown } from "../../Components/GetAPIDropdown";
-import { useCsvDownloadOptions } from "../../store/csvDownload";
-import { ShareURLDropdown } from "../../Components/ShareURLDropdown";
-import { useChannelApiOptions } from "./useChannelApiOptions";
-import { CSVDownloadDropdown } from "../../Components/CSVDownload/CSVDownloadDropdown";
-import { CSVDownloadOption } from "../../types";
-import { CsvQueryType } from "../../../__generated__/types";
-import { useMatch } from "@/hooks/useMatch";
+  OrderBy
+} from '../../../__generated__/airstack-types';
+import { useSearchInput } from '../../hooks/useSearchInput';
+import { useEffect, useMemo } from 'react';
+import { Overview } from './Overview';
+import { Icon } from '../../Components/Icon';
+import { ParticipentsList } from './Participents/Participents';
+import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
+import { useCsvDownloadOptions } from '../../store/csvDownload';
+import { ShareURLDropdown } from '../../Components/ShareURLDropdown';
+import { useChannelApiOptions } from './useChannelApiOptions';
+import { CSVDownloadDropdown } from '../../Components/CSVDownload/CSVDownloadDropdown';
+import { CSVDownloadOption } from '../../types';
+import { CsvQueryType } from '../../../__generated__/types';
+import { useMatch } from '@/hooks/useMatch';
 
 export function Channels() {
-  const isHome = useMatch("/");
+  const isHome = useMatch('/');
   const [inputs] = useSearchInput();
   const [fetchChannelDetails, { data, loading }] = useLazyQuery<
     FarcasterChannelDetailsQuery,
     FarcasterChannelDetailsQueryVariables
   >(farcasterChannelQuery);
 
-  const channelId = inputs.address[0] || "";
-  const orderBy = inputs.sortOrder === "ASC" ? OrderBy.Asc : OrderBy.Desc;
+  const channelId = inputs.address[0] || '';
+  const orderBy = inputs.sortOrder === 'ASC' ? OrderBy.Asc : OrderBy.Desc;
   const channelDetails = data?.FarcasterChannels?.FarcasterChannel?.[0];
   const channelName = channelDetails?.name || channelId;
 
-  const [, setCsvDownloadOptions] = useCsvDownloadOptions(["options"]);
+  const [, setCsvDownloadOptions] = useCsvDownloadOptions(['options']);
 
   const getOptions = useChannelApiOptions();
   const optionsGetAPI = useMemo(() => getOptions(), [getOptions]);
 
   const csvOptions: CSVDownloadOption[] = useMemo(() => {
-    const name = `Participants of ${channelName || "Channel"}`;
+    const name = `Participants of ${channelName || 'Channel'}`;
     return [
       {
         label: name,
@@ -50,9 +50,9 @@ export function Channels() {
         fileName: name,
         variables: {
           channelId,
-          orderBy,
-        },
-      },
+          orderBy
+        }
+      }
     ];
   }, [channelId, channelName, orderBy]);
 
@@ -64,24 +64,29 @@ export function Channels() {
   useEffect(() => {
     if (channelId) {
       fetchChannelDetails({
-        channelId,
+        channelId
       });
     }
   }, [channelId, fetchChannelDetails]);
 
   return (
     <div
-      className={classNames("px-2 pt-5 max-w-[1440px] mx-auto sm:pt-8", {
-        "flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center":
-          isHome,
+      className={classNames('max-w-screen-lg', {
+        'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
+          isHome
       })}
     >
-      <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="mx-auto w-full">
+      <div className="w-full max-w-[1050px]">
         {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
-        <Search />
+        <div style={{ maxWidth: MAX_SEARCH_WIDTH }}>
+          <Search />
+        </div>
         {channelId && (
           <div>
-            <div className="mt-3 flex items-center justify-between">
+            <div
+              className="mt-3 flex items-center justify-between"
+              style={{ maxWidth: MAX_SEARCH_WIDTH }}
+            >
               <SortBy
                 disabled={loading}
                 descLabel="Newest action first"
@@ -112,13 +117,13 @@ export function Channels() {
             </section>
             <section>
               <div className="flex mb-4">
-                <Icon name="token-holders" height={20} width={20} />{" "}
+                <Icon name="token-holders" height={20} width={20} />{' '}
                 <span className="font-bold ml-1.5 text-sm text-text-secondary">
                   Participants
                 </span>
               </div>
               <ParticipentsList
-                channelId={loading ? "" : channelId}
+                channelId={loading ? '' : channelId}
                 orderBy={orderBy}
               />
             </section>

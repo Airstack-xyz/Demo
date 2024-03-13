@@ -5,6 +5,7 @@ import { formatDate } from '../../../utils';
 import { Social } from './types';
 import { checkBlockchainSupportForToken } from '../../../utils/activeTokenInfoString';
 import { Image } from '@/Components/Image';
+import { Chain } from '@airstack/airstack-react/constants';
 
 export function CardLoader({ isLensDapp }: { isLensDapp: boolean }) {
   return (
@@ -55,7 +56,8 @@ export function Card({
     isLensDapp && item.profileHandleNft?.contentValue?.image?.extraSmall;
 
   const useAssetComponent =
-    !profileImageUrl && checkBlockchainSupportForToken(item.blockchain);
+    !profileImageUrl &&
+    checkBlockchainSupportForToken(item?.blockchain as string);
 
   return (
     <div className="flex-1 flex max-sm:flex-col max-sm:items-center gap-6">
@@ -64,9 +66,9 @@ export function Card({
           preset="medium"
           containerClassName="h-[180px] w-[180px]"
           imgProps={{ className: 'max-h-[180px] max-w-[180px]' }}
-          chain={item.blockchain}
-          tokenId={item.profileTokenId}
-          address={item.profileTokenAddress}
+          chain={item?.blockchain as Chain}
+          tokenId={item?.profileTokenId as string}
+          address={item?.profileTokenAddress as string}
         />
       ) : (
         <LazyImage

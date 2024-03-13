@@ -18,9 +18,10 @@ export function useTokenBalancesLinks() {
 
   const getLink = useCallback(() => {
     if (address.length === 0) return '';
-    const isFollowerQuery = Boolean(socialInfo.followerTab);
+    const isChannelQuery = Boolean(socialInfo.activeTab === 'channels');
 
-    if (!showTokenDetails && socialInfo.isApplicable) {
+    if (!showTokenDetails && socialInfo.isApplicable && !isChannelQuery) {
+      const isFollowerQuery = Boolean(socialInfo.activeTab === 'followers');
       const socialFollowersFilterData = getSocialFollowFilterData({
         ...socialInfo.followerData,
         dappName: socialInfo.dappName,
@@ -68,7 +69,7 @@ export function useTokenBalancesLinks() {
     return '';
   }, [
     address,
-    socialInfo.followerTab,
+    socialInfo.activeTab,
     socialInfo.isApplicable,
     socialInfo.followerData,
     socialInfo.dappName,

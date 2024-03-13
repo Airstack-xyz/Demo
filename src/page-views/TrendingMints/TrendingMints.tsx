@@ -42,7 +42,7 @@ export function TrendingMints() {
   });
 
   return (
-    <div className="max-w-[944px] mx-auto">
+    <div className="max-w-[1272px]">
       <div className="flex items-center gap-1 font-bold text-white">
         <Icon name='trending-mints' />
         Trending Mints
