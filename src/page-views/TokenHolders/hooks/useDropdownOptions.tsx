@@ -184,7 +184,7 @@ export function useDropdownOptions({
     );
 
     const socialFilters = {};
-    const hasMultipleTokens = tokenAddress.length > 1;
+    const hasMultipleTokens = overviewTokens.length > 1;
     const hasERC20 = erc20s?.length > 0;
 
     // for now there is no support for multiple ERC20 tokens

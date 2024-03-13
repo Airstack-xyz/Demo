@@ -39,9 +39,13 @@ export function useGetCommonOwnersOfPoaps(poapAddresses: TokenAddress[]) {
   const [fetch, { data, pagination }] = useLazyQueryWithPagination(query);
 
   const { hasNextPage, getNextPage } = pagination;
-  // eslint-disable-next-line
-  // @ts-ignore
-  const totalOwners = window.totalOwners;
+  let totalOwners = 0;
+
+  if (typeof window !== 'undefined') {
+    // eslint-disable-next-line
+    // @ts-ignore
+    totalOwners = window.totalOwners;
+  }
   const hasMorePages = !totalOwners ? hasNextPage : poaps.length < totalOwners;
   const fetchSingleToken = poapAddresses.length === 1;
 

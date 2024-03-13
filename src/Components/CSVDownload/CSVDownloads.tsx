@@ -537,7 +537,7 @@ export function CSVDownloads() {
                 </a>
               </div>
             }
-            optionsContainerClassName="min-w-[214px] top-9 card max-h-[50vh] overflow-y-auto"
+            optionsContainerClassName="min-w-[214px] top-9 card max-h-[50vh] overflow-y-auto !left-auto right-0"
             renderPlaceholder={(_, isOpen) => (
               <Tooltip
                 content="CSV downloads in progress"
