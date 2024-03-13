@@ -3,7 +3,7 @@
 export const farcasterParticipentsQuery = /* GraphQL */ `
   query FcChannelParticipants(
     $identity: Identity!
-    $orderBy: OrderBy = ASC
+    $orderBy: OrderBy = DESC
     $limit: Int
   ) {
     FarcasterChannelParticipants(
