@@ -9,6 +9,21 @@ import {
 } from 'react';
 import dynamic from 'next/dynamic';
 
+function Loader() {
+  return (
+    <div className="flex-col-center skeleton-loader">
+      <div
+        className="flex items-center rounded-full w-[404px] sm:w-[604px] h-[30px] sm:h-[38px] my-6"
+        data-loader-type="block"
+      ></div>
+      <div
+        className="flex items-center h-[50px] w-full rounded-full px-4 py-3 transition-all z-20 relative bg-[#ffffff0d]"
+        data-loader-type="block"
+      ></div>
+    </div>
+  );
+}
+
 // !IMPORTANT: This component is used to load the search component
 // when we are directly loding search component, sometimes it does not apear on the screen untill the user clicks on the page.
 // this component might fix it as it will re-render unitll the search component is loaded
@@ -33,7 +48,8 @@ export function SearchLoader() {
             return module;
           }),
         {
-          ssr: false
+          ssr: false,
+          loading: () => <Loader />
         }
       ),
     []
