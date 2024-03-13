@@ -188,11 +188,14 @@ export function TokenHolders() {
 
   const isQueryExists = query && query.length > 0;
 
+  const addressesString = overviewTokens
+    .map(token => token.tokenAddress)
+    .join('-');
+
   // force the component to re-render when any of the search input change, so that the tokens are reset and refetch
-  const tokensKey = useMemo(
-    () => `${addresses}-${resolve6551}-${activeSnapshotInfo}`,
-    [addresses, resolve6551, activeSnapshotInfo]
-  );
+  const tokensKey = useMemo(() => {
+    return `${addressesString}-${resolve6551}-${activeSnapshotInfo}`;
+  }, [addressesString, resolve6551, activeSnapshotInfo]);
 
   const {
     snapshotFilterTooltip,
