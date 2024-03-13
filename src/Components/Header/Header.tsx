@@ -3,9 +3,13 @@ import { Tooltip, tooltipClass } from '../Tooltip';
 import { Image } from '@/Components/Image';
 import { Icon } from '../Icon';
 import { links } from './constants';
-import { MobileDrawer } from './MobileDrawer';
 import { Suspense } from 'react';
 import { CsvAndLogin } from './CsvAndLogin';
+import dynamic from 'next/dynamic';
+
+const MobileDrawer = dynamic(() => import('./MobileDrawer'), {
+  ssr: false
+});
 
 export function Header() {
   return (

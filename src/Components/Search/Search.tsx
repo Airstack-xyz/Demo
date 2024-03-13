@@ -311,3 +311,5 @@ export const Search = memo(function Search() {
     </div>
   );
 });
+
+export default Search;

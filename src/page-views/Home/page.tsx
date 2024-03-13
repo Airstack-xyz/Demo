@@ -1,4 +1,3 @@
-import { Search } from '@/Components/Search';
 import { MAX_SEARCH_WIDTH } from '@/Components/Search/constants';
 import classNames from 'classnames';
 import { QuickLinks } from './components/QuickLinks';
@@ -18,6 +17,11 @@ import { Footer } from './components/Footer';
 import { Suspense } from 'react';
 import { SdkInit } from './components/SdkInit';
 import { QueryAndAiLinks } from './components/QueryAndAiLinks';
+import dynamic from 'next/dynamic';
+
+const Search = dynamic(() => import('../../Components/Search/Search'), {
+  ssr: false
+});
 
 export function HomePage() {
   return (
