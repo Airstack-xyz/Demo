@@ -97,7 +97,7 @@ const SocialsAndERC20 = memo(function SocialsAndERC20({
           <div className="mt-5"></div>
         </>
       )}
-      {identity && (
+      {identity && address.length === 1 && (
         <>
           <RecentChannels key={identity} identity={identity} />
           <div className="mt-10"></div>
@@ -274,9 +274,7 @@ function TokenBalancePage() {
 
     if (socialInfo.isApplicable) {
       options = csvDownloadOptions.filter(option =>
-        option.label.includes(
-          socialInfo.followerTab ? 'followers' : 'following'
-        )
+        option.label.includes(socialInfo.activeTab)
       );
     }
 
@@ -286,7 +284,7 @@ function TokenBalancePage() {
   }, [
     csvDownloadOptions,
     setCsvDownloadOptions,
-    socialInfo.followerTab,
+    socialInfo.activeTab,
     socialInfo.isApplicable
   ]);
 

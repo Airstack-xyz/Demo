@@ -15,6 +15,7 @@ export const farcasterParticipentsQuery = /* GraphQL */ `
       }
     ) {
       FarcasterChannelParticipant {
+        lastActionTimestamp
         channel {
           name
           imageUrl

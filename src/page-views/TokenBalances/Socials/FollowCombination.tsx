@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { IconType } from '../../../Components/Icon';
 import { Image } from '@/Components/Image';
+import { ActiveTab } from '@/utils/activeSocialInfoString';
 
 export type FollowCombinationParams = {
   dappName: string;
@@ -10,7 +11,8 @@ export type FollowCombinationParams = {
   profileTokenId2: string;
   followerCount?: number;
   followingCount?: number;
-  followerTab?: boolean;
+  activeTab?: ActiveTab;
+  socialsFor?: string;
 };
 
 export type FollowCombinationSectionType = {

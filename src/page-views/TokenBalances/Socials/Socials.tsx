@@ -140,7 +140,7 @@ function SocialsComponent() {
       dappName,
       followerCount,
       followingCount,
-      followerTab
+      activeTab
     }: FollowParams) => {
       if (!profileName || !profileTokenId) {
         return;
@@ -153,7 +153,7 @@ function SocialsComponent() {
             dappName,
             followerCount,
             followingCount,
-            followerTab
+            activeTab
           })
         },
         { updateQueryParams: true }

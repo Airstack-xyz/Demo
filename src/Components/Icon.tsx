@@ -81,7 +81,8 @@ export type IconType =
   | 'frames'
   | 'ai-robot'
   | 'hamburger'
-  | 'farcaster-flat';
+  | 'farcaster-flat'
+  | 'farcaster-flat-gray';
 
 export type IconProps = {
   name: IconType;

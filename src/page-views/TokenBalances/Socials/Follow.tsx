@@ -1,6 +1,7 @@
 import classNames from 'classnames';
 import { useMemo, useState } from 'react';
 import { Image } from '@/Components/Image';
+import { ActiveTab } from '@/utils/activeSocialInfoString';
 
 export type FollowParams = {
   dappName: string;
@@ -8,7 +9,7 @@ export type FollowParams = {
   profileTokenId?: string;
   followerCount?: number;
   followingCount?: number;
-  followerTab?: boolean;
+  activeTab?: ActiveTab;
 };
 
 export type FollowSectionType = {
@@ -43,14 +44,14 @@ function FollowSection({
   isFirstSection,
   onFollowClick
 }: FollowSectionProps) {
-  const getSocialClickHandler = (followerTab?: boolean) => () => {
+  const getSocialClickHandler = (activeTab?: ActiveTab) => () => {
     onFollowClick?.({
       profileName,
       profileTokenId,
       dappName,
       followerCount,
       followingCount,
-      followerTab
+      activeTab
     });
   };
 
@@ -86,7 +87,7 @@ function FollowSection({
           <div className="w-1/2">
             <button
               className="px-3 py-1 rounded-18 hover:bg-glass text-left"
-              onClick={getSocialClickHandler(true)}
+              onClick={getSocialClickHandler('followers')}
             >
               {followerCount}
             </button>
@@ -99,7 +100,7 @@ function FollowSection({
           <div className="w-1/2">
             <button
               className="px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
-              onClick={getSocialClickHandler(false)}
+              onClick={getSocialClickHandler('followings')}
             >
               {followingCount}
             </button>

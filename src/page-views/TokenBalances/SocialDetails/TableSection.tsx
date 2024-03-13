@@ -1,30 +1,30 @@
-import { useLazyQueryWithPagination } from "@airstack/airstack-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "@/hooks/useNavigate";
-import { LazyAddressesModal } from "../../../Components/LazyAddressesModal";
-import { StatusLoader } from "../../../Components/StatusLoader";
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from '@/hooks/useNavigate';
+import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
+import { StatusLoader } from '../../../Components/StatusLoader';
 import {
   UpdateUserInputs,
-  resetCachedUserInputs,
-} from "../../../hooks/useSearchInput";
-import { getSocialFollowersQuery } from "../../../queries/socialFollowersQuery";
-import { getSocialFollowingsQuery } from "../../../queries/socialFollowingQuery";
-import { formatAddress } from "../../../utils";
+  resetCachedUserInputs
+} from '../../../hooks/useSearchInput';
+import { getSocialFollowersQuery } from '../../../queries/socialFollowersQuery';
+import { getSocialFollowingsQuery } from '../../../queries/socialFollowingQuery';
+import { formatAddress } from '../../../utils';
 import {
   SocialInfo,
-  getActiveSocialInfoString,
-} from "../../../utils/activeSocialInfoString";
-import { getActiveTokenInfoString } from "../../../utils/activeTokenInfoString";
-import { createTokenBalancesUrl } from "../../../utils/createTokenUrl";
-import { isMobileDevice } from "../../../utils/isMobileDevice";
-import { showToast } from "../../../utils/showToast";
-import { Filters } from "./Filters";
-import { MentionInput, MentionOutput } from "./MentionInput";
-import { TableRow, TableRowLoader } from "./TableRow";
-import "./styles.css";
-import { Follow, SocialFollowQueryFilters } from "./types";
-import { filterTableItems, getSocialFollowFilterData } from "./utils";
-import { DownloadCSVOverlay } from "../../../Components/DownloadCSVOverlay";
+  getActiveSocialInfoString
+} from '../../../utils/activeSocialInfoString';
+import { getActiveTokenInfoString } from '../../../utils/activeTokenInfoString';
+import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
+import { showToast } from '../../../utils/showToast';
+import { Filters } from './Filters';
+import { MentionInput, MentionOutput } from './MentionInput';
+import { TableRow, TableRowLoader } from './TableRow';
+import './styles.css';
+import { Follow, SocialFollowQueryFilters } from './types';
+import { filterTableItems, getSocialFollowFilterData } from './utils';
+import { DownloadCSVOverlay } from '../../../Components/DownloadCSVOverlay';
 
 const LOADING_ROW_COUNT = 6;
 
@@ -61,7 +61,7 @@ type ModalData = {
 
 const mentionValidationFn = ({ mentions }: MentionOutput) => {
   if (mentions.length > 1) {
-    showToast("You can only enter one token at a time", "negative");
+    showToast('You can only enter one token at a time', 'negative');
     return false;
   }
   return true;
@@ -73,7 +73,7 @@ const ITEM_LIMIT = 30;
 export function TableSection({
   identities,
   socialInfo,
-  setQueryData,
+  setQueryData
 }: {
   identities: string[];
   socialInfo: SocialInfo;
@@ -89,18 +89,18 @@ export function TableSection({
 
   const [modalData, setModalData] = useState<ModalData>({
     isOpen: false,
-    dataType: "",
-    addresses: [],
+    dataType: '',
+    addresses: []
   });
   const [loaderData, setLoaderData] = useState({
     isVisible: false,
     total: 0,
-    matching: 0,
+    matching: 0
   });
 
-  const isFollowerQuery = Boolean(socialInfo.followerTab);
+  const isFollowerQuery = Boolean(socialInfo.activeTab === 'followers');
 
-  const followDataKey = isFollowerQuery ? "followerData" : "followingData";
+  const followDataKey = isFollowerQuery ? 'followerData' : 'followingData';
   const followData = socialInfo[followDataKey];
 
   const filterData = useMemo(
@@ -110,14 +110,14 @@ export function TableSection({
         identities,
         dappName: socialInfo.dappName,
         profileTokenIds: socialInfo.profileTokenIds,
-        isFollowerQuery,
+        isFollowerQuery
       }),
     [
       followData,
       identities,
       isFollowerQuery,
       socialInfo.dappName,
-      socialInfo.profileTokenIds,
+      socialInfo.profileTokenIds
     ]
   );
 
@@ -137,8 +137,8 @@ export function TableSection({
         ...followData,
         items,
         dappName: socialInfo.dappName,
-        isFollowerQuery,
-      }).filter((item) => {
+        isFollowerQuery
+      }).filter(item => {
         const id = `${item.followerProfileId}-${item.followingProfileId}`;
         if (tableIdsSetRef.current.has(id)) {
           return false;
@@ -149,11 +149,11 @@ export function TableSection({
 
       tableItemsRef.current = [...tableItemsRef.current, ...filteredItems];
 
-      setTableItems((prev) => [...prev, ...filteredItems]);
-      setLoaderData((prev) => ({
+      setTableItems(prev => [...prev, ...filteredItems]);
+      setLoaderData(prev => ({
         ...prev,
         total: prev.total + items.length,
-        matching: prev.matching + filteredItems.length,
+        matching: prev.matching + filteredItems.length
       }));
     },
     [followData, isFollowerQuery, socialInfo.dappName]
@@ -171,9 +171,9 @@ export function TableSection({
     if (tableItemsRef.current.length < ITEM_LIMIT && hasNextPage) {
       getNextPage();
     } else {
-      setLoaderData((prev) => ({
+      setLoaderData(prev => ({
         ...prev,
-        isVisible: false,
+        isVisible: false
       }));
     }
   }, [loading, hasNextPage, getNextPage]);
@@ -182,13 +182,13 @@ export function TableSection({
     tableItemsRef.current = [];
     tableIdsSetRef.current = new Set();
     setTableItems([]);
-    setLoaderData((prev) => ({
+    setLoaderData(prev => ({
       ...prev,
-      isVisible: true,
+      isVisible: true
     }));
     fetchData({
       limit: FETCH_LIMIT,
-      ...filterData.queryFilters,
+      ...filterData.queryFilters
     });
   }, [fetchData, identities, filterData.queryFilters, socialInfo.dappName]);
 
@@ -200,9 +200,9 @@ export function TableSection({
             ...socialInfo,
             [followDataKey]: {
               ...socialInfo[followDataKey],
-              ...data,
-            },
-          }),
+              ...data
+            }
+          })
         },
         { updateQueryParams: true }
       );
@@ -225,19 +225,19 @@ export function TableSection({
   );
 
   const handleMentionClear = useCallback(() => {
-    handleQueryUpdate({ mentionRawText: "" });
+    handleQueryUpdate({ mentionRawText: '' });
   }, [handleQueryUpdate]);
 
   const handleAddressClick = useCallback(
     (address: string, type?: string) => {
       const url = createTokenBalancesUrl({
         address: formatAddress(address, type),
-        blockchain: "ethereum",
-        inputType: "ADDRESS",
-        truncateLabel: isMobile,
+        blockchain: 'ethereum',
+        inputType: 'ADDRESS',
+        truncateLabel: isMobile
       });
       document.documentElement.scrollTo(0, 0);
-      resetCachedUserInputs("tokenBalance");
+      resetCachedUserInputs('tokenBalance');
       navigate(url);
     },
     [isMobile, navigate]
@@ -259,7 +259,7 @@ export function TableSection({
             blockchain,
             eventId
           ),
-          activeSnapshotInfo: "",
+          activeSnapshotInfo: ''
         },
         { updateQueryParams: true }
       );
@@ -271,19 +271,19 @@ export function TableSection({
     setModalData({
       isOpen: true,
       dataType,
-      addresses,
+      addresses
     });
   };
 
   const handleModalClose = () => {
     setModalData({
       isOpen: false,
-      dataType: "",
-      addresses: [],
+      dataType: '',
+      addresses: []
     });
   };
 
-  const isLensDapp = socialInfo.dappName === "lens";
+  const isLensDapp = socialInfo.dappName === 'lens';
   const isInputDisabled = loading || loaderData.isVisible;
   const showDownCSVOverlay = hasNextPage && !loading;
 
@@ -293,7 +293,7 @@ export function TableSection({
       defaultValue={followData.mentionRawText}
       disabled={isInputDisabled}
       placeholder="Input a token to view overlap"
-      className={isMobile ? "h-[35px]" : undefined}
+      className={isMobile ? 'h-[35px]' : undefined}
       validationFn={mentionValidationFn}
       onSubmit={handleMentionSubmit}
       onClear={handleMentionClear}
@@ -316,16 +316,16 @@ export function TableSection({
           <thead>
             <tr>
               <th
-                className={followData.mentionRawText ? "w-[200px]" : undefined}
+                className={followData.mentionRawText ? 'w-[200px]' : undefined}
               >
-                {followData.mentionRawText ? "Token image" : "Profile image"}
+                {followData.mentionRawText ? 'Token image' : 'Profile image'}
               </th>
-              <th>{isLensDapp ? "Lens" : "Farcaster"}</th>
+              <th>{isLensDapp ? 'Lens' : 'Farcaster'}</th>
               {!isLensDapp && <th>FID</th>}
               <th>Primary ENS</th>
               <th>ENS</th>
               <th>Wallet address</th>
-              <th>{isLensDapp ? "Farcaster" : "Lens"}</th>
+              <th>{isLensDapp ? 'Farcaster' : 'Lens'}</th>
               <th>XMTP </th>
             </tr>
           </thead>
@@ -367,7 +367,7 @@ export function TableSection({
             loaderData.total
               ? [`Scanning next 30 records (total %n)`, loaderData.total]
               : [`Scanning first 30 records`, 1],
-            [`Found %n matching results`, loaderData.matching],
+            [`Found %n matching results`, loaderData.matching]
           ]}
         />
       )}

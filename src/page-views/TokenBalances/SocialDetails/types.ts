@@ -1,38 +1,11 @@
 import { Chain } from '@airstack/airstack-react/constants';
 import { MentionData } from '../../../Components/Input/types';
 import { TokenBlockchain } from '../../../types';
+import { SocialDetailsQuery } from '../../../../__generated__/airstack-types';
 
-export type Social = {
-  id: string;
-  isDefault: boolean;
-  blockchain: Chain;
-  dappName: string;
-  website: string;
-  location: string;
-  profileName: string;
-  profileHandle: string;
-  profileDisplayName: string;
-  profileBio: string;
-  profileImage: string;
-  profileTokenId: string;
-  profileTokenAddress: string;
-  followerCount: number;
-  followingCount: number;
-  profileCreatedAtBlockTimestamp: string;
-  profileCreatedAtBlockNumber: number;
-  profileImageContentValue: {
-    image: {
-      small: string;
-    };
-  };
-  profileHandleNft: {
-    contentValue: {
-      image: {
-        extraSmall: string;
-      };
-    };
-  };
-};
+export type Social = NonNullable<
+  NonNullable<SocialDetailsQuery['Socials']>['Social']
+>[0];
 
 export type Follow = {
   id: string;
