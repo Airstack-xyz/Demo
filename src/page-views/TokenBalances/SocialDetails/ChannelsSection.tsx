@@ -20,7 +20,7 @@ function PariticipantItem({
   loading?: boolean;
 }) {
   const { channel, lastActionTimestamp } = participant || {};
-  const host = channel?.leadProfiles?.[0]?.profileName || '--';
+  const host = channel?.leadProfiles?.[0]?.profileName;
   return (
     <Link
       to={createChannelsUrl({
@@ -50,8 +50,10 @@ function PariticipantItem({
             /{channel?.channelId}
           </span>
         </div>
-        <div className="text-text-secondary text-sm my-3">Host: {host}</div>
-        <div className="text-text-secondary text-xs flex items-center">
+        {host && (
+          <div className="text-text-secondary text-sm mt-3">Host: {host}</div>
+        )}
+        <div className="text-text-secondary text-xs flex items-center mt-3">
           <Icon name="clock" height={13} width={13} />{' '}
           <span className="ml-1">{lastActionTimestamp}</span>
         </div>

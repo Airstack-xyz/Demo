@@ -77,7 +77,7 @@ export function RecentChannels({ identity }: { identity: string }) {
         {(loading ? loaderData : participants)?.map(
           (participant: Participent) => {
             const { channel, lastActionTimestamp } = participant;
-            const host = channel?.leadProfiles?.[0]?.profileName || '--';
+            const host = channel?.leadProfiles?.[0]?.profileName;
             return (
               <li key={channel?.channelId}>
                 <Link
@@ -113,10 +113,12 @@ export function RecentChannels({ identity }: { identity: string }) {
                         /{channel?.channelId}
                       </span>
                     </div>
-                    <div className="text-text-secondary text-sm my-3">
-                      Host: {host}
-                    </div>
-                    <div className="text-text-secondary text-xs flex items-center">
+                    {host && (
+                      <div className="text-text-secondary text-sm mt-3">
+                        Host: {host}
+                      </div>
+                    )}
+                    <div className="text-text-secondary text-xs flex items-center mt-3">
                       <Icon name="clock" height={13} width={13} />{' '}
                       <span className="ml-1">{lastActionTimestamp}</span>
                     </div>

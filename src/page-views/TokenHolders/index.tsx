@@ -284,7 +284,7 @@ export function TokenHolders() {
       {isQueryExists && (
         <>
           <div
-            className="flex flex-col justify-center mt-7 max-w-[950px]"
+            className="flex flex-col justify-center mt-7 max-w-[1050px]"
             key={query}
           >
             {/* 
