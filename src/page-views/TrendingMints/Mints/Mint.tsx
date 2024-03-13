@@ -18,7 +18,9 @@ export function Mint({ item }: { item: TrendingMint }) {
   );
 
   const image =
-    tokenNft?.contentValue?.image?.medium || '/images/token-placeholder.svg';
+    tokenNft?.contentValue?.image?.medium ||
+    item?.token?.logo?.medium ||
+    '/images/token-placeholder.svg';
 
   const criteriaCount = item?.criteriaCount || 0;
 
@@ -49,7 +51,7 @@ export function Mint({ item }: { item: TrendingMint }) {
     >
       <LazyImage
         src={image}
-        className="absolute aspect-square overflow-hidden object-cover rounded-18"
+        className="absolute w-full h-full aspect-square overflow-hidden object-cover rounded-18"
       />
       <div className="flex justify-between m-2 z-[5]">
         <button className="rounded-18 text-primary hover:border-text-secondary visible flex items-center gap-1 border border-solid border-transparent bg-white px-3 py-2 text-sm group-hover:visible sm:invisible">

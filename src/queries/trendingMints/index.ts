@@ -28,7 +28,10 @@ export const trendingMintsQuery = /* GraphQL */ `
           name
           type
           symbol
-          tokenNfts(input: { limit: 5 }) {
+          logo {
+            medium
+          }
+          tokenNfts(input: { limit: 10 }) {
             type
             tokenId
             contentValue {
