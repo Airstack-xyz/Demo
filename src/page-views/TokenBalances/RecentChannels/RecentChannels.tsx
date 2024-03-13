@@ -47,12 +47,20 @@ export function RecentChannels({ identity }: { identity: string }) {
           profileNames: [farcaster?.profileName],
           profileTokenIds: [farcaster?.profileTokenId],
           dappName: 'farcaster',
-          activeTab: 'channels'
+          activeTab: 'channels',
+          followerCount: farcaster?.followerCount || 0,
+          followingCount: farcaster?.followingCount || 0
         })
       },
       { updateQueryParams: true }
     );
-  }, [farcaster?.profileName, farcaster?.profileTokenId, setData]);
+  }, [
+    farcaster?.followerCount,
+    farcaster?.followingCount,
+    farcaster?.profileName,
+    farcaster?.profileTokenId,
+    setData
+  ]);
 
   return (
     <div className="w-full sm:w-auto">
