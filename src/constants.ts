@@ -1,4 +1,4 @@
-export const apiKey = process.env.API_KEY || "";
+export const apiKey = "190fc193f24b34d7cafc3dec305c96b0a";
 
 // Used for options in Blockchain filter
 // Used in queries for generating sub-queries throughout the app
