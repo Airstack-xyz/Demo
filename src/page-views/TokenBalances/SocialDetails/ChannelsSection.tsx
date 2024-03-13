@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import { Link } from '@/Components/Link';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { Icon } from '@/Components/Icon';
+import { createChannelsUrl } from '@/utils/createChannelsUrl';
 
 const LOADING_ROW_COUNT = 6;
 
@@ -22,7 +23,10 @@ function PariticipantItem({
   const host = channel?.leadProfiles?.[0]?.profileName || '--';
   return (
     <Link
-      to={`/channels?address=${channel?.channelId}`}
+      to={createChannelsUrl({
+        address: channel?.channelId || '',
+        label: channel?.channelId || ''
+      })}
       className={classNames('card rounded-18 flex items-center gap-5 p-2.5', {
         '!border-none': loading
       })}

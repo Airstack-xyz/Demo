@@ -203,3 +203,5 @@ export interface Domain {
   owner: string;
   name: string;
 }
+
+export type DappName = 'lens' | 'farcaster';

@@ -2,6 +2,7 @@ import { getAllWordsAndMentions } from '../Components/Input/utils';
 
 const activeTabs = ['followers', 'followings', 'channels'];
 export type ActiveTab = 'followers' | 'followings' | 'channels';
+type DappName = 'lens' | 'farcaster';
 
 export const getActiveSocialInfoString = ({
   dappName,
@@ -14,7 +15,7 @@ export const getActiveSocialInfoString = ({
   activeTab = 'followers',
   socialsFor
 }: {
-  dappName: string;
+  dappName: DappName;
   profileNames: string[];
   profileTokenIds: string[];
   activeTab?: ActiveTab;
@@ -82,7 +83,7 @@ export const getActiveSocialInfo = (activeSocialInfo?: string) => {
   const activeTabIndex = activeTabs.indexOf(activeTab);
   return {
     isApplicable: Boolean(dappName),
-    dappName,
+    dappName: dappName as DappName,
     profileNames: profileNamesString ? profileNamesString.split(',') : [],
     profileTokenIds: profileTokenIdsString
       ? profileTokenIdsString.split(',')

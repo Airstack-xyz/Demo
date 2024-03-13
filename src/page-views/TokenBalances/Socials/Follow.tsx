@@ -2,9 +2,10 @@ import classNames from 'classnames';
 import { useMemo, useState } from 'react';
 import { Image } from '@/Components/Image';
 import { ActiveTab } from '@/utils/activeSocialInfoString';
+import { DappName } from '../types';
 
 export type FollowParams = {
-  dappName: string;
+  dappName: DappName;
   profileName?: string;
   profileTokenId?: string;
   followerCount?: number;
@@ -21,12 +22,12 @@ export type FollowSectionType = {
 };
 
 export type FollowType = {
-  dappName: string;
+  dappName: DappName;
   sections: FollowSectionType[];
 };
 
 type FollowSectionProps = {
-  dappName: string;
+  dappName: DappName;
   image?: string;
   isFirstSection?: boolean;
   onFollowClick?: (params: FollowParams) => void;
