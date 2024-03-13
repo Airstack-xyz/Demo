@@ -39,6 +39,7 @@ jobs:
           API_KEY: ${{ secrets.UAT_API_KEY }}
           PRIVY_APP_ID: ${{ secrets.PRIVY_APP_ID }}
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          FRAMES_VALIDATION_BYPASS_SECRET: ${{ secrets.FRAMES_VALIDATION_BYPASS_SECRET }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           export ENV=uat
