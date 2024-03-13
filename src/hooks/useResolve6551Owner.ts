@@ -48,7 +48,7 @@ function getOwnerData({
       for (const token of tokenBalances) {
         const ownerAccounts = token?.owner?.accounts;
         const ownerAddress = token?.owner?.identity;
-        if (ownerAccounts && ownerAccounts.length === 0) {
+        if (!ownerAccounts || ownerAccounts.length === 0) {
           return {
             address: ownerAddress,
             lastAddress,
