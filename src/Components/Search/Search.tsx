@@ -137,7 +137,13 @@ export const Search = memo(function Search() {
       const filterValues: Partial<CachedQuery> = {
         address,
         rawInput: rawTextWithMentions,
-        inputType: 'ADDRESS' as UserInputs['inputType']
+        inputType: 'ADDRESS' as UserInputs['inputType'],
+        activeSnapshotInfo: undefined, // For every new search reset snapshot filter
+        resolve6551: undefined, // For every new search reset resolve6551 filter
+        activeView: undefined,
+        activeViewToken: undefined,
+        activeTokenInfo: undefined,
+        activeSocialInfo: undefined // don't show socials page
       };
 
       // For combination reset snapshot filter
@@ -216,7 +222,8 @@ export const Search = memo(function Search() {
         resolve6551: undefined, // For every new search reset resolve6551 filter
         activeView: undefined,
         activeViewToken: undefined,
-        activeTokenInfo: undefined
+        activeTokenInfo: undefined,
+        activeSocialInfo: undefined
       };
 
       setValue(rawTextWithMentions + PADDING);
