@@ -142,7 +142,7 @@ function AskAIDropdown({
       )}
     >
       <div
-        className="text-white text-sm mb-5 leading-relaxed"
+        className="text-white text-left text-sm mb-5 leading-relaxed"
         onClick={e => e.stopPropagation()}
       >
         Query onchain with Airstack AI! <br /> Farcaster, ENS, Ethereum, Base,
