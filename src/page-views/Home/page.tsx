@@ -17,11 +17,7 @@ import { Footer } from './components/Footer';
 import { Suspense } from 'react';
 import { SdkInit } from './components/SdkInit';
 import { QueryAndAiLinks } from './components/QueryAndAiLinks';
-import dynamic from 'next/dynamic';
-
-const Search = dynamic(() => import('../../Components/Search/Search'), {
-  ssr: false
-});
+import { SearchLoader } from '@/Components/Search/SearchLoader';
 
 export function HomePage() {
   return (
@@ -41,7 +37,7 @@ export function HomePage() {
           <div className="flex justify-center">
             <div className="w-[850px] max-w-[850px]">
               <Suspense>
-                <Search />
+                <SearchLoader />
               </Suspense>
             </div>
           </div>
