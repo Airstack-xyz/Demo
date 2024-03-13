@@ -10,6 +10,7 @@ import { TableSection } from './TableSection';
 import { TabContainer, Tab } from '../../../Components/Tab';
 import { capitalizeFirstLetter } from '../../../utils';
 import { ChannelsSection } from './ChannelsSection';
+import { isMobileDevice } from '@/utils/isMobileDevice';
 
 type SocialDetailsProps = {
   identities: string[];
@@ -45,6 +46,7 @@ export function SocialDetails({
     );
   };
 
+  const isMobile = isMobileDevice();
   const canShowChannels = socialInfo.dappName.toLowerCase() === 'farcaster';
 
   const channelsTabActive =
@@ -85,13 +87,17 @@ export function SocialDetails({
       <TabContainer className="my-0">
         <Tab
           icon="follower-gray"
-          header={`${socialInfo.followerCount} Followers`}
+          header={
+            isMobile ? 'Followers' : `${socialInfo.followerCount} Followers`
+          }
           active={socialInfo.activeTab === 'followers'}
           onClick={() => handleTabChange('followers')}
         />
         <Tab
           icon="following-gray"
-          header={`${socialInfo.followingCount} Following`}
+          header={
+            isMobile ? 'Following' : `${socialInfo.followingCount} Following`
+          }
           active={socialInfo.activeTab === 'followings'}
           onClick={() => handleTabChange('followings')}
         />

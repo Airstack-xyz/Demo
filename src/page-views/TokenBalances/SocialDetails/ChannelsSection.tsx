@@ -43,9 +43,9 @@ function PariticipantItem({
           className="size-[102px] rounded-xl overflow-hidden"
         />
       </div>
-      <div>
+      <div className="flex-1 overflow-hidden">
         <div className="font-semibold flex items-center">
-          <span className="text-text-primary">{channel?.name} </span>
+          <span className="text-text-primary ellipsis">{channel?.name} </span>
           <span className="text-text-secondary text-xs ml-1.5">
             /{channel?.channelId}
           </span>
@@ -65,7 +65,7 @@ function PariticipantItem({
 export function ChannelsSection({ identity }: { identity: string }) {
   const { participants, pagination, loading } = useGetChannels({
     identity,
-    limit: 18
+    limit: 24
   });
 
   const getNext = () => {
