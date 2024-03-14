@@ -4,11 +4,20 @@ import { Image } from '@/Components/Image';
 import { Icon } from '../Icon';
 import { links } from './constants';
 import { Suspense } from 'react';
-import { CsvAndLogin } from './CsvAndLogin';
 import dynamic from 'next/dynamic';
 
 const MobileDrawer = dynamic(() => import('./MobileDrawer'), {
   ssr: false
+});
+
+const CsvAndLogin = dynamic(() => import('./CsvAndLogin'), {
+  ssr: false,
+  loading: () => (
+    <button
+      className="h-[30px] px-10 rounded-18 hover:opacity-90 skeleton-loader"
+      data-loader-type="block"
+    ></button>
+  )
 });
 
 export function Header() {

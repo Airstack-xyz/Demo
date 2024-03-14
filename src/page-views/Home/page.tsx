@@ -17,11 +17,7 @@ import { Footer } from './components/Footer';
 import { Suspense } from 'react';
 import { SdkInit } from './components/SdkInit';
 import { QueryAndAiLinks } from './components/QueryAndAiLinks';
-import dynamic from 'next/dynamic';
-
-const Search = dynamic(() => import('../../Components/Search/Search'), {
-  ssr: false
-});
+import { SearchLoader } from '@/Components/Search/SearchLoader';
 
 export function HomePage() {
   return (
@@ -31,7 +27,7 @@ export function HomePage() {
       </Suspense>
       <div
         className={classNames(
-          'max-w-screen-lg mx-auto sm:pt-[20vh] flex-1 h-full w-full flex flex-col items-center text-center'
+          'max-w-[1130px] mx-auto sm:pt-[20vh] flex-1 h-full w-full flex flex-col items-center text-center'
         )}
       >
         <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="w-full">
@@ -41,7 +37,7 @@ export function HomePage() {
           <div className="flex justify-center">
             <div className="w-[850px] max-w-[850px]">
               <Suspense>
-                <Search />
+                <SearchLoader />
               </Suspense>
             </div>
           </div>

@@ -46,7 +46,15 @@ export const ALLOWED_ADDRESS_REGEX =
 
 export const PADDING = '  ';
 
-export const Search = memo(function Search() {
+export const Search = memo(function Search({
+  onLoad
+}: {
+  onLoad?: () => void;
+}) {
+  useEffect(() => {
+    onLoad?.();
+  }, [onLoad]);
+
   const [activeTab, setCurrentTab] = useState<TabUrl>('token-balances');
   const activePath = usePathname()?.replace('/', '') as TabUrl;
   const isHome = !!useMatch('/');
