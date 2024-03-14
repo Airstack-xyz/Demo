@@ -404,7 +404,7 @@ export function TokenDetails(props: {
           );
         })}
       </div>
-      <div className="bg-glass border-solid-stroke rounded-18 flex p-5 flex-col md:flex-row">
+      <div className="card rounded-18 flex p-5 flex-col md:flex-row">
         <div className="flex flex-col items-center mr-0 sm:mr-7">
           <div
             className={classNames({
