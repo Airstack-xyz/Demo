@@ -123,7 +123,7 @@ export function HomePage() {
           <Investors />
         </div>
       </div>
-      <div className="pt-10">
+      <div className="pt-10 relative">
         <Footer />
       </div>
     </>
