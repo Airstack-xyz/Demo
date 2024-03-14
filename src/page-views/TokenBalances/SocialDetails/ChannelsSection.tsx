@@ -27,9 +27,12 @@ function PariticipantItem({
         address: channel?.channelId || '',
         label: channel?.channelId || ''
       })}
-      className={classNames('card rounded-18 flex items-center gap-5 p-2.5', {
-        '!border-none': loading
-      })}
+      className={classNames(
+        'card hover:hover:bg-card-hover rounded-18 flex items-center gap-5 p-2.5',
+        {
+          '!border-none': loading
+        }
+      )}
       data-loader-type="block"
     >
       <div

@@ -32,7 +32,8 @@ const config: Config = {
         'stroke-highlight-blue': '#4B97F7',
         'stroke-highlight-red': '#DE5C5F',
         'response-light': '#f1f2f4',
-        'banner-positive': '#008E41'
+        'banner-positive': '#008E41',
+        'card-hover': '#0A223B'
       },
       borderRadius: {
         18: '18px'
