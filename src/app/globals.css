@@ -183,3 +183,13 @@ body {
   mask: linear-gradient(to right, white calc(100% - 50px), transparent);
   -webkit-mask: linear-gradient(to right, white calc(100% - 50px), transparent);
 }
+
+/*  fade animation */
+
+.animate-fade-in-up {
+  @apply transition-all duration-1000 opacity-0 translate-y-10;
+}
+
+.animate-fade-in-up.animate-fade-in-up-active {
+  @apply opacity-100 translate-y-0;
+}

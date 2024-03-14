@@ -61,7 +61,7 @@ function Item({ title, icon, description, link }: Info) {
             <Icon name={icon} height={36} width={36} loading="eager" />
           </span>
         </div>
-        <h3 className="text-xl mb-3 mt-5">{title}</h3>
+        <h3 className="text-xl mb-3 mt-5 font-semibold">{title}</h3>
         <div className="text-base text-[#868D94] mb-6">{description}</div>
       </div>
       <div>
@@ -84,21 +84,21 @@ export function Docs() {
       <div className="flex flex-col sm:flex-row items-center justify-center mt-7">
         <Link
           to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster/airstack-onchain-kit-for-farcaster-frames#validate-frames-signature-packet"
-          className="card font-semibold text-xl px-7 flex items-center rounded-3xl h-16 w-full sm:w-[363px]"
+          className="card font-semibold text-xl px-7 flex items-center rounded-2xl h-16 w-full sm:w-[363px]"
         >
           <Icon name="frames-validator" loading="eager" />
           <span className="ml-1.5">Frames Validator</span>
         </Link>
         <Link
           to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster-frames"
-          className="card font-semibold text-xl px-7 flex items-center rounded-3xl h-16 w-full sm:w-[363px] ml-0 sm:ml-7 mt-5 sm:mt-0"
+          className="card font-semibold text-xl px-7 flex items-center rounded-2xl h-16 w-full sm:w-[363px] ml-0 sm:ml-7 mt-5 sm:mt-0"
         >
           <Icon name="frames-sdk" loading="eager" />
           <span className="ml-1.5">Frames Captcha SDK</span>
         </Link>
         <Link
           to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/no-code-frames"
-          className="card font-semibold text-xl px-7 flex items-center rounded-3xl h-16 w-full sm:w-[363px] ml-0 sm:ml-7 mt-5 sm:mt-0"
+          className="card font-semibold text-xl px-7 flex items-center rounded-2xl h-16 w-full sm:w-[363px] ml-0 sm:ml-7 mt-5 sm:mt-0"
         >
           <Icon name="no-code-frame" loading="eager" />
           <span className="ml-1.5">No-Code Frames</span>
