@@ -1,6 +1,6 @@
 export function Header() {
   return (
-    <thead className="bg-glass-grad sm:bg-fixed rounded-2xl">
+    <thead className="card-light !border-none sm:bg-fixed rounded-2xl">
       <tr className="[&>th]:text-xs [&>th]:font-bold [&>th]:text-left [&>th]:py-5 [&>th]:px-2 [&>th]:whitespace-nowrap">
         <th>
           <span className="pl-4">Profile Image</span>

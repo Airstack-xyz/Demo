@@ -21,7 +21,7 @@ const config: Config = {
         'toast-negative': '#F30C0C',
         'toast-warning': '#FFDE2E',
         'text-primary': '#FFFFFF',
-        'text-secondary': '#8B8EA0',
+        'text-secondary': '#868D94',
         'text-placeholder': '#b1b3b5',
         'text-button': '#82B6FF',
         'text-button-hovered': '#65AAD0',
