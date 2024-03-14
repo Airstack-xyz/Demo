@@ -138,6 +138,10 @@ const config: Config = {
         },
         '.main-section': {
           '@apply w-full max-w-[1050px]': {}
+        },
+        '.dropdown-bg': {
+          background: '#172633',
+          'backdrop-filter': 'blur(33.31547927856445px)'
         }
       });
     }

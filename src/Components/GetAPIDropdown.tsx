@@ -95,7 +95,7 @@ export function GetAPIDropdown({
         {isDropdownVisible && (
           <div
             className={classNames(
-              'bg-glass rounded-18 p-1 mt-1 flex flex-col absolute min-w-[214px] top-9 z-20',
+              'dropdown-bg rounded-18 p-1 mt-1 flex flex-col absolute min-w-[214px] top-9 z-20',
               {
                 'left-0': dropdownAlignment === 'left',
                 'left-1/2 -translate-x-1/2': dropdownAlignment === 'center',
