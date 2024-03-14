@@ -1,20 +1,20 @@
-import { useLazyQueryWithPagination } from "@airstack/airstack-react";
+import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import {
   FarcasterChannelParticipantsQuery,
   FarcasterChannelParticipantsQueryVariables,
-  OrderBy,
-} from "../../../../__generated__/airstack-types";
-import { farcasterParticipentsQuery } from "../../../queries/channels";
-import { memo, useCallback, useEffect, useState } from "react";
-import { createTokenBalancesUrl } from "../../../utils/createTokenUrl";
-import { formatAddress } from "../../../utils";
-import { resetCachedUserInputs } from "../../../hooks/useSearchInput";
-import { isMobileDevice } from "../../../utils/isMobileDevice";
-import { LazyAddressesModal } from "../../../Components/LazyAddressesModal";
-import { Header } from "./Header";
-import { Participent } from "./Participent";
-import { DownloadCSVOverlay } from "../../../Components/DownloadCSVOverlay";
-import { useNavigate } from "@/hooks/useNavigate";
+  OrderBy
+} from '../../../../__generated__/airstack-types';
+import { farcasterParticipentsQuery } from '../../../queries/channels';
+import { memo, useCallback, useEffect, useState } from 'react';
+import { createTokenBalancesUrl } from '../../../utils/createTokenUrl';
+import { formatAddress } from '../../../utils';
+import { resetCachedUserInputs } from '../../../hooks/useSearchInput';
+import { isMobileDevice } from '../../../utils/isMobileDevice';
+import { LazyAddressesModal } from '../../../Components/LazyAddressesModal';
+import { Header } from './Header';
+import { Participent } from './Participent';
+import { DownloadCSVOverlay } from '../../../Components/DownloadCSVOverlay';
+import { useNavigate } from '@/hooks/useNavigate';
 
 const loaderData = Array(6).fill({});
 const LIMIT = 30;
@@ -26,7 +26,7 @@ function Loader() {
         {loaderData.map((_, index) => (
           <tr
             key={index}
-            className="[&>div>td]:px-2 [&>div>td]:py-3 [&>div>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer skeleton-loader [&>div>td:last-child]:hidden"
+            className="[&>div>td]:px-2 [&>div>td]:py-3 [&>div>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer skeleton-loader loader-light [&>div>td:last-child]:hidden"
           >
             <div data-loader-type="block" data-loader-margin="10">
               <Participent participent={null} />
@@ -40,7 +40,7 @@ function Loader() {
 
 export function Participents({
   channelId,
-  orderBy,
+  orderBy
 }: {
   channelId: string;
   orderBy: OrderBy;
@@ -50,8 +50,8 @@ export function Participents({
     {
       data,
       loading,
-      pagination: { hasNextPage },
-    },
+      pagination: { hasNextPage }
+    }
   ] = useLazyQueryWithPagination<
     FarcasterChannelParticipantsQuery,
     FarcasterChannelParticipantsQueryVariables
@@ -63,8 +63,8 @@ export function Participents({
     addresses: string[];
   }>({
     isOpen: false,
-    dataType: "",
-    addresses: [],
+    dataType: '',
+    addresses: []
   });
 
   const isMobile = isMobileDevice();
@@ -74,8 +74,8 @@ export function Participents({
     (addresses: string[], type?: string) => {
       setModalData({
         isOpen: true,
-        dataType: type || "ens",
-        addresses,
+        dataType: type || 'ens',
+        addresses
       });
     },
     []
@@ -84,8 +84,8 @@ export function Participents({
   const handleModalClose = () => {
     setModalData({
       isOpen: false,
-      dataType: "",
-      addresses: [],
+      dataType: '',
+      addresses: []
     });
   };
 
@@ -93,12 +93,12 @@ export function Participents({
     (address: string, type?: string) => {
       const url = createTokenBalancesUrl({
         address: formatAddress(address, type),
-        blockchain: "ethereum",
-        inputType: "ADDRESS",
-        truncateLabel: isMobile,
+        blockchain: 'ethereum',
+        inputType: 'ADDRESS',
+        truncateLabel: isMobile
       });
       document.documentElement.scrollTo(0, 0);
-      resetCachedUserInputs("tokenBalance");
+      resetCachedUserInputs('tokenBalance');
       navigate(url);
     },
     [isMobile, navigate]
@@ -109,7 +109,7 @@ export function Participents({
       fetchParticipents({
         channelId,
         limit: LIMIT,
-        orderBy: orderBy,
+        orderBy: orderBy
       });
     }
   }, [channelId, fetchParticipents, orderBy]);
@@ -121,7 +121,7 @@ export function Participents({
 
   return (
     <div className="relative mb-5">
-      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
+      <div className="w-full card rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
         <table className="w-auto text-xs table-fixed sm:w-full select-none">
           <Header />
           <tbody>

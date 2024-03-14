@@ -124,6 +124,10 @@ body {
   background-repeat: no-repeat;
   animation: shimmer 2.5s infinite;
 }
+.skeleton-loader.loader-light [data-loader-type='block']:after,
+.skeleton-loader.loader-light[data-loader-type='block']:after {
+  @apply bg-token-light;
+}
 
 .skeleton-loader [data-loader-type='block'][data-loader-bg='glass']:after,
 .skeleton-loader[data-loader-type='block'][data-loader-bg='glass']:after {

@@ -33,7 +33,9 @@ const config: Config = {
         'stroke-highlight-red': '#DE5C5F',
         'response-light': '#f1f2f4',
         'banner-positive': '#008E41',
-        'card-hover': '#0A223B'
+        'card-hover': '#0A223B',
+        token: '#081E32',
+        'token-light': '#0F273F'
       },
       borderRadius: {
         18: '18px'
@@ -126,9 +128,6 @@ const config: Config = {
         },
         '.flex-col-h-center': {
           '@apply flex flex-col justify-center': {}
-        },
-        '.bg-token': {
-          '@apply bg-[#081E32]': {}
         },
         '.bg-glass-new': {
           background: `rgba(255, 255, 255, 0.05)`,

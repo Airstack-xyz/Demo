@@ -73,7 +73,7 @@ function TableRow({ isLoader, children, ...props }: TableRowProps) {
       className={classNames(
         '[&>td]:px-8 [&>td]:py-5 [&>td]:align-middle min-h-[54px]',
         {
-          'skeleton-loader [&>td:last-child]:hidden': isLoader,
+          'skeleton-loader loader-light [&>td:last-child]:hidden': isLoader,
           '[&>div>td]:px-8 [&>div>td]:py-5': isLoader
         }
       )}
@@ -368,7 +368,7 @@ export function TokensComponent() {
   if (loading && (!tokens || tokens.length === 0)) {
     return (
       <>
-        <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
+        <div className="w-full card rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
           <Loader />
         </div>
         <StatusLoader lines={statusLoaderLines} />
@@ -378,7 +378,7 @@ export function TokensComponent() {
 
   return (
     <div className="relative  mb-5">
-      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden overflow-y-auto">
+      <div className="w-full card rounded-2xl sm:overflow-hidden overflow-y-auto">
         <table className="w-auto text-xs table-fixed sm:w-full select-none">
           <Header />
           <tbody>

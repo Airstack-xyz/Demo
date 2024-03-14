@@ -28,7 +28,7 @@ export function HolderCount({
   return (
     <div
       className={classNames(
-        'px-3 py-5 flex items-center rounded-18 bg-glass border border-solid border-transparent',
+        'px-3 py-5 flex items-center rounded-18 card-light !border-none',
         {
           'pointer-events-none': disableAction,
           'hover:border-stroke-color-light cursor-pointer ': !loading
