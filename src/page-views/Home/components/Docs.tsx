@@ -9,6 +9,13 @@ type Info = {
 };
 const items: Info[] = [
   {
+    title: 'Airstack Frog Recipes',
+    icon: 'frog',
+    description:
+      'Build your Farcaster Frames using Airstack Frog Recipes. Seamlessly integrate allow list and everything onchain into Frames.',
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/airstack-frog-recipes'
+  },
+  {
     title: 'Airstack Frames SDK',
     icon: 'frames-sdk',
     description:
@@ -35,13 +42,6 @@ const items: Info[] = [
     description:
       'Create dynamic allow lists that check in real-time if a user qualifies to use your Frame based on your preferred criteria.',
     link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster/proof-of-personhood-for-farcaster-frames'
-  },
-  {
-    title: 'No-Code Frames',
-    icon: 'no-code-frame',
-    description:
-      'Create Frames using Airstack No-Code Frames Builder in just a few clicks. Currently available for fetching Token balances & Token holders.',
-    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/no-code-frames'
   },
   {
     title: 'Farcaster App APIs',
@@ -95,6 +95,13 @@ export function Docs() {
         >
           <Icon name="frames-sdk" loading="eager" />
           <span className="ml-1.5">Frames Captcha SDK</span>
+        </Link>
+        <Link
+          to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/no-code-frames"
+          className="card font-semibold text-xl px-7 flex items-center rounded-3xl h-16 w-full sm:w-[363px] ml-0 sm:ml-7 mt-5 sm:mt-0"
+        >
+          <Icon name="no-code-frame" loading="eager" />
+          <span className="ml-1.5">No-Code Frames</span>
         </Link>
       </div>
     </div>
