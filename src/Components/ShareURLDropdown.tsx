@@ -34,7 +34,9 @@ type ShareURLDropdownProps = {
   dropdownAlignment?: string;
 };
 
-export function ShareURLDropdown({ dropdownAlignment = 'left' }: ShareURLDropdownProps) {
+export function ShareURLDropdown({
+  dropdownAlignment = 'left'
+}: ShareURLDropdownProps) {
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [shortUrl, setShortUrl] = useState<string | null>(null);
@@ -59,38 +61,35 @@ export function ShareURLDropdown({ dropdownAlignment = 'left' }: ShareURLDropdow
     showToast('Copied to clipboard');
   }, [shortUrl]);
 
-  const shortenUrlFn = useCallback(
-    async (url: string) => {
-      if (shareUrlCache.has(url)) {
-        const shortenedUrl = shareUrlCache.get(url) || '';
-        setShortUrl(shortenedUrl);
-        return;
-      }
-      
-      setLoading(true);
-
-      const token = await getAccessToken();
-
-      const { data, error } = await shortenUrl(url, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-
-      if (error) {
-        showToast(`Couldn't shorten url`, 'negative');
-        setShortUrl('');
-        setLoading(false);
-        return;
-      }
-
-      const shortenedUrl = data?.shortenedUrl || '';
-      shareUrlCache.set(url, shortenedUrl);
+  const shortenUrlFn = useCallback(async (url: string) => {
+    if (shareUrlCache.has(url)) {
+      const shortenedUrl = shareUrlCache.get(url) || '';
       setShortUrl(shortenedUrl);
+      return;
+    }
+
+    setLoading(true);
+
+    const token = await getAccessToken();
+
+    const { data, error } = await shortenUrl(url, {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    });
+
+    if (error) {
+      showToast(`Couldn't shorten url`, 'negative');
+      setShortUrl('');
       setLoading(false);
-    },
-    []
-  );
+      return;
+    }
+
+    const shortenedUrl = data?.shortenedUrl || '';
+    shareUrlCache.set(url, shortenedUrl);
+    setShortUrl(shortenedUrl);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     if (isDropdownVisible) {
@@ -135,7 +134,7 @@ export function ShareURLDropdown({ dropdownAlignment = 'left' }: ShareURLDropdow
         >
           <button
             className={classNames(
-              'py-1.5 px-3 text-text-button bg-glass-1 rounded-full flex-row-center border border-solid border-transparent',
+              'py-1.5 px-3 text-text-button button-filter rounded-full flex-row-center border border-solid border-transparent',
               {
                 'border-white': isDropdownVisible
               }

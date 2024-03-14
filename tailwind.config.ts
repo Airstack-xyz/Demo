@@ -142,6 +142,10 @@ const config: Config = {
         '.dropdown-bg': {
           background: '#172633',
           'backdrop-filter': 'blur(33.31547927856445px)'
+        },
+        '.button-filter': {
+          '@apply bg-[#172633] rounded-full enabled:hover:bg-[#1A2C3B] disabled:opacity-30 disabled:cursor-not-allowed':
+            {}
         }
       });
     }
