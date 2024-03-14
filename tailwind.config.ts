@@ -39,6 +39,9 @@ const config: Config = {
       },
       borderRadius: {
         18: '18px'
+      },
+      width: {
+        main: '1050px'
       }
     },
     screens: {
@@ -132,6 +135,9 @@ const config: Config = {
         '.bg-glass-new': {
           background: `rgba(255, 255, 255, 0.05)`,
           'backdrop-filter': 'blur(50px)'
+        },
+        '.main-section': {
+          '@apply w-full max-w-[1050px]': {}
         }
       });
     }
