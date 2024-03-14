@@ -110,7 +110,7 @@ export const Token = memo(function Token({
   return (
     <div
       className={classNames(
-        'group h-[300px] w-[300px] rounded-[16px] bg-token p-2.5 flex flex-col justify-between overflow-hidden relative token',
+        'group h-[300px] w-[300px] rounded-[16px] bg-token flex flex-col justify-between overflow-hidden relative token',
         {
           'cursor-pointer': !disabled,
           'hover:border-transparent': disabled
@@ -133,7 +133,7 @@ export const Token = memo(function Token({
           />
         )}
       </div>
-      <div className="flex justify-between z-10">
+      <div className="flex justify-between z-10 p-2.5">
         {!hideHoldersButton ? (
           <Link
             className="text-sm bg-white rounded-18 text-primary flex py-2 px-3 items-center visible sm:invisible group-hover:visible border border-solid border-transparent hover:border-text-secondary"
@@ -150,7 +150,7 @@ export const Token = memo(function Token({
               resetCachedUserInputs('tokenHolder');
             }}
           >
-            <Icon width={16} name="token-holders" />
+            <Icon width={16} name="token-balances-dark" />
             <span className="ml-1.5">Holders</span>
           </Link>
         ) : (
@@ -167,7 +167,7 @@ export const Token = memo(function Token({
       </div>
       <div
         className={classNames(
-          'h-14 rounded-[14px] flex flex-col px-3.5 py-2 text-sm bg-glass border-solid-light invisible',
+          'h-16 flex flex-col p-3.5 text-sm bg-glass invisible',
           {
             'group-hover:visible': !hideDetailsOverlay
           }

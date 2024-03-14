@@ -82,11 +82,12 @@ export type IconType =
   | 'frames'
   | 'ai-robot'
   | 'hamburger'
-  | 'user' 
+  | 'user'
   | 'wallet'
   | 'funnel'
   | 'farcaster-flat'
-  | 'farcaster-flat-gray';
+  | 'farcaster-flat-gray'
+  | 'token-balances-dark';
 
 export type IconProps = {
   name: IconType;
