@@ -61,7 +61,7 @@ function Item({ title, icon, description, link }: Info) {
             <Icon name={icon} height={36} width={36} loading="eager" />
           </span>
         </div>
-        <h3 className="text-xl mb-3 mt-5 font-semibold">{title}</h3>
+        <h3 className="text-xl mb-3 mt-5 font-semibold -mr-3">{title}</h3>
         <div className="text-base text-[#868D94] mb-6">{description}</div>
       </div>
       <div>
