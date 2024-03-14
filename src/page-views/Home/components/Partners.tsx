@@ -102,7 +102,7 @@ export function Partners() {
             </Link>
           ))}
         </div>
-        <div className="flex-row-h-center gap-11 mt-5 flex-wrap sm:flex-nowrap">
+        <div className="flex-row-h-center gap-11 mt-5 flex-wrap sm:flex-nowrap [&>a]:w-16">
           {secondRowItems.map((item, index) => (
             <Link to={item.link} key={index}>
               <IconWithBorder
