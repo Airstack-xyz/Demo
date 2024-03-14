@@ -94,6 +94,7 @@ export function Partners() {
                 key={index}
                 name={item.icon}
                 label={item.label}
+                loading="lazy"
                 labelClass="text-xs bg-transparent mt-0.5"
                 labelStyles={{
                   color: item.textColor
@@ -109,6 +110,7 @@ export function Partners() {
                 key={index}
                 name={item.icon}
                 label={item.label}
+                loading="lazy"
                 labelClass="text-xs bg-transparent mt-0.5"
                 labelStyles={{
                   color: item.textColor

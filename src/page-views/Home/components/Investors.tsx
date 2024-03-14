@@ -37,6 +37,7 @@ export function Investors() {
               <Image
                 src={`images/investors/${index}.svg`}
                 alt={`investor-${index}`}
+                loading="lazy"
               />
             </li>
           ))}
