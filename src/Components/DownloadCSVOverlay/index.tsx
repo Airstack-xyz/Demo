@@ -90,7 +90,7 @@ function Overlay({ className }: OverlayProps) {
     <>
       <div
         className={classNames(
-          'flex-col-center h-80 w-full z-40 text-sm px-5 rounded-b-2xl bg-token',
+          'flex-col-center h-80 w-full z-40 text-sm px-5 rounded-b-2xl bg-secondary',
           className
         )}
       >

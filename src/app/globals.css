@@ -119,14 +119,14 @@ body {
 .skeleton-loader [data-loader-type='block']:after,
 .skeleton-loader[data-loader-type='block']:after {
   content: '';
-  @apply absolute inset-0 bg-token rounded-lg;
+  @apply absolute inset-0 bg-secondary rounded-lg;
   mask: linear-gradient(-60deg, #000 30%, #0005, #000 70%) right/300% 100%;
   background-repeat: no-repeat;
   animation: shimmer 2.5s infinite;
 }
 .skeleton-loader.loader-light [data-loader-type='block']:after,
 .skeleton-loader.loader-light[data-loader-type='block']:after {
-  @apply bg-token-light;
+  @apply bg-tertiary;
 }
 
 .skeleton-loader [data-loader-type='block'][data-loader-bg='glass']:after,

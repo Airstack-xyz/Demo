@@ -16,7 +16,7 @@ export function CancelDownloadModal(props: {
         </h2>
         <div className="flex items-center justify-between mb-3">
           <button
-            className="bg-button-primary px-5 py-2.5 rounded-18 text-sm font-semibold flex-1 mr-2"
+            className="button-primary px-5 py-2.5 rounded-18 text-sm font-semibold flex-1 mr-2"
             onClick={props.onRequestClose}
           >
             Do not cancel

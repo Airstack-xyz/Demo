@@ -89,7 +89,7 @@ export const TokenWithERC6551 = memo(function Token({
     return assets.map((asset, index) => (
       <div
         key={index}
-        className="w-[173px] h-[173px] absolute rounded-18 overflow-hidden shadow-md bg-token"
+        className="w-[173px] h-[173px] absolute rounded-18 overflow-hidden shadow-md bg-secondary"
         style={{ rotate: `${index * 10}deg`, zIndex: assets.length - index }}
       >
         <Asset
@@ -106,7 +106,7 @@ export const TokenWithERC6551 = memo(function Token({
 
   return (
     <div
-      className="group h-[300px] w-[300px] rounded-[16px] bg-token flex flex-col justify-between overflow-hidden relative bg-glass token cursor-pointer"
+      className="group h-[300px] w-[300px] rounded-[16px] bg-secondary flex flex-col justify-between overflow-hidden relative bg-glass token cursor-pointer"
       data-loader-type="block"
       onClick={() => {
         setSearchData(

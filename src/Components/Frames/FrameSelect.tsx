@@ -49,8 +49,8 @@ export function FrameSelect({
               key={option.value}
               type="button"
               className={classNames(
-                'bg-glass-2 flex items-center rounded-full border border-solid px-4 py-2.5 text-xs font-semibold text-white',
-                isSelected ? 'border-white' : 'border-transparent',
+                'card flex items-center rounded-full px-4 py-2.5 text-xs font-semibold text-white',
+                isSelected ? '!border-white' : 'border-transparent',
                 isDisabled ? 'opacity-50' : ''
               )}
               onClick={() => {

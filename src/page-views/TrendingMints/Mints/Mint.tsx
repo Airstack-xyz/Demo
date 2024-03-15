@@ -8,7 +8,7 @@ import { TrendingMint } from './types';
 
 export const MintItemLoader = () => {
   return (
-    <div className="aspect-square min-h-[288px] rounded-[18px] bg-token animate-pulse" />
+    <div className="aspect-square min-h-[288px] rounded-[18px] bg-secondary animate-pulse" />
   );
 };
 
@@ -45,7 +45,7 @@ export function Mint({ item }: { item: TrendingMint }) {
 
   return (
     <Link
-      className="group aspect-square flex flex-col justify-between max-w-[288px] w-full relative rounded-18 bg-token token cursor-pointer"
+      className="group aspect-square flex flex-col justify-between max-w-[288px] w-full relative rounded-18 bg-secondary token cursor-pointer"
       to={tokenHolderUrl}
       onClick={handleClick}
     >

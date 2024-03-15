@@ -158,7 +158,7 @@ export function ERC6551TokenHolder({
         <button
           className={classNames('px-11 py-3.5 rounded-full font-semibold', {
             'skeleton-loader text-transparent': loading,
-            'bg-button-primary': !loading
+            'button-primary': !loading
           })}
           data-loader-type="block"
           disabled={loading}

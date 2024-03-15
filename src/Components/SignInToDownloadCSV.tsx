@@ -24,7 +24,7 @@ export function SignInToDownloadCSV() {
           New users signing up with ENS, Farcaster or Lens get 5M free credits!
         </div>
         <button
-          className="bg-button-primary h-10 px-10 rounded-full text-sm font-semibold"
+          className="button-primary h-10 px-10 rounded-full text-sm font-semibold"
           onClick={() => {
             login();
           }}

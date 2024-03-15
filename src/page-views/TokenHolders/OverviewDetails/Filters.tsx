@@ -132,7 +132,7 @@ export function Filters() {
           })}
           <li className="flex items-center justify-center gap-5 mt-3 !mb-0">
             <button
-              className="rounded-18 bg-button-primary px-3 py-1.5 enabled:hover:opacity-60 disabled:opacity-75 disabled:cursor-not-allowed"
+              className="rounded-18 button-primary px-3 py-1.5 enabled:hover:opacity-60 disabled:opacity-75 disabled:cursor-not-allowed"
               onClick={handleApply}
               disabled={!newFiltersApplied}
             >

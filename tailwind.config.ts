@@ -1,4 +1,6 @@
 import type { Config } from 'tailwindcss';
+// new color tokens -
+// https://www.figma.com/file/eUVSqknQC8YZXdLbV6aDb8/Design-Library?type=design&node-id=422-53&mode=design&t=B7Vn5ipwopkmJdBz-0
 
 const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx}'],
@@ -9,14 +11,16 @@ const config: Config = {
       },
       colors: {
         primary: '#061523',
-        secondary: '#16161D',
-        tertiary: '#24242D',
-        'button-primary': '#DE5C5F',
+        secondary: '#081E32',
+        tertiary: '#0F273F',
+        'button-primary': '#FFFFFF',
         'button-primary-hover': '#E06669',
         'button-primary-disabled': '#DE5C5F',
-        'button-secondary': '#16161D',
-        'button-secondary-hover': '#1B1B24',
+        'button-secondary': '#172633',
+        'button-secondary-hover': '#1A2C3B',
         'button-secondary-disabled': '#efadaf',
+        'button-tertiary': '#061523',
+        'button-translucent': '#82B6FF',
         'toast-positive': '#387C44',
         'toast-negative': '#F30C0C',
         'toast-warning': '#FFDE2E',
@@ -27,15 +31,20 @@ const config: Config = {
         'text-button-hovered': '#65AAD0',
         'text-button-disabled': '#b2d5e7',
         'text-error': '#F30C0C',
-        'stroke-color': '#3032414d',
-        'stroke-color-light': '#8b8ea033',
+        'stroke-color': '#0B2641',
+        'stroke-color-light': '#10365E',
         'stroke-highlight-blue': '#4B97F7',
         'stroke-highlight-red': '#DE5C5F',
         'response-light': '#f1f2f4',
         'banner-positive': '#008E41',
         'card-hover': '#0A223B',
-        token: '#081E32',
-        'token-light': '#0F273F'
+        dropdown: '#172633',
+        header: '#162B42',
+        navbar: '#15293D',
+        'input-primary': '#12212E',
+        'input-secondary': '#162B42',
+        'input-stroke-primary': '#2A3743',
+        'input-stroke-secondary': '#384A5B'
       },
       borderRadius: {
         18: '18px'
@@ -115,10 +124,11 @@ const config: Config = {
           '@apply before:bg-glass-1 before:absolute before:inset-0': {}
         },
         '.card': {
-          '@apply bg-[#081E32] border border-solid border-[#10365E]': {}
+          '@apply bg-secondary  border border-solid border-stroke-color-light':
+            {}
         },
         '.card-light': {
-          '@apply bg-[#0F273F] border border-solid border-[#10365E]': {}
+          '@apply bg-tertiary border border-solid border-stroke-color-light': {}
         },
         '.flex-row-h-center': {
           '@apply flex items-center': {}
@@ -140,11 +150,11 @@ const config: Config = {
           '@apply w-full max-w-[1050px]': {}
         },
         '.dropdown-bg': {
-          background: '#172633',
+          background: '@apply bg-dropdown',
           'backdrop-filter': 'blur(33.31547927856445px)'
         },
         '.button-filter': {
-          '@apply bg-[#172633] rounded-full enabled:hover:bg-[#1A2C3B] disabled:opacity-30 disabled:cursor-not-allowed':
+          '@apply bg-dropdown rounded-full enabled:hover:bg-button-secondary-hover disabled:opacity-30 disabled:cursor-not-allowed':
             {}
         },
         '.content': {

@@ -89,7 +89,7 @@ function Token({
     : `#${tokenBalance.tokenId}`;
 
   return (
-    <div className="flex-1 aspect-square max-sm:rounded-[10px] rounded-[18px] bg-token flex flex-col text-left justify-end overflow-hidden relative border border-solid border-white">
+    <div className="flex-1 aspect-square max-sm:rounded-[10px] rounded-[18px] bg-secondary flex flex-col text-left justify-end overflow-hidden relative border border-solid border-white">
       <div className="absolute inset-0 flex-col-center">
         <LazyImage
           alt="AssetImage"

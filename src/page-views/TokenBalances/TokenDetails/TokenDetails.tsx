@@ -422,7 +422,7 @@ export function TokenDetails(props: {
           <div className="flex justify-center">
             <button
               className={classNames('flex py-2 px-10 mt-7 rounded-18', {
-                'bg-button-primary': !loading,
+                'button-primary': !loading,
                 'skeleton-loader': loading
               })}
               data-loader-type="block"

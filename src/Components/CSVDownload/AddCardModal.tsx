@@ -91,7 +91,7 @@ export function AddCardModal({
           </li>
         </ul>
         <button
-          className="bg-button-primary px-10 rounded-full w-full flex-col-center justify-between text-white py-2"
+          className="button-primary px-10 rounded-full w-full flex-col-center justify-between text-white py-2"
           disabled={loading}
           onClick={getGenerateUrl}
         >

@@ -6,7 +6,7 @@ import classNames from 'classnames';
 
 export const GridItemLoader = () => {
   return (
-    <div className="aspect-square rounded-[18px] bg-token animate-pulse" />
+    <div className="aspect-square rounded-[18px] bg-secondary animate-pulse" />
   );
 };
 
@@ -18,7 +18,7 @@ type GridItemProps = {
 };
 
 const gridItemClass =
-  'aspect-square rounded-[18px] bg-token p-2.5 flex flex-col text-left justify-between overflow-hidden relative border border-transparent';
+  'aspect-square rounded-[18px] bg-secondary p-2.5 flex flex-col text-left justify-between overflow-hidden relative border border-transparent';
 
 export default function GridItem({
   item,

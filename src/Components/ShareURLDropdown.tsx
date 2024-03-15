@@ -169,7 +169,7 @@ export function ShareURLDropdown({
                   </div>
                   <button
                     type="button"
-                    className="rounded-18 bg-button-primary hover:opacity-70 transition-opacity active:opacity-50 flex-row-center gap-1 px-4 h-[35px]"
+                    className="rounded-18 button-primary hover:opacity-70 transition-opacity active:opacity-50 flex-row-center gap-1 px-4 h-[35px]"
                     onClick={handleCopyClick}
                   >
                     <span className="max-sm:hidden">

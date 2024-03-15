@@ -82,7 +82,7 @@ export function ScoreOptions({
           <div className="flex p-4" onClick={e => e.stopPropagation()}>
             <button
               disabled={sorting}
-              className="flex bg-button-primary py-2 px-3 rounded-18 mr-4 w-14 justify-center items-center "
+              className="flex button-primary py-2 px-3 rounded-18 mr-4 w-14 justify-center items-center "
               onClick={async () => {
                 setSorting(true);
                 await onApplyScore(score);

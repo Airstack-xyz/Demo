@@ -106,7 +106,7 @@ function Token({
     return assets.map((asset, index) => (
       <div
         key={index}
-        className="w-[120px] h-[120px] absolute rounded-18 overflow-hidden shadow-md bg-token"
+        className="w-[120px] h-[120px] absolute rounded-18 overflow-hidden shadow-md bg-secondary"
         style={{ rotate: `${index * 10}deg`, zIndex: assets.length - index }}
       >
         <Asset
@@ -123,7 +123,7 @@ function Token({
 
   return (
     <div
-      className="group h-[300px] w-[300px] sm:h-[200px] sm:w-[200px] rounded-[16px] bg-token p-2.5 flex flex-col justify-between overflow-hidden relative token cursor-pointer"
+      className="group h-[300px] w-[300px] sm:h-[200px] sm:w-[200px] rounded-[16px] bg-secondary p-2.5 flex flex-col justify-between overflow-hidden relative token cursor-pointer"
       data-loader-type="block"
       onClick={handleClick}
       style={{ textShadow: '0px 0px 2px rgba(0, 0, 0, 0.30)' }}
