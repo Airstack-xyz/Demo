@@ -30,6 +30,7 @@ import { SocialInfo } from '../../../utils/activeSocialInfoString';
 import { TokenInfo } from '../../../utils/activeTokenInfoString';
 import { ENSInfo } from '../../../utils/activeENSInfoString';
 import { Option } from '../../../Components/GetAPIDropdown';
+import { farcasterParticipentsQuery } from '@/queries/channels/participents';
 
 export function useDropdownOptions({
   socialInfo,
@@ -222,6 +223,7 @@ export function useDropdownOptions({
           identity: address[0]
         }
       });
+
       const followersTab = socialInfo.activeTab === 'followers';
       const followingTab = socialInfo.activeTab === 'followings';
 
@@ -327,7 +329,21 @@ export function useDropdownOptions({
         label: `${formattedDappName} profile details`,
         link: socialDetailsLink
       });
+
+      const farcasterChannelsLink = createAppUrlWithQuery(
+        farcasterParticipentsQuery,
+        {
+          identity: socialInfo.socialsFor,
+          limit: 20
+        }
+      );
+
+      getAPIOptions.push({
+        label: 'Farcaster channels',
+        link: farcasterChannelsLink
+      });
     }
+
     // Ens details page options ==================================
     else if (ensInfo.isApplicable) {
       const ensDetailsLink = createAppUrlWithQuery(domainDetailsQuery, {
