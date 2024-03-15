@@ -163,6 +163,9 @@ const config: Config = {
         '.header-btn-bg': {
           background: 'rgba(255, 255, 255, 0.05)',
           'backdrop-filter': 'blur(33.31547927856445px)'
+        },
+        '.button-primary': {
+          '@apply bg-button-primary disabled:opacity-30 text-text-button': {}
         }
       });
     }
