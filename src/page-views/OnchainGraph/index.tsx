@@ -1,4 +1,3 @@
-import classNames from 'classnames';
 import { GetAPIDropdown } from '../../Components/GetAPIDropdown';
 import { MAX_SEARCH_WIDTH } from '../../Components/Search/constants';
 import { ShareURLDropdown } from '../../Components/ShareURLDropdown';
@@ -8,7 +7,7 @@ import { getAPIDropdownOptions } from './constants';
 
 export function OnChainGraphPage() {
   return (
-    <div className={classNames('max-w-screen-lg')}>
+    <div className="content">
       <div style={{ maxWidth: MAX_SEARCH_WIDTH }} className="w-full">
         <Search />
         <div className="my-3 flex-row-center">

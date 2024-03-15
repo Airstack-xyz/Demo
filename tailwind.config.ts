@@ -146,6 +146,9 @@ const config: Config = {
         '.button-filter': {
           '@apply bg-[#172633] rounded-full enabled:hover:bg-[#1A2C3B] disabled:opacity-30 disabled:cursor-not-allowed':
             {}
+        },
+        '.content': {
+          '@apply w-[1440px] max-w-[100vw]': {}
         }
       });
     }
