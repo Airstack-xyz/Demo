@@ -333,7 +333,7 @@ export function useDropdownOptions({
       const farcasterChannelsLink = createAppUrlWithQuery(
         farcasterParticipentsQuery,
         {
-          identity: socialInfo.socialsFor,
+          identity: socialInfo.socialsFor || address[0],
           limit: 20
         }
       );
