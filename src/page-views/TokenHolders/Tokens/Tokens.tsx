@@ -31,7 +31,7 @@ function Loader() {
         {loaderData.map((_, index) => (
           <tr
             key={index}
-            className="[&>div>td]:px-2 [&>div>td]:py-3 [&>div>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer skeleton-loader [&>div>td:last-child]:hidden"
+            className="[&>div>td]:px-2 [&>div>td]:py-3 [&>div>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer skeleton-loader loader-light [&>div>td:last-child]:hidden"
           >
             <div data-loader-type="block" data-loader-margin="10">
               <Token token={null} isCombination={false} />
@@ -207,7 +207,7 @@ export function TokensComponent() {
 
   if (loading && (!tokens || tokens.length === 0)) {
     return (
-      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
+      <div className="w-full card rounded-2xl sm:overflow-hidden pb-5 overflow-y-auto">
         <Loader />
         {showStatusLoader && <StatusLoader lines={statusLoaderLines} />}
       </div>
@@ -218,7 +218,7 @@ export function TokensComponent() {
 
   return (
     <div className="relative mb-5">
-      <div className="w-full border-solid-light rounded-2xl sm:overflow-hidden overflow-y-auto">
+      <div className="w-full card rounded-2xl sm:overflow-hidden overflow-y-auto">
         <table className="w-auto text-xs table-fixed sm:w-full select-none">
           <Header isERC20={isERC20} isCombination={isCombination} />
           <tbody>

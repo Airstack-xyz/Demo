@@ -311,7 +311,7 @@ export function TableSection({
         onApply={handleFiltersApply}
       />
       {isMobile && <div className="mb-4 mx-1">{mentionInputComponent}</div>}
-      <div className="border-solid-light rounded-2xl sm:overflow-hidden overflow-y-auto">
+      <div className="card rounded-2xl sm:overflow-hidden overflow-y-auto">
         <table className="sf-table select-none">
           <thead>
             <tr>

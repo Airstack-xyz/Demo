@@ -5,7 +5,7 @@ import { getActiveSnapshotInfo } from '../../utils/activeSnapshotInfoString';
 import { tokenTypesForFilter, tokenTypesForSnapshot } from './constants';
 
 const buttonClass =
-  'py-1.5 px-3 mr-3.5 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light';
+  'py-1.5 px-3 mr-3.5 rounded-full button-filter text-text-secondary border border-solid border-transparent text-xs';
 
 function FiltersComponent() {
   const [{ tokenType, activeSnapshotInfo }, setData] = useSearchInput();

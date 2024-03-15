@@ -21,7 +21,7 @@ const config: Config = {
         'toast-negative': '#F30C0C',
         'toast-warning': '#FFDE2E',
         'text-primary': '#FFFFFF',
-        'text-secondary': '#8B8EA0',
+        'text-secondary': '#868D94',
         'text-placeholder': '#b1b3b5',
         'text-button': '#82B6FF',
         'text-button-hovered': '#65AAD0',
@@ -32,10 +32,16 @@ const config: Config = {
         'stroke-highlight-blue': '#4B97F7',
         'stroke-highlight-red': '#DE5C5F',
         'response-light': '#f1f2f4',
-        'banner-positive': '#008E41'
+        'banner-positive': '#008E41',
+        'card-hover': '#0A223B',
+        token: '#081E32',
+        'token-light': '#0F273F'
       },
       borderRadius: {
         18: '18px'
+      },
+      width: {
+        main: '1050px'
       }
     },
     screens: {
@@ -126,12 +132,20 @@ const config: Config = {
         '.flex-col-h-center': {
           '@apply flex flex-col justify-center': {}
         },
-        '.bg-token': {
-          '@apply bg-[#081E32]': {}
-        },
         '.bg-glass-new': {
           background: `rgba(255, 255, 255, 0.05)`,
           'backdrop-filter': 'blur(50px)'
+        },
+        '.main-section': {
+          '@apply w-full max-w-[1050px]': {}
+        },
+        '.dropdown-bg': {
+          background: '#172633',
+          'backdrop-filter': 'blur(33.31547927856445px)'
+        },
+        '.button-filter': {
+          '@apply bg-[#172633] rounded-full enabled:hover:bg-[#1A2C3B] disabled:opacity-30 disabled:cursor-not-allowed':
+            {}
         }
       });
     }

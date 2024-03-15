@@ -53,7 +53,7 @@ export function SocialDetails({
     socialInfo.activeTab === 'channels' && canShowChannels;
 
   return (
-    <div className="max-w-[1050px] w-full text-sm pt-4 sm:pt-0">
+    <div className="main-section w-full text-sm pt-4 sm:pt-0">
       <div className="flex items-center">
         <div className="flex items-center max-w-[60%] sm:w-auto overflow-hidden mr-2">
           <div

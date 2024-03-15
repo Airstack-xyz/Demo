@@ -5,6 +5,7 @@ import { Icon } from '../Icon';
 import { links } from './constants';
 import { Suspense } from 'react';
 import dynamic from 'next/dynamic';
+import { GlowImage } from '../GlowImage';
 
 const MobileDrawer = dynamic(() => import('./MobileDrawer'), {
   ssr: false
@@ -23,6 +24,10 @@ const CsvAndLogin = dynamic(() => import('./CsvAndLogin'), {
 export function Header() {
   return (
     <>
+      <GlowImage
+        className="absolute w-screen top-0 pointer-events-none"
+        position="top"
+      />
       <header className="fixed bg-glass-1 py-4 z-[100] top-0 left-0 right-0 max-sm:absolute">
         <div className="w-full flex items-center justify-center sm:justify-between pl-16 pr-8">
           <div className="text-xl flex-row-center">

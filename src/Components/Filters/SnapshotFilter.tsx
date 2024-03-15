@@ -294,7 +294,7 @@ export function SnapshotFilter({
           />
         </TooltipWrapper>
         {isDropdownVisible && (
-          <div className="before-bg-glass before:-z-10 before:rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">
+          <div className="dropdown-bg rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">
             <div className="font-bold py-2 px-3.5 rounded-full text-left whitespace-nowrap">
               Balances as of
             </div>

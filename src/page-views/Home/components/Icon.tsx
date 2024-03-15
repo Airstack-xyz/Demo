@@ -74,6 +74,11 @@ export type IconType =
   | 'neura-name'
   | 'socials'
   | 'chain'
+  | 'interface'
+  | 'vocdoni'
+  | 'repute-x'
+  | 'talent-protocol'
+  | 'frog'
   // footer icons
   | 'docs'
   | 'api'

@@ -76,7 +76,7 @@ export function Channels() {
           isHome
       })}
     >
-      <div className="w-full max-w-[1050px]">
+      <div className="main-section">
         {isHome && <h1 className="text-[2rem]">Explore web3 identities</h1>}
         <div style={{ maxWidth: MAX_SEARCH_WIDTH }}>
           <Search />

@@ -106,7 +106,7 @@ export const TokenWithERC6551 = memo(function Token({
 
   return (
     <div
-      className="group h-[300px] w-[300px] rounded-[16px] bg-token p-2.5 flex flex-col justify-between overflow-hidden relative bg-glass token cursor-pointer"
+      className="group h-[300px] w-[300px] rounded-[16px] bg-token flex flex-col justify-between overflow-hidden relative bg-glass token cursor-pointer"
       data-loader-type="block"
       onClick={() => {
         setSearchData(
@@ -136,7 +136,7 @@ export const TokenWithERC6551 = memo(function Token({
       <div className="absolute inset-0 [&>div]:w-[173px] [&>div]:h-[173px] [&>div>img]:w-full [&>div>img]:min-w-full flex-col-center">
         {assets}
       </div>
-      <div className="flex justify-between z-10">
+      <div className="flex justify-between z-10 p-2.5">
         <Link
           className="text-sm bg-white rounded-18 text-primary flex py-2 px-3 items-center sm:invisible group-hover:visible border border-solid border-transparent hover:border-text-secondary"
           to={createTokenHolderUrl({
@@ -152,7 +152,7 @@ export const TokenWithERC6551 = memo(function Token({
             resetCachedUserInputs('tokenHolder');
           }}
         >
-          <Icon width={16} name="token-holders" />
+          <Icon width={16} name="token-balances-dark" />
           <span className="ml-1.5">Holders</span>
         </Link>
         <div className="flex">
@@ -165,11 +165,11 @@ export const TokenWithERC6551 = memo(function Token({
         </div>
       </div>
 
-      <div className="z-10 rounded-3xl flex flex-col px-3.5 pt-3.5 pb-3 text-sm bg-glass border-solid-light font-medium">
+      <div className="z-10 flex flex-col p-3.5 text-sm bg-glass font-medium">
         <div className="flex flex-col text-sm z-10">
           <div className="flex items-center text-xs">
-            <span className="bg-[#5a8178] px-1.5 py-0.5 rounded-18 mr-1.5 flex items-center">
-              <Icon name="folder-gray" className="ml-1 mr-1.5" />
+            <span className="flex items-center">
+              <Icon name="folder-gray" className="mr-1.5" />
               <span>ERC6551</span>
             </span>
           </div>

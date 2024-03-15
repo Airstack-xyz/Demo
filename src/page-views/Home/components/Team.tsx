@@ -167,6 +167,7 @@ export function Team() {
                 src={img}
                 height={148}
                 width={148}
+                loading="lazy"
                 className="rounded-18 mb-2"
               />
               <h3 className="text-sm font-bold">{member.name}</h3>

@@ -11,7 +11,7 @@ import { checkBlockchainSupportForToken } from '../../../utils/activeTokenInfoSt
 
 export function TableRowLoader() {
   return (
-    <div className="skeleton-loader px-9 py-3">
+    <div className="skeleton-loader loader-light px-9 py-3">
       <div data-loader-type="block" className="h-[50px]" />
     </div>
   );

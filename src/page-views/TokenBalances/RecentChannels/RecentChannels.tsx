@@ -94,7 +94,7 @@ export function RecentChannels({ identity }: { identity: string }) {
                     label: channel?.channelId || ''
                   })}
                   className={classNames(
-                    'card rounded-18 flex items-center gap-5 p-2.5',
+                    'card hover:bg-card-hover rounded-18 flex items-center gap-5 p-2.5',
                     {
                       '!border-none': loading
                     }

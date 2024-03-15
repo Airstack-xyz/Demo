@@ -99,7 +99,7 @@ function Dropdown({
         >
           <button
             className={classNames(
-              'py-1.5 px-3 text-text-button bg-glass-1 rounded-full text-xs font-medium flex-row-center border border-solid border-transparent ',
+              'py-1.5 px-3 text-text-button button-filter text-xs font-medium flex-row-center border border-solid border-transparent ',
               {
                 'border-white': isDropdownVisible,
                 'cursor-not-allowed pointer-events-none opacity-80': disabled
@@ -116,7 +116,7 @@ function Dropdown({
         {isDropdownVisible && (
           <div
             className={classNames(
-              'bg-glass rounded-18 p-1 mt-1 flex flex-col absolute min-w-[214px] top-9 z-20',
+              'dropdown-bg rounded-18 p-1 mt-1 flex flex-col absolute min-w-[214px] top-9 z-20',
               {
                 'left-0': dropdownAlignment === 'left',
                 'left-1/2 -translate-x-1/2': dropdownAlignment === 'center',

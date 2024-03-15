@@ -2,8 +2,8 @@ import { Link } from './Link';
 
 const links = [
   {
-    label: 'Onchain Kit for Farcaster Frames',
-    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster/airstack-onchain-kit-for-farcaster-frames'
+    label: 'Build Farcaster Frames',
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster-frames'
   },
   {
     label: 'Farcaster APIs',

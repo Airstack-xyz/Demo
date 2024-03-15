@@ -153,20 +153,45 @@ const items: ItemType[] = [
     label: 'Gandalf',
     textColor: '#6610F2',
     link: 'https://gandalf.network/'
+  },
+  {
+    icon: 'interface',
+    label: 'Interface',
+    textColor: '',
+    link: 'https://www.interface.social/'
+  },
+  {
+    icon: 'vocdoni',
+    label: 'Vocdoni',
+    textColor: '#CBF5C8',
+    link: 'https://www.vocdoni.io/'
+  },
+  {
+    icon: 'repute-x',
+    label: 'ReputeX',
+    textColor: '#807EF9',
+    link: 'https://reputex.io/'
+  },
+  {
+    icon: 'talent-protocol',
+    label: 'Talent Protocol',
+    textColor: '#0482D9',
+    link: 'https://www.talentprotocol.com/'
   }
 ];
 
 export function LiveIntegrations() {
   return (
-    <div className="border border-dashed border-[#7e7e7e] px-12 pb-2 flex-col-center relative">
-      <div className="px-2 sm:px-3 bg-primary  relative -top-7">
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-11">
+    <div className="border border-dashed border-[#7e7e7e] px-8 pb-2 flex-col-center relative">
+      <div className="px-2 sm:px-3 bg-primary relative -top-7">
+        <div className="flex justify-center flex-wrap gap-11 [&>a]:w-16">
           {items.map((item, index) => (
             <Link to={item.link} key={index}>
               <IconWithBorder
                 key={index}
                 name={item.icon}
                 label={item.label}
+                loading="lazy"
                 labelClass="text-xs bg-transparent mt-0.5"
                 labelStyles={{
                   color: item.textColor

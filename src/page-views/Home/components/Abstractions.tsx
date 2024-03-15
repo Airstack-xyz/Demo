@@ -92,7 +92,7 @@ export function Abstractions() {
   return (
     <div className="card p-7 rounded-18 w-full">
       <h3 className="text-left font-bold mb-5 flex items-center">
-        <Icon name="abstraction-modules" />
+        <Icon name="abstraction-modules" loading="lazy" />
         <span className="ml-1.5">Abstraction Modules</span>
       </h3>
       <ul className="grid grid-cols-1 sm:grid-cols-4 gap-3.5">
@@ -102,7 +102,7 @@ export function Abstractions() {
             className="card-light h-12 py-3 px-2.5 rounded-xl w-auto sm:w-64"
           >
             <Link to={link} className="flex items-center font-semibold text-sm">
-              <Icon name={icon} />
+              <Icon name={icon} loading="lazy" />
               <span className="ml-1.5 ellipsis">{name}</span>
             </Link>
           </li>

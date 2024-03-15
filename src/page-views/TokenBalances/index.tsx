@@ -442,8 +442,8 @@ function TokenBalancePage() {
     }
 
     return (
-      <div key={query} className="flex justify-between">
-        <div className="h-full w-full">
+      <div key={query} className="flex">
+        <div className="main-section mr-0 sm:mr-5">
           {address.length > 1 && (
             <div className="mb-12 relative z-20">
               <div className="mb-4">

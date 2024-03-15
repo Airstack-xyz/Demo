@@ -124,6 +124,10 @@ body {
   background-repeat: no-repeat;
   animation: shimmer 2.5s infinite;
 }
+.skeleton-loader.loader-light [data-loader-type='block']:after,
+.skeleton-loader.loader-light[data-loader-type='block']:after {
+  @apply bg-token-light;
+}
 
 .skeleton-loader [data-loader-type='block'][data-loader-bg='glass']:after,
 .skeleton-loader[data-loader-type='block'][data-loader-bg='glass']:after {
@@ -178,4 +182,14 @@ body {
 .scroll-shadow-r {
   mask: linear-gradient(to right, white calc(100% - 50px), transparent);
   -webkit-mask: linear-gradient(to right, white calc(100% - 50px), transparent);
+}
+
+/*  fade animation */
+
+.animate-fade-in-up {
+  @apply transition-all duration-1000 opacity-0 translate-y-10;
+}
+
+.animate-fade-in-up.animate-fade-in-up-active {
+  @apply opacity-100 translate-y-0;
 }
