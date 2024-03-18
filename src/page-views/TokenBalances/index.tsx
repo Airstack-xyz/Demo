@@ -503,7 +503,7 @@ function TokenBalancePage() {
   return (
     <TokenDetailsReset>
       <div
-        className={classNames('max-w-[1400px]', {
+        className={classNames('content', {
           'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
             isHome
         })}

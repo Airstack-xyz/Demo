@@ -269,7 +269,7 @@ export function TokenHolders() {
 
   return (
     <div
-      className={classNames('max-w-screen-lg', {
+      className={classNames('content', {
         'flex-1 h-full w-full flex flex-col !pt-[12vw] items-center text-center':
           isHome
       })}
