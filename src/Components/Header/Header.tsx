@@ -43,6 +43,9 @@ export function Header() {
             >
               <Icon name="frames" height={30} width={95} />
             </Link>
+            <Link to="/leaderboard" className="font-semibold">
+              Leaderboard
+            </Link>
 
             {links.map((link, index) => (
               <Tooltip
