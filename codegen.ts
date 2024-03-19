@@ -1,6 +1,6 @@
 import type { CodegenConfig } from '@graphql-codegen/cli';
 
-const bffQueryFolders = ['auth', 'csv-download'];
+const bffQueryFolders = ['auth', 'csv-download', 'leaderboard'];
 const prodQueryFolders = ['channels', 'socials', 'trendingMints'];
 
 const getDocumentPaths = (fathNames: string[]) => {
@@ -21,7 +21,7 @@ const config: CodegenConfig = {
   generates: {
     '__generated__/types.ts': {
       documents: getDocumentPaths(bffQueryFolders),
-      schema: 'https://backend.uat.airstack.xyz/graphql',
+      schema: 'https://backend.dev.airstack.xyz/graphql',
       plugins: ['typescript', 'typescript-operations'],
       // config options: https://the-guild.dev/graphql/codegen/plugins/typescript/typescript-operations
       config: {
