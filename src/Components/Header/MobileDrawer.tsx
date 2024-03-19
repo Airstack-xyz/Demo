@@ -67,6 +67,17 @@ export function MobileDrawer({}) {
                 <Icon name="frames" height={30} width={95} />
               </Link>
             </li>
+            <li className="pt-9">
+              <Link
+                to="/leaderboard"
+                className="font-semibold py-2"
+                onClick={() => {
+                  setShowNavbar(false);
+                }}
+              >
+                Leaderboard
+              </Link>
+            </li>
             {links.map((link, index) => (
               <li key={index} className="mt-9">
                 <Link
