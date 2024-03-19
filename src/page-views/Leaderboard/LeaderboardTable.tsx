@@ -142,7 +142,7 @@ export function LeaderboardTable() {
 
   return (
     <div className="flex w-screen overflow-auto sm:w-auto sm:overflow-visible">
-      <div className="bg-primary border border-solid border-[#10365E] rounded-lg pt-3">
+      <div className="bg-primary border border-solid border-[#10365E] rounded-lg py-3">
         <table className="table-fixed w-full max-w-[950px] border-spacing-10">
           {!loading && (
             <>
