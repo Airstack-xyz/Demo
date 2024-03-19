@@ -13,6 +13,7 @@ import LazyImage from '@/Components/LazyImage';
 import classnames from 'classnames';
 import { createTokenBalancesUrl } from '@/utils/createTokenUrl';
 import { useNavigate } from '@/hooks/useNavigate';
+import { noAllowedFarcasterIds } from './constants';
 const loaderData = Array(6).fill({});
 
 type ItemProps = {
@@ -116,10 +117,11 @@ export function LeaderboardTable() {
     fetchLeadingProfiles();
   }, [fetchLeadingProfiles]);
 
-  const profiles = useMemo(
-    () => leadingProfiles?.LeadingProfiles?.leadingProfiles || [],
-    [leadingProfiles]
-  );
+  const profiles = useMemo(() => {
+    return (leadingProfiles?.LeadingProfiles?.leadingProfiles || []).filter(
+      profile => !profile?.fid || !noAllowedFarcasterIds.has(profile?.fid)
+    );
+  }, [leadingProfiles]);
 
   const fids = useMemo(
     () =>
@@ -166,9 +168,11 @@ export function LeaderboardTable() {
               </thead>
               <tbody>
                 {profiles.map((data, index) => {
-                  const profile = data?.fid
-                    ? fidToProfileMap?.[data?.fid] || ({} as Profile)
+                  const fid = data?.fid!;
+                  const profile = fid
+                    ? fidToProfileMap?.[fid] || ({} as Profile)
                     : ({} as Profile);
+
                   const image =
                     profile.profileImage ||
                     profile?.profileImageContentValue?.image?.medium;
@@ -177,7 +181,7 @@ export function LeaderboardTable() {
                       <Item
                         profileHandle={profile?.profileHandle || ''}
                         key={index}
-                        fid={`${data?.fid || '--'}`}
+                        fid={`${fid || '--'}`}
                         name={profile?.profileName || '--'}
                         profileImage={image || ''}
                         rank={index + 1}
