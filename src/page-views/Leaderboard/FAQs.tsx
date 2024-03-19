@@ -1,15 +1,35 @@
 import Accordion from '@/Components/Accordion';
 import { isMobileDevice } from '@/utils/isMobileDevice';
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
+
+const howStacksAreEarned = (
+  <div className="leading-6">
+    <div className="mb-3">
+      Stacks are earned at the rate of 40,000 per ETH swapped.
+    </div>
+    <div className="mb-3">
+      <div>If you swap:</div>
+      <div>0.001 ETH = 40 Stacks</div>
+      <div>0.1 ETH = 4,000 Stacks</div>
+      <div>1 ETH = 40,000 Stacks</div>
+    </div>
+    <div>
+      <div>Referral Stacks are earned at the same rate.</div>
+      <div>If they swap 0.001 ETH = you get 40 Stacks</div>
+      <div>If they swap 0.1 ETH = you get 4,000 Stacks</div>
+      <div>If they swap 1 ETH = you get 40,000 Stacks</div>
+    </div>
+  </div>
+);
 
 const faqs: {
   question: string;
-  answer: string;
+  answer: ReactNode;
 }[] = [
   {
     question: 'How are prizes awarded?',
     answer:
-      'The top 50 point earners at 12pm ET on 25 March, 2024 will share 100,000 $DEGEN proportionally. Future prizes to be announced.'
+      'The top 50 Stacks earners at 12pm ET on 25 March, 2024 will share 100,000 $DEGEN proportionally. Future prizes to be announced.'
   },
   {
     question: 'What are Stacks?',
@@ -32,16 +52,7 @@ const faqs: {
   },
   {
     question: 'How many Stacks are earned?',
-    answer: `Stacks are earned at the rate of 40,000 per ETH swapped.
-    If you swap:
-    .001 ETH = 40 Stacks
-    0.1 ETH = 4,000 Stacks
-    1 ETH = 40,000 Stacks
-
-    Referral Stacks are earned at the same rate.
-    If they swap .001 ETH = you get 40 Stacks
-    If they swap 0.1 ETH = you get 4,000 Stacks
-    If they swap 1 ETH = you get 40,000 Stacks`
+    answer: howStacksAreEarned
   },
   {
     question: 'How can I trust this?',
@@ -74,7 +85,7 @@ export function FAQs() {
           <FaqIcon /> <span className="ml-1.5">FAQs</span>
         </div>
       )}
-      <div className="text-sm w-full sm:w-80 bg-primary border border-solid border-[#10365E] rounded-lg p-5">
+      <div className="text-sm w-full sm:w-[340px] bg-primary border border-solid border-[#10365E] rounded-lg p-5">
         {faqs.map((faq, index) => (
           <div className="pb-7" key={index}>
             <Accordion
