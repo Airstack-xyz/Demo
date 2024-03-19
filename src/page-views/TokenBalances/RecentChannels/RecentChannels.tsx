@@ -19,15 +19,17 @@ import {
 const loaderData = Array(3).fill({});
 
 export function RecentChannels({ identity }: { identity: string }) {
-  const { participants, loading } = useGetChannels({ identity, limit: 3 });
-  const [{ address }, setData] = useSearchInput();
-
   const [fetchData, { data }] = useLazyQuery<
     GetFaracasterProfileQuery,
     GetFaracasterProfileQueryVariables
   >(getFaracasterProfile);
-
   const farcaster = data?.Wallet?.farcaster?.[0];
+
+  const { participants, loading } = useGetChannels(
+    { identity, limit: 3 },
+    Boolean(farcaster)
+  );
+  const [{ address }, setData] = useSearchInput();
 
   useEffect(() => {
     if (address.length > 0) {
@@ -62,7 +64,7 @@ export function RecentChannels({ identity }: { identity: string }) {
     setData
   ]);
 
-  if (!loading && participants?.length === 0) {
+  if ((data && !farcaster) || (!loading && participants?.length === 0)) {
     return null;
   }
 
