@@ -9,11 +9,11 @@ type Info = {
 };
 const items: Info[] = [
   {
-    title: 'Airstack Frog Recipes',
+    title: 'Airstack Frog Middleware & Recipes',
     icon: 'frog',
     description:
-      'Build your Farcaster Frames using Airstack Frog Recipes. Seamlessly integrate allow list and everything onchain into Frames.',
-    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/airstack-frog-recipes'
+      'Build your Farcaster Frames with Airstack frog middleware and recipes. Seamlessly integrate profiles, follows, trending mints, tokens, and everything onchain.',
+    link: 'https://docs.airstack.xyz/airstack-docs-and-faqs/guides/airstack-frog-recipes-and-middleware'
   },
   {
     title: 'Airstack Frames SDK',

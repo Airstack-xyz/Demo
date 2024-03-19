@@ -104,7 +104,10 @@ export function ChannelsSection({ identity }: { identity: string }) {
           ))}
       </InfiniteScroll>
       {!loading && participants?.length === 0 && (
-        <div className="py-5 text-center font-semibold">No channels found!</div>
+        <div className="pb-5 pt-14 sm:pt-24 flex-col-center">
+          <Icon name="no-items" className="h-16 w-auto mb-8" />
+          <div className="text-sm">No channels yet!</div>
+        </div>
       )}
     </div>
   );

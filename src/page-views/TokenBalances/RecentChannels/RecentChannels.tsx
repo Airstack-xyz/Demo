@@ -62,6 +62,10 @@ export function RecentChannels({ identity }: { identity: string }) {
     setData
   ]);
 
+  if (!loading && participants?.length === 0) {
+    return null;
+  }
+
   return (
     <div className="w-full sm:w-auto">
       <div className="mb-5 flex items-center justify-between ">
@@ -135,9 +139,6 @@ export function RecentChannels({ identity }: { identity: string }) {
               </li>
             );
           }
-        )}
-        {!loading && participants?.length === 0 && (
-          <li className="py-5 text-center">No recent channels found!</li>
         )}
       </ul>
     </div>
