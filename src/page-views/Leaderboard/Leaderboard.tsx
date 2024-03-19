@@ -12,7 +12,7 @@ export default function Leaderboard() {
   return (
     <div className="content px-3 sm:px-0">
       <h1 className="text-xl sm:text-[40px] font-semibold mb-8 sm:mb-12 pt-5 sm:pt-7">
-        Airstack Points Leaderboard
+        Stacks Leaderboard
       </h1>
       {!isMobile && (
         <div className="flex flex-col sm:flex-row items-start">

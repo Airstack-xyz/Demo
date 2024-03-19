@@ -12,32 +12,36 @@ const faqs: {
       'The top 50 point earners at 12pm ET on 25 March, 2024 will share 100,000 $DEGEN proportionally. Future prizes to be announced.'
   },
   {
-    question: 'How do I earn points?',
-    answer:
-      'You earn points every time you swap in the Airstack Degen Alpha frame on Farcaster, or if other users swap from your referrals.'
+    question: 'What are Stacks?',
+    answer: 'Stacks are Airstack points.'
   },
   {
-    question: 'How are referral points earned?',
+    question: 'How do I earn Stacks?',
     answer:
-      'Click “share frame” in the Airstack Degen Alpha frame to create an original cast with the Frame. Whenever someone swaps from your frame you will automatically earn referral points.'
+      'You earn Stacks every time you swap in the Airstack Degen Alpha frame on Farcaster, or if other users swap from your referrals.'
+  },
+  {
+    question: 'How are referral Stacks earned?',
+    answer:
+      'Click “share frame” in the Airstack Degen Alpha frame to create an original cast with the Frame. Whenever someone swaps from your frame you will automatically earn referral Stacks.'
   },
   {
     question: 'What if I recast the Frame?',
     answer:
-      'Referral points accrue to the person whose cast the Frame is originally in. If someone recasts your original cast of the frame, you get the points.'
+      'Referral Stacks accrue to the person whose cast the Frame is originally in. If someone recasts your original cast of the frame, you get the Stacks.'
   },
   {
-    question: 'How many points are earned?',
-    answer: `Points are earned at the rate of 40,000 per ETH swapped.
+    question: 'How many Stacks are earned?',
+    answer: `Stacks are earned at the rate of 40,000 per ETH swapped.
     If you swap:
-    .001 ETH = 40 points
-    0.1 ETH = 4,000 points
-    1 ETH = 40,000 points
+    .001 ETH = 40 Stacks
+    0.1 ETH = 4,000 Stacks
+    1 ETH = 40,000 Stacks
 
-    Referral points are earned at the same rate.
-    If they swap .001 ETH = you get 40 points
-    If they swap 0.1 ETH = you get 4,000 points
-    If they swap 1 ETH = you get 40,000 points`
+    Referral Stacks are earned at the same rate.
+    If they swap .001 ETH = you get 40 Stacks
+    If they swap 0.1 ETH = you get 4,000 Stacks
+    If they swap 1 ETH = you get 40,000 Stacks`
   },
   {
     question: 'How can I trust this?',
@@ -91,8 +95,8 @@ export function FAQs() {
         <div className="font-medium">
           <div className="mb-1.5">Disclaimer</div>
           <div className="text-text-secondary">
-            Airstack points have no inherent value and cannot be sold, swapped,
-            or traded.
+            Stacks have no inherent value and cannot be sold, swapped, or
+            traded.
           </div>
         </div>
       </div>

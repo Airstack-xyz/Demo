@@ -162,7 +162,7 @@ export function LeaderboardTable() {
 
                   <th className="!bg-transparent !p-0 w-32">
                     <div className="rounded-r-lg bg-token p-2.5 mr-2">
-                      Total
+                      Total Stacks
                     </div>
                   </th>
                 </tr>
@@ -200,7 +200,7 @@ export function LeaderboardTable() {
           )}
           {loading && (
             <tbody>
-              {loaderData.map((item, index) => {
+              {loaderData.map((_, index) => {
                 return (
                   <tr key={index} className="skeleton-loader">
                     <div data-loader-type="block" data-loader-margin="10">
