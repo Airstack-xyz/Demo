@@ -11,13 +11,16 @@ export type Participents = NonNullable<
 >['FarcasterChannelParticipant'];
 
 export type Participent = NonNullable<Participents>[0];
-export function useGetChannels({
-  identity,
-  limit
-}: {
-  identity: string;
-  limit: number;
-}) {
+export function useGetChannels(
+  {
+    identity,
+    limit
+  }: {
+    identity: string;
+    limit: number;
+  },
+  shouldFetch: boolean = true
+) {
   const [participants, setParticipants] = useState<Participents>(null);
 
   const [fetch, { data, loading: loadingQuery, ...rest }] =
@@ -36,14 +39,14 @@ export function useGetChannels({
     });
 
   useEffect(() => {
-    if (identity) {
+    if (shouldFetch && identity) {
       fetch({
         identity,
         limit
       });
       setParticipants(null);
     }
-  }, [fetch, identity, limit]);
+  }, [fetch, identity, limit, shouldFetch]);
 
   const loading = loadingQuery || !data;
 
