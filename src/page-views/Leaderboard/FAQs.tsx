@@ -63,7 +63,7 @@ const FaqIcon = () => (
 export function FAQs() {
   const [activeFaqIndex, setActiveFaqIndex] = useState(0);
   return (
-    <div className="ml-0 sm:ml-5 mt-5 sm:mt-0">
+    <div className="ml-0 sm:ml-16 mt-5 sm:-mt-[38px]">
       <div className="font-bold flex items-center mb-5">
         <FaqIcon /> <span className="ml-1.5">FAQs</span>
       </div>

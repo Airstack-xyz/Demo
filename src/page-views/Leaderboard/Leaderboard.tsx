@@ -86,7 +86,8 @@ export default function Leaderboard() {
   );
 
   const fids = useMemo(
-    () => profiles.map(profile => profile?.fid).filter(Boolean) as number[],
+    () =>
+      profiles.map(profile => '' + profile?.fid).filter(Boolean) as string[],
     [profiles]
   );
 
@@ -104,7 +105,7 @@ export default function Leaderboard() {
 
   return (
     <div className="content px-5 sm:px-0">
-      <h1 className=" text-2xl sm:text-[44px] mb-8 sm:mb-12 pt-5 sm:pt-7">
+      <h1 className="text-2xl sm:text-[40px] font-semibold mb-8 sm:mb-12 pt-5 sm:pt-7">
         Airstack Points Leaderboard
       </h1>
       <div className="flex flex-col sm:flex-row items-start">
@@ -142,15 +143,15 @@ export default function Leaderboard() {
                         profile.profileImage ||
                         profile?.profileImageContentValue?.image?.medium;
                       return (
-                        <tr key={index} className="even:bg-token">
+                        <tr key={index} className="even:bg-[#081e3280]">
                           <Item
                             key={index}
                             fid={`${data?.fid || '--'}`}
                             name={profile?.profileName || '--'}
                             profileImage={image || ''}
                             rank={index + 1}
-                            referrals={data?.numberOfTransactions || 0}
-                            swaps={data?.numberOfTransactions || 0}
+                            referrals={data?.referrerBonusPointEarnedFloat || 0}
+                            swaps={data?.pointsEarnedFloat || 0}
                             totalPoints={data?.totalFloat || 0}
                           />
                         </tr>

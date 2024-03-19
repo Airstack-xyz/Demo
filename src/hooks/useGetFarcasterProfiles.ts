@@ -19,7 +19,7 @@ export function useGetFarcasterProfilesMap() {
   loadingRef.current = loading;
 
   const fetchProfiles = useCallback(
-    async (allFids: number[], onResponse: (socials: Profile[]) => void) => {
+    async (allFids: string[], onResponse: (socials: Profile[]) => void) => {
       setLoading(true);
       let index = 0;
       let fids = allFids.slice(index, MAX_ITEMS);
@@ -42,7 +42,7 @@ export function useGetFarcasterProfilesMap() {
     []
   );
   const fetch = useCallback(
-    (fids: number[]) => {
+    (fids: string[]) => {
       if (loadingRef.current) {
         return;
       }
