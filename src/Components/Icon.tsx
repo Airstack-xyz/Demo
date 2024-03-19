@@ -87,7 +87,8 @@ export type IconType =
   | 'funnel'
   | 'farcaster-flat'
   | 'farcaster-flat-gray'
-  | 'token-balances-dark';
+  | 'token-balances-dark'
+  | 'no-items';
 
 export type IconProps = {
   name: IconType;

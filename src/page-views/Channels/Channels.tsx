@@ -90,7 +90,7 @@ export function Channels() {
               <SortBy
                 disabled={loading}
                 descLabel="Newest action first"
-                ascLabel="Olderst action first"
+                ascLabel="Oldest action first"
               />
               <div className="flex items-center">
                 <GetAPIDropdown
