@@ -27,11 +27,8 @@ type ItemProps = {
   onIdentityClick: (url: { pathname: string; search: string }) => void;
 };
 
-const airstackPointValueInEth = 0.000025;
-
-function ethToPoints(eth: number) {
-  const value = eth ? eth / airstackPointValueInEth : 0;
-  return !value ? 0 : value.toFixed(4);
+function toFixedPoints(eth: number) {
+  return !eth ? 0 : eth.toFixed(4);
 }
 
 function Td({
@@ -98,9 +95,9 @@ function Item({
           #{fid}
         </div>
       </Td>
-      <Td>{ethToPoints(swaps)}</Td>
-      <Td>{ethToPoints(referrals)}</Td>
-      <Td>{ethToPoints(totalPoints)}</Td>
+      <Td>{toFixedPoints(swaps)}</Td>
+      <Td>{toFixedPoints(referrals)}</Td>
+      <Td>{toFixedPoints(totalPoints)}</Td>
     </>
   );
 }

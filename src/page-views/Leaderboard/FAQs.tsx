@@ -29,7 +29,7 @@ const faqs: {
   {
     question: 'How are prizes awarded?',
     answer:
-      'The top 50 Stacks earners at 12pm ET on 25 March, 2024 will share 100,000 $DEGEN proportionally. Future prizes to be announced.'
+      'The top 25 Stacks earners at 12pm ET on 25 March, 2024 will share 100,000 $DEGEN proportionally. Future prizes to be announced.'
   },
   {
     question: 'What are Stacks?',
