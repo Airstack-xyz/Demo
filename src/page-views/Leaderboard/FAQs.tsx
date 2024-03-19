@@ -1,4 +1,5 @@
 import Accordion from '@/Components/Accordion';
+import { isMobileDevice } from '@/utils/isMobileDevice';
 import { useState } from 'react';
 
 const faqs: {
@@ -61,27 +62,33 @@ const FaqIcon = () => (
 );
 
 export function FAQs() {
-  const [activeFaqIndex, setActiveFaqIndex] = useState(0);
+  const [activeFaqIndexes, setActiveFaqIndexes] = useState([0]);
+  const isMobile = isMobileDevice();
   return (
     <div className="ml-0 sm:ml-16 mt-5 sm:-mt-[38px]">
-      <div className="font-bold flex items-center mb-5">
-        <FaqIcon /> <span className="ml-1.5">FAQs</span>
-      </div>
+      {!isMobile && (
+        <div className="font-bold flex items-center mb-5">
+          <FaqIcon /> <span className="ml-1.5">FAQs</span>
+        </div>
+      )}
       <div className="text-sm w-80 bg-primary border border-solid border-[#10365E] rounded-lg p-5">
         {faqs.map((faq, index) => (
           <div className="pb-7" key={index}>
             <Accordion
               heading={<div className="font-semibold">{faq.question}</div>}
-              isOpen={activeFaqIndex === index}
+              isOpen={activeFaqIndexes.includes(index)}
               onToggle={() => {
-                setActiveFaqIndex(activeFaqIndex === index ? -1 : index);
+                setActiveFaqIndexes(indexes =>
+                  indexes.includes(index)
+                    ? indexes.filter(i => i !== index)
+                    : [...indexes, index]
+                );
               }}
             >
               <div className="text-text-secondary">{faq.answer}</div>
             </Accordion>
           </div>
         ))}
-        <div className=""></div>
         <div className="font-medium">
           <div className="mb-1.5">Disclaimer</div>
           <div className="text-text-secondary">

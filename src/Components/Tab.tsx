@@ -26,12 +26,14 @@ export function Tab({
   header,
   active,
   className,
-  onClick
+  onClick,
+  iconClassName
 }: {
   icon: IconType;
   header: string;
   active: boolean;
   className?: string;
+  iconClassName?: string;
   onClick: () => void;
 }) {
   return (
@@ -50,7 +52,7 @@ export function Tab({
           'invert-[0.3]': !active
         })}
       >
-        <Icon name={icon} className="h-5 mr-1.5" />
+        <Icon name={icon} className={classNames('h-5 mr-1.5', iconClassName)} />
         <span className="ellipsis">{header}</span>
       </div>
     </div>
