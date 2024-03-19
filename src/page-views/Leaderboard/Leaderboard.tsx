@@ -11,7 +11,7 @@ export default function Leaderboard() {
   const isMobile = isMobileDevice();
   return (
     <div className="content px-3 sm:px-0">
-      <h1 className="text-2xl sm:text-[40px] font-semibold mb-8 sm:mb-12 pt-5 sm:pt-7">
+      <h1 className="text-xl sm:text-[40px] font-semibold mb-8 sm:mb-12 pt-5 sm:pt-7">
         Airstack Points Leaderboard
       </h1>
       {!isMobile && (
