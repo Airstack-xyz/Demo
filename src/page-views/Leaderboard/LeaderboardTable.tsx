@@ -87,7 +87,7 @@ function Item({
           className="hover:header-btn-bg cursor-pointer px-2 py-1 rounded-full overflow-hidden inline-block"
           onClick={handleOpenUrl}
         >
-          #{name}
+          {name}
         </div>
       </Td>
       <Td>
@@ -154,9 +154,9 @@ export function LeaderboardTable() {
                       #
                     </div>
                   </th>
-                  <th className="w-36">Profile Image</th>
-                  <th className="w-36">Name</th>
-                  <th className="w-32">FID</th>
+                  <th className="w-32">Profile Image</th>
+                  <th className="w-36 !pl-4">Name</th>
+                  <th className="w-32 !pl-4">FID</th>
                   <th className="w-32">Swaps</th>
                   <th className="w-32">Referrals</th>
 
