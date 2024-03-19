@@ -11,6 +11,7 @@ export const farcasterProfilesQuery = /* GraphQL */ `
         profileDisplayName
         fid: userId
         profileImage
+        profileHandle
         profileImageContentValue {
           image {
             medium

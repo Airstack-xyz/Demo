@@ -41,8 +41,7 @@ const faqs: {
   },
   {
     question: 'How can I trust this?',
-    answer:
-      'ItU+2019s backed by Airstack, all transactions are onchain, and is entirely safe.'
+    answer: `It's backed by Airstack, all transactions are onchain, and is entirely safe.`
   }
 ];
 
@@ -71,7 +70,7 @@ export function FAQs() {
           <FaqIcon /> <span className="ml-1.5">FAQs</span>
         </div>
       )}
-      <div className="text-sm w-80 bg-primary border border-solid border-[#10365E] rounded-lg p-5">
+      <div className="text-sm w-full sm:w-80 bg-primary border border-solid border-[#10365E] rounded-lg p-5">
         {faqs.map((faq, index) => (
           <div className="pb-7" key={index}>
             <Accordion

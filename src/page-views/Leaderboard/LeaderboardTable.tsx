@@ -11,6 +11,8 @@ import {
 } from '@/hooks/useGetFarcasterProfiles';
 import LazyImage from '@/Components/LazyImage';
 import classnames from 'classnames';
+import { createTokenBalancesUrl } from '@/utils/createTokenUrl';
+import { useNavigate } from '@/hooks/useNavigate';
 const loaderData = Array(6).fill({});
 
 type ItemProps = {
@@ -21,7 +23,16 @@ type ItemProps = {
   swaps: number;
   referrals: number;
   totalPoints: number;
+  profileHandle: string;
+  onIdentityClick: (url: { pathname: string; search: string }) => void;
 };
+
+const airstackPointValueInEth = 0.000025;
+
+function ethToPoints(eth: number) {
+  const value = eth ? eth / airstackPointValueInEth : 0;
+  return !value ? 0 : value.toFixed(4);
+}
 
 function Td({
   children,
@@ -46,8 +57,22 @@ function Item({
   fid,
   swaps,
   referrals,
-  totalPoints
+  totalPoints,
+  profileHandle,
+  onIdentityClick
 }: ItemProps) {
+  const handleOpenUrl = () => {
+    if (!profileHandle) return;
+
+    const address = 'fc_fname:' + profileHandle;
+    const url = createTokenBalancesUrl({
+      address,
+      blockchain: 'ethereum',
+      inputType: 'ADDRESS'
+    });
+    onIdentityClick(url);
+  };
+
   return (
     <>
       <Td className="px-2.5 py-2.5 pl-5">{rank}</Td>
@@ -57,16 +82,31 @@ function Item({
           className="rounded overflow-hidden size-14 object-cover"
         />
       </Td>
-      <Td>{name}</Td>
-      <Td>#{fid}</Td>
-      <Td>{swaps}</Td>
-      <Td>{referrals}</Td>
-      <Td>{totalPoints}</Td>
+      <Td>
+        <div
+          className="hover:header-btn-bg cursor-pointer px-2 py-1 rounded-full overflow-hidden inline-block"
+          onClick={handleOpenUrl}
+        >
+          #{name}
+        </div>
+      </Td>
+      <Td>
+        <div
+          className="hover:header-btn-bg cursor-pointer px-2 py-1 rounded-full inline-block"
+          onClick={handleOpenUrl}
+        >
+          #{fid}
+        </div>
+      </Td>
+      <Td>{ethToPoints(swaps)}</Td>
+      <Td>{ethToPoints(referrals)}</Td>
+      <Td>{ethToPoints(totalPoints)}</Td>
     </>
   );
 }
 
 export function LeaderboardTable() {
+  const navigate = useNavigate();
   const [
     fetchLeadingProfiles,
     { data: leadingProfiles, loading: loadingLeadingProfiles }
@@ -138,6 +178,7 @@ export function LeaderboardTable() {
                   return (
                     <tr key={index} className="even:bg-[#081e3280]">
                       <Item
+                        profileHandle={profile?.profileHandle || ''}
                         key={index}
                         fid={`${data?.fid || '--'}`}
                         name={profile?.profileName || '--'}
@@ -146,6 +187,10 @@ export function LeaderboardTable() {
                         referrals={data?.referrerBonusPointEarnedFloat || 0}
                         swaps={data?.pointsEarnedFloat || 0}
                         totalPoints={data?.totalFloat || 0}
+                        onIdentityClick={(urlInfo: {
+                          pathname: string;
+                          search: string;
+                        }) => navigate(urlInfo)}
                       />
                     </tr>
                   );
@@ -167,6 +212,8 @@ export function LeaderboardTable() {
                         referrals={0}
                         swaps={0}
                         totalPoints={0}
+                        profileHandle=""
+                        onIdentityClick={() => {}}
                       />
                     </div>
                   </tr>
