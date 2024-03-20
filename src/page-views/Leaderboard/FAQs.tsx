@@ -3,7 +3,7 @@ import { isMobileDevice } from '@/utils/isMobileDevice';
 import { ReactNode, useState } from 'react';
 
 const howStacksAreEarned = (
-  <div className="leading-6">
+  <div>
     <div className="mb-3">
       Stacks are earned at the rate of 40,000 per ETH swapped.
     </div>
@@ -28,8 +28,15 @@ const faqs: {
 }[] = [
   {
     question: 'How are prizes awarded?',
-    answer:
-      'The top 25 Stacks earners at 12pm ET on 25 March, 2024 will share 100,000 $DEGEN proportionally. Future prizes to be announced.'
+    answer: (
+      <div>
+        <div className="mb-2">
+          The top 10 Stacks earners at 12pm ET on Tues 26 March 2024 will share
+          200,000 $DEGEN proportionally.
+        </div>
+        <div>5 random players will also each get 10,000 $DEGEN.</div>
+      </div>
+    )
   },
   {
     question: 'What are Stacks?',
@@ -99,7 +106,7 @@ export function FAQs() {
                 );
               }}
             >
-              <div className="text-text-secondary">{faq.answer}</div>
+              <div className="text-text-secondary leading-6">{faq.answer}</div>
             </Accordion>
           </div>
         ))}
