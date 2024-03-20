@@ -106,7 +106,7 @@ const FaqIcon = () => (
 );
 
 export function FAQs() {
-  const [activeFaqIndexes, setActiveFaqIndexes] = useState([0]);
+  const [activeFaqIndexes, setActiveFaqIndexes] = useState([0, 2]);
   const isMobile = isMobileDevice();
   return (
     <div className="ml-0 sm:ml-16 mt-5 sm:-mt-[38px]">
