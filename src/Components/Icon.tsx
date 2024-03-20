@@ -88,7 +88,9 @@ export type IconType =
   | 'farcaster-flat'
   | 'farcaster-flat-gray'
   | 'token-balances-dark'
-  | 'no-items';
+  | 'no-items'
+  | 'leaderboard'
+  | 'faq';
 
 export type IconProps = {
   name: IconType;

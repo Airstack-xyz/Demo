@@ -60,7 +60,7 @@ export default function RootLayout({
         <div id="root">
           <div className="pt-[70px] pb-8 max-sm:min-h-[140vh]">
             <Header />
-            <main className="pr-2 pl-2 sm:pr-6 sm:pl-16 pt-5 flex flex-col items-center">
+            <main className="pr-2 pl-2 sm:pr-6 sm:pl-16 pt-5 flex flex-col items-center relative">
               {children}
             </main>
           </div>

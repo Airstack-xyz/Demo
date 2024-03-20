@@ -35,13 +35,27 @@ export function Header() {
               <Image src="/logo.svg" className="h-[33px] mr-5" />
             </Link>
           </div>
-          <div className="hidden sm:flex-row-center text-sm gap-[30px]">
+          <div className="hidden sm:flex-row-center text-xs gap-[30px]">
             <Link
               target="_blank"
               to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster-frames"
-              className="flex items-center gap-2"
+              className="flex items-center gap-1 px-2.5 py-1.5 -mr-2.5 rounded-18 overflow-hidden hover:header-btn-bg"
             >
-              <Icon name="frames" height={30} width={95} />
+              <span className="rounded-sm header-btn-bg py-1.5 px-2 sm:py-0 sm:px-0">
+                <Icon
+                  name="farcaster"
+                  height={14.5}
+                  width={14.5}
+                  className="rounded-sm"
+                />
+              </span>
+              <span className="text-text-button font-semibold">Frames</span>
+            </Link>
+            <Link
+              to="/leaderboard"
+              className="font-semibold px-2.5 py-1.5 hover:header-btn-bg rounded-18 -mx-2.5"
+            >
+              Leaderboard
             </Link>
 
             {links.map((link, index) => (

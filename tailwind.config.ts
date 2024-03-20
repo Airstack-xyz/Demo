@@ -149,6 +149,10 @@ const config: Config = {
         },
         '.content': {
           '@apply w-[1440px] max-w-[100vw]': {}
+        },
+        '.header-btn-bg': {
+          background: 'rgba(255, 255, 255, 0.05)',
+          'backdrop-filter': 'blur(33.31547927856445px)'
         }
       });
     }

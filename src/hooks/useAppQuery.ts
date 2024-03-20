@@ -8,7 +8,10 @@ if (!API) {
   console.error('BFF_ENDPOINT is not defined');
 }
 
-export function useAppQuery<Response = any, Variables = any>(query: string) {
+export function useAppQuery<Response = any, Variables = any>(
+  query: string,
+  withAuth: boolean = true
+) {
   const auth = usePrivy();
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<null | Response>(null);
@@ -41,13 +44,16 @@ export function useAppQuery<Response = any, Variables = any>(query: string) {
       let requestAborted = false;
       try {
         abortControllerRef.current = new AbortController();
-        const token = await auth.getAccessToken();
+        let token: string | null = '';
+        if (withAuth) {
+          token = await auth.getAccessToken();
+        }
         const res = await fetch(API, {
           method: 'POST',
           signal: abortControllerRef.current.signal,
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
+            ...(withAuth ? { Authorization: `Bearer ${token}` } : {})
           },
           body: JSON.stringify({
             query,
@@ -92,7 +98,7 @@ export function useAppQuery<Response = any, Variables = any>(query: string) {
         error: null
       };
     },
-    [auth, query]
+    [auth, query, withAuth]
   );
 
   return [

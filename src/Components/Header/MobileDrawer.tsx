@@ -51,7 +51,7 @@ export function MobileDrawer({}) {
           ></div>
           <ul
             className={classNames(
-              'pt-10 px-7 card h-full z-10 relative transform-gpu transition-transform duration-300 ease-in-out',
+              'pt-10 px-7 card h-full z-10 relative transform-gpu transition-transform duration-300 ease-in-out font-medium',
               {
                 'translate-x-0': showNavbar,
                 'translate-x-full': !showNavbar
@@ -62,9 +62,37 @@ export function MobileDrawer({}) {
               <Link
                 target="_blank"
                 to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster-frames"
-                className="flex items-center gap-2"
+                className="flex items-center gap-2.5"
               >
-                <Icon name="frames" height={30} width={95} />
+                <span className="rounded-18 header-btn-bg py-1.5 px-2.5">
+                  <Icon
+                    name="farcaster"
+                    height={14.2}
+                    width={14.2}
+                    className="rounded-sm"
+                  />
+                </span>
+                <span className="text-text-button">Frames</span>
+              </Link>
+            </li>
+
+            <li className="pt-9">
+              <Link
+                to="/leaderboard"
+                className="flex items-center gap-2.5"
+                onClick={() => {
+                  setShowNavbar(false);
+                }}
+              >
+                <span className="rounded-18 header-btn-bg py-1.5 px-2.5">
+                  <Icon
+                    name="leaderboard"
+                    height={14.2}
+                    width={14.2}
+                    className="rounded-sm"
+                  />
+                </span>
+                <span>Leaderboard</span>
               </Link>
             </li>
             {links.map((link, index) => (
@@ -72,7 +100,7 @@ export function MobileDrawer({}) {
                 <Link
                   target="_blank"
                   to={link.link}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-2.5"
                 >
                   <Icon
                     name={link.icon}
