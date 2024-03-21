@@ -44,13 +44,36 @@ const faqs: {
   },
   {
     question: 'How do I earn Stacks?',
-    answer:
-      'You earn Stacks every time you swap in the Airstack Degen Alpha frame on Farcaster, or if other users swap from your referrals.'
+    answer: (
+      <div>
+        You earn Stacks every time you swap in the{' '}
+        <a
+          className="text-text-button underline"
+          href="https://warpcast.com/betashop.eth/0xf2cbf1e5"
+          target="_blank"
+        >
+          Airstack Degen Alpha frame
+        </a>{' '}
+        on Farcaster, or if other users swap from your referrals.
+      </div>
+    )
   },
   {
     question: 'How are referral Stacks earned?',
-    answer:
-      'Click “share frame” in the Airstack Degen Alpha frame to create an original cast with the Frame. Whenever someone swaps from your frame you will automatically earn referral Stacks.'
+    answer: (
+      <div>
+        Click “share frame” in the{' '}
+        <a
+          className="text-text-button underline"
+          href="https://warpcast.com/betashop.eth/0xf2cbf1e5"
+          target="_blank"
+        >
+          Airstack Degen Alpha frame
+        </a>{' '}
+        to create an original cast with the Frame. Whenever someone swaps from
+        your frame you will automatically earn referral Stacks.
+      </div>
+    )
   },
   {
     question: 'What if I recast the Frame?',
@@ -83,7 +106,7 @@ const FaqIcon = () => (
 );
 
 export function FAQs() {
-  const [activeFaqIndexes, setActiveFaqIndexes] = useState([0]);
+  const [activeFaqIndexes, setActiveFaqIndexes] = useState([0, 2]);
   const isMobile = isMobileDevice();
   return (
     <div className="ml-0 sm:ml-16 mt-5 sm:-mt-[38px]">
