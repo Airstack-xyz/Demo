@@ -90,7 +90,8 @@ export type IconType =
   | 'token-balances-dark'
   | 'no-items'
   | 'leaderboard'
-  | 'faq';
+  | 'faq'
+  | 'transfer';
 
 export type IconProps = {
   name: IconType;

@@ -1,19 +1,36 @@
 import { NextRequest } from 'next/server';
 
+const ALLOWED_ORIGINS = [
+  'https://airstack.xyz',
+  'https://explorer.uat.airstack.xyz',
+  'https://explorer.dev.airstack.xyz',
+];
+
 export async function POST(req: NextRequest) {
   const body = await req.json();
 
-  const postUrl = body.postUrl;
+  const origin = req.headers.get('origin');
+  const secret = process.env.FRAMES_VALIDATION_BYPASS_SECRET;
+
+  if (!secret || !origin || !ALLOWED_ORIGINS.includes(origin)) {
+    return new Response('Invalid request', { status: 400 });
+  }
+
+  const postUrl = body?.postUrl;
+  const farcasterId = body?.fid || -1;
+  const buttonIndex = body?.buttonIndex || 1;
+  const inputText = body?.inputText || '';
+  const state = body?.state || '';
 
   const mockFrameRequestBody = {
-    secret: process.env.FRAMES_VALIDATION_BYPASS_SECRET,
+    secret: secret,
     untrustedData: {
-      fid: -1,
+      fid: farcasterId,
       url: postUrl,
-      messageHash: '',
       timestamp: Date.now(),
-      network: 1,
-      buttonIndex: 1,
+      buttonIndex: buttonIndex,
+      inputText: inputText,
+      state: state,
       castId: {
         fid: -1,
         hash: '0x0000000000000000000000000000000000000001'

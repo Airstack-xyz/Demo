@@ -23,7 +23,8 @@ export function FrameRenderer({
   frameClass,
   initialContent,
   loadingContent,
-  errorContent
+  errorContent,
+  showLoading
 }: {
   postUrl?: string;
   containerClass?: string;
@@ -32,6 +33,7 @@ export function FrameRenderer({
   initialContent?: ReactNode;
   loadingContent?: ReactNode;
   errorContent?: ReactNode;
+  showLoading?: boolean;
 }) {
   const [frameState, setFrameState] = useState(initialFrameState);
 
@@ -82,7 +84,7 @@ export function FrameRenderer({
   }, [debouncedFetchDataFn, postUrl]);
 
   const renderFrameContent = () => {
-    if (loading) {
+    if (loading || showLoading) {
       return (
         loadingContent || (
           <div className="my-auto flex-col-center gap-1 max-sm:text-base text-xl font-bold text-center">

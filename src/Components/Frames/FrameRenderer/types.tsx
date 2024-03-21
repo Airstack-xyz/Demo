@@ -12,4 +12,5 @@ export type FrameState = {
   image: string;
   imageAspectRatio?: ImageAspectRatio;
   inputText?: string;
+  state?: string;
 };

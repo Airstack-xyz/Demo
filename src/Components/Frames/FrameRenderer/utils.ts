@@ -1,4 +1,4 @@
-import { FrameButton, FrameState } from './types';
+import { FrameButton, FrameState, ImageAspectRatio } from './types';
 
 const FRAME_ROUTE = '/api/frame';
 
@@ -39,9 +39,14 @@ export const parseFrameData = (html: string) => {
   const image = doc
     .querySelector("meta[name='fc:frame:image']")
     ?.getAttribute('content');
-
+  const imageAspectRatio = doc
+    .querySelector("meta[name='fc:frame:image:aspect_ratio']")
+    ?.getAttribute('content') as ImageAspectRatio;
   const inputText = doc
     .querySelector("meta[name='fc:frame:input:text']")
+    ?.getAttribute('content');
+  const state = doc
+    .querySelector("meta[name='fc:frame:state']")
     ?.getAttribute('content');
 
   const buttons: FrameButton[] = [];
@@ -69,8 +74,10 @@ export const parseFrameData = (html: string) => {
   const frame: FrameState = {
     postUrl: postUrl || '',
     image: image || '',
+    imageAspectRatio: imageAspectRatio || '1.91:1',
     buttons,
-    inputText: inputText || ''
+    inputText: inputText || '',
+    state: state || ''
   };
 
   return frame;
