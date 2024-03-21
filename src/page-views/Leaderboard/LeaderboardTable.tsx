@@ -29,7 +29,14 @@ type ItemProps = {
 };
 
 function toFixedPoints(eth: number) {
-  return !eth ? 0 : eth.toFixed(4);
+  if (!eth) {
+    return 0;
+  }
+  const numString = eth.toFixed(4);
+  // en-us locale only allows 3 decimal places, so we need to split the number and append the decimal places back to the whole number
+  const [whole, decimal] = numString.split('.');
+  const wholeNumberString = parseInt(whole).toLocaleString('en-US');
+  return `${wholeNumberString}.${decimal}`;
 }
 
 function Td({
@@ -174,8 +181,8 @@ export function LeaderboardTable() {
                     : ({} as Profile);
 
                   const image =
-                    profile.profileImage ||
-                    profile?.profileImageContentValue?.image?.medium;
+                    profile?.profileImageContentValue?.image?.medium ||
+                    profile.profileImage;
                   return (
                     <tr key={index} className="even:bg-[#081e3280]">
                       <Item
