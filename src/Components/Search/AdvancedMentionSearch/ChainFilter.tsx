@@ -56,7 +56,7 @@ export default function ChainFilter({
         onClick={toggleDropdown}
       />
       {isDropdownVisible && (
-        <div className="py-2 pl-3 pr-5 mt-1 flex flex-col gap-y-1 rounded-md shadow bg-glass absolute top-full z-10 min-w-[108px]">
+        <div className="py-2 pl-3 pr-5 mt-1 flex flex-col gap-y-1 rounded-md shadow bg-dropdown absolute top-full z-10 min-w-[108px]">
           {chainOptions.map(option => {
             const isSelected = selectedOption.value === option.value;
             const onClick = isSelected

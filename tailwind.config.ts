@@ -150,7 +150,7 @@ const config: Config = {
           '@apply w-full max-w-[1050px]': {}
         },
         '.dropdown-bg': {
-          background: '@apply bg-dropdown',
+          background: '#172633',
           'backdrop-filter': 'blur(33.31547927856445px)'
         },
         '.button-filter': {

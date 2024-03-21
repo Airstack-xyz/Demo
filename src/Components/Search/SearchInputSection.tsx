@@ -211,7 +211,7 @@ export function SearchInputSection({
       <div
         ref={inputSectionRef}
         className={classNames(
-          'before-bg-glass before:rounded-3xl before:border-solid-stroke before:!border-[#ffffff1a] transition-all absolute top-0',
+          'bg-input-primary rounded-3xl border border-input-stroke-primary border-solid transition-all absolute top-0',
           isAdvancedMentionSearchVisible && !isMobile
             ? 'w-[min(70vw,900px)]'
             : 'w-full'
@@ -219,10 +219,8 @@ export function SearchInputSection({
       >
         <div
           className={classNames(
-            'flex items-center h-[50px] w-full rounded-full px-4 py-3 transition-all z-20 relative bg-[#ffffff0d]',
-            isInputSectionFocused
-              ? 'bg-[linear-gradient(137deg,#ffffff0f_-8.95%,#ffffff00_114%)]'
-              : ''
+            'flex items-center h-[50px] w-full rounded-full px-4 py-3 transition-all z-20 relative bg-input-primary',
+            isInputSectionFocused ? 'bg-input-secondary' : ''
           )}
         >
           {isPrefixSearchIconVisible && (

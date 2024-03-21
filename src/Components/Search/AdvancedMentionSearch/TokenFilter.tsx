@@ -50,7 +50,7 @@ export default function TokenFilter({
             key={option.value}
             type="button"
             className={classNames(
-              'py-1.5 px-3 rounded-full bg-glass-1 text-text-secondary border border-transparent text-xs hover:bg-glass-1-light',
+              'py-1.5 px-3 rounded-full button-filter text-text-secondary border border-transparent text-xs',
               isSelected &&
                 '!border-white bg-secondary font-bold !text-text-primary'
             )}

@@ -28,7 +28,7 @@ export function Header() {
         className="absolute w-screen top-0 pointer-events-none"
         position="top"
       />
-      <header className="fixed bg-glass-1 py-4 z-[100] top-0 left-0 right-0 max-sm:absolute flex justify-center  pr-2 pl-2 sm:pr-6 sm:pl-16">
+      <header className="fixed bg-header py-4 z-[100] top-0 left-0 right-0 max-sm:absolute flex justify-center  pr-2 pl-2 sm:pr-6 sm:pl-16">
         <div className="content flex items-center justify-center sm:justify-between">
           <div className="text-xl flex-row-center">
             <Link to="/" className="">

@@ -137,7 +137,7 @@ function AskAIDropdown({
     <div
       ref={dropdownRef}
       className={classNames(
-        'bg-glass rounded-18 mt-1 flex flex-col absolute max-sm:right-0 top-full w-80 p-6 card z-[100]',
+        'rounded-18 mt-1 flex flex-col absolute max-sm:right-0 top-full w-80 p-6 card z-[100]',
         isHome ? 'right-[120px]' : 'right-[320px]'
       )}
     >
@@ -148,7 +148,7 @@ function AskAIDropdown({
         Query onchain with Airstack AI! <br /> Farcaster, ENS, Ethereum, Base,
         Zora, Lens, XMTP, NFTs, Tokens, POAPs and more.
       </div>
-      <div className="text-xs font-medium">
+      <div className="text-xs font-medium flex">
         <Link
           to="https://app.airstack.xyz/api-studio"
           target="_blank"
