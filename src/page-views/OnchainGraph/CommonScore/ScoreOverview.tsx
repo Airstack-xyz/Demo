@@ -185,6 +185,8 @@ export function ScoreOverview() {
   const hasLensFollow = lens.following || lens.followedBy;
   const hasTokenTransfer = tokenTransfer.sent || tokenTransfer.received;
   const loader = loading && <Loader />;
+  const displayName1 = domains[0]?.name || profiles[0]?.profileHandle;
+  const displayName2 = domains[1]?.name || profiles[1]?.profileHandle;
 
   return (
     <div className="h-auto sm:h-[236px] bg-glass flex flex-col sm:flex-row items-center border-solid-stroke rounded-18">
@@ -210,9 +212,9 @@ export function ScoreOverview() {
                 tokenTransfer?.sent && tokenTransfer?.received
                   ? `Sent/Received tokens`
                   : tokenTransfer?.sent
-                  ? `${domains[0]?.name} Sent tokens ${domains[0]?.name}`
+                  ? `${displayName2} Sent tokens ${displayName1}`
                   : tokenTransfer?.received
-                  ? `${domains[1]?.name} Sent tokens ${domains[0]?.name}`
+                  ? `${displayName1} Sent tokens ${displayName2}`
                   : ''
               }
             />
@@ -237,9 +239,9 @@ export function ScoreOverview() {
                 farcaster.following && farcaster.followedBy
                   ? 'Farcaster mutual follow'
                   : farcaster.followedBy
-                  ? `${domains[1]?.name} follows ${domains[0]?.name} on Farcaster`
+                  ? `${displayName2} follows ${displayName1} on Farcaster`
                   : farcaster.following
-                  ? `${domains[0]?.name} follows ${domains[1]?.name} on Farcaster`
+                  ? `${displayName1} follows ${displayName2} on Farcaster`
                   : ''
               }
               height={17}
@@ -253,9 +255,9 @@ export function ScoreOverview() {
                 lens.following && lens.followedBy
                   ? 'Lens mutual follow'
                   : lens.followedBy
-                  ? `${domains[1]?.name} follows ${domains[0]?.name} on Lens`
+                  ? `${displayName2} follows ${displayName1} on Lens`
                   : lens.following
-                  ? `${domains[0]?.name} follows ${domains[1]?.name} on Lens`
+                  ? `${displayName1} follows ${displayName2} on Lens`
                   : ''
               }
             />
