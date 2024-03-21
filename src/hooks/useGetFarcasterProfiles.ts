@@ -3,7 +3,7 @@ import { FaracsterProfilesQuery } from '../../__generated__/airstack-types';
 import { farcasterProfilesQuery } from '@/queries/socials/farcasterProfiles';
 import { useCallback, useRef, useState } from 'react';
 
-const MAX_ITEMS = 100;
+const MAX_ITEMS = 200;
 
 export type Profile = NonNullable<
   NonNullable<FaracsterProfilesQuery['Socials']>['Social']

@@ -4,6 +4,7 @@ export const farcasterProfilesQuery = /* GraphQL */ `
       input: {
         filter: { dappName: { _eq: farcaster }, userId: { _in: $fids } }
         blockchain: ethereum
+        limit: 200
       }
     ) {
       Social {
