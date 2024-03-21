@@ -19,7 +19,7 @@ export default function Leaderboard() {
           <a
             href="https://warpcast.com/betashop.eth/0xf2cbf1e5"
             target="_blank"
-            className="flex items-center gap-1 px-4 py-2 dropdown-bg text-xs font-medium text-text-button rounded-18"
+            className="flex items-center gap-1 px-4 py-2 dropdown-bg hover:bg-[#14273880] text-xs font-medium text-text-button rounded-18"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -42,7 +42,7 @@ export default function Leaderboard() {
           <a
             href="https://warpcast.com/~/compose?embeds%5B%5D=https%3A%2F%2Fframes.airstack.xyz%2Ftt&text=hihi%2C+see+what+tokens+are+trending+right+now+on+Farcaster"
             target="_blank"
-            className="flex items-center gap-1 px-4 py-2 dropdown-bg text-xs font-medium text-text-button rounded-18"
+            className="flex items-center gap-1 px-4 py-2 dropdown-bg hover:bg-[#14273880] text-xs font-medium text-text-button rounded-18"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
