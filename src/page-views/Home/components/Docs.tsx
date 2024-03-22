@@ -83,14 +83,14 @@ export function Docs() {
       </ul>
       <div className="flex flex-col sm:flex-row items-center justify-center mt-7">
         <Link
-          to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster/airstack-onchain-kit-for-farcaster-frames#validate-frames-signature-packet"
+          to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster/frames-validator"
           className="card font-semibold text-xl px-7 flex items-center rounded-2xl h-16 w-full sm:w-[363px]"
         >
           <Icon name="frames-validator" loading="eager" />
           <span className="ml-1.5">Frames Validator</span>
         </Link>
         <Link
-          to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/farcaster-frames"
+          to="https://docs.airstack.xyz/airstack-docs-and-faqs/guides/airstack-frog-recipes-and-middleware/captcha-verification"
           className="card font-semibold text-xl px-7 flex items-center rounded-2xl h-16 w-full sm:w-[363px] ml-0 sm:ml-7 mt-5 sm:mt-0"
         >
           <Icon name="frames-sdk" loading="eager" />
