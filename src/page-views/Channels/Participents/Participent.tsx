@@ -24,7 +24,7 @@ function Clickable({
 }) {
   return (
     <div
-      className="px-1 py-1 -ml-1 rounded-18 ellipsis max-w-[200px] sm:max-w-none hover:bg-glass-1 cursor-pointer"
+      className="px-1 py-1 -ml-1 rounded-18 ellipsis max-w-[200px] sm:max-w-none hover:bg-hover-primary cursor-pointer"
       onClick={onClick}
     >
       {value || '--'}

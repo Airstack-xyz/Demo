@@ -106,7 +106,7 @@ export const TokenWithERC6551 = memo(function Token({
 
   return (
     <div
-      className="group h-[300px] w-[300px] rounded-[16px] bg-secondary flex flex-col justify-between overflow-hidden relative bg-glass token cursor-pointer"
+      className="group h-[300px] w-[300px] rounded-[16px] bg-secondary flex flex-col justify-between overflow-hidden relative token cursor-pointer"
       data-loader-type="block"
       onClick={() => {
         setSearchData(

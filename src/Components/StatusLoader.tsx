@@ -26,7 +26,7 @@ export function StatusLoader({ lines }: LoaderProps) {
   };
   return (
     <div className="fixed inset-5 sm:inset-10 flex justify-center items-end pointer-events-none z-[25]">
-      <div className="bg-glass rounded-18 p-8 border-solid-stroke max-w-[90%] sm:max-w-[500px]">
+      <div className="card rounded-18 p-8 max-w-[90%] sm:max-w-[500px]">
         {lines.map(([line, count]) => renderRow(line, count))}
       </div>
     </div>

@@ -220,7 +220,7 @@ function SocialsComponent() {
         <SectionHeader iconName="socials-flat" heading="Quick Links" />
       </div>
       <Link
-        className="rounded-18 border-solid-stroke mt-3.5 bg-glass hover:bg-glass-1 p-5 mb-5 flex items-center"
+        className="rounded-18 mt-3.5 card hover:bg-card-hover p-5 mb-5 flex items-center"
         to={`/onchain-graph?identity=${address[0]}`}
       >
         <>
@@ -238,7 +238,7 @@ function SocialsComponent() {
       </div>
       <div
         className={classNames(
-          'rounded-18 border-solid-stroke mt-3.5 min-h-[250px] flex flex-col bg-glass',
+          'rounded-18 card mt-3.5 min-h-[250px] flex flex-col',
           {
             'skeleton-loader': loading
           }

@@ -40,7 +40,7 @@ export function ListWithMoreOptions({
             className={classNames(
               'px-1 py-1 rounded-18 ellipsis max-w-[200px] sm:max-w-none',
               {
-                'hover:bg-glass-1 cursor-pointer': name
+                'hover:bg-hover-primary cursor-pointer': name
               }
             )}
             onClick={getItemClickHandler(name)}

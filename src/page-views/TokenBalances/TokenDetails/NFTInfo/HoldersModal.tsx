@@ -78,7 +78,7 @@ export function HoldersModal({
           >
             {owners?.map((value, index) => (
               <div
-                className="mb-8 px-3 py-1 rounded-18 ellipsis hover:bg-glass cursor-pointer"
+                className="mb-8 px-3 py-1 rounded-18 ellipsis hover:bg-hover-primary cursor-pointer"
                 key={index}
                 onClick={() => onAddressClick(value)}
               >

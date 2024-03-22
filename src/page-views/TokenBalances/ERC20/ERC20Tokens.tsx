@@ -64,7 +64,7 @@ function Token({
   blockchain: string;
 }) {
   return (
-    <div className="flex mb-5 hover:bg-glass px-3 py-1.5 rounded-18 overflow-hidden">
+    <div className="flex mb-5 hover:bg-hover-secondry px-3 py-1.5 rounded-18 overflow-hidden">
       <div
         className="h-10 w-10 rounded-full overflow-hidden border-solid-stroke flex-col-center"
         data-loader-type="hidden"
@@ -285,7 +285,7 @@ export function ERC20Tokens() {
       </div>
       <div
         className={classNames(
-          'mt-3.5 bg-glass py-3 px-2 rounded-18 border-solid-stroke random-color-list',
+          'mt-3.5 card py-3 px-2 rounded-18 random-color-list',
           {
             'skeleton-loader min-h-[200px]': tokens.length === 0 && loading
           }

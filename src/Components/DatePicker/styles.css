@@ -1,5 +1,5 @@
 .react-calendar {
-  @apply bg-glass text-white text-sm rounded-xl max-w-full p-2 w-[256px];
+  @apply card   shadow-black text-white text-sm rounded-xl max-w-full p-2 w-[256px];
 }
 
 .react-calendar--doubleView {
@@ -47,7 +47,7 @@
 }
 
 .react-calendar__navigation button:disabled {
-  @apply text-white/50;;
+  @apply text-white/50;
 }
 
 .react-calendar__navigation button:enabled:hover,
@@ -137,5 +137,5 @@
 }
 
 .react-calendar--selectRange .react-calendar__tile--hover {
-  @apply bg-stroke-color;;
+  @apply bg-stroke-color;
 }

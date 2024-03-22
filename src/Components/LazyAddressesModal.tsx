@@ -126,7 +126,7 @@ export function LazyAddressesModal({
         {items.map((item, index) => (
           <div
             key={index}
-            className="px-3 py-1 h-8 rounded-18 ellipsis hover:bg-glass cursor-pointer"
+            className="px-3 py-1 h-8 rounded-18 ellipsis hover:bg-hover-primary flex items-center cursor-pointer"
             onClick={() => onAddressClick(item, dataType)}
           >
             {item}

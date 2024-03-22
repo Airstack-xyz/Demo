@@ -48,7 +48,7 @@ export function Owners({
         {items?.map((owner, index) => (
           <li key={index} className="mb-2.5 last:mb-0 flex">
             <button
-              className="mr-1 ellipsis border border-solid border-transparent hover:border-solid-stroke hover:bg-glass rounded-18"
+              className="mr-1 ellipsis border border-solid border-transparent hover:border-solid-stroke hover:bg-hover-secondry rounded-18"
               onClick={() => handleAddressClick(owner)}
             >
               {owner}

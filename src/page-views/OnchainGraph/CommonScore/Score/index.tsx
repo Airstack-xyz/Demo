@@ -20,7 +20,7 @@ export function Score({
   const isMobile = isMobileDevice();
 
   return (
-    <div className="bg-glass flex justify-center items-center w-full sm:w-[480px] h-full px-3 sm:px-7 py-7 rounded-tl-18 rounded-bl-none sm:rounded-bl-18 z-10">
+    <div className="bg-secondary flex justify-center items-center w-full sm:w-[480px] h-full px-3 sm:px-7 py-7 rounded-tl-18 rounded-bl-none sm:rounded-bl-18 z-10">
       <div className="flex mt-0 sm:mt-2">
         <div className="flex flex-col items-center relative text-center">
           <Link

@@ -15,7 +15,7 @@ const getAppliedFilterCount = ({
   appliedTimeFrameFilter,
   appliedBlockchainFilter,
   appliedAudienceFilter,
-  appliedCriteriaFilter,
+  appliedCriteriaFilter
 }: {
   appliedTimeFrameFilter: string;
   appliedBlockchainFilter: string;
@@ -85,7 +85,7 @@ export function AllFilters() {
         appliedTimeFrameFilter: timeFrame,
         appliedBlockchainFilter: blockchain,
         appliedAudienceFilter: audience,
-        appliedCriteriaFilter: criteria,
+        appliedCriteriaFilter: criteria
       }),
     [timeFrame, blockchain, audience, criteria]
   );
@@ -145,7 +145,7 @@ export function AllFilters() {
           <Icon name="arrow-down" height={16} width={16} className="ml-1" />
         </button>
         {isDropdownVisible && (
-          <div className="before-bg-glass before:z-[-1] before:rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">
+          <div className="rounded-18 dropdown-bg p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">
             {renderFilterSection({
               header: 'Time frame',
               options: timeFrameOptions,

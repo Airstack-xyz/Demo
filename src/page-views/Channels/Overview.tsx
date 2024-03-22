@@ -44,7 +44,7 @@ export function Overview({
   return (
     <div
       className={classNames(
-        'bg-transparent sm:bg-glass p-3.5 flex flex-col sm:flex-row items-center sm:border border-solid border-stroke-color my-9 rounded-18 overflow-hidden',
+        'bg-transparent sm:card p-3.5 flex flex-col sm:flex-row items-center my-9 rounded-18 overflow-hidden',
         {
           'skeleton-loader': loading
         }

@@ -58,7 +58,7 @@ export function TooltipWrapper({
       {tooltipEnabled ? (
         <div
           ref={tooltipRef}
-          className="absolute hidden before-bg-glass-1 before:rounded-[16px] before:-z-10 rounded-[16px] py-1.5 px-3 w-max text-xs text-text-secondary z-[50]"
+          className="absolute hidden dropdown-bg rounded-[16px] py-1.5 px-3 w-max text-xs text-text-secondary z-[50]"
         >
           {!tooltipIconHidden && (
             <svg

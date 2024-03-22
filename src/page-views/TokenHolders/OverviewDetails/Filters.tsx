@@ -95,7 +95,7 @@ export function Filters() {
     <div className="relative">
       <button
         className={classNames(
-          'rounded-18 px-3 py-1.5 bg-glass-1 hover:bg-glass-1-light border-solid-stroke flex-row-center disabled:opacity-75 disabled:cursor-not-allowed disabled:hover:bg-glass-1',
+          'rounded-18 px-3 py-1.5 bg-glass-1 hover:bg-hover-primary-light border-solid-stroke flex-row-center disabled:opacity-75 disabled:cursor-not-allowed disabled:hover:bg-hover-primary',
           {
             '!border-white': show
           }

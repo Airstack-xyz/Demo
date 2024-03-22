@@ -28,7 +28,7 @@ export function WalletAddress({
   return (
     <div
       className={classNames(
-        'flex px-1 py-1 rounded-18 hover:bg-glass-1 cursor-pointer',
+        'flex px-1 py-1 rounded-18 hover:bg-hover-primary cursor-pointer',
         className
       )}
       onClick={handleClick}

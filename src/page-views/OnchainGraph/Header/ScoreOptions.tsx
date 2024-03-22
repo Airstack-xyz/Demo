@@ -34,7 +34,7 @@ export function ScoreOptions({
       <button
         disabled={disabled}
         className={classnames(
-          'bg-glass-1 border-solid-stroke rounded-full flex items-center py-1.5 px-2.5 ml-3 disabled:cursor-not-allowed',
+          'button-filter rounded-full flex items-center py-1.5 px-2.5 ml-3 disabled:cursor-not-allowed',
           {
             'border-solid-light': isOpen
           }
@@ -45,9 +45,9 @@ export function ScoreOptions({
         Scoring
       </button>
       {isOpen && (
-        <div className="absolute top-[120%] right-0 z-20 bg-glass rounded-18 overflow-hidden">
+        <div className="absolute top-[120%] right-0 z-20 bg-dropdown rounded-18 overflow-hidden">
           <div
-            className="bg-glass px-4 py-4 -mt-1 -mx-1 rounded-t-18 flex items-center justify-between"
+            className="bg-tertiary px-4 py-4 -mt-1 -mx-1 rounded-t-18 flex items-center justify-between"
             onClick={e => e.stopPropagation()}
           >
             <span>Criteria</span>

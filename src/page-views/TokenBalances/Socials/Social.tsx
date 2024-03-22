@@ -47,7 +47,8 @@ export function Social({
             <li key={index} className="mb-2.5 last:mb-0 flex">
               <div
                 className={classNames('px-3 py-1 rounded-18 ellipsis', {
-                  'hover:bg-glass cursor-pointer': typeof value !== 'object'
+                  'hover:bg-hover-primary cursor-pointer':
+                    typeof value !== 'object'
                 })}
                 onClick={() => onAddressClick?.(value, type)}
               >

@@ -172,7 +172,7 @@ function UserInfo({
         onClick?.(domainName || address);
       }}
     >
-      <div className="flex p-5 bg-glass overflow-hidden">
+      <div className="flex p-5 bg-tertiary overflow-hidden">
         <div className="h-[78px] min-w-[78px] w-[78px] mr-4 relative flex justify-center">
           <span className="w-full h-full border-solid-stroke overflow-hidden rounded-full flex items-center justify-center [&>img]:max-w-[150%] [&>img]:w-[150%]">
             <Asset
@@ -306,7 +306,7 @@ const MemoizedUserInfo = memo((props: UserInfoProps) => {
     <div
       ref={ref}
       className={classNames(
-        'border-solid-stroke bg-glass hover:border-solid-light rounded-18 overflow-hidden h-[290px]',
+        'card hover:bg-card-hover rounded-18 overflow-hidden h-[290px]',
         {
           'overflow-auto !h-auto': props.showDetails
         }

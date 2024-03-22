@@ -50,7 +50,7 @@ export function AdvancedSettings({ disabled }: { disabled?: boolean }) {
           onClick={handleDropdownToggle}
         />
         {isDropdownVisible && (
-          <div className="bg-glass rounded-18 p-3.5 mt-1 absolute min-w-[232px] left-0 top-full z-20">
+          <div className="dropdown-bg rounded-18 p-3.5 mt-1 absolute min-w-[232px] left-0 top-full z-20">
             <div className="font-bold text-left whitespace-nowrap">
               Advanced settings
             </div>

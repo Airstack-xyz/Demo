@@ -30,7 +30,7 @@ export function OverviewDetails() {
           <div className="flex items-center text-xs sm:text-base mx-w-[100%] sm:max-w-[80%] overflow-hidden">
             <div className="flex items-center w-[60%] sm:w-auto overflow-hidden">
               <div
-                className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
+                className="flex items-center cursor-pointer hover:bg-hover-primary px-2 py-1 rounded-full overflow-hidden"
                 onClick={handleGoBack}
               >
                 <Icon name="token-holders" height={20} width={20} />{' '}

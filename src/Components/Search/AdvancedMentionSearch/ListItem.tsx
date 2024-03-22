@@ -36,11 +36,7 @@ export default function ListItem({
   return (
     <button
       tabIndex={-1}
-      className={classNames(
-        listItemClass,
-        isFocused &&
-          'bg-[linear-gradient(111deg,#ffffff0f_-8.95%,#ffffff00_114%)]'
-      )}
+      className={classNames(listItemClass, isFocused && 'bg-hover-primary')}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
     >

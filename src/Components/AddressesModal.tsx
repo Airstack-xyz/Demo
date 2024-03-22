@@ -23,7 +23,7 @@ export function AddressesModal({
         {addresses.map((address, index) => (
           <div
             key={index}
-            className="px-3 py-1 rounded-18 ellipsis hover:bg-glass cursor-pointer"
+            className="px-3 py-1 rounded-18 ellipsis hover:bg-hover-primary cursor-pointer"
             onClick={() => onAddressClick(address, dataType)}
           >
             {address}

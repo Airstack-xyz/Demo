@@ -74,7 +74,7 @@ function FollowSection({
         <ul className="text-text-secondary w-1/2 overflow-hidden">
           <li className="flex">
             <div
-              className="px-3 py-1 rounded-18 ellipsis hover:bg-glass cursor-pointer"
+              className="px-3 py-1 rounded-18 ellipsis hover:bg-hover-primary cursor-pointer"
               onClick={getSocialClickHandler()}
             >
               {profileHandle}
@@ -87,7 +87,7 @@ function FollowSection({
           <div className="flex-1 ml-[34px]">Followers</div>
           <div className="w-1/2">
             <button
-              className="px-3 py-1 rounded-18 hover:bg-glass text-left"
+              className="px-3 py-1 rounded-18 hover:bg-hover-primary text-left"
               onClick={getSocialClickHandler('followers')}
             >
               {followerCount}
@@ -100,7 +100,7 @@ function FollowSection({
           <div className="flex-1 ml-[34px]">Following</div>
           <div className="w-1/2">
             <button
-              className="px-3 py-1 rounded-18 text-text-secondary hover:bg-glass text-left"
+              className="px-3 py-1 rounded-18 text-text-secondary hover:bg-hover-primary text-left"
               onClick={getSocialClickHandler('followings')}
             >
               {followingCount}

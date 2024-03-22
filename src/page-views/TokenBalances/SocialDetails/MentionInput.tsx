@@ -30,7 +30,7 @@ function MentionFiltersButton({
     <button
       tabIndex={-1}
       className={classNames(
-        'px-2 rounded-full bg-glass-1 text-text-secondary border border-solid border-transparent text-[10px] hover:bg-glass-1-light flex-row-center',
+        'px-2 rounded-full bg-tertiary text-text-secondary border border-solid border-transparent text-[10px] hover:bg-hover-primary-light flex-row-center',
         { 'border-white': isOpen }
       )}
       onClick={onClick}

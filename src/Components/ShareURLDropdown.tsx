@@ -148,7 +148,7 @@ export function ShareURLDropdown({
           <div
             ref={dropdownRef}
             className={classNames(
-              'bg-glass border-solid-stroke rounded-18 p-3.5 mt-1 absolute max-sm:w-[288px] w-[360px] top-9 z-20',
+              'dropdown-bg border-solid-stroke rounded-18 p-3.5 mt-1 absolute max-sm:w-[288px] w-[360px] top-9 z-20',
               {
                 'left-0': dropdownAlignment === 'left',
                 'left-1/2 -translate-x-1/2': dropdownAlignment === 'center',
@@ -164,7 +164,7 @@ export function ShareURLDropdown({
                 <Image src="images/loader.svg" height={20} width={30} />
               ) : (
                 <>
-                  <div className="rounded-18 bg-glass-2 text-xs text-text-secondary h-[35px] px-3 flex items-center overflow-auto no-scrollbar w-full">
+                  <div className="rounded-18 bg-input-primary text-xs text-text-secondary h-[35px] px-3 flex items-center overflow-auto no-scrollbar w-full">
                     {shortUrl}
                   </div>
                   <button

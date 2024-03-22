@@ -40,7 +40,8 @@ function SocialSection({
           <li key={index} className="flex">
             <div
               className={classNames('px-3 py-1 rounded-18 ellipsis', {
-                'hover:bg-glass cursor-pointer': typeof value !== 'object'
+                'hover:bg-hover-primary cursor-pointer':
+                  typeof value !== 'object'
               })}
               onClick={() => onAddressClick?.(value, type)}
             >

@@ -312,7 +312,7 @@ export function TokenDetails(props: {
         {!hideBackBreadcrumb && (
           <div className="flex items-center sm:w-auto overflow-hidden mr-1">
             <div
-              className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
+              className="flex items-center cursor-pointer hover:bg-hover-primary px-2 py-1 rounded-full overflow-hidden"
               onClick={handleClose}
             >
               <Icon
@@ -331,7 +331,7 @@ export function TokenDetails(props: {
         {socialInfo?.dappName && (
           <>
             <div
-              className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden mr-1"
+              className="flex items-center cursor-pointer hover:bg-hover-primary px-2 py-1 rounded-full overflow-hidden mr-1"
               onClick={handleFollowBreadcrumbClick}
             >
               <Icon name="table-view" height={20} width={20} className="mr-1" />
@@ -354,7 +354,7 @@ export function TokenDetails(props: {
             >
               <button
                 className={classNames('flex cursor-auto px-1 py-0.5', {
-                  'hover:bg-glass-1-light rounded-18 !cursor-pointer':
+                  'hover:bg-hover-primary-light rounded-18 !cursor-pointer':
                     !isActiveToken
                 })}
                 onClick={() => {

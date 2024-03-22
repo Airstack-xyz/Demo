@@ -14,7 +14,7 @@ export function MatchInfo() {
           <div className="px-5 py-2 font-bold">
             How{"'"}s this score calculated?
           </div>
-          <div className="bg-glass flex items-center justify-between px-5 py-2 text-text-secondary font-medium">
+          <div className="bg-secondary flex items-center justify-between px-5 py-2 text-text-secondary font-medium">
             <div>Criteria</div>
             <div>Score</div>
           </div>

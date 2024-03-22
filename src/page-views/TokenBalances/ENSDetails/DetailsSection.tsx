@@ -59,7 +59,7 @@ export function DetailsSection({ identity }: { identity: string }) {
 
   if (loading) {
     return (
-      <section className="bg-glass border-solid-stroke rounded-18 p-5">
+      <section className="card rounded-18 p-5">
         <DetailsLoader />
       </section>
     );
@@ -79,7 +79,7 @@ export function DetailsSection({ identity }: { identity: string }) {
     domain?.managerDetails?.identity;
 
   return (
-    <section className="bg-glass border-solid-stroke rounded-18 p-5">
+    <section className="card rounded-18 p-5">
       <div className="flex max-sm:flex-col max-sm:items-center gap-6">
         <LazyImage
           alt="TokenImage"

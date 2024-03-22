@@ -57,7 +57,7 @@ export function SocialDetails({
       <div className="flex items-center">
         <div className="flex items-center max-w-[60%] sm:w-auto overflow-hidden mr-2">
           <div
-            className="flex items-center cursor-pointer hover:bg-glass-1 px-2 py-1 rounded-full overflow-hidden"
+            className="flex items-center cursor-pointer hover:bg-hover-primary px-2 py-1 rounded-full overflow-hidden"
             onClick={handleClose}
           >
             <Icon

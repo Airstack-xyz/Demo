@@ -528,7 +528,7 @@ export function TokenBalanceAllFilters({
           <Icon name="arrow-down" height={16} width={16} className="ml-1" />
         </button>
         {isDropdownVisible && (
-          <div className="before-bg-glass before:z-[-1] before:rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">
+          <div className="dropdown-bg rounded-18 p-1 mt-1 flex flex-col absolute min-w-[202px] left-0 top-full z-20">
             {renderSnapshotSection()}
             {renderBlockchainSection()}
             {renderSortSection()}

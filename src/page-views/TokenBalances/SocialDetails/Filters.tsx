@@ -196,7 +196,7 @@ export function Filters({
     return (
       <div className="flex gap-2.5 overflow-auto pr-[50px] no-scrollbar">
         {count != null && (
-          <div className="py-[7px] px-3 flex-shrink-0 bg-glass-1 rounded-full">
+          <div className="py-[7px] px-3 flex-shrink-0 dropdown-bg rounded-full">
             {isFollowerQuery
               ? `has more than ${count} followers`
               : `has more than ${count} followings`}
@@ -212,7 +212,7 @@ export function Filters({
         )}
         {chipOptions.map((item, index) => (
           <div
-            className="py-[7px] px-3 flex-shrink-0 bg-glass-1 rounded-full"
+            className="py-[7px] px-3 flex-shrink-0 button-filter rounded-full"
             key={index}
           >
             {item.label}
@@ -233,7 +233,7 @@ export function Filters({
       return null;
     }
     return (
-      <div className="bg-glass rounded-18 p-2 mt-1 flex flex-col absolute min-w-[202px] right-0 top-full z-20">
+      <div className="dropdown-bg rounded-18 p-2 mt-1 flex flex-col absolute min-w-[202px] right-0 top-full z-20">
         <FilterCheckbox
           className="max-sm:py-1.5"
           label={

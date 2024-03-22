@@ -189,7 +189,7 @@ export function ScoreOverview() {
   const displayName2 = domains[1]?.name || profiles[1]?.profileHandle;
 
   return (
-    <div className="h-auto sm:h-[236px] bg-glass flex flex-col sm:flex-row items-center border-solid-stroke rounded-18">
+    <div className="h-auto sm:h-[236px] flex flex-col sm:flex-row items-center border-solid-stroke rounded-18">
       <Score
         score={score}
         domains={domains}

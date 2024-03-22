@@ -29,7 +29,7 @@ export function FiltersButtonPortal({
     <button
       tabIndex={-1}
       className={classNames(
-        'py-1.5 px-3 rounded-full bg-primary text-text-secondary border border-solid border-transparent text-xs hover:bg-glass-1-light flex-row-center',
+        'py-1.5 px-3 rounded-full bg-primary text-text-secondary border border-solid border-transparent text-xs hover:bg-hover-primary-light flex-row-center',
         { 'border-white': isOpen }
       )}
       onClick={onClick}

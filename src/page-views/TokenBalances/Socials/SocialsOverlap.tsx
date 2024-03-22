@@ -291,12 +291,9 @@ function SocialsOverlapComponent() {
     <div className="w-full sm:w-auto">
       <SectionHeader iconName="socials-flat" heading="Socials overlap" />
       <div
-        className={classNames(
-          'rounded-18 border-solid-stroke mt-3.5 flex flex-col bg-glass',
-          {
-            'skeleton-loader min-h-[605px]': loading
-          }
-        )}
+        className={classNames('rounded-18 mt-3.5 flex flex-col card', {
+          'skeleton-loader min-h-[605px]': loading
+        })}
       >
         <div
           data-loader-type="block"

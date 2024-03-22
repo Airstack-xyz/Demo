@@ -26,7 +26,7 @@ function Loader() {
         {loaderData.map((_, index) => (
           <tr
             key={index}
-            className="[&>div>td]:px-2 [&>div>td]:py-3 [&>div>td]:align-middle min-h-[54px] hover:bg-glass cursor-pointer skeleton-loader loader-light [&>div>td:last-child]:hidden"
+            className="[&>div>td]:px-2 [&>div>td]:py-3 [&>div>td]:align-middle min-h-[54px] skeleton-loader loader-light [&>div>td:last-child]:hidden"
           >
             <div data-loader-type="block" data-loader-margin="10">
               <Participent participent={null} />

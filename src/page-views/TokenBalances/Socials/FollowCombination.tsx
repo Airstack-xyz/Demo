@@ -74,7 +74,7 @@ function FollowCombinationSection({
         {items?.map((item, index) => (
           <li key={index} className="flex">
             <div
-              className="px-3 py-1 rounded-18 ellipsis hover:bg-glass cursor-pointer"
+              className="px-3 py-1 rounded-18 ellipsis hover:bg-hover-primary cursor-pointer"
               onClick={() => onFollowClick?.({ dappName, ...item })}
             >
               {item.profileHandle1}
