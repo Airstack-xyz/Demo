@@ -43,8 +43,10 @@ const config: Config = {
         navbar: '#15293D',
         'input-primary': '#12212E',
         'input-secondary': '#162B42',
+        'input-tertiary': '#061523',
         'input-stroke-primary': '#2A3743',
         'input-stroke-secondary': '#384A5B',
+        'input-stroke-tertiary': '#10365E',
         'hover-primary': '#142738',
         'hover-secondry': '#172633'
       },
