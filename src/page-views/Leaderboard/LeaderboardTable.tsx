@@ -150,14 +150,14 @@ export function LeaderboardTable() {
 
   return (
     <div className="flex w-screen overflow-auto sm:w-auto sm:overflow-visible">
-      <div className="bg-primary border border-solid border-[#10365E] rounded-lg py-3">
+      <div className="bg-primary border border-solid border-[#10365E] rounded-18 py-2">
         <table className="table-fixed w-full max-w-[950px] border-spacing-10">
           {!loading && (
             <>
               <thead>
-                <tr className="[&>th]:bg-token rounded-lg [&>th]:p-2.5 [&>th]:text-left text-xs font-bold">
+                <tr className="[&>th]:bg-token rounded-[10px] [&>th]:p-2.5 [&>th]:text-left text-xs font-bold">
                   <th className="!bg-transparent !p-0 w-24">
-                    <div className="rounded-l-lg bg-token px-2.5 py-2.5 pl-5 ml-2">
+                    <div className="rounded-l-[10px] bg-token px-2.5 py-2.5 pl-5 ml-2">
                       #
                     </div>
                   </th>
@@ -167,7 +167,7 @@ export function LeaderboardTable() {
                   <th className="w-32">Swaps</th>
                   <th className="w-32">Referrals</th>
                   <th className="!bg-transparent !p-0 w-32">
-                    <div className="rounded-r-lg bg-token p-2.5 mr-2">
+                    <div className="rounded-r-[10px] bg-token p-2.5 mr-2">
                       Total Points
                     </div>
                   </th>
