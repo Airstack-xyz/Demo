@@ -1,8 +1,8 @@
 
 export default function FinishedGame() {
   return (
-    <div className="ml-0 sm:ml-16 mt-10 sm:mt-0 text-sm w-full sm:w-[340px] min-h-[246px] bg-primary border border-solid border-[#10365E] rounded-lg flex-row-center">
-      <div className="bg-token p-5 text-center w-full flex justify-center">
+    <div className="ml-0 sm:ml-16 mt-10 sm:mt-0 text-sm w-full sm:w-[340px] bg-primary border border-solid border-[#10365E] rounded-lg flex flex-col items-center justify-between">
+      <div className="p-5 text-center w-full flex justify-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="19"
@@ -20,9 +20,12 @@ export default function FinishedGame() {
           />
         </svg>
         <div className='ml-1.5 leading-5 flex-col-center text-sm font-semibold text-[#FFDE2E]'>
-          <span>The next game begins April 1, 2024.</span>
-          <span className='mt-2'>3M Degen up for grabs!</span>
+          <span>Round 2 starts 1 April, 2024.</span>
+          <span className='mt-2'>3M $DEGEN up for grabs!</span>
         </div>
+      </div>
+      <div className="p-3 bg-token text-center text-text-secondary text-xs">
+      Round 1 ended 26 March, 2024 at 12pm ET. 300,000 $DEGEN were rewarded!
       </div>
     </div>
   );
