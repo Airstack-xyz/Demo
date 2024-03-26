@@ -164,11 +164,11 @@ export function LeaderboardTable() {
                   <th className="w-32">Profile Image</th>
                   <th className="w-36 !pl-4">Name</th>
                   <th className="w-32 !pl-4">FID</th>
-                  <th className="w-32">Swap Stacks</th>
-                  <th className="w-32">Referral Stacks</th>
+                  <th className="w-32">Swaps</th>
+                  <th className="w-32">Referrals</th>
                   <th className="!bg-transparent !p-0 w-32">
                     <div className="rounded-r-lg bg-token p-2.5 mr-2">
-                      Airstack points
+                      Total Points
                     </div>
                   </th>
                 </tr>
