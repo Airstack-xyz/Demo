@@ -1,19 +1,20 @@
 import { Tab, TabContainer } from '@/Components/Tab';
 import { isMobileDevice } from '@/utils/isMobileDevice';
 import { useState } from 'react';
-import { FAQs } from './FAQs';
+// import { FAQs } from './FAQs';
 import { LeaderboardTable } from './LeaderboardTable';
+import FinishedGame from './FinishedGame';
+
+type LeaderboardTab = 'leaderboard' | 'faq';
 
 export default function Leaderboard() {
-  const [activeTab, setActiveTab] = useState<'leaderboard' | 'faq'>(
-    'leaderboard'
-  );
+  const [activeTab, setActiveTab] = useState<LeaderboardTab>('leaderboard');
   const isMobile = isMobileDevice();
   return (
     <div className="content px-3 sm:px-0">
       <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-8 mb-8 sm:mb-12 pt-5 sm:pt-7">
         <h1 className="text-xl sm:text-[40px] font-semibold">
-          Stacks Leaderboard
+          Airstack Points Leaderboard
         </h1>
         <div className="flex items-center gap-4 mt-1">
           <a
@@ -65,7 +66,8 @@ export default function Leaderboard() {
       {!isMobile && (
         <div className="flex flex-col sm:flex-row items-start">
           <LeaderboardTable />
-          <FAQs />
+          {/* <FAQs /> */}
+          <FinishedGame />
         </div>
       )}
       {isMobile && (
@@ -92,7 +94,12 @@ export default function Leaderboard() {
               }}
             />
           </TabContainer>
-          {activeTab === 'faq' && <FAQs />}
+          {activeTab === 'faq' && (
+            <>
+              {/* <FAQs /> */}
+              <FinishedGame />
+            </>
+          )}
           {activeTab === 'leaderboard' && <LeaderboardTable />}
         </>
       )}
