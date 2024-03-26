@@ -2,22 +2,22 @@ import Accordion from '@/Components/Accordion';
 import { isMobileDevice } from '@/utils/isMobileDevice';
 import { ReactNode, useState } from 'react';
 
-const howStacksAreEarned = (
+const howPointsAreEarned = (
   <div>
     <div className="mb-3">
-      Stacks are earned at the rate of 40,000 per ETH swapped.
+      Airstack points are earned at the rate of 40,000 per ETH swapped.
     </div>
     <div className="mb-3">
       <div>If you swap:</div>
-      <div>0.001 ETH = 40 Stacks</div>
-      <div>0.1 ETH = 4,000 Stacks</div>
-      <div>1 ETH = 40,000 Stacks</div>
+      <div>0.001 ETH = 40 points</div>
+      <div>0.1 ETH = 4,000 points</div>
+      <div>1 ETH = 40,000 points</div>
     </div>
     <div>
-      <div>Referral Stacks are earned at the same rate.</div>
-      <div>If they swap 0.001 ETH = you get 40 Stacks</div>
-      <div>If they swap 0.1 ETH = you get 4,000 Stacks</div>
-      <div>If they swap 1 ETH = you get 40,000 Stacks</div>
+      <div>Referral points are earned at the same rate.</div>
+      <div>If they swap 0.001 ETH = you get 40 points</div>
+      <div>If they swap 0.1 ETH = you get 4,000 points</div>
+      <div>If they swap 1 ETH = you get 40,000 points</div>
     </div>
   </div>
 );
@@ -31,7 +31,7 @@ const faqs: {
     answer: (
       <div>
         <div className="mb-2">
-          The top 10 Stacks earners at 12pm ET on Tues 26 March 2024 will share
+          The top 10 points earners at 12pm ET on Tues 26 March 2024 will share
           200,000 $DEGEN proportionally.
         </div>
         <div>5 random players will also each get 10,000 $DEGEN.</div>
@@ -39,14 +39,10 @@ const faqs: {
     )
   },
   {
-    question: 'What are Stacks?',
-    answer: 'Stacks are Airstack points.'
-  },
-  {
-    question: 'How do I earn Stacks?',
+    question: 'How do I earn Airstack points?',
     answer: (
       <div>
-        You earn Stacks every time you swap in the{' '}
+        You earn Airstack points every time you swap in the{' '}
         <a
           className="text-text-button underline"
           href="https://warpcast.com/betashop.eth/0xf2cbf1e5"
@@ -59,7 +55,7 @@ const faqs: {
     )
   },
   {
-    question: 'How are referral Stacks earned?',
+    question: 'How are referral points earned?',
     answer: (
       <div>
         Click “share frame” in the{' '}
@@ -71,18 +67,18 @@ const faqs: {
           Airstack Degen Alpha frame
         </a>{' '}
         to create an original cast with the Frame. Whenever someone swaps from
-        your frame you will automatically earn referral Stacks.
+        your frame you will automatically earn referral points.
       </div>
     )
   },
   {
     question: 'What if I recast the Frame?',
     answer:
-      'Referral Stacks accrue to the person whose cast the Frame is originally in. If someone recasts your original cast of the frame, you get the Stacks.'
+      'Referral points accrue to the person whose cast the Frame is originally in. If someone recasts your original cast of the frame, you get the points.'
   },
   {
-    question: 'How many Stacks are earned?',
-    answer: howStacksAreEarned
+    question: 'How Airstack points are earned?',
+    answer: howPointsAreEarned
   },
   {
     question: 'How can I trust this?',
@@ -136,7 +132,7 @@ export function FAQs() {
         <div className="font-medium">
           <div className="mb-1.5">Disclaimer</div>
           <div className="text-text-secondary">
-            Stacks have no inherent value and cannot be sold, swapped, or
+            Airstack points have no inherent value and cannot be sold, swapped, or
             traded.
           </div>
         </div>
