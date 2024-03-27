@@ -1,7 +1,7 @@
 import { Tab, TabContainer } from '@/Components/Tab';
 import { isMobileDevice } from '@/utils/isMobileDevice';
 import { useState } from 'react';
-// import { FAQs } from './FAQs';
+import { FAQs } from './FAQs';
 import { LeaderboardTable } from './LeaderboardTable';
 import FinishedGame from './FinishedGame';
 
@@ -66,8 +66,10 @@ export default function Leaderboard() {
       {!isMobile && (
         <div className="flex flex-col sm:flex-row items-start">
           <LeaderboardTable />
-          {/* <FAQs /> */}
-          <FinishedGame />
+          <div>
+            <FinishedGame />
+            <FAQs />
+          </div>
         </div>
       )}
       {isMobile && (
@@ -96,8 +98,8 @@ export default function Leaderboard() {
           </TabContainer>
           {activeTab === 'faq' && (
             <>
-              {/* <FAQs /> */}
               <FinishedGame />
+              <FAQs />
             </>
           )}
           {activeTab === 'leaderboard' && <LeaderboardTable />}
