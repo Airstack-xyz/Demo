@@ -111,7 +111,7 @@ export function FAQs() {
           <FaqIcon /> <span className="ml-1.5">FAQs</span>
         </div>
       )}
-      <div className="text-sm w-full sm:w-[340px] bg-primary border border-solid border-[#10365E] rounded-lg p-5">
+      <div className="text-sm w-full sm:w-[340px] bg-primary border border-solid border-[#10365E] rounded-18 p-5">
         {faqs.map((faq, index) => (
           <div className="pb-7" key={index}>
             <Accordion
