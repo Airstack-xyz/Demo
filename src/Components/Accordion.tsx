@@ -46,10 +46,10 @@ function Accordion({
         className
       )}
     >
-      <button onClick={onToggle} className="flex items-center cursor-pointer">
+      <button onClick={onToggle} className="flex cursor-pointer">
         <span
           className={classNames(
-            'transform-gpu transition-transform duration-300',
+            'transform-gpu transition-transform duration-300 mt-0.5',
             isOpen ? 'rotate-0' : '-rotate-90'
           )}
         >
