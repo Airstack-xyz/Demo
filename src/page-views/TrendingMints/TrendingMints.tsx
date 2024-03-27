@@ -17,12 +17,12 @@ import {
 import { useSearchInput } from '@/hooks/useSearchInput';
 import { GetAPIDropdown } from '@/Components/GetAPIDropdown';
 import { useDropdownOptions } from './hooks/useDropdownOptions';
-import { Mints } from './Mints/Mints';
 import { isMobileDevice } from '@/utils/isMobileDevice';
 import { AllFilters } from './Filters/AllFilters';
 import { ShareURLDropdown } from '@/Components/ShareURLDropdown';
 import { TrendingMintsFrameModal } from '@/Components/Frames/TrendingMints';
 import { Icon } from '@/Components/Icon';
+import { Trendings } from '../Trending/Trendings';
 
 export function TrendingMints() {
   const [searchInputs] = useSearchInput();
@@ -44,7 +44,7 @@ export function TrendingMints() {
   return (
     <div className="max-w-[1272px]">
       <div className="flex items-center gap-1 font-bold text-white">
-        <Icon name='trending-mints' />
+        <Icon name="trending-mints" />
         Trending Mints
       </div>
       <div className="flex items-center justify-between gap-3.5 mt-5 mb-8">
@@ -66,7 +66,8 @@ export function TrendingMints() {
           <TrendingMintsFrameModal />
         </div>
       </div>
-      <Mints />
+      {/* <Mints /> */}
+      <Trendings />
     </div>
   );
 }

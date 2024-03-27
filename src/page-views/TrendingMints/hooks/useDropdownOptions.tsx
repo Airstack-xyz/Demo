@@ -1,7 +1,7 @@
-import { trendingMintsQuery } from '@/queries/trendingMints';
 import { createAppUrlWithQuery } from '@/utils/createAppUrlWithQuery';
 import { useMemo } from 'react';
 import { Option } from '../../../Components/GetAPIDropdown';
+import { trendingMintsQuery } from '@/queries/trending/mints';
 
 export function useDropdownOptions({
   timeFrame,

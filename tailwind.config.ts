@@ -128,7 +128,7 @@ const config: Config = {
           '@apply before:bg-glass-1 before:absolute before:inset-0': {}
         },
         '.card': {
-          '@apply bg-secondary  border border-solid border-stroke-color-light':
+          '@apply bg-secondary border border-solid border-stroke-color-light':
             {}
         },
         '.card-light': {

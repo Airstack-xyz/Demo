@@ -1,5 +1,5 @@
 import { useSearchInput } from '@/hooks/useSearchInput';
-import { trendingMintsQuery } from '@/queries/trendingMints';
+import { trendingMintsQuery } from '@/queries/trending/mints';
 import { useLazyQueryWithPagination } from '@airstack/airstack-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';

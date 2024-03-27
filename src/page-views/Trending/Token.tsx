@@ -3,9 +3,8 @@ import LazyImage from '@/Components/LazyImage';
 import { Link } from '@/Components/Link';
 import { resetCachedUserInputs } from '@/hooks/useSearchInput';
 import { createTokenHolderUrl } from '@/utils/createTokenUrl';
-import { UsersIcon } from '../Icons';
-import { TrendingMint } from './types';
 import classNames from 'classnames';
+import { TrendingToken } from './types';
 
 export const MintItemLoader = () => {
   return (
@@ -13,11 +12,11 @@ export const MintItemLoader = () => {
   );
 };
 
-export function Mint({
+export function Token({
   item,
   className
 }: {
-  item: TrendingMint;
+  item: TrendingToken;
   className?: string;
 }) {
   const tokenNft = item?.token?.tokenNfts?.find(
@@ -65,7 +64,7 @@ export function Mint({
       />
       <div className="flex justify-between m-2 z-[5]">
         <button className="rounded-18 text-primary hover:border-text-secondary visible flex items-center gap-1 border border-solid border-transparent bg-white px-3 py-2 text-sm group-hover:visible sm:invisible">
-          <UsersIcon />
+          <Icon name="user-dark" />
           Holders
         </button>
         <div

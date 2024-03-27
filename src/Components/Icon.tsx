@@ -90,7 +90,13 @@ export type IconType =
   | 'token-balances-dark'
   | 'no-items'
   | 'leaderboard'
-  | 'faq';
+  | 'faq'
+  | 'get-api'
+  | 'get-frame'
+  | 'user-dark'
+  | 'farcaster-flat-dark'
+  | 'share-white'
+  | 'quick-link';
 
 export type IconProps = {
   name: IconType;
