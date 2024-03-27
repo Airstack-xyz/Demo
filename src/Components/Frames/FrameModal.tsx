@@ -6,9 +6,11 @@ import { FrameIcon } from './Icons';
 
 export function FrameModal({
   disabled,
+  buttonContent,
   children
 }: {
   disabled?: boolean;
+  buttonContent?: ReactNode;
   children: ReactNode;
 }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -38,7 +40,7 @@ export function FrameModal({
           )}
           onClick={handleModalOpen}
         >
-          <FrameIcon />
+          {buttonContent || <FrameIcon />}
         </button>
       </Tooltip>
       {isModalVisible && (

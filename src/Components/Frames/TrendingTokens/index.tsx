@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { ReactNode, useMemo, useState } from 'react';
 import { FrameDropdown, FrameDropdownOption } from '../FrameDropdown';
 import { FrameLabel } from '../FrameLabel';
 import { FrameModal } from '../FrameModal';
@@ -194,9 +194,9 @@ function ModalContent() {
   );
 }
 
-export function TrendingTokensFrameModal({ disabled }: { disabled?: boolean }) {
+export function TrendingTokensFrameModal({ disabled, buttonContent }: { disabled?: boolean, buttonContent?: ReactNode; }) {
   return (
-    <FrameModal disabled={disabled}>
+    <FrameModal disabled={disabled} buttonContent={buttonContent}>
       <ModalContent />
     </FrameModal>
   );
