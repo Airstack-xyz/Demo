@@ -88,6 +88,7 @@ export type IconType =
   | 'farcaster-flat'
   | 'farcaster-flat-gray'
   | 'token-balances-dark'
+  | 'token-balances-gray'
   | 'no-items'
   | 'leaderboard'
   | 'faq'

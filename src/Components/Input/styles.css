@@ -168,3 +168,8 @@
 .mentions #mention-highlight #overlay-placeholder {
   color: #b1b3b5 !important;
 }
+
+/* override font-size for frame address input */
+#frame-token-input-wrapper .mentions {
+  @apply text-xs;
+}

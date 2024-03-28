@@ -42,34 +42,37 @@ export function FrameRenderer({
 
   const { buttons, image, imageAspectRatio } = frameState;
 
-  const fetchFrameDataFn = useCallback(async (url?: string, signal?: AbortSignal) => {
-    if (!url) {
+  const fetchFrameDataFn = useCallback(
+    async (url?: string, signal?: AbortSignal) => {
+      if (!url) {
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError(false);
+
+      const { data, error } = await fetchFrameData({ url, signal });
+
+      if (
+        (error && error instanceof Error && error.name === 'AbortError') ||
+        signal?.aborted
+      ) {
+        setLoading(false);
+        return;
+      }
+
+      if (error) {
+        setLoading(false);
+        setError(true);
+        return;
+      }
+
+      setFrameState(prev => ({ ...prev, ...data }));
       setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(false);
-
-    const { data, error } = await fetchFrameData({ url, signal });
-
-    if (
-      (error && error instanceof Error && error.name === 'AbortError') ||
-      signal?.aborted
-    ) {
-      setLoading(false);
-      return;
-    }
-
-    if (error) {
-      setLoading(false);
-      setError(true);
-      return;
-    }
-
-    setFrameState(prev => ({ ...prev, ...data }));
-    setLoading(false);
-  }, []);
+    },
+    []
+  );
 
   const debouncedFetchDataFn = useMemo(
     () => debouncePromise(fetchFrameDataFn, FETCH_DELAY),
@@ -156,25 +159,27 @@ export function FrameRenderer({
         >
           {renderFrameContent()}
         </div>
-        <div
-          className={classNames(
-            'flex justify-center items-stretch gap-2.5 text-white max-sm:min-h-[44px] min-h-[52px] py-2 px-4',
-            buttons?.length ? 'bg-[#292431]' : ''
-          )}
-        >
-          {buttons?.map(item => (
-            <button
-              key={item.label}
-              type="button"
-              className="inline ellipsis h-[36px] w-full flex-1 cursor-default gap-1 rounded-lg border border-solid border-[#473B4B] bg-[#3F3A46] px-3 text-sm font-semibold max-sm:h-[28px] max-sm:px-2 max-sm:text-[10px]"
-            >
-              {item.label}
-              {item.action === 'link' && (
-                <LinkIcon className="inline ml-1 mb-[1px]" />
-              )}
-            </button>
-          ))}
-        </div>
+        {buttons.length > 0 && (
+          <div
+            className={classNames(
+              'flex justify-center items-stretch gap-2.5 text-white max-sm:min-h-[44px] min-h-[52px] py-2 px-4',
+              buttons?.length ? 'bg-[#292431]' : ''
+            )}
+          >
+            {buttons?.map(item => (
+              <button
+                key={item.label}
+                type="button"
+                className="inline ellipsis h-[36px] w-full flex-1 cursor-default gap-1 rounded-lg border border-solid border-[#473B4B] bg-[#3F3A46] px-3 text-sm font-semibold max-sm:h-[28px] max-sm:px-2 max-sm:text-[10px]"
+              >
+                {item.label}
+                {item.action === 'link' && (
+                  <LinkIcon className="inline ml-1 mb-[1px]" />
+                )}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

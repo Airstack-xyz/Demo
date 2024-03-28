@@ -2,10 +2,16 @@ import classNames from 'classnames';
 import { showToast } from '../utils/showToast';
 import { Icon } from './Icon';
 
-export function CopyButton({ value }: { value: string }) {
+export function CopyButton({
+  value,
+  className
+}: {
+  value: string;
+  className?: string;
+}) {
   return (
     <button
-      className="p-0 w-5"
+      className={classNames('"p-0 w-5"', className)}
       onClick={async e => {
         e.stopPropagation();
         if (!value) return;

@@ -1,10 +1,5 @@
 import { NextRequest } from 'next/server';
-
-const ALLOWED_ORIGINS = [
-  'https://airstack.xyz',
-  'https://explorer.uat.airstack.xyz',
-  'https://explorer.dev.airstack.xyz',
-];
+import { ALLOWED_ORIGINS } from '../contants';
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
