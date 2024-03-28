@@ -1,5 +1,5 @@
 import { ReactNode, useMemo, useState } from 'react';
-import { FrameDropdown, FrameDropdownOption } from '../FrameDropdown';
+import { FrameDropdownOption } from '../FrameDropdown';
 import { FrameLabel } from '../FrameLabel';
 import { FrameModal } from '../FrameModal';
 import { FrameURL } from '../FrameURL';
@@ -16,6 +16,7 @@ import { Link } from '@/Components/Link';
 import classNames from 'classnames';
 import { CustomFramePlaceholder } from './CustomFramePlaceholder';
 import { AddressInput } from './AddressInput';
+import { TrendingTokenFiltters } from './TrendingTokenFiltters';
 
 const timeFrameOptions: FrameDropdownOption[] = [
   {
@@ -94,7 +95,7 @@ const activeTabClass = 'bg-white text-[#10212E] font-bold';
 function ModalContent() {
   const [activeTab, setActiveTab] = useState<
     'trending-tokens' | 'custom-tokens'
-  >('custom-tokens');
+  >('trending-tokens');
   const [tokenAddresses, setTokenAddresses] = useState<string[]>([]);
   const [selectedTimeFrame, setSelectedTimeFrame] =
     useState<FrameDropdownOption>(timeFrameOptions[0]);
@@ -168,70 +169,6 @@ function ModalContent() {
     setSelectedTransferType(option);
   };
 
-  const filters = useMemo(() => {
-    if (activeTab === 'custom-tokens') {
-      return (
-        <>
-          <FrameLabel
-            label="Add up a contract on Base"
-            labelIcon="funnel"
-            labelIconSize={16}
-          />
-          <AddressInput onSubmit={setTokenAddresses} />
-        </>
-      );
-    }
-    return (
-      <>
-        <FrameLabel label="Filters" labelIcon="funnel" labelIconSize={16} />
-        <div className="flex flex-wrap gap-3">
-          <FrameDropdown
-            heading="Time frame"
-            icon="clock"
-            options={timeFrameOptions}
-            selectedOption={selectedTimeFrame}
-            onSelect={handleTimeFrameSelect}
-          />
-          <FrameDropdown
-            heading="Blockchain"
-            icon="blockchain-filter"
-            options={blockchainOptions}
-            selectedOption={selectedBlockchain}
-            onSelect={handleBlockchainSelect}
-          />
-          <FrameDropdown
-            heading="Audience"
-            icon="user"
-            options={audienceOptions}
-            selectedOption={selectedAudience}
-            onSelect={handleAudienceSelect}
-          />
-          <FrameDropdown
-            heading="Criteria"
-            icon="wallet"
-            options={criteriaOptions}
-            selectedOption={selectedCriteria}
-            onSelect={handleCriteriaSelect}
-          />
-          <FrameDropdown
-            heading="Transfer type"
-            icon="transfer"
-            options={transferTypeOptions}
-            selectedOption={selectedTransferType}
-            onSelect={handleTransferTypeSelect}
-          />
-        </div>
-      </>
-    );
-  }, [
-    activeTab,
-    selectedAudience,
-    selectedBlockchain,
-    selectedCriteria,
-    selectedTimeFrame,
-    selectedTransferType
-  ]);
-
   return (
     <div className="py-1">
       <div className="text-white text-lg font-semibold">
@@ -286,7 +223,32 @@ function ModalContent() {
           </div>
         </div>
       </div>
-      <div className="mt-4 gap-7">{filters}</div>
+      <div className="mt-4 gap-7">
+        {activeTab === 'custom-tokens' && (
+          <>
+            <FrameLabel
+              label="Add up a contract on Base"
+              labelIcon="funnel"
+              labelIconSize={16}
+            />
+            <AddressInput onSubmit={setTokenAddresses} />
+          </>
+        )}
+        {activeTab === 'trending-tokens' && (
+          <TrendingTokenFiltters
+            selectedTimeFrame={selectedTimeFrame}
+            selectedBlockchain={selectedBlockchain}
+            selectedAudience={selectedAudience}
+            selectedCriteria={selectedCriteria}
+            selectedTransferType={selectedTransferType}
+            handleTimeFrameSelect={handleTimeFrameSelect}
+            handleBlockchainSelect={handleBlockchainSelect}
+            handleAudienceSelect={handleAudienceSelect}
+            handleCriteriaSelect={handleCriteriaSelect}
+            handleTransferTypeSelect={handleTransferTypeSelect}
+          />
+        )}
+      </div>
       <div className="flex items-end max-sm:mt-8 mt-4 gap-6">
         <FrameURL containerClass="w-full" longUrl={frameUrl} />
       </div>
