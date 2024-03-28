@@ -20,6 +20,7 @@ type FrameURLProps = {
 
 const FETCH_DELAY = 1000;
 const CAST_MESSAGE = 'Check out this frame!';
+const WARPCAST_EMBED_URL = 'https://warpcast.com/~/compose?embeds';
 
 export function FrameURL({
   longUrl,
@@ -84,7 +85,7 @@ export function FrameURL({
 
   const castUrl = useMemo(() => {
     const encodedUrl = encodeURIComponent('[]=' + url || '');
-    return `https://warpcast.com/~/compose?embeds${encodedUrl}&text=${CAST_MESSAGE}`;
+    return `${WARPCAST_EMBED_URL}${encodedUrl}&text=${CAST_MESSAGE}`;
   }, [url]);
 
   return (

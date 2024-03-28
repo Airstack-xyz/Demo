@@ -92,7 +92,8 @@ export type IconType =
   | 'no-items'
   | 'leaderboard'
   | 'faq'
-  | 'transfer';
+  | 'transfer'
+  | 'stars';
 
 export type IconProps = {
   name: IconType;

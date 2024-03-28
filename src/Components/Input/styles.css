@@ -173,3 +173,7 @@
 #frame-token-input-wrapper .mentions {
   @apply text-xs;
 }
+
+#frame-token-input-wrapper .mentions #mention-highlight #overlay-placeholder {
+  @apply !text-text-button font-medium;
+}

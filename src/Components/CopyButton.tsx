@@ -19,7 +19,7 @@ export function CopyButton({
         showToast('Copied to clipboard');
       }}
     >
-      <Icon name="copy" height={16} width={16} />
+      <Icon name="copy-white" height={16} width={16} />
     </button>
   );
 }

@@ -3,7 +3,7 @@ export function CustomFramePlaceholder() {
     <div className="w-full h-full flex flex-col justify-between gap-5">
       <div className="flex-1 flex-col-center">
         <h2 className="pb-3 pt-3  text-bold leading-6 text-base font-bold">
-          Tokens on Base
+          Swap Tokens on Base!
         </h2>
         <div className="size-56 border border-solid border-white rounded-18 flex-col-center text-xs">
           Select tokens above

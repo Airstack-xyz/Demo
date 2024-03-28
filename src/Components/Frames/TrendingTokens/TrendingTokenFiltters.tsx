@@ -7,7 +7,7 @@ import {
 } from './constants';
 import { ENCODED_BLOCKCHAIN } from '../constants';
 import { FrameLabel } from '../FrameLabel';
-const timeFrameOptions: FrameDropdownOption[] = [
+export const timeFrameOptions: FrameDropdownOption[] = [
   {
     label: '1 Hour',
     value: ENCODED_TIME_FRAME.ONE_HOUR
@@ -34,16 +34,16 @@ const timeFrameOptions: FrameDropdownOption[] = [
   }
 ];
 
-const blockchainOptions: FrameDropdownOption[] = [
+export const blockchainOptions: FrameDropdownOption[] = [
   {
     label: 'Base',
     value: ENCODED_BLOCKCHAIN.base
   }
 ];
 
-const audienceOptions: FrameDropdownOption[] = [
+export const audienceOptions: FrameDropdownOption[] = [
   {
-    label: 'Farcasters only',
+    label: 'Farcaster users',
     value: ENCODED_AUDIENCE.FARCASTER
   },
   {
@@ -52,7 +52,7 @@ const audienceOptions: FrameDropdownOption[] = [
   }
 ];
 
-const criteriaOptions: FrameDropdownOption[] = [
+export const criteriaOptions: FrameDropdownOption[] = [
   {
     label: 'Unique users',
     value: ENCODED_CRITERIA.UNIQUE_WALLETS
@@ -67,7 +67,7 @@ const criteriaOptions: FrameDropdownOption[] = [
   }
 ];
 
-const transferTypeOptions: FrameDropdownOption[] = [
+export const transferTypeOptions: FrameDropdownOption[] = [
   {
     label: 'All',
     value: ENCODED_TRANSFER_TYPE.ALL

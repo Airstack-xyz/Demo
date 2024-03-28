@@ -1,3 +1,4 @@
+import { Image } from '@/Components/Image';
 import { InputWithMention } from '@/Components/Input/Input';
 import {
   getAllMentionDetails,
@@ -50,27 +51,35 @@ export function AddressInput({
 
   const validateTokenForSwap = useCallback(async (address: string) => {
     const exists = swappableTokensSet.has(address);
+
     if (exists) {
       return true;
     }
+
     const res = await isAddressesSwapable(address);
-    if (res.error === 'INVALID_REQUEST') {
+    const error = res?.error;
+
+    if (error === 'INVALID_REQUEST') {
       showToast('Please enter a valid token address', 'negative');
     }
 
-    if (res.error === 'SERVER_ERROR') {
+    if (error === 'SERVER_ERROR') {
       showToast('Unable to validate the token please try later', 'negative');
     }
 
-    if (res.error === 'VALIDATION_ERROR') {
+    if (error === 'VALIDATION_ERROR') {
       showToast(
-        'the entered token is not supported by 0x for swaps yet',
+        'The entered token is not supported by 0x for swaps yet',
         'negative'
       );
-      return false;
     }
 
-    return Boolean(res.data?.isValid);
+    const isValid = Boolean(res?.data?.isValid);
+    if (isValid) {
+      swappableTokensSet.add(address);
+    }
+
+    return isValid;
   }, []);
 
   const handleSubmit = useCallback(
@@ -168,9 +177,11 @@ export function AddressInput({
       {showHint && (
         <div className="absolute left-0 top-full mt-2 rounded-18 w-full py-5 flex-col-center border border-solid border-[#10365E] bg-[#142738] z-10">
           <div>
-            {validatingToken
-              ? 'Validating token address...'
-              : "Press 'Enter' to submit a contract address"}
+            {validatingToken ? (
+              <Image alt="loader" src="images/loader.svg" width={30} />
+            ) : (
+              "Press 'Enter' to submit a contract address"
+            )}
           </div>
         </div>
       )}
